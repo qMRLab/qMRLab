@@ -546,12 +546,13 @@ X    =  SimVaryResults.(Xaxis).x;
 Y    =  SimVaryResults.(Xaxis).(Yaxis).mean;
 E    =  SimVaryResults.(Xaxis).(Yaxis).std;
 
-errorbar(X, Y, E, 'bo'); hold on;
+hold on;
 if (strcmp(Xaxis,Yaxis))
     plot([Xmin Xmax], [Xmin Xmax], 'k-');
 elseif (any(strcmp(Yaxis,fieldnames(Param))))
     plot([Xmin Xmax],[Param.(Yaxis) Param.(Yaxis)], 'k-');    
 end
+errorbar(X, Y, E, 'bo');
 
 xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
 ylabel(sprintf('Fitted %s', Yaxis), 'FontWeight', 'Bold');
@@ -863,9 +864,7 @@ end
 SetActive('FitData', handles);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
-UpdatePopUp(handles);
-GetPlotRange(handles);
-RefreshPlot(handles);
+DrawPlot(handles);
 
 % MTDATA
 function MTdataLoad_Callback(hObject, eventdata, handles)
@@ -1015,9 +1014,7 @@ set(handles.CurrentFitId,'String','FitTempResults.mat');
 % Show results
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
-UpdatePopUp(handles);
-GetPlotRange(handles);
-RefreshPlot(handles);
+DrawPlot(handles);
 
 
 
@@ -1147,7 +1144,6 @@ if (dim==3)
     Step = [1, 1] / size;
     set(handles.SliceSlider, 'SliderStep', Step);
 else
-    slice = 1;
     set(handles.SliceValue,  'String',1);
     set(handles.SliceSlider, 'Min',   0);
     set(handles.SliceSlider, 'Max',   1);
@@ -1159,17 +1155,13 @@ function UpdatePopUp(handles)
 axes(handles.FitDataAxe);
 Data   =  handles.CurrentData;
 fields =  Data.fields;
-% set(handles.SourcePop, 'Value',  1);
 set(handles.SourcePop, 'String', fields);
-% set(handles.ViewPop,   'Value',  1);
 handles.FitDataSize = size(Data.(fields{1}));
 handles.FitDataDim = ndims(Data.(fields{1}));
 dim = handles.FitDataDim;
 if (dim==3)
-        set(handles.ViewPop,'String',{'Sagittal','Coronal','Axial'});
-        if (isempty(handles.FitDataSlice))
-            handles.FitDataSlice = handles.FitDataSize/2;
-        end
+        set(handles.ViewPop,'String',{'Axial','Coronal','Sagittal'});
+         handles.FitDataSlice = floor(handles.FitDataSize/2);
 else
         set(handles.ViewPop,'String','Axial');
         handles.FitDataSlice = 1;
@@ -1191,6 +1183,16 @@ set(handles.MaxSlider, 'Max',    Min);
 set(handles.MaxSlider, 'Max',    1.5*Max);
 guidata(gcbf, handles);
 
+function DrawPlot(handles)
+set(handles.SourcePop, 'Value',  1);
+set(handles.ViewPop,   'Value',  1);
+UpdatePopUp(handles);
+GetPlotRange(handles);
+Current = GetCurrent(handles);
+imagesc(flipdim(Current',1));
+axis equal off;
+RefreshColorMap(handles)
+
 function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
@@ -1206,7 +1208,6 @@ val  = get(handles.ColorMapStyle, 'Value');
 maps = get(handles.ColorMapStyle, 'String'); 
 colormap(maps{val});
 colorbar('location', 'South');
-colorbar('XColor',[0 0 0], 'YColor',[0 0 0]);
 min = str2double(get(handles.MinValue, 'String'));
 max = str2double(get(handles.MaxValue, 'String'));
 caxis([min max]);
@@ -1219,9 +1220,9 @@ Slice = str2double(get(handles.SliceValue,'String'));
 Data = handles.CurrentData;
 data = Data.(Source);
 switch View
-    case 1;  Current = squeeze(data(Slice,:,:));
+    case 1;  Current = squeeze(data(:,:,Slice));
     case 2;  Current = squeeze(data(:,Slice,:));
-    case 3;  Current = squeeze(data(:,:,Slice));
+    case 3;  Current = squeeze(data(Slice,:,:));
 end
     
 
