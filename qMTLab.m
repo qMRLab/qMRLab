@@ -546,6 +546,7 @@ X    =  SimVaryResults.(Xaxis).x;
 Y    =  SimVaryResults.(Xaxis).(Yaxis).mean;
 E    =  SimVaryResults.(Xaxis).(Yaxis).std;
 
+cla;
 hold on;
 if (strcmp(Xaxis,Yaxis))
     plot([Xmin Xmax], [Xmin Xmax], 'k-');
@@ -1096,14 +1097,22 @@ RefreshPlot(handles);
 
 % OPEN FIG
 function PopFig_Callback(hObject, eventdata, handles)
+xl = xlim;
+yl = ylim;
 figure();
+xlim(xl);
+ylim(yl);
 RefreshPlot(handles);
 
 % SAVE FIG
 function SaveFig_Callback(hObject, eventdata, handles)
 [FileName,PathName] = uiputfile(fullfile('FitResults','NewFig.fig'));
 if PathName == 0, return; end
+xl = xlim;
+yl = ylim;
 h = figure();
+xlim(xl);
+ylim(yl);
 RefreshPlot(handles);
 savefig(fullfile(PathName,FileName));
 delete(h);
@@ -1114,21 +1123,32 @@ Current = GetCurrent(handles);
 ii = find(Current);
 nVox = length(ii);
 data = reshape(Current(ii),1,nVox);
-assignin('base','data',data);
 figure();
 hist(data,20);
 
 % PAN
 function PanBtn_Callback(hObject, eventdata, handles)
-pan on;
+pan;
+set(handles.ZoomBtn,'Value',0);
+set(handles.CursorBtn,'Value',0);
+zoom off;
+datacursormode off;
 
 % ZOOM
 function ZoomBtn_Callback(hObject, eventdata, handles)
-zoom on;
+zoom;
+set(handles.PanBtn,'Value',0);
+set(handles.CursorBtn,'Value',0);
+pan off;
+datacursormode off;
 
 % CURSOR
 function CursorBtn_Callback(hObject, eventdata, handles)
-datacursormode on;
+datacursormode;
+set(handles.ZoomBtn,'Value',0);
+set(handles.PanBtn,'Value',0);
+zoom off;
+pan off;
 
 % ############################ FUNCTIONS ##################################
 function UpdateSlice(handles)
