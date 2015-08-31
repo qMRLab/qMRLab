@@ -14,9 +14,7 @@ R1f = x(3);
 R1r = x(4);
 T2f = x(5);
 T2r = x(6);
-
 kf  =  kr * F;
-f   =  F / (1+F);       % Bound Pool Fraction
 
 if ( FitOpt.R1reqR1f )
      R1r = x(3);
@@ -42,8 +40,8 @@ else
     WF = (w1cw ./ 2/pi./Offsets).^2 / (R1f*T2f);
 end
 
-num = R1r * ( kr*f / (R1f*(1-f)) ) + WB + R1r + kr;
-den = (kr*f / (R1f*(1-f))) .* (R1r + WB) + (1 + WF) .* (WB + R1r + kr);
+num = R1r * ( kr*F / R1f ) + WB + R1r + kr;
+den = ( kr*F / R1f) .* (R1r + WB) + (1 + WF) .* (WB + R1r + kr);
 mz  = num./den;
 
 end

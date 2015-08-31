@@ -15,7 +15,7 @@ timeSim = toc
 
 %%
 % Fitted curve Yarnykh
-FitOpt.model = 'Ramani';
+FitOpt.model = 'Yarnykh';
 tic;
 Fit = SPGR_fit(MTnoise, Prot, FitOpt );
 timeFit = toc

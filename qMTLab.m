@@ -922,9 +922,7 @@ Data.Mask = double(data);
 Data.fields = {'Mask'};
 handles.CurrentData = Data;
 guidata(hObject,handles);
-UpdatePopUp(handles);
-GetPlotRange(handles);
-RefreshPlot(handles);
+DrawPlot(handles);
 
 function R1mapView_Callback(hObject, eventdata, handles)
 FullFile = get(handles.R1mapFileBox,'String');
@@ -933,9 +931,7 @@ Data.R1map = double(data);
 Data.fields = {'R1map'};
 handles.CurrentData = Data;
 guidata(hObject,handles);
-UpdatePopUp(handles);
-GetPlotRange(handles);
-RefreshPlot(handles);
+DrawPlot(handles);
 
 function B1mapView_Callback(hObject, eventdata, handles)
 FullFile = get(handles.B1mapFileBox,'String');
@@ -944,9 +940,7 @@ Data.B1map = double(data);
 Data.fields = {'B1map'};
 handles.CurrentData = Data;
 guidata(hObject,handles);
-UpdatePopUp(handles);
-GetPlotRange(handles);
-RefreshPlot(handles);
+DrawPlot(handles);
 
 function B0mapView_Callback(hObject, eventdata, handles)
 FullFile = get(handles.B0mapFileBox,'String');
@@ -955,9 +949,7 @@ Data.B0map = double(data);
 Data.fields = {'B0map'};
 handles.CurrentData = Data;
 guidata(hObject,handles);
-UpdatePopUp(handles);
-GetPlotRange(handles);
-RefreshPlot(handles);
+DrawPlot(handles);
 
 function StudyIDBox_Callback(hObject, eventdata, handles)
 
@@ -983,22 +975,34 @@ end
 % Mask data
 data.Mask = [];
 MaskFullFile = get(handles.MaskFileBox,'String');
-if (~isempty(MaskFullFile));  data.Mask = importdata(MaskFullFile); end
+if (~isempty(MaskFullFile));  
+    load(MaskFullFile);
+    data.Mask = Mask;
+end
 
 % R1map data
 data.R1map = [];
 R1mapFullFile = get(handles.R1mapFileBox,'String');
-if (~isempty(R1mapFullFile)); data.R1map = importdata(R1mapFullFile); end
+if (~isempty(R1mapFullFile)); 
+    load(R1mapFullFile);
+    data.R1map = R1map;
+end
 
 % B1map data
 data.B1map = [];
 B1mapFullFile = get(handles.B1mapFileBox,'String');
-if (~isempty(B1mapFullFile)); data.B1map = importdata(B1mapFullFile); end
+if (~isempty(B1mapFullFile)); 
+    load(B1mapFullFile);
+    data.B1map = B1map;
+end
 
 % B0map data
 data.B0map = [];
 B0mapFullFile = get(handles.B1mapFileBox,'String');
-if (~isempty(B0mapFullFile)); data.B0map = importdata(B0mapFullFile); end
+if (~isempty(B0mapFullFile)); 
+    load(B0mapFullFile);
+    data.B0map = B0map;
+end
 
 % Get Options
 [Prot, FitOpt] = GetAppData('Prot','FitOpt');
@@ -1193,12 +1197,17 @@ function GetPlotRange(handles)
 Current = GetCurrent(handles);
 Min = min(min(min(Current)));
 Max = max(max(max(Current)));
+if (Min < 0)
+    set(handles.MinSlider, 'Min',    Min);
+    set(handles.MinSlider, 'Max',    0);
+else
+    set(handles.MinSlider, 'Min',    0.5*Min);
+    set(handles.MinSlider, 'Max',    Max);
+end
 set(handles.MinValue,  'String', Min);
 set(handles.MaxValue,  'String', Max);
 set(handles.MinSlider, 'Value',  Min);
 set(handles.MaxSlider, 'Value',  Max);
-set(handles.MinSlider, 'Min',    0.5*Min);
-set(handles.MinSlider, 'Max',    Max);
 set(handles.MaxSlider, 'Max',    Min);
 set(handles.MaxSlider, 'Max',    1.5*Max);
 guidata(gcbf, handles);
