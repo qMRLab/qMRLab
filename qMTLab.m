@@ -998,7 +998,7 @@ end
 
 % B0map data
 data.B0map = [];
-B0mapFullFile = get(handles.B1mapFileBox,'String');
+B0mapFullFile = get(handles.B0mapFileBox,'String');
 if (~isempty(B0mapFullFile)); 
     load(B0mapFullFile);
     data.B0map = B0map;
