@@ -966,7 +966,7 @@ data   =  struct;
 MTdataFullFile = get(handles.MTdataFileBox,'String');
 if (~isempty(MTdataFullFile))
     load(MTdataFullFile);
-    data.MTdata = MTdata;
+    data.MTdata = double(MTdata);
 else
     errordlg('No MT data supplied');
     return;
@@ -977,7 +977,7 @@ data.Mask = [];
 MaskFullFile = get(handles.MaskFileBox,'String');
 if (~isempty(MaskFullFile));  
     load(MaskFullFile);
-    data.Mask = Mask;
+    data.Mask = double(Mask);
 end
 
 % R1map data
@@ -985,7 +985,7 @@ data.R1map = [];
 R1mapFullFile = get(handles.R1mapFileBox,'String');
 if (~isempty(R1mapFullFile)); 
     load(R1mapFullFile);
-    data.R1map = R1map;
+    data.R1map = double(R1map);
 end
 
 % B1map data
@@ -993,15 +993,15 @@ data.B1map = [];
 B1mapFullFile = get(handles.B1mapFileBox,'String');
 if (~isempty(B1mapFullFile)); 
     load(B1mapFullFile);
-    data.B1map = B1map;
+    data.B1map = double(B1map);
 end
 
 % B0map data
 data.B0map = [];
-B0mapFullFile = get(handles.B1mapFileBox,'String');
+B0mapFullFile = get(handles.B0mapFileBox,'String');
 if (~isempty(B0mapFullFile)); 
     load(B0mapFullFile);
-    data.B0map = B0map;
+    data.B0map = double(B0map);
 end
 
 % Get Options
@@ -1079,6 +1079,8 @@ caxis([min max]);
 function ViewPop_Callback(hObject, eventdata, handles)
 UpdatePopUp(handles);
 RefreshPlot(handles);
+xlim('auto');
+ylim('auto');
 
 % SLICE
 function SliceValue_Callback(hObject, eventdata, handles)
@@ -1157,12 +1159,20 @@ pan off;
 % ############################ FUNCTIONS ##################################
 function UpdateSlice(handles)
 View =  get(handles.ViewPop,'Value');
+switch View
+    case 1
+        x = 3;
+    case 2
+        x = 2;
+    case 3
+        x = 1;
+end
 dim = handles.FitDataDim;
 if (dim==3)
-    slice = handles.FitDataSlice(View);
-    size = handles.FitDataSize(View);
+    slice = handles.FitDataSlice(x);
+    size = handles.FitDataSize(x);
     set(handles.SliceValue,  'String', slice);
-    set(handles.SliceSlider, 'Min',    0);
+    set(handles.SliceSlider, 'Min',    1);
     set(handles.SliceSlider, 'Max',    size);
     set(handles.SliceSlider, 'Value',  slice);
     Step = [1, 1] / size;
@@ -1185,7 +1195,7 @@ handles.FitDataDim = ndims(Data.(fields{1}));
 dim = handles.FitDataDim;
 if (dim==3)
         set(handles.ViewPop,'String',{'Axial','Coronal','Sagittal'});
-         handles.FitDataSlice = floor(handles.FitDataSize/2);
+        handles.FitDataSlice = floor(handles.FitDataSize/2);
 else
         set(handles.ViewPop,'String','Axial');
         handles.FitDataSlice = 1;
@@ -1197,19 +1207,33 @@ function GetPlotRange(handles)
 Current = GetCurrent(handles);
 Min = min(min(min(Current)));
 Max = max(max(max(Current)));
+
+if (Min == Max)
+    Max = Max + 1;
+end
+if (Min > Max)
+    temp = Min;
+    Min = Max;
+    Max = temp;
+end
+
 if (Min < 0)
-    set(handles.MinSlider, 'Min',    Min);
-    set(handles.MinSlider, 'Max',    0);
+    set(handles.MinSlider, 'Min',    1.5*Min);
 else
     set(handles.MinSlider, 'Min',    0.5*Min);
-    set(handles.MinSlider, 'Max',    Max);
 end
+
+if (Max < 0)
+    set(handles.MaxSlider, 'Max',    0.5*Max);
+else
+    set(handles.MaxSlider, 'Max',    1.5*Max);
+end
+set(handles.MinSlider, 'Max',    Max);
+set(handles.MaxSlider, 'Min',    Min);
 set(handles.MinValue,  'String', Min);
 set(handles.MaxValue,  'String', Max);
 set(handles.MinSlider, 'Value',  Min);
 set(handles.MaxSlider, 'Value',  Max);
-set(handles.MaxSlider, 'Max',    Min);
-set(handles.MaxSlider, 'Max',    1.5*Max);
 guidata(gcbf, handles);
 
 function DrawPlot(handles)

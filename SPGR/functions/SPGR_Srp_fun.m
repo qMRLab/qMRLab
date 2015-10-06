@@ -36,7 +36,7 @@ Mxy = zeros(length(Angles),1);
 Sf = GetSf(Angles,Offsets,T2f,FitOpt.SfTable);
 Sr = 1;
 
-if (fix(6))
+if (FitOpt.fx(6))
     WB = FitOpt.WB;
 else
     WB = computeWB(w1rp, Offsets, T2r, FitOpt.lineshape);
