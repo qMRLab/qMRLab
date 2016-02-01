@@ -92,9 +92,9 @@ end
 
 % Fitting
 opt = optimoptions(@lsqcurvefit, 'Display', 'off');
-x_fit = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
+[x_free,resnorm, residuals] = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
 
-x = choose( FitOpt.st, x_fit, fix );
+x = choose( FitOpt.st, x_free, fix );
 
 % Fit results
 Fit.F   = x(1);
@@ -119,6 +119,9 @@ if ( strcmp(FitOpt.model, {'Yarnykh', 'Ramani'}) )
         Fit.T2f = FitOpt.FixR1fT2fValue/Fit.R1f;
     end
 end
+
+% Fit.residuals = residuals;
+Fit.resnorm = resnorm;
 
 end
 

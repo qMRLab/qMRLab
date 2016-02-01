@@ -23,7 +23,7 @@ fix = FitOpt.fx;
 % Fitting
 opt = optimoptions(@lsqcurvefit, 'Display', 'off');
 
-x_free = lsqcurvefit(@(x,xdata) SIRFSE_fun(choose( FitOpt.st, x, fix ),xdata, FitOpt),...
+[x_free, resnorm, residuals] = lsqcurvefit(@(x,xdata) SIRFSE_fun(choose( FitOpt.st, x, fix ),xdata, FitOpt),...
                      FitOpt.st(~fix), t, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
                  
 x = choose( FitOpt.st, x_free, fix );
@@ -46,6 +46,9 @@ if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
      R1 = FitOpt.R1;
      Fit.R1f = R1 - Fit.kf*(Fit.R1r - R1) / (Fit.R1r - R1 + Fit.kf/Fit.F);
 end
+
+% Fit.residuals = residuals;
+Fit.resnorm = resnorm;
 
 end
 

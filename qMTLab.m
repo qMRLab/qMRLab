@@ -1012,6 +1012,10 @@ FitResults = FitData(data,Prot,FitOpt,Method,1);
 FitResults.StudyID = get(handles.StudyIDBox,'String');
 SetAppData(FitResults);
 
+% Kill the waitbar in case of a problem occured
+wh=findall(0,'tag','TMWWaitbar');
+delete(wh);
+
 % Save fit results in temp file
 save(fullfile('.','FitResults','FitTempResults.mat'),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitTempResults.mat');

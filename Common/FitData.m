@@ -28,9 +28,9 @@ MTdata = reshape(MTdata,nV,nT);
 M = zeros(nT,1);
 
 switch Method
-    case 'SIRFSE'; fields = {'F';'kf';'kr';'R1f';'R1r';'Sf';'Sr';'M0f';'M0r'};        
-    case 'bSSFP';  fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'M0f';'M0r'};        
-    case 'SPGR';   fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'T2r'};
+    case 'SIRFSE'; fields = {'F';'kf';'kr';'R1f';'R1r';'Sf';'Sr';'M0f';'M0r';'resnorm'};        
+    case 'bSSFP';  fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'M0f';'M0r';'resnorm'};        
+    case 'SPGR';   fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'T2r';'resnorm'};
 end
 
 for ii = 1:length(fields)
