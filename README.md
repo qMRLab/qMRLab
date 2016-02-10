@@ -5,4 +5,4 @@ qMTlab is a powerful, open source, scalable, easy to use and intuitive software 
 
 Please view 'ReadMe.docx' for details.
 
-Please report any bug in https://github.com/neuropoly/qMTLab/issues.
+Please report any bug in github.com/neuropoly/qMTLab/issues.
