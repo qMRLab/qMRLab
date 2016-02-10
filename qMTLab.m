@@ -54,22 +54,13 @@ LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.
 LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
 
 % SET WINDOW AND PANELS
-% CurrentPos = get(gcf, 'Position');
-% NewPos     = CurrentPos;
-% NewPos(3)  = 162;
-% set(gcf, 'Position', NewPos);
 movegui(gcf,'center')
 CurrentPos = get(gcf, 'Position');
 NewPos     = CurrentPos;
 NewPos(1)  = CurrentPos(1) - 40;
 set(gcf, 'Position', NewPos);
 
-% PanelPos = get(handles.SimCurvePanel, 'Position');
-% set(handles.SimRndPanel,  'Position', PanelPos);
-% set(handles.SimVaryPanel, 'Position', PanelPos);
-% set(handles.FitDataPanel, 'Position', PanelPos);
-
-SetActive('SimCurve', handles);
+SetActive('FitData', handles);
 OpenOptionsPanel_Callback(hObject, eventdata, handles);
 
 % Outputs from this function are returned to the command line.
@@ -867,23 +858,54 @@ handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
 
+% WORKING DIRECTORY
+function WDLoad_Callback(hObject, eventdata, handles)
+WD = uigetdir;
+if WD == 0, return; end
+set(handles.WDBox,'String',WD);
+%Check for files and set fields automatically
+if exist(fullfile(WD,'Protocol.mat'), 'file') == 2
+    Prot = load(fullfile(WD,'Protocol.mat'));
+    SetAppData(Prot);
+    OpenOptionsPanel_Callback(hObject, eventdata, handles);
+end
+if exist(fullfile(WD,'MTdata.mat'), 'file') == 2
+    set(handles.MTdataFileBox,'String',fullfile(WD,'MTdata.mat'));
+end
+if exist(fullfile(WD,'Mask.mat'), 'file') == 2
+    set(handles.MaskFileBox,'String',fullfile(WD,'Mask.mat'));
+end
+if exist(fullfile(WD,'R1map.mat'), 'file') == 2
+    set(handles.R1mapFileBox,'String',fullfile(WD,'R1map.mat'));
+end
+if exist(fullfile(WD,'B1map.mat'), 'file') == 2
+    set(handles.B1mapFileBox,'String',fullfile(WD,'B1map.mat'));
+end
+if exist(fullfile(WD,'B0map.mat'), 'file') == 2
+    set(handles.B0mapFileBox,'String',fullfile(WD,'B0map.mat'));
+end
+
+function WDBox_Callback(hObject, eventdata, handles)
+
 % MTDATA
 function MTdataLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile('*.mat','Select MTdata file',WD);
 if PathName == 0, return; end
 set(handles.MTdataFileBox,'String',fullfile(PathName,FileName));
 load(fullfile(PathName,FileName));
 % Set sequence
 if (exist('Prot','var'))
     SetAppData(Prot);
+    OpenOptionsPanel_Callback(hObject, eventdata, handles);
 end
-OpenOptionsPanel_Callback(hObject, eventdata, handles);
 
 function MTdataFileBox_Callback(hObject, eventdata, handles)
 
 % MASKDATA
 function MaskLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile('*.mat','Select mask file',WD);
 if PathName == 0, return; end
 set(handles.MaskFileBox,'String',fullfile(PathName,FileName));
 
@@ -891,7 +913,8 @@ function MaskFileBox_Callback(hObject, eventdata, handles)
 
 % R1MAP DATA
 function R1mapLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile('*.mat','Select R1map file',WD);
 if PathName == 0, return; end
 set(handles.R1mapFileBox,'String',fullfile(PathName,FileName));
 
@@ -899,7 +922,8 @@ function R1mapFileBox_Callback(hObject, eventdata, handles)
 
 % B1 MAP
 function B1mapLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile('*.mat','Select B1map file',WD);
 if PathName == 0, return; end
 set(handles.B1mapFileBox,'String',fullfile(PathName,FileName));
 
@@ -907,13 +931,24 @@ function B1mapFileBox_Callback(hObject, eventdata, handles)
 
 % B0 MAP
 function B0mapLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile('*.mat','Select B0map file',WD);
 if PathName == 0, return; end
 set(handles.B0mapFileBox,'String',fullfile(PathName,FileName));
 
 function B0mapFileBox_Callback(hObject, eventdata, handles)
 
 % VIEW MAPS
+function DataView_Callback(hObject, eventdata, handles)
+FullFile = get(handles.MTdataFileBox,'String');
+data = importdata(FullFile);
+n = ndims(data);
+Data.MTdata = mean(double(data),n);
+Data.fields = {'MTdata'};
+handles.CurrentData = Data;
+guidata(hObject,handles);
+DrawPlot(handles);
+
 function MaskView_Callback(hObject, eventdata, handles)
 FullFile = get(handles.MaskFileBox,'String');
 if(isempty(FullFile)); return; end;
@@ -1310,3 +1345,4 @@ function MaskFileBox_CreateFcn(hObject, eventdata, handles)
 function R1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B0mapFileBox_CreateFcn(hObject, eventdata, handles)
+function WDBox_CreateFcn(hObject, eventdata, handles)
