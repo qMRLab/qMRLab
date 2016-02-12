@@ -7,7 +7,22 @@ FitOpt.fx(6) = true;
 xFit = [Fit.F, Fit.kr, Fit.R1f, Fit.R1r, Fit.T2f, Fit.T2r];
 Fit.table = xFit';
 
-OffsetCurve =  logspace(2,5,30)';
+% OffsetCurve =  logspace(2,5,30)';
+% OffsetCurve =  linspace(min(Prot.Offsets)*0.5, max(Prot.Offsets)*1.25, 20);
+offsets = unique(Prot.Offsets);
+lower = min(offsets)*0.25;
+upper = max(offsets)*1.75;
+offsets = [lower; offsets; upper];
+OffsetCurve = zeros(length(offsets)*3 -2,1);
+ind = 1;
+for i = 1:length(offsets)-1
+    OffsetCurve(ind) = offsets(i);
+    OffsetCurve(ind+1) = offsets(i) + (offsets(i+1) - offsets(i))/3;
+    OffsetCurve(ind+2) = offsets(i) + 2*((offsets(i+1) - offsets(i))/3);
+    ind = ind + 3;
+end
+OffsetCurve(end) = offsets(end);
+
 AngleCurve  =  unique(Prot.Angles);
 [Prot.Angles, Prot.Offsets] = SPGR_GetSeq(AngleCurve,OffsetCurve);
 [Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );

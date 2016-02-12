@@ -23,6 +23,7 @@ timeFit = toc
 %%
 SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt )
 
+%%
 % Plot results
 figure();
 SPGR_PlotSimCurve(MTdata, MTnoise, Prot, Sim, SimCurveResults);

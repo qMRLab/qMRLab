@@ -27,9 +27,9 @@ Angles  =  xData(:,1);
 Offsets =  xData(:,2);
 w1cw    =  xData(:,3);
 
-Sf = GetSf(Angles,Offsets,T2f,FitOpt.SfTable);
+Sf = GetSf(Angles,Offsets,T2f,Prot.Sf);
 
-if (fix(6))
+if (FitOpt.fx(6))
     WB = FitOpt.WB;
 else
     WB = computeWB(w1cw, Offsets, T2r, FitOpt.lineshape);

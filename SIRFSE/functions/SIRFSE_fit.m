@@ -51,9 +51,3 @@ end
 Fit.resnorm = resnorm;
 
 end
-
-% Choose fitted or fixed parameters
-function a = choose( a, x, fx )
-a(~fx) = x;
-end
-
