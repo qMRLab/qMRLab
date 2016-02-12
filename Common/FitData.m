@@ -1,4 +1,4 @@
-function Fit = FitData( data, Prot, FitOpt, Method, wait )
+function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 
 %FITDATA Takes 2D or 3D MTdata and returns fitted parameters maps
 %   data is a struct containing fields MTdata and optionnal R1map, Mask,
@@ -92,9 +92,9 @@ for ii = 1:l
     
     % Fit data
     switch Method
-        case 'SIRFSE'; tempFit = SIRFSE_fit(M, Prot, FitOpt);
-        case 'bSSFP';  tempFit = bSSFP_fit(M, Prot, FitOpt);
-        case 'SPGR';   tempFit = SPGR_fit(M, Prot, FitOpt );
+        case 'SIRFSE'; tempFit = SIRFSE_fit(M, Protocol, FitOpt);
+        case 'bSSFP';  tempFit = bSSFP_fit(M, Protocol, FitOpt);
+        case 'SPGR';   tempFit = SPGR_fit(M, Protocol, FitOpt );
     end
         
     % Assign current voxel fitted values
@@ -119,7 +119,7 @@ end
 Fit.computed = reshape(Fit.computed,x,y,z);
 
 Fit.Time = toc
-Fit.Prot = Prot;
+Fit.Protocol = Protocol;
 Fit.FitOpt = FitOpt;
 
 end

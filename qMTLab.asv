@@ -887,7 +887,6 @@ FullFile = fullfile(PathName,FileName);
 MTdataLoad(FullFile, handles)
 
 function MTdataLoad(FullFile, handles)
-MTdata = [];
 set(handles.MTdataFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile);
 if strcmp(ext,'.mat');

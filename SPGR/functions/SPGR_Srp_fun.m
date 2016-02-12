@@ -33,7 +33,7 @@ w1rp    =  xData(:,3);
 
 Mxy = zeros(length(Angles),1);
 
-Sf = GetSf(Angles,Offsets,T2f,FitOpt.SfTable);
+Sf = GetSf(Angles,Offsets,T2f,Prot.Sf);
 Sr = 1;
 
 if (FitOpt.fx(6))

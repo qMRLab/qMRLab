@@ -288,8 +288,6 @@ FitOpt.lineshape = LineShapes{get(handles.FitLineShape,'Value')};
 
 Models = cellstr(get(handles.FitModel,'String'));
 FitOpt.model = Models{get(handles.FitModel,'Value')};
-FitOpt.SfTableFileName = get(handles.SfTableFile,'String');
-FitOpt.SfTable = load(handles.SfTableFullFile);
 FitOpt.FileName = get(handles.FitOptFileName, 'String');
 setappdata(0,'FitOpt',FitOpt);
 
@@ -303,9 +301,7 @@ set(handles.R1reqR1fBox,  'Value', FitOpt.R1reqR1f);
 set(handles.R1mapBox, 'Value', FitOpt.R1map);
 set(handles.FixR1fT2fBox, 'Value', FitOpt.FixR1fT2f);
 set(handles.FixR1fT2fValue, 'String', FitOpt.FixR1fT2fValue);
-handles.SfTableFullFile = FitOpt.SfTableFileName;
 guidata(gcf, handles);
-set(handles.SfTableFile, 'String',FitOpt.SfTableFileName);
 switch FitOpt.lineshape
     case 'Gaussian'
         ii = 1;
@@ -330,15 +326,9 @@ switch FitOpt.model
     case {'Yarnykh', 'Ramani'}
         set(handles.FixR1fT2fValue,'Visible','on');
         set(handles.FixR1fT2fBox,'Visible','on');
-        set(handles.SfTableLoad,'Visible','off');
-        set(handles.SfTableFile,'Visible','off');
-        set(handles.ComputeSf,'Visible','off');
     otherwise
         set(handles.FixR1fT2fValue,'Visible','off');
         set(handles.FixR1fT2fBox,'Visible','off');
-        set(handles.SfTableLoad,'Visible','on');
-        set(handles.SfTableFile,'Visible','on');
-        set(handles.ComputeSf,'Visible','on');
 end
 setappdata(0,'FitOpt',FitOpt);
 
@@ -409,49 +399,6 @@ function FitModel_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% LOAD SF TABLE
-function SfTableLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
-if PathName == 0, return; end
-set(handles.SfTableFile,'String',FileName);
-FullFile = fullfile(PathName,FileName);
-handles.SfTableFullFile = FullFile;
-guidata(hObject,handles);
-GetFitOpt(handles);
-
-
-
-% COMPUTE SF TABLE
-function ComputeSf_Callback(hObject, eventdata, handles)
-
-button = questdlg('Compute Sf table using current protocol settings?','Build Sf table','Start','Cancel','Start');
-if (~strcmp(button,'Start'))
-    return;
-end
-Seq = GetProt(handles);
-Prot = GetProt(handles);
-FitOpt = GetFitOpt(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewSfTable.mat'));
-if PathName == 0, return; end
-angles = unique(Seq.Angles);
-offsets = unique(Seq.Offsets);
-
-T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
-Trf = Prot.Tm;
-shape = Prot.MTpulse.shape;
-PulseOpt = Prot.MTpulse.opt;
-Sf = BuildSfTable(angles, offsets, T2f, Trf, shape, PulseOpt);
-save(fullfile(PathName,FileName),'-struct', 'Sf');
-
-set(handles.SfTableFile,'String',FileName);
-FullFile = fullfile(PathName,FileName);
-handles.SfTableFullFile = FullFile;
-guidata(hObject,handles);
-GetFitOpt(handles);
-
-
 
 
 
@@ -534,7 +481,7 @@ Prot.MTpulse.opt = struct;
             if (isnan(Prot.MTpulse.opt.TBW)); Prot.MTpulse.opt.TBW = []; end
             if (isnan(Prot.MTpulse.opt.slope)); Prot.MTpulse.opt.slope = []; end
     end
-
+Prot.Sf = getappdata(0,'Sf');
 Prot.FileName = get(handles.ProtFileName,'String');
 setappdata(0,'Prot',Prot);
 
@@ -573,6 +520,57 @@ set(handles.PulseOptBW,'string',Prot.MTpulse.opt.bw);
 set(handles.PulseOptSlope,'string',Prot.MTpulse.opt.slope);
 set(handles.ProtFileName, 'String', Prot.FileName);
 setappdata(0,'Prot',Prot);
+
+
+% COMPUTE SF TABLE
+function ComputeSf_Callback(hObject, eventdata, handles)
+
+button = questdlg('Compute Sf table using current protocol settings?','Build Sf table','Start','Cancel','Start');
+if (~strcmp(button,'Start'))
+    return;
+end
+Seq = GetProt(handles);
+Prot = GetProt(handles);
+FitOpt = GetFitOpt(handles);
+
+% Extend angles limits and add midpoints
+angles = unique(Seq.Angles);
+lower = min(angles)*0.25;
+upper = max(angles)*1.75;
+angles = [lower; angles; upper];
+SfAngles = zeros(length(angles)*3 -2,1);
+ind = 1;
+for i = 1:length(angles)-1
+    SfAngles(ind) = angles(i);
+    SfAngles(ind+1) = angles(i) + (angles(i+1) - angles(i))/3;
+    SfAngles(ind+2) = angles(i) + 2*((angles(i+1) - angles(i))/3);
+    ind = ind + 3;
+end
+SfAngles(end) = angles(end);
+
+% Extend offsets limits and add midpoints
+offsets = unique(Seq.Offsets);
+lower = min(offsets)*0.25;
+upper = max(offsets)*1.75;
+offsets = [lower; offsets; upper];
+SfOffsets = zeros(length(offsets)*3 -2,1);
+ind = 1;
+for i = 1:length(offsets)-1
+    SfOffsets(ind) = offsets(i);
+    SfOffsets(ind+1) = offsets(i) + (offsets(i+1) - offsets(i))/3;
+    SfOffsets(ind+2) = offsets(i) + 2*((offsets(i+1) - offsets(i))/3);
+    ind = ind + 3;
+end
+SfOffsets(end) = offsets(end);
+
+T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
+Trf = Prot.Tm;
+shape = Prot.MTpulse.shape;
+PulseOpt = Prot.MTpulse.opt;
+Sf = BuildSfTable(SfAngles, SfOffsets, T2f, Trf, shape, PulseOpt);
+setappdata(0,'Sf',Sf);
+ProtSave_Callback(hObject, eventdata, handles)
+
 
 
 % ######################### SEQUENCE ######################################
