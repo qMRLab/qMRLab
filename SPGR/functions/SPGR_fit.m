@@ -2,18 +2,15 @@ function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 %%SPGR_fit Fits analytical SPGR model to data
 % Fit a vector x = [F,kr,R1f,R1r,T2f,T2r]
 
-[Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
-Prot.Tau = Tau(1);
-
 % Apply B1map
 if (isfield(FitOpt,'B1') && ~isempty(FitOpt.B1))
-    Angles = Angles * FitOpt.B1;
+    Prot.Angles = Prot.Angles * FitOpt.B1;
     Prot.Alpha = Prot.Alpha * FitOpt.B1;
 end
 
 % Apply B0map
 if (isfield(FitOpt,'B0') && ~isempty(FitOpt.B0))
-    Offsets = Offsets + FitOpt.B0;
+    Prot.Offsets = Prot.Offsets + FitOpt.B0;
 end
 
 % Use R1map
@@ -29,6 +26,8 @@ if (FitOpt.R1reqR1f)
 end
 
 fix = FitOpt.fx;
+[Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
+Prot.Tau = Tau(1);
 
 switch FitOpt.model   
     case 'SledPikeCW'

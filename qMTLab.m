@@ -884,7 +884,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select MTdata file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-MTdataLoad(FullFile, handles)
+MTdataLoad(FullFile, handles);
 
 function MTdataLoad(FullFile, handles)
 MTdata = [];
@@ -899,8 +899,8 @@ end
 SetAppData(MTdata);
 
 function MTdataFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.MTdataFileBox,'String');
-MTdataLoad(FullFile, handles);
+% FullFile = get(handles.MTdataFileBox,'String');
+% MTdataLoad(FullFile, handles);
 
 % MASKDATA
 function MaskLoad_Callback(hObject, eventdata, handles)
@@ -908,7 +908,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName,Index] = uigetfile({'*.nii';'*.mat'},'Select Mask file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-MaskLoad(FullFile, handles)
+MaskLoad(FullFile, handles);
 
 function MaskLoad(FullFile, handles)
 Mask = [];
@@ -923,8 +923,8 @@ end
 SetAppData(Mask);
 
 function MaskFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.MaskFileBox,'String');
-MaskLoad(FullFile, handles);
+% FullFile = get(handles.MaskFileBox,'String');
+% MaskLoad(FullFile, handles);
 
 % R1MAP DATA
 function R1mapLoad_Callback(hObject, eventdata, handles)
@@ -932,7 +932,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select R1map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-R1mapLoad(FullFile, handles)
+R1mapLoad(FullFile, handles);
 
 function R1mapLoad(FullFile, handles)
 R1map = [];
@@ -947,8 +947,8 @@ end
 SetAppData(R1map);
 
 function R1mapFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.R1mapFileBox,'String');
-R1mapLoad(FullFile, handles);
+% FullFile = get(handles.R1mapFileBox,'String');
+% R1mapLoad(FullFile, handles);
 
 % B1 MAP
 function B1mapLoad_Callback(hObject, eventdata, handles)
@@ -956,7 +956,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B1map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-B1mapLoad(FullFile, handles)
+B1mapLoad(FullFile, handles);
 
 function B1mapLoad(FullFile, handles)
 B1map = [];
@@ -971,8 +971,8 @@ end
 SetAppData(B1map);
 
 function B1mapFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.R1mapFileBox,'String');
-B1mapLoad(FullFile, handles);
+% FullFile = get(handles.R1mapFileBox,'String');
+% B1mapLoad(FullFile, handles);
 
 % B0 MAP
 function B0mapLoad_Callback(hObject, eventdata, handles)
@@ -980,7 +980,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B0map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-B0mapLoad(FullFile, handles)
+B0mapLoad(FullFile, handles);
 
 function B0mapLoad(FullFile, handles)
 B0map = [];
@@ -995,8 +995,8 @@ end
 SetAppData(B0map);
 
 function B0mapFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.B0mapFileBox,'String');
-B0mapLoad(FullFile, handles);
+% FullFile = get(handles.B0mapFileBox,'String');
+% B0mapLoad(FullFile, handles);
 
 % VIEW MAPS
 function DataView_Callback(hObject, eventdata, handles)

@@ -39,6 +39,7 @@ for ii = 1:length(fields)
 end
 Fit.fields = fields;
 Fit.computed = Fit.(fields{1});
+Fit.Mask = data.Mask;
 
 % Apply mask
 if (~isempty(data.Mask))
@@ -90,6 +91,13 @@ for ii = 1:l
     
     if (~isempty(data.B0map)); FitOpt.B0 = B0map(vox); end
     
+    if (isfield(FitOpt,'PreviousFit'))
+        names = FitOpt.names;
+        for ff = 1:length(names)
+            FitOpt.st(ff) = FitOpt.PreviousFit.(names{ff})(vox);
+        end
+    end
+    
     % Fit data
     switch Method
         case 'SIRFSE'; tempFit = SIRFSE_fit(M, Protocol, FitOpt);
@@ -104,7 +112,7 @@ for ii = 1:l
     
     Fit.computed(ii) = 1;
 
-    %-- save temp file
+    %-- save temp file every 20 voxels
     if(mod(ii,20) == 0)
       save('FitTempResults.mat', '-struct','Fit');
     end
