@@ -492,7 +492,9 @@ offsets = mat2str(unique(Prot.Offsets)');
 set(handles.AngleBox, 'String', angles);
 set(handles.DeltaBox, 'String', offsets);
 set(handles.SeqTable, 'Data', [Prot.Angles, Prot.Offsets]);
-
+if (isfield(Prot,'Sf'))
+    setappdata(0,'Sf',Prot.Sf);
+end
 data = [Prot.Tm; Prot.Ts; Prot.Tp; Prot.Tr; Prot.TR];
 set(handles.SeqOptTable,'Data',data);
 set(handles.ReadPulseAlpha,'String', Prot.Alpha);
@@ -529,41 +531,74 @@ button = questdlg('Compute Sf table using current protocol settings?','Build Sf 
 if (~strcmp(button,'Start'))
     return;
 end
-Seq = GetProt(handles);
 Prot = GetProt(handles);
 FitOpt = GetFitOpt(handles);
 
 % Extend angles limits and add midpoints
-angles = unique(Seq.Angles);
-lower = min(angles)*0.25;
-upper = max(angles)*1.75;
-angles = [lower; angles; upper];
-SfAngles = zeros(length(angles)*3 -2,1);
-ind = 1;
-for i = 1:length(angles)-1
+% angles = unique(Seq.Angles);
+% lower = min(angles)*0.25;
+% upper = max(angles)*1.75;
+% angles = [lower; angles; upper];
+% SfAngles = zeros(length(angles)*3 -2,1);
+% ind = 1;
+% for i = 1:length(angles)-1
+%     SfAngles(ind) = angles(i);
+%     SfAngles(ind+1) = angles(i) + (angles(i+1) - angles(i))/3;
+%     SfAngles(ind+2) = angles(i) + 2*((angles(i+1) - angles(i))/3);
+%     ind = ind + 3;
+% end
+% SfAngles(end) = angles(end);
+% 
+% % Extend offsets limits and add midpoints
+% offsets = unique(Seq.Offsets);
+% lower = min(offsets)*0.25;
+% upper = max(offsets)*1.75;
+% offsets = [lower; offsets; upper];
+% SfOffsets = zeros(length(offsets)*3 -2,1);
+% ind = 1;
+% for i = 1:length(offsets)-1
+%     SfOffsets(ind) = offsets(i);
+%     SfOffsets(ind+1) = offsets(i) + (offsets(i+1) - offsets(i))/3;
+%     SfOffsets(ind+2) = offsets(i) + 2*((offsets(i+1) - offsets(i))/3);
+%     ind = ind + 3;
+% end
+% SfOffsets(end) = offsets(end);
+
+angles = unique(Prot.Angles);
+SfAngles = zeros(length(angles)*3 +2,1);
+SfAngles(1) = 0;
+SfAngles(end) = max(angles)*1.5;
+minScale = 0.75;
+maxScale = 1.25;
+
+ind = 3;
+for i = 1:length(angles)
     SfAngles(ind) = angles(i);
-    SfAngles(ind+1) = angles(i) + (angles(i+1) - angles(i))/3;
-    SfAngles(ind+2) = angles(i) + 2*((angles(i+1) - angles(i))/3);
+    SfAngles(ind-1) = minScale*angles(i);
+    SfAngles(ind+1) = maxScale*angles(i);
     ind = ind + 3;
 end
-SfAngles(end) = angles(end);
 
 % Extend offsets limits and add midpoints
-offsets = unique(Seq.Offsets);
-lower = min(offsets)*0.25;
-upper = max(offsets)*1.75;
-offsets = [lower; offsets; upper];
-SfOffsets = zeros(length(offsets)*3 -2,1);
-ind = 1;
-for i = 1:length(offsets)-1
+offsets = unique(Prot.Offsets);
+SfOffsets = zeros(length(offsets)*4 +2,1);
+SfOffsets(1) = 100;
+SfOffsets(end) = max(offsets) + 1000;
+maxOff = 100;
+offsets = [0; offsets];
+ind = 4;
+for i = 2:length(offsets)
+    SfOffsets(ind-2) = 0.5*(offsets(i) + offsets(i-1));
+    SfOffsets(ind-1) = offsets(i) - maxOff;
     SfOffsets(ind) = offsets(i);
-    SfOffsets(ind+1) = offsets(i) + (offsets(i+1) - offsets(i))/3;
-    SfOffsets(ind+2) = offsets(i) + 2*((offsets(i+1) - offsets(i))/3);
-    ind = ind + 3;
+    SfOffsets(ind+1) = offsets(i) + maxOff;
+    ind = ind + 4;
 end
-SfOffsets(end) = offsets(end);
 
-T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
+% T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
+T2f = [0.0010 0.0050 0.0100 0.0150 0.0200 0.0250 0.0300 0.0350 0.0400 ...
+       0.0450 0.0500 0.0550 0.0600 0.0650 0.0700 0.0750 0.0800 0.0850 ...
+       0.0900 0.2500 0.5000 1.0000];
 Trf = Prot.Tm;
 shape = Prot.MTpulse.shape;
 PulseOpt = Prot.MTpulse.opt;

@@ -7,21 +7,20 @@ FitOpt.fx(6) = true;
 xFit = [Fit.F, Fit.kr, Fit.R1f, Fit.R1r, Fit.T2f, Fit.T2r];
 Fit.table = xFit';
 
-% OffsetCurve =  logspace(2,5,30)';
-% OffsetCurve =  linspace(min(Prot.Offsets)*0.5, max(Prot.Offsets)*1.25, 20);
 offsets = unique(Prot.Offsets);
-lower = min(offsets)*0.25;
-upper = max(offsets)*1.75;
-offsets = [lower; offsets; upper];
-OffsetCurve = zeros(length(offsets)*3 -2,1);
-ind = 1;
-for i = 1:length(offsets)-1
+OffsetCurve = zeros(length(offsets)*4 +2,1);
+OffsetCurve(1) = 100;
+OffsetCurve(end) = max(offsets) + 1000;
+maxOff = 100;
+offsets = [0; offsets];
+ind = 4;
+for i = 2:length(offsets)
+    OffsetCurve(ind-2) = 0.5*(offsets(i) + offsets(i-1));
+    OffsetCurve(ind-1) = offsets(i) - maxOff;
     OffsetCurve(ind) = offsets(i);
-    OffsetCurve(ind+1) = offsets(i) + (offsets(i+1) - offsets(i))/3;
-    OffsetCurve(ind+2) = offsets(i) + 2*((offsets(i+1) - offsets(i))/3);
-    ind = ind + 3;
+    OffsetCurve(ind+1) = offsets(i) + maxOff;
+    ind = ind + 4;
 end
-OffsetCurve(end) = offsets(end);
 
 AngleCurve  =  unique(Prot.Angles);
 [Prot.Angles, Prot.Offsets] = SPGR_GetSeq(AngleCurve,OffsetCurve);
