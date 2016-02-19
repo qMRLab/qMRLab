@@ -1,6 +1,14 @@
 function Fit = SPGR_fit(MTdata, Prot, FitOpt )
-%%SPGR_fit Fits analytical SPGR model to data
-% Fit a vector x = [F,kr,R1f,R1r,T2f,T2r]
+
+% ----------------------------------------------------------------------------------------------------
+% SPGR_fit Fits analytical SPGR model to data
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 % Apply B1map
 if (isfield(FitOpt,'B1') && ~isempty(FitOpt.B1))

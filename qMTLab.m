@@ -2,6 +2,17 @@ function varargout = qMTLab(varargin)
 % QMTLAB MATLAB code for qMTLab.fig
 % GUI to simulate/fit qMT data 
 
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, JF. et al (2016).
+% Quantitative magnetization transfer imaging made easy with q MTLab
+% Software for data simulation, analysis and visualization.
+% Concepts in Magnetic Resonance Part A
+% ----------------------------------------------------------------------------------------------------
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -1131,13 +1142,19 @@ Prot   =  FitResults.Protocol;
 FitOpt =  FitResults.FitOpt;
 SetAppData(FitResults, Prot, FitOpt);
 
-set(handles.WDBox,'String', FitResults.WD);
+if (isfield(FitResults,'WD'))
+    set(handles.WDBox,'String', FitResults.WD);
+end
 set(handles.StudyIDBox,'String', FitResults.StudyID);
 set(handles.MTdataFileBox,'String', FitResults.Files.MTdata);
 set(handles.MaskFileBox,'String', FitResults.Files.Mask);
 set(handles.R1mapFileBox,'String', FitResults.Files.R1map);
 set(handles.B1mapFileBox,'String', FitResults.Files.B1map);
 set(handles.B0mapFileBox,'String', FitResults.Files.B0map);
+
+if exist(FitResults.Files.MTdata,'file')
+    MTdataLoad(get(handles.MTdataFileBox,'String'), handles);
+end
 
 SetActive('FitData', handles);
 handles.CurrentData = FitResults;
@@ -1255,11 +1272,81 @@ delete(h);
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
 Current = GetCurrent(handles);
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
 ii = find(Current);
 nVox = length(ii);
 data = reshape(Current(ii),1,nVox);
 figure();
 hist(data,20);
+xlabel(Source);
+ylabel('Counts');
+
+% PLOT DATA FIT
+function ViewDataFit_Callback(hObject, eventdata, handles)
+[FitResults,Method] = GetAppData('FitResults','Method');
+MTdata = GetAppData('MTdata');
+S = size(FitResults.F);
+
+info_dcm = getCursorInfo(handles.dcm_obj);
+x = info_dcm.Position(1);
+y = 1+ S(2) - info_dcm.Position(2);
+z = str2double(get(handles.SliceValue,'String'));
+index = sub2ind(S,x,y,z);
+
+if length(S) == 2
+    data = squeeze(MTdata(x,y,:));
+elseif length(S) == 3
+    data = squeeze(MTdata(x,y,z,:));
+end
+
+Protocol = FitResults.Protocol;
+FitOpt = FitResults.FitOpt;
+Fit.F = FitResults.F(index);
+Fit.kr = FitResults.kr(index);
+Fit.kf = FitResults.kf(index);
+Fit.R1f = FitResults.R1f(index);
+Fit.R1r = FitResults.R1r(index);
+
+Sim.Opt.AddNoise = 0;
+figure();
+
+switch Method
+    case 'bSSFP'
+        Fit.T2f = FitResults.T2f(index);
+        Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = bSSFP_SimCurve(Fit, Protocol, FitOpt );
+        axe(1) = subplot(2,1,1);
+        axe(2) = subplot(2,1,2);
+        bSSFP_PlotSimCurve(data,  data, Protocol, Sim, SimCurveResults, axe);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f));
+    case 'SPGR'
+        Fit.T2f = FitResults.T2f(index);
+        Fit.T2r = FitResults.T2r(index);
+        SimCurveResults = SPGR_SimCurve(Fit, Protocol, FitOpt );
+        SPGR_PlotSimCurve(data, data, Protocol, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r));
+    case 'SIRFSE'
+        Fit.Sf = FitResults.Sf(index);
+        Fit.Sr = FitResults.Sr(index);
+        Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = SIRFSE_SimCurve(Fit, Protocol, FitOpt );
+        SIRFSE_PlotSimCurve(data,   data, Protocol, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f));
+
+end
+
+
+% OPEN VIEWER
+function Viewer_Callback(hObject, eventdata, handles)
+FitResults = GetAppData('FitResults');
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+file = strcat(Source,'.nii');
+nii = make_nii(FitResults.(Source));
+save_nii(nii,file);
+nii_viewer(file);
+
 
 % PAN
 function PanBtn_Callback(hObject, eventdata, handles)
@@ -1375,24 +1462,18 @@ set(handles.ViewPop,   'Value',  1);
 UpdatePopUp(handles);
 GetPlotRange(handles);
 Current = GetCurrent(handles);
-imagesc(flipdim(Current',1));
-% imagesc(rot90(Current));
-% imagesc((Current));
+% imagesc(flipdim(Current',1));
+imagesc(rot90(Current));
 axis equal off;
-ax = gca;
-% set(ax,'YDir','normal')
 RefreshColorMap(handles)
 
 function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
 yl = ylim;
-imagesc(flipdim(Current',1));
-% imagesc(rot90(Current));
-% imagesc((Current));
+% imagesc(flipdim(Current',1));
+imagesc(rot90(Current));
 axis equal off;
-ax = gca;
-% set(ax,'YDir','normal')
 RefreshColorMap(handles)
 xlim(xl);
 ylim(yl);
@@ -1448,57 +1529,3 @@ function R1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B0mapFileBox_CreateFcn(hObject, eventdata, handles)
 function WDBox_CreateFcn(hObject, eventdata, handles)
-
-
-function PlotDataFit(hObject, eventdata, handles)
-info_dcm = getCursorInfo(handles.dcm_obj);
-x = info_dcm.Position(2)
-y = info_dcm.Position(1)
-z = str2double(get(handles.SliceValue,'String'))
-[FitResults,Method] = GetAppData('FitResults','Method');
-% MTdata = FitResults.data.MTdata;
-MTdata = GetAppData('MTdata');
-dim = ndims(MTdata);
-if dim == 3
-    data = squeeze(MTdata(x,y,:));
-elseif dim == 4
-    data = squeeze(MTdata(x,y,z,:));
-end
-Prot = FitResults.Prot;
-FitOpt = FitResults.FitOpt;
-Fit.F = FitResults.F(x,y,z);
-Fit.kr = FitResults.kr(x,y,z);
-Fit.R1f = FitResults.R1f(x,y,z);
-Fit.R1r = FitResults.R1r(x,y,z);
-Sim.Opt.AddNoise = 0;
-
-switch Method
-    case 'bSSFP'
-        Fit.T2f = FitResults.T2f(x,y,z);
-        Fit.M0f = FitResults.M0f(x,y,z);
-        SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
-    case 'SPGR'
-        Fit.T2f = FitResults.T2f(x,y,z);
-        Fit.T2r = FitResults.T2r(x,y,z);
-        SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
-    case 'SIRFSE'
-        Fit.Sf = FitResults.Sf(x,y,z);
-        Fit.Sr = FitResults.Sr(x,y,z);
-        Fit.M0f = FitResults.M0f(x,y,z);
-        SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
-end
-figure();
-switch Method
-    case 'bSSFP'
-        axe(1) = subplot(2,1,1);
-        axe(2) = subplot(2,1,2);
-        bSSFP_PlotSimCurve(data,  data, Prot, Sim, SimCurveResults, axe);
-    case 'SIRFSE'
-        SIRFSE_PlotSimCurve(data, data, Prot, Sim, SimCurveResults);
-    case 'SPGR'
-        SPGR_PlotSimCurve(data,   data, Prot, Sim, SimCurveResults);
-end
-
-
-% --- Executes on button press in TestBtn.
-function TestBtn_Callback(hObject, eventdata, handles)

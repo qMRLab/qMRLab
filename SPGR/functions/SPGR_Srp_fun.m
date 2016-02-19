@@ -1,9 +1,17 @@
 function mxy = SPGR_Srp_fun(x, xData, Prot, FitOpt)
-%SPGR_Y_fun Sled&Pike RP Analytical solution for SPGR MT data used for fitting
+
+% ----------------------------------------------------------------------------------------------------
+% SPGR_Srp_fun Sled&Pike RP Analytical solution for SPGR MT data used for fitting
+% ----------------------------------------------------------------------------------------------------
 % x = [F,kr,R1f,R1r,T2f,T2r]
 % xData = [Angles, Offsets, w1rp]
 % Output : normalized mxy
-
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% reference: Sled, J. G., & Pike, G. B. (2001).
+% Quantitative imaging of magnetization transfer exchange and relaxation properties in vivo using MRI.
+% Magn Reson Med, 46(5), 923–931
+% ----------------------------------------------------------------------------------------------------
 
 F   = x(1);
 kr  = x(2);

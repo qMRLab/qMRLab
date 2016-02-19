@@ -1,6 +1,13 @@
 function Fit = SIRFSE_fit(MTdata, Prot, FitOpt)
-%%SIRFSE_fit Fits analytical SIR model to data
-% Fit a vector x = [F,kr,R1f,R1r,Sf,Sr,M0f]
+
+% ----------------------------------------------------------------------------------------------------
+% SIRFSE_fit Fits analytical SIRFSE model to data
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
 
 ti = Prot.ti;
 td = Prot.td;

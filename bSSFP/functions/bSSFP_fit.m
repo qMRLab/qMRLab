@@ -1,6 +1,13 @@
 function Fit = bSSFP_fit(MTdata, Prot, FitOpt)
-% bSSFP_fit Fits analytical bSSFP model to data
-% Fit a vector x = [F,kr,R1f,R1r,T2f,M0f]
+
+% ----------------------------------------------------------------------------------------------------
+% bSSFP_fit Fits analytical SPGR model to data
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
 
 [alpha, Trf, TR, W] = bSSFP_prepare(Prot, FitOpt);
 
