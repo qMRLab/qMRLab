@@ -1,12 +1,6 @@
-function Sens = VaryParam(Vary, Sim, Prot, FitOpt, SensOpt, Method)
-
-% -------------------------------------------------------------------------
-% Sens = VaryParam(Vary, Sim, Prot, FitOpt, SensOpt, Method)
-% Performs Sensitivity analysis
-% -------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
-% -------------------------------------------------------------------------
-
+function Sens = VaryParamPar(Vary, Sim, Prot, FitOpt, SensOpt, Method)
+%VARYPARAM Performs Sensitivity analysis by varying 'Vary' parameter
+% from min to max by step
 
 Param = Sim.Param;
 AddNoise = Sim.Opt.AddNoise;
@@ -26,19 +20,12 @@ switch Method
     case 'SIRFSE'
         fields = {'F';'kf';'kr';'R1f';'R1r';'Sf';'Sr';'M0f';'M0r'};
         Sens.MTdata  = zeros(length(x),length(Prot.ti));
-        Sens.MTnoise  = zeros(length(x),runs, length(Prot.ti));
     case 'bSSFP'
         fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'M0f';'M0r'};
-        Sens.MTdata  = zeros(length(x),length(Prot.alpha)); 
-        Sens.MTnoise  = zeros(length(x),runs, length(Prot.alpha));
+        Sens.MTdata  = zeros(length(x),length(Prot.alpha));       
     case 'SPGR'
         fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'T2r'};
         Sens.MTdata  = zeros(length(x),length(Prot.Angles));
-        Sens.MTnoise  = zeros(length(x),runs,length(Prot.Angles));
-end
-
-if (FitOpt.R1map)
-    Sens.R1map  = zeros(length(x),1);
 end
 
 for ii = 1:length(fields)
@@ -94,21 +81,19 @@ for i = 1:length(x)
     end  
 
     if (getappdata(0, 'Cancel'));  break;  end
-           
-    if (FitOpt.R1map)
-        FitOpt.R1 = computeR1obs(Param);
-    end
-    
+       
     Sens.MTdata(i,:) = M;
-    Sens.R1map(i) = FitOpt.R1;
 
     for k = 1:runs
         if (AddNoise)
             MTdata = noise( M, SNR );
         else
             MTdata = M;
-        end     
-        Sens.MTnoise(i,k,:) = MTdata;
+        end
+        
+        if (FitOpt.R1map)
+            FitOpt.R1 = computeR1obs(Param);
+        end
         
         switch Method
             case 'SIRFSE'; Fit = SIRFSE_fit(MTdata, Prot, FitOpt);

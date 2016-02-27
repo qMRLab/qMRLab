@@ -1,7 +1,8 @@
 function mxy = SPGR_Srp_fun(x, xData, Prot, FitOpt)
 
 % ----------------------------------------------------------------------------------------------------
-% SPGR_Srp_fun Sled&Pike RP Analytical solution for SPGR MT data used for fitting
+% mxy = SPGR_Srp_fun(x, xData, Prot, FitOpt)
+% Sled&Pike RP Analytical solution for SPGR MT data used for fitting
 % ----------------------------------------------------------------------------------------------------
 % x = [F,kr,R1f,R1r,T2f,T2r]
 % xData = [Angles, Offsets, w1rp]
@@ -13,6 +14,7 @@ function mxy = SPGR_Srp_fun(x, xData, Prot, FitOpt)
 % Magn Reson Med, 46(5), 923–931
 % ----------------------------------------------------------------------------------------------------
 
+% F   = (x(1)+0.002)*1.080 ; % Correction for overestimation
 F   = x(1);
 kr  = x(2);
 R1f = x(3);
@@ -32,7 +34,7 @@ if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
      R1f = R1 - kf*(R1r - R1) / (R1r - R1 + kf/F);
 end
 
-alpha   =  Prot.Alpha;
+alpha   =  Prot.Alpha*pi/180;
 TR      =  Prot.TR;
 Tau     =  Prot.Tau;
 Angles  =  xData(:,1);
@@ -82,9 +84,9 @@ function Mxy = calcMxy(F,M0f,M0r,kf,kr,R1f,R1r,Sf,Sr,W,TR,Tau,alpha)
     I = eye(2);
     S  = [Sf, Sr];
 
-    Mz(1:2,:) = inv(I - eA12*eA0*eA12*diag([Sf Sr]))* ...
+    Mz(1:2,:) = (I - eA12*eA0*eA12*diag([Sf.*cos(alpha) Sr]))\ ...
         ( (I + eA12*(-I + eA0*(I -  eA12)))*Mss + eA12*(I - eA0)*M0_inf);
-
-    Mxy = Mz(1,:).*sin(alpha*pi/180).*S(:,1);
+    
+    Mxy = Mz(1,:).*sin(alpha).*S(:,1);
 
 end

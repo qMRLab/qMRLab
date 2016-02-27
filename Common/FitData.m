@@ -1,7 +1,8 @@
 function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 
 % ----------------------------------------------------------------------------------------------------
-% FitData Takes 2D or 3D MTdata and returns fitted parameters maps
+% Fit = FitData( data, Protocol, FitOpt, Method, wait )
+% Takes 2D or 3D MTdata and returns fitted parameters maps
 % ----------------------------------------------------------------------------------------------------
 % MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
 % Output : Fit structure with fitted parameters
@@ -44,10 +45,10 @@ for ii = 1:length(fields)
 end
 Fit.fields = fields;
 Fit.computed = Fit.(fields{1});
-Fit.Mask = data.Mask;
 
 % Apply mask
 if (~isempty(data.Mask))
+    Fit.Mask = data.Mask;
     Mask = reshape(data.Mask,nV,1);
     MTdata = MTdata.*repmat(Mask,[1,nT]);
 end

@@ -36,8 +36,10 @@ end
 % --- Executes just before qMTLab is made visible.
 function qMTLab_OpeningFcn(hObject, eventdata, handles, varargin)
 clc;
-startup;
-handles.root = cd;
+% startup;
+qMTLabDir = fileparts(which(mfilename()));
+addpath(genpath(qMTLabDir));
+handles.root = qMTLabDir;
 handles.method = '';
 handles.CurrentData = [];
 handles.FitDataDim = [];
@@ -60,8 +62,8 @@ switch Method
 end
 set(handles.MethodMenu, 'Value', ii);
 Method = GetMethod(handles);
-cd(fullfile(handles.root, Method));
-LoadDefaultOptions(fullfile(cd,'Parameters'));
+% cd(fullfile(handles.root, Method));
+LoadDefaultOptions(fullfile(handles.root,Method,'Parameters'));
 LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
 LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
 
@@ -84,7 +86,7 @@ function SimGUI_CloseRequestFcn(hObject, eventdata, handles)
 h = findobj('Tag','OptionsGUI');
 delete(h);
 delete(hObject);
-cd(handles.root);
+% cd(handles.root);
 AppData = getappdata(0);
 Fields = fieldnames(AppData);
 for k=1:length(Fields)
@@ -103,7 +105,7 @@ end
 % METHODMENU
 function MethodMenu_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
-cd(fullfile(handles.root, Method));
+% cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
 PathName = fullfile(handles.method,'Parameters');
 LoadDefaultOptions(PathName);
@@ -1106,7 +1108,12 @@ wh=findall(0,'tag','TMWWaitbar');
 delete(wh);
 
 % Save fit results
-save(fullfile(WD,'FitResults','FitResults.mat'),'-struct','FitResults');
+if(~isempty(FitResults.StudyID))
+    filename = strcat(FitResults.StudyID,'.mat');
+else
+    filename = 'FitResults.mat';
+end
+save(fullfile(WD,'FitResults',filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
@@ -1342,7 +1349,7 @@ function Viewer_Callback(hObject, eventdata, handles)
 FitResults = GetAppData('FitResults');
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
-file = strcat(Source,'.nii');
+file = fullfile(handles.root,strcat(Source,'.nii'));
 nii = make_nii(FitResults.(Source));
 save_nii(nii,file);
 nii_viewer(file);

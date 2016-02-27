@@ -30,7 +30,7 @@ if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
      R1f =  R1 - kf*(R1r - R1) / (R1r - R1 + kf/F);
 end
 
-alpha   =  Prot.Alpha;
+alpha   =  Prot.Alpha *pi/180;
 TR      =  Prot.TR;
 Angles  =  xData(:,1);
 Offsets =  xData(:,2);
@@ -62,7 +62,7 @@ L2  =  0.5*( (R1f + kf + R1r + kr + W) - sq );
 E1  =  exp( -L1*TR );
 E2  =  exp( -L2*TR );
 
-Mn  =  (E1-1) .* (E2-1) .* (L2-L1) .* Sf .* Mss .* sin(alpha*pi/180);
+Mn  =  (E1-1) .* (E2-1) .* (L2-L1) .* Sf .* Mss .* sin(alpha);
 Md  =  (E1-1) .* (Sf.*E2-1) .* (L2-L1) + (Sf-1) .* (E2-E1) .* (L2 - R1f - kf);
 Mxy =  Mn ./ Md;
 end

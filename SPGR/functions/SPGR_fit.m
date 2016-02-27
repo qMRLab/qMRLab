@@ -99,7 +99,7 @@ end
 
 % Fitting
 opt = optimoptions(@lsqcurvefit, 'Display', 'off');
-[x_free,resnorm, residuals] = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
+[x_free,resnorm] = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
 
 x = choose( FitOpt.st, x_free, fix );
 
