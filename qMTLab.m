@@ -195,7 +195,7 @@ end
 
 % SimSave
 function SimSave_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile('SimResults','SimResults.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.method,'SimResults','SimResults.mat'));
 if PathName == 0, return; end
 CurrentPanel = GetAppData('CurrentPanel');
 switch CurrentPanel
@@ -209,7 +209,7 @@ end
 
 % SimLoad
 function SimLoad_Callback(hObject, eventdata, handles)
-[Filename,Pathname] = uigetfile(fullfile('SimResults','*.mat'));
+[Filename,Pathname] = uigetfile(fullfile('*.mat'));
 if Pathname == 0, return; end
 load(fullfile(Pathname,Filename));
 
@@ -426,7 +426,7 @@ for ii = 1:8
 end
 
 SetAppData(SimVaryResults);
-SimVarySaveResults('SimResults', 'SimVaryTempResults.mat', handles);
+SimVarySaveResults(fullfile(handles.method,'SimResults'), 'SimVaryTempResults.mat', handles);
 SimVaryUpdatePopUp(handles);
 axes(handles.SimVaryAxe);
 SimVaryPlotResults(handles);
@@ -583,7 +583,7 @@ if (isempty(RndParam)); RndParam = GetRndParam(handles); end
 SimRndResults  =  VaryRndParam(Sim,Prot,FitOpt,SimRndOpt,RndParam,Method);
 SetAppData(SimRndResults);
 AnalyzeResults(RndParam, SimRndResults, handles);
-SimRndSaveResults('SimResults', 'SimRndTempResults.mat', handles)
+SimRndSaveResults(fullfile(handles.method,'SimResults'), 'SimRndTempResults.mat', handles)
 
 
 %########################### RANDOM OPTIONS ###############################
@@ -1081,6 +1081,14 @@ R1mapLoad(get(handles.R1mapFileBox,'String'), handles)
 % Get data
 [MTdata, Mask, R1map, B1map, B0map] =  GetAppData('MTdata','Mask','R1map','B1map','B0map');
 [Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
+
+% If SPGR with SledPike, check for Sf table
+if (strcmp(Method,'SPGR') && (strcmp(FitOpt.model, 'SledPikeCW') || strcmp(FitOpt.model, 'SledPikeRP')))
+    if (~isfield(Prot,'Sf') || isempty(Prot.Sf))
+        errordlg('An Sf table needs to be computed for this protocol prior to fitting. Please use the protocol panel do do so.','Missing Sf table');
+        return;
+    end
+end
 
 % Build data structure
 data   =  struct;

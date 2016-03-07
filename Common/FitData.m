@@ -16,7 +16,7 @@ function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 
 %############################# INITIALIZE #################################
 % Get dimensions
-MTdata = data.MTdata;
+MTdata = double(data.MTdata);
 dim = ndims(MTdata);
 x = 1; y = 1; z = 1;
 switch dim
@@ -48,7 +48,7 @@ Fit.computed = Fit.(fields{1});
 
 % Apply mask
 if (~isempty(data.Mask))
-    Fit.Mask = data.Mask;
+    Fit.Mask = double(data.Mask);
     Mask = reshape(data.Mask,nV,1);
     MTdata = MTdata.*repmat(Mask,[1,nT]);
 end
@@ -57,11 +57,11 @@ end
 Voxels = find(all(MTdata,2));
 l = length(Voxels);
 
-if (~isempty(data.R1map));  R1map = reshape(data.R1map,nV,1); end
+if (~isempty(data.R1map));  R1map = reshape(double(data.R1map),nV,1); end
 
-if (~isempty(data.B1map));  B1map = reshape(data.B1map,nV,1); end
+if (~isempty(data.B1map));  B1map = reshape(double(data.B1map),nV,1); end
 
-if (~isempty(data.B0map));  B0map = reshape(data.B0map,nV,1); end
+if (~isempty(data.B0map));  B0map = reshape(double(data.B0map),nV,1); end
 
 FitOpt.R1 = [];
 FitOpt.B1 = [];

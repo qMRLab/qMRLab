@@ -97,11 +97,11 @@ for i = 1:length(x)
            
     if (FitOpt.R1map)
         FitOpt.R1 = computeR1obs(Param);
+        Sens.R1map(i) = FitOpt.R1;
     end
     
     Sens.MTdata(i,:) = M;
-    Sens.R1map(i) = FitOpt.R1;
-
+    
     for k = 1:runs
         if (AddNoise)
             MTdata = noise( M, SNR );

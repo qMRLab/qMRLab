@@ -44,3 +44,5 @@ Temporary Items
 SPGR/FitResults/FitTempResults.mat
 SPGR/FitTempResults.mat
 SPGR/SimResults/SimCurveTempResults.mat
+*.asv
+*.nii
