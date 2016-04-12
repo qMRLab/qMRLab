@@ -1,16 +1,22 @@
-function Fit = FitData( data, Prot, FitOpt, Method, wait )
+function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 
-%FITDATA Takes 2D or 3D MTdata and returns fitted parameters maps
-%   data is a struct containing fields MTdata and optionnal R1map, Mask,
-%   B1map and B0map.
-
+% ----------------------------------------------------------------------------------------------------
+% Fit = FitData( data, Protocol, FitOpt, Method, wait )
+% Takes 2D or 3D MTdata and returns fitted parameters maps
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+%
 % MTdata is an array of size [x,y,z,nT], where x = image height, y = image
 % width, z = image depth and Nt is the number of data points for each voxel
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
 
 
 %############################# INITIALIZE #################################
 % Get dimensions
-MTdata = data.MTdata;
+MTdata = double(data.MTdata);
 dim = ndims(MTdata);
 x = 1; y = 1; z = 1;
 switch dim
@@ -28,9 +34,9 @@ MTdata = reshape(MTdata,nV,nT);
 M = zeros(nT,1);
 
 switch Method
-    case 'SIRFSE'; fields = {'F';'kf';'kr';'R1f';'R1r';'Sf';'Sr';'M0f';'M0r'};        
-    case 'bSSFP';  fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'M0f';'M0r'};        
-    case 'SPGR';   fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'T2r'};
+    case 'SIRFSE'; fields = {'F';'kf';'kr';'R1f';'R1r';'Sf';'Sr';'M0f';'M0r';'resnorm'};        
+    case 'bSSFP';  fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'M0f';'M0r';'resnorm'};        
+    case 'SPGR';   fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'T2r';'resnorm'};
 end
 
 for ii = 1:length(fields)
@@ -42,6 +48,7 @@ Fit.computed = Fit.(fields{1});
 
 % Apply mask
 if (~isempty(data.Mask))
+    Fit.Mask = double(data.Mask);
     Mask = reshape(data.Mask,nV,1);
     MTdata = MTdata.*repmat(single(Mask),[1,nT]);
 end
@@ -50,11 +57,11 @@ end
 Voxels = find(all(MTdata,2));
 l = length(Voxels);
 
-if (~isempty(data.R1map));  R1map = reshape(data.R1map,nV,1); end
+if (~isempty(data.R1map));  R1map = reshape(double(data.R1map),nV,1); end
 
-if (~isempty(data.B1map));  B1map = reshape(data.B1map,nV,1); end
+if (~isempty(data.B1map));  B1map = reshape(double(data.B1map),nV,1); end
 
-if (~isempty(data.B0map));  B0map = reshape(data.B0map,nV,1); end
+if (~isempty(data.B0map));  B0map = reshape(double(data.B0map),nV,1); end
 
 FitOpt.R1 = [];
 FitOpt.B1 = [];
@@ -90,11 +97,18 @@ for ii = 1:l
     
     if (~isempty(data.B0map)); FitOpt.B0 = B0map(vox); end
     
+    if (isfield(FitOpt,'PreviousFit'))
+        names = FitOpt.names;
+        for ff = 1:length(names)
+            FitOpt.st(ff) = FitOpt.PreviousFit.(names{ff})(vox);
+        end
+    end
+    
     % Fit data
     switch Method
-        case 'SIRFSE'; tempFit = SIRFSE_fit(M, Prot, FitOpt);
-        case 'bSSFP';  tempFit = bSSFP_fit(M, Prot, FitOpt);
-        case 'SPGR';   tempFit = SPGR_fit(M, Prot, FitOpt );
+        case 'SIRFSE'; tempFit = SIRFSE_fit(M, Protocol, FitOpt);
+        case 'bSSFP';  tempFit = bSSFP_fit(M, Protocol, FitOpt);
+        case 'SPGR';   tempFit = SPGR_fit(M, Protocol, FitOpt );
     end
         
     % Assign current voxel fitted values
@@ -104,7 +118,7 @@ for ii = 1:l
     
     Fit.computed(ii) = 1;
 
-    %-- save temp file
+    %-- save temp file every 20 voxels
     if(mod(ii,20) == 0)
       save('FitTempResults.mat', '-struct','Fit');
     end
@@ -119,7 +133,7 @@ end
 Fit.computed = reshape(Fit.computed,x,y,z);
 
 Fit.Time = toc
-Fit.Prot = Prot;
+Fit.Protocol = Protocol;
 Fit.FitOpt = FitOpt;
 
 end

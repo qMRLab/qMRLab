@@ -24,7 +24,7 @@ end
 % --- Executes just before bSSFP_OptionsGUI is made visible.
 function bSSFP_OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
-cd(fileparts(which(mfilename())));                         % SET WORKING DIRECTORY
+handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
 handles.caller = [];            % Handle to caller GUI
 if (~isempty(varargin))         % If called from GUI, set position to dock left
@@ -70,7 +70,7 @@ varargout{1} = handles.output;
 % SAVE
 function SimSave_Callback(hObject, eventdata, handles)
 Sim = GetSim(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewSim.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.root,'Parameters','NewSim.mat'));
 if PathName == 0, return; end
 Sim.FileType = 'Sim';
 Sim.FileName = FileName;
@@ -80,7 +80,7 @@ set(handles.SimFileName,'String',FileName);
 
 % LOAD
 function SimLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
+[FileName,PathName] = uigetfile(fullfile(handles.root,'Parameters','*.mat'));
 if PathName == 0, return; end
 Sim = load(fullfile(PathName,FileName));
 if (~any(strcmp('FileType',fieldnames(Sim))) || ~strcmp(Sim.FileType,'Sim') )
@@ -100,7 +100,7 @@ set(handles.SimFileName,'String',Sim.FileName);
 % DEFAULT
 function SimDefault_Callback(hObject, eventdata, handles)
 FileName = 'DefaultSim.mat';
-Sim = load(fullfile('.','Parameters',FileName));
+Sim = load(fullfile(handles.root,'Parameters',FileName));
 SetSim(Sim,handles);
 setappdata(gcf,'oldSim', Sim);
 set(handles.SimFileName,'String',FileName);
@@ -237,7 +237,7 @@ GetSim(handles);
 % SAVE
 function FitOptSave_Callback(hObject, eventdata, handles)
 FitOpt = GetFitOpt(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewFitOpt.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.root,'Parameters','NewFitOpt.mat'));
 if PathName == 0, return; end
 FitOpt.FileType = 'FitOpt';
 FitOpt.FileName = FileName;
@@ -247,7 +247,7 @@ set(handles.FitOptFileName,'String',FileName);
 
 % LOAD
 function FitOptLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
+[FileName,PathName] = uigetfile(fullfile(handles.root,'Parameters','*.mat'));
 if PathName == 0, return; end
 FitOpt = load(fullfile(PathName,FileName));
 
@@ -268,7 +268,7 @@ set(handles.FitOptFileName,'String',FitOpt.FileName);
 % DEFAULT
 function FitOptDefault_Callback(hObject, eventdata, handles)
 FileName = 'DefaultFitOpt.mat';
-FitOpt = load(fullfile('.','Parameters',FileName));
+FitOpt = load(fullfile(handles.root,'Parameters',FileName));
 SetFitOpt(FitOpt,handles);
 setappdata(gcf,'oldFitOpt',FitOpt);
 set(handles.FitOptFileName,'String',FileName);
@@ -351,7 +351,7 @@ end
 % SAVE
 function ProtSave_Callback(hObject, eventdata, handles)
 Prot = GetProt(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewProtocol.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.root,'Parameters','NewProtocol.mat'));
 if PathName == 0, return; end
 Prot.FileType = 'Protocol';
 Prot.Method = 'bSSFP';
@@ -362,7 +362,7 @@ set(handles.ProtFileName,'String',FileName);
 
 % LOAD
 function ProtLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
+[FileName,PathName] = uigetfile(fullfile(handles.root,'Parameters','*.mat'));
 if PathName == 0, return; end
 Prot = load(fullfile(PathName,FileName));
 if (~any(strcmp('FileType',fieldnames(Prot))) || ~strcmp(Prot.FileType,'Protocol') )
@@ -382,7 +382,7 @@ set(handles.ProtFileName,'String',Prot.FileName);
 % DEFAULT
 function ProtDefault_Callback(hObject, eventdata, handles)
 FileName = 'DefaultProt.mat';
-Prot = load(fullfile('.','Parameters',FileName));
+Prot = load(fullfile(handles.root,'Parameters',FileName));
 SetProt(Prot,handles);
 setappdata(gcf,'oldProt', Prot);
 set(handles.ProtFileName,'String',FileName);

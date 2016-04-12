@@ -2,7 +2,7 @@
 
 clear; clc;
 Sim  = load('SPGR/Parameters/DefaultSim.mat');      % load default parameters
-Prot = load('SPGR/Parameters/DefaultProt.mat');     % load default protocol
+Prot = load('SPGR/Parameters/DemoProtocol.mat');     % load default protocol
 FitOpt = load('SPGR/Parameters/DefaultFitOpt.mat');	% load default fit options
 FitOpt.R1 = computeR1obs(Sim.Param);
 %% Simulation
@@ -14,8 +14,7 @@ MTnoise = noise(MTdata, Sim.Opt.SNR);
 timeSim = toc
 
 %%
-% Fitted curve Yarnykh
-FitOpt.model = 'Yarnykh';
+% Fitted curve
 tic;
 Fit = SPGR_fit(MTnoise, Prot, FitOpt );
 timeFit = toc
@@ -23,6 +22,7 @@ timeFit = toc
 %%
 SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt )
 
+%%
 % Plot results
 figure();
 SPGR_PlotSimCurve(MTdata, MTnoise, Prot, Sim, SimCurveResults);

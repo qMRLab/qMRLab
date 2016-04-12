@@ -1,19 +1,24 @@
 function Fit = SPGR_fit(MTdata, Prot, FitOpt )
-%%SPGR_fit Fits analytical SPGR model to data
-% Fit a vector x = [F,kr,R1f,R1r,T2f,T2r]
 
-[Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
-Prot.Tau = Tau(1);
+% ----------------------------------------------------------------------------------------------------
+% SPGR_fit Fits analytical SPGR model to data
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 % Apply B1map
 if (isfield(FitOpt,'B1') && ~isempty(FitOpt.B1))
-    Angles = Angles * FitOpt.B1;
+    Prot.Angles = Prot.Angles * FitOpt.B1;
     Prot.Alpha = Prot.Alpha * FitOpt.B1;
 end
 
 % Apply B0map
 if (isfield(FitOpt,'B0') && ~isempty(FitOpt.B0))
-    Offsets = Offsets + FitOpt.B0;
+    Prot.Offsets = Prot.Offsets + FitOpt.B0;
 end
 
 % Use R1map
@@ -29,6 +34,8 @@ if (FitOpt.R1reqR1f)
 end
 
 fix = FitOpt.fx;
+[Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
+Prot.Tau = Tau(1);
 
 switch FitOpt.model   
     case 'SledPikeCW'
@@ -92,9 +99,9 @@ end
 
 % Fitting
 opt = optimoptions(@lsqcurvefit, 'Display', 'off');
-x_fit = lsqcurvefit(func, FitOpt.st(~fix), double(xData), MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
+[x_free,resnorm] = lsqcurvefit(func, FitOpt.st(~fix), double(xData), MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
 
-x = choose( FitOpt.st, x_fit, fix );
+x = choose( FitOpt.st, x_free, fix );
 
 % Fit results
 Fit.F   = x(1);
@@ -120,10 +127,12 @@ if ( strcmp(FitOpt.model, {'Yarnykh', 'Ramani'}) )
     end
 end
 
+% Fit.residuals = residuals;
+Fit.resnorm = resnorm;
+
 end
 
 % Choose fitted or fixed parameters
 function a = choose( a, x, fx )
 a(~fx) = x;
 end
-

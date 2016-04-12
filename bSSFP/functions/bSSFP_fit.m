@@ -1,6 +1,13 @@
 function Fit = bSSFP_fit(MTdata, Prot, FitOpt)
-% bSSFP_fit Fits analytical bSSFP model to data
-% Fit a vector x = [F,kr,R1f,R1r,T2f,M0f]
+
+% ----------------------------------------------------------------------------------------------------
+% bSSFP_fit Fits analytical SPGR model to data
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
 
 [alpha, Trf, TR, W] = bSSFP_prepare(Prot, FitOpt);
 
@@ -28,7 +35,7 @@ fix = FitOpt.fx;
 % Fitting
 opt = optimoptions(@lsqcurvefit, 'Display', 'off');
 
-x_free = lsqcurvefit(@(x,xdata) bSSFP_fun(choose( FitOpt.st, x, fix ), xdata, FitOpt),...
+[x_free, resnorm, residuals] = lsqcurvefit(@(x,xdata) bSSFP_fun(choose( FitOpt.st, x, fix ), xdata, FitOpt),...
                      FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
      
 x = choose( FitOpt.st, x_free, fix );     
@@ -52,10 +59,7 @@ if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
      Fit.R1f = R1 - Fit.kf*(Fit.R1r - R1) / (Fit.R1r - R1 + Fit.kf/Fit.F);
 end
 
-end
+% Fit.residuals = residuals;
+Fit.resnorm = resnorm;
 
-% Choose fitted or fixed parameters
-function a = choose( a, x, fx ) 
-a(~fx) = x;
 end
-

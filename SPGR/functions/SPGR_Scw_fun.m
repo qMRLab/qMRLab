@@ -1,8 +1,17 @@
 function mxy = SPGR_Scw_fun(x, xData, Prot, FitOpt)
-%SPGR_Y_fun Sled&Pike CW Analytical solution for SPGR MT data used for fitting
+
+% ----------------------------------------------------------------------------------------------------
+% SPGR_Y_fun Sled&Pike CW Analytical solution for SPGR MT data used for fitting
+% ----------------------------------------------------------------------------------------------------
 % x = [F,kr,R1f,R1r,T2f,T2r]
 % xData = [Angles, Offsets, w1cw]
 % Output : normalized mxy
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% reference: Sled, J. G., & Pike, G. B. (2001).
+% Quantitative imaging of magnetization transfer exchange and relaxation properties in vivo using MRI.
+% Magn Reson Med, 46(5), 923–931
+% ----------------------------------------------------------------------------------------------------
 
 F   = x(1);
 kr  = x(2);
@@ -21,15 +30,15 @@ if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
      R1f =  R1 - kf*(R1r - R1) / (R1r - R1 + kf/F);
 end
 
-alpha   =  Prot.Alpha;
+alpha   =  Prot.Alpha *pi/180;
 TR      =  Prot.TR;
 Angles  =  xData(:,1);
 Offsets =  xData(:,2);
 w1cw    =  xData(:,3);
 
-Sf = GetSf(Angles,Offsets,T2f,FitOpt.SfTable);
+Sf = GetSf(Angles,Offsets,T2f,Prot.Sf);
 
-if (fix(6))
+if (FitOpt.fx(6))
     WB = FitOpt.WB;
 else
     WB = computeWB(w1cw, Offsets, T2r, FitOpt.lineshape);
@@ -53,7 +62,7 @@ L2  =  0.5*( (R1f + kf + R1r + kr + W) - sq );
 E1  =  exp( -L1*TR );
 E2  =  exp( -L2*TR );
 
-Mn  =  (E1-1) .* (E2-1) .* (L2-L1) .* Sf .* Mss .* sin(alpha*pi/180);
+Mn  =  (E1-1) .* (E2-1) .* (L2-L1) .* Sf .* Mss .* sin(alpha);
 Md  =  (E1-1) .* (Sf.*E2-1) .* (L2-L1) + (Sf-1) .* (E2-E1) .* (L2 - R1f - kf);
 Mxy =  Mn ./ Md;
 end

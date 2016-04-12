@@ -2,6 +2,17 @@ function varargout = qMTLab(varargin)
 % QMTLAB MATLAB code for qMTLab.fig
 % GUI to simulate/fit qMT data 
 
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, JF. et al (2016).
+% Quantitative magnetization transfer imaging made easy with q MTLab
+% Software for data simulation, analysis and visualization.
+% Concepts in Magnetic Resonance Part A
+% ----------------------------------------------------------------------------------------------------
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -25,13 +36,16 @@ end
 % --- Executes just before qMTLab is made visible.
 function qMTLab_OpeningFcn(hObject, eventdata, handles, varargin)
 clc;
-startup;
-handles.root = cd;
+% startup;
+qMTLabDir = fileparts(which(mfilename()));
+addpath(genpath(qMTLabDir));
+handles.root = qMTLabDir;
 handles.method = '';
 handles.CurrentData = [];
 handles.FitDataDim = [];
 handles.FitDataSize = [];
 handles.FitDataSlice = [];
+handles.dcm_obj = [];
 handles.output = hObject;
 guidata(hObject, handles);
 
@@ -48,28 +62,19 @@ switch Method
 end
 set(handles.MethodMenu, 'Value', ii);
 Method = GetMethod(handles);
-cd(fullfile(handles.root, Method));
-LoadDefaultOptions(fullfile(cd,'Parameters'));
+% cd(fullfile(handles.root, Method));
+LoadDefaultOptions(fullfile(handles.root,Method,'Parameters'));
 LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
 LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
 
 % SET WINDOW AND PANELS
-% CurrentPos = get(gcf, 'Position');
-% NewPos     = CurrentPos;
-% NewPos(3)  = 162;
-% set(gcf, 'Position', NewPos);
 movegui(gcf,'center')
 CurrentPos = get(gcf, 'Position');
 NewPos     = CurrentPos;
 NewPos(1)  = CurrentPos(1) - 40;
 set(gcf, 'Position', NewPos);
 
-% PanelPos = get(handles.SimCurvePanel, 'Position');
-% set(handles.SimRndPanel,  'Position', PanelPos);
-% set(handles.SimVaryPanel, 'Position', PanelPos);
-% set(handles.FitDataPanel, 'Position', PanelPos);
-
-SetActive('SimCurve', handles);
+SetActive('FitData', handles);
 OpenOptionsPanel_Callback(hObject, eventdata, handles);
 
 % Outputs from this function are returned to the command line.
@@ -81,7 +86,7 @@ function SimGUI_CloseRequestFcn(hObject, eventdata, handles)
 h = findobj('Tag','OptionsGUI');
 delete(h);
 delete(hObject);
-cd(handles.root);
+% cd(handles.root);
 AppData = getappdata(0);
 Fields = fieldnames(AppData);
 for k=1:length(Fields)
@@ -100,7 +105,7 @@ end
 % METHODMENU
 function MethodMenu_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
-cd(fullfile(handles.root, Method));
+% cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
 PathName = fullfile(handles.method,'Parameters');
 LoadDefaultOptions(PathName);
@@ -190,7 +195,7 @@ end
 
 % SimSave
 function SimSave_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile('SimResults','SimResults.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.method,'SimResults','SimResults.mat'));
 if PathName == 0, return; end
 CurrentPanel = GetAppData('CurrentPanel');
 switch CurrentPanel
@@ -204,7 +209,7 @@ end
 
 % SimLoad
 function SimLoad_Callback(hObject, eventdata, handles)
-[Filename,Pathname] = uigetfile(fullfile('SimResults','*.mat'));
+[Filename,Pathname] = uigetfile(fullfile('*.mat'));
 if Pathname == 0, return; end
 load(fullfile(Pathname,Filename));
 
@@ -421,7 +426,7 @@ for ii = 1:8
 end
 
 SetAppData(SimVaryResults);
-SimVarySaveResults('SimResults', 'SimVaryTempResults.mat', handles);
+SimVarySaveResults(fullfile(handles.method,'SimResults'), 'SimVaryTempResults.mat', handles);
 SimVaryUpdatePopUp(handles);
 axes(handles.SimVaryAxe);
 SimVaryPlotResults(handles);
@@ -578,7 +583,7 @@ if (isempty(RndParam)); RndParam = GetRndParam(handles); end
 SimRndResults  =  VaryRndParam(Sim,Prot,FitOpt,SimRndOpt,RndParam,Method);
 SetAppData(SimRndResults);
 AnalyzeResults(RndParam, SimRndResults, handles);
-SimRndSaveResults('SimResults', 'SimRndTempResults.mat', handles)
+SimRndSaveResults(fullfile(handles.method,'SimResults'), 'SimRndTempResults.mat', handles)
 
 
 %########################### RANDOM OPTIONS ###############################
@@ -840,84 +845,184 @@ SimRndPlotResults(handles);
 function FitDataBtn_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 
-% FITRESULTSSAVE
-function FitResultsSave_Callback(hObject, eventdata, handles)
-FitResults = GetAppData('FitResults');
-[FileName,PathName] = uiputfile(fullfile('FitResults','NewFitResults.mat'));
-if PathName == 0, return; end
-save(fullfile(PathName,FileName),'-struct','FitResults');
-set(handles.CurrentFitId,'String',FileName);
+% WORKING DIRECTORY
+function WDLoad_Callback(hObject, eventdata, handles)
+WD = uigetdir;
+if WD == 0, return; end
+set(handles.WDBox,'String',WD);
 
-% FITRESULTSLOAD
-function FitResultsLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('FitResults','*.mat'));
-if PathName == 0, return; end
-set(handles.CurrentFitId,'String',FileName);
-FitResults = load(fullfile(PathName,FileName));
-Prot   =  FitResults.Prot;
-FitOpt =  FitResults.FitOpt;
-SetAppData(FitResults, Prot, FitOpt);
-% Update Options Panel
-h = findobj('Tag','OptionsGUI');
-if ~isempty(h)
-    OpenOptionsPanel_Callback(hObject, eventdata, handles)
-end
-SetActive('FitData', handles);
-handles.CurrentData = FitResults;
-guidata(hObject,handles);
-DrawPlot(handles);
+% Clear previous file paths
+set(handles.B1mapFileBox,'String', '');
+set(handles.B0mapFileBox,'String', '');
+set(handles.R1mapFileBox,'String', '');
+set(handles.MaskFileBox,'String', '');
+set(handles.MTdataFileBox,'String', '');
 
-% MTDATA
-function MTdataLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
-if PathName == 0, return; end
-set(handles.MTdataFileBox,'String',fullfile(PathName,FileName));
-load(fullfile(PathName,FileName));
-% Set sequence
-if (exist('Prot','var'))
-    SetAppData(Prot);
+%Check for files and set fields automatically
+dirData = dir(WD);
+dirIndex = [dirData.isdir];
+fileList = {dirData(~dirIndex).name}';
+
+for i = 1:length(fileList)
+    if strcmp(fileList{i}, 'Protocol.mat')
+        Prot = load(fullfile(WD,'Protocol.mat'));
+        SetAppData(Prot);
+    elseif strcmp(fileList{i}, 'FitOpt.mat')        
+        FitOpt = load(fullfile(WD,'FitOpt.mat'));
+        SetAppData(FitOpt);
+    elseif strcmp(fileList{i}(1:end-4), 'MTdata') 
+        FullFile = fullfile(WD,fileList{i});
+        MTdataLoad(FullFile, handles)
+    elseif strcmp(fileList{i}(1:end-4), 'Mask') 
+        FullFile = fullfile(WD,fileList{i});
+        MaskLoad(FullFile, handles)
+    elseif strcmp(fileList{i}(1:end-4), 'R1map') 
+        FullFile = fullfile(WD,fileList{i});
+        R1mapLoad(FullFile, handles)
+    elseif strcmp(fileList{i}(1:end-4), 'B1map') 
+        FullFile = fullfile(WD,fileList{i});
+        B1mapLoad(FullFile, handles)
+    elseif strcmp(fileList{i}(1:end-4), 'B0map') 
+        FullFile = fullfile(WD,fileList{i});
+        B0mapLoad(FullFile, handles)
+    end
 end
 OpenOptionsPanel_Callback(hObject, eventdata, handles);
 
+function WDBox_Callback(hObject, eventdata, handles)
+
+% MTDATA
+function MTdataLoad_Callback(hObject, eventdata, handles)
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select MTdata file',WD);
+if PathName == 0, return; end
+FullFile = fullfile(PathName,FileName);
+MTdataLoad(FullFile, handles);
+
+function MTdataLoad(FullFile, handles)
+MTdata = [];
+set(handles.MTdataFileBox,'String',FullFile);
+[~,~,ext] = fileparts(FullFile);
+if strcmp(ext,'.mat');
+    load(FullFile);
+elseif strcmp(ext,'.nii');
+    nii = load_nii(FullFile);
+    MTdata = nii.img;
+end
+SetAppData(MTdata);
+
 function MTdataFileBox_Callback(hObject, eventdata, handles)
+% FullFile = get(handles.MTdataFileBox,'String');
+% MTdataLoad(FullFile, handles);
 
 % MASKDATA
 function MaskLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName,Index] = uigetfile({'*.nii';'*.mat'},'Select Mask file',WD);
 if PathName == 0, return; end
-set(handles.MaskFileBox,'String',fullfile(PathName,FileName));
+FullFile = fullfile(PathName,FileName);
+MaskLoad(FullFile, handles);
+
+function MaskLoad(FullFile, handles)
+Mask = [];
+set(handles.MaskFileBox,'String',FullFile);
+[pathstr,name,ext] = fileparts(FullFile) ;
+if strcmp(ext,'.mat');
+    load(FullFile);
+elseif strcmp(ext,'.nii');
+    nii = load_nii(FullFile);
+    Mask = nii.img;
+end
+SetAppData(Mask);
 
 function MaskFileBox_Callback(hObject, eventdata, handles)
+% FullFile = get(handles.MaskFileBox,'String');
+% MaskLoad(FullFile, handles);
 
 % R1MAP DATA
 function R1mapLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select R1map file',WD);
 if PathName == 0, return; end
-set(handles.R1mapFileBox,'String',fullfile(PathName,FileName));
+FullFile = fullfile(PathName,FileName);
+R1mapLoad(FullFile, handles);
+
+function R1mapLoad(FullFile, handles)
+R1map = [];
+set(handles.R1mapFileBox,'String',FullFile);
+[~,~,ext] = fileparts(FullFile) ;
+if strcmp(ext,'.mat');
+    load(FullFile);
+elseif strcmp(ext,'.nii');
+    nii = load_nii(FullFile);
+    R1map = nii.img;
+end
+SetAppData(R1map);
 
 function R1mapFileBox_Callback(hObject, eventdata, handles)
+% FullFile = get(handles.R1mapFileBox,'String');
+% R1mapLoad(FullFile, handles);
 
 % B1 MAP
 function B1mapLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B1map file',WD);
 if PathName == 0, return; end
-set(handles.B1mapFileBox,'String',fullfile(PathName,FileName));
+FullFile = fullfile(PathName,FileName);
+B1mapLoad(FullFile, handles);
+
+function B1mapLoad(FullFile, handles)
+B1map = [];
+set(handles.B1mapFileBox,'String',FullFile);
+[~,~,ext] = fileparts(FullFile) ;
+if strcmp(ext,'.mat');
+    load(FullFile);
+elseif strcmp(ext,'.nii');
+    nii = load_nii(FullFile);
+    B1map = nii.img;
+end
+SetAppData(B1map);
 
 function B1mapFileBox_Callback(hObject, eventdata, handles)
+% FullFile = get(handles.R1mapFileBox,'String');
+% B1mapLoad(FullFile, handles);
 
 % B0 MAP
 function B0mapLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('Data','*.mat'));
+WD = get(handles.WDBox,'String');
+[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B0map file',WD);
 if PathName == 0, return; end
-set(handles.B0mapFileBox,'String',fullfile(PathName,FileName));
+FullFile = fullfile(PathName,FileName);
+B0mapLoad(FullFile, handles);
+
+function B0mapLoad(FullFile, handles)
+B0map = [];
+set(handles.B0mapFileBox,'String',FullFile);
+[~,~,ext] = fileparts(FullFile) ;
+if strcmp(ext,'.mat');
+    load(FullFile);
+elseif strcmp(ext,'.nii');
+    nii = load_nii(FullFile);
+    B0map = nii.img;
+end
+SetAppData(B0map);
 
 function B0mapFileBox_Callback(hObject, eventdata, handles)
+% FullFile = get(handles.B0mapFileBox,'String');
+% B0mapLoad(FullFile, handles);
 
 % VIEW MAPS
+function DataView_Callback(hObject, eventdata, handles)
+MTdata = GetAppData('MTdata');
+n = ndims(MTdata);
+Data.MTdata = mean(double(MTdata),n);
+Data.fields = {'MTdata'};
+handles.CurrentData = Data;
+guidata(hObject,handles);
+DrawPlot(handles);
+
 function MaskView_Callback(hObject, eventdata, handles)
-FullFile = get(handles.MaskFileBox,'String');
-if(isempty(FullFile)); return; end;
-data = importdata(FullFile);
+data = GetAppData('Mask');
 Data.Mask = double(data);
 Data.fields = {'Mask'};
 handles.CurrentData = Data;
@@ -925,8 +1030,7 @@ guidata(hObject,handles);
 DrawPlot(handles);
 
 function R1mapView_Callback(hObject, eventdata, handles)
-FullFile = get(handles.R1mapFileBox,'String');
-data = importdata(FullFile);
+data = GetAppData('R1map');
 Data.R1map = double(data);
 Data.fields = {'R1map'};
 handles.CurrentData = Data;
@@ -934,8 +1038,7 @@ guidata(hObject,handles);
 DrawPlot(handles);
 
 function B1mapView_Callback(hObject, eventdata, handles)
-FullFile = get(handles.B1mapFileBox,'String');
-data = importdata(FullFile);
+data = GetAppData('B1map');
 Data.B1map = double(data);
 Data.fields = {'B1map'};
 handles.CurrentData = Data;
@@ -943,8 +1046,7 @@ guidata(hObject,handles);
 DrawPlot(handles);
 
 function B0mapView_Callback(hObject, eventdata, handles)
-FullFile = get(handles.B0mapFileBox,'String');
-data = importdata(FullFile);
+data = GetAppData('B0map');
 Data.B0map = double(data);
 Data.fields = {'B0map'};
 handles.CurrentData = Data;
@@ -959,67 +1061,126 @@ function StudyIDBox_Callback(hObject, eventdata, handles)
 % FITDATA GO
 function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
-Method =  GetAppData('Method');
+
+%Set directory for fit results
+WD = get(handles.WDBox,'String');
+if isempty(WD)
+    WD = pwd;
+end
+if (~exist(fullfile(WD,'FitResults'), 'file'))
+    mkdir(WD,'FitResults');
+end
+
+% Make sure we're using files that are actually in text boxes
+MTdataLoad(get(handles.MTdataFileBox,'String'), handles)
+MaskLoad(get(handles.MaskFileBox,'String'), handles)
+B0mapLoad(get(handles.B0mapFileBox,'String'), handles)
+B1mapLoad(get(handles.B1mapFileBox,'String'), handles)
+R1mapLoad(get(handles.R1mapFileBox,'String'), handles)
+
+% Get data
+[MTdata, Mask, R1map, B1map, B0map] =  GetAppData('MTdata','Mask','R1map','B1map','B0map');
+[Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
+
+% If SPGR with SledPike, check for Sf table
+if (strcmp(Method,'SPGR') && (strcmp(FitOpt.model, 'SledPikeCW') || strcmp(FitOpt.model, 'SledPikeRP')))
+    if (~isfield(Prot,'Sf') || isempty(Prot.Sf))
+        errordlg('An Sf table needs to be computed for this protocol prior to fitting. Please use the protocol panel do do so.','Missing Sf table');
+        return;
+    end
+end
+
+% Build data structure
 data   =  struct;
-
-% Load MTdata
-MTdataFullFile = get(handles.MTdataFileBox,'String');
-if (~isempty(MTdataFullFile))
-    load(MTdataFullFile);
-    data.MTdata = MTdata;
-else
-    errordlg('No MT data supplied');
-    return;
-end
-
-% Mask data
-data.Mask = [];
-MaskFullFile = get(handles.MaskFileBox,'String');
-if (~isempty(MaskFullFile));  
-    load(MaskFullFile);
-    data.Mask = Mask;
-end
-
-% R1map data
-data.R1map = [];
-R1mapFullFile = get(handles.R1mapFileBox,'String');
-if (~isempty(R1mapFullFile)); 
-    load(R1mapFullFile);
-    data.R1map = R1map;
-end
-
-% B1map data
-data.B1map = [];
-B1mapFullFile = get(handles.B1mapFileBox,'String');
-if (~isempty(B1mapFullFile)); 
-    load(B1mapFullFile);
-    data.B1map = B1map;
-end
-
-% B0map data
-data.B0map = [];
-B0mapFullFile = get(handles.B0mapFileBox,'String');
-if (~isempty(B0mapFullFile)); 
-    load(B0mapFullFile);
-    data.B0map = B0map;
-end
-
-% Get Options
-[Prot, FitOpt] = GetAppData('Prot','FitOpt');
+data.MTdata = double(MTdata);
+data.Mask = double(Mask);
+data.R1map = double(R1map);
+data.B1map = double(B1map);
+data.B0map = double(B0map);
 
 % Do the fitting
 FitResults = FitData(data,Prot,FitOpt,Method,1);
+
+% Save info with results
 FitResults.StudyID = get(handles.StudyIDBox,'String');
+FitResults.WD = WD;
+FitResults.Files.MTdata = get(handles.MTdataFileBox,'String');
+FitResults.Files.Mask = get(handles.MaskFileBox,'String');
+FitResults.Files.R1map = get(handles.R1mapFileBox,'String');
+FitResults.Files.B1map = get(handles.B1mapFileBox,'String');
+FitResults.Files.B0map = get(handles.B0mapFileBox,'String');
 SetAppData(FitResults);
 
-% Save fit results in temp file
-save(fullfile('.','FitResults','FitTempResults.mat'),'-struct','FitResults');
-set(handles.CurrentFitId,'String','FitTempResults.mat');
+% Kill the waitbar in case of a problem occured
+wh=findall(0,'tag','TMWWaitbar');
+delete(wh);
+
+% Save fit results
+if(~isempty(FitResults.StudyID))
+    filename = strcat(FitResults.StudyID,'.mat');
+else
+    filename = 'FitResults.mat';
+end
+save(fullfile(WD,'FitResults',filename),'-struct','FitResults');
+set(handles.CurrentFitId,'String','FitResults.mat');
+
+% Save nii maps
+for i = 1:length(FitResults.fields)
+    map = FitResults.fields{i};
+    file = strcat(map,'.nii');
+    nii = make_nii(FitResults.(map));
+    save_nii(nii,fullfile(WD,'FitResults',file));
+end
 
 % Show results
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
+
+
+% FITRESULTSSAVE
+function FitResultsSave_Callback(hObject, eventdata, handles)
+FitResults = GetAppData('FitResults');
+[FileName,PathName] = uiputfile('*.mat');
+if PathName == 0, return; end
+save(fullfile(PathName,FileName),'-struct','FitResults');
+set(handles.CurrentFitId,'String',FileName);
+
+
+% FITRESULTSLOAD
+function FitResultsLoad_Callback(hObject, eventdata, handles)
+[FileName,PathName] = uigetfile('*.mat');
+if PathName == 0, return; end
+set(handles.CurrentFitId,'String',FileName);
+FitResults = load(fullfile(PathName,FileName));
+Prot   =  FitResults.Protocol;
+FitOpt =  FitResults.FitOpt;
+SetAppData(FitResults, Prot, FitOpt);
+
+if (isfield(FitResults,'WD'))
+    set(handles.WDBox,'String', FitResults.WD);
+end
+set(handles.StudyIDBox,'String', FitResults.StudyID);
+set(handles.MTdataFileBox,'String', FitResults.Files.MTdata);
+set(handles.MaskFileBox,'String', FitResults.Files.Mask);
+set(handles.R1mapFileBox,'String', FitResults.Files.R1map);
+set(handles.B1mapFileBox,'String', FitResults.Files.B1map);
+set(handles.B0mapFileBox,'String', FitResults.Files.B0map);
+
+if exist(FitResults.Files.MTdata,'file')
+    MTdataLoad(get(handles.MTdataFileBox,'String'), handles);
+end
+
+SetActive('FitData', handles);
+handles.CurrentData = FitResults;
+guidata(hObject,handles);
+DrawPlot(handles);
+
+% Update Options Panel
+h = findobj('Tag','OptionsGUI');
+if ~isempty(h)
+    OpenOptionsPanel_Callback(hObject, eventdata, handles)
+end
 
 
 
@@ -1079,6 +1240,8 @@ caxis([min max]);
 function ViewPop_Callback(hObject, eventdata, handles)
 UpdatePopUp(handles);
 RefreshPlot(handles);
+xlim('auto');
+ylim('auto');
 
 % SLICE
 function SliceValue_Callback(hObject, eventdata, handles)
@@ -1124,11 +1287,81 @@ delete(h);
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
 Current = GetCurrent(handles);
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
 ii = find(Current);
 nVox = length(ii);
 data = reshape(Current(ii),1,nVox);
 figure();
 hist(data,20);
+xlabel(Source);
+ylabel('Counts');
+
+% PLOT DATA FIT
+function ViewDataFit_Callback(hObject, eventdata, handles)
+[FitResults,Method] = GetAppData('FitResults','Method');
+MTdata = GetAppData('MTdata');
+S = size(FitResults.F);
+
+info_dcm = getCursorInfo(handles.dcm_obj);
+x = info_dcm.Position(1);
+y = 1+ S(2) - info_dcm.Position(2);
+z = str2double(get(handles.SliceValue,'String'));
+index = sub2ind(S,x,y,z);
+
+if length(S) == 2
+    data = squeeze(MTdata(x,y,:));
+elseif length(S) == 3
+    data = squeeze(MTdata(x,y,z,:));
+end
+
+Protocol = FitResults.Protocol;
+FitOpt = FitResults.FitOpt;
+Fit.F = FitResults.F(index);
+Fit.kr = FitResults.kr(index);
+Fit.kf = FitResults.kf(index);
+Fit.R1f = FitResults.R1f(index);
+Fit.R1r = FitResults.R1r(index);
+
+Sim.Opt.AddNoise = 0;
+figure();
+
+switch Method
+    case 'bSSFP'
+        Fit.T2f = FitResults.T2f(index);
+        Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = bSSFP_SimCurve(Fit, Protocol, FitOpt );
+        axe(1) = subplot(2,1,1);
+        axe(2) = subplot(2,1,2);
+        bSSFP_PlotSimCurve(data,  data, Protocol, Sim, SimCurveResults, axe);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f));
+    case 'SPGR'
+        Fit.T2f = FitResults.T2f(index);
+        Fit.T2r = FitResults.T2r(index);
+        SimCurveResults = SPGR_SimCurve(Fit, Protocol, FitOpt );
+        SPGR_PlotSimCurve(data, data, Protocol, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r));
+    case 'SIRFSE'
+        Fit.Sf = FitResults.Sf(index);
+        Fit.Sr = FitResults.Sr(index);
+        Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = SIRFSE_SimCurve(Fit, Protocol, FitOpt );
+        SIRFSE_PlotSimCurve(data,   data, Protocol, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f));
+
+end
+
+
+% OPEN VIEWER
+function Viewer_Callback(hObject, eventdata, handles)
+FitResults = GetAppData('FitResults');
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+file = fullfile(handles.root,strcat(Source,'.nii'));
+nii = make_nii(FitResults.(Source));
+save_nii(nii,file);
+nii_viewer(file);
+
 
 % PAN
 function PanBtn_Callback(hObject, eventdata, handles)
@@ -1153,16 +1386,28 @@ set(handles.ZoomBtn,'Value',0);
 set(handles.PanBtn,'Value',0);
 zoom off;
 pan off;
+fig = gcf;
+handles.dcm_obj = datacursormode(fig);
+guidata(gcbf,handles);
+
 
 % ############################ FUNCTIONS ##################################
 function UpdateSlice(handles)
 View =  get(handles.ViewPop,'Value');
+switch View
+    case 1
+        x = 3;
+    case 2
+        x = 2;
+    case 3
+        x = 1;
+end
 dim = handles.FitDataDim;
 if (dim==3)
-    slice = handles.FitDataSlice(View);
-    size = handles.FitDataSize(View);
+    slice = handles.FitDataSlice(x);
+    size = handles.FitDataSize(x);
     set(handles.SliceValue,  'String', slice);
-    set(handles.SliceSlider, 'Min',    0);
+    set(handles.SliceSlider, 'Min',    1);
     set(handles.SliceSlider, 'Max',    size);
     set(handles.SliceSlider, 'Value',  slice);
     Step = [1, 1] / size;
@@ -1185,7 +1430,7 @@ handles.FitDataDim = ndims(Data.(fields{1}));
 dim = handles.FitDataDim;
 if (dim==3)
         set(handles.ViewPop,'String',{'Axial','Coronal','Sagittal'});
-         handles.FitDataSlice = floor(handles.FitDataSize/2);
+        handles.FitDataSlice = floor(handles.FitDataSize/2);
 else
         set(handles.ViewPop,'String','Axial');
         handles.FitDataSlice = 1;
@@ -1197,19 +1442,33 @@ function GetPlotRange(handles)
 Current = GetCurrent(handles);
 Min = min(min(min(Current)));
 Max = max(max(max(Current)));
+
+if (Min == Max)
+    Max = Max + 1;
+end
+if (Min > Max)
+    temp = Min;
+    Min = Max;
+    Max = temp;
+end
+
 if (Min < 0)
-    set(handles.MinSlider, 'Min',    Min);
-    set(handles.MinSlider, 'Max',    0);
+    set(handles.MinSlider, 'Min',    1.5*Min);
 else
     set(handles.MinSlider, 'Min',    0.5*Min);
-    set(handles.MinSlider, 'Max',    Max);
 end
+
+if (Max < 0)
+    set(handles.MaxSlider, 'Max',    0.5*Max);
+else
+    set(handles.MaxSlider, 'Max',    1.5*Max);
+end
+set(handles.MinSlider, 'Max',    Max);
+set(handles.MaxSlider, 'Min',    Min);
 set(handles.MinValue,  'String', Min);
 set(handles.MaxValue,  'String', Max);
 set(handles.MinSlider, 'Value',  Min);
 set(handles.MaxSlider, 'Value',  Max);
-set(handles.MaxSlider, 'Max',    Min);
-set(handles.MaxSlider, 'Max',    1.5*Max);
 guidata(gcbf, handles);
 
 function DrawPlot(handles)
@@ -1218,7 +1477,8 @@ set(handles.ViewPop,   'Value',  1);
 UpdatePopUp(handles);
 GetPlotRange(handles);
 Current = GetCurrent(handles);
-imagesc(flipdim(Current',1));
+% imagesc(flipdim(Current',1));
+imagesc(rot90(Current));
 axis equal off;
 RefreshColorMap(handles)
 
@@ -1226,7 +1486,8 @@ function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
 yl = ylim;
-imagesc(flipdim(Current',1));
+% imagesc(flipdim(Current',1));
+imagesc(rot90(Current));
 axis equal off;
 RefreshColorMap(handles)
 xlim(xl);
@@ -1282,3 +1543,4 @@ function MaskFileBox_CreateFcn(hObject, eventdata, handles)
 function R1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B0mapFileBox_CreateFcn(hObject, eventdata, handles)
+function WDBox_CreateFcn(hObject, eventdata, handles)

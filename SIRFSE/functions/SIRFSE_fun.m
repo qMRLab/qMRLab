@@ -1,6 +1,17 @@
 function Mf = SIRFSE_fun( x, xdata, FitOpt )
-%SIRFSE_fun Analytical expression of measured signal - used for fitting
-% Eqn 3-6 from Li et al 2010 - Optimized Inversion Recovery Sequences...
+
+% ----------------------------------------------------------------------------------------------------
+% SIRFSE_fun Analytical solution for SIRFSE MT data used for fitting
+% ----------------------------------------------------------------------------------------------------
+% x = [F, kr, R1f, R1r, Sf, Sr, M0f]
+% xData = [ti, td]
+% Output : Mf
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% Reference : Li, K., Zu, Z., Xu, J., Janve, V. A., Gore, J. C., Does, M. D., & Gochberg, D. F. (2010).
+% Optimized inversion recovery sequences for quantitative T1 and magnetization transfer imaging.
+% Magn Reson Med, 64(2), 491–500.
+% ----------------------------------------------------------------------------------------------------
 
 ti = xdata(:,1);
 td = xdata(:,2);

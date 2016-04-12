@@ -24,7 +24,7 @@ end
 % --- Executes just before SPGR_OptionsGUI is made visible.
 function SPGR_OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
-cd(fileparts(which(mfilename())));                        % SET WORKING DIRECTORY
+handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
 handles.caller = [];            % Handle to caller GUI
 if (~isempty(varargin))         % If called from GUI, set position to dock left
@@ -39,23 +39,23 @@ guidata(hObject, handles);
 
 % LOAD DEFAULTS (if not called from app)
 if (isempty(varargin))
-    PathName = fullfile('.','Parameters');
+    PathName = fullfile(handles.root,'Parameters');
     LoadDefaultOptions(PathName);
 end
 
-Sim  =  getappdata(0, 'Sim');
-Prot    =  getappdata(0, 'Prot');
+Sim    =  getappdata(0, 'Sim');
+Prot   =  getappdata(0, 'Prot');
 FitOpt =  getappdata(0, 'FitOpt');
 
-set(handles.SimFileName, 'String', Sim.FileName);
-set(handles.ProtFileName,     'String', Prot.FileName);
-set(handles.FitOptFileName,   'String', FitOpt.FileName);
+set(handles.SimFileName,   'String', Sim.FileName(1));
+set(handles.ProtFileName,  'String', Prot.FileName(1));
+set(handles.FitOptFileName,'String', FitOpt.FileName(1));
 
 SetSim(Sim,handles);
 SetProt(Prot,handles);
 SetFitOpt(FitOpt,handles);
 
-setappdata(gcf, 'oldSim',  Sim);
+setappdata(gcf, 'oldSim',    Sim);
 setappdata(gcf, 'oldProt',   Prot);
 setappdata(gcf, 'oldFitOpt', FitOpt);
 
@@ -73,7 +73,7 @@ varargout{1} = handles.output;
 % SAVE
 function SimSave_Callback(hObject, eventdata, handles)
 Sim = GetSim(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewSim.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.root,'Parameters','NewSim.mat'));
 if PathName == 0, return; end
 Sim.FileType = 'Sim';
 Sim.FileName = FileName;
@@ -83,7 +83,7 @@ set(handles.SimFileName,'String',FileName);
 
 % LOAD
 function SimLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
+[FileName,PathName] = uigetfile(fullfile(handles.root,'Parameters','*.mat'));
 if PathName == 0, return; end
 Sim = load(fullfile(PathName,FileName));
 if (~any(strcmp('FileType',fieldnames(Sim))) || ~strcmp(Sim.FileType,'Sim') )
@@ -103,7 +103,7 @@ set(handles.SimFileName,'String',Sim.FileName);
 % DEFAULT
 function SimDefault_Callback(hObject, eventdata, handles)
 FileName = 'DefaultSim.mat';
-Sim = load(fullfile('.','Parameters',FileName));
+Sim = load(fullfile(handles.root,'Parameters',FileName));
 SetSim(Sim,handles);
 setappdata(gcf,'oldSim', Sim);
 set(handles.SimFileName,'String',FileName);
@@ -235,7 +235,7 @@ GetSim(handles);
 % SAVE
 function FitOptSave_Callback(hObject, eventdata, handles)
 FitOpt = GetFitOpt(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewFitOpt.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.root,'Parameters','NewFitOpt.mat'));
 if PathName == 0, return; end
 FitOpt.FileType = 'FitOpt';
 FitOpt.FileName = FileName;
@@ -245,7 +245,7 @@ set(handles.FitOptFileName,'String',FileName);
 
 % LOAD
 function FitOptLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
+[FileName,PathName] = uigetfile(fullfile(handles.root,'Parameters','*.mat'));
 if PathName == 0, return; end
 FitOpt = load(fullfile(PathName,FileName));
 
@@ -266,7 +266,7 @@ set(handles.FitOptFileName,'String',FitOpt.FileName);
 % DEFAULT
 function FitOptDefault_Callback(hObject, eventdata, handles)
 FileName = 'DefaultFitOpt.mat';
-FitOpt = load(fullfile('.','Parameters',FileName));
+FitOpt = load(fullfile(handles.root,'Parameters',FileName));
 SetFitOpt(FitOpt,handles);
 setappdata(gcf,'oldFitOpt',FitOpt);
 set(handles.FitOptFileName,'String',FileName);
@@ -288,8 +288,6 @@ FitOpt.lineshape = LineShapes{get(handles.FitLineShape,'Value')};
 
 Models = cellstr(get(handles.FitModel,'String'));
 FitOpt.model = Models{get(handles.FitModel,'Value')};
-FitOpt.SfTableFileName = get(handles.SfTableFile,'String');
-FitOpt.SfTable = load(handles.SfTableFullFile);
 FitOpt.FileName = get(handles.FitOptFileName, 'String');
 setappdata(0,'FitOpt',FitOpt);
 
@@ -298,14 +296,12 @@ function SetFitOpt(FitOpt,handles)
 handles.FitOpt = FitOpt;
 data = [FitOpt.names', num2cell(logical(FitOpt.fx')), num2cell(FitOpt.st'),...
                         num2cell(FitOpt.lb'), num2cell(FitOpt.ub')];
-set(handles.FitOptTable,'Data', data);
-set(handles.R1reqR1fBox,  'Value', FitOpt.R1reqR1f);
-set(handles.R1mapBox, 'Value', FitOpt.R1map);
-set(handles.FixR1fT2fBox, 'Value', FitOpt.FixR1fT2f);
-set(handles.FixR1fT2fValue, 'String', FitOpt.FixR1fT2fValue);
-handles.SfTableFullFile = FitOpt.SfTableFileName;
+set(handles.FitOptTable,    'Data',     data);
+set(handles.R1reqR1fBox,    'Value',    FitOpt.R1reqR1f);
+set(handles.R1mapBox,       'Value',    FitOpt.R1map);
+set(handles.FixR1fT2fBox,	'Value',    FitOpt.FixR1fT2f);
+set(handles.FixR1fT2fValue, 'String',	FitOpt.FixR1fT2fValue);
 guidata(gcf, handles);
-set(handles.SfTableFile, 'String',FitOpt.SfTableFileName);
 switch FitOpt.lineshape
     case 'Gaussian'
         ii = 1;
@@ -330,15 +326,9 @@ switch FitOpt.model
     case {'Yarnykh', 'Ramani'}
         set(handles.FixR1fT2fValue,'Visible','on');
         set(handles.FixR1fT2fBox,'Visible','on');
-        set(handles.SfTableLoad,'Visible','off');
-        set(handles.SfTableFile,'Visible','off');
-        set(handles.ComputeSf,'Visible','off');
     otherwise
         set(handles.FixR1fT2fValue,'Visible','off');
         set(handles.FixR1fT2fBox,'Visible','off');
-        set(handles.SfTableLoad,'Visible','on');
-        set(handles.SfTableFile,'Visible','on');
-        set(handles.ComputeSf,'Visible','on');
 end
 setappdata(0,'FitOpt',FitOpt);
 
@@ -378,6 +368,7 @@ GetFitOpt(handles);
 
 % FIT LINESHAPE
 function FitLineShape_Callback(hObject, eventdata, handles)
+GetFitOpt(handles);
 
 function FitLineShape_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -411,49 +402,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% LOAD SF TABLE
-function SfTableLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
-if PathName == 0, return; end
-set(handles.SfTableFile,'String',FileName);
-FullFile = fullfile(PathName,FileName);
-handles.SfTableFullFile = FullFile;
-guidata(hObject,handles);
-GetFitOpt(handles);
-
-
-
-% COMPUTE SF TABLE
-function ComputeSf_Callback(hObject, eventdata, handles)
-
-button = questdlg('Compute Sf table using current protocol settings?','Build Sf table','Start','Cancel','Start');
-if (~strcmp(button,'Start'))
-    return;
-end
-Seq = GetProt(handles);
-Prot = GetProt(handles);
-FitOpt = GetFitOpt(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewSfTable.mat'));
-if PathName == 0, return; end
-angles = unique(Seq.Angles);
-offsets = unique(Seq.Offsets);
-
-T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
-Trf = Prot.Tm;
-shape = Prot.MTpulse.shape;
-PulseOpt = Prot.MTpulse.opt;
-Sf = BuildSfTable(angles, offsets, T2f, Trf, shape, PulseOpt);
-save(fullfile(PathName,FileName),'-struct', 'Sf');
-
-set(handles.SfTableFile,'String',FileName);
-FullFile = fullfile(PathName,FileName);
-handles.SfTableFullFile = FullFile;
-guidata(hObject,handles);
-GetFitOpt(handles);
-
-
-
-
 
 
 
@@ -464,7 +412,7 @@ GetFitOpt(handles);
 % SAVE
 function ProtSave_Callback(hObject, eventdata, handles)
 Prot = GetProt(handles);
-[FileName,PathName] = uiputfile(fullfile('.','Parameters','NewProtocol.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.root,'Parameters','NewProtocol.mat'));
 if PathName == 0, return; end
 Prot.FileType = 'Protocol';
 Prot.Method = 'SPGR';
@@ -475,7 +423,7 @@ set(handles.ProtFileName,'String',FileName);
 
 % LOAD
 function ProtLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile('.','Parameters','*.mat'));
+[FileName,PathName] = uigetfile(fullfile(handles.root,'Parameters','*.mat'));
 if PathName == 0, return; end
 Prot = load(fullfile(PathName,FileName));
 if (~any(strcmp('FileType',fieldnames(Prot))) || ~strcmp(Prot.FileType,'Protocol') )
@@ -495,7 +443,7 @@ set(handles.ProtFileName,'String',Prot.FileName);
 % DEFAULT
 function ProtDefault_Callback(hObject, eventdata, handles)
 FileName = 'DefaultProt.mat';
-Prot = load(fullfile('.','Parameters',FileName));
+Prot = load(fullfile(handles.root,'Parameters',FileName));
 SetProt(Prot,handles);
 setappdata(gcf,'oldProt', Prot);
 set(handles.ProtFileName,'String',FileName);
@@ -534,7 +482,7 @@ Prot.MTpulse.opt = struct;
             if (isnan(Prot.MTpulse.opt.TBW)); Prot.MTpulse.opt.TBW = []; end
             if (isnan(Prot.MTpulse.opt.slope)); Prot.MTpulse.opt.slope = []; end
     end
-
+Prot.Sf = getappdata(0,'Sf');
 Prot.FileName = get(handles.ProtFileName,'String');
 setappdata(0,'Prot',Prot);
 
@@ -545,7 +493,9 @@ offsets = mat2str(unique(Prot.Offsets)');
 set(handles.AngleBox, 'String', angles);
 set(handles.DeltaBox, 'String', offsets);
 set(handles.SeqTable, 'Data', [Prot.Angles, Prot.Offsets]);
-
+if (isfield(Prot,'Sf'))
+    setappdata(0,'Sf',Prot.Sf);
+end
 data = [Prot.Tm; Prot.Ts; Prot.Tp; Prot.Tr; Prot.TR];
 set(handles.SeqOptTable,'Data',data);
 set(handles.ReadPulseAlpha,'String', Prot.Alpha);
@@ -573,6 +523,58 @@ set(handles.PulseOptBW,'string',Prot.MTpulse.opt.bw);
 set(handles.PulseOptSlope,'string',Prot.MTpulse.opt.slope);
 set(handles.ProtFileName, 'String', Prot.FileName);
 setappdata(0,'Prot',Prot);
+
+
+% COMPUTE SF TABLE
+function ComputeSf_Callback(hObject, eventdata, handles)
+
+button = questdlg('Compute Sf table using current protocol settings?','Build Sf table','Start','Cancel','Start');
+if (~strcmp(button,'Start'))
+    return;
+end
+Prot = GetProt(handles);
+angles = unique(Prot.Angles);
+SfAngles = zeros(length(angles)*3 +2,1);
+SfAngles(1) = 0;
+SfAngles(end) = max(angles)*1.5;
+minScale = 0.75;
+maxScale = 1.25;
+
+ind = 3;
+for i = 1:length(angles)
+    SfAngles(ind) = angles(i);
+    SfAngles(ind-1) = minScale*angles(i);
+    SfAngles(ind+1) = maxScale*angles(i);
+    ind = ind + 3;
+end
+
+% Extend offsets limits and add midpoints
+offsets = unique(Prot.Offsets);
+SfOffsets = zeros(length(offsets)*4 +2,1);
+SfOffsets(1) = 100;
+SfOffsets(end) = max(offsets) + 1000;
+maxOff = 100;
+offsets = [0; offsets];
+ind = 4;
+for i = 2:length(offsets)
+    SfOffsets(ind-2) = 0.5*(offsets(i) + offsets(i-1));
+    SfOffsets(ind-1) = offsets(i) - maxOff;
+    SfOffsets(ind) = offsets(i);
+    SfOffsets(ind+1) = offsets(i) + maxOff;
+    ind = ind + 4;
+end
+
+% T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
+T2f = [0.0010 0.0050 0.0100 0.0150 0.0200 0.0250 0.0300 0.0350 0.0400 ...
+       0.0450 0.0500 0.0550 0.0600 0.0650 0.0700 0.0750 0.0800 0.0850 ...
+       0.0900 0.2500 0.5000 1.0000];
+Trf = Prot.Tm;
+shape = Prot.MTpulse.shape;
+PulseOpt = Prot.MTpulse.opt;
+Sf = BuildSfTable(SfAngles, SfOffsets, T2f, Trf, shape, PulseOpt);
+setappdata(0,'Sf',Sf);
+ProtSave_Callback(hObject, eventdata, handles)
+
 
 
 % ######################### SEQUENCE ######################################
