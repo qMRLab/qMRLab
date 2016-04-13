@@ -34,7 +34,6 @@ if (~isempty(varargin))         % If called from GUI, set position to dock left
     NewPos = [CallerPos(1)+CallerPos(3), CallerPos(2)+CallerPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
     set(gcf, 'Position', NewPos);
 end
-handles.SfTableFullFile = '';
 guidata(hObject, handles);
 
 % LOAD DEFAULTS (if not called from app)
@@ -47,9 +46,9 @@ Sim    =  getappdata(0, 'Sim');
 Prot   =  getappdata(0, 'Prot');
 FitOpt =  getappdata(0, 'FitOpt');
 
-set(handles.SimFileName,   'String', Sim.FileName(1));
-set(handles.ProtFileName,  'String', Prot.FileName(1));
-set(handles.FitOptFileName,'String', FitOpt.FileName(1));
+set(handles.SimFileName,   'String', Sim.FileName);
+set(handles.ProtFileName,  'String', Prot.FileName);
+set(handles.FitOptFileName,'String', FitOpt.FileName);
 
 SetSim(Sim,handles);
 SetProt(Prot,handles);
