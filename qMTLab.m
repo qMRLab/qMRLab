@@ -8,7 +8,7 @@ function varargout = qMTLab(varargin)
 % If you use qMTLab in your work, please cite :
 
 % Cabana, JF. et al (2016).
-% Quantitative magnetization transfer imaging made easy with q MTLab
+% Quantitative magnetization transfer imaging made easy with qMTLab
 % Software for data simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
@@ -398,7 +398,7 @@ switch Method
     case 'SPGR'
         SPGR_PlotSimCurve(MTdata,   MTnoise, Prot, Sim, SimCurveResults);
 end
-
+grid('on');
 
 
 
@@ -564,6 +564,7 @@ xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
 ylabel(sprintf('Fitted %s', Yaxis), 'FontWeight', 'Bold');
 xlim([Xmin Xmax]);
 hold off;
+grid('on');
 
 
 
@@ -1497,7 +1498,7 @@ function RefreshColorMap(handles)
 val  = get(handles.ColorMapStyle, 'Value');
 maps = get(handles.ColorMapStyle, 'String'); 
 colormap(maps{val});
-colorbar('location', 'South');
+colorbar('location', 'South', 'Color', 'white');
 min = str2double(get(handles.MinValue, 'String'));
 max = str2double(get(handles.MaxValue, 'String'));
 caxis([min max]);

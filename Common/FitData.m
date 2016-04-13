@@ -4,7 +4,7 @@ function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 % Fit = FitData( data, Protocol, FitOpt, Method, wait )
 % Takes 2D or 3D MTdata and returns fitted parameters maps
 % ----------------------------------------------------------------------------------------------------
-% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% data = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
 % Output : Fit structure with fitted parameters
 %
 % MTdata is an array of size [x,y,z,nT], where x = image height, y = image
@@ -82,7 +82,7 @@ for ii = 1:l
     
     % Update waitbar
     if (isempty(h))
-        fprintf('Fitting voxel %d/%d\n',ii,l);
+        fprintf('Fitting voxel %d/%d\r',ii,l);
     else
         if getappdata(h,'canceling');  break;  end  % Allows user to cancel
         waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
