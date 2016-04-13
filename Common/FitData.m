@@ -50,7 +50,7 @@ Fit.computed = Fit.(fields{1});
 if (~isempty(data.Mask))
     Fit.Mask = double(data.Mask);
     Mask = reshape(data.Mask,nV,1);
-    MTdata = MTdata.*repmat(Mask,[1,nT]);
+    MTdata = MTdata.*repmat(single(Mask),[1,nT]);
 end
 
 % Find voxels that are not empty
