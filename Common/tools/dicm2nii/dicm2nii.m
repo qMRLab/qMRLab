@@ -117,6 +117,9 @@ function varargout = dicm2nii(src, dataFolder, varargin)
 % 
 % Please report any bug to xiangrui.li@gmail.com or at
 % http://www.mathworks.com/matlabcentral/fileexchange/42997
+% 
+% To cite the work and for more detail about the conversion, check the paper at
+% http://authors.elsevier.com/a/1SgEObXTOhrOf
 
 % Thanks to:
 % Jimmy Shen's Tools for NIfTI and ANALYZE image,
@@ -320,6 +323,10 @@ function varargout = dicm2nii(src, dataFolder, varargin)
 % 160112 SeriesInstanceUID & SeriesNumber only need one (thx DavidR).
 % 160115 checkUpdate: fix problem to download & unzip to pwd.
 % 160127 dicm_hdr & dicm_img: support big endian dicom.
+% 160229 flip now makes det<0, instead negative 1st axis (cor slice affected).
+% 160304 undo some changes on 140808 so it works for syngo 2004 phase masaic.
+% 160309 nMosaic(): use CSAheader to detect above unlabeled mosaic.
+% 160324 nMosaic(): unsecure fix for dicom without CSA header.
 % End of history. Don't edit this line!
 
 % TODO: need testing files to figure out following parameters:
@@ -545,10 +552,10 @@ for i = 1:nRun
     if isempty(s), keep(i) = 0; continue; end % invalid multiframe series
     s.isDTI = isDTI(s);
     h{i}{1} = s; % update record in case of full hdr or multiframe
+    if tryGetField(s, 'NumberOfFrames', 1) > 1, continue; end
     
     % check consistency in 'fldsCk'
     nFile = numel(h{i});
-    if nFile<2, continue; end
     nFlds = numel(fldsCk);
     if isfield(s, 'SpacingBetweenSlices'), nFlds = nFlds - 1; end % check 1 of 2
     for k = 1:nFlds
@@ -566,7 +573,10 @@ for i = 1:nRun
         if ~keep(i), break; end % skip
     end
     
-    if ~isempty(csa_header(s, 'NumberOfImagesInMosaic'))
+    nSL = nMosaic(s);
+    if nSL > 1
+        h{i}{1}.isMos = true;
+        h{i}{1}.LocationsInAcquisition = nSL;
         if s.isDTI, continue; end % allow missing directions for DTI
         a = zeros(1, nFile);
         for j = 1:nFile, a(j) = tryGetField(h{i}{j}, 'InstanceNumber', 1); end
@@ -746,11 +756,10 @@ for i = 1:nRun
     for j = 2:nFile, img(:,:,:,j) = dicm_img(h{i}{j}, 0); end
     if size(img,3)<2, img = permute(img, [1 2 4 3]); end % put frames into dim3
     
-    nSL = csa_header(s, 'NumberOfImagesInMosaic', 1);
     if tryGetField(s, 'SamplesPerPixel', 1) > 1 % color image
         img = permute(img, [1 2 4:8 3]); % put RGB into dim8 for nii_tool
-    elseif nSL>1 % SIEMENS mosaic
-        img = mos2vol(img, nSL); % mosaic to volume
+    elseif tryGetField(s, 'isMos', false) % SIEMENS mosaic
+        img = mos2vol(img, s.LocationsInAcquisition); % mosaic to volume
     elseif ndims(img)==4 && tryGetField(s, 'Dim3IsVolume', false) % BV/BRIK
         img = permute(img, [1 2 4 3]);
     elseif ndims(img) == 3 % may need to reshape to 4D
@@ -819,7 +828,7 @@ for i = 1:nRun
     nii = nii_tool('init', img); % create nii struct based on img
     fname = [dataFolder fnames{i}]; % name without ext
 
-    % Compute bval & bvec in dicom image reference for DTI series
+    % Compute bval & bvec in image reference for DTI series
     if s.isDTI, [h{i}, nii] = get_dti_para(h{i}, nii); end
     
     [nii, h{i}{1}] = set_nii_header(nii, h{i}{1}); % set most nii header
@@ -942,17 +951,17 @@ iPhase = find(fps_bits==4); % axis index for phase_dim in re-oriented img
 nii.hdr.dim_info = (1:3) * fps_bits'; % useful for EPI only
 nii.hdr.pixdim(2:4) = pixdim; % voxel zize
 
-% Flip image to make first axis negative and other two positive
 ind4 = ixyz + [0 4 8]; % index in 4xN matrix
 flp = R(ind4)<0; % flip an axis if true
-flp(1) = ~flp(1); % first axis negative: comment this to make all positive
+d = det(R(1:3,1:3)) * prod(1-flp*2); % det after all 3 axis positive
+if d>0, flp(1) = ~flp(1); end % flip/unflip 1st axis to make det<0
 rotM = diag([1-flp*2 1]); % 1 or -1 on diagnal
 rotM(1:3, 4) = (dim-1) .* flp; % 0 or dim-1
 R = R / rotM; % xform matrix after flip
 for k = 1:3, if flp(k), nii.img = flipdim(nii.img, k); end; end %#ok
 if flp(iPhase), phPos = ~phPos; end
 if isfield(s, 'bvec'), s.bvec(:, flp) = -s.bvec(:, flp); end
-if isfield(s, 'SliceTiming') && flp(iSL) % slices flipped
+if flp(iSL) && isfield(s, 'SliceTiming') % slices flipped
     s.SliceTiming = s.SliceTiming(end:-1:1);
     sc = nii.hdr.slice_code;
     if sc>0, nii.hdr.slice_code = sc+mod(sc,2)*2-1; end % 1<->2, 3<->4, 5<->6
@@ -1274,7 +1283,7 @@ else % Siemens/Philips
     bvec = bvec * R; % dicom plane to image plane
 end
 
-h{1}.bvec = bvec; % computed bvec
+h{1}.bvec = bvec; % computed bvec in image ref
 
 %% subfunction: save bval & bvec files
 function save_dti_para(s, fname)
@@ -2001,7 +2010,7 @@ if ~isfield(s, 'PixelSpacing')
 end
 
 revNum = ~isempty(asc_header(s, 'sSliceArray.ucImageNumb'));
-isMos = ~isempty(csa_header(s, 'NumberOfImagesInMosaic'));
+isMos = tryGetField(s, 'isMos', false);
 ori = {'Sag' 'Cor' 'Tra'}; % 1/2/3
 if ~isfield(s, 'ImageOrientationPatient')
     R = zeros(3);
@@ -2241,8 +2250,9 @@ v = var(ipp); % ipp rows for slices
 [~, iSL] = max(v);
 ipp1 = ipp(:, v>1e-6); % remove constant columns which give corr 0 or nan
 ipp = ipp(:,iSL); % ipp at SL dimension
-del = mean(diff(sort(ipp))) * 0.02; % allow 2% error: have seen error of 0.1/7
-nSL = sum(diff(sort(ipp)) > del) + 1;
+a = diff(sort(ipp));
+del = sum(a)/numel(a) * 0.02; % allow 2% error: have seen error of 0.1/7
+nSL = sum(a > del) + 1;
 sliceN = []; err = '';
 nVol = numel(ipp) / nSL;
 if mod(nVol,1), err = 'Missing file(s) detected'; return; end
@@ -2374,31 +2384,35 @@ try
     if isempty(ind), error('Date info not found'); end
 catch me
     errordlg(me.message, 'Web access error');
+    web(webUrl, '-browser');
     return;
 end
 
-try
-    i0 = ind(end)+27;
-    i1 = i0 + strfind(str(i0:i0+999), '<td>');
-    i2 = i0 + strfind(str(i0:i0+999), '</td>');
+i0 = ind(end)+27;
+ik = min(i0+999, numel(str));
+i1 = i0 + strfind(str(i0:ik), '<td>');
+i2 = i0 + strfind(str(i0:ik), '</td>');
+if ~isempty(i1) && ~isempty(i2)
     latestStr = str(i1(1)+3 : i2(1)-2); % use date as version
     latestNum = datenum(latestStr, 'yyyy.mm.dd');
-catch
-    latestStr = str(ind(end)+13:ind(end)+23); % website recorded date
+else
+    i0 = ind(end)+13;
+    latestStr = str(i0:i0+10); % website recorded date
     latestNum = datenum(latestStr, 'dd mmm yyyy')-2; % allow 2-day off
 end
 
 d = {reviseDate('nii_viewer') reviseDate('nii_tool') reviseDate('dicm2nii')};
-d = sort(d);
-myFileDate = datenum(d{end}, 'yymmdd');
+d = sort(d); d = d{end}; 
+d = ['20' d(1:2) '.' d(3:4) '.' d(5:6)];
+myFileDate = datenum(d, 'yyyy.mm.dd');
 
 if myFileDate >= latestNum
     msgbox([mfile ' and the package are up to date.'], 'Check update');
     return;
 end
 
-msg = ['A newer version (' latestStr ') is available on the ' ...
-       'MathWorks File Exchange. Update to the new version?'];
+msg = ['A newer version (' latestStr ') is available on the MathWorks File ' ...
+       'Exchange. Your version is ' d '. Update to the new version?'];
 answer = questdlg(msg, ['Update ' mfile], 'Yes', 'Later', 'Yes');
 if ~strcmp(answer, 'Yes'), return; end
 
@@ -2413,6 +2427,46 @@ catch me
     return;
 end
 rehash;
-warndlg(['Package updated successfully. Please restart ' mfile ', otherwise ' ...
-         'it may give error.'], 'Check update');
+warndlg(['Package updated successfully. Please restart ' mfile ...
+         ', otherwise it may give error.'], 'Check update');
+
+%% Subfunction: return NumberOfImagesInMosaic in Siemens mosaic, or 1
+function nMos = nMosaic(s)
+nMos = csa_header(s, 'NumberOfImagesInMosaic', 1);
+if nMos>1, return; end % is mosaic
+
+% The next fix detects mosaic which is not labeled as MOSAIC in ImageType, nor
+% NumberOfImagesInMosaic exists. This is seen in syngo MR 2004A 4VA25A phase
+% image. For 'syngo MR B17' fieldmap img, lSize>1 even if it is not mosaic.
+dim = double([s.Columns s.Rows]); % slice or mosaic dim
+res = csa_header(s, 'EchoColumnPosition') * 2; % slice res
+if ~isempty(res) && max(dim)/res >= 2 % nTiles>1
+    a = asc_header(s, 'sSliceArray.lSize');
+    if ~isempty(a), nMos = a; return; end
+end
+
+% The fix below for dicom labeled as \MOSAIC in ImageType, but no CSA.
+% Result is likely wrong for interpolated img or other cases.
+if ~isType(s, '\MOSAIC'), return; end % non-Siemens returns here
+npes = tryGetField(s, 'NumberOfPhaseEncodingSteps', 0);
+if npes<1, return; end % no-Siemens returns here
+npes = npes / tryGetField(s, 'PercentPhaseFieldOfView', 100) * 100;
+n = floor(min(dim) / round(npes)); % phase dim is smaller
+if n<2, return; end
+n2 = ceil(n/2); % suppose dim/npes is >0.5 & <=1
+for i = n:-1:n2
+    if all(mod(dim ./ i, 1) == 0), break; end % this is not safe at all
+end
+if i == n2
+    errorLog([ProtocolName(s) ': NumberOfImagesInMosaic not available.']);
+    return; 
+end
+nMos = i^2;
+img = dicm_img(s, 0); % peek into data to remove padded zeros: not critical
+img = mos2vol(img, nMos);
+while 1
+    a = img(:,:,nMos);
+    if any(a(:) ~= 0), break; end
+    nMos = nMos - 1;
+end
 %%

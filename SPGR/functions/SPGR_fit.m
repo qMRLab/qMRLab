@@ -56,7 +56,7 @@ switch FitOpt.model
             FitOpt.WB = [];
         end
         xData = [Angles, Offsets, w1rp];
-        func = @(x,xdata) double(SPGR_Srp_fun(choose( FitOpt.st, x, fix ), xdata, Prot, FitOpt));
+        func = @(x,xdata) SPGR_Srp_fun(choose( FitOpt.st, x, fix ), xdata, Prot, FitOpt);
         
     case 'Yarnykh'
         % if T2r is fixed, precompute WB
@@ -76,7 +76,7 @@ switch FitOpt.model
         end
         fix = FitOpt.fx;
         xData = [Offsets, w1rms];
-        func = @(x,xdata) double(SPGR_Y_fun(choose( FitOpt.st, x, fix ), xdata, Prot, FitOpt));
+        func = @(x,xdata) SPGR_Y_fun(choose( FitOpt.st, x, fix ), xdata, Prot, FitOpt);
         
     case 'Ramani'
         % if T2r is fixed, precompute WB
@@ -94,12 +94,12 @@ switch FitOpt.model
         end
         fix = FitOpt.fx;
         xData = [Offsets, w1cw];
-        func = @(x,xdata) double(SPGR_R_fun(choose( FitOpt.st, x, fix ), xdata, Prot, FitOpt)); 
+        func = @(x,xdata) SPGR_R_fun(choose( FitOpt.st, x, fix ), xdata, Prot, FitOpt); 
 end
 
 % Fitting
 opt = optimoptions(@lsqcurvefit, 'Display', 'off');
-[x_free,resnorm] = lsqcurvefit(func, FitOpt.st(~fix), double(xData), MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
+[x_free,resnorm] = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
 
 x = choose( FitOpt.st, x_free, fix );
 
@@ -130,9 +130,4 @@ end
 % Fit.residuals = residuals;
 Fit.resnorm = resnorm;
 
-end
-
-% Choose fitted or fixed parameters
-function a = choose( a, x, fx )
-a(~fx) = x;
 end
