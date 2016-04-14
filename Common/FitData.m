@@ -12,6 +12,13 @@ function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-François Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
+% Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
+% Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
+% analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+% ----------------------------------------------------------------------------------------------------
 
 
 %############################# INITIALIZE #################################

@@ -1,7 +1,14 @@
 # qMTLab
 
 ********** qMTLab at ISMRM 2016 in Singapore **********
-If you are lucky enough to be at the ISMRM 24th annual meeting, which will take place in Singapore 07-13 May 2016, come see us on Tuesday May 10 at 10:00. There will be a presentation about qMTLab during the poster session. Hope to see you there!
+If you are lucky enough to be at the ISMRM 24th annual meeting, which will take place in Singapore 07-13 May 2016, come see our presentation about qMTLab during the poster session:
+
+Session: A Mixed Bag: Sequence Simulations & Analyses / Dynamic Imaging
+Computer No.: 36
+Time: 10:00
+Date: Tuesday, May 10, 2016
+
+Hope to see you there!
 
 Until then, expect some significant changes in the software, as we will be updating it regularly. Keep an eye on the repository to get the news about new and improved features.
 
@@ -16,4 +23,4 @@ Please report any bug or suggestions in [github](https://github.com/neuropoly/qM
 ==========================================================
 If you use qMTLab in you work, please cite:
 
-Cabana, Jean?François, et al. "Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization." Concepts in Magnetic Resonance Part A (2016).
+Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S., Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357

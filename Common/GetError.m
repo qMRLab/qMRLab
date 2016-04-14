@@ -1,4 +1,8 @@
 function Error = GetError(SimRndResults)
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 RndParam  =  getappdata(0,'RndParam');
 Error.F   = (SimRndResults.F   - RndParam.F);

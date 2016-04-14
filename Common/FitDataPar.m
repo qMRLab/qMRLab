@@ -1,11 +1,16 @@
 function Fit = FitDataPar( data, Protocol, FitOpt, Method, wait )
 
+% WORK IN PROGRESS %
 %FITDATA Takes 2D or 3D MTdata and returns fitted parameters maps
 %   data is a struct containing fields MTdata and optionnal R1map, Mask,
 %   B1map and B0map.
 
 % MTdata is an array of size [x,y,z,nT], where x = image height, y = image
 % width, z = image depth and Nt is the number of data points for each voxel
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 
 %############################# INITIALIZE #################################

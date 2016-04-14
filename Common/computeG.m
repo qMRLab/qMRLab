@@ -1,5 +1,9 @@
 function G = computeG(delta,T2r,lineshape,onres)
 % computeG : Compute lineshape value
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 switch lineshape
     case 'Gaussian'

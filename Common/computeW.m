@@ -1,5 +1,9 @@
 function W = computeW(G, Pulse)
 % Compute Mean saturation rate <W(delta,alpha)> for given G(delta)
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 W = zeros(length(Pulse),1);
 
