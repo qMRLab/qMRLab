@@ -7,7 +7,7 @@ if (~isempty(FixTrf))
     axes(axe(1));
     ii = FixTrf(1);
     jj = FixTrf(end)+1;
-    plot(Prot.alpha(ii:jj), MTdata(ii:jj),'.'); hold on;
+    plot(Prot.alpha(ii:jj), MTdata(ii:jj),'x'); hold on;
     plot(SimCurveResults.alpha, SimCurveResults.alphaCurve,'r');
     if (Sim.Opt.AddNoise)
         plot(Prot.alpha(ii:jj), MTnoise(ii:jj),'o');
@@ -22,7 +22,7 @@ if (~isempty(FixAlpha))
     axes(axe(2));
     ii = FixAlpha(1);
     jj = FixAlpha(end)+1;
-    plot(Prot.Trf(ii:jj)*1000, MTdata(ii:jj),'.'); hold on
+    plot(Prot.Trf(ii:jj)*1000, MTdata(ii:jj),'x'); hold on
         plot(SimCurveResults.Trf*1000, SimCurveResults.TrfCurve,'r');
     if (Sim.Opt.AddNoise)
         plot(Prot.Trf(ii:jj)*1000, MTnoise(ii:jj),'o');
