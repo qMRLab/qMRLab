@@ -1319,10 +1319,10 @@ if length(S) == 3
 elseif length(S) == 4
     data.MTdata = double(squeeze(MTdata(x,y,z,:)));
 end
-data.Mask = double(Mask(index));
-data.R1map = double(R1map(index));
-data.B1map = double(B1map(index));
-data.B0map = double(B0map(index));
+data.Mask = [];
+if ~isempty(R1map), data.R1map = double(R1map(index)); else data.R1map = []; end
+if ~isempty(B1map), data.B1map = double(B1map(index)); else data.B1map = []; end
+if ~isempty(B0map), data.B0map = double(B0map(index)); else data.B0map = []; end
 
 % Do the fitting
 Fit = FitData(data,Prot,FitOpt,Method,0);
@@ -1333,8 +1333,13 @@ Fit = FitData(data,Prot,FitOpt,Method,0);
 % Fit.R1r = FitResults.R1r(index);
 
 Sim.Opt.AddNoise = 0;
-figure();
-
+figure(68)
+set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
+haxes = get(68,'children');
+if ~isempty(haxes)
+    haxes = get(haxes(2),'children');
+    set(haxes,'Color',[0.8 0.8 0.8]);
+end
 switch Method
     case 'bSSFP'
 %         Fit.T2f = FitResults.T2f(index);
