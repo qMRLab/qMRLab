@@ -1300,55 +1300,69 @@ ylabel('Counts');
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
-[FitResults,Method] = GetAppData('FitResults','Method');
-MTdata = GetAppData('MTdata');
-S = size(FitResults.F);
+% Get data
+[MTdata, Mask, R1map, B1map, B0map] =  GetAppData('MTdata','Mask','R1map','B1map','B0map');
+[Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
 
+% Get selected voxel
+S = size(MTdata);
 info_dcm = getCursorInfo(handles.dcm_obj);
 x = info_dcm.Position(1);
 y = 1+ S(2) - info_dcm.Position(2);
 z = str2double(get(handles.SliceValue,'String'));
 index = sub2ind(S,x,y,z);
 
-if length(S) == 2
-    data = squeeze(MTdata(x,y,:));
-elseif length(S) == 3
-    data = squeeze(MTdata(x,y,z,:));
+% Build data structure
+data   =  struct;
+if length(S) == 3
+    data.MTdata = double(squeeze(MTdata(x,y,:)));
+elseif length(S) == 4
+    data.MTdata = double(squeeze(MTdata(x,y,z,:)));
 end
+data.Mask = double(Mask(index));
+data.R1map = double(R1map(index));
+data.B1map = double(B1map(index));
+data.B0map = double(B0map(index));
 
-Protocol = FitResults.Protocol;
-FitOpt = FitResults.FitOpt;
-Fit.F = FitResults.F(index);
-Fit.kr = FitResults.kr(index);
-Fit.kf = FitResults.kf(index);
-Fit.R1f = FitResults.R1f(index);
-Fit.R1r = FitResults.R1r(index);
+% Do the fitting
+Fit = FitData(data,Prot,FitOpt,Method,0);
+% Fit.F = FitResults.F(index);
+% Fit.kr = FitResults.kr(index);
+% Fit.kf = FitResults.kf(index);
+% Fit.R1f = FitResults.R1f(index);
+% Fit.R1r = FitResults.R1r(index);
 
 Sim.Opt.AddNoise = 0;
 figure();
 
 switch Method
     case 'bSSFP'
-        Fit.T2f = FitResults.T2f(index);
-        Fit.M0f = FitResults.M0f(index);
-        SimCurveResults = bSSFP_SimCurve(Fit, Protocol, FitOpt );
+%         Fit.T2f = FitResults.T2f(index);
+%         Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
         axe(1) = subplot(2,1,1);
         axe(2) = subplot(2,1,2);
-        bSSFP_PlotSimCurve(data,  data, Protocol, Sim, SimCurveResults, axe);
-        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f));
+        bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults, axe);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
+              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f,Fit.resnorm), ...
+              'FontSize',8);
     case 'SPGR'
-        Fit.T2f = FitResults.T2f(index);
-        Fit.T2r = FitResults.T2r(index);
-        SimCurveResults = SPGR_SimCurve(Fit, Protocol, FitOpt );
-        SPGR_PlotSimCurve(data, data, Protocol, Sim, SimCurveResults);
-        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r));
+%         Fit.T2f = FitResults.T2f(index);
+%         Fit.T2r = FitResults.T2r(index);
+        SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
+        SPGR_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
+              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r,Fit.resnorm),...
+              'FontSize',8);
     case 'SIRFSE'
-        Fit.Sf = FitResults.Sf(index);
-        Fit.Sr = FitResults.Sr(index);
-        Fit.M0f = FitResults.M0f(index);
-        SimCurveResults = SIRFSE_SimCurve(Fit, Protocol, FitOpt );
-        SIRFSE_PlotSimCurve(data,   data, Protocol, Sim, SimCurveResults);
-        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f', index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f));
+%         Fit.Sf = FitResults.Sf(index);
+%         Fit.Sr = FitResults.Sr(index);
+%         Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
+        SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
+              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
+              'FontSize',8);
 
 end
 

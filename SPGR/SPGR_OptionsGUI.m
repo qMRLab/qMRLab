@@ -546,6 +546,7 @@ for i = 1:length(angles)
     SfAngles(ind+1) = maxScale*angles(i);
     ind = ind + 3;
 end
+SfAngles = unique(SfAngles);
 
 % Extend offsets limits and add midpoints
 offsets = unique(Prot.Offsets);
@@ -562,6 +563,7 @@ for i = 2:length(offsets)
     SfOffsets(ind+1) = offsets(i) + maxOff;
     ind = ind + 4;
 end
+SfOffsets = unique(SfOffsets);
 
 % T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
 T2f = [0.0010 0.0050 0.0100 0.0150 0.0200 0.0250 0.0300 0.0350 0.0400 ...

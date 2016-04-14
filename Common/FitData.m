@@ -25,7 +25,7 @@ switch dim
     case 3
         [x,y,nT] = size(MTdata);
     case 2
-        [x,nT] = size(MTdata);
+        nT = length(MTdata);
 end
 
 % Arrange voxels into a column
