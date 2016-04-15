@@ -137,4 +137,8 @@ end
 % Fit.residuals = residuals;
 Fit.resnorm = resnorm;
 
+function a = choose( a, x, fx )
+    a(~fx) = x;
+end
+
 end
