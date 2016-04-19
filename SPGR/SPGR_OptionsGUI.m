@@ -490,7 +490,7 @@ Prot.MTpulse.opt = struct;
             Prot.MTpulse.opt.TBW   = str2double(get(handles.PulseOptTBW,   'string'));
             Prot.MTpulse.opt.bw    = str2double(get(handles.PulseOptBW,    'string'));
             if (isnan(Prot.MTpulse.opt.TBW)); Prot.MTpulse.opt.TBW = []; end
-            if (isnan(Prot.MTpulse.opt.slope)); Prot.MTpulse.opt.slope = []; end
+            if (isnan(Prot.MTpulse.opt.bw)); Prot.MTpulse.opt.bw = []; end
     end
 Prot.Sf = getappdata(0,'Sf');
 Prot.FileName = get(handles.ProtFileName,'String');

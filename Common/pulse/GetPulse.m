@@ -17,8 +17,9 @@ switch shape
 end
 
 b1     =  @(t) pulse_fcn(t,Trf,PulseOpt);
-amp    =  2*pi*alpha / ( 360 * gamma * integral(@(t) abs(b1(t)), 0, Trf,'ArrayValued',true) );
-omega  =  @(t) gamma*amp*pulse_fcn(t,Trf,PulseOpt);
+amp    =  2*pi*alpha / ( 360 * gamma * integral(@(t) (b1(t)), 0, Trf) );
+% amp    =  2*pi*alpha / ( 360 * gamma * integral(@(t) abs(b1(t)), 0, Trf,'ArrayValued',true) );
+omega  =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt));
 omega2 =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt)).^2;
 
 Pulse.pulse_fcn = pulse_fcn;  % Fcn handle to pulse shape function
