@@ -1,5 +1,16 @@
 function varargout = SPGR_OptionsGUI(varargin)
 % SPGR_OPTIONSGUI MATLAB code for SPGR_OptionsGUI.fig
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
+% Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
+% Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
+% analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+% ----------------------------------------------------------------------------------------------------
+
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -479,7 +490,7 @@ Prot.MTpulse.opt = struct;
             Prot.MTpulse.opt.TBW   = str2double(get(handles.PulseOptTBW,   'string'));
             Prot.MTpulse.opt.bw    = str2double(get(handles.PulseOptBW,    'string'));
             if (isnan(Prot.MTpulse.opt.TBW)); Prot.MTpulse.opt.TBW = []; end
-            if (isnan(Prot.MTpulse.opt.slope)); Prot.MTpulse.opt.slope = []; end
+            if (isnan(Prot.MTpulse.opt.bw)); Prot.MTpulse.opt.bw = []; end
     end
 Prot.Sf = getappdata(0,'Sf');
 Prot.FileName = get(handles.ProtFileName,'String');

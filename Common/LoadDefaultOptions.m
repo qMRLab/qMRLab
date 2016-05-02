@@ -1,5 +1,9 @@
 function LoadDefaultOptions(PathName)
 %Load Default Options and setappdata
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 Sim    =  load(fullfile(PathName, 'DefaultSim.mat'));
 Prot   =  load(fullfile(PathName, 'DefaultProt.mat'));
