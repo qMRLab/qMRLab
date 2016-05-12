@@ -1,16 +1,9 @@
 # qMTLab
 
-********** qMTLab at ISMRM 2016 in Singapore **********
-If you are lucky enough to be at the ISMRM 24th annual meeting, which will take place in Singapore 07-13 May 2016, come see our presentation about qMTLab during the poster session:
-
-Session: A Mixed Bag: Sequence Simulations & Analyses / Dynamic Imaging
-Computer No.: 36
-Time: 10:00
-Date: Tuesday, May 10, 2016
-
-Hope to see you there!
-
-Until then, expect some significant changes in the software, as we will be updating it regularly. Keep an eye on the repository to get the news about new and improved features.
+******* qMTLab at ISMRM 2016 in Singapore *******
+Thanks to everyone who came to see my e-poster at ISMRM!
+For those of you who couldn't be there, I added me presentation in the root directory of qMTLab. Be sure to check it out in presentation mode to view all the videos in there. They're sure to come in handy to give you an nice overview of all the things you can do with qMTLab!
+*************************************************
 
 
 qMTlab is a powerful, open source, scalable, easy to use and intuitive software for qMT data simulation, fitting and analysis. The software consists of two parts:
