@@ -1,12 +1,9 @@
 # qMTLab
 
-******* qMTLab at ISMRM 2016 in Singapore *******
-Thanks to everyone who came to see my e-poster at ISMRM!
-For those of you who couldn't be there, I added me presentation in the root directory of qMTLab. Be sure to check it out in presentation mode to view all the videos in there. They're sure to come in handy to give you an nice overview of all the things you can do with qMTLab!
-*************************************************
+For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'] (https://github.com/neuropoly/qMTLab/raw/master/ReadMe.qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube']
+(https://youtu.be/WG0tVe-SFww).
 
-
-qMTlab is a powerful, open source, scalable, easy to use and intuitive software for qMT data simulation, fitting and analysis. The software consists of two parts:
+qMTlab is a powerful, open source, scalable, easy to use and intuitive software for qMTI data simulation, fitting and analysis. The software consists of two parts:
 1) a qMT data simulator
 2) a qMT data fitting and visualization interface
 
