@@ -1053,9 +1053,7 @@ if strcmp(magic, ['n+' vStr])
     isNii = true;
 elseif strcmp(magic, ['ni' vStr])
     isNii = false;
-else % likely wrong magic. Warn user and use file ext for nii detection
-    fprintf(2, 'Inconsistent sizeof_hdr and magic string for file %s\n', fnameIn);
-    fprintf(2, 'sizeof_hdr: %g; magic: %s\n', typecast(n, 'int32'), magic);
+else % likely Analyze format. Use file ext for nii detection
     isNii = strcmpi(fname(end+(-3:0)), '.nii');
 end
 

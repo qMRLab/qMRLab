@@ -1,12 +1,17 @@
 function mz = SPGR_Y_fun(x, xData, Prot, FitOpt)
-%SPGR_Y_fun Yarnykh Analytical solution for SPGR MT data used for fitting
-% Reference : Yarnykh, V. L. (2012). Fast macromolecular proton fraction
-% mapping from a single off-resonance magnetization transfer measurement.
-% Magnetic Resonance in Medicine, 68(1), 166-178.
 
+% ----------------------------------------------------------------------------------------------------
+% SPGR_Y_fun Yarnykh Analytical solution for SPGR MT data used for fitting
+% ----------------------------------------------------------------------------------------------------
 % x = [F, kr, R1f, R1r, T2f, T2r]
 % xData = [Offsets, w1rms]
 % Output : normalized mz
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% Reference : Yarnykh, V. L. (2012). Fast macromolecular proton fraction
+% mapping from a single off-resonance magnetization transfer measurement.
+% Magnetic Resonance in Medicine, 68(1), 166-178.
+% ----------------------------------------------------------------------------------------------------
 
 F   = x(1);
 kr  = x(2);

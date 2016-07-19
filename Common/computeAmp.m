@@ -1,5 +1,9 @@
 function amp = computeAmp( alpha, Pulse )
 %computeAmp Compute pulse amplitude given flip angle in degrees
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+
 
 gamma = 2*pi*42576;
 nA = length(alpha);

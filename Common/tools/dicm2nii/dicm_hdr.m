@@ -90,6 +90,7 @@ function [s, info, dict] = dicm_hdr(fname, dict, iFrames)
 % 151001 check Manufacturer in advance for 'search' method.
 % 160105 Bug fix for b just missing iPixelData (Thx Andrew S).
 % 160127 Support big endian dicom; Always return TransferSyntaxUID for dicm_img.
+% 160310 Fix problem of failing to update allRead with Inf bytes read.
 
 persistent dict_full;
 s = []; info = '';
@@ -163,7 +164,7 @@ end
 % This is the trick to make partial hdr faster.
 tag_img = char([224 127 16 0]); % PixelData, VR uncertain even expl
 if be, tag_img = tag_img([2 1 4 3]); end
-for nb = [2e6 20e6 Inf] % if not enough, read more
+for nb = [2e6 20e6 Inf Inf] % if not enough, read more
     allRead = feof(fid);
     i = strfind(char(b8), tag_img);
     if ~isempty(i)

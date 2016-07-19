@@ -1,6 +1,20 @@
 function Fit = bSSFP_fit(MTdata, Prot, FitOpt)
-% bSSFP_fit Fits analytical bSSFP model to data
-% Fit a vector x = [F,kr,R1f,R1r,T2f,M0f]
+
+% ----------------------------------------------------------------------------------------------------
+% bSSFP_fit Fits analytical SPGR model to data
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
+% Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
+% Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
+% analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+% ----------------------------------------------------------------------------------------------------
 
 [alpha, Trf, TR, W] = bSSFP_prepare(Prot, FitOpt);
 
@@ -54,5 +68,9 @@ end
 
 % Fit.residuals = residuals;
 Fit.resnorm = resnorm;
+
+function a = choose( a, x, fx )
+    a(~fx) = x;
+end
 
 end

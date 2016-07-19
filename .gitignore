@@ -44,3 +44,14 @@ Temporary Items
 SPGR/FitResults/FitTempResults.mat
 SPGR/FitTempResults.mat
 SPGR/SimResults/SimCurveTempResults.mat
+*.asv
+*.nii
+bSSFP/SimResults/SimCurveTempResults.mat
+Demo.mat
+SIRFSE/SimResults/SimCurveTempResults.mat
+SIRFSE/SimResults/SimRndTempResults.mat
+SPGR/Parameters/NewProtocol.mat
+SIRFSE/SimResults/SimRndTempResults.mat
+SIRFSE/SimResults/SimCurveTempResults.mat
+SIRFSE/SimResults/SimRndTempResults.mat
+Data/SPGR_demo/flipdata.m

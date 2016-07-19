@@ -1,19 +1,31 @@
 function Fit = SPGR_fit(MTdata, Prot, FitOpt )
-%%SPGR_fit Fits analytical SPGR model to data
-% Fit a vector x = [F,kr,R1f,R1r,T2f,T2r]
 
-[Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
-Prot.Tau = Tau(1);
+% ----------------------------------------------------------------------------------------------------
+% SPGR_fit Fits analytical SPGR model to data
+% ----------------------------------------------------------------------------------------------------
+% MTdata = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
+% Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
+% Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
+% analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+% ----------------------------------------------------------------------------------------------------
+
 
 % Apply B1map
 if (isfield(FitOpt,'B1') && ~isempty(FitOpt.B1))
-    Angles = Angles * FitOpt.B1;
+    Prot.Angles = Prot.Angles * FitOpt.B1;
     Prot.Alpha = Prot.Alpha * FitOpt.B1;
 end
 
 % Apply B0map
 if (isfield(FitOpt,'B0') && ~isempty(FitOpt.B0))
-    Offsets = Offsets + FitOpt.B0;
+    Prot.Offsets = Prot.Offsets + FitOpt.B0;
 end
 
 % Use R1map
@@ -29,6 +41,8 @@ if (FitOpt.R1reqR1f)
 end
 
 fix = FitOpt.fx;
+[Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
+Prot.Tau = Tau(1);
 
 switch FitOpt.model   
     case 'SledPikeCW'
@@ -92,7 +106,7 @@ end
 
 % Fitting
 opt = optimoptions(@lsqcurvefit, 'Display', 'off');
-[x_free,resnorm, residuals] = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
+[x_free,resnorm] = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
 
 x = choose( FitOpt.st, x_free, fix );
 
@@ -122,5 +136,9 @@ end
 
 % Fit.residuals = residuals;
 Fit.resnorm = resnorm;
+
+function a = choose( a, x, fx )
+    a(~fx) = x;
+end
 
 end

@@ -1,6 +1,6 @@
 function SPGR_PlotSimCurve(MTdata, MTnoise, Prot, Sim, SimCurveResults)
 
-semilogx(Prot.Offsets, MTdata,'b.'); hold on;
+semilogx(Prot.Offsets, MTdata,'bx'); hold on;
 
 if (Sim.Opt.AddNoise)
     semilogx(Prot.Offsets, MTnoise,'bo','MarkerSize',8);

@@ -27,7 +27,7 @@ setappdata(h,'canceling',0)
 setappdata(0,'Cancel',0);
 
 tic;
-parfor ii = 1:n
+for ii = 1:n
     Param.F   =  RndParam.F(ii);        Param.kr  =  RndParam.kr(ii);
     Param.kf  =  Param.kr.*Param.F;     Param.R1f =  RndParam.R1f(ii);
     Param.R1r =  RndParam.R1r(ii);      Param.T1f =  1/Param.R1f;

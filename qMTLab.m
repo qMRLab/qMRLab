@@ -2,6 +2,17 @@ function varargout = qMTLab(varargin)
 % QMTLAB MATLAB code for qMTLab.fig
 % GUI to simulate/fit qMT data 
 
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, JF. et al (2016).
+% Quantitative magnetization transfer imaging made easy with qMTLab
+% Software for data simulation, analysis and visualization.
+% Concepts in Magnetic Resonance Part A
+% ----------------------------------------------------------------------------------------------------
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -25,8 +36,10 @@ end
 % --- Executes just before qMTLab is made visible.
 function qMTLab_OpeningFcn(hObject, eventdata, handles, varargin)
 clc;
-startup;
-handles.root = cd;
+% startup;
+qMTLabDir = fileparts(which(mfilename()));
+addpath(genpath(qMTLabDir));
+handles.root = qMTLabDir;
 handles.method = '';
 handles.CurrentData = [];
 handles.FitDataDim = [];
@@ -49,8 +62,8 @@ switch Method
 end
 set(handles.MethodMenu, 'Value', ii);
 Method = GetMethod(handles);
-cd(fullfile(handles.root, Method));
-LoadDefaultOptions(fullfile(cd,'Parameters'));
+% cd(fullfile(handles.root, Method));
+LoadDefaultOptions(fullfile(handles.root,Method,'Parameters'));
 LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
 LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
 
@@ -73,7 +86,7 @@ function SimGUI_CloseRequestFcn(hObject, eventdata, handles)
 h = findobj('Tag','OptionsGUI');
 delete(h);
 delete(hObject);
-cd(handles.root);
+% cd(handles.root);
 AppData = getappdata(0);
 Fields = fieldnames(AppData);
 for k=1:length(Fields)
@@ -92,7 +105,7 @@ end
 % METHODMENU
 function MethodMenu_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
-cd(fullfile(handles.root, Method));
+% cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
 PathName = fullfile(handles.method,'Parameters');
 LoadDefaultOptions(PathName);
@@ -182,7 +195,7 @@ end
 
 % SimSave
 function SimSave_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile('SimResults','SimResults.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.method,'SimResults','SimResults.mat'));
 if PathName == 0, return; end
 CurrentPanel = GetAppData('CurrentPanel');
 switch CurrentPanel
@@ -196,7 +209,7 @@ end
 
 % SimLoad
 function SimLoad_Callback(hObject, eventdata, handles)
-[Filename,Pathname] = uigetfile(fullfile('SimResults','*.mat'));
+[Filename,Pathname] = uigetfile(fullfile('*.mat'));
 if Pathname == 0, return; end
 load(fullfile(Pathname,Filename));
 
@@ -385,7 +398,7 @@ switch Method
     case 'SPGR'
         SPGR_PlotSimCurve(MTdata,   MTnoise, Prot, Sim, SimCurveResults);
 end
-
+grid('on');
 
 
 
@@ -413,7 +426,7 @@ for ii = 1:8
 end
 
 SetAppData(SimVaryResults);
-SimVarySaveResults('SimResults', 'SimVaryTempResults.mat', handles);
+SimVarySaveResults(fullfile(handles.method,'SimResults'), 'SimVaryTempResults.mat', handles);
 SimVaryUpdatePopUp(handles);
 axes(handles.SimVaryAxe);
 SimVaryPlotResults(handles);
@@ -551,6 +564,7 @@ xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
 ylabel(sprintf('Fitted %s', Yaxis), 'FontWeight', 'Bold');
 xlim([Xmin Xmax]);
 hold off;
+grid('on');
 
 
 
@@ -570,7 +584,7 @@ if (isempty(RndParam)); RndParam = GetRndParam(handles); end
 SimRndResults  =  VaryRndParam(Sim,Prot,FitOpt,SimRndOpt,RndParam,Method);
 SetAppData(SimRndResults);
 AnalyzeResults(RndParam, SimRndResults, handles);
-SimRndSaveResults('SimResults', 'SimRndTempResults.mat', handles)
+SimRndSaveResults(fullfile(handles.method,'SimResults'), 'SimRndTempResults.mat', handles)
 
 
 %########################### RANDOM OPTIONS ###############################
@@ -884,7 +898,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select MTdata file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-MTdataLoad(FullFile, handles)
+MTdataLoad(FullFile, handles);
 
 function MTdataLoad(FullFile, handles)
 MTdata = [];
@@ -899,8 +913,8 @@ end
 SetAppData(MTdata);
 
 function MTdataFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.MTdataFileBox,'String');
-MTdataLoad(FullFile, handles);
+% FullFile = get(handles.MTdataFileBox,'String');
+% MTdataLoad(FullFile, handles);
 
 % MASKDATA
 function MaskLoad_Callback(hObject, eventdata, handles)
@@ -908,7 +922,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName,Index] = uigetfile({'*.nii';'*.mat'},'Select Mask file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-MaskLoad(FullFile, handles)
+MaskLoad(FullFile, handles);
 
 function MaskLoad(FullFile, handles)
 Mask = [];
@@ -923,8 +937,8 @@ end
 SetAppData(Mask);
 
 function MaskFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.MaskFileBox,'String');
-MaskLoad(FullFile, handles);
+% FullFile = get(handles.MaskFileBox,'String');
+% MaskLoad(FullFile, handles);
 
 % R1MAP DATA
 function R1mapLoad_Callback(hObject, eventdata, handles)
@@ -932,7 +946,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select R1map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-R1mapLoad(FullFile, handles)
+R1mapLoad(FullFile, handles);
 
 function R1mapLoad(FullFile, handles)
 R1map = [];
@@ -947,8 +961,8 @@ end
 SetAppData(R1map);
 
 function R1mapFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.R1mapFileBox,'String');
-R1mapLoad(FullFile, handles);
+% FullFile = get(handles.R1mapFileBox,'String');
+% R1mapLoad(FullFile, handles);
 
 % B1 MAP
 function B1mapLoad_Callback(hObject, eventdata, handles)
@@ -956,7 +970,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B1map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-B1mapLoad(FullFile, handles)
+B1mapLoad(FullFile, handles);
 
 function B1mapLoad(FullFile, handles)
 B1map = [];
@@ -971,8 +985,8 @@ end
 SetAppData(B1map);
 
 function B1mapFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.R1mapFileBox,'String');
-B1mapLoad(FullFile, handles);
+% FullFile = get(handles.R1mapFileBox,'String');
+% B1mapLoad(FullFile, handles);
 
 % B0 MAP
 function B0mapLoad_Callback(hObject, eventdata, handles)
@@ -980,7 +994,7 @@ WD = get(handles.WDBox,'String');
 [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B0map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-B0mapLoad(FullFile, handles)
+B0mapLoad(FullFile, handles);
 
 function B0mapLoad(FullFile, handles)
 B0map = [];
@@ -995,8 +1009,8 @@ end
 SetAppData(B0map);
 
 function B0mapFileBox_Callback(hObject, eventdata, handles)
-FullFile = get(handles.B0mapFileBox,'String');
-B0mapLoad(FullFile, handles);
+% FullFile = get(handles.B0mapFileBox,'String');
+% B0mapLoad(FullFile, handles);
 
 % VIEW MAPS
 function DataView_Callback(hObject, eventdata, handles)
@@ -1069,6 +1083,14 @@ R1mapLoad(get(handles.R1mapFileBox,'String'), handles)
 [MTdata, Mask, R1map, B1map, B0map] =  GetAppData('MTdata','Mask','R1map','B1map','B0map');
 [Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
 
+% If SPGR with SledPike, check for Sf table
+if (strcmp(Method,'SPGR') && (strcmp(FitOpt.model, 'SledPikeCW') || strcmp(FitOpt.model, 'SledPikeRP')))
+    if (~isfield(Prot,'Sf') || isempty(Prot.Sf))
+        errordlg('An Sf table needs to be computed for this protocol prior to fitting. Please use the protocol panel do do so.','Missing Sf table');
+        return;
+    end
+end
+
 % Build data structure
 data   =  struct;
 data.MTdata = double(MTdata);
@@ -1095,7 +1117,12 @@ wh=findall(0,'tag','TMWWaitbar');
 delete(wh);
 
 % Save fit results
-save(fullfile(WD,'FitResults','FitResults.mat'),'-struct','FitResults');
+if(~isempty(FitResults.StudyID))
+    filename = strcat(FitResults.StudyID,'.mat');
+else
+    filename = 'FitResults.mat';
+end
+save(fullfile(WD,'FitResults',filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
@@ -1131,13 +1158,19 @@ Prot   =  FitResults.Protocol;
 FitOpt =  FitResults.FitOpt;
 SetAppData(FitResults, Prot, FitOpt);
 
-set(handles.WDBox,'String', FitResults.WD);
+if (isfield(FitResults,'WD'))
+    set(handles.WDBox,'String', FitResults.WD);
+end
 set(handles.StudyIDBox,'String', FitResults.StudyID);
 set(handles.MTdataFileBox,'String', FitResults.Files.MTdata);
 set(handles.MaskFileBox,'String', FitResults.Files.Mask);
 set(handles.R1mapFileBox,'String', FitResults.Files.R1map);
 set(handles.B1mapFileBox,'String', FitResults.Files.B1map);
 set(handles.B0mapFileBox,'String', FitResults.Files.B0map);
+
+if exist(FitResults.Files.MTdata,'file')
+    MTdataLoad(get(handles.MTdataFileBox,'String'), handles);
+end
 
 SetActive('FitData', handles);
 handles.CurrentData = FitResults;
@@ -1255,11 +1288,100 @@ delete(h);
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
 Current = GetCurrent(handles);
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
 ii = find(Current);
 nVox = length(ii);
 data = reshape(Current(ii),1,nVox);
 figure();
 hist(data,20);
+xlabel(Source);
+ylabel('Counts');
+
+% PLOT DATA FIT
+function ViewDataFit_Callback(hObject, eventdata, handles)
+% Get data
+[MTdata, Mask, R1map, B1map, B0map] =  GetAppData('MTdata','Mask','R1map','B1map','B0map');
+[Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
+
+% Get selected voxel
+S = size(MTdata);
+info_dcm = getCursorInfo(handles.dcm_obj);
+x = info_dcm.Position(1);
+y = 1+ S(2) - info_dcm.Position(2);
+z = str2double(get(handles.SliceValue,'String'));
+index = sub2ind(S,x,y,z);
+
+% Build data structure
+data   =  struct;
+if length(S) == 3
+    data.MTdata = double(squeeze(MTdata(x,y,:)));
+elseif length(S) == 4
+    data.MTdata = double(squeeze(MTdata(x,y,z,:)));
+end
+data.Mask = [];
+if ~isempty(R1map), data.R1map = double(R1map(index)); else data.R1map = []; end
+if ~isempty(B1map), data.B1map = double(B1map(index)); else data.B1map = []; end
+if ~isempty(B0map), data.B0map = double(B0map(index)); else data.B0map = []; end
+
+% Do the fitting
+Fit = FitData(data,Prot,FitOpt,Method,0);
+% Fit.F = FitResults.F(index);
+% Fit.kr = FitResults.kr(index);
+% Fit.kf = FitResults.kf(index);
+% Fit.R1f = FitResults.R1f(index);
+% Fit.R1r = FitResults.R1r(index);
+
+Sim.Opt.AddNoise = 0;
+figure(68)
+set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
+haxes = get(68,'children');
+if ~isempty(haxes)
+    haxes = get(haxes(2),'children');
+    set(haxes,'Color',[0.8 0.8 0.8]);
+end
+switch Method
+    case 'bSSFP'
+%         Fit.T2f = FitResults.T2f(index);
+%         Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
+        axe(1) = subplot(2,1,1);
+        axe(2) = subplot(2,1,2);
+        bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults, axe);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
+              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f,Fit.resnorm), ...
+              'FontSize',8);
+    case 'SPGR'
+%         Fit.T2f = FitResults.T2f(index);
+%         Fit.T2r = FitResults.T2r(index);
+        SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
+        SPGR_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
+              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r,Fit.resnorm),...
+              'FontSize',8);
+    case 'SIRFSE'
+%         Fit.Sf = FitResults.Sf(index);
+%         Fit.Sr = FitResults.Sr(index);
+%         Fit.M0f = FitResults.M0f(index);
+        SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
+        SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
+        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
+              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
+              'FontSize',8);
+
+end
+
+
+% OPEN VIEWER
+function Viewer_Callback(hObject, eventdata, handles)
+FitResults = GetAppData('FitResults');
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+file = fullfile(handles.root,strcat(Source,'.nii'));
+nii = make_nii(FitResults.(Source));
+save_nii(nii,file);
+nii_viewer(file);
+
 
 % PAN
 function PanBtn_Callback(hObject, eventdata, handles)
@@ -1375,24 +1497,18 @@ set(handles.ViewPop,   'Value',  1);
 UpdatePopUp(handles);
 GetPlotRange(handles);
 Current = GetCurrent(handles);
-imagesc(flipdim(Current',1));
-% imagesc(rot90(Current));
-% imagesc((Current));
+% imagesc(flipdim(Current',1));
+imagesc(rot90(Current));
 axis equal off;
-ax = gca;
-% set(ax,'YDir','normal')
 RefreshColorMap(handles)
 
 function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
 yl = ylim;
-imagesc(flipdim(Current',1));
-% imagesc(rot90(Current));
-% imagesc((Current));
+% imagesc(flipdim(Current',1));
+imagesc(rot90(Current));
 axis equal off;
-ax = gca;
-% set(ax,'YDir','normal')
 RefreshColorMap(handles)
 xlim(xl);
 ylim(yl);
@@ -1401,7 +1517,7 @@ function RefreshColorMap(handles)
 val  = get(handles.ColorMapStyle, 'Value');
 maps = get(handles.ColorMapStyle, 'String'); 
 colormap(maps{val});
-colorbar('location', 'South');
+colorbar('location', 'South', 'Color', 'white');
 min = str2double(get(handles.MinValue, 'String'));
 max = str2double(get(handles.MaxValue, 'String'));
 caxis([min max]);
@@ -1448,57 +1564,3 @@ function R1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B1mapFileBox_CreateFcn(hObject, eventdata, handles)
 function B0mapFileBox_CreateFcn(hObject, eventdata, handles)
 function WDBox_CreateFcn(hObject, eventdata, handles)
-
-
-function PlotDataFit(hObject, eventdata, handles)
-info_dcm = getCursorInfo(handles.dcm_obj);
-x = info_dcm.Position(2)
-y = info_dcm.Position(1)
-z = str2double(get(handles.SliceValue,'String'))
-[FitResults,Method] = GetAppData('FitResults','Method');
-% MTdata = FitResults.data.MTdata;
-MTdata = GetAppData('MTdata');
-dim = ndims(MTdata);
-if dim == 3
-    data = squeeze(MTdata(x,y,:));
-elseif dim == 4
-    data = squeeze(MTdata(x,y,z,:));
-end
-Prot = FitResults.Prot;
-FitOpt = FitResults.FitOpt;
-Fit.F = FitResults.F(x,y,z);
-Fit.kr = FitResults.kr(x,y,z);
-Fit.R1f = FitResults.R1f(x,y,z);
-Fit.R1r = FitResults.R1r(x,y,z);
-Sim.Opt.AddNoise = 0;
-
-switch Method
-    case 'bSSFP'
-        Fit.T2f = FitResults.T2f(x,y,z);
-        Fit.M0f = FitResults.M0f(x,y,z);
-        SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
-    case 'SPGR'
-        Fit.T2f = FitResults.T2f(x,y,z);
-        Fit.T2r = FitResults.T2r(x,y,z);
-        SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
-    case 'SIRFSE'
-        Fit.Sf = FitResults.Sf(x,y,z);
-        Fit.Sr = FitResults.Sr(x,y,z);
-        Fit.M0f = FitResults.M0f(x,y,z);
-        SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
-end
-figure();
-switch Method
-    case 'bSSFP'
-        axe(1) = subplot(2,1,1);
-        axe(2) = subplot(2,1,2);
-        bSSFP_PlotSimCurve(data,  data, Prot, Sim, SimCurveResults, axe);
-    case 'SIRFSE'
-        SIRFSE_PlotSimCurve(data, data, Prot, Sim, SimCurveResults);
-    case 'SPGR'
-        SPGR_PlotSimCurve(data,   data, Prot, Sim, SimCurveResults);
-end
-
-
-% --- Executes on button press in TestBtn.
-function TestBtn_Callback(hObject, eventdata, handles)

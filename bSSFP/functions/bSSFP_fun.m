@@ -1,12 +1,17 @@
 function My = bSSFP_fun( x, xdata, FitOpt )
+
+% ----------------------------------------------------------------------------------------------------
 % bSSFP_fun Analytical bSSFP solution for pre determined W. 
-% Used for fitting data points with fixed W because calculation of W takes time
+% ----------------------------------------------------------------------------------------------------
 % x = [F,kr,R1f,R1r,T2f,M0f]
 % xdata = [alpha, Trf, TR, W]
-
+% Output: My
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
 % Reference: M. Gloor, K. Scheffler, and O. Bieri. "Quantitative
 % Magnetization Transfer Imaging Using Balanced SSFP", Magnetic Resonance
 % in Medicine 60:691â€“700 (2008)
+% ----------------------------------------------------------------------------------------------------
 
 alpha = xdata(:,1)*pi/180;
 Trf   = xdata(:,2);

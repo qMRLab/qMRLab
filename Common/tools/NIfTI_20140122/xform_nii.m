@@ -326,10 +326,14 @@ function [hdr, orient] = change_hdr(hdr, tolerance, preferredForm)
 
       if det(R) == 0 | ~isequal(R(find(R)), sum(R)')
          hdr.hist.old_affine = [ [R;[0 0 0]] [T;1] ];
-         R_sort = sort(abs(R(:)));
-         R( find( abs(R) < tolerance*min(R_sort(end-2:end)) ) ) = 0;
-         hdr.hist.new_affine = [ [R;[0 0 0]] [T;1] ];
-
+        R_sort = sort(abs(R(:)));
+        if tolerance ==1
+            R(2:3,1) = 0; R([1,3],2) = 0; R(1:2,3) = 0;
+        else
+            R( find( abs(R) < tolerance*min(R_sort(end-2:end)) ) ) = 0;
+        end
+        hdr.hist.new_affine = [ [R;[0 0 0]] [T;1] ];
+        
          if det(R) == 0 | ~isequal(R(find(R)), sum(R)')
             msg = [char(10) char(10) '   Non-orthogonal rotation or shearing '];
             msg = [msg 'found inside the affine matrix' char(10)];

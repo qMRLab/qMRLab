@@ -1,16 +1,29 @@
 function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 
-%FITDATA Takes 2D or 3D MTdata and returns fitted parameters maps
-%   data is a struct containing fields MTdata and optionnal R1map, Mask,
-%   B1map and B0map.
-
+% ----------------------------------------------------------------------------------------------------
+% Fit = FitData( data, Protocol, FitOpt, Method, wait )
+% Takes 2D or 3D MTdata and returns fitted parameters maps
+% ----------------------------------------------------------------------------------------------------
+% data = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
+% Output : Fit structure with fitted parameters
+%
 % MTdata is an array of size [x,y,z,nT], where x = image height, y = image
 % width, z = image depth and Nt is the number of data points for each voxel
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-François Cabana, 2016
+% ----------------------------------------------------------------------------------------------------
+% If you use qMTLab in your work, please cite :
+
+% Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
+% Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
+% Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
+% analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+% ----------------------------------------------------------------------------------------------------
 
 
 %############################# INITIALIZE #################################
 % Get dimensions
-MTdata = data.MTdata;
+MTdata = double(data.MTdata);
 dim = ndims(MTdata);
 x = 1; y = 1; z = 1;
 switch dim
@@ -19,7 +32,7 @@ switch dim
     case 3
         [x,y,nT] = size(MTdata);
     case 2
-        [x,nT] = size(MTdata);
+        nT = length(MTdata);
 end
 
 % Arrange voxels into a column
@@ -42,6 +55,7 @@ Fit.computed = Fit.(fields{1});
 
 % Apply mask
 if (~isempty(data.Mask))
+    Fit.Mask = single(data.Mask);
     Mask = reshape(data.Mask,nV,1);
     MTdata = MTdata.*repmat(Mask,[1,nT]);
 end
@@ -50,11 +64,11 @@ end
 Voxels = find(all(MTdata,2));
 l = length(Voxels);
 
-if (~isempty(data.R1map));  R1map = reshape(data.R1map,nV,1); end
+if (~isempty(data.R1map));  R1map = reshape(double(data.R1map),nV,1); end
 
-if (~isempty(data.B1map));  B1map = reshape(data.B1map,nV,1); end
+if (~isempty(data.B1map));  B1map = reshape(double(data.B1map),nV,1); end
 
-if (~isempty(data.B0map));  B0map = reshape(data.B0map,nV,1); end
+if (~isempty(data.B0map));  B0map = reshape(double(data.B0map),nV,1); end
 
 FitOpt.R1 = [];
 FitOpt.B1 = [];
@@ -75,7 +89,7 @@ for ii = 1:l
     
     % Update waitbar
     if (isempty(h))
-        fprintf('Fitting voxel %d/%d\n',ii,l);
+        fprintf('Fitting voxel %d/%d\r',ii,l);
     else
         if getappdata(h,'canceling');  break;  end  % Allows user to cancel
         waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
@@ -89,6 +103,13 @@ for ii = 1:l
     if (~isempty(data.B1map)); FitOpt.B1 = B1map(vox); end
     
     if (~isempty(data.B0map)); FitOpt.B0 = B0map(vox); end
+    
+    if (isfield(FitOpt,'PreviousFit'))
+        names = FitOpt.names;
+        for ff = 1:length(names)
+            FitOpt.st(ff) = FitOpt.PreviousFit.(names{ff})(vox);
+        end
+    end
     
     % Fit data
     switch Method
@@ -104,7 +125,7 @@ for ii = 1:l
     
     Fit.computed(ii) = 1;
 
-    %-- save temp file
+    %-- save temp file every 20 voxels
     if(mod(ii,20) == 0)
       save('FitTempResults.mat', '-struct','Fit');
     end
