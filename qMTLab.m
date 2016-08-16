@@ -1469,8 +1469,8 @@ UpdateSlice(handles);
 
 function GetPlotRange(handles)
 Current = GetCurrent(handles);
-Min = min(min(min(Current)));
-Max = max(max(max(Current)));
+Min = prctile(Current(:),5); % 5 percentile of the data to prevent extreme values
+Max = prctile(Current(:),95);% 95 percentile of the data to prevent extreme values
 
 if (Min == Max)
     Max = Max + 1;
