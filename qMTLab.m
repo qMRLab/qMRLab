@@ -1255,7 +1255,7 @@ RefreshPlot(handles);
 
 function SliceSlider_Callback(hObject, eventdata, handles)
 Slice = get(hObject,'Value');
-Slice = round(Slice);
+Slice = max(1,round(Slice));
 set(handles.SliceSlider, 'Value', Slice);
 set(handles.SliceValue, 'String', Slice);
 View =  get(handles.ViewPop,'Value');
