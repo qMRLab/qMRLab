@@ -1311,69 +1311,73 @@ function ViewDataFit_Callback(hObject, eventdata, handles)
 
 % Get selected voxel
 S = size(MTdata);
-info_dcm = getCursorInfo(handles.dcm_obj);
-x = info_dcm.Position(1);
-y = 1+ S(2) - info_dcm.Position(2);
-z = str2double(get(handles.SliceValue,'String'));
-index = sub2ind(S,x,y,z);
-
-% Build data structure
-data   =  struct;
-if length(S) == 3
-    data.MTdata = double(squeeze(MTdata(x,y,:)));
-elseif length(S) == 4
-    data.MTdata = double(squeeze(MTdata(x,y,z,:)));
-end
-data.Mask = [];
-if ~isempty(R1map), data.R1map = double(R1map(index)); else data.R1map = []; end
-if ~isempty(B1map), data.B1map = double(B1map(index)); else data.B1map = []; end
-if ~isempty(B0map), data.B0map = double(B0map(index)); else data.B0map = []; end
-
-% Do the fitting
-Fit = FitData(data,Prot,FitOpt,Method,0);
-% Fit.F = FitResults.F(index);
-% Fit.kr = FitResults.kr(index);
-% Fit.kf = FitResults.kf(index);
-% Fit.R1f = FitResults.R1f(index);
-% Fit.R1r = FitResults.R1r(index);
-
-Sim.Opt.AddNoise = 0;
-figure(68)
-set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
-haxes = get(68,'children');
-if ~isempty(haxes)
-    haxes = get(haxes(2),'children');
-    set(haxes,'Color',[0.8 0.8 0.8]);
-end
-switch Method
-    case 'bSSFP'
-%         Fit.T2f = FitResults.T2f(index);
-%         Fit.M0f = FitResults.M0f(index);
-        SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
-        axe(1) = subplot(2,1,1);
-        axe(2) = subplot(2,1,2);
-        bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults, axe);
-        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
-              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f,Fit.resnorm), ...
-              'FontSize',8);
-    case 'SPGR'
-%         Fit.T2f = FitResults.T2f(index);
-%         Fit.T2r = FitResults.T2r(index);
-        SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
-        SPGR_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
-        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
-              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r,Fit.resnorm),...
-              'FontSize',8);
-    case 'SIRFSE'
-%         Fit.Sf = FitResults.Sf(index);
-%         Fit.Sr = FitResults.Sr(index);
-%         Fit.M0f = FitResults.M0f(index);
-        SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
-        SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
-        title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
-              index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
-              'FontSize',8);
-
+if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
+    disp('<strong>Select a voxel in the image using cursor</strong>')
+else
+    info_dcm = getCursorInfo(handles.dcm_obj);
+    x = info_dcm.Position(1);
+    y = 1+ S(2) - info_dcm.Position(2);
+    z = str2double(get(handles.SliceValue,'String'));
+    index = sub2ind(S,x,y,z);
+    
+    % Build data structure
+    data   =  struct;
+    if length(S) == 3
+        data.MTdata = double(squeeze(MTdata(x,y,:)));
+    elseif length(S) == 4
+        data.MTdata = double(squeeze(MTdata(x,y,z,:)));
+    end
+    data.Mask = [];
+    if ~isempty(R1map), data.R1map = double(R1map(index)); else data.R1map = []; end
+    if ~isempty(B1map), data.B1map = double(B1map(index)); else data.B1map = []; end
+    if ~isempty(B0map), data.B0map = double(B0map(index)); else data.B0map = []; end
+    
+    % Do the fitting
+    Fit = FitData(data,Prot,FitOpt,Method,0);
+    % Fit.F = FitResults.F(index);
+    % Fit.kr = FitResults.kr(index);
+    % Fit.kf = FitResults.kf(index);
+    % Fit.R1f = FitResults.R1f(index);
+    % Fit.R1r = FitResults.R1r(index);
+    
+    Sim.Opt.AddNoise = 0;
+    figure(68)
+    set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
+    haxes = get(68,'children');
+    if ~isempty(haxes)
+        haxes = get(haxes(2),'children');
+        set(haxes,'Color',[0.8 0.8 0.8]);
+    end
+    switch Method
+        case 'bSSFP'
+            %         Fit.T2f = FitResults.T2f(index);
+            %         Fit.M0f = FitResults.M0f(index);
+            SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
+            axe(1) = subplot(2,1,1);
+            axe(2) = subplot(2,1,2);
+            bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults, axe);
+            title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
+                index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f,Fit.resnorm), ...
+                'FontSize',8);
+        case 'SPGR'
+            %         Fit.T2f = FitResults.T2f(index);
+            %         Fit.T2r = FitResults.T2r(index);
+            SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
+            SPGR_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
+            title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
+                index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r,Fit.resnorm),...
+                'FontSize',8);
+        case 'SIRFSE'
+            %         Fit.Sf = FitResults.Sf(index);
+            %         Fit.Sr = FitResults.Sr(index);
+            %         Fit.M0f = FitResults.M0f(index);
+            SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
+            SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
+            title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
+                index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
+                'FontSize',8);
+            
+    end
 end
 
 
