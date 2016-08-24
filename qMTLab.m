@@ -1341,6 +1341,7 @@ else
     % Fit.R1r = FitResults.R1r(index);
     
     Sim.Opt.AddNoise = 0;
+    % Create axe
     figure(68)
     set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
     haxes = get(68,'children');
@@ -1348,6 +1349,8 @@ else
         haxes = get(haxes(2),'children');
         set(haxes,'Color',[0.8 0.8 0.8]);
     end
+    hold on;
+    % Start Fitting
     switch Method
         case 'bSSFP'
             %         Fit.T2f = FitResults.T2f(index);

@@ -14,7 +14,7 @@ end
 xlabel('Inversion time (s)','FontWeight','bold','FontSize',10);
 ylabel('Delay time (s)','FontWeight','bold','FontSize',10);
 zlabel('|Mz|','FontWeight','bold','FontSize',10);
-zlim([0, 1.1*max(MTdata)]);
+zlim([0, max(1e-10,1.1*max(MTdata))]);
 xlim([SimCurveResults.ti(1) SimCurveResults.ti(end)]);
 set(hleg,'Location','SouthWest','FontSize',8);
 legend('boxoff');
