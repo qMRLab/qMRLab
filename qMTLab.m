@@ -1016,6 +1016,7 @@ function B0mapFileBox_Callback(hObject, eventdata, handles)
 function DataView_Callback(hObject, eventdata, handles)
 MTdataLoad(get(handles.MTdataFileBox,'String'), handles)
 MTdata = GetAppData('MTdata');
+if isempty(MTdata), errordlg('empty data'); return; end
 n = ndims(MTdata);
 Data.MTdata = mean(double(MTdata),n);
 Data.fields = {'MTdata'};
@@ -1026,6 +1027,7 @@ DrawPlot(handles);
 function MaskView_Callback(hObject, eventdata, handles)
 MaskLoad(get(handles.MaskFileBox,'String'), handles)
 data = GetAppData('Mask');
+if isempty(data), errordlg('empty data'); return; end
 Data.Mask = double(data);
 Data.fields = {'Mask'};
 handles.CurrentData = Data;
@@ -1035,6 +1037,7 @@ DrawPlot(handles);
 function R1mapView_Callback(hObject, eventdata, handles)
 R1mapLoad(get(handles.R1mapFileBox,'String'), handles)
 data = GetAppData('R1map');
+if isempty(data), errordlg('empty data'); return; end
 Data.R1map = double(data);
 Data.fields = {'R1map'};
 handles.CurrentData = Data;
@@ -1044,6 +1047,7 @@ DrawPlot(handles);
 function B1mapView_Callback(hObject, eventdata, handles)
 B1mapLoad(get(handles.B1mapFileBox,'String'), handles)
 data = GetAppData('B1map');
+if isempty(data), errordlg('empty data'); return; end
 Data.B1map = double(data);
 Data.fields = {'B1map'};
 handles.CurrentData = Data;
@@ -1053,6 +1057,7 @@ DrawPlot(handles);
 function B0mapView_Callback(hObject, eventdata, handles)
 B0mapLoad(get(handles.B0mapFileBox,'String'), handles)
 data = GetAppData('B0map');
+if isempty(data), errordlg('empty data'); return; end
 Data.B0map = double(data);
 Data.fields = {'B0map'};
 handles.CurrentData = Data;

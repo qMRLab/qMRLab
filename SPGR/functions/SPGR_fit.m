@@ -20,6 +20,10 @@ if isempty(Prot.Sf)
     errordlg('Please build Sf Table in the options panel to enable fitting...')
 end
 
+if length(Prot.Angles)~=length(MTdata)
+    errordlg(['You set a protocol with ' num2str(length(Prot.Angles)) ' offsets/angles but your input has ' num2str(length(MTdata)) ' MTdata']);
+end
+
 % Apply B1map
 if (isfield(FitOpt,'B1') && ~isempty(FitOpt.B1))
     Prot.Angles = Prot.Angles * FitOpt.B1;
@@ -33,6 +37,7 @@ end
 
 % Use R1map
 if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
+    FitOpt.R1 = max(eps,FitOpt.R1);
     FitOpt.fx(3) = 1;
     FitOpt.st(3) = FitOpt.R1;
 end
