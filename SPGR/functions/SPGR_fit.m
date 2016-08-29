@@ -16,6 +16,9 @@ function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
+if isempty(Prot.Sf)
+    errordlg('Please build Sf Table in the options panel to enable fitting...')
+end
 
 % Apply B1map
 if (isfield(FitOpt,'B1') && ~isempty(FitOpt.B1))
