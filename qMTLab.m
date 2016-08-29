@@ -906,7 +906,7 @@ set(handles.MTdataFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile);
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii');
+elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
     nii = load_nii(FullFile);
     MTdata = nii.img;
 end
@@ -930,7 +930,7 @@ set(handles.MaskFileBox,'String',FullFile);
 [pathstr,name,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii');
+elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
     nii = load_nii(FullFile);
     Mask = nii.img;
 end
@@ -954,7 +954,7 @@ set(handles.R1mapFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii');
+elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
     nii = load_nii(FullFile);
     R1map = nii.img;
 end
@@ -978,7 +978,7 @@ set(handles.B1mapFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii');
+elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
     nii = load_nii(FullFile);
     B1map = nii.img;
 end
@@ -1002,7 +1002,7 @@ set(handles.B0mapFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii');
+elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
     nii = load_nii(FullFile);
     B0map = nii.img;
 end
