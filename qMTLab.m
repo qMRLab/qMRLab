@@ -1139,8 +1139,7 @@ set(handles.CurrentFitId,'String','FitResults.mat');
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     file = strcat(map,'.nii');
-    nii = make_nii(FitResults.(map));
-    save_nii(nii,fullfile(WD,'FitResults',file));
+    save_nii_v2(FitResults.(map),fullfile(WD,'FitResults',file),FitResults.Files.MTdata,64);
 end
 
 % Show results
