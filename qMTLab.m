@@ -1366,7 +1366,7 @@ else
             bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults, axe);
             title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
                 index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f,Fit.resnorm), ...
-                'FontSize',8);
+                'FontSize',10);
         case 'SPGR'
             %         Fit.T2f = FitResults.T2f(index);
             %         Fit.T2r = FitResults.T2r(index);
@@ -1374,7 +1374,7 @@ else
             SPGR_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
             title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
                 index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r,Fit.resnorm),...
-                'FontSize',8);
+                'FontSize',10);
         case 'SIRFSE'
             %         Fit.Sf = FitResults.Sf(index);
             %         Fit.Sr = FitResults.Sr(index);
@@ -1383,7 +1383,7 @@ else
             SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
             title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
                 index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
-                'FontSize',8);
+                'FontSize',10);
             
     end
 end
