@@ -1164,7 +1164,11 @@ function FitResultsLoad_Callback(hObject, eventdata, handles)
 if PathName == 0, return; end
 set(handles.CurrentFitId,'String',FileName);
 FitResults = load(fullfile(PathName,FileName));
-Prot   =  FitResults.Protocol;
+if isfield(FitResults,'Protocol')
+    Prot   =  FitResults.Protocol;
+else
+    Prot   =  FitResults.Prot;
+end
 FitOpt =  FitResults.FitOpt;
 SetAppData(FitResults, Prot, FitOpt);
 
@@ -1172,14 +1176,16 @@ if (isfield(FitResults,'WD'))
     set(handles.WDBox,'String', FitResults.WD);
 end
 set(handles.StudyIDBox,'String', FitResults.StudyID);
-set(handles.MTdataFileBox,'String', FitResults.Files.MTdata);
-set(handles.MaskFileBox,'String', FitResults.Files.Mask);
-set(handles.R1mapFileBox,'String', FitResults.Files.R1map);
-set(handles.B1mapFileBox,'String', FitResults.Files.B1map);
-set(handles.B0mapFileBox,'String', FitResults.Files.B0map);
-
-if exist(FitResults.Files.MTdata,'file')
-    MTdataLoad(get(handles.MTdataFileBox,'String'), handles);
+if isfield(FitResults,'Files')
+    set(handles.MTdataFileBox,'String', FitResults.Files.MTdata);
+    set(handles.MaskFileBox,'String', FitResults.Files.Mask);
+    set(handles.R1mapFileBox,'String', FitResults.Files.R1map);
+    set(handles.B1mapFileBox,'String', FitResults.Files.B1map);
+    set(handles.B0mapFileBox,'String', FitResults.Files.B0map);
+    
+    if exist(FitResults.Files.MTdata,'file')
+        MTdataLoad(get(handles.MTdataFileBox,'String'), handles);
+    end
 end
 
 SetActive('FitData', handles);
