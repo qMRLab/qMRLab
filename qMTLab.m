@@ -1132,6 +1132,7 @@ if(~isempty(FitResults.StudyID))
 else
     filename = 'FitResults.mat';
 end
+if ~exist(fullfile(WD,'FitResults')), mkdir(fullfile(WD,'FitResults')); end
 save(fullfile(WD,'FitResults',filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
@@ -1476,8 +1477,9 @@ UpdateSlice(handles);
 
 function GetPlotRange(handles)
 Current = GetCurrent(handles);
-Min = prctile(Current(:),5); % 5 percentile of the data to prevent extreme values
-Max = prctile(Current(:),95);% 95 percentile of the data to prevent extreme values
+values=Current(:); values(isinf(values))=[]; values(isnan(values))=[];
+Min = prctile(values,5); % 5 percentile of the data to prevent extreme values
+Max = prctile(values,95);% 95 percentile of the data to prevent extreme values
 
 if (Min == Max)
     Max = Max + 1;
