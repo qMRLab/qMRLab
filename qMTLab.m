@@ -1140,7 +1140,12 @@ set(handles.CurrentFitId,'String','FitResults.mat');
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     file = strcat(map,'.nii');
-    save_nii_v2(FitResults.(map),fullfile(WD,'FitResults',file),FitResults.Files.MTdata,64);
+    [~,~,ext]=fileparts(FitResults.Files.MTdata);
+    if strcmp(ext,'.mat')
+        save_nii_v2(make_nii(FitResults.(map)),fullfile(WD,'FitResults',file),[],64);
+    else
+        save_nii_v2(FitResults.(map),fullfile(WD,'FitResults',file),FitResults.Files.MTdata,64);
+    end
 end
 
 % Show results
@@ -1479,7 +1484,7 @@ else
         handles.FitDataSlice = 1;
 end
 guidata(gcbf, handles);
-UpdateSlice(handles);
+%UpdateSlice(handles);
 
 function GetPlotRange(handles)
 Current = GetCurrent(handles);
