@@ -68,7 +68,7 @@ function save_nii(nii, fileprefix, old_RGB)
 
    %  Check file extension. If .gz, unpack it into temp folder
    %
-   if length(fileprefix) > 2 & strcmp(fileprefix(end-2:end), '.gz')
+   if strcmp(fileprefix(end-2:end), '.gz')
 
       if ~strcmp(fileprefix(end-6:end), '.img.gz') & ...
 	 ~strcmp(fileprefix(end-6:end), '.hdr.gz') & ...
