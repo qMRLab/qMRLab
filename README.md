@@ -1,6 +1,6 @@
 # qMTLab
 
-For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'] (https://github.com/neuropoly/qMTLab/raw/master/ReadMe.qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube']
+For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'] (https://github.com/neuropoly/qMTLab/raw/master/qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube']
 (https://youtu.be/WG0tVe-SFww).
 
 qMTlab is a powerful, open source, scalable, easy to use and intuitive software for qMTI data simulation, fitting and analysis. The software consists of two parts:
