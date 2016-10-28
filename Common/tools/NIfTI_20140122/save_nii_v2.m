@@ -48,42 +48,25 @@
 %  - Jimmy Shen (jimmy@rotman-baycrest.on.ca)
 %  - "old_RGB" related codes in "save_nii.m" are added by Mike Harms (2006.06.28)
 %
-function save_nii_v2(nii, fileprefix, old_nii_fname,datatype,reorient)
-dbstop if error
-if ~exist('nii','var') | isempty(nii) %| ~isfield(nii,'hdr') | ...
-    %~isfield(nii,'img') | ~exist('fileprefix','var') | isempty(fileprefix)
-    
-    error('Usage: save_nii(nii, filename, [old_RGB])');
-end
-
-
-if isfield(nii,'untouch') & nii.untouch == 1
-    error('Usage: please use ''save_untouch_nii.m'' for the untouched structure.');
-end
-
-if ~exist('old_RGB','var') | isempty(old_RGB)
-    old_RGB = 0;
-end
-
-if islogical(nii), nii = double(nii); if ~exist('datatype','var'), datatype=2; end; end
-
+function save_nii_v2(nii, fileprefix, old_nii_fname,datatype)
 if ~isstruct(nii)
     if exist('old_nii_fname','var')
         img = nii;
         nii = load_nii(old_nii_fname,[],[],[],[],[],1);
-        tmp=zeros(size(img));
         for it=1:size(img,4)
             tmp(:,:,:,it) = unxform_nii(nii, img(:,:,:,it));
         end
+        if size(unxform_nii(nii, nii.img(:,:,:,it))) ~= size(unxform_nii(nii, img(:,:,:,it))), error('old_nii_fname doesn''t have the same dimension as your new data'); end
         nii.original.img =tmp;
+        nii.original.hdr.dime.dim(5)=size(img,4);
         nii = nii.original;
+        nii.hdr.dime.vox_offset=0;
+        nii.hdr.dime.scl_inter=0;
+        nii.hdr.dime.scl_slope=0;
     else
         error('error:usage','Usage: save_nii_v2(Matrix, filename, old_nii_fname)\n old_nii_fname is missing: You need to specify a nifti filename from which the header will be copied.')
     end
 end
-
-nii.hdr.dime.dim(1:length(size(nii.img))+1)=[length(size(nii.img)) size(nii.img)];
-nii.hdr.dime.dim(length(size(nii.img))+2:end)=1;
 
 if exist('datatype','var')
     bittable=  [0 0; % DT_NONE, DT_UNKNOWN
@@ -108,237 +91,7 @@ if exist('datatype','var')
     nii.hdr.dime.bitpix=bittable(bittable(:,1)==datatype,2);
 end
 
-v = version;
+[path, name, ext1]=fileparts(fileprefix);
+if isempty(ext1), fileprefix = [fileprefix '.nii']; end
 
-%  Check file extension. If .gz, unpack it into temp folder
-%
-if length(fileprefix) > 2 & strcmp(fileprefix(end-2:end), '.gz')
-    
-    if ~strcmp(fileprefix(end-6:end), '.img.gz') & ...
-            ~strcmp(fileprefix(end-6:end), '.hdr.gz') & ...
-            ~strcmp(fileprefix(end-6:end), '.nii.gz')
-        
-        error('Please check filename.');
-    end
-    
-    if str2num(v(1:3)) < 7.1 | ~usejava('jvm')
-        error('Please use MATLAB 7.1 (with java) and above, or run gunzip outside MATLAB.');
-    else
-        gzFile = 1;
-        fileprefix = fileprefix(1:end-3);
-    end
-end
-
-filetype = 2;
-
-%  Note: fileprefix is actually the filename you want to save
-%
-if findstr('.nii',fileprefix) & strcmp(fileprefix(end-3:end), '.nii')
-    filetype = 2;
-    fileprefix(end-3:end)='';
-end
-
-if findstr('.hdr',fileprefix) & strcmp(fileprefix(end-3:end), '.hdr')
-    fileprefix(end-3:end)='';
-end
-
-if findstr('.img',fileprefix) & strcmp(fileprefix(end-3:end), '.img')
-    fileprefix(end-3:end)='';
-end
-
-write_nii(nii, filetype, fileprefix, old_RGB);
-% reorient in RPI
-
-% if ~exist('reorient','var'), reorient=1; end
-% if exist('old_nii_fname','var') && reorient
-%     [~,orient_dest] = unix(['sct_image -i ' old_nii_fname ' -getorient']); orient_dest=orient_dest(end-3:end-1);
-%     unix(['sct_image -i ' fileprefix '.nii -setorient ' orient_dest ' -o ' fileprefix '.nii']);
-%     if exist([fileprefix '.nii.gz'],'file'), unix(['rm ' fileprefix '.nii.gz']); end
-%     unix(['fslcpgeom ' old_nii_fname ' ' fileprefix '.nii -d']);
-% end
-
-%  gzip output file if requested
-%
-if exist('gzFile', 'var')
-    if filetype == 1
-        gzip([fileprefix, '.img']);
-        delete([fileprefix, '.img']);
-        gzip([fileprefix, '.hdr']);
-        delete([fileprefix, '.hdr']);
-    elseif filetype == 2
-        gzip([fileprefix, '.nii']);
-        delete([fileprefix, '.nii']);
-    end;
-end;
-
-if filetype == 1
-    
-    %  So earlier versions of SPM can also open it with correct originator
-    %
-    M=[[diag(nii.hdr.dime.pixdim(2:4)) -[nii.hdr.hist.originator(1:3).*nii.hdr.dime.pixdim(2:4)]'];[0 0 0 1]];
-    save([fileprefix '.mat'], 'M');
-end
-
-
-
-return					% save_nii
-
-
-%-----------------------------------------------------------------------------------
-function write_nii(nii, filetype, fileprefix, old_RGB)
-
-hdr = nii.hdr;
-
-if isfield(nii,'ext') & ~isempty(nii.ext)
-    ext = nii.ext;
-    [ext, esize_total] = verify_nii_ext(ext);
-else
-    ext = [];
-end
-
-switch double(hdr.dime.datatype),
-    case   1,
-        hdr.dime.bitpix = int16(1 ); precision = 'ubit1';
-    case   2,
-        hdr.dime.bitpix = int16(8 ); precision = 'uint8';
-    case   4,
-        hdr.dime.bitpix = int16(16); precision = 'int16';
-    case   8,
-        hdr.dime.bitpix = int16(32); precision = 'int32';
-    case  16,
-        hdr.dime.bitpix = int16(32); precision = 'float32';
-    case  32,
-        hdr.dime.bitpix = int16(64); precision = 'float32';
-    case  64,
-        hdr.dime.bitpix = int16(64); precision = 'float64';
-    case 128,
-        hdr.dime.bitpix = int16(24); precision = 'uint8';
-    case 256
-        hdr.dime.bitpix = int16(8 ); precision = 'int8';
-    case 511,
-        hdr.dime.bitpix = int16(96); precision = 'float32';
-    case 512
-        hdr.dime.bitpix = int16(16); precision = 'uint16';
-    case 768
-        hdr.dime.bitpix = int16(32); precision = 'uint32';
-    case 1024
-        hdr.dime.bitpix = int16(64); precision = 'int64';
-    case 1280
-        hdr.dime.bitpix = int16(64); precision = 'uint64';
-    case 1792,
-        hdr.dime.bitpix = int16(128); precision = 'float64';
-    otherwise
-        error('This datatype is not supported');
-end
-
-
-
-hdr.dime.glmax = round(double(max(nii.img(:))));
-hdr.dime.glmin = round(double(min(nii.img(:))));
-dims=size(nii.img);
-hdr.dime.dim(2:1+length(dims))=dims;
-if filetype == 2
-    fid = fopen(sprintf('%s.nii',fileprefix),'w');
-    
-    if fid < 0,
-        msg = sprintf('Cannot open file %s.nii.',fileprefix);
-        error(msg);
-    end
-    
-    hdr.dime.vox_offset = 352;
-    
-    if ~isempty(ext)
-        hdr.dime.vox_offset = hdr.dime.vox_offset + esize_total;
-    end
-    
-    hdr.hist.magic = 'n+1';
-    save_nii_hdr(hdr, fid);
-    
-    if ~isempty(ext)
-        save_nii_ext(ext, fid);
-    end
-else
-    fid = fopen(sprintf('%s.hdr',fileprefix),'w');
-    
-    if fid < 0,
-        msg = sprintf('Cannot open file %s.hdr.',fileprefix);
-        error(msg);
-    end
-    
-    hdr.dime.vox_offset = 0;
-    hdr.hist.magic = 'ni1';
-    save_nii_hdr(hdr, fid);
-    
-    if ~isempty(ext)
-        save_nii_ext(ext, fid);
-    end
-    
-    fclose(fid);
-    fid = fopen(sprintf('%s.img',fileprefix),'w');
-end
-
-ScanDim = double(hdr.dime.dim(5));		% t
-SliceDim = double(hdr.dime.dim(4));		% z
-RowDim   = double(hdr.dime.dim(3));		% y
-PixelDim = double(hdr.dime.dim(2));		% x
-SliceSz  = double(hdr.dime.pixdim(4));
-RowSz    = double(hdr.dime.pixdim(3));
-PixelSz  = double(hdr.dime.pixdim(2));
-
-x = 1:PixelDim;
-
-if filetype == 2 & isempty(ext)
-    skip_bytes = double(hdr.dime.vox_offset) - 348;
-else
-    skip_bytes = 0;
-end
-
-if double(hdr.dime.datatype) == 128
-    
-    %  RGB planes are expected to be in the 4th dimension of nii.img
-    %
-    if(size(nii.img,4)~=3)
-        error(['The NII structure does not appear to have 3 RGB color planes in the 4th dimension']);
-    end
-    
-    if old_RGB
-        nii.img = permute(nii.img, [1 2 4 3 5 6 7 8]);
-    else
-        nii.img = permute(nii.img, [4 1 2 3 5 6 7 8]);
-    end
-end
-
-if double(hdr.dime.datatype) == 511
-    
-    %  RGB planes are expected to be in the 4th dimension of nii.img
-    %
-    if(size(nii.img,4)~=3)
-        error(['The NII structure does not appear to have 3 RGB color planes in the 4th dimension']);
-    end
-    
-    if old_RGB
-        nii.img = permute(nii.img, [1 2 4 3 5 6 7 8]);
-    else
-        nii.img = permute(nii.img, [4 1 2 3 5 6 7 8]);
-    end
-end
-
-%  For complex float32 or complex float64, voxel values
-%  include [real, imag]
-%
-if hdr.dime.datatype == 32 | hdr.dime.datatype == 1792
-    real_img = real(nii.img(:))';
-    nii.img = imag(nii.img(:))';
-    nii.img = [real_img; nii.img];
-end
-
-if skip_bytes
-    fwrite(fid, zeros(1,skip_bytes), 'uint8');
-end
-
-fwrite(fid, nii.img, precision);
-%   fwrite(fid, nii.img, precision, skip_bytes);        % error using skip
-fclose(fid);
-
-return;					% write_nii
-
+save_nii(nii,fileprefix)
