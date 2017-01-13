@@ -60,6 +60,14 @@ switch Method
     case 'SPGR'
         ii = 3;
 end
+% add custom models
+qMTLab_dir = fileparts(mfilename('fullpath'));
+CUSTOM=[qMTLab_dir filesep 'Custom'];
+addpath(CUSTOM)
+CUSTOM_list = sct_tools_ls([CUSTOM filesep '*.m']); 
+CUSTOM_list = strrep(CUSTOM_list,'.m','');
+set(handles.MethodMenu,'String',cat(1,get(handles.MethodMenu,'String'),CUSTOM_list'))
+
 set(handles.MethodMenu, 'Value', ii);
 Method = GetMethod(handles);
 % cd(fullfile(handles.root, Method));
@@ -107,13 +115,24 @@ function MethodMenu_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 % cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
-PathName = fullfile(handles.method,'Parameters');
-LoadDefaultOptions(PathName);
-% Update Options Panel
-h = findobj('Tag','OptionsGUI');
-if ~isempty(h)
-    delete(h);
-    OpenOptionsPanel_Callback(hObject, eventdata, handles)
+if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+    PathName = fullfile(handles.method,'Parameters');
+    LoadDefaultOptions(PathName);
+    % Update Options Panel
+    h = findobj('Tag','OptionsGUI');
+    if ~isempty(h)
+        delete(h);
+        OpenOptionsPanel_Callback(hObject, eventdata, handles)
+    end
+else
+    % Update Options Panel
+    h = findobj('Tag','OptionsGUI');
+    if ~isempty(h)
+        delete(h);
+        modelfun  = str2func(Method);
+        [~,~, ModelOpt] = modelfun();
+        Custom_OptionsGUI(gcf,ModelOpt);
+    end
 end
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)
@@ -181,6 +200,10 @@ switch Method
         SPGR_OptionsGUI(gcf);
     case 'SIRFSE'
         SIRFSE_OptionsGUI(gcf);
+    otherwise
+        modelfun  = str2func(Method);
+        [~,~, ModelOpt] = modelfun();
+        Custom_OptionsGUI(gcf,ModelOpt);
 end
 
 % UPDATE OPTIONS
@@ -1110,7 +1133,13 @@ data.B1map = double(B1map);
 data.B0map = double(B0map);
 
 % Do the fitting
-FitResults = FitData(data,Prot,FitOpt,Method,1);
+if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+    FitResults = FitData(data,Prot,FitOpt,Method,1);
+else
+% 	modelfun  = str2func(Method);
+% 	[~,~, ModelOpt] = modelfun();
+    FitResults = FitDataCustom(data,Prot,FitOpt,Method,1);
+end
 
 % Save info with results
 FitResults.StudyID = get(handles.StudyIDBox,'String');
@@ -1348,13 +1377,6 @@ else
     if ~isempty(B1map), data.B1map = double(B1map(index)); else data.B1map = []; end
     if ~isempty(B0map), data.B0map = double(B0map(index)); else data.B0map = []; end
     
-    % Do the fitting
-    Fit = FitData(data,Prot,FitOpt,Method,0);
-    % Fit.F = FitResults.F(index);
-    % Fit.kr = FitResults.kr(index);
-    % Fit.kf = FitResults.kf(index);
-    % Fit.R1f = FitResults.R1f(index);
-    % Fit.R1r = FitResults.R1r(index);
     
     Sim.Opt.AddNoise = 0;
     % Create axe
@@ -1362,10 +1384,19 @@ else
     set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
     haxes = get(68,'children');
     if ~isempty(haxes)
-        haxes = get(haxes(2),'children');
+        haxes = get(haxes(min(end,2)),'children');
         set(haxes,'Color',[0.8 0.8 0.8]);
     end
     hold on;
+    
+    % Do the fitting
+    if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+        Fit = FitData(data,Prot,FitOpt,Method,0);
+    else
+        FitOpt.plot=1;
+        Fit = FitDataCustom(data,Prot,FitOpt,Method,0);
+    end
+    
     % Start Fitting
     switch Method
         case 'bSSFP'
@@ -1395,7 +1426,6 @@ else
             title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
                 index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
                 'FontSize',10);
-            
     end
 end
 
@@ -1488,9 +1518,9 @@ guidata(gcbf, handles);
 
 function GetPlotRange(handles)
 Current = GetCurrent(handles);
-values=Current(:); values(isinf(values))=[]; values(isnan(values))=[];
-Min = prctile(values,5); % 5 percentile of the data to prevent extreme values
-Max = prctile(values,95);% 95 percentile of the data to prevent extreme values
+values=Current(:); values(isinf(values))=[]; values(isnan(values))=[]; values(~values)=[];
+Min = prctile(values,1); % 5 percentile of the data to prevent extreme values
+Max = prctile(values,99);% 95 percentile of the data to prevent extreme values
 
 if (Min == Max)
     Max = Max + 1;
