@@ -54,10 +54,8 @@ guidata(hObject, handles);
 % LOAD DEFAULTS
 load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
 ii=1;
-PanelOff('MTSAT', handles);
-set(handles.FitqMTData_Data, 'Visible', 'on');
+% PanelOff('MTSAT', handles);
 switch Method
-    
     case 'bSSFP'
         ii = 1;
         PanelOff('MTSAT', handles);
@@ -67,7 +65,7 @@ switch Method
         ii = 3;
     case 'MTSAT'
         ii = 4;
-        set(handles.FitqMTData_Data, 'Visible', 'off');
+%          SetActive('MTSAT', handles);
 end
 set(handles.MethodMenu, 'Value', ii);
 Method = GetMethod(handles);
@@ -145,18 +143,15 @@ switch Method
         set(handles.SimCurveAxe1, 'Visible', 'on');
         set(handles.SimCurveAxe2, 'Visible', 'on');
         set(handles.SimCurveAxe,  'Visible', 'off');
-        set(handles.FitqMTData_Data, 'Visible', 'on');
     case 'MTSAT'
         SetActive('MTSAT', handles);
         set(handles.SimCurveAxe1, 'Visible', 'off');
         set(handles.SimCurveAxe2, 'Visible', 'off');
         set(handles.SimCurveAxe,  'Visible', 'on');
-        set(handles.FitqMTData_Data, 'Visible', 'off');
     otherwise
         set(handles.SimCurveAxe1, 'Visible', 'off');
         set(handles.SimCurveAxe2, 'Visible', 'off');
         set(handles.SimCurveAxe,  'Visible', 'on');
-        set(handles.FitqMTData_Data, 'Visible', 'on');
 end
 
 % SET DEFAULT METHODMENU
@@ -960,31 +955,21 @@ function MTdataLoad(FullFile, handles)
 MTdata = [];
 set(handles.MTdataFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile);
-
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif ~isempty(strfind(FullFile, 'MTSAT')) && strcmp(ext, '.nii') 
-    % temporarily open files with problem header to test MTSAT options
-    nii = load_untouch_nii(FullFile);
-    MTdata = nii.img;
 elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
     nii = load_nii(FullFile);
     MTdata = nii.img;
 end
-% SetAppData(MTdata);
-setappdata(0,'MTdata', MTdata)
+SetAppData(MTdata);
 
-% % % -- MTdataLoad_MTSAT() 
-% % % PBeliveau modification, temporarily to load tiff files.
-% % function MTdataLoad_MTSAT(FullFile, handles)
-% % MTdata = [];
-% % set(handles.MT_FileBox,'String',FullFile);
-% % MTdata = LoadImage(FullFile);
-% % if ~isempty(MTdata)
-% %     SetAppData(MTdata);
-% % else 
-% %     errordlg('empty data'); return; 
-% % end
+% -- MTdataLoad_MTSAT() 
+% PBeliveau modification, temporarily to load tiff files.
+function MTdataLoad_MTSAT(FullFile, handles)
+MTdata = [];
+set(handles.MT_FileBox,'String',FullFile);
+MTdata = LoadImage(FullFile);
+SetAppData(MTdata);
 
 function MaskLoad_MTSAT(FullFile, handles)
 Mask = [];
@@ -995,33 +980,13 @@ SetAppData(Mask);
 function PDdataLoad_MTSAT(FullFile, handles)
 PDdata = [];
 set(handles.PD_FileBox,'String',FullFile);
-[~,~,ext] = fileparts(FullFile) ;
-if strcmp(ext,'.mat');
-    load(FullFile);
-elseif ~isempty(strfind(FullFile, 'MTSAT')) && strcmp(ext, '.nii') 
-    % temporarily open files with problem header to test MTSAT options
-    nii = load_untouch_nii(FullFile);
-    PDdata = nii.img;
-elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-    nii = load_nii(FullFile);
-    PDdata = nii.img;
-end
+PDdata = LoadImage(FullFile);
 SetAppData(PDdata);
 
 function T1dataLoad_MTSAT(FullFile, handles)
 T1data = [];
 set(handles.T1_FileBox,'String',FullFile);
-[~,~,ext] = fileparts(FullFile) ;
-if strcmp(ext,'.mat');
-    load(FullFile);
-elseif ~isempty(strfind(FullFile, 'MTSAT')) && strcmp(ext, '.nii') 
-    % temporarily open files with problem header to test MTSAT options
-    nii = load_untouch_nii(FullFile);
-    T1data = nii.img;
-elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-    nii = load_nii(FullFile);
-    T1data = nii.img;
-end
+T1data = LoadImage(FullFile);
 SetAppData(T1data);
 
 
@@ -1210,17 +1175,14 @@ if (~exist(fullfile(WD,'MTSAT_Results'), 'file'))
     mkdir(WD,'MTSAT_Results');
 end
 
-MTdataLoad(get(handles.MT_FileBox,'String'), handles)
-PDdataLoad(get(handles.PD_FileBox,'String'), handles)
-T1dataLoad(get(handles.T1_FileBox,'String'), handles)
+MTdataLoad_MTSAT(get(handles.MT_FileBox,'String'), handles)
+PDdataLoad_MTSAT(get(handles.PD_FileBox,'String'), handles)
+T1dataLoad_MTSAT(get(handles.T1_FileBox,'String'), handles)
 
 % Get data
 [MTdata, Maskdata, PDdata, T1data] =  GetAppData('MTdata','Mask','PDdata','T1data');
 [MTparams, PDparams, T1params] = GetAppData('MTparams', 'PDparams', 'T1params');
 
-if isempty(MTdata) errordlg('empty data'); return; end
-if (MTdata == 0) errordlg('empty data'); return; end
-    
 if ~isempty(MTdata) & ~isempty(PDdata) & ~isempty(T1data)
     data = struct;
     data.MTdata = double(MTdata);
@@ -1236,54 +1198,54 @@ if ~isempty(MTdata) & ~isempty(PDdata) & ~isempty(T1data)
     MTSATdata = MTSAT_exec(data, MTparams, PDparams, T1params);
 
     
-    % delimiting signal intensity range for display
-    Index=0;
-    Index = find(MTSATdata > 7);
-    MTSATdata(Index) = 7;
+% delimiting signal intensity range for display
+Index=0;
+Index = find(MTSATdata > 7);
+MTSATdata(Index) = 7;
 
-    Index=0;
-    Index = find(MTSATdata < -3);
-    MTSATdata(Index) = -3;
+Index=0;
+Index = find(MTSATdata < -3);
+MTSATdata(Index) = -3;
 
-    % Display
-    Data.MTSATdata = double(MTSATdata);
-    Data.fields = {'MTSATdata'};
-    handles.CurrentData = Data;
-    guidata(hObject,handles);
+% Display
+Data.MTSATdata = double(MTSATdata);
+Data.fields = {'MTSATdata'};
+handles.CurrentData = Data;
+guidata(hObject,handles);
 
-    setappdata(0,'MTSATresult',Data);
+setappdata(0,'MTSATresult',Data);
 
-    n = ndims(MTSATdata);
-    if n > 2
-        Min = min(min(min(MTSATdata)));
-        Max = max(max(max(MTSATdata)));
-        ImSize = size(MTSATdata);
-        set(handles.SliceNumberID, 'Value', 1);
-        set(handles.SliceNumberID, 'Min', 1);
-        set(handles.SliceNumberID, 'Max', ImSize(3));
-        set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
-        set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
-     else
-        Min = min(min(MTSATdata));
-        Max = max(max(MTSATdata));
-    end
-
-    set(handles.MinValue, 'Min', Min);
-    set(handles.MinValue, 'Max', Max);
-    set(handles.MinValue, 'Value', Min+1);
-    set(handles.MaxValue, 'Min', Min);
-    set(handles.MaxValue, 'Max', Max);
-    set(handles.MaxValue, 'Value', Max-1);
-
-    guidata(hObject,handles);
-    DrawPlot(handles);
-
-    ax = gca;
-    MyColorMap = ax;
-    File = load('BrainColorMap.mat');
-    colormap(ax,File.cmap);
+n = ndims(MTSATdata);
+if n > 2
+    Min = min(min(min(MTSATdata)));
+    Max = max(max(max(MTSATdata)));
+    ImSize = size(MTSATdata);
+    set(handles.SliceNumberID, 'Value', 1);
+    set(handles.SliceNumberID, 'Min', 1);
+    set(handles.SliceNumberID, 'Max', ImSize(3));
+    set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
+    set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
+ else
+    Min = min(min(MTSATdata));
+    Max = max(max(MTSATdata));
 end
 
+set(handles.MinValue, 'Min', Min);
+set(handles.MinValue, 'Max', Max);
+set(handles.MinValue, 'Value', Min+1);
+set(handles.MaxValue, 'Min', Min);
+set(handles.MaxValue, 'Max', Max);
+set(handles.MaxValue, 'Value', Max-1);
+
+guidata(hObject,handles);
+DrawPlot(handles);
+
+ax = gca;
+MyColorMap = ax;
+File = load('BrainColorMap.mat');
+colormap(ax,File.cmap);
+
+end
 
 
 
@@ -1959,7 +1921,7 @@ WD = get(handles.WorkDir_FileBox,'String');
 [FileName,PathName] = uigetfile({'*.nii;*.mat;*.dcm;*.gz;*.raw;*.tif;*.tiff'},'Select MT image file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
-MTdataLoad(FullFile, handles);
+MTdataLoad_MTSAT(FullFile, handles);
 
 % define internal variables
 MTdata = getappdata(0,'MTdata');
@@ -2152,12 +2114,12 @@ handles.CurrentData = Data;
 if n > 2 
     Min = min(min(min(T1data)));
     Max = max(max(max(T1data)));    
-%     ImSize = size(T1data);
-%     set(handles.SliceNumberID, 'Value', 1);
-%     set(handles.SliceNumberID, 'Min', 1);
-%     set(handles.SliceNumberID, 'Max', ImSize(3));
-%     set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
-%     set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
+    ImSize = size(T1data);
+    set(handles.SliceNumberID, 'Value', 1);
+    set(handles.SliceNumberID, 'Min', 1);
+    set(handles.SliceNumberID, 'Max', ImSize(3));
+    set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
+    set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
  else
     Min = min(min(T1data));
     Max = max(max(T1data));
@@ -2187,12 +2149,12 @@ handles.CurrentData = Data;
 if n > 2 
     Min = min(min(min(PDdata)));
     Max = max(max(max(PDdata)));    
-%     ImSize = size(PDdata);
-%     set(handles.SliceNumberID, 'Value', 1);
-%     set(handles.SliceNumberID, 'Min', 1);
-%     set(handles.SliceNumberID, 'Max', ImSize(3));
-%     set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
-%     set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
+    ImSize = size(PDdata);
+    set(handles.SliceNumberID, 'Value', 1);
+    set(handles.SliceNumberID, 'Min', 1);
+    set(handles.SliceNumberID, 'Max', ImSize(3));
+    set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
+    set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
  else
     Min = min(min(PDdata));
     Max = max(max(PDdata));
@@ -2211,8 +2173,7 @@ DrawPlot(handles);
 
 % --- Executes on button press in MT_View.
 function MT_View_Callback(hObject, eventdata, handles)
-% MTdataLoad_MTSAT(get(handles.MT_FileBox,'String'), handles);
-MTdataLoad(get(handles.MT_FileBox,'String'), handles);
+MTdataLoad_MTSAT(get(handles.MT_FileBox,'String'), handles);
 MTdata = GetAppData('MTdata');
 if isempty(MTdata), errordlg('empty data'); return; end
 n = ndims(MTdata);
@@ -2221,18 +2182,16 @@ Data.MTdata = double(MTdata);
 Data.fields = {'MTdata'};
 handles.CurrentData = Data;
 
-setappdata(0, 'MTdata', MTdata);
-
 % adjust signal intensity range
 if n > 2 
     Min = min(min(min(MTdata)));
     Max = max(max(max(MTdata)));    
-%     ImSize = size(MTdata);
-%     set(handles.SliceNumberID, 'Value', 1);
-%     set(handles.SliceNumberID, 'Min', 1);
-%     set(handles.SliceNumberID, 'Max', ImSize(3));
-%     set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
-%     set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
+    ImSize = size(MTdata);
+    set(handles.SliceNumberID, 'Value', 1);
+    set(handles.SliceNumberID, 'Min', 1);
+    set(handles.SliceNumberID, 'Max', ImSize(3));
+    set(handles.SliceNumberID, 'Value', int32(ImSize(3)/2));
+    set(handles.SliceNumberID, 'SliderStep', [1.0/ImSize(3), 2/ImSize(3)]);
  else
     Min = min(min(MTdata));
     Max = max(max(MTdata));
