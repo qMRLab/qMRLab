@@ -56,7 +56,7 @@ if ~isstruct(nii)
         for it=1:size(img,4)
             tmp(:,:,:,it) = unxform_nii(nii, img(:,:,:,it));
         end
-        if size(unxform_nii(nii, nii.img(:,:,:,it))) ~= size(unxform_nii(nii, img(:,:,:,it))), error('old_nii_fname doesn''t have the same dimension as your new data'); end
+        if size(unxform_nii(nii, nii.img(:,:,:,1))) ~= size(unxform_nii(nii, img(:,:,:,1))), error('old_nii_fname doesn''t have the same dimension as your new data'); end
         nii.original.img =tmp;
         nii.original.hdr.dime.dim(5)=size(img,4);
         nii = nii.original;
