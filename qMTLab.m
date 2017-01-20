@@ -968,24 +968,36 @@ SetAppData(MTdata);
 function MTdataLoad_MTSAT(FullFile, handles)
 MTdata = [];
 set(handles.MT_FileBox,'String',FullFile);
+if isempty(FullFile) 
+    return; 
+end
 MTdata = LoadImage(FullFile);
 SetAppData(MTdata);
 
 function MaskLoad_MTSAT(FullFile, handles)
 Mask = [];
 set(handles.Mask_FileBox,'String',FullFile);
+if isempty(FullFile) 
+    return; 
+end
 Mask = LoadImage(FullFile);
 SetAppData(Mask);
 
 function PDdataLoad_MTSAT(FullFile, handles)
 PDdata = [];
 set(handles.PD_FileBox,'String',FullFile);
+if isempty(FullFile) 
+    return; 
+end
 PDdata = LoadImage(FullFile);
 SetAppData(PDdata);
 
 function T1dataLoad_MTSAT(FullFile, handles)
 T1data = [];
 set(handles.T1_FileBox,'String',FullFile);
+if isempty(FullFile) 
+    return; 
+end
 T1data = LoadImage(FullFile);
 SetAppData(T1data);
 
