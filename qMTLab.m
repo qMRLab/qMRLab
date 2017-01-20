@@ -35,7 +35,7 @@ end
 
 % --- Executes just before qMTLab is made visible.
 function qMTLab_OpeningFcn(hObject, eventdata, handles, varargin)
-clc;
+clc; 
 % startup;
 qMTLabDir = fileparts(which(mfilename()));
 addpath(genpath(qMTLabDir));
@@ -100,6 +100,7 @@ Fields = fieldnames(AppData);
 for k=1:length(Fields)
     rmappdata(0, Fields{k});
 end
+clear classes
 
 
 
@@ -116,6 +117,7 @@ Method = GetMethod(handles);
 % cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');
     LoadDefaultOptions(PathName);
     % Update Options Panel
@@ -126,12 +128,13 @@ if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     end
 else
     % Update Options Panel
+    set(handles.uipanel35,'Visible','off') % hide the simulation panel
     h = findobj('Tag','OptionsGUI');
     if ~isempty(h)
         delete(h);
         modelfun  = str2func(Method);
-        [~,~, ModelOpt] = modelfun();
-        Custom_OptionsGUI(gcf,ModelOpt);
+        Model = modelfun();
+        Custom_OptionsGUI(gcf,Model);
     end
 end
 
@@ -202,8 +205,8 @@ switch Method
         SIRFSE_OptionsGUI(gcf);
     otherwise
         modelfun  = str2func(Method);
-        [~,~, ModelOpt] = modelfun();
-        Custom_OptionsGUI(gcf,ModelOpt);
+        Model = modelfun();
+        Custom_OptionsGUI(gcf,Model);
 end
 
 % UPDATE OPTIONS
@@ -1136,9 +1139,8 @@ data.B0map = double(B0map);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     FitResults = FitData(data,Prot,FitOpt,Method,1);
 else
-% 	modelfun  = str2func(Method);
-% 	[~,~, ModelOpt] = modelfun();
-    FitResults = FitDataCustom(data,Prot,FitOpt,Method,1);
+    Model = getappdata(0,'Model');
+    FitResults = FitDataCustom(data,Model,1);
 end
 
 % Save info with results
@@ -1393,8 +1395,9 @@ else
     if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
         Fit = FitData(data,Prot,FitOpt,Method,0);
     else
-        FitOpt.plot=1;
-        Fit = FitDataCustom(data,Prot,FitOpt,Method,0);
+        Model = getappdata(0,'Model');
+        Fit = Model.fit(data)
+        Model.plotmodel(Fit,data);
     end
     
     % Start Fitting
@@ -1518,11 +1521,18 @@ guidata(gcbf, handles);
 
 function GetPlotRange(handles)
 Current = GetCurrent(handles);
-values=Current(:); values(isinf(values))=[]; values(isnan(values))=[]; values(~values)=[];
-Min = prctile(values,1); % 5 percentile of the data to prevent extreme values
-Max = prctile(values,99);% 95 percentile of the data to prevent extreme values
+values=Current(:); values(isinf(values))=[]; values(isnan(values))=[]; 
 
-if (Min == Max)
+if length(unique(values))>20 % it is a mask?
+    values(~values)=[];
+    Min = prctile(values,1); % 5 percentile of the data to prevent extreme values
+    Max = prctile(values,99);% 95 percentile of the data to prevent extreme values
+else
+    Min=min(values);
+    Max=max(values);
+end
+
+if (abs(Min - Max)<1e-3)
     Max = Max + 1;
 end
 if (Min > Max)

@@ -1,7 +1,7 @@
-function Fit = FitData( data, Protocol, FitOpt, Method, wait )
+function Fit = FitDataCustom( data, Model, wait )
 
 % ----------------------------------------------------------------------------------------------------
-% Fit = FitData( data, Protocol, FitOpt, Method, wait )
+% Fit = FitData( data, Model, wait )
 % Takes 2D or 3D MTdata and returns fitted parameters maps
 % ----------------------------------------------------------------------------------------------------
 % data = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
@@ -40,7 +40,7 @@ nV = x*y*z;     % number of voxels
 MTdata = reshape(MTdata,nV,nT);
 M = zeros(nT,1);
 
-fields = FitOpt.names;
+fields = Model.xnames;
 
 for ii = 1:length(fields)
     Fit.(fields{ii}) = zeros(x,y,z);
@@ -101,9 +101,8 @@ for ii = 1:l
     if (~isempty(data.B0map)); FitOpt.B0 = B0map(vox); end
         
     % Fit data
-    modelfun = str2func(Method);
-    tempFit = modelfun(M, Protocol, FitOpt);
-        
+    tempFit = Model.fit(M);
+
     % Assign current voxel fitted values
     for ff = 1:length(fields)
         Fit.(fields{ff})(vox) = tempFit.(fields{ff});
@@ -126,7 +125,6 @@ end
 Fit.computed = reshape(Fit.computed,x,y,z);
 
 Fit.Time = toc
-Fit.Protocol = Protocol;
-Fit.FitOpt = FitOpt;
+Fit.Protocol = Model.Prot;
 
 end

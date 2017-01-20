@@ -1,4 +1,4 @@
-function varargout = SIRFSE_OptionsGUI(varargin)
+function varargout = Custom_OptionsGUI(varargin)
 % SIRFSE_OPTIONSGUI MATLAB code for SIRFSE_OptionsGUI.fig
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-François Cabana, 2016
@@ -47,44 +47,45 @@ if (~isempty(varargin))         % If called from GUI, set position to dock left
 end
 
 % Load model parameters
-ModelOpt = varargin{2};
-Nparam=length(ModelOpt.xnames);
-FitOptTable(:,1)=ModelOpt.xnames(:);
+Model = varargin{2};
+Nparam=length(Model.xnames);
+FitOptTable(:,1)=Model.xnames(:);
 [FitOptTable{:,2}]=deal(0);
-FitOptTable(:,3)=mat2cell(ModelOpt.st(:),ones(Nparam,1));
-FitOptTable(:,4)=mat2cell(ModelOpt.lb(:),ones(Nparam,1));
-FitOptTable(:,5)=mat2cell(ModelOpt.ub(:),ones(Nparam,1));
+FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
+FitOptTable(:,4)=mat2cell(Model.lb(:),ones(Nparam,1));
+FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
 set(handles.FitOptTable,'Data',FitOptTable)
-set(handles.ProtFormat,'String',ModelOpt.ProtFormat)
+set(handles.ProtFormat,'String',Model.ProtFormat)
 
 % Load model specific options
-opts=ModelOpt.buttons;
+opts=Model.buttons;
 
 if ~isempty(opts)
     N = length(opts)/2;
-    [I,J]=ind2sub([1 15],1:2*N); Iw = 1/max(I); I=(I-1)/max(I); Jh = 1/max(J); J=(J-1)/max(J); J=1-J-Jh;
+    nboptions = max(25,N);
+    [I,J]=ind2sub([1 nboptions],1:2*N); Iw = 0.8/max(I); I=(0.1+0.8*(I-1)/max(I)); Jh = 0.1; J=(J-1)/nboptions; J=1-J-Jh;
     for i = 1:N
         if islogical(opts{2*i})
             OptionsPanel_handle(i) = uicontrol('Style','checkbox','String',opts{2*i-1},...
                 'Parent',handles.OptionsPanel,'Units','normalized','Position',[I(2*i-1) J(2*i-1) Iw Jh/2],...
                 'Value',opts{2*i},'HorizontalAlignment','center');
         elseif isnumeric(opts{2*i})
-            uicontrol('Style','Text','String',opts{2*i-1},...
-                'Parent',handles.OptionsPanel,'Units','normalized','Position',[I(2*i-1) J(2*i-1) Iw/2 Jh/2]);
+            uicontrol('Style','Text','String',[opts{2*i-1} ':'],...
+                'Parent',handles.OptionsPanel,'Units','normalized','HorizontalAlignment','left','Position',[I(2*i-1) J(2*i-1) Iw/2 Jh/2]);
             OptionsPanel_handle(i) = uicontrol('Style','edit',...
                 'Parent',handles.OptionsPanel,'Units','normalized','Position',[(I(2*i-1)+Iw/2) J(2*i-1) Iw/2 Jh/2],'String',opts{2*i});
         elseif iscell(opts{2*i})
-            uicontrol('Style','Text','String',opts{2*i-1},...
-                'Parent',handles.OptionsPanel,'Units','normalized','Position',[I(2*i-1) J(2*i-1) Iw Jh/2]);
+            uicontrol('Style','Text','String',[opts{2*i-1} ':'],...
+                'Parent',handles.OptionsPanel,'Units','normalized','HorizontalAlignment','left','Position',[I(2*i-1) J(2*i-1) Iw/3 Jh/2]);
             OptionsPanel_handle(i) = uicontrol('Style','popupmenu',...
-                'Parent',handles.OptionsPanel,'Units','normalized','Position',[I(2*i) J(2*i) Iw Jh],'String',opts{2*i});
+                'Parent',handles.OptionsPanel,'Units','normalized','Position',[(I(2*i-1)+Iw/3) J(2*i-1) 2.2*Iw/3 Jh/2],'String',opts{2*i});
             
         end
     end
     
     
     % Create CALLBACK for buttons
-    handles.opts=opts;
+    setappdata(0,'Model',Model);
     handles.OptionsPanel_handle=OptionsPanel_handle;
     for ih=1:length(OptionsPanel_handle)
         set(OptionsPanel_handle(ih),'Callback',@(src,event) ModelOptions_Callback(handles))
@@ -119,17 +120,18 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 % #########################################################################
 
 % GETFITOPT Get Fit Option from table
-function FitOpt = GetOpt(handles)
+function FitOpt = SetOpt(handles)
 % fitting options
-data = get(handles.FitOptTable,'Data'); % Get options
-FitOpt.names = data(:,1)';
-FitOpt.fx = cell2mat(data(:,2)');
-FitOpt.st = cell2mat(data(:,3)');
-FitOpt.lb = cell2mat(data(:,4)');
-FitOpt.ub = cell2mat(data(:,5)');
+fittingtable = get(handles.FitOptTable,'Data'); % Get options
+FitOpt.names = fittingtable(:,1)';
+FitOpt.fx = cell2mat(fittingtable(:,2)');
+FitOpt.st = cell2mat(fittingtable(:,3)');
+FitOpt.lb = cell2mat(fittingtable(:,4)');
+FitOpt.ub = cell2mat(fittingtable(:,5)');
 % ModelOptions
 % create options
-opts = handles.opts;
+Model = getappdata(0,'Model');
+opts = Model.buttons;
 N=length(opts)/2;
 for i=1:N
     if islogical(opts{2*i})
@@ -139,13 +141,14 @@ for i=1:N
     elseif iscell(opts{2*i})
         optionvalue = opts{2*i}{get(handles.OptionsPanel_handle(i),'Value')};
     end
-    FitOpt.(matlab.lang.makeValidName(handles.opts{2*i-1}))=optionvalue;
+    Model.options.(matlab.lang.makeValidName(opts{2*i-1}))=optionvalue;
 end
+setappdata(0,'Model',Model);
+
 
 % FitOptTable CellEdit
 function FitOptTable_CellEditCallback(hObject, eventdata, handles)
-FitOpt = GetOpt(handles);
-setappdata(0,'FitOpt',FitOpt);
+SetOpt(handles);
 
 function FitOptTable_CreateFcn(hObject, eventdata, handles)
 
@@ -165,7 +168,9 @@ switch filterindex
     case 3
         Prot = txt2mat(fullfile(PathName,FileName));
 end
-setappdata(0,'Prot',Prot);
+Model = getappdata(0,'Model');
+Model.Prot = Prot;
+setappdata(0,'Model',Model);
 set(handles.ProtFileName,'String',FileName);
 
 % #########################################################################
@@ -173,5 +178,4 @@ set(handles.ProtFileName,'String',FileName);
 % #########################################################################
 
 function ModelOptions_Callback(handles)
-FitOpt = GetOpt(handles);
-setappdata(0,'FitOpt',FitOpt);
+FitOpt = SetOpt(handles);
