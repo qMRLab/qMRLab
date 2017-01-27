@@ -85,6 +85,46 @@ set(gcf, 'Position', NewPos);
 SetActive('FitData', handles);
 OpenOptionsPanel_Callback(hObject, eventdata, handles);
 
+% FileBrowser Tag: FitDataPanel
+FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel') % FitDataFileBrowser is the parent panel
+FullFilename = 'MethodsFileList.txt';
+% open FullFileName - determine nb lines in file
+fileID = fopen(FullFilename, 'r');
+ReadLine = fgetl(fileID);            
+NbLines = 0;
+while ischar(ReadLine)
+	%numFields = length(strfind(ReadLine,' '));          
+	ReadLine = fgetl(fileID);
+	NbLines = NbLines + 1;
+end
+fclose(fileID);
+
+%initialize list of BrowserSet items
+MethodsList = repmat(MethodBrowser(FitDataPanelObj),1,NbLines);
+            
+% Create displayed objects in the file browser
+fileID = fopen(FullFilename, 'r');
+ReadLine = fgetl(fileID);            
+NbLines = 0;
+while ischar(ReadLine)
+	numFields = length(strfind(ReadLine,' ')); 
+    Params = strsplit(string(ReadLine),' ');
+    MethodsList(NbLines+1) = MethodBrowser(FitDataPanelObj, handles, Params);
+    MethodsList(NbLines+1).VisibleOff();
+    ReadLine = fgetl(fileID);
+    NbLines = NbLines + 1;
+end
+fclose(fileID);
+
+for i=1:NbLines
+    if MethodsList(i).IsMethod(Method) == 0
+        MethodsList(i).VisibleOn();
+    end
+end
+
+setappdata(0, 'MethodsListed', MethodsList);
+
+
 % Outputs from this function are returned to the command line.
 function varargout = qMTLab_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
@@ -138,13 +178,26 @@ handles.method = fullfile(handles.root, Method);
 guidata(gcf,handles);
 ClearAxes(handles);
 PanelOff('MTSAT', handles);
+
+        MethodsList = getappdata(0, 'MethodsListed');
+        MethodsSize = size(MethodsList);
+        NbMethods = MethodsSize(2);
+        for i=1:NbMethods
+            if MethodsList(i).IsMethod(Method) == 0
+                MethodsList(i).VisibleOn();
+            else
+                MethodsList(i).VisibleOff();
+            end
+        end
+        
+        
 switch Method
     case 'bSSFP'
         set(handles.SimCurveAxe1, 'Visible', 'on');
         set(handles.SimCurveAxe2, 'Visible', 'on');
         set(handles.SimCurveAxe,  'Visible', 'off');
     case 'MTSAT'
-        SetActive('MTSAT', handles);
+        %SetActive('MTSAT', handles);
         set(handles.SimCurveAxe1, 'Visible', 'off');
         set(handles.SimCurveAxe2, 'Visible', 'off');
         set(handles.SimCurveAxe,  'Visible', 'on');
