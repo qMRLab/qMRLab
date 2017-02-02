@@ -1,16 +1,22 @@
 classdef CHARMED
     properties
-        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true};
-        options= struct();
         MRIinputs = {'MTdata','Mask'};
         xnames = {'fh','Dh','diameter_mean','fcsf'};
+        
         % fitting options
         st           = [0.6     0.7        6       0.2          ]; % starting point
         lb            = [0       0.3        3          0               ]; % lower bound
         ub           = [1       3         10         1                ]; % upper bound
         fx            = [0      0           0           0               ]; % fix parameters
-        ProtFormat = 'Gx   Gy   Gz   |G|  Delta  delta  TE (Generated using scd_schemefile_create)';
+        
+        % Protocol
+        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; % columns of the Protocol matrix. 
         Prot  = [ones(100,1) zeros(100,2) linspace(0,300,100)'*1e-3 0.040*ones(100,1) 0.003*ones(100,1) 0.070*ones(100,1)];
+        
+        % Model options
+        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true};
+        options= struct();
+
     end
     
     methods
@@ -22,7 +28,7 @@ classdef CHARMED
         end
         
         
-        function xopt = fit(obj,data)
+        function FitResults = fit(obj,data)
             % Prepare data
             data = data.MTdata;
             Prot = ConvertSchemeUnits(obj.Prot);
@@ -47,7 +53,7 @@ classdef CHARMED
             xopt(end+1) = residue;
             obj.xnames{end+1}='residue';
             
-            xopt = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
+            FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
             
             
             
@@ -79,7 +85,7 @@ classdef CHARMED
             % find images that where repeated
             [~,c,ind]=consolidator(Prot(:,1:8),[],'count');
             cmax = max(c); % find images repeated more than 5 times (for relevant STD)
-            if cmax<5, error('<strong>Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. use scd_noise_fit_histo_nii.m instead to estimate the noise STD.</strong>'); end
+            if cmax<5, errordlg('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. use scd_noise_fit_histo_nii.m instead to estimate the noise STD.'); return; end
             
             repeated_measured = find(c==cmax);
             for irep=1:length(repeated_measured)
@@ -107,11 +113,11 @@ scheme(:,6) = scheme(:,6)*10^3; % delta ms
 scheme(:,7) = scheme(:,7)*10^3; % TE ms
 gyro = 42.57; % kHz/mT
 scheme(:,8) = gyro*scheme(:,4).*scheme(:,6); % um-1
-list=unique(scheme(:,7:-1:5),'rows');
+list=unique(round(scheme(:,4)*1e5)/1e5,'rows');
 nnn = size(list,1);
 for j = 1 : nnn
     for i = 1 : size(scheme,1)
-        if  scheme(i,7:-1:5) == list(j,:)
+        if  round(scheme(i,4)*1e5)/1e5 == list(j,:)
             scheme(i,9) = j;
         end
     end

@@ -204,8 +204,12 @@ switch Method
     case 'SIRFSE'
         SIRFSE_OptionsGUI(gcf);
     otherwise
-        modelfun  = str2func(Method);
-        Model = modelfun();
+        if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method)
+            Model = getappdata(0,'Model');
+        else
+            modelfun  = str2func(Method);
+            Model = modelfun();
+        end
         Custom_OptionsGUI(gcf,Model);
 end
 
@@ -1396,7 +1400,7 @@ else
         Fit = FitData(data,Prot,FitOpt,Method,0);
     else
         Model = getappdata(0,'Model');
-        Fit = Model.fit(data)
+        Fit = Model.fit(data) % Display fitting results in command window
         Model.plotmodel(Fit,data);
     end
     

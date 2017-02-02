@@ -92,7 +92,7 @@ for ii = 1:l
     end
     
     % Get current voxel data
-    M(:,1) = MTdata(vox,:);
+    M.MTdata(:,1) = MTdata(vox,:);
     
     if (isfield(FitOpt,'R1map') &&   FitOpt.R1map && ~isempty(data.R1map)); FitOpt.R1 = R1map(vox); end
     
