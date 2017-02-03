@@ -87,11 +87,7 @@ classdef CHARMED
             
             % plot fitting curves
             scd_display_qspacedata(Smodel,Prot,0,'none','-');
-            
-            % update legend
-            legend('Location','NorthEast')
-
-
+           
             hold off
         end
         

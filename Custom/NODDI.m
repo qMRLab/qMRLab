@@ -14,7 +14,7 @@ classdef NODDI
         Prot  = []; % You can define a default protocol here.
         
         % Model options
-        buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}, 'Dcsf',3e-9};
+        buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}, 'Dcsf',2e-9};
         options= struct();
         
     end
@@ -48,10 +48,10 @@ classdef NODDI
             % load model
             model = MakeModel(obj.options.modelName);
                         
-%             isoIdx=GetParameterIndex(obj.options.modelName,'diso');
-%             model.GD.fixed(isoIdx)=1; % gradient descent
-%             model.GS.fixed(isoIdx)=1; % grid search
-%             model.GS.fixedvals(isoIdx)=1e-9; model.GD.fixedvals(isoIdx)=1e-9;
+            isoIdx=GetParameterIndex(obj.options.modelName,'diso');
+            model.GD.fixed(isoIdx)=1; % gradient descent
+            model.GS.fixed(isoIdx)=1; % grid search
+            model.GS.fixedvals(isoIdx)=obj.options.Dcsf; model.GD.fixedvals(isoIdx)=obj.options.Dcsf;
             
             protocol = SchemeToProtocol(obj.Prot);
             

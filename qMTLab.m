@@ -1442,6 +1442,9 @@ else
                 index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
                 'FontSize',10);
     end
+    
+    % update legend
+    legend('Location','NorthEast')
 end
 
 
