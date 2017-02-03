@@ -925,7 +925,7 @@ function WDBox_Callback(hObject, eventdata, handles)
 % MTDATA
 function MTdataLoad_Callback(hObject, eventdata, handles)
 WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select MTdata file',WD);
+[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select MTdata file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
 MTdataLoad(FullFile, handles);
@@ -936,8 +936,8 @@ set(handles.MTdataFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile);
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-    nii = load_nii(FullFile);
+elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
+    nii = load_untouch_nii(FullFile);
     MTdata = nii.img;
 end
 SetAppData(MTdata);
@@ -949,7 +949,7 @@ function MTdataFileBox_Callback(hObject, eventdata, handles)
 % MASKDATA
 function MaskLoad_Callback(hObject, eventdata, handles)
 WD = get(handles.WDBox,'String');
-[FileName,PathName,Index] = uigetfile({'*.nii';'*.mat'},'Select Mask file',WD);
+[FileName,PathName,Index] = uigetfile({'*.nii';'*.img';'*.mat'},'Select Mask file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
 MaskLoad(FullFile, handles);
@@ -960,8 +960,8 @@ set(handles.MaskFileBox,'String',FullFile);
 [pathstr,name,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-    nii = load_nii(FullFile);
+elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
+    nii = load_untouch_nii(FullFile);
     Mask = nii.img;
 end
 SetAppData(Mask);
@@ -973,7 +973,7 @@ function MaskFileBox_Callback(hObject, eventdata, handles)
 % R1MAP DATA
 function R1mapLoad_Callback(hObject, eventdata, handles)
 WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select R1map file',WD);
+[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select R1map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
 R1mapLoad(FullFile, handles);
@@ -984,8 +984,8 @@ set(handles.R1mapFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-    nii = load_nii(FullFile);
+elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
+    nii = load_untouch_nii(FullFile);
     R1map = nii.img;
 end
 SetAppData(R1map);
@@ -997,7 +997,7 @@ function R1mapFileBox_Callback(hObject, eventdata, handles)
 % B1 MAP
 function B1mapLoad_Callback(hObject, eventdata, handles)
 WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B1map file',WD);
+[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select B1map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
 B1mapLoad(FullFile, handles);
@@ -1008,8 +1008,8 @@ set(handles.B1mapFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-    nii = load_nii(FullFile);
+elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
+    nii = load_untouch_nii(FullFile);
     B1map = nii.img;
 end
 SetAppData(B1map);
@@ -1021,7 +1021,7 @@ function B1mapFileBox_Callback(hObject, eventdata, handles)
 % B0 MAP
 function B0mapLoad_Callback(hObject, eventdata, handles)
 WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B0map file',WD);
+[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select B0map file',WD);
 if PathName == 0, return; end
 FullFile = fullfile(PathName,FileName);
 B0mapLoad(FullFile, handles);
@@ -1032,8 +1032,8 @@ set(handles.B0mapFileBox,'String',FullFile);
 [~,~,ext] = fileparts(FullFile) ;
 if strcmp(ext,'.mat');
     load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-    nii = load_nii(FullFile);
+elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
+    nii = load_untouch_nii(FullFile);
     B0map = nii.img;
 end
 SetAppData(B0map);
@@ -1532,7 +1532,7 @@ else
         handles.FitDataSlice = 1;
 end
 guidata(gcbf, handles);
-%UpdateSlice(handles);
+UpdateSlice(handles);
 
 function GetPlotRange(handles)
 Current = GetCurrent(handles);
