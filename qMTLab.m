@@ -1389,9 +1389,17 @@ else
     figure(68)
     set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
     haxes = get(68,'children');
+                    
     if ~isempty(haxes)
+        % turn gray old plots
         haxes = get(haxes(min(end,2)),'children');
         set(haxes,'Color',[0.8 0.8 0.8]);
+        hAnnotation = get(haxes,'Annotation');
+        % remove their legends
+        for ih=1:length(hAnnotation)
+                hLegendEntry = get(hAnnotation{ih},'LegendInformation');
+                set(hLegendEntry,'IconDisplayStyle','off');
+        end
     end
     hold on;
     

@@ -1,4 +1,4 @@
-function [] = scd_display_qspacedata(data,scheme,bvalue,Marker,Linestyle,color,noise)
+function g = scd_display_qspacedata(data,scheme,bvalue,Marker,Linestyle,color,noise)
 % scd_display_qspacedata(data,scheme)
 % data: vector OR NxM matrix. N: number of measurement (=size(scheme,1)). M: number of
 %      observation (for error bars).
@@ -34,7 +34,7 @@ for iD=1:ND
     end
     hold on
     
-    set(g(iD),'DisplayName',['Delta=' num2str(mean(scheme(seqiD,5))) ' delta=' num2str(mean(scheme(seqiD,6))) ' TE=' num2str(mean(scheme(seqiD,7)))]);
+    set(g(iD),'DisplayName',['G_{max}=' num2str(max(scheme(seqiD,4)),'%.0f') 'mT/m \Delta=' num2str(num2str(mean(scheme(seqiD,5))),'%.0f') 'ms \delta=' num2str(num2str(mean(scheme(seqiD,6))),'%.0f') 'ms TE=' num2str(mean(scheme(seqiD,7)),'%.0f') 'ms']);
     
     
     if exist('noise','var')==1

@@ -30,8 +30,11 @@ classdef CHARMED
         
         function FitResults = fit(obj,data)
             % Prepare data
-            data = data.MTdata;
+            data = data.MTdata; nT=length(data);
+            if nT~=size(obj.Prot,1), error(['<strong>Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.</strong>']); end
+
             Prot = ConvertSchemeUnits(obj.Prot);
+
             S0 = scd_preproc_getIb0(data,Prot);
             
             %% FITTING
@@ -69,12 +72,26 @@ classdef CHARMED
             Prot = ConvertSchemeUnits(obj.Prot);
             
             Smodel=obj.equation(x);
+            % plot data
             if nargin>2
                 S0 = scd_preproc_getIb0(data.MTdata,Prot); Smodel = Smodel.*S0;
-                scd_display_qspacedata(data.MTdata,Prot)
+                h = scd_display_qspacedata(data.MTdata,Prot);
                 hold on
+                % remove data legends
+                for iD = 1:length(h)
+                    hAnnotation = get(h(iD),'Annotation');
+                    hLegendEntry = get(hAnnotation','LegendInformation');
+                    set(hLegendEntry,'IconDisplayStyle','off');
+                end
             end
-            scd_display_qspacedata(Smodel,Prot,0,'none','-')
+            
+            % plot fitting curves
+            scd_display_qspacedata(Smodel,Prot,0,'none','-');
+            
+            % update legend
+            legend('Location','NorthEast')
+
+
             hold off
         end
         
@@ -113,11 +130,13 @@ scheme(:,6) = scheme(:,6)*10^3; % delta ms
 scheme(:,7) = scheme(:,7)*10^3; % TE ms
 gyro = 42.57; % kHz/mT
 scheme(:,8) = gyro*scheme(:,4).*scheme(:,6); % um-1
-list=unique(round(scheme(:,4)*1e5)/1e5,'rows');
+
+% differentiate session based on Delta/delta/TE values
+list=unique(scheme(:,7:-1:5),'rows');
 nnn = size(list,1);
 for j = 1 : nnn
     for i = 1 : size(scheme,1)
-        if  round(scheme(i,4)*1e5)/1e5 == list(j,:)
+        if  scheme(i,7:-1:5) == list(j,:)
             scheme(i,9) = j;
         end
     end

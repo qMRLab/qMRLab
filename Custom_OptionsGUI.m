@@ -50,6 +50,7 @@ end
 Model = varargin{2};
 setappdata(0,'Model',Model);
 Nparam=length(Model.xnames);
+Model.Prot=[];
 FitOptTable(:,1)=Model.xnames(:);
 FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1));
 FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
