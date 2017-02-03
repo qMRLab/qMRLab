@@ -71,23 +71,24 @@ classdef NODDI
             end
             [Smodel, fibredir]=obj.equation(x);
             Prot = ConvertProtUnits(obj.Prot);
-            
-            Gz=Prot(:,1:3)*fibredir(:);
-            absc = Gz;
-            [absc,II] = sort(absc); Prot = Prot(II,:); Smodel = Smodel(II);
-            
+                        
             % plot
             if exist('data','var')
-                data = data.MTdata(II);
-                % plot data
-                plot(absc,data,'bx')
+                h = scd_display_qspacedata3D(data.MTdata,Prot,fibredir);
                 hold on
+                % remove data legends
+                for iD = 1:length(h)
+                    hAnnotation = get(h(iD),'Annotation');
+                    hLegendEntry = get(hAnnotation','LegendInformation');
+                    set(hLegendEntry,'IconDisplayStyle','off');
+                end
             end
-            % plot model
-            for iaq = unique(Prot(:,9))'
-                plot(absc(Prot(:,9) == iaq),Smodel(Prot(:,9) == iaq),'r-')
-            end
-
+            
+            % plot fitting curves
+            scd_display_qspacedata3D(Smodel,Prot,fibredir,'none','-');
+           
+            hold off
+            
         end
     end
 end
