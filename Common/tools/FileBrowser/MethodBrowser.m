@@ -1,4 +1,4 @@
-classdef MethodBrowser < FileBrowser
+classdef MethodBrowser < handle
         % MethodBrowser  - Manage fields in the file Browser per methods
         %   P.Beliveau 2017 - setup
         %   * All Methods have in common the WorkDir Button and File Box and
