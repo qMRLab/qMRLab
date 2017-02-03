@@ -38,5 +38,5 @@ function File = LoadImage(FullFile)
         File = File';
         %Header = 0
     end
-   File=0;    
+    File = 0;
 end
