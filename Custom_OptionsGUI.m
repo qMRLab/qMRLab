@@ -190,3 +190,11 @@ set(handles.ProtFileName,'String',FileName);
 
 function ModelOptions_Callback(handles)
 SetOpt(handles);
+
+
+% --- Executes on button press in Helpbutton.
+function Helpbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to Helpbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+doc(class(getappdata(0,'Model')))
