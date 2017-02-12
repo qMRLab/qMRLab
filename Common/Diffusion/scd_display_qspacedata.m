@@ -34,7 +34,7 @@ for iD=1:ND
     end
     hold on
     
-    set(g(iD),'DisplayName',['G_{max}=' num2str(max(scheme(seqiD,4)),'%.0f') 'mT/m \Delta=' num2str(mean(scheme(seqiD,5)),'%.0f') 'ms \delta=' num2str(mean(scheme(seqiD,6)),'%.0f') 'ms TE=' num2str(mean(scheme(seqiD,7)),'%.0f') 'ms']);
+    set(g(iD),'DisplayName',['G_{max}=' num2str(max(scheme(seqiD,4))*1e6,'%.0f') 'mT/m \Delta=' num2str(mean(scheme(seqiD,5)),'%.0f') 'ms \delta=' num2str(mean(scheme(seqiD,6)),'%.0f') 'ms TE=' num2str(mean(scheme(seqiD,7)),'%.0f') 'ms']);
     
     
     if exist('noise','var')==1
