@@ -1145,6 +1145,7 @@ if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
 else
     Model = getappdata(0,'Model');
     FitResults = FitDataCustom(data,Model,1);
+    FitResults.Model = Model;
 end
 
 % Save info with results
@@ -1209,8 +1210,12 @@ if isfield(FitResults,'Protocol')
 else
     Prot   =  FitResults.Prot;
 end
-FitOpt =  FitResults.FitOpt;
-SetAppData(FitResults, Prot, FitOpt);
+if isfield(FitResults,'FitOpt'), FitOpt =  FitResults.FitOpt; SetAppData(FitResults, Prot, FitOpt);
+else
+    Model = FitResults.Model;
+    SetAppData(FitResults,Model);
+end
+
 
 if (isfield(FitResults,'WD'))
     set(handles.WDBox,'String', FitResults.WD);

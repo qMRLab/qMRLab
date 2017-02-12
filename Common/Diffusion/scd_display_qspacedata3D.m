@@ -16,13 +16,15 @@ absc = Gz;
 [absc,II] = sort(absc); scheme = scheme(II,:); data = data(II);
 bval = scd_scheme_bvalue(scheme);
 
-% Find different shells
-list_G=unique(round(scheme(:,4)*1e5)/1e5,'rows');
-nnn = size(list_G,1);
-for j = 1 : nnn
-    for i = 1 : size(scheme,1)
-        if  round(scheme(i,4)*1e5)/1e5 == list_G(j,:)
-            scheme(i,9) = j;
+if size(scheme,2)<9
+    % Find different shells
+    list_G=unique(round(scheme(:,[4 5 6 7])*1e8)/1e8,'rows');
+    nnn = size(list_G,1);
+    for j = 1 : nnn
+        for i = 1 : size(scheme,1)
+            if  round(scheme(i,[4 5 6 7])*1e8)/1e8 == list_G(j,:)
+                scheme(i,9) = j;
+            end
         end
     end
 end
@@ -42,7 +44,7 @@ for iD=1:ND
     g(iD)=plot(absc(seqiD,:),datavoxel(seqiD),'LineStyle',Linestyle, 'Marker',Marker,'Color',color(min(iD,end),:),'LineWidth',2);
     hold on
     
-    set(g(iD),'DisplayName',['bvalue=' num2str(max(bval(seqiD))*1e3,'%.0f') 's/mm^2 G=' num2str(max(scheme(seqiD,4)),'%.0f') 'mT/m \Delta=' num2str(mean(scheme(seqiD,5)),'%.0f') 'ms \delta=' num2str(mean(scheme(seqiD,6)),'%.0f') 'ms TE=' num2str(mean(scheme(seqiD,7)),'%.0f') 'ms']);
+    set(g(iD),'DisplayName',['bvalue=' num2str(max(bval(seqiD))*1e3,'%.0f') 's/mm^2 G=' num2str(max(scheme(seqiD,4))*1e6,'%.0f') 'mT/m \Delta=' num2str(mean(scheme(seqiD,5)),'%.0f') 'ms \delta=' num2str(mean(scheme(seqiD,6)),'%.0f') 'ms TE=' num2str(mean(scheme(seqiD,7)),'%.0f') 'ms']);
     
     
     if exist('noise','var')==1
@@ -64,7 +66,7 @@ for iD=1:ND
 end
 
 xlabel('Gz/|G|','FontSize',15); 
-ylabel('Signal (%b0)','FontSize',15);
+ylabel('Signal','FontSize',15);
 
 
 legend('show')

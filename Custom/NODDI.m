@@ -132,13 +132,14 @@ gyro = 42.57; % kHz/mT
 Prot(:,8) = gyro*Prot(:,4).*Prot(:,6); % um-1
 
 % Find different shells
-list_G=unique(round(Prot(:,4)*1e5)/1e5,'rows');
+list_G=unique(round(Prot(:,[4 5 6 7])*1e5)/1e5,'rows');
 nnn = size(list_G,1);
 for j = 1 : nnn
     for i = 1 : size(Prot,1)
-        if  round(Prot(i,4)*1e5)/1e5 == list_G(j,:)
+        if  min(round(Prot(i,[4 5 6 7])*1e5)/1e5 == list_G(j,:))
             Prot(i,9) = j;
         end
     end
 end
+Prot(ismember(Prot(:,9),find(list_G(:,1)==0)),9) = find(list_G(:,1)==0,1,'first');
 end

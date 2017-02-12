@@ -57,24 +57,23 @@ classdef DTI
             [V,L]=eig(D);
             [L,I]=max(diag(L));
             fiberdirection=V(:,I);
-            Gz=Prot(:,1:3)*fiberdirection(:);
-            absc = Gz;
-            [absc,II] = sort(absc); Prot = Prot(II,:); Smodel = Smodel(II);
             
             % plot
-            plot(absc,Smodel,'bx')
             if exist('data','var')
-                data = data(II);
-                % plot data
+                h = scd_display_qspacedata3D(data,Prot,fiberdirection);
                 S0 = scd_preproc_getIb0(data,Prot);
                 Smodel = S0.*Smodel;
-                plot(absc,data,'bx')
                 hold on
+                % remove data legends
+                for iD = 1:length(h)
+                    hAnnotation = get(h(iD),'Annotation');
+                    hLegendEntry = get(hAnnotation','LegendInformation');
+                    set(hLegendEntry,'IconDisplayStyle','off');
+                end
             end
-            % plot model
-            for iaq = unique(Prot(:,9))'
-                plot(absc(Prot(:,9) == iaq),Smodel(Prot(:,9) == iaq),'r-')
-            end
+            
+            % plot fitting curves
+            scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'none','-');
         end
         
     end
@@ -92,13 +91,14 @@ gyro = 42.57; % kHz/mT
 scheme(:,8) = gyro*scheme(:,4).*scheme(:,6); % um-1
 
 % Find different shells
-list_G=unique(round(scheme(:,4)*1e5)/1e5,'rows');
+list_G=unique(round(scheme(:,[4 5 6 7])*1e5)/1e5,'rows');
 nnn = size(list_G,1);
 for j = 1 : nnn
     for i = 1 : size(scheme,1)
-        if  round(scheme(i,4)*1e5)/1e5 == list_G(j,:)
+        if  min(round(scheme(i,[4 5 6 7])*1e5)/1e5 == list_G(j,:))
             scheme(i,9) = j;
         end
     end
 end
+scheme(ismember(scheme(:,9),find(list_G(:,1)==0)),9) = find(list_G(:,1)==0,1,'first');
 end
