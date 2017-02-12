@@ -9,7 +9,7 @@ gamma=42.57; %kHz/mT
 % ===========================================
 alpham = besselequation_spheres(R);
 if ~isempty(varargin);
-    % Parts of the sum - Murday & Cotts (1968) SelfDiffusion Coefficient of Liquid Lithium
+    % Parts of the sum - Murday & Cotts (1968) Self Diffusion Coefficient of Liquid Lithium
     for m=1:10
         factor1=1/(alpham(m)^2*(alpham(m)^2*R^2-2))./(alpham(m)^2*Dr);
         factor2=2*delta;

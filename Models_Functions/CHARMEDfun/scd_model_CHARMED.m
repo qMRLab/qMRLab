@@ -38,9 +38,8 @@ G = Ax.scheme(index,4); G=G(:);
 Sdata=Ax.data(index); 
 Sdata=Sdata(:);
 x = real(x);
-fh = x(1); Dh = x(2); mean_d = x(3); std_d = x(4); fcsf = x(5); % x(6) --> useless
+fh = x(1); Dh = x(2); mean_d = x(3); std_d = x(4); fcsf = x(5); A = x(6)^2*0.2; % lc = sqrt(A)/0.2 : length of coherence for time dependence (experimental)
 x=[x(:)' ones(1,10)];
-var = std_d^2; beta=var/mean_d; alpha = mean_d/beta;
 
 
 if isfield(Ax,'Dr'), Dr = Ax.Dr; else Dr = 1.4; end % tortuosity model, D. Alexander 2008
@@ -55,8 +54,6 @@ if ~isfield(Ax,'Dcsf'), Ax.Dcsf=3; end
 if ~isfield(Ax,'fixDh'), Dh=x(2); else if Ax.fixDh, Dh=Dr*fh/(1-fcsf); end; end
 
 
-resol = 0.2;
-if onediam, diam = mean_d; else diam=[0.1:resol:10]; end % um : axonal diameter range
 
 
 gyro=42.58; %rad.KHz/mT
@@ -66,7 +63,8 @@ q=gyro.*Ax.scheme(:,6).*Ax.scheme(:,4); %um-1
 %==========================================================================
 %Signal model for the hindered (extra-axonal) compartment
 %==========================================================================
-Eh=exp(-(2*pi*q).^2*Dh.*(bigdelta-littledelta/3));
+Dh = scd_model_timedependence(Dh,A,bigdelta,littledelta);
+Eh=exp(-(2*pi*q).^2.*Dh.*(bigdelta-littledelta/3));
 
 
 %==========================================================================
@@ -82,8 +80,16 @@ Ecsf=exp(-(2*pi*q).^2*Ax.Dcsf.*(bigdelta-littledelta/3));
 Er_sum=zeros(length(q),1);
 
 % weights for axon diameter distribution (gamma distribution)
-w=pdf('Gamma',diam,alpha,beta);
-Er_coeff = w.*(pi*diam.^2)./(pi*sum(diam.^2.*w*resol));
+resol = 0.2;
+if std_d
+    diam=0.1:resol:10;  % um : axonal diameter range
+    var = std_d^2; beta=var/mean_d; alpha = mean_d/beta;
+    w=pdf('Gamma',diam,alpha,beta);
+    Er_coeff = w.*(pi*diam.^2)./(pi*sum(diam.^2.*w*resol));
+else
+    Er_coeff = 1/resol;
+    diam = mean_d;
+end
 
 % Call analytical equations
 if onediam<0 % totally restricted (sticks)
