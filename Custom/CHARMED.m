@@ -1,13 +1,49 @@
 classdef CHARMED
-    properties
-        MRIinputs = {'MTdata','Mask'};
-        xnames = {'fh','Dh','diameter_mean','fcsf'};
+% ----------------------------------------------------------------------------------------------------
+% CHARMED :  Composite Hindered and Restricted Model for Diffusion
+% ----------------------------------------------------------------------------------------------------
+% Assumptions :
+% (1) Diffusion gradients are applied perpendicularly to the neuronal fibers
+% (2) Neuronal fibers are parallel (orientational dispersion is negligible)
+% (3) The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
+% should have little impact if the average propagator is larger than axonal diameter (sqrt(2*Dr*Delta)>8µm).
+% (4) permeability of the neuronal fibers is negligible
+% ----------------------------------------------------------------------------------------------------
+%
+%  Fitted Parameters:
+%   - fh :     fraction of water in the hindered compartment
+%   - Dh :    Apparent diffusion coefficient of the hindered compartment
+%   - axon diameter index : Mean axonal diameter 
+%                                           (weighted by the axonal area --> biased toward the larger axons).
+%                                            fixed to 0 --> stick model (recommended if Gmax < 300mT/m)
+%   - fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
+%   - lc :  length of coherence. Models the time dependence of the hindered compartment.
+%
+%   Non-Fitted Parameters:
+%   - fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
+%   - residue : Fitting residue.
+%
+%
+% Options:
+%   Sigma of the noise : Standard deviation of the noise, assuming Rician.
+%                                       Use scd_noise_std_estimation to
+%                                       measure noise level
+%                                       If "Compute sigma noise per pixel" is checked, STD across >5 repetitions is used.
+% ----------------------------------------------------------------------------------------------------
+% Written by: Tanguy Duval, 2016
+% Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted 
+% model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+% ----------------------------------------------------------------------------------------------------
+
+properties
+        MRIinputs = {'MTdata','Mask'}; % input data required
+        xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
         
         % fitting options
-        st           = [0.6     0.7        6       0.2          ]; % starting point
-        lb            = [0       0.3        3          0               ]; % lower bound
-        ub           = [1       3         10         1                ]; % upper bound
-        fx            = [0      0           0           0               ]; % fix parameters
+        st           = [0.6     0.7        6         0         0 ]; % starting point
+        lb            = [0       0.3        3          0         0    ]; % lower bound
+        ub           = [1       3         10         1          20   ]; % upper bound
+        fx            = [0      0           0           1          1  ]; % fix parameters
         
         % Protocol
         ProtFormat = {'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; % columns of the Protocol matrix. 
@@ -21,7 +57,7 @@ classdef CHARMED
     
     methods
         function Smodel = equation(obj, x)
-            x(5)=x(4); % parameter #4 is diameter STD, CSF is parameter #5
+            x = [x(1:3) 0 x(4:end)]; % add diameter STD parameter (used in the original AxCaliber model)
             opt=obj.options;
             opt.scheme=ConvertSchemeUnits(obj.Prot);
             Smodel = scd_model_CHARMED(x,opt);
@@ -29,8 +65,9 @@ classdef CHARMED
         
         
         function FitResults = fit(obj,data)
+            
             % Prepare data
-            data = data.MTdata; nT=length(data);
+            data = max(eps,double(data.MTdata)); nT=length(data);
             if nT~=size(obj.Prot,1), error(['<strong>Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.</strong>']); end
 
             Prot = ConvertSchemeUnits(obj.Prot);
@@ -43,19 +80,26 @@ classdef CHARMED
             [xopt, residue] = lsqcurvefit(@(x,scheme) S0.*equation(obj, addfixparameters(obj.st,x,fixedparam)),obj.st(~fixedparam),Prot,double(data),double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),optimoptions('lsqcurvefit','MaxIter',20,'display','off'));
             obj.st(~fixedparam)=xopt; xopt = obj.st;
             
+            %% RICIAN NOISE
             % use Rician noise and fix fix b=0
             if obj.options.ComputeSigmaPerVoxel
-                SigmaNoise = computesigmanoise(obj,data);
+                SigmaNoise = computesigmanoise(obj.Prot,data);
             else
                 SigmaNoise = obj.options.SigmaOfTheNoise;
             end
+            
+            %% FITTING (with rician assumption)
             [xopt, residue]=fmincon(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,S0.*equation(obj, addfixparameters(obj.st,x,fixedparam))), SigmaNoise))), double(obj.st(~fixedparam)), [], [], [],[],double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),[],optimoptions('fmincon','MaxIter',20,'display','off','DiffMinChange',0.03));
             obj.st(~fixedparam)=xopt; xopt = obj.st;
             
             %% OUTPUTS
+            % fr
+            xopt(end+1) = 1 - xopt(4) - xopt(1); 
+            obj.xnames{end+1}='fr';
+            % residue
             xopt(end+1) = residue;
             obj.xnames{end+1}='residue';
-            
+            % convert to structure
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
             
             
@@ -90,22 +134,7 @@ classdef CHARMED
            
             hold off
         end
-        
-        
-        function SigmaNoise = computesigmanoise(obj,data)
-            Prot = ConvertSchemeUnits(obj.Prot);
-            Prot(Prot(:,4)==0,[5 6])=0;
-            % find images that where repeated
-            [~,c,ind]=consolidator(Prot(:,1:8),[],'count');
-            cmax = max(c); % find images repeated more than 5 times (for relevant STD)
-            if cmax<5, errordlg('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. use scd_noise_fit_histo_nii.m instead to estimate the noise STD.'); return; end
-            
-            repeated_measured = find(c==cmax);
-            for irep=1:length(repeated_measured)
-                STDs(irep)=std(data(ind==repeated_measured(irep)));
-            end
-            SigmaNoise = mean(STDs);
-        end
+           
     end
 end
 
@@ -137,4 +166,18 @@ for j = 1 : nnn
         end
     end
 end
+end
+
+function SigmaNoise = computesigmanoise(Prot,data)
+Prot(Prot(:,4)==0,[5 6])=0;
+% find images that where repeated
+[~,c,ind]=consolidator(Prot(:,1:7),[],'count');
+cmax = max(c); % find images repeated more than 5 times (for relevant STD)
+if cmax<5, errordlg('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. use scd_noise_fit_histo_nii.m instead to estimate the noise STD.'); return; end
+
+repeated_measured = find(c==cmax);
+for irep=1:length(repeated_measured)
+    STDs(irep)=std(data(ind==repeated_measured(irep)));
+end
+SigmaNoise = mean(STDs);
 end
