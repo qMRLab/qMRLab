@@ -7,6 +7,7 @@ classdef MethodBrowser < handle
         %       ItemsList
     
     properties
+        Parent;
         % common to all methods, work directory and studyID
         WorkDir_TextArea;
         WorkDir_BrowseBtn;
@@ -14,7 +15,7 @@ classdef MethodBrowser < handle
         WorkDir_FullPath;
         StudyID_TextArea;
         StudyID_TextID;
-                
+        
         ItemsList; % is a list of the class BrowserSet objects
         NbItems;
         MethodID;        
@@ -23,9 +24,9 @@ classdef MethodBrowser < handle
     methods
         % constructor
         function obj = MethodBrowser(varargin)
-            parent = varargin{1};
+            obj.Parent = varargin{1};
             if nargin > 2            
-                parent = varargin{1};
+                obj.Parent = varargin{1};
                 handles = varargin(2);
                 Params = varargin{3}; 
                 
@@ -42,30 +43,27 @@ classdef MethodBrowser < handle
                 obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
                 
                 for i=1:obj.NbItems
-                    obj.ItemsList(i) = BrowserSet(parent, handles, Params(i+1), Location, 1, 1);
+                    obj.ItemsList(i) = BrowserSet(obj.Parent, handles, Params(i+1), Location, 1, 1);
                     Location = Location + [0.0, -0.15];
                 end
                 
                 % setup work directory and study ID display
-                obj.WorkDir_TextArea = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
+                obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
-                obj.WorkDir_BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
+                obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
                     'Callback', {@(src, event)MethodBrowser.BrowseBtn_callback(obj, src, event, handles{1,1})});
-                obj.WorkDir_FileNameArea = uicontrol(parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
+                obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
                 obj.WorkDir_FullPath = '';
-                obj.StudyID_TextArea = uicontrol(parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
+                obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
-                obj.StudyID_TextID = uicontrol(parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
+                obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
             end
         end % end constructor      
         
         % destructor
         function delete(obj)
-            for i=1:obj.NbItems
-                delete(obj.ItemsList(i));        
-            end
-            delete(obj.ItemsList);
+            delete(setdiff(findobj(obj.Parent),obj.Parent))
         end % destructir end
                 
         %---

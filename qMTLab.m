@@ -84,7 +84,6 @@ while ischar(ReadLine)
     NbLines = NbLines + 1;
 end
 fclose(fileID);
-MenuOptions = strings(1, NbLines);
 for i=1:NbLines
     MenuOptions(i) = MethodsList(i).MethodID;
     if MethodsList(i).IsMethod(Method) == 0

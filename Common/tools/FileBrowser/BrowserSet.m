@@ -102,7 +102,7 @@ classdef BrowserSet < handle
                 DataLoaded = get(obj.NameText, 'String');
                 obj.Data = Data.(name);                
             elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
-                nii = load_nii(obj.FullFile);
+                nii = load_untouch_nii(obj.FullFile);
                 obj.Data = nii.img;
             elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif');
                 TiffInfo = imfinfo(obj.FullFile);
@@ -129,7 +129,7 @@ classdef BrowserSet < handle
             DataName = get(obj.NameText, 'String');
             %Check for files and set fields automatically
             for i = 1:length(fileList)
-                if strfind(fileList{i}(1:end-4), DataName)
+                if strfind(fileList{i}(1:end-4), DataName{1})
                     obj.FullFile = fullfile(Path,fileList{i});                    
                     set(obj.FileBox, 'String', obj.FullFile);
                     obj.DataLoad(handles);
