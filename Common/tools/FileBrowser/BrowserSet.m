@@ -57,7 +57,8 @@ classdef BrowserSet < handle
 
                 Location = Location + [0.11, 0];
                 Position = [Location, 0.65, 0.1];
-                obj.FileBox = uicontrol(parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6);
+                obj.FileBox = uicontrol(parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
+                    'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj, src, event, handles{1,1})});
 
                 if obj.ViewBtnOn == 1 
                     Location = Location + [0.66, 0];
@@ -101,7 +102,7 @@ classdef BrowserSet < handle
                 Data = load(obj.FullFile);                
                 DataLoaded = get(obj.NameText, 'String');
                 obj.Data = Data.(name);                
-            elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
+            elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
                 nii = load_untouch_nii(obj.FullFile);
                 obj.Data = nii.img;
             elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif');
@@ -114,9 +115,11 @@ classdef BrowserSet < handle
                         File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);            
                     end
                 end
-                obj.Data = File
-            end            
-            setappdata(0, obj.NameID{1,1}, obj.Data);            
+                obj.Data = File;
+            end  
+            Data = getappdata(0,'Data');
+            Data.(obj.NameID{1,1}) = double(obj.Data);
+            setappdata(0, 'Data', Data);            
         end
         
         %------------------------------------------------------------------
@@ -146,9 +149,9 @@ classdef BrowserSet < handle
         function BrowseBtn_callback(obj,src, event, handles)
             obj.FullFile = get(obj.FileBox, 'String');
             if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B1map file');          
+                [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file');          
             else
-                [FileName,PathName] = uigetfile({'*.nii';'*.mat'},'Select B1map file',obj.FullFile);               
+                [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file',obj.FullFile);               
             end
             obj.FullFile = fullfile(PathName,FileName);
             set(obj.FileBox,'String',obj.FullFile);
@@ -161,16 +164,12 @@ classdef BrowserSet < handle
         %------------------------------------------------------------------
         function ViewBtn_callback(obj,src, event, handles)
             obj.DataLoad(handles);
-            obj.Data = getappdata(0, obj.NameID{1,1});
+            Data = getappdata(0, 'Data');
+            obj.Data=Data.(obj.NameID{1,1});
             if isempty(obj.Data), errordlg('empty data'); return; end
             
-            if ~strcmp(obj.NameID, 'MTSAT') && strcmp(obj.NameID{1,1}, 'MTdata')
-                n = ndims(obj.Data);
-                Data.(obj.NameID{1,1}) = mean(double(obj.Data), n);
-            else
-                Data.(obj.NameID{1,1}) = double(obj.Data);
-            end
-            
+            n = ndims(obj.Data);
+            Data.(obj.NameID{1,1}) = mean(obj.Data, 4);
             
             Data.fields = {obj.NameID{1,1}};
             handles.CurrentData = Data;

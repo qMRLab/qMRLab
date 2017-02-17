@@ -1,9 +1,12 @@
 function varargout = qMTLab(varargin)
 % QMTLAB MATLAB code for qMTLab.fig
-% GUI to simulate/fit qMT data 
+% GUI to simulate/fit qMT data
 
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-François Cabana, 2016
+%
+% -- MTSAT functionality: P. Beliveau, 2017
+% -- File Browser changes: P. Beliveau 2017
 % ----------------------------------------------------------------------------------------------------
 % If you use qMTLab in your work, please cite :
 
@@ -35,7 +38,7 @@ end
 
 % --- Executes just before qMTLab is made visible.
 function qMTLab_OpeningFcn(hObject, eventdata, handles, varargin)
-clc; 
+clc;
 % startup;
 qMTLabDir = fileparts(which(mfilename()));
 addpath(genpath(qMTLabDir));
@@ -51,29 +54,21 @@ guidata(hObject, handles);
 
 % LOAD DEFAULTS
 load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-ii=1;
-switch Method
-    case 'bSSFP'
-        ii = 1;
-    case 'SIRFSE'
-        ii = 2;
-    case 'SPGR'
-        ii = 3;
-end
+
 % add custom models
-qMTLab_dir = fileparts(mfilename('fullpath'));
-CUSTOM=[qMTLab_dir filesep 'Custom'];
-addpath(CUSTOM)
-CUSTOM_list = sct_tools_ls([CUSTOM filesep '*.m']); 
-CUSTOM_list = strrep(CUSTOM_list,'.m','');
+CUSTOM=[qMTLabDir filesep 'Custom'];
+CUSTOM_list = sct_tools_ls([CUSTOM filesep '*.m']);  % list all files in Custom folder
+CUSTOM_list = strrep(CUSTOM_list,'.m',''); % remove .m from filenames
 set(handles.MethodMenu,'String',cat(1,get(handles.MethodMenu,'String'),CUSTOM_list'))
 
-set(handles.MethodMenu, 'Value', ii);
-Method = GetMethod(handles);
+% Set Default
+default_method_value = find(strcmp(get(handles.MethodMenu, 'String'),Method));
+set(handles.MethodMenu, 'Value', default_method_value);
+
 % cd(fullfile(handles.root, Method));
-LoadDefaultOptions(fullfile(handles.root,Method,'Parameters'));
 LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
 LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
+
 
 % SET WINDOW AND PANELS
 movegui(gcf,'center')
@@ -83,7 +78,7 @@ NewPos(1)  = CurrentPos(1) - 40;
 set(gcf, 'Position', NewPos);
 
 SetActive('FitData', handles);
-OpenOptionsPanel_Callback(hObject, eventdata, handles);
+MethodMenu_Callback(hObject, eventdata, handles);
 
 % Outputs from this function are returned to the command line.
 function varargout = qMTLab_OutputFcn(hObject, eventdata, handles)
@@ -117,7 +112,7 @@ Method = GetMethod(handles);
 % cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
-     set(handles.uipanel35,'Visible','on') % show the simulation panel
+    set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');
     LoadDefaultOptions(PathName);
     % Update Options Panel
@@ -126,40 +121,38 @@ if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
         delete(h);
         OpenOptionsPanel_Callback(hObject, eventdata, handles)
     end
+    
 else
     % Update Options Panel
     set(handles.uipanel35,'Visible','off') % hide the simulation panel
     h = findobj('Tag','OptionsGUI');
     if ~isempty(h)
         delete(h);
-        modelfun  = str2func(Method);
-        Model = modelfun();
-        Custom_OptionsGUI(gcf,Model);
     end
+    modelfun  = str2func(Method);
+    Model = modelfun();
+    Custom_OptionsGUI(gcf,Model);
 end
+
+% delete objects in browser panel
+delete(setdiff(findobj(handles.FitDataFileBrowserPanel),handles.FitDataFileBrowserPanel));
+% Create browser panel buttons
+switch Method
+    case 'bSSFP'
+        MRIinputs = {'Mask' 'MTdata' 'R1map'};
+    case 'SIRFSE'
+        MRIinputs = {'Mask' 'MTdata'};
+    case 'SPGR'
+        MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
+    otherwise
+        MRIinputs = Model.MRIinputs;
+end
+handles.FileBrowser = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
+guidata(hObject, handles);
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
-end
-
-% GET METHOD
-function Method = GetMethod(handles)
-contents =  cellstr(get(handles.MethodMenu, 'String'));
-Method   =  contents{get(handles.MethodMenu, 'Value')};
-setappdata(0, 'Method', Method);
-handles.method = fullfile(handles.root, Method);
-guidata(gcf,handles);
-ClearAxes(handles);
-switch Method
-    case 'bSSFP'
-        set(handles.SimCurveAxe1, 'Visible', 'on');
-        set(handles.SimCurveAxe2, 'Visible', 'on');
-        set(handles.SimCurveAxe,  'Visible', 'off');
-    otherwise
-        set(handles.SimCurveAxe1, 'Visible', 'off');
-        set(handles.SimCurveAxe2, 'Visible', 'off');
-        set(handles.SimCurveAxe,  'Visible', 'on');
 end
 
 % SET DEFAULT METHODMENU
@@ -183,15 +176,22 @@ SetActive('SimRnd', handles);
 function SetActive(panel, handles)
 setappdata(0, 'CurrentPanel', panel);
 Panels = {'SimCurve', 'SimVary', 'SimRnd', 'FitData'};
+
 for ii = 1:length(Panels)
     if (strcmp(panel,Panels{ii}))
-        eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', Panels{ii}));
-        eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.73,0.83,0.96])', Panels{ii}));
+        PanelOn(Panels{ii}, handles);
     else
-        eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', Panels{ii}));
-        eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.94,0.94,0.94])', Panels{ii}));
+        PanelOff(Panels{ii}, handles);
     end
 end
+
+function PanelOn(panel, handles)
+eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
+eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.73,0.83,0.96])', panel));
+
+function PanelOff(panel, handles)
+eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', panel));
+eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.94,0.94,0.94])', panel));
 
 % OPEN OPTIONS
 function OpenOptionsPanel_Callback(hObject, eventdata, handles)
@@ -203,10 +203,12 @@ switch Method
         SPGR_OptionsGUI(gcf);
     case 'SIRFSE'
         SIRFSE_OptionsGUI(gcf);
+    case 'MTSAT'
+        MTSAT_OptionsGUI(gcf);
     otherwise
-        if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method)
+        if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
             Model = getappdata(0,'Model');
-        else
+        else % otherwise create a new object of this method
             modelfun  = str2func(Method);
             Model = modelfun();
         end
@@ -273,7 +275,7 @@ end
 function varargout = GetAppData(varargin)
 for k=1:nargin; varargout{k} = getappdata(0, varargin{k}); end
 
-% SETAPPDATA
+%SETAPPDATA
 function SetAppData(varargin)
 for k=1:nargin; setappdata(0, inputname(k), varargin{k}); end
 
@@ -282,14 +284,14 @@ function RmAppData(varargin)
 for k=1:nargin; rmappdata(0, varargin{k}); end
 
 % CLEARAXES
-function ClearAxes(handles)
-cla(handles.SimCurveAxe1);
-cla(handles.SimCurveAxe2);
-cla(handles.SimCurveAxe);
-cla(handles.SimVaryAxe);
-cla(handles.SimRndAxe);
-h = findobj(gcf,'Type','axes','Tag','legend');
-delete(h);
+% function ClearAxes(handles)
+% cla(handles.SimCurveAxe1);
+% cla(handles.SimCurveAxe2);
+% cla(handles.SimCurveAxe);
+% cla(handles.SimVaryAxe);
+% cla(handles.SimRndAxe);
+% h = findobj(gcf,'Type','axes','Tag','legend');
+% delete(h);
 
 
 
@@ -328,7 +330,7 @@ switch Method
         handles.SimCurveAxe2 = axe2;
         guidata(hObject, handles);
     otherwise
-       SimCurvePlotResults(handles); 
+        SimCurvePlotResults(handles);
 end
 
 % UPDATE FIT
@@ -348,17 +350,17 @@ function SimCurveSetFitResults(SimCurveResults, handles)
 SetAppData(SimCurveResults);
 [Method, Sim, Prot] = GetAppData('Method','Sim','Prot');
 Param = Sim.Param;
-switch Method   
+switch Method
     case 'bSSFP'
         names = {'F  '; 'kr '; 'R1f'; 'R1r'; 'T2f '; 'M0f'};
-        input = [Param.F; Param.kr; Param.R1f; Param.R1r; Param.T2f; Param.M0f];       
+        input = [Param.F; Param.kr; Param.R1f; Param.R1r; Param.T2f; Param.M0f];
     case 'SIRFSE'
         names = {'F  '; 'kr '; 'R1f'; 'R1r'; 'Sf '; 'Sr '; 'M0f'};
         [Sr,Sf] = computeSr(Param, Prot);
-        input = [Param.F; Param.kr;  Param.R1f; Param.R1r; Sf; Sr; Param.M0f];       
+        input = [Param.F; Param.kr;  Param.R1f; Param.R1r; Sf; Sr; Param.M0f];
     case 'SPGR'
         names = {'F  '; 'kr '; 'R1f'; 'R1r'; 'T2f '; 'T2r'};
-        input = [Param.F; Param.kr;  Param.R1f; Param.R1r; Param.T2f; Param.T2r];  
+        input = [Param.F; Param.kr;  Param.R1f; Param.R1r; Param.T2f; Param.T2r];
 end
 error =  100*(SimCurveResults.table - input)./input;
 data  =  [names, num2cell(input), num2cell(SimCurveResults.table), num2cell(error)];
@@ -415,7 +417,7 @@ SetAppData(MTnoise,SimCurveResults);
 % PLOT DATA
 function SimCurvePlotResults(handles)
 [ Method,  Sim,  Prot,  MTdata,  MTnoise,  SimCurveResults] = GetAppData(...
- 'Method','Sim','Prot','MTdata','MTnoise','SimCurveResults');
+    'Method','Sim','Prot','MTdata','MTnoise','SimCurveResults');
 cla;
 switch Method
     case 'bSSFP'
@@ -507,7 +509,7 @@ SimVaryPlotResults(handles);
 function SimVarySaveResults(PathName, FileName, handles)
 FileType = 'SimVaryResults';
 [ Sim,  Prot,  FitOpt,  SimVaryOpt,  SimVaryResults] = GetAppData(...
- 'Sim','Prot','FitOpt','SimVaryOpt','SimVaryResults');
+    'Sim','Prot','FitOpt','SimVaryOpt','SimVaryResults');
 
 save(fullfile(PathName,FileName), '-regexp', '^(?!(handles)$).');
 set(handles.SimVaryFileName, 'String', FileName);
@@ -586,7 +588,7 @@ hold on;
 if (strcmp(Xaxis,Yaxis))
     plot([Xmin Xmax], [Xmin Xmax], 'k-');
 elseif (any(strcmp(Yaxis,fieldnames(Param))))
-    plot([Xmin Xmax],[Param.(Yaxis) Param.(Yaxis)], 'k-');    
+    plot([Xmin Xmax],[Param.(Yaxis) Param.(Yaxis)], 'k-');
 end
 errorbar(X, Y, E, 'bo');
 
@@ -608,7 +610,7 @@ grid('on');
 function SimRndGO(handles)
 SimRndOpt = GetSimRndOpt(handles);
 [ Sim,  Prot,  FitOpt,  RndParam,  Method] = GetAppData(...
- 'Sim','Prot','FitOpt','RndParam','Method');
+    'Sim','Prot','FitOpt','RndParam','Method');
 if (isempty(RndParam)); RndParam = GetRndParam(handles); end
 
 SimRndResults  =  VaryRndParam(Sim,Prot,FitOpt,SimRndOpt,RndParam,Method);
@@ -708,7 +710,7 @@ SetAppData(RndParam);
 function SimRndSaveResults(PathName, FileName, handles)
 FileType = 'SimRndResults';
 [ Sim,  Prot,  FitOpt,  SimRndOpt,  RndParam,  SimRndResults] = GetAppData(...
- 'Sim','Prot','FitOpt','SimRndOpt','RndParam','SimRndResults'); 
+    'Sim','Prot','FitOpt','SimRndOpt','RndParam','SimRndResults');
 save(fullfile(PathName,FileName),'Sim','Prot','FitOpt','SimRndOpt','RndParam','SimRndResults','FileType');
 set(handles.SimRndFileName, 'String', FileName);
 
@@ -799,7 +801,7 @@ switch PlotType
     case 'Input parameters'
         hist(RndParam.(Xdata), 30);
         xlabel(['Input ', Xdata], 'FontWeight', 'Bold');
-        ylabel(Ydata, 'FontWeight',' Bold');  
+        ylabel(Ydata, 'FontWeight',' Bold');
     case 'Fit results'
         hist(SimRndResults.(Xdata), 30);
         xlabel(['Fitted ', Xdata], 'FontWeight','Bold');
@@ -835,7 +837,7 @@ switch PlotType
         set(gca,'Xtick',1:5,'XTickLabel', Fields);
         legend(Fields);
         xlabel('Fitted parameters', 'FontWeight','Bold');
-        ylabel('Normalized Root Mean Squared Error', 'FontWeight','Bold'); 
+        ylabel('Normalized Root Mean Squared Error', 'FontWeight','Bold');
     case 'MPE'
         Fields = fieldnames(SimRndStats.MPE);
         for ii = 1:length(Fields)
@@ -874,253 +876,84 @@ SimRndPlotResults(handles);
 
 % FITDATA
 function FitDataBtn_Callback(hObject, eventdata, handles)
+contents =  cellstr(get(handles.MethodMenu, 'String'));
+Method   =  contents{get(handles.MethodMenu, 'Value')};
 SetActive('FitData', handles);
-
-% WORKING DIRECTORY
-function WDLoad_Callback(hObject, eventdata, handles)
-WD = uigetdir;
-if WD == 0, return; end
-set(handles.WDBox,'String',WD);
-
-% Clear previous file paths
-set(handles.B1mapFileBox,'String', '');
-set(handles.B0mapFileBox,'String', '');
-set(handles.R1mapFileBox,'String', '');
-set(handles.MaskFileBox,'String', '');
-set(handles.MTdataFileBox,'String', '');
-
-%Check for files and set fields automatically
-dirData = dir(WD);
-dirIndex = [dirData.isdir];
-fileList = {dirData(~dirIndex).name}';
-
-for i = 1:length(fileList)
-    if strcmp(fileList{i}, 'Protocol.mat')
-        Prot = load(fullfile(WD,'Protocol.mat'));
-        SetAppData(Prot);
-    elseif strcmp(fileList{i}, 'FitOpt.mat')        
-        FitOpt = load(fullfile(WD,'FitOpt.mat'));
-        SetAppData(FitOpt);
-    elseif strcmp(fileList{i}(1:end-4), 'MTdata') 
-        FullFile = fullfile(WD,fileList{i});
-        MTdataLoad(FullFile, handles)
-    elseif strcmp(fileList{i}(1:end-4), 'Mask') 
-        FullFile = fullfile(WD,fileList{i});
-        MaskLoad(FullFile, handles)
-    elseif strcmp(fileList{i}(1:end-4), 'R1map') 
-        FullFile = fullfile(WD,fileList{i});
-        R1mapLoad(FullFile, handles)
-    elseif strcmp(fileList{i}(1:end-4), 'B1map') 
-        FullFile = fullfile(WD,fileList{i});
-        B1mapLoad(FullFile, handles)
-    elseif strcmp(fileList{i}(1:end-4), 'B0map') 
-        FullFile = fullfile(WD,fileList{i});
-        B0mapLoad(FullFile, handles)
-    end
-end
-OpenOptionsPanel_Callback(hObject, eventdata, handles);
-
-function WDBox_Callback(hObject, eventdata, handles)
-
-% MTDATA
-function MTdataLoad_Callback(hObject, eventdata, handles)
-WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select MTdata file',WD);
-if PathName == 0, return; end
-FullFile = fullfile(PathName,FileName);
-MTdataLoad(FullFile, handles);
-
-function MTdataLoad(FullFile, handles)
-MTdata = [];
-set(handles.MTdataFileBox,'String',FullFile);
-[~,~,ext] = fileparts(FullFile);
-if strcmp(ext,'.mat');
-    load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
-    nii = load_untouch_nii(FullFile);
-    MTdata = nii.img;
-end
-SetAppData(MTdata);
-
-function MTdataFileBox_Callback(hObject, eventdata, handles)
-% FullFile = get(handles.MTdataFileBox,'String');
-% MTdataLoad(FullFile, handles);
-
-% MASKDATA
-function MaskLoad_Callback(hObject, eventdata, handles)
-WD = get(handles.WDBox,'String');
-[FileName,PathName,Index] = uigetfile({'*.nii';'*.img';'*.mat'},'Select Mask file',WD);
-if PathName == 0, return; end
-FullFile = fullfile(PathName,FileName);
-MaskLoad(FullFile, handles);
-
-function MaskLoad(FullFile, handles)
-Mask = [];
-set(handles.MaskFileBox,'String',FullFile);
-[pathstr,name,ext] = fileparts(FullFile) ;
-if strcmp(ext,'.mat');
-    load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
-    nii = load_untouch_nii(FullFile);
-    Mask = nii.img;
-end
-SetAppData(Mask);
-
-function MaskFileBox_Callback(hObject, eventdata, handles)
-% FullFile = get(handles.MaskFileBox,'String');
-% MaskLoad(FullFile, handles);
-
-% R1MAP DATA
-function R1mapLoad_Callback(hObject, eventdata, handles)
-WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select R1map file',WD);
-if PathName == 0, return; end
-FullFile = fullfile(PathName,FileName);
-R1mapLoad(FullFile, handles);
-
-function R1mapLoad(FullFile, handles)
-R1map = [];
-set(handles.R1mapFileBox,'String',FullFile);
-[~,~,ext] = fileparts(FullFile) ;
-if strcmp(ext,'.mat');
-    load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
-    nii = load_untouch_nii(FullFile);
-    R1map = nii.img;
-end
-SetAppData(R1map);
-
-function R1mapFileBox_Callback(hObject, eventdata, handles)
-% FullFile = get(handles.R1mapFileBox,'String');
-% R1mapLoad(FullFile, handles);
-
-% B1 MAP
-function B1mapLoad_Callback(hObject, eventdata, handles)
-WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select B1map file',WD);
-if PathName == 0, return; end
-FullFile = fullfile(PathName,FileName);
-B1mapLoad(FullFile, handles);
-
-function B1mapLoad(FullFile, handles)
-B1map = [];
-set(handles.B1mapFileBox,'String',FullFile);
-[~,~,ext] = fileparts(FullFile) ;
-if strcmp(ext,'.mat');
-    load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
-    nii = load_untouch_nii(FullFile);
-    B1map = nii.img;
-end
-SetAppData(B1map);
-
-function B1mapFileBox_Callback(hObject, eventdata, handles)
-% FullFile = get(handles.R1mapFileBox,'String');
-% B1mapLoad(FullFile, handles);
-
-% B0 MAP
-function B0mapLoad_Callback(hObject, eventdata, handles)
-WD = get(handles.WDBox,'String');
-[FileName,PathName] = uigetfile({'*.nii';'*.img';'*.mat'},'Select B0map file',WD);
-if PathName == 0, return; end
-FullFile = fullfile(PathName,FileName);
-B0mapLoad(FullFile, handles);
-
-function B0mapLoad(FullFile, handles)
-B0map = [];
-set(handles.B0mapFileBox,'String',FullFile);
-[~,~,ext] = fileparts(FullFile) ;
-if strcmp(ext,'.mat');
-    load(FullFile);
-elseif strcmp(ext,'.nii') || strcmp(ext,'.img') || strcmp(ext,'.gz');
-    nii = load_untouch_nii(FullFile);
-    B0map = nii.img;
-end
-SetAppData(B0map);
-
-function B0mapFileBox_Callback(hObject, eventdata, handles)
-% FullFile = get(handles.B0mapFileBox,'String');
-% B0mapLoad(FullFile, handles);
-
-% VIEW MAPS
-function DataView_Callback(hObject, eventdata, handles)
-MTdataLoad(get(handles.MTdataFileBox,'String'), handles)
-MTdata = GetAppData('MTdata');
-if isempty(MTdata), errordlg('empty data'); return; end
-n = ndims(MTdata);
-Data.MTdata = mean(double(MTdata),n);
-Data.fields = {'MTdata'};
-handles.CurrentData = Data;
-guidata(hObject,handles);
-DrawPlot(handles);
-
-function MaskView_Callback(hObject, eventdata, handles)
-MaskLoad(get(handles.MaskFileBox,'String'), handles)
-data = GetAppData('Mask');
-if isempty(data), errordlg('empty data'); return; end
-Data.Mask = double(data);
-Data.fields = {'Mask'};
-handles.CurrentData = Data;
-guidata(hObject,handles);
-DrawPlot(handles);
-
-function R1mapView_Callback(hObject, eventdata, handles)
-R1mapLoad(get(handles.R1mapFileBox,'String'), handles)
-data = GetAppData('R1map');
-if isempty(data), errordlg('empty data'); return; end
-Data.R1map = double(data);
-Data.fields = {'R1map'};
-handles.CurrentData = Data;
-guidata(hObject,handles);
-DrawPlot(handles);
-
-function B1mapView_Callback(hObject, eventdata, handles)
-B1mapLoad(get(handles.B1mapFileBox,'String'), handles)
-data = GetAppData('B1map');
-if isempty(data), errordlg('empty data'); return; end
-Data.B1map = double(data);
-Data.fields = {'B1map'};
-handles.CurrentData = Data;
-guidata(hObject,handles);
-DrawPlot(handles);
-
-function B0mapView_Callback(hObject, eventdata, handles)
-B0mapLoad(get(handles.B0mapFileBox,'String'), handles)
-data = GetAppData('B0map');
-if isempty(data), errordlg('empty data'); return; end
-Data.B0map = double(data);
-Data.fields = {'B0map'};
-handles.CurrentData = Data;
-guidata(hObject,handles);
-DrawPlot(handles);
-
-function StudyIDBox_Callback(hObject, eventdata, handles)
-
 
 
 % ############################# FIT DATA ##################################
 % FITDATA GO
 function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
+Method = GetMethod(handles);
+handles.method = fullfile(handles.root,Method);
 
-%Set directory for fit results
-WD = get(handles.WDBox,'String');
-if isempty(WD)
-    WD = pwd;
-end
-if (~exist(fullfile(WD,'FitResults'), 'file'))
-    mkdir(WD,'FitResults');
+if strcmp(Method, 'MTSAT')
+    FitGo_MTSAT(hObject, eventdata, handles);
+else
+    FitGo_FitData(hObject, eventdata, handles);
 end
 
-% Make sure we're using files that are actually in text boxes
-MTdataLoad(get(handles.MTdataFileBox,'String'), handles)
-MaskLoad(get(handles.MaskFileBox,'String'), handles)
-B0mapLoad(get(handles.B0mapFileBox,'String'), handles)
-B1mapLoad(get(handles.B1mapFileBox,'String'), handles)
-R1mapLoad(get(handles.R1mapFileBox,'String'), handles)
+% FitGo function for MTSAT
+function FitGo_MTSAT(hObject, eventdata, handles)
+
 
 % Get data
-[MTdata, Mask, R1map, B1map, B0map] =  GetAppData('MTdata','Mask','R1map','B1map','B0map');
+[MTdata, Maskdata, PDdata, T1data] =  GetAppData('MTdata','Mask','PDdata','T1data');
+[MTparams, PDparams, T1params] = GetAppData('MTparams', 'PDparams', 'T1params');
+
+if ~isempty(MTdata) & ~isempty(PDdata) & ~isempty(T1data)
+    data = struct;
+    data.MTdata = double(MTdata);
+    data.PDdata = double(PDdata);
+    data.T1data = double(T1data);
+    
+    % optional
+    if ~isempty(Maskdata)
+        data.Mask = double(Maskdata);
+    end
+    
+    % execute MTSAT
+    MTSATdata = MTSAT_exec(data, MTparams, PDparams, T1params);
+    
+    
+    % delimiting signal intensity range for display
+    Index=0;
+    Index = find(MTSATdata > 7);
+    MTSATdata(Index) = 7;
+    
+    Index=0;
+    Index = find(MTSATdata < -3);
+    MTSATdata(Index) = -3;
+    
+    % Display
+    Data.MTSATdata = double(MTSATdata);
+    Data.fields = {'MTSATdata'};
+    handles.CurrentData = Data;
+    guidata(hObject,handles);
+    
+    setappdata(0,'MTSATresult',Data);
+    
+    handles.CurrentData = Data;
+    guidata(hObject,handles);
+    DrawPlot(handles);
+    
+    ax = gca;
+    MyColorMap = ax;
+    File = load('BrainColorMap.mat');
+    colormap(ax,File.cmap);
+    
+end
+
+
+
+
+
+% Original FitGo function
+function FitGo_FitData(hObject, eventdata, handles)
+
+% Get data
+data =  GetAppData('Data');
 [Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
 
 % If SPGR with SledPike, check for Sf table
@@ -1130,14 +963,6 @@ if (strcmp(Method,'SPGR') && (strcmp(FitOpt.model, 'SledPikeCW') || strcmp(FitOp
         return;
     end
 end
-
-% Build data structure
-data   =  struct;
-data.MTdata = double(MTdata);
-data.Mask = double(Mask);
-data.R1map = double(R1map);
-data.B1map = double(B1map);
-data.B0map = double(B0map);
 
 % Do the fitting
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
@@ -1149,13 +974,9 @@ else
 end
 
 % Save info with results
-FitResults.StudyID = get(handles.StudyIDBox,'String');
-FitResults.WD = WD;
-FitResults.Files.MTdata = get(handles.MTdataFileBox,'String');
-FitResults.Files.Mask = get(handles.MaskFileBox,'String');
-FitResults.Files.R1map = get(handles.R1mapFileBox,'String');
-FitResults.Files.B1map = get(handles.B1mapFileBox,'String');
-FitResults.Files.B0map = get(handles.B0mapFileBox,'String');
+FitResults.StudyID = handles.FileBrowser.getStudyID;
+FitResults.WD = handles.FileBrowser.getWD;
+FitResults.Files = handles.FileBrowser.getFilenames;
 SetAppData(FitResults);
 
 % Kill the waitbar in case of a problem occured
@@ -1252,7 +1073,7 @@ end
 
 function ColorMapStyle_Callback(hObject, eventdata, handles)
 val  =  get(handles.ColorMapStyle, 'Value');
-maps =  get(handles.ColorMapStyle, 'String'); 
+maps =  get(handles.ColorMapStyle, 'String');
 colormap(maps{val});
 
 function Auto_Callback(hObject, eventdata, handles)
@@ -1268,11 +1089,28 @@ RefreshPlot(handles);
 function MinValue_Callback(hObject, eventdata, handles)
 min   =  str2double(get(hObject,'String'));
 max = str2double(get(handles.MaxValue, 'String'));
-lower =  0.5 * min;
-set(handles.MinSlider, 'Value', min);
-set(handles.MinSlider, 'min',   lower);
-caxis([min max]);
-% RefreshColorMap(handles);
+
+% special treatment for MTSAT visualisation
+CurMethod = getappdata(0, 'Method');
+if strcmp(CurMethod, 'MTSAT')
+    if n > 2
+        Min = min(min(min(MTdata)));
+        Max = max(max(max(MTdata)));
+        ImSize = size(MTdata);
+    else
+        Min = min(min(MTdata));
+        Max = max(max(MTdata));
+    end
+    set(handles.MinValue, 'Min', Min);
+    set(handles.MinValue, 'Max', Max);
+    set(handles.MinValue, 'Value', Min+1);
+else
+    lower =  0.5 * min;
+    set(handles.MinSlider, 'Value', min);
+    set(handles.MinSlider, 'min',   lower);
+    caxis([min max]);
+    % RefreshColorMap(handles);
+end
 
 function MinSlider_Callback(hObject, eventdata, handles)
 min = get(hObject, 'Value');
@@ -1362,11 +1200,11 @@ ylabel('Counts');
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
 % Get data
-[MTdata, Mask, R1map, B1map, B0map] =  GetAppData('MTdata','Mask','R1map','B1map','B0map');
+data =  getappdata(0,'Data'); MRIinput = fieldnames(data);
 [Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
 
 % Get selected voxel
-S = size(MTdata);
+S = size(data.(MRIinput{1}));
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     disp('<strong>Select a voxel in the image using cursor</strong>')
 else
@@ -1376,25 +1214,19 @@ else
     z = str2double(get(handles.SliceValue,'String'));
     index = sub2ind(S,x,y,z);
     
-    % Build data structure
-    data   =  struct;
-    if length(S) == 3
-        data.MTdata = double(squeeze(MTdata(x,y,:)));
-    elseif length(S) == 4
-        data.MTdata = double(squeeze(MTdata(x,y,z,:)));
+    for ii=1:length(MRIinput)
+        if ~isempty(data.(MRIinput{ii}))
+            data.(MRIinput{ii}) = squeeze(data.(MRIinput{ii})(x,y,z,:));
+        end
     end
-    data.Mask = [];
-    if ~isempty(R1map), data.R1map = double(R1map(index)); else data.R1map = []; end
-    if ~isempty(B1map), data.B1map = double(B1map(index)); else data.B1map = []; end
-    if ~isempty(B0map), data.B0map = double(B0map(index)); else data.B0map = []; end
-    
+    if isfield(data,'Mask'), data.Mask = []; end
     
     Sim.Opt.AddNoise = 0;
     % Create axe
     figure(68)
     set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
-    haxes = get(68,'children');
-                    
+    haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
+    
     if ~isempty(haxes)
         % turn gray old plots
         haxes = get(haxes(min(end,2)),'children');
@@ -1402,8 +1234,8 @@ else
         hAnnotation = get(haxes,'Annotation');
         % remove their legends
         for ih=1:length(hAnnotation)
-                hLegendEntry = get(hAnnotation{ih},'LegendInformation');
-                set(hLegendEntry,'IconDisplayStyle','off');
+            hLegendEntry = get(hAnnotation{ih},'LegendInformation');
+            set(hLegendEntry,'IconDisplayStyle','off');
         end
     end
     hold on;
@@ -1521,76 +1353,6 @@ else
     set(handles.SliceSlider, 'SliderStep', [0 0]);
 end
 
-function UpdatePopUp(handles)
-axes(handles.FitDataAxe);
-Data   =  handles.CurrentData;
-fields =  Data.fields;
-set(handles.SourcePop, 'String', fields);
-handles.FitDataSize = size(Data.(fields{1}));
-handles.FitDataDim = ndims(Data.(fields{1}));
-dim = handles.FitDataDim;
-if (dim==3)
-        set(handles.ViewPop,'String',{'Axial','Coronal','Sagittal'});
-        handles.FitDataSlice = floor(handles.FitDataSize/2);
-else
-        set(handles.ViewPop,'String','Axial');
-        handles.FitDataSlice = 1;
-end
-guidata(gcbf, handles);
-UpdateSlice(handles);
-
-function GetPlotRange(handles)
-Current = GetCurrent(handles);
-values=Current(:); values(isinf(values))=[]; values(isnan(values))=[]; 
-
-if length(unique(values))>20 % it is a mask?
-    values(~values)=[];
-    Min = prctile(values,1); % 5 percentile of the data to prevent extreme values
-    Max = prctile(values,99);% 95 percentile of the data to prevent extreme values
-else
-    Min=min(values);
-    Max=max(values);
-end
-
-if (abs(Min - Max)<1e-3)
-    Max = Max + 1;
-end
-if (Min > Max)
-    temp = Min;
-    Min = Max;
-    Max = temp;
-end
-
-if (Min < 0)
-    set(handles.MinSlider, 'Min',    1.5*Min);
-else
-    set(handles.MinSlider, 'Min',    0.5*Min);
-end
-
-if (Max < 0)
-    set(handles.MaxSlider, 'Max',    0.5*Max);
-else
-    set(handles.MaxSlider, 'Max',    1.5*Max);
-end
-set(handles.MinSlider, 'Max',    Max);
-set(handles.MaxSlider, 'Min',    Min);
-set(handles.MinValue,  'String', Min);
-set(handles.MaxValue,  'String', Max);
-set(handles.MinSlider, 'Value',  Min);
-set(handles.MaxSlider, 'Value',  Max);
-guidata(gcbf, handles);
-
-function DrawPlot(handles)
-set(handles.SourcePop, 'Value',  1);
-set(handles.ViewPop,   'Value',  1);
-UpdatePopUp(handles);
-GetPlotRange(handles);
-Current = GetCurrent(handles);
-% imagesc(flipdim(Current',1));
-imagesc(rot90(Current));
-axis equal off;
-RefreshColorMap(handles)
-
 function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
@@ -1604,26 +1366,13 @@ ylim(yl);
 
 function RefreshColorMap(handles)
 val  = get(handles.ColorMapStyle, 'Value');
-maps = get(handles.ColorMapStyle, 'String'); 
+maps = get(handles.ColorMapStyle, 'String');
 colormap(maps{val});
 colorbar('location', 'South', 'Color', 'white');
 min = str2double(get(handles.MinValue, 'String'));
 max = str2double(get(handles.MaxValue, 'String'));
 caxis([min max]);
 
-function Current = GetCurrent(handles)
-SourceFields = cellstr(get(handles.SourcePop,'String'));
-Source = SourceFields{get(handles.SourcePop,'Value')};
-View = get(handles.ViewPop,'Value');
-Slice = str2double(get(handles.SliceValue,'String'));
-Data = handles.CurrentData;
-data = Data.(Source);
-switch View
-    case 1;  Current = squeeze(data(:,:,Slice));
-    case 2;  Current = squeeze(data(:,Slice,:));
-    case 3;  Current = squeeze(data(Slice,:,:));
-end
-    
 
 % ######################## CREATE FUNCTIONS ##############################
 function SimVaryOptRuns_CreateFcn(hObject, eventdata, handles)
@@ -1646,10 +1395,167 @@ function SliceSlider_CreateFcn(hObject, eventdata, handles)
 function SliceValue_CreateFcn(hObject, eventdata, handles)
 function ViewPop_CreateFcn(hObject, eventdata, handles)
 function FitDataAxe_CreateFcn(hObject, eventdata, handles)
-function StudyIDBox_CreateFcn(hObject, eventdata, handles)
-function MTdataFileBox_CreateFcn(hObject, eventdata, handles)
-function MaskFileBox_CreateFcn(hObject, eventdata, handles)
-function R1mapFileBox_CreateFcn(hObject, eventdata, handles)
-function B1mapFileBox_CreateFcn(hObject, eventdata, handles)
-function B0mapFileBox_CreateFcn(hObject, eventdata, handles)
-function WDBox_CreateFcn(hObject, eventdata, handles)
+function edit35_Callback(hObject, eventdata, handles)
+function edit35_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit35 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes when uibuttongroup1 is resized.
+function uibuttongroup1_SizeChangedFcn(hObject, eventdata, handles)
+% hObject    handle to uibuttongroup1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on selection change in popupmenu20.
+function popupmenu20_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu20 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu20
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu20_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton173.
+function pushbutton173_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton173 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton174.
+function pushbutton174_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton174 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton175.
+function pushbutton175_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton175 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton170.
+function pushbutton170_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton170 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton171.
+function pushbutton171_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton171 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton172.
+function pushbutton172_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton172 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on slider movement.
+function slider4_Callback(hObject, eventdata, handles)
+% hObject    handle to slider4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function slider5_Callback(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on button press in pushbutton169.
+function pushbutton169_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton169 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on selection change in popupmenu21.
+function popupmenu21_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu21 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu21
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu21_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% % --- Executes on button press in MTSATBtn.
+% function MTSATBtn_Callback(hObject, eventdata, handles)
+% % hObject    handle to MTSATBtn (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)

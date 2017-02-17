@@ -53,6 +53,12 @@ end
 Fit.fields = fields;
 Fit.computed = Fit.(fields{1});
 
+% initialize
+if ~isfield(data,'R1map'), data.R1map = []; end
+if ~isfield(data,'B1map'), data.B1map = []; end
+if ~isfield(data,'B0map'), data.B0map = []; end
+if ~isfield(data,'Mask'), data.Mask = []; end
+
 % Apply mask
 if (~isempty(data.Mask))
     Fit.Mask = single(data.Mask);

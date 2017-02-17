@@ -12,7 +12,7 @@ function File = LoadImage(FullFile)
         % load dicom file
         File = dicomread(FullFile); 
         %Header = dicominfo(FullFile);
-    elseif strcmp(ext,'.nii') || strcmp(ext,'.gz');
+    elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
         % load .nii file
         % nii = load_nii(FullFile);
             % With brain image file from set 2, got error, so using 'load_untouch_nii.m' 

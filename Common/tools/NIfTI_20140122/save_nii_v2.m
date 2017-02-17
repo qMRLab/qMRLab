@@ -59,6 +59,7 @@ if ~isstruct(nii)
         if size(unxform_nii(nii, nii.img(:,:,:,1))) ~= size(unxform_nii(nii, img(:,:,:,1))), error('old_nii_fname doesn''t have the same dimension as your new data'); end
         nii.original.img =tmp;
         nii.original.hdr.dime.dim(5)=size(img,4);
+        nii.original.hdr.dime.dim(1)=find(nii.original.hdr.dime.dim>1, 1, 'last' )-1;
         nii = nii.original;
         nii.hdr.dime.vox_offset=0;
         nii.hdr.dime.scl_inter=0;
