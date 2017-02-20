@@ -20,7 +20,9 @@ classdef MethodBrowser < handle
         MethodID;        
     end
     
+    
     methods
+        %------------------------------------------------------------------
         % constructor
         function obj = MethodBrowser(varargin)
             parent = varargin{1};
@@ -60,6 +62,7 @@ classdef MethodBrowser < handle
             end
         end % end constructor      
         
+        %------------------------------------------------------------------
         % destructor
         function delete(obj)
             for i=1:obj.NbItems
@@ -68,7 +71,8 @@ classdef MethodBrowser < handle
             delete(obj.ItemsList);
         end % destructir end
                 
-        %---
+        
+        %------------------------------------------------------------------
         % Visible
         function Visible(obj, Visibility)
             for i=1:obj.NbItems
@@ -82,9 +86,9 @@ classdef MethodBrowser < handle
             set(obj.StudyID_TextID, 'Visible', Visibility);            
         end
         
-        %---
+        %------------------------------------------------------------------
         % IsMethod
-        function Res = IsMethod(obj, NameID)
+        function Res = IsMethodID(obj, NameID)
             if strcmp(obj.MethodID, NameID)
                 Res = 0;
             else
@@ -92,19 +96,23 @@ classdef MethodBrowser < handle
             end
         end
         
-        %---
-        % DataLoad - save the images using setappdata
+        %------------------------------------------------------------------
+        % DataLoad - load the images using setappdata
         function DataLoad(obj, handles)
             for i=1:obj.NbItems
                 obj.ItemsList(i).DataLoad(handles);
             end
         end
         
-        %---
+        %------------------------------------------------------------------
         % SetFullPath
         function setFullPath(obj, handles)
             Path = obj.WorkDir_FullPath;
-            
+            if Path == 0
+                errordlg('Invalid path');
+                Path = '';
+                return;
+            end
             dirData = dir(Path);
             dirIndex = [dirData.isdir];
             fileList = {dirData(~dirIndex).name}';
@@ -126,24 +134,67 @@ classdef MethodBrowser < handle
             end
         end % end SetFullPath
         
+        
+        %------------------------------------------------------------------
+        % get working directory name
         function WD = getWD(obj)
             WD = obj.WorkDir_FullPath;
         end
         
+        
+        %------------------------------------------------------------------
+        % get study ID name
+        function StudyID = GetStudyID(obj)
+            StudyID = '';
+            obj.StudyID_TextID = get(obj.StudyID_TextArea, 'String');
+            StudyID = obj.StudyID_TextID;
+        end
+        
+        %------------------------------------------------------------------
+        % getFileName
+        % get the filename for the specified ID data
+        function FileName = getFileName(obj, ID)
+            for i=1,obj.NbItems
+                if strcmp(ID, obj.ItemsList(i).getName(obj)) == 0
+                    FileName = obj.ItemsList(i).getFileName(obj);
+                    return;
+                end
+            end
+        end
+        
+        %------------------------------------------------------------------
+        % getFileNames
+        % output all the filenames for each data 
+        function FileNames = getFileNames(obj)
+            FileNames = struct;
+            
+            for i=1:obj.NbItems;
+                Name =  char(obj.ItemsList(i).getName());
+                if strcmp(Name, '') == 0 
+                    FileNames.(Name) = obj.ItemsList(i).getFileName();
+                else 
+                    FileNames.(Name) = 'Not set';
+                end
+            end
+        end % end getFileNames
+        
     end
     
+    
+    
+    
     methods(Static)
-        
         %------------------------------------------------------------------
         % -- BrowseBtn_callback
         %   Callback function for the working directory
         function BrowseBtn_callback(obj,src, event, handles)
             obj.WorkDir_FullPath = uigetdir;
+            if obj.WorkDir_FullPath == 0
+                errordlg('Invalid path');
+                return;
+            end
             set(obj.WorkDir_FileNameArea,'String',obj.WorkDir_FullPath);
             obj.setFullPath(handles);
-            
-            
-            % clear previous file paths
             
         end
     end
