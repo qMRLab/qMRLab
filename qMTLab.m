@@ -95,7 +95,6 @@ Fields = fieldnames(AppData);
 for k=1:length(Fields)
     rmappdata(0, Fields{k});
 end
-clear classes
 
 
 
@@ -119,8 +118,8 @@ if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     h = findobj('Tag','OptionsGUI');
     if ~isempty(h)
         delete(h);
-        OpenOptionsPanel_Callback(hObject, eventdata, handles)
     end
+    OpenOptionsPanel_Callback(hObject, eventdata, handles)
     
 else
     % Update Options Panel
@@ -1113,27 +1112,29 @@ else
 end
 
 function MinSlider_Callback(hObject, eventdata, handles)
-min = get(hObject, 'Value');
-max = str2double(get(handles.MaxValue, 'String'));
-set(handles.MinValue,'String',min);
-caxis([min max]);
+maxi = str2double(get(handles.MaxValue, 'String'));
+mini = min(get(hObject, 'Value'),maxi-eps);
+set(hObject,'Value',mini)
+set(handles.MinValue,'String',mini);
+caxis([mini maxi]);
 % RefreshColorMap(handles);
 
 % MAX
 function MaxValue_Callback(hObject, eventdata, handles)
-min = str2double(get(handles.MinValue, 'String'));
-max = str2double(get(handles.MaxValue, 'String'));
-upper =  1.5 * max;
-set(handles.MaxSlider, 'Value', max)
+mini = str2double(get(handles.MinValue, 'String'));
+maxi = str2double(get(handles.MaxValue, 'String'));
+upper =  1.5 * maxi;
+set(handles.MaxSlider, 'Value', maxi)
 set(handles.MaxSlider, 'max',   upper);
-caxis([min max]);
+caxis([mini maxi]);
 % RefreshColorMap(handles);
 
 function MaxSlider_Callback(hObject, eventdata, handles)
-min = str2double(get(handles.MinValue, 'String'));
-max = get(hObject, 'Value');
-set(handles.MaxValue,'String',max);
-caxis([min max]);
+mini = str2double(get(handles.MinValue, 'String'));
+maxi = max(mini +eps,get(hObject, 'Value'));
+set(hObject,'Value',maxi)
+set(handles.MaxValue,'String',maxi);
+caxis([mini maxi]);
 % RefreshColorMap(handles);
 
 % VIEW
