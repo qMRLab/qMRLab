@@ -36,7 +36,7 @@ classdef CHARMED
 % ----------------------------------------------------------------------------------------------------
 
 properties
-        MRIinputs = {'MTdata','Mask'}; % input data required
+        MRIinputs = {'DiffusionData','Mask'}; % input data required
         xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
         
         % fitting options
@@ -50,7 +50,7 @@ properties
         Prot  = [ones(100,1) zeros(100,2) linspace(0,300,100)'*1e-3 0.040*ones(100,1) 0.003*ones(100,1) 0.070*ones(100,1)];
         
         % Model options
-        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true};
+        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'}};
         options= struct();
 
     end
@@ -67,7 +67,7 @@ properties
         function FitResults = fit(obj,data)
             
             % Prepare data
-            data = max(eps,double(data.MTdata)); nT=length(data);
+            data = max(eps,double(data.DiffusionData)); nT=length(data);
             if nT~=size(obj.Prot,1), error(['<strong>Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.</strong>']); end
 
             Prot = ConvertSchemeUnits(obj.Prot);
@@ -84,6 +84,7 @@ properties
             % use Rician noise and fix fix b=0
             if obj.options.ComputeSigmaPerVoxel
                 SigmaNoise = computesigmanoise(obj.Prot,data);
+                if ~SigmaNoise, return; end
             else
                 SigmaNoise = obj.options.SigmaOfTheNoise;
             end
@@ -118,8 +119,8 @@ properties
             Smodel=obj.equation(x);
             % plot data
             if nargin>2
-                S0 = scd_preproc_getIb0(data.MTdata,Prot); Smodel = Smodel.*S0;
-                h = scd_display_qspacedata(data.MTdata,Prot);
+                S0 = scd_preproc_getIb0(data.DiffusionData,Prot); Smodel = Smodel.*S0;
+                h = scd_display_qspacedata(data.DiffusionData,Prot,strcmp(obj.options.DisplayType,'b-value'));
                 hold on
                 % remove data legends
                 for iD = 1:length(h)
@@ -130,7 +131,7 @@ properties
             end
             
             % plot fitting curves
-            scd_display_qspacedata(Smodel,Prot,0,'none','-');
+            scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'none','-');
            
             hold off
         end
@@ -173,7 +174,7 @@ Prot(Prot(:,4)==0,[5 6])=0;
 % find images that where repeated
 [~,c,ind]=consolidator(Prot(:,1:7),[],'count');
 cmax = max(c); % find images repeated more than 5 times (for relevant STD)
-if cmax<5, errordlg('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. use scd_noise_fit_histo_nii.m instead to estimate the noise STD.'); return; end
+if cmax<5, uiwait(errordlg('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead. (see scd_noise_fit_histo_nii.m to estimate the noise STD).')); end
 
 repeated_measured = find(c==cmax);
 for irep=1:length(repeated_measured)
