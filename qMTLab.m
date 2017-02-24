@@ -114,24 +114,19 @@ if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');
     LoadDefaultOptions(PathName);
-    % Update Options Panel
-    h = findobj('Tag','OptionsGUI');
-    if ~isempty(h)
-        delete(h);
-    end
-    OpenOptionsPanel_Callback(hObject, eventdata, handles)
     
 else
     % Update Options Panel
     set(handles.uipanel35,'Visible','off') % hide the simulation panel
-    h = findobj('Tag','OptionsGUI');
-    if ~isempty(h)
-        delete(h);
-    end
-    modelfun  = str2func(Method);
-    Model = modelfun();
-    Custom_OptionsGUI(gcf,Model);
 end
+
+% Update Options Panel
+h = findobj('Tag','OptionsGUI');
+if ~isempty(h)
+    delete(h);
+end
+OpenOptionsPanel_Callback(hObject, eventdata, handles)
+
 
 % delete objects in browser panel
 delete(setdiff(findobj(handles.FitDataFileBrowserPanel),handles.FitDataFileBrowserPanel));
@@ -144,6 +139,7 @@ switch Method
     case 'SPGR'
         MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
     otherwise
+        Model = getappdata(0,'Model');
         MRIinputs = Model.MRIinputs;
 end
 handles.FileBrowser = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
@@ -212,6 +208,7 @@ switch Method
             Model = modelfun();
         end
         Custom_OptionsGUI(gcf,Model);
+        setappdata(0,'Model',Model);
 end
 
 % UPDATE OPTIONS
@@ -975,7 +972,8 @@ end
 % Save info with results
 FitResults.StudyID = handles.FileBrowser.getStudyID;
 FitResults.WD = handles.FileBrowser.getWD;
-FitResults.Files = handles.FileBrowser.getFilenames;
+if isempty(FitResults.WD), FitResults.WD = pwd; end
+FitResults.Files = handles.FileBrowser.getFileName;
 SetAppData(FitResults);
 
 % Kill the waitbar in case of a problem occured
@@ -988,19 +986,21 @@ if(~isempty(FitResults.StudyID))
 else
     filename = 'FitResults.mat';
 end
-if ~exist(fullfile(WD,'FitResults')), mkdir(fullfile(WD,'FitResults')); end
-save(fullfile(WD,'FitResults',filename),'-struct','FitResults');
+if ~exist(fullfile(FitResults.WD,'FitResults','dir')), mkdir(fullfile(FitResults.WD,'FitResults')); end
+save(fullfile(FitResults.WD,'FitResults',filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
+fn = fieldnames(FitResults.Files);
+mainfile = FitResults.Files.(fn{1});
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     file = strcat(map,'.nii');
-    [~,~,ext]=fileparts(FitResults.Files.MTdata);
+    [~,~,ext]=fileparts(mainfile);
     if strcmp(ext,'.mat')
-        save_nii_v2(make_nii(FitResults.(map)),fullfile(WD,'FitResults',file),[],64);
+        save_nii_v2(make_nii(FitResults.(map)),fullfile(FitResults.WD,'FitResults',file),[],64);
     else
-        save_nii_v2(FitResults.(map),fullfile(WD,'FitResults',file),FitResults.Files.MTdata,64);
+        save_nii_v2(FitResults.(map),fullfile(FitResults.WD,'FitResults',file),mainfile,64);
     end
 end
 
@@ -1030,26 +1030,25 @@ if isfield(FitResults,'Protocol')
 else
     Prot   =  FitResults.Prot;
 end
-if isfield(FitResults,'FitOpt'), FitOpt =  FitResults.FitOpt; SetAppData(FitResults, Prot, FitOpt);
-else
+if isfield(FitResults,'FitOpt'), FitOpt =  FitResults.FitOpt; SetAppData(FitResults, Prot, FitOpt); Method = FitResults.Protocol.Method; end
+if isfield(FitResults,'Model')
+    Method = class(FitResults.Model);
     Model = FitResults.Model;
     SetAppData(FitResults,Model);
 end
 
+% find model value in the method menu list
+val = find(strcmp(get(handles.MethodMenu,'String'),Method));
+set(handles.MethodMenu,'Value',val)
 
-if (isfield(FitResults,'WD'))
-    set(handles.WDBox,'String', FitResults.WD);
-end
-set(handles.StudyIDBox,'String', FitResults.StudyID);
-if isfield(FitResults,'Files')
-    set(handles.MTdataFileBox,'String', FitResults.Files.MTdata);
-    set(handles.MaskFileBox,'String', FitResults.Files.Mask);
-    set(handles.R1mapFileBox,'String', FitResults.Files.R1map);
-    set(handles.B1mapFileBox,'String', FitResults.Files.B1map);
-    set(handles.B0mapFileBox,'String', FitResults.Files.B0map);
-    
-    if exist(FitResults.Files.MTdata,'file')
-        MTdataLoad(get(handles.MTdataFileBox,'String'), handles);
+MethodMenu_Callback(hObject, eventdata, handles)
+handles = guidata(hObject); % update handle
+
+if isfield(FitResults,'WD'), handles.FileBrowser.setWD(FitResults.WD); end
+if isfield(FitResults,'StudyID'), handles.FileBrowser.setStudyID(FitResults.StudyID); end
+if isfield(FitResults,'Files'),
+    for ifile = fieldnames(FitResults.Files)'
+        handles.FileBrowser.setFileName(ifile{1},FitResults.Files.(ifile{1}))
     end
 end
 
@@ -1057,12 +1056,6 @@ SetActive('FitData', handles);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
-
-% Update Options Panel
-h = findobj('Tag','OptionsGUI');
-if ~isempty(h)
-    OpenOptionsPanel_Callback(hObject, eventdata, handles)
-end
 
 
 
