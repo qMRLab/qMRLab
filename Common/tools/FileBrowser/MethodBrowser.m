@@ -54,7 +54,7 @@ classdef MethodBrowser < handle
                 'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
                 obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
-                    'Callback', {@(src, event)MethodBrowser.BrowseBtn_callback(obj, src, event, handles{1,1})});
+                    'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
                 obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
                 obj.WorkDir_FullPath = '';
                 obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
@@ -66,7 +66,9 @@ classdef MethodBrowser < handle
         %------------------------------------------------------------------
         % destructor
         function delete(obj)
-            delete(setdiff(findobj(obj.Parent),obj.Parent))
+            if ishandle(obj.Parent)
+                delete(setdiff(findobj(obj.Parent),obj.Parent));
+            end
         end % destructir end
                 
         
@@ -104,7 +106,7 @@ classdef MethodBrowser < handle
         
         %------------------------------------------------------------------
         % SetFullPath
-        function setFullPath(obj, handles)
+        function setFullPath(obj)
             Path = obj.WorkDir_FullPath;
             if Path == 0
                 errordlg('Invalid path');
@@ -128,7 +130,7 @@ classdef MethodBrowser < handle
             
             % Manage each data items
             for i=1:obj.NbItems
-                obj.ItemsList(i).setPath(Path, fileList, handles);
+                obj.ItemsList(i).setPath(Path, fileList);
             end
         end % end SetFullPath
         
@@ -139,43 +141,50 @@ classdef MethodBrowser < handle
             WD = obj.WorkDir_FullPath;
         end
         
+        %------------------------------------------------------------------
+        % get working directory name
+        function WD = setWD(obj,WD)
+            % WD = setWD(obj,handles,WD)
+            obj.WD_BrowseBtn_callback(obj,WD)
+        end
         
         %------------------------------------------------------------------
         % get study ID name
-        function StudyID = GetStudyID(obj)
+        function StudyID = getStudyID(obj)
             StudyID = '';
-            obj.StudyID_TextID = get(obj.StudyID_TextArea, 'String');
+            obj.StudyID_TextID = get(obj.StudyID_TextID, 'String');
             StudyID = obj.StudyID_TextID;
         end
         
+                %------------------------------------------------------------------
+        % get study ID name
+        function setStudyID(obj,StudyID)
+            set(obj.StudyID_TextID, 'String',StudyID);
+        end
+
         %------------------------------------------------------------------
         % getFileName
         % get the filename for the specified ID data
-        function FileName = getFileName(obj, ID)
-            for i=1,obj.NbItems
-                if strcmp(ID, obj.ItemsList(i).getName(obj)) == 0
-                    FileName = obj.ItemsList(i).getFileName(obj);
-                    return;
-                end
+        function FileName = getFileName(obj)
+            for i=1:obj.NbItems
+                fN = get(obj.ItemsList(i).NameText,'String');
+                FileName.(fN{1}) = get(obj.ItemsList(i).FileBox,'String');
             end
         end
         
         %------------------------------------------------------------------
-        % getFileNames
-        % output all the filenames for each data 
-        function FileNames = getFileNames(obj)
-            FileNames = struct;
-            
-            for i=1:obj.NbItems;
-                Name =  char(obj.ItemsList(i).getName());
-                if strcmp(Name, '') == 0 
-                    FileNames.(Name) = obj.ItemsList(i).getFileName();
-                else 
-                    FileNames.(Name) = 'Not set';
-                end
+        % setFileName
+        % set the filename
+        function setFileName(obj,fieldName, FileName)
+            % find object
+            indexfieldName = strcmp(cellfun(@(cc) cc{1},get([obj.ItemsList.NameText]','String'),'UniformOutput',false),fieldName);
+            if sum(indexfieldName)
+                obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)
             end
-        end % end getFileNames
+        end
+
         
+               
     end
     
     
@@ -183,16 +192,21 @@ classdef MethodBrowser < handle
     
     methods(Static)
         %------------------------------------------------------------------
-        % -- BrowseBtn_callback
+        % -- WD_BrowseBtn_callback
         %   Callback function for the working directory
-        function BrowseBtn_callback(obj,src, event, handles)
-            obj.WorkDir_FullPath = uigetdir;
-            if obj.WorkDir_FullPath == 0
+        function WD_BrowseBtn_callback(obj, WorkDir_FullPath)
+            if ~exist('WorkDir_FullPath','var')
+                WorkDir_FullPath = uigetdir;
+            end
+            
+            if WorkDir_FullPath == 0
                 errordlg('Invalid path');
                 return;
             end
+            
+            obj.WorkDir_FullPath = WorkDir_FullPath;
             set(obj.WorkDir_FileNameArea,'String',obj.WorkDir_FullPath);
-            obj.setFullPath(handles);
+            obj.setFullPath();
             
         end
     end

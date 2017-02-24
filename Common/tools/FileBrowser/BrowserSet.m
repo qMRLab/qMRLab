@@ -31,7 +31,9 @@ classdef BrowserSet < handle
         %------------------------------------------------------------------
         % -- CONSTRUCTOR
         function obj = BrowserSet(varargin)
-            
+            % BrowserSet(parentPanel,handles,Name)
+            % handles: used for the view button
+            % Name: Name of the field
             if nargin>0
                 % parse the input arguments
                 parent = varargin{1};
@@ -52,20 +54,21 @@ classdef BrowserSet < handle
                     Position = [Location, 0.1, 0.1];
                     obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Browse', 'Position', Position, 'FontSize', 0.6, ...
-                    'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj, src, event, handles{1,1})});
+                    'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
                 end 
 
                 Location = Location + [0.11, 0];
                 Position = [Location, 0.65, 0.1];
                 obj.FileBox = uicontrol(parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
-                    'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj, src, event, handles{1,1})});
+                    'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
 
                 if obj.ViewBtnOn == 1 
                     Location = Location + [0.66, 0];
                     Position = [Location, 0.1, 0.1];
                     obj.ViewBtn = uicontrol(parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
                         'String', 'View', 'Position', Position, 'FontSize', 0.6, ...
-                        'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event, handles{1,1})});            end
+                        'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event, handles{1,1})});           
+                end
             end % testing varargin
         end % constructor end
         
@@ -94,7 +97,7 @@ classdef BrowserSet < handle
         %------------------------------------------------------------------
         % -- DATA LOAD
         %   load data from file and make accessible to qMTLab fct
-        function DataLoad(obj, handles)
+        function DataLoad(obj)
             obj.Data = [];
             obj.FullFile = get(obj.FileBox, 'String');
             [pathstr,name,ext] = fileparts(obj.FullFile);
@@ -125,7 +128,7 @@ classdef BrowserSet < handle
         %------------------------------------------------------------------
         % -- setPath
         % search for filenames that match the NameText
-        function setPath(obj, Path, fileList, handles)           
+        function setPath(obj, Path, fileList)           
             
             % clear previous file paths
             set(obj.FileBox, 'String', '');
@@ -135,7 +138,7 @@ classdef BrowserSet < handle
                 if strfind(fileList{i}(1:end-4), DataName{1})
                     obj.FullFile = fullfile(Path,fileList{i});                    
                     set(obj.FileBox, 'String', obj.FullFile);
-                    obj.DataLoad(handles);
+                    obj.DataLoad();
                 end
             end
             
@@ -146,24 +149,28 @@ classdef BrowserSet < handle
         %------------------------------------------------------------------
         % -- BROWSE BUTTONS
         %------------------------------------------------------------------
-        function BrowseBtn_callback(obj,src, event, handles)
-            obj.FullFile = get(obj.FileBox, 'String');
-            if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file');          
+        function BrowseBtn_callback(obj,FileName)
+            if ~exist('FileName','var')
+                obj.FullFile = get(obj.FileBox, 'String');
+                if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
+                    [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file');
+                else
+                    [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file',obj.FullFile);
+                end
             else
-                [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file',obj.FullFile);               
+                PathName = '';
             end
             obj.FullFile = fullfile(PathName,FileName);
             set(obj.FileBox,'String',obj.FullFile);
             
-            DataLoad(obj, handles);            
+            DataLoad(obj);            
         end
         
         %------------------------------------------------------------------
         % -- VIEW BUTTONS
         %------------------------------------------------------------------
         function ViewBtn_callback(obj,src, event, handles)
-            obj.DataLoad(handles);
+            obj.DataLoad();
             Data = getappdata(0, 'Data');
             obj.Data=Data.(obj.NameID{1,1});
             if isempty(obj.Data), errordlg('empty data'); return; end
