@@ -50,7 +50,6 @@ end
 Model = varargin{2};
 setappdata(0,'Model',Model);
 Nparam=length(Model.xnames);
-Model.Prot=[];
 FitOptTable(:,1)=Model.xnames(:);
 FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1));
 FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
@@ -59,6 +58,8 @@ FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
 set(handles.FitOptTable,'Data',FitOptTable)
 set(handles.ProtFormat,'String',strjoin(Model.ProtFormat))
 set(handles.tableProt,'ColumnName',Model.ProtFormat(:))
+set(handles.tableProt,'Data',Model.Prot)
+
 
 % Load model specific options
 opts=Model.buttons;
