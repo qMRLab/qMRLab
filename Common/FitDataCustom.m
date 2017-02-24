@@ -23,22 +23,28 @@ function Fit = FitDataCustom( data, Model, wait )
 
 %############################# INITIALIZE #################################
 % Get dimensions
-MTdata = double(data.MTdata);
-dim = ndims(MTdata);
+MRIinputs = fieldnames(data);
+qData = double(data.(MRIinputs{1}));
+dim = ndims(qData);
 x = 1; y = 1; z = 1;
 switch dim
     case 4
-        [x,y,z,nT] = size(MTdata);
+        [x,y,z,nT] = size(qData);
     case 3
-        [x,y,nT] = size(MTdata);
+        [x,y,nT] = size(qData);
     case 2
-        nT = length(MTdata);
+        nT = length(qData);
 end
 
 % Arrange voxels into a column
 nV = x*y*z;     % number of voxels
-MTdata = reshape(MTdata,nV,nT);
-M = zeros(nT,1);
+for ii = 1:length(MRIinputs)
+    if ndims(data.(MRIinputs{ii})) == 4
+        data.(MRIinputs{ii}) = reshape(data.(MRIinputs{ii}),nV,nT);
+    else
+        data.(MRIinputs{ii}) = reshape(data.(MRIinputs{ii}),nV,1);
+    end
+end
 
 fields = Model.xnames;
 
@@ -49,26 +55,14 @@ end
 Fit.fields = fields;
 Fit.computed = Fit.(fields{1});
 
-% Apply mask
-if (~isempty(data.Mask))
-    Fit.Mask = single(data.Mask);
-    Mask = reshape(data.Mask,nV,1);
-    MTdata = MTdata.*repmat(Mask,[1,nT]);
-end
-
 % Find voxels that are not empty
-Voxels = find(all(MTdata,2));
+if isfield(data,'Mask') && (~isempty(data.Mask))
+    Voxels = find(all(data.Mask,2));
+else
+    Voxels = (1:nV)';
+end
 l = length(Voxels);
 
-if (~isempty(data.R1map));  R1map = reshape(double(data.R1map),nV,1); end
-
-if (~isempty(data.B1map));  B1map = reshape(double(data.B1map),nV,1); end
-
-if (~isempty(data.B0map));  B0map = reshape(double(data.B0map),nV,1); end
-
-FitOpt.R1 = [];
-FitOpt.B1 = [];
-FitOpt.B0 = [];
 
 %############################# FITTING LOOP ###############################
 % Create waitbar
@@ -92,14 +86,9 @@ for ii = 1:l
     end
     
     % Get current voxel data
-    M.MTdata(:,1) = MTdata(vox,:);
-    
-    if (isfield(FitOpt,'R1map') &&   FitOpt.R1map && ~isempty(data.R1map)); FitOpt.R1 = R1map(vox); end
-    
-    if (~isempty(data.B1map)); FitOpt.B1 = B1map(vox); end
-    
-    if (~isempty(data.B0map)); FitOpt.B0 = B0map(vox); end
-        
+   for iii = 1:length(MRIinputs)
+       M.(MRIinputs{iii}) = data.(MRIinputs{iii})(vox,:)';
+   end
     % Fit data
     tempFit = Model.fit(M);
 
