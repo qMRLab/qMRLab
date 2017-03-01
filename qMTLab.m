@@ -198,8 +198,6 @@ switch Method
         SPGR_OptionsGUI(gcf);
     case 'SIRFSE'
         SIRFSE_OptionsGUI(gcf);
-    case 'MTSAT'
-        MTSAT_OptionsGUI(gcf);
     otherwise
         if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
             Model = getappdata(0,'Model');
@@ -883,63 +881,8 @@ function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 Method = GetMethod(handles);
 handles.method = fullfile(handles.root,Method);
+FitGo_FitData(hObject, eventdata, handles);
 
-if strcmp(Method, 'MTSAT')
-    FitGo_MTSAT(hObject, eventdata, handles);
-else
-    FitGo_FitData(hObject, eventdata, handles);
-end
-
-% FitGo function for MTSAT
-function FitGo_MTSAT(hObject, eventdata, handles)
-
-
-% Get data
-[MTdata, Maskdata, PDdata, T1data] =  GetAppData('MTdata','Mask','PDdata','T1data');
-[MTparams, PDparams, T1params] = GetAppData('MTparams', 'PDparams', 'T1params');
-
-if ~isempty(MTdata) & ~isempty(PDdata) & ~isempty(T1data)
-    data = struct;
-    data.MTdata = double(MTdata);
-    data.PDdata = double(PDdata);
-    data.T1data = double(T1data);
-    
-    % optional
-    if ~isempty(Maskdata)
-        data.Mask = double(Maskdata);
-    end
-    
-    % execute MTSAT
-    MTSATdata = MTSAT_exec(data, MTparams, PDparams, T1params);
-    
-    
-    % delimiting signal intensity range for display
-    Index=0;
-    Index = find(MTSATdata > 7);
-    MTSATdata(Index) = 7;
-    
-    Index=0;
-    Index = find(MTSATdata < -3);
-    MTSATdata(Index) = -3;
-    
-    % Display
-    Data.MTSATdata = double(MTSATdata);
-    Data.fields = {'MTSATdata'};
-    handles.CurrentData = Data;
-    guidata(hObject,handles);
-    
-    setappdata(0,'MTSATresult',Data);
-    
-    handles.CurrentData = Data;
-    guidata(hObject,handles);
-    DrawPlot(handles);
-    
-    ax = gca;
-    MyColorMap = ax;
-    File = load('BrainColorMap.mat');
-    colormap(ax,File.cmap);
-    
-end
 
 
 
