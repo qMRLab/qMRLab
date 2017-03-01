@@ -13,4 +13,5 @@ else
         set(handles.ViewPop,'String','Axial');
         handles.FitDataSlice = 1;
 end
+UpdateSlice(handles)
 guidata(gcbf, handles);

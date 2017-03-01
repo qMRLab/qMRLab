@@ -2,18 +2,19 @@
 
 function Res = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
 
+if ~isfield(data,'Mask'), data.Mask=[]; end
 
 % Apply mask
 if (~isempty(data.Mask))
     Res.Mask = single(data.Mask);    
-    data.MTdata = data.MTdata.*data.Mask;
-    data.PDdata = data.PDdata.*data.Mask;
-    data.T1data = data.T1data.*data.Mask;
+    data.MT = data.MT.*data.Mask;
+    data.PD = data.PD.*data.Mask;
+    data.T1 = data.T1.*data.Mask;
 end
 
-S_T1 = data.T1data;
-S_PD = data.PDdata;
-S_TM = double(data.MTdata);
+S_T1 = data.T1;
+S_PD = data.PD;
+S_TM = double(data.MT);
 
 [r,c] = find(S_TM);
 
@@ -72,9 +73,9 @@ MTSATdata = 100*Rawdelta;
 Res = struct;
 Res.computed = MTSATdata;
 
-[NZ_Row_MT, NZ_Col_MT, NZ_Val_MT] = find(data.MTdata);
-[NZ_Row_PD, NZ_Col_PD, NZ_Val_PD] = find(data.PDdata);
-[NZ_Row_T1, NZ_Col_T1, NZ_Val_T1] = find(data.T1data);
+[NZ_Row_MT, NZ_Col_MT, NZ_Val_MT] = find(data.MT);
+[NZ_Row_PD, NZ_Col_PD, NZ_Val_PD] = find(data.PD);
+[NZ_Row_T1, NZ_Col_T1, NZ_Val_T1] = find(data.T1);
 
 
     % since we introduced new values to avoid /0, make sure to
@@ -84,7 +85,7 @@ Res.computed = MTSATdata;
 if (~isempty(data.Mask))
     MTSATdata = MTSATdata.*data.Mask;
 else
-    Index = find(~data.MTdata);
+    Index = find(~data.MT);
     MTSATdata(Index) = 0;
 end
 [NZ_Row_Re, NZ_Col_Re, NZ_Val_Re] = find(MTSATdata);
