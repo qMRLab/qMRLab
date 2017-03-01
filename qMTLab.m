@@ -1261,35 +1261,6 @@ handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
 
-% ############################ FUNCTIONS ##################################
-function UpdateSlice(handles)
-View =  get(handles.ViewPop,'Value');
-switch View
-    case 1
-        x = 3;
-    case 2
-        x = 2;
-    case 3
-        x = 1;
-end
-dim = handles.FitDataDim;
-if (dim==3)
-    slice = handles.FitDataSlice(x);
-    size = handles.FitDataSize(x);
-    set(handles.SliceValue,  'String', slice);
-    set(handles.SliceSlider, 'Min',    1);
-    set(handles.SliceSlider, 'Max',    size);
-    set(handles.SliceSlider, 'Value',  slice);
-    Step = [1, 1] / size;
-    set(handles.SliceSlider, 'SliderStep', Step);
-else
-    set(handles.SliceValue,  'String',1);
-    set(handles.SliceSlider, 'Min',   0);
-    set(handles.SliceSlider, 'Max',   1);
-    set(handles.SliceSlider, 'Value', 1);
-    set(handles.SliceSlider, 'SliderStep', [0 0]);
-end
-
 function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
@@ -1300,15 +1271,6 @@ axis equal off;
 RefreshColorMap(handles)
 xlim(xl);
 ylim(yl);
-
-function RefreshColorMap(handles)
-val  = get(handles.ColorMapStyle, 'Value');
-maps = get(handles.ColorMapStyle, 'String');
-colormap(maps{val});
-colorbar('location', 'South', 'Color', 'white');
-min = str2double(get(handles.MinValue, 'String'));
-max = str2double(get(handles.MaxValue, 'String'));
-caxis([min max]);
 
 
 % ######################## CREATE FUNCTIONS ##############################
