@@ -1,10 +1,21 @@
 
 
-function Res = MTSAT_exec(data, MTParams, PDParams, T1Params)
+function Res = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
+
+
+% Apply mask
+if (~isempty(data.Mask))
+    Res.Mask = single(data.Mask);    
+    data.MTdata = data.MTdata.*data.Mask;
+    data.PDdata = data.PDdata.*data.Mask;
+    data.T1data = data.T1data.*data.Mask;
+end
 
 S_T1 = data.T1data;
 S_PD = data.PDdata;
-S_TM = data.MTdata;
+S_TM = double(data.MTdata);
+
+[r,c] = find(S_TM);
 
 alpha = MTParams(1);
 TR = MTParams(2);
@@ -39,11 +50,75 @@ a5 = A.*alpha;
 b5 = (alpha^2)/2;
 Index = 0;
 Index = find(~S_TM);
-S_TM(Index) = 0.001;
+S_TM(Index) = 0.001; % keep this in case values cancel out
+    % since we are introducing new values here by avoiding /0, make sure to
+    % null positions where MT data was initially 0 (when mask applied to 
+    % raw image). In case the mask file was provided, use it to null the 
+    % background in the result image.
 Rawdelta = (R1.*TR.*((a5./S_TM)-1))- b5;
 MTSATdata = 100*Rawdelta;
 
-Res = MTSATdata;
+% RMin = min(MTSATdata(MTSATdata > 0))
+% 
+%         % delimiting signal intensity range for display
+%         Index=0;
+%         Index = find(MTSATdata > 4); % was previously 7
+%         MTSATdata(Index) = 4;
+% 
+%         Index=0;
+%         Index = find(MTSATdata < -3.5);
+%         MTSATdata(Index) = -3.5;
 
+Res = struct;
+Res.computed = MTSATdata;
+
+[NZ_Row_MT, NZ_Col_MT, NZ_Val_MT] = find(data.MTdata);
+[NZ_Row_PD, NZ_Col_PD, NZ_Val_PD] = find(data.PDdata);
+[NZ_Row_T1, NZ_Col_T1, NZ_Val_T1] = find(data.T1data);
+
+
+    % since we introduced new values to avoid /0, make sure to
+    % null positions where MTdata was initially 0 (when mask applied to 
+    % raw image). In case the mask file was provided, use it to null the 
+    % background in the result image.
+if (~isempty(data.Mask))
+    MTSATdata = MTSATdata.*data.Mask;
+else
+    Index = find(~data.MTdata);
+    MTSATdata(Index) = 0;
+end
+[NZ_Row_Re, NZ_Col_Re, NZ_Val_Re] = find(MTSATdata);
+
+% figure
+% h_MT = histogram(NZ_Val_MT)
+% title('MT non zero values')
+% xlim([0,550])
+% 
+% figure
+% h_PD = histogram(NZ_Val_PD)
+% title('PD non zero values')
+% xlim([0,550])
+% 
+% figure
+% h_T1 = histogram(NZ_Val_T1)
+% title('T1 non zero values')
+% xlim([0,550])
+% 
+% figure
+% H_RE = histogram(NZ_Val_Re)
+% title('MT sat non zero values')
+% 
+% 
+% [R,C] = find(MTSATdata < -5);
+% t=10
+% S_TM(R(t),C(t))
+% S_PD(R(t),C(t))
+% S_T1(R(t),C(t))
+% MTSATdata(R(t),C(t))
+% 
+% 
+% 
+% 
+% t = 'test'
 
 end
