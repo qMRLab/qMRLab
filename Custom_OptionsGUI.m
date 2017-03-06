@@ -59,10 +59,13 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
     set(handles.FitOptTable,'Data',FitOptTable)
 end
-    
 
 set(handles.ProtFormat,'String',strjoin(Model.ProtFormat))
 set(handles.tableProt,'ColumnName',Model.ProtFormat(:))
+% if class is MTSAT, put row names to ID MRI input protocol info
+if strcmp(class(Model), 'MTSAT')
+    set(handles.tableProt,'RowName', Model.MRIinputs(1:3));
+end
 set(handles.tableProt,'Data',Model.Prot)
 
 
