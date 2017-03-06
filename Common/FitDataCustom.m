@@ -114,6 +114,7 @@ if Model.voxelwise % process voxelwise
     Fit.computed = reshape(Fit.computed,x,y,z);
 else % process entire volume
     Fit = Model.fit(data);
+    Fit.fields = fieldnames(Fit);
 end
 Fit.Time = toc
 Fit.Protocol = Model.Prot;
