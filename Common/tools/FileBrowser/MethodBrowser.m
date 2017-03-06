@@ -61,7 +61,13 @@ classdef MethodBrowser < handle
                     'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
                 obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
             end
-        end % end constructor      
+        end % end constructor    
+        
+        % Destructor
+        function delete(obj)
+            String = 'Deleting object Method Browser'
+        end
+        
         
                 
         
@@ -144,7 +150,11 @@ classdef MethodBrowser < handle
         %------------------------------------------------------------------
         % get study ID name
         function StudyID = getStudyID(obj)
-            StudyID = get(obj.StudyID_TextID, 'String');
+            if ~obj.isvalid; % seems keeps instance of invalid objects... to check
+                StudyID = get(obj.StudyID_TextID, 'String');
+            else
+                StudyID = '';
+            end
         end
         
                 %------------------------------------------------------------------
