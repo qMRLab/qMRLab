@@ -1,5 +1,5 @@
 function varargout = qMRILab(varargin)
-% qMRILab MATLAB code for qMRILab.fig
+% QMRILAB MATLAB code for qMRILab.fig
 % GUI to simulate/fit qMT data
 
 % ----------------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ function varargout = qMRILab_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 % Executes when user attempts to close qMRILab.
-function SimGUI_CloseRequestFcn(hObject, eventdata, handles)
+function qMRILab_CloseRequestFcn(hObject, eventdata, handles)
 h = findobj('Tag','OptionsGUI');
 delete(h);
 delete(hObject);
@@ -110,11 +110,10 @@ function MethodMenu_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 % cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
-if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+if ismember(Method,{'bSSFP','SIRFSE','SPGR', 'MTSAT'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');
     LoadDefaultOptions(PathName);
-    
 else
     % Update Options Panel
     set(handles.uipanel35,'Visible','off') % hide the simulation panel
@@ -130,6 +129,7 @@ OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
 % delete objects in browser panel
 delete(setdiff(findobj(handles.FitDataFileBrowserPanel),handles.FitDataFileBrowserPanel));
+
 % Create browser panel buttons
 switch Method
     case 'bSSFP'
@@ -198,8 +198,6 @@ switch Method
         SPGR_OptionsGUI(gcf);
     case 'SIRFSE'
         SIRFSE_OptionsGUI(gcf);
-    case 'MTSAT'
-        MTSAT_OptionsGUI(gcf);
     otherwise
         if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
             Model = getappdata(0,'Model');
@@ -367,6 +365,7 @@ function SimCurveSaveResults(PathName, FileName, handles)
 FileType = 'SimCurveResults';
 [Sim,Prot,FitOpt,MTdata,MTnoise,SimCurveResults] =  GetAppData(...
     'Sim','Prot','FitOpt','MTdata','MTnoise','SimCurveResults');
+if ~exist(PathName,'dir'), mkdir(PathName); end
 save(fullfile(PathName,FileName), '-regexp', '^(?!(handles)$).');
 set(handles.SimCurveFileName,'String',FileName);
 
@@ -883,63 +882,8 @@ function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 Method = GetMethod(handles);
 handles.method = fullfile(handles.root,Method);
+FitGo_FitData(hObject, eventdata, handles);
 
-if strcmp(Method, 'MTSAT')
-    FitGo_MTSAT(hObject, eventdata, handles);
-else
-    FitGo_FitData(hObject, eventdata, handles);
-end
-
-% FitGo function for MTSAT
-function FitGo_MTSAT(hObject, eventdata, handles)
-
-
-% Get data
-[MTdata, Maskdata, PDdata, T1data] =  GetAppData('MTdata','Mask','PDdata','T1data');
-[MTparams, PDparams, T1params] = GetAppData('MTparams', 'PDparams', 'T1params');
-
-if ~isempty(MTdata) & ~isempty(PDdata) & ~isempty(T1data)
-    data = struct;
-    data.MTdata = double(MTdata);
-    data.PDdata = double(PDdata);
-    data.T1data = double(T1data);
-    
-    % optional
-    if ~isempty(Maskdata)
-        data.Mask = double(Maskdata);
-    end
-    
-    % execute MTSAT
-    MTSATdata = MTSAT_exec(data, MTparams, PDparams, T1params);
-    
-    
-    % delimiting signal intensity range for display
-    Index=0;
-    Index = find(MTSATdata > 7);
-    MTSATdata(Index) = 7;
-    
-    Index=0;
-    Index = find(MTSATdata < -3);
-    MTSATdata(Index) = -3;
-    
-    % Display
-    Data.MTSATdata = double(MTSATdata);
-    Data.fields = {'MTSATdata'};
-    handles.CurrentData = Data;
-    guidata(hObject,handles);
-    
-    setappdata(0,'MTSATresult',Data);
-    
-    handles.CurrentData = Data;
-    guidata(hObject,handles);
-    DrawPlot(handles);
-    
-    ax = gca;
-    MyColorMap = ax;
-    File = load('BrainColorMap.mat');
-    colormap(ax,File.cmap);
-    
-end
 
 
 
@@ -1318,35 +1262,6 @@ handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
 
-% ############################ FUNCTIONS ##################################
-function UpdateSlice(handles)
-View =  get(handles.ViewPop,'Value');
-switch View
-    case 1
-        x = 3;
-    case 2
-        x = 2;
-    case 3
-        x = 1;
-end
-dim = handles.FitDataDim;
-if (dim==3)
-    slice = handles.FitDataSlice(x);
-    size = handles.FitDataSize(x);
-    set(handles.SliceValue,  'String', slice);
-    set(handles.SliceSlider, 'Min',    1);
-    set(handles.SliceSlider, 'Max',    size);
-    set(handles.SliceSlider, 'Value',  slice);
-    Step = [1, 1] / size;
-    set(handles.SliceSlider, 'SliderStep', Step);
-else
-    set(handles.SliceValue,  'String',1);
-    set(handles.SliceSlider, 'Min',   0);
-    set(handles.SliceSlider, 'Max',   1);
-    set(handles.SliceSlider, 'Value', 1);
-    set(handles.SliceSlider, 'SliderStep', [0 0]);
-end
-
 function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
@@ -1357,15 +1272,6 @@ axis equal off;
 RefreshColorMap(handles)
 xlim(xl);
 ylim(yl);
-
-function RefreshColorMap(handles)
-val  = get(handles.ColorMapStyle, 'Value');
-maps = get(handles.ColorMapStyle, 'String');
-colormap(maps{val});
-colorbar('location', 'South', 'Color', 'white');
-min = str2double(get(handles.MinValue, 'String'));
-max = str2double(get(handles.MaxValue, 'String'));
-caxis([min max]);
 
 
 % ######################## CREATE FUNCTIONS ##############################
