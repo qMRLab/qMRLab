@@ -1,4 +1,7 @@
 classdef MTSAT
+% ----------------------------------------------------------------------------------------------------
+% MTSAT :  Magnetization transfer saturation 
+% ----------------------------------------------------------------------------------------------------
     properties
         MRIinputs = {'MT','T1', 'PD', 'Mask'};
         xnames = {};
@@ -17,9 +20,12 @@ classdef MTSAT
     methods
         
         function FitResult = fit(obj,data)
-            MTparams = obj.Prot(1,:);
+            MTparams = obj.Prot(1,:); 
+            %MTparams(1,1) = MTparams(1,1)*pi()/180;
             PDparams = obj.Prot(2,:);
+            
             T1params = obj.Prot(3,:);
+            
             FitResult = MTSAT_exec(data, MTparams, PDparams, T1params);
         end
         

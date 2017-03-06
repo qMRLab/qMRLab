@@ -71,11 +71,7 @@ classdef BrowserSet < handle
                 end
             end % testing varargin
         end % constructor end
-        
-        %------------------------------------------------------------------
-        % -- DESCTRUCTOR
-        function delete(obj)
-        end % destructor end
+
     end
     
     methods

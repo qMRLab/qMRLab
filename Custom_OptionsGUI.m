@@ -50,12 +50,17 @@ end
 Model = varargin{2};
 setappdata(0,'Model',Model);
 Nparam=length(Model.xnames);
-FitOptTable(:,1)=Model.xnames(:);
-FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1));
-FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
-FitOptTable(:,4)=mat2cell(Model.lb(:),ones(Nparam,1));
-FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
-set(handles.FitOptTable,'Data',FitOptTable)
+
+if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
+    FitOptTable(:,1)=Model.xnames(:);
+    FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1));
+    FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
+    FitOptTable(:,4)=mat2cell(Model.lb(:),ones(Nparam,1));
+    FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
+    set(handles.FitOptTable,'Data',FitOptTable)
+end
+    
+
 set(handles.ProtFormat,'String',strjoin(Model.ProtFormat))
 set(handles.tableProt,'ColumnName',Model.ProtFormat(:))
 set(handles.tableProt,'Data',Model.Prot)
@@ -132,15 +137,18 @@ function Model = SetOpt(handles)
 fittingtable = get(handles.FitOptTable,'Data'); % Get options
 Model = getappdata(0,'Model');
 Model.xnames = fittingtable(:,1)';
-Model.fx = cell2mat(fittingtable(:,2)');
-Model.st = cell2mat(fittingtable(:,3)');
-Model.lb = cell2mat(fittingtable(:,4)');
-Model.ub = cell2mat(fittingtable(:,5)');
-% check that starting point > lb and < ub
-Model.st = max([Model.st; Model.lb],[],1);
-Model.st = min([Model.st; Model.ub],[],1);
-fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
-set(handles.FitOptTable,'Data',fittingtable);
+
+if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
+    Model.fx = cell2mat(fittingtable(:,2)');
+    Model.st = cell2mat(fittingtable(:,3)');
+    Model.lb = cell2mat(fittingtable(:,4)');
+    Model.ub = cell2mat(fittingtable(:,5)');
+    % check that starting point > lb and < ub
+    Model.st = max([Model.st; Model.lb],[],1);
+    Model.st = min([Model.st; Model.ub],[],1);
+    fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
+    set(handles.FitOptTable,'Data',fittingtable);
+end
 % ModelOptions
 opts = Model.buttons;
 N=length(opts)/2;

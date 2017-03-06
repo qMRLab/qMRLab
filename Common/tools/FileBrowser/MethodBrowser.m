@@ -63,13 +63,6 @@ classdef MethodBrowser < handle
             end
         end % end constructor      
         
-        %------------------------------------------------------------------
-        % destructor
-        function delete(obj)
-            if ishandle(obj.Parent)
-                delete(setdiff(findobj(obj.Parent),obj.Parent));
-            end
-        end % destructir end
                 
         
         %------------------------------------------------------------------
@@ -151,9 +144,7 @@ classdef MethodBrowser < handle
         %------------------------------------------------------------------
         % get study ID name
         function StudyID = getStudyID(obj)
-            StudyID = '';
-            obj.StudyID_TextID = get(obj.StudyID_TextID, 'String');
-            StudyID = obj.StudyID_TextID;
+            StudyID = get(obj.StudyID_TextID, 'String');
         end
         
                 %------------------------------------------------------------------
