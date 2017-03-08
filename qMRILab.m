@@ -80,6 +80,8 @@ set(gcf, 'Position', NewPos);
 SetActive('FitData', handles);
 MethodMenu_Callback(hObject, eventdata, handles);
 
+
+
 % Outputs from this function are returned to the command line.
 function varargout = qMRILab_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
@@ -126,23 +128,35 @@ if ~isempty(h)
 end
 OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
+MethodList = get(handles.MethodMenu, 'string');
+if ~isfield(handles,'FileBrowserList');
+    % Create File Browser uicontrols if doesn't exist
+    MethodCount = numel(MethodList);
+    FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
+    FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
+    handles.FileBrowserList = FileBrowserList;
+else 
+    handles.FileBrowser.Visible('off'); % hide the current FileBrowser item
+end
 
-% delete objects in browser panel
-delete(setdiff(findobj(handles.FitDataFileBrowserPanel),handles.FitDataFileBrowserPanel));
-
-% Create browser panel buttons
 switch Method
-    case 'bSSFP'
+	case 'bSSFP'
         MRIinputs = {'Mask' 'MTdata' 'R1map'};
     case 'SIRFSE'
         MRIinputs = {'Mask' 'MTdata'};
-    case 'SPGR'
+	case 'SPGR'
         MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
     otherwise
-        Model = getappdata(0,'Model');
+        Model = getappdata(0, 'Model');
         MRIinputs = Model.MRIinputs;
 end
-handles.FileBrowser = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
+MethodNum = find(strcmp(MethodList, Method));
+if strcmp(handles.FileBrowserList(MethodNum).GetMethod, 'unassigned')
+	handles.FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
+end
+
+handles.FileBrowser = handles.FileBrowserList(MethodNum); % no need to delete, reference to list object.
+handles.FileBrowser.Visible('on');
 guidata(hObject, handles);
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)

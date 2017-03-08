@@ -18,7 +18,7 @@ classdef MethodBrowser < handle
         
         ItemsList; % is a list of the class BrowserSet objects
         NbItems;
-        MethodID;        
+        MethodID = 'unassigned';        
     end
     
     
@@ -95,6 +95,10 @@ classdef MethodBrowser < handle
             end
         end
         
+        function Res = GetMethod(obj)
+            Res = obj.MethodID;
+        end
+        
         %------------------------------------------------------------------
         % DataLoad - load the images using setappdata
         function DataLoad(obj, handles)
@@ -150,7 +154,7 @@ classdef MethodBrowser < handle
         %------------------------------------------------------------------
         % get study ID name
         function StudyID = getStudyID(obj)
-            if ~obj.isvalid; % seems keeps instance of invalid objects... to check
+            if ~obj.isvalid && isfield(obj, 'StudyID_TextID'); 
                 StudyID = get(obj.StudyID_TextID, 'String');
             else
                 StudyID = '';
