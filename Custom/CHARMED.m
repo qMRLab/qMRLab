@@ -38,6 +38,7 @@ classdef CHARMED
 properties
         MRIinputs = {'DiffusionData','Mask'}; % input data required
         xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
+        voxelwise = 1;
         
         % fitting options
         st           = [0.6     0.7        6         0         0 ]; % starting point
