@@ -206,7 +206,6 @@ switch Method
             Model = modelfun();
         end
         Custom_OptionsGUI(gcf,Model);
-        setappdata(0,'Model',Model);
 end
 
 % UPDATE OPTIONS
