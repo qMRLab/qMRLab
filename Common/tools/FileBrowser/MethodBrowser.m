@@ -61,15 +61,7 @@ classdef MethodBrowser < handle
                     'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
                 obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
             end
-        end % end constructor      
-        
-        %------------------------------------------------------------------
-        % destructor
-        function delete(obj)
-            if ishandle(obj.Parent)
-                delete(setdiff(findobj(obj.Parent),obj.Parent));
-            end
-        end % destructir end
+        end % end constructor
                 
         
         %------------------------------------------------------------------
