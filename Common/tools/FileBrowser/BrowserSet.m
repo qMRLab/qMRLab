@@ -1,4 +1,4 @@
-classdef BrowserSet < handle
+classdef BrowserSet
     % BrowserSet - manage the file browser interface
     %   P.Beliveau 2017 - setup
     %   * manage the standard set of interface items in the browser
