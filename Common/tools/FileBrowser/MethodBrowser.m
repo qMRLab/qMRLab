@@ -65,7 +65,9 @@ classdef MethodBrowser < handle
         
         % Destructor
         function delete(obj)
-            String = 'Deleting object Method Browser'
+            for i=1:obj.NbItems
+                delete(obj.ItemsList(i));
+            end
         end
         
         
@@ -95,6 +97,8 @@ classdef MethodBrowser < handle
             end
         end
         
+        %------------------------------------------------------------------
+        % GetMethod
         function Res = GetMethod(obj)
             Res = obj.MethodID;
         end

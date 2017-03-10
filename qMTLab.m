@@ -110,7 +110,7 @@ function MethodMenu_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 % cd(fullfile(handles.root, Method));
 handles.method = fullfile(handles.root,Method);
-if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+if ismember(Method,{'bSSFP','SIRFSE','SPGR', 'MTSAT'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');
     LoadDefaultOptions(PathName);

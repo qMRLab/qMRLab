@@ -169,6 +169,8 @@ function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 save(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'),'Method');
 
+
+
 % SIMCURVE
 function SimCurveBtn_Callback(hObject, eventdata, handles)
 SetActive('SimCurve', handles);
@@ -897,11 +899,6 @@ SetActive('FitData', handles);
 Method = GetMethod(handles);
 handles.method = fullfile(handles.root,Method);
 FitGo_FitData(hObject, eventdata, handles);
-
-
-
-
-
 
 % Original FitGo function
 function FitGo_FitData(hObject, eventdata, handles)

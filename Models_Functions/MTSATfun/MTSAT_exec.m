@@ -1,8 +1,8 @@
 
 
-function Res = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
+function Fit = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
 
-if ~isfield(data,'Mask'), data.Mask=[]; end
+if ~isfield(data,'Mask'), data.Mask=''; end
 
 % Apply mask
 if (~isempty(data.Mask))
@@ -70,8 +70,10 @@ MTSATdata = 100*Rawdelta;
 %         Index = find(MTSATdata < -3.5);
 %         MTSATdata(Index) = -3.5;
 
-Res = struct;
-Res.computed = MTSATdata;
+fields = {'computed'}; 
+Fit.fields = fields;
+Fit.(fields{1}) = MTSATdata;
+
 
 [NZ_Row_MT, NZ_Col_MT, NZ_Val_MT] = find(data.MT);
 [NZ_Row_PD, NZ_Col_PD, NZ_Val_PD] = find(data.PD);
