@@ -1,6 +1,6 @@
 function varargout = qMRILab(varargin)
-% QMRILAB MATLAB code for qMRILab.fig
-% GUI to simulate/fit qMT data
+% qMRILAB MATLAB code for qMRILab.fig
+% GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-François Cabana, 2016
@@ -57,9 +57,7 @@ load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
 
 % add custom models
 CUSTOM=[qMRILabDir filesep 'Custom'];
-CUSTOM_list = sct_tools_ls([CUSTOM filesep '*.m']);  % list all files in Custom folder
-CUSTOM_list = strrep(CUSTOM_list,'.m',''); % remove .m from filenames
-set(handles.MethodMenu,'String',cat(1,get(handles.MethodMenu,'String'),CUSTOM_list'))
+addCustomMenu(hObject, eventdata, handles, handles.ChooseMethod,CUSTOM);
 
 % Set Default
 default_method_value = find(strcmp(get(handles.MethodMenu, 'String'),Method));
@@ -78,9 +76,7 @@ NewPos(1)  = CurrentPos(1) - 40;
 set(gcf, 'Position', NewPos);
 
 SetActive('FitData', handles);
-MethodMenu_Callback(hObject, eventdata, handles);
-
-
+MethodMenu_Callback(hObject, eventdata, handles,Method);
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRILab_OutputFcn(hObject, eventdata, handles)
@@ -98,8 +94,20 @@ for k=1:length(Fields)
     rmappdata(0, Fields{k});
 end
 
+function addCustomMenu(hObject, eventdata, handles, parent,folderinit)
+% list folders
+folders=sct_tools_ls([folderinit filesep '*'], 0, 1, 1);
+Nfolders = length(folders);
+for iff = 1:Nfolders
+    child = uimenu(parent,'Label',folders{iff});
+    addCustomMenu(hObject, eventdata, handles,child,[folderinit filesep folders{iff}]);
+end
 
-
+% list methods
+methods=sct_tools_ls([folderinit filesep '*.m'], 0, 1, 2);
+for im = 1:length(methods)
+    uimenu(parent,'Label',methods{im},'Callback', @(x,y) MethodMenu_Callback(hObject,eventdata,guidata(hObject),strrep(methods{im},'.m','')));
+end
 
 
 
@@ -108,14 +116,15 @@ end
 %###########################################################################################
 
 % METHODMENU
-function MethodMenu_Callback(hObject, eventdata, handles)
-Method = GetMethod(handles);
-% cd(fullfile(handles.root, Method));
+function MethodMenu_Callback(hObject, eventdata, handles,Method)
+SetAppData(Method)
+set(handles.MethodMenu,'String',Method)
 handles.method = fullfile(handles.root,Method);
-if ismember(Method,{'bSSFP','SIRFSE','SPGR', 'MTSAT'})
+if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');
     LoadDefaultOptions(PathName);
+    
 else
     % Update Options Panel
     set(handles.uipanel35,'Visible','off') % hide the simulation panel
@@ -128,35 +137,22 @@ if ~isempty(h)
 end
 OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
-MethodList = get(handles.MethodMenu, 'string');
-if ~isfield(handles,'FileBrowserList');
-    % Create File Browser uicontrols if doesn't exist
-    MethodCount = numel(MethodList);
-    FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
-    FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
-    handles.FileBrowserList = FileBrowserList;
-else 
-    handles.FileBrowser.Visible('off'); % hide the current FileBrowser item
-end
 
+% delete objects in browser panel
+delete(setdiff(findobj(handles.FitDataFileBrowserPanel),handles.FitDataFileBrowserPanel));
+% Create browser panel buttons
 switch Method
-	case 'bSSFP'
+    case 'bSSFP'
         MRIinputs = {'Mask' 'MTdata' 'R1map'};
     case 'SIRFSE'
         MRIinputs = {'Mask' 'MTdata'};
-	case 'SPGR'
+    case 'SPGR'
         MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
     otherwise
-        Model = getappdata(0, 'Model');
+        Model = getappdata(0,'Model');
         MRIinputs = Model.MRIinputs;
 end
-MethodNum = find(strcmp(MethodList, Method));
-if strcmp(handles.FileBrowserList(MethodNum).GetMethod, 'unassigned')
-	handles.FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
-end
-
-handles.FileBrowser = handles.FileBrowserList(MethodNum); % no need to delete, reference to list object.
-handles.FileBrowser.Visible('on');
+handles.FileBrowser = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
 guidata(hObject, handles);
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)
@@ -168,8 +164,6 @@ end
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 save(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'),'Method');
-
-
 
 % SIMCURVE
 function SimCurveBtn_Callback(hObject, eventdata, handles)
@@ -222,7 +216,6 @@ switch Method
             Model = modelfun();
         end
         Custom_OptionsGUI(gcf,Model);
-        setappdata(0,'Model',Model);
 end
 
 % UPDATE OPTIONS
@@ -381,7 +374,6 @@ function SimCurveSaveResults(PathName, FileName, handles)
 FileType = 'SimCurveResults';
 [Sim,Prot,FitOpt,MTdata,MTnoise,SimCurveResults] =  GetAppData(...
     'Sim','Prot','FitOpt','MTdata','MTnoise','SimCurveResults');
-if ~exist(PathName,'dir'), mkdir(PathName); end
 save(fullfile(PathName,FileName), '-regexp', '^(?!(handles)$).');
 set(handles.SimCurveFileName,'String',FileName);
 
@@ -900,6 +892,11 @@ Method = GetMethod(handles);
 handles.method = fullfile(handles.root,Method);
 FitGo_FitData(hObject, eventdata, handles);
 
+
+
+
+
+
 % Original FitGo function
 function FitGo_FitData(hObject, eventdata, handles)
 
@@ -996,7 +993,7 @@ end
 val = find(strcmp(get(handles.MethodMenu,'String'),Method));
 set(handles.MethodMenu,'Value',val)
 
-MethodMenu_Callback(hObject, eventdata, handles)
+MethodMenu_Callback(hObject, eventdata, handles,Method)
 handles = guidata(hObject); % update handle
 
 if isfield(FitResults,'WD'), handles.FileBrowser.setWD(FitResults.WD); end
@@ -1308,165 +1305,34 @@ function ViewPop_CreateFcn(hObject, eventdata, handles)
 function FitDataAxe_CreateFcn(hObject, eventdata, handles)
 function edit35_Callback(hObject, eventdata, handles)
 function edit35_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit35 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes when uibuttongroup1 is resized.
 function uibuttongroup1_SizeChangedFcn(hObject, eventdata, handles)
-% hObject    handle to uibuttongroup1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on selection change in popupmenu20.
 function popupmenu20_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu20 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu20 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu20
-
-
-% --- Executes during object creation, after setting all properties.
 function popupmenu20_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu20 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on button press in pushbutton173.
 function pushbutton173_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton173 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton174.
 function pushbutton174_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton174 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton175.
 function pushbutton175_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton175 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton170.
 function pushbutton170_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton170 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton171.
 function pushbutton171_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton171 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton172.
 function pushbutton172_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton172 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on slider movement.
 function slider4_Callback(hObject, eventdata, handles)
-% hObject    handle to slider4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
 function slider4_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes on slider movement.
 function slider5_Callback(hObject, eventdata, handles)
-% hObject    handle to slider5 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
 function slider5_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider5 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes on button press in pushbutton169.
-function pushbutton169_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton169 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on selection change in popupmenu21.
-function popupmenu21_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu21 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu21 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu21
-
-
-% --- Executes during object creation, after setting all properties.
 function popupmenu21_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu21 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% % --- Executes on button press in MTSATBtn.
-% function MTSATBtn_Callback(hObject, eventdata, handles)
-% % hObject    handle to MTSATBtn (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
+function MethodqMT_Callback(hObject, eventdata, handles)
+function ChooseMethod_Callback(hObject, eventdata, handles)

@@ -345,11 +345,11 @@ setappdata(0,'FitOpt',FitOpt);
 % FitOptTable CellEdit
 function FitOptTable_CellEditCallback(hObject, eventdata, handles)
 FitOpt = GetFitOpt(handles);
-if (~FitOpt.fx(3))
+if (FitOpt.fx(3))
     set(handles.R1mapBox,'Value',0);
     FitOpt.R1map = false;
 end
-if (~FitOpt.fx(4))
+if (FitOpt.fx(4))
     set(handles.R1reqR1fBox,'Value',0);
     FitOpt.R1reqR1f = false;
 end
@@ -360,7 +360,7 @@ SetFitOpt(FitOpt,handles);
 function R1reqR1fBox_Callback(hObject, eventdata, handles)
 if (get(hObject, 'Value'))
     data = get(handles.FitOptTable,'Data');
-    data(4,2) =  num2cell(true);
+    data(4,2) =  num2cell(false);
     set(handles.FitOptTable,'Data', data)
 end
 set(handles.FitOptFileName,'String','unsaved');
@@ -370,7 +370,7 @@ GetFitOpt(handles);
 function R1mapBox_Callback(hObject, eventdata, handles)
 if (get(hObject, 'Value'))
     data = get(handles.FitOptTable,'Data');
-    data(3,2) =  num2cell(true);
+    data(3,2) =  num2cell(false);
     set(handles.FitOptTable,'Data', data)
 end
 set(handles.FitOptFileName,'String','unsaved');

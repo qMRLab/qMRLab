@@ -18,7 +18,7 @@ classdef MethodBrowser < handle
         
         ItemsList; % is a list of the class BrowserSet objects
         NbItems;
-        MethodID = 'unassigned';        
+        MethodID;        
     end
     
     
@@ -61,16 +61,7 @@ classdef MethodBrowser < handle
                     'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
                 obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
             end
-        end % end constructor    
-        
-        % Destructor
-        function delete(obj)
-            for i=1:obj.NbItems
-                delete(obj.ItemsList(i));
-            end
-        end
-        
-        
+        end % end constructor
                 
         
         %------------------------------------------------------------------
@@ -95,12 +86,6 @@ classdef MethodBrowser < handle
             else
                 Res = 1;
             end
-        end
-        
-        %------------------------------------------------------------------
-        % GetMethod
-        function Res = GetMethod(obj)
-            Res = obj.MethodID;
         end
         
         %------------------------------------------------------------------
@@ -158,11 +143,9 @@ classdef MethodBrowser < handle
         %------------------------------------------------------------------
         % get study ID name
         function StudyID = getStudyID(obj)
-            if ~obj.isvalid && isfield(obj, 'StudyID_TextID'); 
-                StudyID = get(obj.StudyID_TextID, 'String');
-            else
-                StudyID = '';
-            end
+            StudyID = '';
+            obj.StudyID_TextID = get(obj.StudyID_TextID, 'String');
+            StudyID = obj.StudyID_TextID;
         end
         
                 %------------------------------------------------------------------

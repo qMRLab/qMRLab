@@ -47,15 +47,6 @@ if Model.voxelwise % process voxelwise
         end
     end
     
-    fields = Model.xnames;
-    
-    for ii = 1:length(fields)
-        Fit.(fields{ii}) = zeros(x,y,z);
-        Fit.(fields{ii}) = reshape(Fit.(fields{ii}),nV,1);
-    end
-    Fit.fields = fields;
-    Fit.computed = Fit.(fields{1});
-    
     % Find voxels that are not empty
     if isfield(data,'Mask') && (~isempty(data.Mask))
         Voxels = find(all(data.Mask,2));
@@ -92,6 +83,17 @@ if Model.voxelwise % process voxelwise
         % Fit data
         tempFit = Model.fit(M);
         
+        % initialize the outputs
+        if ii==1 
+            fields =  fieldnames(tempFit)';
+            
+            for ii = 1:length(fields)
+                Fit.(fields{ii}) = zeros(x,y,z);
+            end
+            Fit.fields = fields;
+            Fit.computed = zeros(x,y,z);
+        end
+        
         % Assign current voxel fitted values
         for ff = 1:length(fields)
             Fit.(fields{ff})(vox) = tempFit.(fields{ff});
@@ -105,13 +107,9 @@ if Model.voxelwise % process voxelwise
         end
     end
     
+    % delete waitbar
     if (~isempty(h));  delete(h); end
     
-    % Reshape Fit
-    for ff = 1:length(fields)
-        Fit.(fields{ff}) = reshape(Fit.(fields{ff}),x,y,z);
-    end
-    Fit.computed = reshape(Fit.computed,x,y,z);
 else % process entire volume
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
