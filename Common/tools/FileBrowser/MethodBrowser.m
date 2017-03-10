@@ -18,7 +18,7 @@ classdef MethodBrowser < handle
         
         ItemsList; % is a list of the class BrowserSet objects
         NbItems;
-        MethodID;        
+        MethodID = 'unassigned';        
     end
     
     
@@ -86,6 +86,12 @@ classdef MethodBrowser < handle
             else
                 Res = 1;
             end
+        end
+        
+        %------------------------------------------------------------------
+        % GetMethod
+        function Res = GetMethod(obj)
+            Res = obj.MethodID;
         end
         
         %------------------------------------------------------------------

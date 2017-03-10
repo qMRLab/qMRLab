@@ -1,0 +1,1 @@
+% qMT using Spoiled Gradient Echo (or FLASH)

@@ -49,6 +49,7 @@ handles.FitDataDim = [];
 handles.FitDataSize = [];
 handles.FitDataSlice = [];
 handles.dcm_obj = [];
+MethodList = {}; SetAppData(MethodList);
 handles.output = hObject;
 guidata(hObject, handles);
 
@@ -105,9 +106,13 @@ end
 
 % list methods
 methods=sct_tools_ls([folderinit filesep '*.m'], 0, 1, 2);
+MethodList = GetAppData('MethodList');
+MethodList = {MethodList{:} methods{:}};
+SetAppData(MethodList)
 for im = 1:length(methods)
     uimenu(parent,'Label',methods{im},'Callback', @(x,y) MethodMenu_Callback(hObject,eventdata,guidata(hObject),strrep(methods{im},'.m','')));
 end
+
 
 
 
@@ -124,7 +129,6 @@ if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');
     LoadDefaultOptions(PathName);
-    
 else
     % Update Options Panel
     set(handles.uipanel35,'Visible','off') % hide the simulation panel
@@ -137,10 +141,19 @@ if ~isempty(h)
 end
 OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
+MethodList = getappdata(0, 'MethodList');
+MethodList = strrep(MethodList, '.m', '');
+if ~isfield(handles,'FileBrowserList');
+    % Create File Browser uicontrols for all methods if doesn't exist
+    MethodCount = numel(MethodList);
+    FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
+    FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
+    handles.FileBrowserList = FileBrowserList;
+else 
+    handles.FileBrowser.Visible('off'); % hide the current FileBrowser item
+end
 
-% delete objects in browser panel
-delete(setdiff(findobj(handles.FitDataFileBrowserPanel),handles.FitDataFileBrowserPanel));
-% Create browser panel buttons
+% Create browser panel b uttons
 switch Method
     case 'bSSFP'
         MRIinputs = {'Mask' 'MTdata' 'R1map'};
@@ -152,7 +165,14 @@ switch Method
         Model = getappdata(0,'Model');
         MRIinputs = Model.MRIinputs;
 end
-handles.FileBrowser = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
+
+MethodNum = find(strcmp(MethodList, Method));
+if strcmp(handles.FileBrowserList(MethodNum).GetMethod, 'unassigned')
+	% create file browser uicontrol with specific inputs
+    handles.FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
+end
+handles.FileBrowser = handles.FileBrowserList(MethodNum); % no need to delete, reference to list object.
+handles.FileBrowser.Visible('on');
 guidata(hObject, handles);
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)
