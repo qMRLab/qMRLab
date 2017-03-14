@@ -18,6 +18,9 @@ classdef MTSAT
     end
     
     methods
+        function obj = CHARMED
+            obj = button2opts(obj);
+        end
         
         function FitResult = fit(obj,data)
             MTparams = obj.Prot(1,:); 

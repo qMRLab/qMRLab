@@ -1,6 +1,6 @@
 classdef NODDI
     properties
-        MRIinputs = {'MTdata','Mask'};
+        MRIinputs = {'DiffusionData','Mask'};
         xnames = { };
         
         % fitting options
@@ -56,7 +56,7 @@ classdef NODDI
             protocol = SchemeToProtocol(obj.Prot);
             
             % fit
-            [xopt] = ThreeStageFittingVoxel(double(max(eps,data.MTdata)), protocol, model);
+            [xopt] = ThreeStageFittingVoxel(double(max(eps,data.DiffusionData)), protocol, model);
 
             % Outputs
             xnames = model.paramsStr;
@@ -74,7 +74,7 @@ classdef NODDI
                         
             % plot
             if exist('data','var')
-                h = scd_display_qspacedata3D(data.MTdata,Prot,fibredir);
+                h = scd_display_qspacedata3D(data.DiffusionData,Prot,fibredir);
                 hold on
                 % remove data legends
                 for iD = 1:length(h)

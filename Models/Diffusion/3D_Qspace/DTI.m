@@ -2,7 +2,8 @@ classdef DTI
     properties
         MRIinputs = {'MTdata','Mask'};
         xnames = { 'FA','L1','L2','L3'};
-        
+        voxelwise = 1;
+
         % fitting options
         st           =  [  0.7	0.5    0.5	 0.5]; % starting point
         lb            = [  0       0       0       0]; % lower bound

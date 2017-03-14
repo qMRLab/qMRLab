@@ -57,12 +57,11 @@ guidata(hObject, handles);
 load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
 
 % add custom models
-CUSTOM=[qMRILabDir filesep 'Custom'];
-addCustomMenu(hObject, eventdata, handles, handles.ChooseMethod,CUSTOM);
+ModelDir=[qMRILabDir filesep 'Models'];
+addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
 
 % Set Default
-default_method_value = find(strcmp(get(handles.MethodMenu, 'String'),Method));
-set(handles.MethodMenu, 'Value', default_method_value);
+set(handles.MethodMenu, 'String', Method);
 
 % cd(fullfile(handles.root, Method));
 LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
@@ -95,13 +94,13 @@ for k=1:length(Fields)
     rmappdata(0, Fields{k});
 end
 
-function addCustomMenu(hObject, eventdata, handles, parent,folderinit)
+function addModelMenu(hObject, eventdata, handles, parent,folderinit)
 % list folders
 folders=sct_tools_ls([folderinit filesep '*'], 0, 1, 1);
 Nfolders = length(folders);
 for iff = 1:Nfolders
     child = uimenu(parent,'Label',folders{iff});
-    addCustomMenu(hObject, eventdata, handles,child,[folderinit filesep folders{iff}]);
+    addModelMenu(hObject, eventdata, handles,child,[folderinit filesep folders{iff}]);
 end
 
 % list methods
@@ -124,7 +123,7 @@ end
 function MethodMenu_Callback(hObject, eventdata, handles,Method)
 SetAppData(Method)
 set(handles.MethodMenu,'String',Method)
-handles.method = fullfile(handles.root,Method);
+handles.method = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.method,'Parameters');

@@ -1,0 +1,14 @@
+function Prot = ProtLoad(fullfilepath)
+[~,~,ext] = fileparts(fullfilepath);
+filterindex = find(cellfun(@isempty,strfind({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},ext))==0);
+switch filterindex
+    case 1
+        Prot = load(fullfilepath);
+    case 2
+        Prot = xlsread(fullfilepath);
+    case 3
+        Prot = txt2mat(fullfilepath);
+end
+Model = getappdata(0,'Model');
+Model.Prot = Prot;
+setappdata(0,'Model',Model);

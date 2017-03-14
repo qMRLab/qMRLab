@@ -1,4 +1,0 @@
-bSSFP Mask MTdata R1map
-SIRFSE Mask MTdata
-SPGR MTdata Mask R1map B1map B0map 
-MTSAT Mask MTdata PDdata T1data

@@ -180,19 +180,9 @@ function FitOptTable_CreateFcn(hObject, eventdata, handles)
 
 % LOAD
 function ProtLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName,filterindex] = uigetfile({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},'Load Protocol Matrix');
+[FileName,PathName] = uigetfile({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},'Load Protocol Matrix');
 if PathName == 0, return; end
-switch filterindex
-    case 1
-        Prot = load(fullfile(PathName,FileName));
-    case 2
-        Prot = xlsread(fullfile(PathName,FileName));
-    case 3
-        Prot = txt2mat(fullfile(PathName,FileName));
-end
-Model = getappdata(0,'Model');
-Model.Prot = Prot;
-setappdata(0,'Model',Model);
+Prot = ProtLoad(fullfilepath);
 set(handles.tableProt,'Data',Prot)
 set(handles.ProtFileName,'String',FileName);
 

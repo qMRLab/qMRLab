@@ -1,6 +1,6 @@
 classdef CHARMED
 % ----------------------------------------------------------------------------------------------------
-% CHARMED :  Composite Hindered and Restricted Model for Diffusion
+% CHARMED :  Composite Hindered and Restricted Model for Diffusion 
 % ----------------------------------------------------------------------------------------------------
 % Assumptions :
 % (1) Diffusion gradients are applied perpendicularly to the neuronal fibers
@@ -11,17 +11,19 @@ classdef CHARMED
 % ----------------------------------------------------------------------------------------------------
 %
 %  Fitted Parameters:
-%   - fh :     fraction of water in the hindered compartment
-%   - Dh :    Apparent diffusion coefficient of the hindered compartment
-%   - axon diameter index : Mean axonal diameter 
+%    * fh :     fraction of water in the hindered compartment
+%    * Dh :    Apparent diffusion coefficient of the hindered compartment
+%    * axon diameter index : Mean axonal diameter 
 %                                           (weighted by the axonal area --> biased toward the larger axons).
 %                                            fixed to 0 --> stick model (recommended if Gmax < 300mT/m)
-%   - fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
-%   - lc :  length of coherence. Models the time dependence of the hindered compartment.
+%    * fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
+%    * lc :  length of coherence. Models the time dependence of the hindered
+%   compartment. Els Fieremans et al. Neuroimage 2016.
+%    
 %
-%   Non-Fitted Parameters:
-%   - fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
-%   - residue : Fitting residue.
+%  Non-Fitted Parameters:
+%    * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
+%    * residue : Fitting residue.
 %
 %
 % Options:
@@ -38,7 +40,7 @@ classdef CHARMED
 properties
         MRIinputs = {'DiffusionData','Mask'}; % input data required
         xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
-        voxelwise = 1;
+        voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
         st           = [0.6     0.7        6         0         0 ]; % starting point
@@ -52,11 +54,15 @@ properties
         
         % Model options
         buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'}};
-        options= struct();
+        options= struct(); % structure filled by the buttons. Leave empty in the code
 
     end
     
     methods
+        function obj = CHARMED
+            obj = button2opts(obj);
+        end
+        
         function Smodel = equation(obj, x)
             x = [x(1:3) 0 x(4:end)]; % add diameter STD parameter (used in the original AxCaliber model)
             opt=obj.options;
@@ -109,6 +115,7 @@ properties
         end
         
         function plotmodel(obj, x, data)
+            % u.plotmodel(u.st)
             if isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
                     xtmp(ix) = x.(obj.xnames{ix});
