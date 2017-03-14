@@ -4,6 +4,8 @@ filterindex = find(cellfun(@isempty,strfind({'*.mat';'*.xls;*.xlsx';'*.txt;*.sch
 switch filterindex
     case 1
         Prot = load(fullfilepath);
+        fields = (fieldnames(Prot));
+        Prot = Prot.(fields{1});
     case 2
         Prot = xlsread(fullfilepath);
     case 3

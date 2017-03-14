@@ -182,6 +182,7 @@ function FitOptTable_CreateFcn(hObject, eventdata, handles)
 function ProtLoad_Callback(hObject, eventdata, handles)
 [FileName,PathName] = uigetfile({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},'Load Protocol Matrix');
 if PathName == 0, return; end
+fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
 set(handles.tableProt,'Data',Prot)
 set(handles.ProtFileName,'String',FileName);
