@@ -53,8 +53,8 @@ classdef BrowserSet < handle
                     Location = Location + [0.1, 0];
                     Position = [Location, 0.1, 0.1];
                     obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'Browse', 'Position', Position, 'FontSize', 0.6, ...
-                    'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                        'String', 'Browse', 'Position', Position, 'FontSize', 0.6, ...
+                        'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
                 end 
 
                 Location = Location + [0.11, 0];
@@ -83,6 +83,12 @@ classdef BrowserSet < handle
             set(obj.BrowseBtn, 'Visible', Visibility);
             set(obj.FileBox, 'Visible', Visibility);
             set(obj.ViewBtn, 'Visible', Visibility);
+        end
+        
+        %------------------------------------------------------------------
+        % -- GetFileName
+        function FileName = GetFileName(obj)
+            FileName = get(obj.FileBox, 'string');
         end
         
         
