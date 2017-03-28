@@ -1,6 +1,6 @@
 classdef DTI
     properties
-        MRIinputs = {'MTdata','Mask'};
+        MRIinputs = {'Diffusiondata','Mask'};
         xnames = { 'FA','L1','L2','L3'};
         voxelwise = 1;
 
@@ -31,7 +31,7 @@ classdef DTI
         
         function FitResults = fit(obj,data)
             Prot = ConvertSchemeUnits(obj.Prot);
-            data = data.MTdata;
+            data = data.Diffusiondata;
             % fit
             D=scd_model_dti(data./scd_preproc_getIb0(data,Prot),Prot);
             [~,L]=eig(D); L = sort(diag(L),'descend');
@@ -46,7 +46,7 @@ classdef DTI
         end
         
         function plotmodel(obj, FitResults, data)
-            data = data.MTdata;
+            data = data.Diffusiondata;
             % Prepare inputs
             Prot = ConvertSchemeUnits(obj.Prot);
             
