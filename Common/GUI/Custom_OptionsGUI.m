@@ -53,10 +53,12 @@ Nparam=length(Model.xnames);
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
     FitOptTable(:,1)=Model.xnames(:);
-    FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1));
-    FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
-    FitOptTable(:,4)=mat2cell(Model.lb(:),ones(Nparam,1));
-    FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
+    if ~isempty(Model.fx),    FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1)); end
+    if ~isempty(Model.st),
+        FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
+        FitOptTable(:,4)=mat2cell(Model.lb(:),ones(Nparam,1));
+        FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
+    end
     set(handles.FitOptTable,'Data',FitOptTable)
 end
 
@@ -142,15 +144,17 @@ Model = getappdata(0,'Model');
 Model.xnames = fittingtable(:,1)';
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
-    Model.fx = cell2mat(fittingtable(:,2)');
-    Model.st = cell2mat(fittingtable(:,3)');
-    Model.lb = cell2mat(fittingtable(:,4)');
-    Model.ub = cell2mat(fittingtable(:,5)');
-    % check that starting point > lb and < ub
-    Model.st = max([Model.st; Model.lb],[],1);
-    Model.st = min([Model.st; Model.ub],[],1);
-    fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
-    set(handles.FitOptTable,'Data',fittingtable);
+    if size(fittingtable,2)>1, Model.fx = cell2mat(fittingtable(:,2)'); end
+    if size(fittingtable,2)>2
+        Model.st = cell2mat(fittingtable(:,3)');
+        Model.lb = cell2mat(fittingtable(:,4)');
+        Model.ub = cell2mat(fittingtable(:,5)');
+        % check that starting point > lb and < ub
+        Model.st = max([Model.st; Model.lb],[],1);
+        Model.st = min([Model.st; Model.ub],[],1);
+        fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
+        set(handles.FitOptTable,'Data',fittingtable);
+    end
 end
 % ModelOptions
 opts = Model.buttons;

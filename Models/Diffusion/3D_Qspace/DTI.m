@@ -5,10 +5,10 @@ classdef DTI
         voxelwise = 1;
 
         % fitting options
-        st           =  [  0.7	0.5    0.5	 0.5]; % starting point
-        lb            = [  0       0       0       0]; % lower bound
-        ub           = [ 1        3       3       3]; % upper bound
-        fx            = [ 0        0        0       0]; % fix parameters
+        st           = []; %[ 0.7	0.5    0.5	 0.5]; % starting point
+        lb            = []; %[  0       0       0       0]; % lower bound
+        ub           = []; %[ 1        3       3       3]; % upper bound
+        fx            = [ ]; %0        0        0       0]; % fix parameters
         
         % Protocol
         ProtFormat ={'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; 
