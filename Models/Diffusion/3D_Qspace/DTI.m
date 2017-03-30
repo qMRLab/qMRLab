@@ -30,6 +30,7 @@ classdef DTI
         end
         
         function FitResults = fit(obj,data)
+            if isempty(obj.Prot) || size(obj.Prot,1)~=length(data.Diffusiondata(:)), errordlg('Load a valid protocol'); FitResults=[]; return; end
             Prot = ConvertSchemeUnits(obj.Prot);
             data = data.Diffusiondata;
             % fit
@@ -46,6 +47,7 @@ classdef DTI
         end
         
         function plotmodel(obj, FitResults, data)
+            if isempty(FitResults), return; end
             data = data.Diffusiondata;
             % Prepare inputs
             Prot = ConvertSchemeUnits(obj.Prot);
