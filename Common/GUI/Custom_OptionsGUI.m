@@ -184,6 +184,7 @@ function ProtLoad_Callback(hObject, eventdata, handles)
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
+if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.tableProt,'Data',Prot)
 set(handles.ProtFileName,'String',FileName);
 
@@ -201,3 +202,37 @@ function Helpbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 doc(class(getappdata(0,'Model')))
+
+
+% --- Executes on button press in Default.
+function Default_Callback(hObject, eventdata, handles)
+% hObject    handle to Default (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+oldModel = getappdata(0,'Model');
+modelfun = str2func(class(oldModel));
+Model = modelfun();
+setappdata(0,'Model',Model);
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+
+% --- Executes on button press in Load.
+function Load_Callback(hObject, eventdata, handles)
+[FileName,PathName] = uigetfile('*.mat');
+if PathName == 0, return; end
+load(fullfile(PathName,FileName));
+oldModel = getappdata(0,'Model');
+if ~isa(Model,class(oldModel))
+    errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
+    return;
+end
+setappdata(0,'Model',Model)
+set(handles.ParametersFileName,'String',FileName);
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+
+
+
+% --- Executes on button press in Save.
+function Save_Callback(hObject, eventdata, handles)
+Model = getappdata(0,'Model');
+[file,path] = uiputfile([class(Model) 'Parameters.mat'],'Save file name');
+save(fullfile(path,file),'Model')
