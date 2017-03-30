@@ -38,45 +38,51 @@ end
 
 % --- Executes just before qMRILab is made visible.
 function qMRILab_OpeningFcn(hObject, eventdata, handles, varargin)
-clc;
-% startup;
-qMRILabDir = fileparts(which(mfilename()));
-addpath(genpath(qMRILabDir));
-handles.root = qMRILabDir;
-handles.method = '';
-handles.CurrentData = [];
-handles.FitDataDim = [];
-handles.FitDataSize = [];
-handles.FitDataSlice = [];
-handles.dcm_obj = [];
-MethodList = {}; SetAppData(MethodList);
-handles.output = hObject;
-guidata(hObject, handles);
-
-% LOAD DEFAULTS
-load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-
-% add custom models
-ModelDir=[qMRILabDir filesep 'Models'];
-addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
-
-% Set Default
-set(handles.MethodMenu, 'String', Method);
-
-% cd(fullfile(handles.root, Method));
-LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
-LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
-
-
-% SET WINDOW AND PANELS
-movegui(gcf,'center')
-CurrentPos = get(gcf, 'Position');
-NewPos     = CurrentPos;
-NewPos(1)  = CurrentPos(1) - 40;
-set(gcf, 'Position', NewPos);
-
-SetActive('FitData', handles);
-MethodMenu_Callback(hObject, eventdata, handles,Method);
+if ~isfield(handles,'opened') % qMRI already opened?
+    handles.opened = 1;
+    clc;
+    % startup;
+    qMRILabDir = fileparts(which(mfilename()));
+    addpath(genpath(qMRILabDir));
+    handles.root = qMRILabDir;
+    handles.method = '';
+    handles.CurrentData = [];
+    handles.FitDataDim = [];
+    handles.FitDataSize = [];
+    handles.FitDataSlice = [];
+    handles.dcm_obj = [];
+    MethodList = {}; SetAppData(MethodList);
+    handles.output = hObject;
+    guidata(hObject, handles);
+    
+    % LOAD DEFAULTS
+    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
+    
+    % add custom models
+    ModelDir=[qMRILabDir filesep 'Models'];
+    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
+    
+    
+    % Set Default
+    set(handles.MethodMenu, 'String', Method);
+    
+    % cd(fullfile(handles.root, Method));
+    LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
+    LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
+    
+    
+    % SET WINDOW AND PANELS
+    movegui(gcf,'center')
+    CurrentPos = get(gcf, 'Position');
+    NewPos     = CurrentPos;
+    NewPos(1)  = CurrentPos(1) - 40;
+    set(gcf, 'Position', NewPos);
+    
+    SetActive('FitData', handles);
+    MethodMenu_Callback(hObject, eventdata, handles,Method);
+else
+    OpenOptionsPanel_Callback(hObject, eventdata, handles)
+end
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRILab_OutputFcn(hObject, eventdata, handles)
@@ -150,7 +156,7 @@ if ~isfield(handles,'FileBrowserList');
     FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
     SetAppData(FileBrowserList);
     handles.FileBrowserList = FileBrowserList;
-else 
+else
     FileBrowserList = GetAppData('FileBrowserList');
 end
 
@@ -173,7 +179,7 @@ end
 
 MethodNum = find(strcmp(MethodList, Method));
 if strcmp(FileBrowserList(MethodNum).GetMethod, 'unassigned')
-	% create file browser uicontrol with specific inputs
+    % create file browser uicontrol with specific inputs
     FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
 end
 
