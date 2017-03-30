@@ -11,8 +11,8 @@ if ~exist('Marker','var'), Marker='x'; end
 if ~exist('Linestyle','var'), Linestyle='none'; end
 
 
-Gz=scheme(:,1:3)*fibredir(:);
-absc = Gz;
+Gparr=scheme(:,1:3)*fibredir(:);
+absc = Gparr;
 [absc,II] = sort(absc); scheme = scheme(II,:); data = data(II);
 bval = scd_scheme_bvalue(scheme);
 
@@ -65,7 +65,7 @@ for iD=1:ND
     end
 end
 
-xlabel('Gz/|G|','FontSize',15); 
+xlabel('G_{//}/|G|','FontSize',15); 
 ylabel('Signal','FontSize',15);
 
 
