@@ -59,7 +59,7 @@ if Model.voxelwise % process voxelwise
     %############################# FITTING LOOP ###############################
     % Create waitbar
     h=[];
-    if (wait)
+    if exist('wait','var') && (wait)
         h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
             'setappdata(gcbf,''canceling'',1)');
         setappdata(h,'canceling',0)
@@ -82,13 +82,14 @@ if Model.voxelwise % process voxelwise
         end
         % Fit data
         tempFit = Model.fit(M);
+        if isempty(tempFit), Fit=[]; return; end
         
         % initialize the outputs
         if ii==1 
             fields =  fieldnames(tempFit)';
             
-            for ii = 1:length(fields)
-                Fit.(fields{ii}) = zeros(x,y,z);
+            for ff = 1:length(fields)
+                Fit.(fields{ff}) = zeros(x,y,z,length(tempFit.(fields{ff})));
             end
             Fit.fields = fields;
             Fit.computed = zeros(x,y,z);
@@ -96,7 +97,8 @@ if Model.voxelwise % process voxelwise
         
         % Assign current voxel fitted values
         for ff = 1:length(fields)
-            Fit.(fields{ff})(vox) = tempFit.(fields{ff});
+            [xii,yii,zii] = ind2sub([x,y,z],vox);
+            Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
         end
         
         Fit.computed(ii) = 1;
