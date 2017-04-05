@@ -155,9 +155,9 @@ classdef BrowserSet < handle
             if ~exist('FileName','var')
                 obj.FullFile = get(obj.FileBox, 'String');
                 if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                    [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file');
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz';'*.mat';'*.img'},'Select file');
                 else
-                    [FileName,PathName] = uigetfile({'*.nii';'*.mat';'*.img'},'Select B1map file',obj.FullFile);
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz';'*.mat';'*.img'},'Select file',obj.FullFile);
                 end
             else
                 PathName = '';
