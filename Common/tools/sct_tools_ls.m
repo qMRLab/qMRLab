@@ -1,5 +1,5 @@
-function [list, path]=sct_tools_ls(fname, keeppath, keepext, folders,select,arborescence)
-% [list, path]=sct_tools_ls(fname, keeppath?, keepext?, folders?)
+function [list, path]=sct_tools_ls(fname, keeppath, keepext, folders,arborescence,select)
+% [list, path]=sct_tools_ls(fname, keeppath?, keepext?, folders?,recursive?)
 % Example: sct_tools_ls('ep2d*')
 % example 2: sct_tools_ls('*',[],[],1) --> folders only
 % example 3: sct_tools_ls('*',[],[],2) --> files only
@@ -7,8 +7,8 @@ function [list, path]=sct_tools_ls(fname, keeppath, keepext, folders,select,arbo
 if nargin < 2, keeppath=0; end
 if nargin < 3, keepext=1; end
 if nargin < 4 || isempty(folders), folders=0; end
-if nargin < 5 || isempty(select), select=0; end
-if nargin < 6, arborescence=0; end
+if nargin < 6 || isempty(select), select=0; end
+if nargin < 5, arborescence=0; end
 
 % [list, path]=sct_tools_ls('*T.txt);
 list=dir(fname);
@@ -41,9 +41,9 @@ if ~keepext
 end
 
 if arborescence
-    listdir = sct_tools_ls(path,1,[],1);
+    listdir = sct_tools_ls(path,1,1,1);
     for idir = 1:length(listdir)
-        list = [list, sct_tools_ls([listdir{idir} filesep name], keeppath, keepext, folders,0,arborescence)];
+        list = [list, sct_tools_ls([listdir{idir} filesep name], keeppath, keepext, folders,arborescence,0)];
     end
 end
 
