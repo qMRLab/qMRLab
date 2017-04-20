@@ -34,7 +34,7 @@ classdef DTI
             Prot = ConvertSchemeUnits(obj.Prot);
             data = data.Diffusiondata;
             % fit
-            D=scd_model_dti(data./scd_preproc_getIb0(data,Prot),Prot);
+            D=scd_model_dti(data./scd_preproc_getS0_T2(data,Prot),Prot);
             [~,L]=eig(D); L = sort(diag(L),'descend');
             FitResults.L1=L(1);
             FitResults.L2=L(2);
@@ -64,7 +64,7 @@ classdef DTI
             % plot
             if exist('data','var')
                 h = scd_display_qspacedata3D(data,Prot,fiberdirection);
-                S0 = scd_preproc_getIb0(data,Prot);
+                S0 = scd_preproc_getS0(data,Prot);
                 Smodel = S0.*Smodel;
                 hold on
                 % remove data legends
