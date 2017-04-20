@@ -1,4 +1,4 @@
-function Ib0 = scd_preproc_getIb0(data,scheme)
+function Ib0 = scd_preproc_getS0(data,scheme)
 TEs=unique(round(scheme(:,7)));
 Ib0=zeros(size(data));
 for i=1:length(TEs)

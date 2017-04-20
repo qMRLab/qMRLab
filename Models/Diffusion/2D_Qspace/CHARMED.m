@@ -19,6 +19,9 @@ classdef CHARMED
 %    * fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
 %    * lc :  length of coherence. Models the time dependence of the hindered
 %   compartment. Els Fieremans et al. Neuroimage 2016.
+%    * T2 :  in case of variable TE acquisition. fit T2 using data acquired
+%    at b<1000s/mm2
+
 %    
 %
 %  Non-Fitted Parameters:
@@ -39,21 +42,21 @@ classdef CHARMED
 
 properties
         MRIinputs = {'DiffusionData','Mask'}; % input data required
-        xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
+        xnames = {'fh','Dh','diameter_mean','fcsf','lc','T2'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [0.6     0.7        6         0         0 ]; % starting point
-        lb            = [0       0.3        3          0         0    ]; % lower bound
-        ub           = [1       3         10         1          20   ]; % upper bound
-        fx            = [0      0           0           1          1  ]; % fix parameters
+        st           = [0.6     0.7        6         0         0      0]; % starting point
+        lb            = [0       0.3        3          0         0    0]; % lower bound
+        ub           = [1       3         10         1          20    200]; % upper bound
+        fx            = [0      0           0           1          1  1]; % fix parameters
         
         % Protocol
         ProtFormat = {'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; % columns of the Protocol matrix. 
         Prot  = [ones(100,1) zeros(100,2) linspace(0,300,100)'*1e-3 0.040*ones(100,1) 0.003*ones(100,1) 0.070*ones(100,1)];
         
         % Model options
-        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'}};
+        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'},'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
 
     end
@@ -78,8 +81,12 @@ properties
             if nT~=size(obj.Prot,1), error(['<strong>Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.</strong>']); end
 
             Prot = ConvertSchemeUnits(obj.Prot);
-
-            S0 = scd_preproc_getIb0(data,Prot);
+            
+            if obj.st(6)
+                [S0,T2,obj.st(2)] = scd_preproc_getS0_T2(data,Prot,0,1000);
+            else
+                S0 = scd_preproc_getS0(data,Prot);
+            end
             
             %% FITTING
             % initiate with Gaussian noise assumption --> more stable fitting
@@ -101,6 +108,8 @@ properties
             obj.st(~fixedparam)=xopt; xopt = obj.st;
             
             %% OUTPUTS
+            % T2
+            xopt(end+1) = T2;
             % fr
             xopt(end+1) = 1 - xopt(4) - xopt(1); 
             obj.xnames{end+1}='fr';
