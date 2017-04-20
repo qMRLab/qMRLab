@@ -1,7 +1,7 @@
 function [scheme, qspace3D] = scd_schemefile_read(scheme_file,varargin)
 % load scheme files
 % scd_schemefile_read('acq.scheme',(units in SI?))
-% output: g_x  g_y  g_z  |G|(mT/um) Delta(ms) delta(ms) TE(ms) q(µm-1) acq#
+% output: g_x  g_y  g_z  |G|(mT/um) Delta(ms) delta(ms) TE(ms) q(ï¿½m-1) acq#
 % fid = fopen(scheme_file,'r');
 % scheme=cell2mat(textscan(fid,'%f %f %f %f %f %f %f','delimiter','\n','CommentStyle','#'));
 

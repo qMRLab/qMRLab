@@ -99,15 +99,15 @@ else % cylinders
         if (~onediam && Er_coeff(i_diam)>0.01) || i_diam==1
             R=diam(i_diam)/2;
             % Model #1 Gaussian Phase Distribution in cylinder
-            % b=(2*pi*q).^2.*(bigdelta-littledelta/3);
-            % Er_sum= Er_sum + resol*Er_coeff(i_diam).*exp(-b.*scd_model_GPD_RDr(R*2,bigdelta,littledelta,Dr));
+             b=(2*pi*q).^2.*(bigdelta-littledelta/3);
+             Er_sum= Er_sum + resol*Er_coeff(i_diam).*exp(-b.*scd_model_GPD_RDr(R*2,bigdelta,littledelta,Dr));
             %
             % Model #2 Gaussian Phase Distribution in cylinder from NODDI
             % TOOLBOX (FOR SANITY CHECK.. EXACTLY THE SAME)
             % Er_sum= Er_sum + resol*Er_coeff(i_diam).*exp(CylNeumanLePerp_PGSE(Dr*1e-9, R*1e-6, G*1e3, bigdelta*1e-3, littledelta*1e-3, BesselJ_RootsCyl));
             %
             % Model #2 Gaussian Phase Distribution in cylinder (same..)
-            Er_sum= Er_sum + resol*Er_coeff(i_diam).*scd_model_Cyl_GPD(R,G,bigdelta,littledelta,Dr);
+            %Er_sum= Er_sum + resol*Er_coeff(i_diam).*scd_model_Cyl_GPD(R,G,bigdelta,littledelta,Dr);
             % 
             % Model #3 Small Pulse Approx
             % Er_sum= Er_sum + resol*Er_coeff(i_diam).*scd_model_smallpulse(R,q,bigdelta,Dr);
