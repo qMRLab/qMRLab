@@ -19,9 +19,9 @@ y = log(datab0(:));
 TE = schemeb0(:, 7);
 N = length(TE);
 
-if length(unique(TE))>1
+if length(unique(TE))>1 && (max(TE)-min(TE(TE>0)))>10
     
-    if length(unique(scd_scheme_bvalue(schemeb0)))>1 && max(scd_scheme_bvalue(schemeb0))*1e3>30
+    if length(unique(scd_scheme_bvalue(schemeb0)))>1 && max(scd_scheme_bvalue(schemeb0))*1e3>100
         A = [ones(N,1), -TE -scd_scheme_bvalue(schemeb0)];
         
         % least square problem resolution
