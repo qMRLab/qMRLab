@@ -542,48 +542,11 @@ button = questdlg('Compute Sf table using current protocol settings?','Build Sf 
 if (~strcmp(button,'Start'))
     return;
 end
+
 Prot = GetProt(handles);
-angles = unique(Prot.Angles);
-SfAngles = zeros(length(angles)*3 +2,1);
-SfAngles(1) = 0;
-SfAngles(end) = max(angles)*1.5;
-minScale = 0.75;
-maxScale = 1.25;
 
-ind = 3;
-for i = 1:length(angles)
-    SfAngles(ind) = angles(i);
-    SfAngles(ind-1) = minScale*angles(i);
-    SfAngles(ind+1) = maxScale*angles(i);
-    ind = ind + 3;
-end
-SfAngles = unique(SfAngles);
+Sf = CacheSf(Prot);
 
-% Extend offsets limits and add midpoints
-offsets = unique(Prot.Offsets);
-SfOffsets = zeros(length(offsets)*4 +2,1);
-SfOffsets(1) = 100;
-SfOffsets(end) = max(offsets) + 1000;
-maxOff = 100;
-offsets = [0; offsets];
-ind = 4;
-for i = 2:length(offsets)
-    SfOffsets(ind-2) = 0.5*(offsets(i) + offsets(i-1));
-    SfOffsets(ind-1) = offsets(i) - maxOff;
-    SfOffsets(ind) = offsets(i);
-    SfOffsets(ind+1) = offsets(i) + maxOff;
-    ind = ind + 4;
-end
-SfOffsets = unique(SfOffsets);
-
-% T2f = linspace(FitOpt.lb(5), FitOpt.ub(5), 20);
-T2f = [0.0010 0.0050 0.0100 0.0150 0.0200 0.0250 0.0300 0.0350 0.0400 ...
-       0.0450 0.0500 0.0550 0.0600 0.0650 0.0700 0.0750 0.0800 0.0850 ...
-       0.0900 0.2500 0.5000 1.0000];
-Trf = Prot.Tm;
-shape = Prot.MTpulse.shape;
-PulseOpt = Prot.MTpulse.opt;
-Sf = BuildSfTable(SfAngles, SfOffsets, T2f, Trf, shape, PulseOpt);
 setappdata(0,'Sf',Sf);
 ProtSave_Callback(hObject, eventdata, handles)
 
