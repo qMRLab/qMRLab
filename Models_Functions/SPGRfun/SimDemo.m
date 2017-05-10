@@ -1,6 +1,6 @@
 %% Settings
 
-clear; clc;
+clc;
 Sim  = load('SPGR/Parameters/DefaultSim.mat');      % load default parameters
 Prot = load('SPGR/Parameters/DemoProtocol.mat');     % load default protocol
 FitOpt = load('SPGR/Parameters/DefaultFitOpt.mat');	% load default fit options
