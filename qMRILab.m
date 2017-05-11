@@ -81,6 +81,8 @@ MethodMenu_Callback(hObject, eventdata, handles,Method);
 % Outputs from this function are returned to the command line.
 function varargout = qMRILab_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
+wh=findall(0,'tag','TMWWaitbar');
+delete(wh);
 
 % Executes when user attempts to close qMRILab.
 function qMRILab_CloseRequestFcn(hObject, eventdata, handles)
@@ -304,17 +306,6 @@ for k=1:nargin; setappdata(0, inputname(k), varargin{k}); end
 % RMAPPDATA
 function RmAppData(varargin)
 for k=1:nargin; rmappdata(0, varargin{k}); end
-
-% CLEARAXES
-% function ClearAxes(handles)
-% cla(handles.SimCurveAxe1);
-% cla(handles.SimCurveAxe2);
-% cla(handles.SimCurveAxe);
-% cla(handles.SimVaryAxe);
-% cla(handles.SimRndAxe);
-% h = findobj(gcf,'Type','axes','Tag','legend');
-% delete(h);
-
 
 
 
