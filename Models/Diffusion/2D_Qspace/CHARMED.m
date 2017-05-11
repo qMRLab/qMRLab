@@ -1,61 +1,64 @@
 classdef CHARMED
-% ----------------------------------------------------------------------------------------------------
-% CHARMED :  Composite Hindered and Restricted Model for Diffusion 
-% ----------------------------------------------------------------------------------------------------
-% Assumptions :
-% (1) Diffusion gradients are applied perpendicularly to the neuronal fibers
-% (2) Neuronal fibers are parallel (orientational dispersion is negligible)
-% (3) The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
-% should have little impact if the average propagator is larger than axonal diameter (sqrt(2*Dr*Delta)>8µm).
-% (4) permeability of the neuronal fibers is negligible
-% ----------------------------------------------------------------------------------------------------
-%
-%  Fitted Parameters:
-%    * fh :     fraction of water in the hindered compartment
-%    * Dh :    Apparent diffusion coefficient of the hindered compartment
-%    * axon diameter index : Mean axonal diameter 
-%                                           (weighted by the axonal area --> biased toward the larger axons).
-%                                            fixed to 0 --> stick model (recommended if Gmax < 300mT/m)
-%    * fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
-%    * lc :  length of coherence. Models the time dependence of the hindered
-%   compartment. Els Fieremans et al. Neuroimage 2016.
-%    
-%
-%  Non-Fitted Parameters:
-%    * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
-%    * residue : Fitting residue.
-%
-%
-% Options:
-%   Sigma of the noise : Standard deviation of the noise, assuming Rician.
-%                                       Use scd_noise_std_estimation to
-%                                       measure noise level
-%                                       If "Compute sigma noise per pixel" is checked, STD across >5 repetitions is used.
-% ----------------------------------------------------------------------------------------------------
-% Written by: Tanguy Duval, 2016
-% Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted 
-% model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
-% ----------------------------------------------------------------------------------------------------
-
-properties
+    % ----------------------------------------------------------------------------------------------------
+    % CHARMED :  Composite Hindered and Restricted Model for Diffusion
+    % ----------------------------------------------------------------------------------------------------
+    % Assumptions :
+    % (1) Diffusion gradients are applied perpendicularly to the neuronal fibers
+    % (2) Neuronal fibers are parallel (orientational dispersion is negligible)
+    % (3) The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
+    % should have little impact if the average propagator is larger than axonal diameter (sqrt(2*Dr*Delta)>8µm).
+    % (4) permeability of the neuronal fibers is negligible
+    % ----------------------------------------------------------------------------------------------------
+    %
+    %  Fitted Parameters:
+    %    * fh :     fraction of water in the hindered compartment
+    %    * Dh :    Apparent diffusion coefficient of the hindered compartment
+    %    * axon diameter index : Mean axonal diameter
+    %                                           (weighted by the axonal area --> biased toward the larger axons).
+    %                                            fixed to 0 --> stick model (recommended if Gmax < 300mT/m)
+    %    * fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
+    %    * lc :  length of coherence. Models the time dependence of the hindered
+    %   compartment. Els Fieremans et al. Neuroimage 2016.    
+    %
+    %
+    %  Non-Fitted Parameters:
+    %    * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
+    %    * residue : Fitting residue.
+    %
+    %
+    % Options:
+    %   Sigma of the noise : Standard deviation of the noise, assuming Rician.
+    %                                       Use scd_noise_std_estimation to
+    %                                       measure noise level
+    %                                       If "Compute sigma noise per pixel" is checked, STD across >5 repetitions is used.
+    %   S0 normalization :
+    %     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
+    %     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
+    % ----------------------------------------------------------------------------------------------------
+    % Written by: Tanguy Duval, 2016
+    % Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted
+    % model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+    % ----------------------------------------------------------------------------------------------------
+    
+    properties
         MRIinputs = {'DiffusionData','Mask'}; % input data required
         xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [0.6     0.7        6         0         0 ]; % starting point
+        st           = [0.6     0.7        6         0         0      ]; % starting point
         lb            = [0       0.3        3          0         0    ]; % lower bound
-        ub           = [1       3         10         1          20   ]; % upper bound
+        ub           = [1       3         10         1          20    ]; % upper bound
         fx            = [0      0           0           1          1  ]; % fix parameters
         
         % Protocol
-        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; % columns of the Protocol matrix. 
+        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; % columns of the Protocol matrix.
         Prot  = [ones(100,1) zeros(100,2) linspace(0,300,100)'*1e-3 0.040*ones(100,1) 0.003*ones(100,1) 0.070*ones(100,1)];
         
         % Model options
-        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'}};
+        buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'},'S0 normalization',{'Use b=0','Single T2 compartment'},'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
-
+        
     end
     
     methods
@@ -76,10 +79,16 @@ properties
             % Prepare data
             data = max(eps,double(data.DiffusionData)); nT=length(data);
             if nT~=size(obj.Prot,1), error(['<strong>Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.</strong>']); end
-
+            
             Prot = ConvertSchemeUnits(obj.Prot);
-
-            S0 = scd_preproc_getIb0(data,Prot);
+            
+            switch obj.options.S0Normalization
+                case 'Single T2 compartment'
+                    [S0,T2,obj.st(2)] = scd_preproc_getS0_T2(Prot,data,0,1000);
+                    S0 = S0*exp(-Prot(:,7)./T2);
+                case 'Use b=0'
+                    S0 = scd_preproc_getS0(data,Prot);
+            end
             
             %% FITTING
             % initiate with Gaussian noise assumption --> more stable fitting
@@ -101,8 +110,13 @@ properties
             obj.st(~fixedparam)=xopt; xopt = obj.st;
             
             %% OUTPUTS
+            % T2
+            if exist('T2','var')
+                xopt(end+1) = T2;
+                obj.xnames{end+1}='T2';
+            end
             % fr
-            xopt(end+1) = 1 - xopt(4) - xopt(1); 
+            xopt(end+1) = 1 - xopt(4) - xopt(1);
             obj.xnames{end+1}='fr';
             % residue
             xopt(end+1) = residue;
@@ -127,7 +141,14 @@ properties
             Smodel=obj.equation(x);
             % plot data
             if nargin>2
-                S0 = scd_preproc_getIb0(data.DiffusionData,Prot); Smodel = Smodel.*S0;
+                switch obj.options.S0Normalization
+                    case 'Single T2 compartment'
+                        [S0, T2]= scd_preproc_getS0_T2(Prot,data.DiffusionData,0,1000);
+                        S0 = S0*exp(-Prot(:,7)./T2);
+                    case 'Use b=0'
+                        S0 = scd_preproc_getS0(data.DiffusionData,Prot);
+                end
+                Smodel = Smodel.*S0;
                 h = scd_display_qspacedata(data.DiffusionData,Prot,strcmp(obj.options.DisplayType,'b-value'));
                 hold on
                 % remove data legends
@@ -140,10 +161,10 @@ properties
             
             % plot fitting curves
             scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'none','-');
-           
+            
             hold off
         end
-           
+        
     end
 end
 

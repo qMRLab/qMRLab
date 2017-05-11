@@ -1,5 +1,7 @@
 function [] = scd_schemefile_write(scheme,filename)
 % scd_schemefile_write(scheme,filename)
+% units input are mT, um, ms
+% units output are SI
 % example: scd_schemefile_write(scheme,'exp.scheme')
 
 

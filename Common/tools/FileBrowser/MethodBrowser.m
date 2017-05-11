@@ -82,9 +82,9 @@ classdef MethodBrowser < handle
         % IsMethod
         function Res = IsMethodID(obj, NameID)
             if strcmp(obj.MethodID, NameID)
-                Res = 0;
-            else
                 Res = 1;
+            else
+                Res = 0;
             end
         end
         
@@ -175,7 +175,7 @@ classdef MethodBrowser < handle
         function FileName = getFileName(obj)
             for i=1:obj.NbItems
                 fN = get(obj.ItemsList(i).NameText,'String');
-                FileName.(fN{1}) = get(obj.ItemsList(i).FileBox,'String');
+                FileName.(fN{1}) = obj.ItemsList(i).GetFileName;
             end
         end
         

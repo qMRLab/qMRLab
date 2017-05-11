@@ -38,45 +38,51 @@ end
 
 % --- Executes just before qMRILab is made visible.
 function qMRILab_OpeningFcn(hObject, eventdata, handles, varargin)
-clc;
-% startup;
-qMRILabDir = fileparts(which(mfilename()));
-addpath(genpath(qMRILabDir));
-handles.root = qMRILabDir;
-handles.method = '';
-handles.CurrentData = [];
-handles.FitDataDim = [];
-handles.FitDataSize = [];
-handles.FitDataSlice = [];
-handles.dcm_obj = [];
-MethodList = {}; SetAppData(MethodList);
-handles.output = hObject;
-guidata(hObject, handles);
-
-% LOAD DEFAULTS
-load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-
-% add custom models
-ModelDir=[qMRILabDir filesep 'Models'];
-addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
-
-% Set Default
-set(handles.MethodMenu, 'String', Method);
-
-% cd(fullfile(handles.root, Method));
-LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
-LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
-
-
-% SET WINDOW AND PANELS
-movegui(gcf,'center')
-CurrentPos = get(gcf, 'Position');
-NewPos     = CurrentPos;
-NewPos(1)  = CurrentPos(1) - 40;
-set(gcf, 'Position', NewPos);
-
-SetActive('FitData', handles);
-MethodMenu_Callback(hObject, eventdata, handles,Method);
+if ~isfield(handles,'opened') % qMRI already opened?
+    handles.opened = 1;
+    clc;
+    % startup;
+    qMRILabDir = fileparts(which(mfilename()));
+    addpath(genpath(qMRILabDir));
+    handles.root = qMRILabDir;
+    handles.method = '';
+    handles.CurrentData = [];
+    handles.FitDataDim = [];
+    handles.FitDataSize = [];
+    handles.FitDataSlice = [];
+    handles.dcm_obj = [];
+    MethodList = {}; SetAppData(MethodList);
+    handles.output = hObject;
+    guidata(hObject, handles);
+    
+    % LOAD DEFAULTS
+    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
+    
+    % add custom models
+    ModelDir=[qMRILabDir filesep 'Models'];
+    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
+    
+    
+    % Set Default
+    set(handles.MethodMenu, 'String', Method);
+    
+    % cd(fullfile(handles.root, Method));
+    LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
+    LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
+    
+    
+    % SET WINDOW AND PANELS
+    movegui(gcf,'center')
+    CurrentPos = get(gcf, 'Position');
+    NewPos     = CurrentPos;
+    NewPos(1)  = CurrentPos(1) - 40;
+    set(gcf, 'Position', NewPos);
+    
+    SetActive('FitData', handles);
+    MethodMenu_Callback(hObject, eventdata, handles,Method);
+else
+    OpenOptionsPanel_Callback(hObject, eventdata, handles)
+end
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRILab_OutputFcn(hObject, eventdata, handles)
@@ -144,17 +150,23 @@ OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
 MethodList = getappdata(0, 'MethodList');
 MethodList = strrep(MethodList, '.m', '');
+MethodCount = numel(MethodList);
+
 if ~isfield(handles,'FileBrowserList');
     % Create File Browser uicontrols for all methods if doesn't exist
-    MethodCount = numel(MethodList);
     FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
     FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
+    SetAppData(FileBrowserList);
     handles.FileBrowserList = FileBrowserList;
-else 
-    handles.FileBrowser.Visible('off'); % hide the current FileBrowser item
+else
+    FileBrowserList = GetAppData('FileBrowserList');
 end
 
-% Create browser panel b uttons
+for i=1:MethodCount
+    FileBrowserList(i).Visible('off');
+end
+
+% Create browser panel buttons
 switch Method
     case 'bSSFP'
         MRIinputs = {'Mask' 'MTdata' 'R1map'};
@@ -168,12 +180,13 @@ switch Method
 end
 
 MethodNum = find(strcmp(MethodList, Method));
-if strcmp(handles.FileBrowserList(MethodNum).GetMethod, 'unassigned')
-	% create file browser uicontrol with specific inputs
-    handles.FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
+if strcmp(FileBrowserList(MethodNum).GetMethod, 'unassigned')
+    % create file browser uicontrol with specific inputs
+    FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
 end
-handles.FileBrowser = handles.FileBrowserList(MethodNum); % no need to delete, reference to list object.
-handles.FileBrowser.Visible('on');
+
+FileBrowserList(MethodNum).Visible('on');
+SetAppData(FileBrowserList);
 guidata(hObject, handles);
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)
@@ -932,10 +945,20 @@ else
 end
 
 % Save info with results
-FitResults.StudyID = handles.FileBrowser.getStudyID;
-FitResults.WD = handles.FileBrowser.getWD;
+FileBrowserList = GetAppData('FileBrowserList');
+MethodList = getappdata(0, 'MethodList');
+MethodList = strrep(MethodList, '.m', '');
+MethodCount = numel(MethodList);
+
+for i=1:MethodCount
+    if FileBrowserList(i).IsMethodID(Method)
+        MethodID = i;
+    end
+end
+FitResults.StudyID = FileBrowserList(MethodID).getStudyID;
+FitResults.WD = FileBrowserList(MethodID).getWD;
 if isempty(FitResults.WD), FitResults.WD = pwd; end
-FitResults.Files = handles.FileBrowser.getFileName;
+FitResults.Files = FileBrowserList(MethodID).getFileName;
 SetAppData(FitResults);
 
 % Kill the waitbar in case of a problem occured
@@ -966,6 +989,7 @@ for i = 1:length(FitResults.fields)
     end
 end
 
+SetAppData(FileBrowserList);
 % Show results
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
@@ -1005,15 +1029,16 @@ set(handles.MethodMenu,'Value',val)
 
 MethodMenu_Callback(hObject, eventdata, handles,Method)
 handles = guidata(hObject); % update handle
-
-if isfield(FitResults,'WD'), handles.FileBrowser.setWD(FitResults.WD); end
-if isfield(FitResults,'StudyID'), handles.FileBrowser.setStudyID(FitResults.StudyID); end
+FileBrowserList = GetAppData('FileBrowserList');
+if isfield(FitResults,'WD'), FileBrowserList.setWD(FitResults.WD); end
+if isfield(FitResults,'StudyID'), FileBrowserList.setStudyID(FitResults.StudyID); end
 if isfield(FitResults,'Files'),
     for ifile = fieldnames(FitResults.Files)'
-        handles.FileBrowser.setFileName(ifile{1},FitResults.Files.(ifile{1}))
+        FileBrowserList.setFileName(ifile{1},FitResults.Files.(ifile{1}))
     end
 end
 
+SetAppData(FileBrowserList);
 SetActive('FitData', handles);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);

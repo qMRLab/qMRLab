@@ -64,7 +64,7 @@ end
 ylabel('Signal (%b0)','FontSize',15);
 
 
-legend('show')
+legend('show','Location','Best')
 set(gca,'FontSize',15)
 %ylim([0 1.2])
 grid on, box off

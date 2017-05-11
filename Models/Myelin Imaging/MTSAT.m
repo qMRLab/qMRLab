@@ -18,7 +18,7 @@ classdef MTSAT
     end
     
     methods
-        function obj = CHARMED
+        function obj = MTSAT
             obj = button2opts(obj);
         end
         

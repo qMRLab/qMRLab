@@ -53,10 +53,12 @@ Nparam=length(Model.xnames);
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
     FitOptTable(:,1)=Model.xnames(:);
-    FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1));
-    FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
-    FitOptTable(:,4)=mat2cell(Model.lb(:),ones(Nparam,1));
-    FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
+    if isprop(Model,'fx') && ~isempty(Model.fx),    FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1)); end
+    if isprop(Model,'st') && ~isempty(Model.st),
+        FitOptTable(:,3)=mat2cell(Model.st(:),ones(Nparam,1));
+        FitOptTable(:,4)=mat2cell(Model.lb(:),ones(Nparam,1));
+        FitOptTable(:,5)=mat2cell(Model.ub(:),ones(Nparam,1));
+    end
     set(handles.FitOptTable,'Data',FitOptTable)
 end
 
@@ -74,21 +76,22 @@ opts=Model.buttons;
 
 if ~isempty(opts)
     N = length(opts)/2;
-    nboptions = max(25,N);
-    [I,J]=ind2sub([1 nboptions],1:2*N); Iw = 0.8/max(I); I=(0.1+0.8*(I-1)/max(I)); Jh = 0.1; J=(J-1)/nboptions; J=1-J-Jh;
+    nboptions = max(25,2*N);
+    [I,J]=ind2sub([1 nboptions],1:2*N); Iw = 0.8/max(I); I=(0.1+0.8*(I-1)/max(I)); 
+    Jh = 0.1; J=(J-1)/nboptions*0.85; J=1-J-0.07;
     for i = 1:N
         if isfield(Model.options,matlab.lang.makeValidName(opts{2*i-1})), val = Model.options.(matlab.lang.makeValidName(opts{2*i-1})); else val = opts{2*i}; end % retrieve previous value
         if islogical(opts{2*i})
-            OptionsPanel_handle(i) = uicontrol('Style','checkbox','String',opts{2*i-1},...
+            OptionsPanel_handle(i) = uicontrol('Style','checkbox','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
                 'Parent',handles.OptionsPanel,'Units','normalized','Position',[I(2*i-1) J(2*i-1) Iw Jh/2],...
                 'Value',val,'HorizontalAlignment','center');
         elseif isnumeric(opts{2*i})
-            uicontrol('Style','Text','String',[opts{2*i-1} ':'],...
+            uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
                 'Parent',handles.OptionsPanel,'Units','normalized','HorizontalAlignment','left','Position',[I(2*i-1) J(2*i-1) Iw/2 Jh/2]);
             OptionsPanel_handle(i) = uicontrol('Style','edit',...
                 'Parent',handles.OptionsPanel,'Units','normalized','Position',[(I(2*i-1)+Iw/2) J(2*i-1) Iw/2 Jh/2],'String',val);
         elseif iscell(opts{2*i})
-            uicontrol('Style','Text','String',[opts{2*i-1} ':'],...
+            uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
                 'Parent',handles.OptionsPanel,'Units','normalized','HorizontalAlignment','left','Position',[I(2*i-1) J(2*i-1) Iw/3 Jh/2]);
             if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*i},'UniformOutput',0))); end % retrieve previous value
             OptionsPanel_handle(i) = uicontrol('Style','popupmenu',...
@@ -142,15 +145,17 @@ Model = getappdata(0,'Model');
 Model.xnames = fittingtable(:,1)';
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
-    Model.fx = cell2mat(fittingtable(:,2)');
-    Model.st = cell2mat(fittingtable(:,3)');
-    Model.lb = cell2mat(fittingtable(:,4)');
-    Model.ub = cell2mat(fittingtable(:,5)');
-    % check that starting point > lb and < ub
-    Model.st = max([Model.st; Model.lb],[],1);
-    Model.st = min([Model.st; Model.ub],[],1);
-    fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
-    set(handles.FitOptTable,'Data',fittingtable);
+    if size(fittingtable,2)>1, Model.fx = cell2mat(fittingtable(:,2)'); end
+    if size(fittingtable,2)>2
+        Model.st = cell2mat(fittingtable(:,3)');
+        Model.lb = cell2mat(fittingtable(:,4)');
+        Model.ub = cell2mat(fittingtable(:,5)');
+        % check that starting point > lb and < ub
+        Model.st = max([Model.st; Model.lb],[],1);
+        Model.st = min([Model.st; Model.ub],[],1);
+        fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
+        set(handles.FitOptTable,'Data',fittingtable);
+    end
 end
 % ModelOptions
 opts = Model.buttons;
@@ -184,6 +189,7 @@ function ProtLoad_Callback(hObject, eventdata, handles)
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
+if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.tableProt,'Data',Prot)
 set(handles.ProtFileName,'String',FileName);
 
@@ -201,3 +207,38 @@ function Helpbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 doc(class(getappdata(0,'Model')))
+
+
+% --- Executes on button press in Default.
+function Default_Callback(hObject, eventdata, handles)
+% hObject    handle to Default (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+oldModel = getappdata(0,'Model');
+modelfun = str2func(class(oldModel));
+Model = modelfun();
+setappdata(0,'Model',Model);
+set(handles.ParametersFileName,'String','Parameters Filename');
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+
+% --- Executes on button press in Load.
+function Load_Callback(hObject, eventdata, handles)
+[FileName,PathName] = uigetfile('*.mat');
+if PathName == 0, return; end
+load(fullfile(PathName,FileName));
+oldModel = getappdata(0,'Model');
+if ~isa(Model,class(oldModel))
+    errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
+    return;
+end
+setappdata(0,'Model',Model)
+set(handles.ParametersFileName,'String',FileName);
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+
+
+
+% --- Executes on button press in Save.
+function Save_Callback(hObject, eventdata, handles)
+Model = getappdata(0,'Model');
+[file,path] = uiputfile(['qMRILab_' class(Model) 'Parameters.mat'],'Save file name');
+save(fullfile(path,file),'Model')
