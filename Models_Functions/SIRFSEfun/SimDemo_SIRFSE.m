@@ -1,8 +1,8 @@
 %% Settings
-clear; clc;
-Sim    =  load('SIRFSE/Parameters/DefaultSim.mat');    % load default simulation parameters
-Prot   =  load('SIRFSE/Parameters/DefaultProt.mat');   % load default protocol
-FitOpt =  load('SIRFSE/Parameters/DefaultFitOpt.mat'); % load default fit options
+clc;
+Sim    =  load('SIRFSEfun/Parameters/DefaultSim.mat');    % load default simulation parameters
+Prot   =  load('SIRFSEfun/Parameters/DefaultProt.mat');   % load default protocol
+FitOpt =  load('SIRFSEfun/Parameters/DefaultFitOpt.mat'); % load default fit options
 
 %% Simulation
 tic
