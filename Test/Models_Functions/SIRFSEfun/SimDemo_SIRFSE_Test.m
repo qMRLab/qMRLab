@@ -26,8 +26,8 @@ classdef (TestTags = {'SIRFSE', 'Demo', 'Integration'}) SimDemo_SIRFSE_Test < ma
             outputArr = [outputParams.F outputParams.kf outputParams.R1f outputParams.R1r];
 
             %                                                 , # percent
-            %                                                 . [F  kf R1f R2r]
-            testCase.verifyLessThan(pDiff(inputArr, outputArr), [30 30 30 40]);
+            %                                                 . [F  kf R1f R1r]
+            testCase.verifyLessThan(pDiff(inputArr, outputArr), [30 30 30 30]);
         end
     end
 
