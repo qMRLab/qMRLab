@@ -1,8 +1,8 @@
 %% Settings
-clear; clc;
-Sim    = load('bSSFP/Parameters/DefaultSim.mat');    % load default parameters
-Prot   = load('bSSFP/Parameters/DefaultProt.mat');   % load default protocol
-FitOpt = load('bSSFP/Parameters/DefaultFitOpt.mat'); % load default fit options
+clc;
+Sim    = load('bSSFPfun/Parameters/DefaultSim.mat');    % load default parameters
+Prot   = load('bSSFPfun/Parameters/DefaultProt.mat');   % load default protocol
+FitOpt = load('bSSFPfun/Parameters/DefaultFitOpt.mat'); % load default fit options
 FitOpt.R1 = Sim.Param.R1f;                           % simulate R1 map value
 
 %% Simulation

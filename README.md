@@ -48,7 +48,15 @@ Current Test tags:
 
 * Unit
 
+* Integration
+
+* Demo
+
 * SPGR
+
+* bSSFP
+
+* SIRFSE
 
 ## Citation
 
