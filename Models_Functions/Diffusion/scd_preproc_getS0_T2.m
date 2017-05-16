@@ -49,7 +49,7 @@ else
     
     % least square problem resolution
     %xMS = (A'*A)^-1*A'*y;
-    xMS = lsqlin(A,double(y),[],[],[],[],[0 0],[inf 3],[],optimoptions('lsqlin','Display','off'));
+    xMS = lsqlin(A,double(y),[],[],[],[],[0 0],[inf 3],[],optimoptions('lsqlin','Display','off','Algorithm','interior-point'));
     
     
     S0 = exp(xMS(1));
