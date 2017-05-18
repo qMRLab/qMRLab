@@ -28,9 +28,8 @@ classdef CHARMED
     %
     % Options:
     %   Sigma of the noise : Standard deviation of the noise, assuming Rician.
-    %                                       Use scd_noise_std_estimation to
-    %                                       measure noise level
-    %                                       If "Compute sigma noise per pixel" is checked, STD across >5 repetitions is used.
+    %                        Use scd_noise_std_estimation to measure noise level
+    %                        Not used if "Compute sigma noise per pixel" is checked. Instead, STD across >5 repetitions is used.
     %   S0 normalization :
     %     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
     %     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
@@ -130,16 +129,18 @@ classdef CHARMED
         
         function plotmodel(obj, x, data)
             % u.plotmodel(u.st)
-            if isstruct(x) % if x is a structure, convert to vector
-                for ix = 1:length(obj.xnames)
-                    xtmp(ix) = x.(obj.xnames{ix});
-                end
-                x = xtmp;
-            end
             Prot = ConvertSchemeUnits(obj.Prot);
-            
-            Smodel=obj.equation(x);
+            if ~isempty(x)
+                if isstruct(x) % if x is a structure, convert to vector
+                    for ix = 1:length(obj.xnames)
+                        xtmp(ix) = x.(obj.xnames{ix});
+                    end
+                    x = xtmp;
+                end
+                Smodel=obj.equation(x);
+            end
             % plot data
+            S0 = 1;
             if nargin>2
                 switch obj.options.S0Normalization
                     case 'Single T2 compartment'
@@ -148,7 +149,6 @@ classdef CHARMED
                     case 'Use b=0'
                         S0 = scd_preproc_getS0(data.DiffusionData,Prot);
                 end
-                Smodel = Smodel.*S0;
                 h = scd_display_qspacedata(data.DiffusionData,Prot,strcmp(obj.options.DisplayType,'b-value'));
                 hold on
                 % remove data legends
@@ -160,11 +160,25 @@ classdef CHARMED
             end
             
             % plot fitting curves
-            scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'none','-');
-            
+            if ~isempty(x)
+                Smodel = Smodel.*S0;
+                scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'none','-');
+            end
             hold off
         end
         
+        function Sim_Single_Voxel_Curve(obj, x, SNR)
+            % GUI_Single_Voxel_Curve
+            Smodel = equation(obj, x);
+            sigma = max(Smodel)/SNR;
+            data.DiffusionData = random('rician',Smodel,sigma);
+            FitResults = fit(obj,data);
+            plotmodel(obj, FitResults, data);
+            hold on
+            Prot = ConvertSchemeUnits(obj.Prot);
+            h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
+            set(h,'LineWidth',.5)
+        end
     end
 end
 

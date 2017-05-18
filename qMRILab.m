@@ -45,7 +45,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     qMRILabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRILabDir));
     handles.root = qMRILabDir;
-    handles.method = '';
+    handles.methodfiles = '';
     handles.CurrentData = [];
     handles.FitDataDim = [];
     handles.FitDataSize = [];
@@ -131,14 +131,32 @@ end
 function MethodMenu_Callback(hObject, eventdata, handles,Method)
 SetAppData(Method)
 set(handles.MethodMenu,'String',Method)
-handles.method = fullfile(handles.root,'Models_Functions',[Method 'fun']);
+handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
-    PathName = fullfile(handles.method,'Parameters');
+    PathName = fullfile(handles.methodfiles,'Parameters');
     LoadDefaultOptions(PathName);
 else
+    % find the Simulation functions of the selected Method
+    Methodfun = methods(Method);
+    Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
     % Update Options Panel
-    set(handles.uipanel35,'Visible','off') % hide the simulation panel
+    if isempty(Simfun)
+        set(handles.uipanel35,'Visible','off') % hide the simulation panel
+    else
+        set(handles.uipanel35,'Visible','on') % show the simulation panel
+        delete(setdiff(findobj(handles.uipanel35),handles.uipanel35))
+        
+        N = length(Simfun);
+        J=1:N;
+        Jh = min(0.3,.8/N); J=(J-1)/N*0.85; J=1-J-Jh-.01;
+        for i = 1:N
+            uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
+                'Parent',handles.uipanel35,'Units','normalized','Position',[.1 J(i) .8 Jh],...
+                'HorizontalAlignment','center','Callback',str2func(help([Method '.' Simfun{i}])));
+        end
+        
+    end
 end
 
 % Update Options Panel
@@ -264,7 +282,7 @@ end
 
 % SimSave
 function SimSave_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile(handles.method,'SimResults','SimResults.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.methodfiles,'SimResults','SimResults.mat'));
 if PathName == 0, return; end
 CurrentPanel = GetAppData('CurrentPanel');
 switch CurrentPanel
@@ -369,7 +387,7 @@ SimCurveResults = SimCurveFitData(MTdata);
 SimCurveSetFitResults(SimCurveResults, handles);
 axes(handles.SimCurveAxe);
 SimCurvePlotResults(handles);
-SimCurveSaveResults(fullfile(handles.method,'SimResults'), 'SimCurveTempResults.mat', handles)
+SimCurveSaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimCurveTempResults.mat', handles)
 
 % SET FIT RESULTS TABLE
 function SimCurveSetFitResults(SimCurveResults, handles)
@@ -484,7 +502,7 @@ for ii = 1:8
 end
 
 SetAppData(SimVaryResults);
-SimVarySaveResults(fullfile(handles.method,'SimResults'), 'SimVaryTempResults.mat', handles);
+SimVarySaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimVaryTempResults.mat', handles);
 SimVaryUpdatePopUp(handles);
 axes(handles.SimVaryAxe);
 SimVaryPlotResults(handles);
@@ -642,7 +660,7 @@ if (isempty(RndParam)); RndParam = GetRndParam(handles); end
 SimRndResults  =  VaryRndParam(Sim,Prot,FitOpt,SimRndOpt,RndParam,Method);
 SetAppData(SimRndResults);
 AnalyzeResults(RndParam, SimRndResults, handles);
-SimRndSaveResults(fullfile(handles.method,'SimResults'), 'SimRndTempResults.mat', handles)
+SimRndSaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimRndTempResults.mat', handles)
 
 
 %########################### RANDOM OPTIONS ###############################
@@ -912,7 +930,6 @@ SetActive('FitData', handles);
 function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 Method = GetMethod(handles);
-handles.method = fullfile(handles.root,Method);
 FitGo_FitData(hObject, eventdata, handles);
 
 
