@@ -32,7 +32,7 @@ function [ind,t0,s0,t0close,s0close] = crossing(S,t,level,imeth)
 % brueckner@sbrs.net
 
 % check the number of input arguments
-error(nargchk(1,4,nargin));
+narginchk(1,4);
 
 % check the time vector input for consistency
 if nargin < 2 || isempty(t)

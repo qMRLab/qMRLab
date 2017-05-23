@@ -1,7 +1,7 @@
 classdef DTI
     properties
         MRIinputs = {'Diffusiondata','Mask'};
-        xnames = { 'FA','L1','L2','L3'};
+        xnames = { 'L1','L2','L3'};
         voxelwise = 1;
 
         % fitting options
@@ -21,11 +21,18 @@ classdef DTI
     end
     
     methods
+        function obj = DTI
+            obj = button2opts(obj);
+        end
+
         function Smodel = equation(obj, x)
             Prot = ConvertSchemeUnits(obj.Prot);
             bvec = Prot(:,1:3);
             bvalue = scd_scheme_bvalue(Prot);
-            D = zeros(3,3); D(:) = x.D;
+            D = zeros(3,3); 
+            if isfield(x,'D'), D(:) = x.D;
+            else, D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3;
+            end
             Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
         end
         
@@ -34,7 +41,7 @@ classdef DTI
             Prot = ConvertSchemeUnits(obj.Prot);
             data = data.Diffusiondata;
             % fit
-            D=scd_model_dti(data./scd_preproc_getS0_T2(data,Prot),Prot);
+            D=scd_model_dti(data./scd_preproc_getS0(data,Prot),Prot);
             [~,L]=eig(D); L = sort(diag(L),'descend');
             FitResults.L1=L(1);
             FitResults.L2=L(2);
@@ -78,6 +85,34 @@ classdef DTI
             % plot fitting curves
             scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'none','-');
         end
+        
+        
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+            if ~exist('display','var'), display=1; end
+            Smodel = equation(obj, x);
+            sigma = max(Smodel)/SNR;
+            data.Diffusiondata = random('rician',Smodel,sigma);
+            FitResults = fit(obj,data);
+            D = zeros(3,3); D(:) = FitResults.D;
+            [V,L]=eig(D);
+            [L,I]=max(diag(L));
+            fiberdirection=V(:,I);
+
+            if display
+                plotmodel(obj, FitResults, data);
+                hold on
+                Prot = ConvertSchemeUnits(obj.Prot);
+                h = scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'o','none');
+                set(h,'LineWidth',.5)
+            end
+        end
+        
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, SNR, runs);
+            
+        end
+
         
     end
 end

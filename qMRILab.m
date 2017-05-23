@@ -130,6 +130,18 @@ end
 % METHODMENU
 function MethodMenu_Callback(hObject, eventdata, handles,Method)
 SetAppData(Method)
+% Start by updating the Model object
+if ~ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+    if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
+        Model = getappdata(0,'Model');
+    else % otherwise create a new object of this method
+        modelfun  = str2func(Method);
+        Model = modelfun();
+    end
+    SetAppData(Model)
+end
+
+% Now create Simulation panel
 set(handles.MethodMenu,'String',Method)
 handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
@@ -147,13 +159,16 @@ else
         set(handles.uipanel35,'Visible','on') % show the simulation panel
         delete(setdiff(findobj(handles.uipanel35),handles.uipanel35))
         
-        N = length(Simfun);
-        J=1:N;
-        Jh = min(0.3,.8/N); J=(J-1)/N*0.85; J=1-J-Jh-.01;
+        N = length(Simfun); %
+        Jh = min(0.14,.8/N);
+        J=1:max(N,6); J=(J-1)/max(N,6)*0.85; J=1-J-Jh-.01;
         for i = 1:N
-            uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
-                'Parent',handles.uipanel35,'Units','normalized','Position',[.1 J(i) .8 Jh],...
-                'HorizontalAlignment','center','Callback',str2func(help([Method '.' Simfun{i}])));
+            if exist([Simfun{i} '_GUI'],'file')
+                uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
+                    'Parent',handles.uipanel35,'Units','normalized','Position',[.04 J(i) .92 Jh],...
+                    'HorizontalAlignment','center','FontWeight','bold','Callback',...
+                    @(x,y) SimfunGUI([Simfun{i} '_GUI']));
+            end
         end
         
     end
@@ -170,7 +185,7 @@ MethodList = getappdata(0, 'MethodList');
 MethodList = strrep(MethodList, '.m', '');
 MethodCount = numel(MethodList);
 
-if ~isfield(handles,'FileBrowserList');
+if ~isfield(handles,'FileBrowserList')
     % Create File Browser uicontrols for all methods if doesn't exist
     FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
     FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
@@ -206,6 +221,12 @@ end
 FileBrowserList(MethodNum).Visible('on');
 SetAppData(FileBrowserList);
 guidata(hObject, handles);
+
+function SimfunGUI(functionName)
+Model = getappdata(0,'Model');
+SimfunGUI = str2func(functionName);
+SimfunGUI(Model);
+
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -261,12 +282,7 @@ switch Method
     case 'SIRFSE'
         SIRFSE_OptionsGUI(gcf);
     otherwise
-        if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
-            Model = getappdata(0,'Model');
-        else % otherwise create a new object of this method
-            modelfun  = str2func(Method);
-            Model = modelfun();
-        end
+        Model = getappdata(0,'Model');
         Custom_OptionsGUI(gcf,Model);
 end
 

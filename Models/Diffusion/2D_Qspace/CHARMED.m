@@ -51,8 +51,10 @@ classdef CHARMED
         fx            = [0      0           0           1          1  ]; % fix parameters
         
         % Protocol
-        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; % columns of the Protocol matrix.
-        Prot  = [ones(100,1) zeros(100,2) linspace(0,300,100)'*1e-3 0.040*ones(100,1) 0.003*ones(100,1) 0.070*ones(100,1)];
+        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G| (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}; % columns of the Protocol matrix.
+        Prot  = cat(1,[ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.020*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
+                       [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.030*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
+                       [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.040*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)]);
         
         % Model options
         buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'},'S0 normalization',{'Use b=0','Single T2 compartment'},'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
@@ -66,6 +68,13 @@ classdef CHARMED
         end
         
         function Smodel = equation(obj, x)
+            if isstruct(x) % if x is a structure, convert to vector
+                for ix = 1:length(obj.xnames)
+                    xtmp(ix) = x.(obj.xnames{ix});
+                end
+                x = xtmp;
+            end
+            
             x = [x(1:3) 0 x(4:end)]; % add diameter STD parameter (used in the original AxCaliber model)
             opt=obj.options;
             opt.scheme=ConvertSchemeUnits(obj.Prot);
@@ -131,12 +140,6 @@ classdef CHARMED
             % u.plotmodel(u.st)
             Prot = ConvertSchemeUnits(obj.Prot);
             if ~isempty(x)
-                if isstruct(x) % if x is a structure, convert to vector
-                    for ix = 1:length(obj.xnames)
-                        xtmp(ix) = x.(obj.xnames{ix});
-                    end
-                    x = xtmp;
-                end
                 Smodel=obj.equation(x);
             end
             % plot data
@@ -167,18 +170,27 @@ classdef CHARMED
             hold off
         end
         
-        function Sim_Single_Voxel_Curve(obj, x, SNR)
-            % GUI_Single_Voxel_Curve
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+            if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
             sigma = max(Smodel)/SNR;
             data.DiffusionData = random('rician',Smodel,sigma);
             FitResults = fit(obj,data);
-            plotmodel(obj, FitResults, data);
-            hold on
-            Prot = ConvertSchemeUnits(obj.Prot);
-            h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
-            set(h,'LineWidth',.5)
+            if display
+                plotmodel(obj, FitResults, data);
+                hold on
+                Prot = ConvertSchemeUnits(obj.Prot);
+                h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
+                set(h,'LineWidth',.5)
+            end
         end
+        
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, SNR, runs);
+            
+        end
+
     end
 end
 

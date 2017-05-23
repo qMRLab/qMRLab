@@ -20,6 +20,12 @@ classdef NODDI
     end
     
     methods
+        function obj = NODDI
+            obj = button2opts(obj);
+%             model = MakeModel(obj.options.modelName);
+%             obj.xnames = model.paramsStr;
+        end
+        
         function [Smodel, fibredir] = equation(obj, x)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             
@@ -90,6 +96,27 @@ classdef NODDI
             hold off
             
         end
+%         
+%         function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+%             if ~exist('display','var'), display=1; end
+%             [Smodel, fibredir] = equation(obj, x);
+%             sigma = max(Smodel)/SNR;
+%             data.DiffusionData = random('rician',Smodel,sigma);
+%             FitResults = fit(obj,data);
+%             if display
+%                 plotmodel(obj, FitResults, data);
+%                 hold on
+%                 Prot = ConvertSchemeUnits(obj.Prot);
+%                 h = scd_display_qspacedata3D(Smodel,Prot,fibredir,'o','none');
+%                 set(h,'LineWidth',.5)
+%             end
+%         end
+%         
+%         function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs)
+%             % SimVaryGUI
+%             SimVaryResults = SimVary(obj, SNR, runs);
+%             
+%         end
     end
 end
 
