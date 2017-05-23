@@ -54,22 +54,10 @@ if ~isfield(handles,'opened') % qMRI already opened?
     MethodList = {}; SetAppData(MethodList);
     handles.output = hObject;
     guidata(hObject, handles);
-    
-    % LOAD DEFAULTS
-    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    
-    % add custom models
-    ModelDir=[qMRILabDir filesep 'Models'];
-    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
-    
-    
-    % Set Default
-    set(handles.MethodMenu, 'String', Method);
-    
+        
     % cd(fullfile(handles.root, Method));
     LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
     LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
-    
     
     % SET WINDOW AND PANELS
     movegui(gcf,'center')
@@ -77,6 +65,22 @@ if ~isfield(handles,'opened') % qMRI already opened?
     NewPos     = CurrentPos;
     NewPos(1)  = CurrentPos(1) - 40;
     set(gcf, 'Position', NewPos);
+    
+    % Fill Menu with models
+    ModelDir=[qMRILabDir filesep 'Models'];
+    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
+    
+    % LOAD DEFAULTS
+    if length(varargin)>1
+        Model = varargin{1};
+        SetAppData(Model);
+        Method = class(Model);
+    else
+        load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
+    end
+    % Set Default
+    set(handles.MethodMenu, 'String', Method);
+
     
     SetActive('FitData', handles);
     MethodMenu_Callback(hObject, eventdata, handles,Method);
@@ -1301,11 +1305,11 @@ end
 
 % OPEN VIEWER
 function Viewer_Callback(hObject, eventdata, handles)
-FitResults = GetAppData('FitResults');
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 file = fullfile(handles.root,strcat(Source,'.nii'));
-nii = make_nii(FitResults.(Source));
+Data = handles.CurrentData;
+nii = make_nii(Data.(Source));
 save_nii(nii,file);
 nii_viewer(file);
 

@@ -63,7 +63,13 @@ q=gyro.*Ax.scheme(:,6).*Ax.scheme(:,4); %um-1
 %==========================================================================
 %Signal model for the hindered (extra-axonal) compartment
 %==========================================================================
-Dh = scd_model_timedependence(Dh,A,bigdelta,littledelta);
+if ~isfield(Ax,'Time_dependent_models'), Ax.Time_dependent_models='Burcaw 2015'; end
+switch Ax.Time_dependent_models
+    case 'Burcaw 2015'
+        Dh = scd_model_timedependence(Dh,A,bigdelta,littledelta);
+    case 'Ning MRM 2016'
+        Dh = scd_model_timedependence_Ning(Dh,A,bigdelta,littledelta);
+end
 Eh=exp(-(2*pi*q).^2.*Dh.*(bigdelta-littledelta/3));
 
 

@@ -17,8 +17,10 @@ classdef CHARMED
     %                                           (weighted by the axonal area --> biased toward the larger axons).
     %                                            fixed to 0 --> stick model (recommended if Gmax < 300mT/m)
     %    * fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
-    %    * lc :  length of coherence. Models the time dependence of the hindered
-    %   compartment. Els Fieremans et al. Neuroimage 2016.    
+    %    * lc :   length of coherence. if >0, this parameter models the time dependence of the hindered
+    %             diffusion coefficient Dh. Els Fieremans et al. Neuroimage 2016.
+    %             Interpretation is not perfectly known. Use
+    %             option "Time-Dependent Models" to get different interpretations.
     %
     %
     %  Non-Fitted Parameters:
