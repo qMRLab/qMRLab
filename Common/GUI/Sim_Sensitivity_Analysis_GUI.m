@@ -190,6 +190,7 @@ runs = str2double(get(handles.options.x_OfRuns,'String'));
 SNR = str2double(get(handles.options.SNR,'String'));
 
 handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(SNR,runs);
+set(handles.SimVaryPlotX,'String',fieldnames(handles.SimVaryResults));
 SimVaryPlotResults(handles)
 guidata(hObject, handles);
 
