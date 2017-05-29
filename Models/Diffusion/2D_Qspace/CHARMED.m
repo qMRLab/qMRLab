@@ -88,7 +88,7 @@ classdef CHARMED
             
             % Prepare data
             data = max(eps,double(data.DiffusionData)); nT=length(data);
-            if nT~=size(obj.Prot,1), error(['<strong>Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.</strong>']); end
+            if nT~=size(obj.Prot,1), errordlg(['Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.']); end
             
             Prot = ConvertSchemeUnits(obj.Prot);
             
