@@ -1,4 +1,4 @@
-classdef BrowserSet < handle
+classdef BrowserSet
     % BrowserSet - manage the file browser interface
     %   P.Beliveau 2017 - setup
     %   * manage the standard set of interface items in the browser
@@ -13,18 +13,21 @@ classdef BrowserSet < handle
 
     
     properties
-        NameText;
-        BrowseBtn;      
-        FileBox;        
-        ViewBtn;        
-        
-        BrowseBtnOn;    
-        ViewBtnOn;      
         
         NameID;         % Method
         FullFile;       
         
-        Data;           
+
+    end
+    
+    properties(Hidden = true)
+        NameText;
+        BrowseBtn;
+        FileBox;
+        ViewBtn;
+        BrowseBtnOn;
+        ViewBtnOn;
+
     end
     
     methods
@@ -48,19 +51,23 @@ classdef BrowserSet < handle
                 Position = [Location, 0.1, 0.1];
                 obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);
-
+                
                 if obj.BrowseBtnOn == 1
                     Location = Location + [0.1, 0];
-                    Position = [Location, 0.1, 0.1];
-                    obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                        'String', 'Browse', 'Position', Position, 'FontSize', 0.6, ...
-                        'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
-                end 
-
+                    LocationBrowse = Location;
+                end
+                
                 Location = Location + [0.11, 0];
                 Position = [Location, 0.65, 0.1];
                 obj.FileBox = uicontrol(parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
                     'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                
+                if obj.BrowseBtnOn == 1
+                    Position = [LocationBrowse, 0.1, 0.1];
+                    obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
+                        'String', 'Browse', 'Position', Position, 'FontSize', 0.6, ...
+                        'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                end
 
                 if obj.ViewBtnOn == 1 
                     Location = Location + [0.66, 0];
@@ -100,16 +107,15 @@ classdef BrowserSet < handle
         % -- DATA LOAD
         %   load data from file and make accessible to qMTLab fct
         function DataLoad(obj)
-            obj.Data = [];
             obj.FullFile = get(obj.FileBox, 'String');
             [pathstr,name,ext] = fileparts(obj.FullFile);
+            Data = getappdata(0,'Data');
+            tmp = [];
             if strcmp(ext,'.mat');
-                Data = load(obj.FullFile);                
-                DataLoaded = get(obj.NameText, 'String');
-                obj.Data = Data.(name);                
+                tmp = load(obj.FullFile);                                
             elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
                 nii = load_untouch_nii(obj.FullFile);
-                obj.Data = nii.img;
+                tmp = nii.img;
             elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif');
                 TiffInfo = imfinfo(obj.FullFile);
                 NbIm = numel(TiffInfo);
@@ -120,10 +126,9 @@ classdef BrowserSet < handle
                         File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);            
                     end
                 end
-                obj.Data = File;
+                tmp = File;
             end  
-            Data = getappdata(0,'Data');
-            Data.(obj.NameID{1,1}) = double(obj.Data);
+            Data.(obj.NameID{1}) = double(tmp);
             setappdata(0, 'Data', Data);            
         end
         
@@ -173,12 +178,12 @@ classdef BrowserSet < handle
         %------------------------------------------------------------------
         function ViewBtn_callback(obj,src, event, handles)
             obj.DataLoad();
-            Data = getappdata(0, 'Data');
-            obj.Data=Data.(obj.NameID{1,1});
-            if isempty(obj.Data), errordlg('empty data'); return; end
+            dat = getappdata(0, 'Data');
+            dat=dat.(obj.NameID{1,1});
+            if isempty(dat), errordlg('empty data'); return; end
             
-            n = ndims(obj.Data);
-            Data.(obj.NameID{1,1}) = mean(obj.Data, 4);
+            n = ndims(dat);
+            Data.(obj.NameID{1,1}) = mean(dat, 4);
             
             Data.fields = {obj.NameID{1,1}};
             handles.CurrentData = Data;

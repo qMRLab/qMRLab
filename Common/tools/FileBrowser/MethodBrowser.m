@@ -1,4 +1,4 @@
-classdef MethodBrowser < handle
+classdef MethodBrowser
         % MethodBrowser  - Manage fields in the file Browser per methods
         %   P.Beliveau 2017 - setup
         %   * All Methods have in common the WorkDir Button and File Box and
@@ -7,7 +7,12 @@ classdef MethodBrowser < handle
         %       ItemsList
     
     properties
-        Parent;
+        Parent;        
+        ItemsList; % is a list of the class BrowserSet objects
+        NbItems;
+        MethodID = 'unassigned';        
+    end
+    properties(Hidden = true)
         % common to all methods, work directory and studyID
         WorkDir_TextArea;
         WorkDir_BrowseBtn;
@@ -15,10 +20,6 @@ classdef MethodBrowser < handle
         WorkDir_FullPath;
         StudyID_TextArea;
         StudyID_TextID;
-        
-        ItemsList; % is a list of the class BrowserSet objects
-        NbItems;
-        MethodID = 'unassigned';        
     end
     
     
@@ -183,7 +184,7 @@ classdef MethodBrowser < handle
         % setFileName
         % set the filename
         function setFileName(obj,fieldName, FileName)
-            % find object
+            % setFileName(obj,fieldName, FileName)
             indexfieldName = strcmp(cellfun(@(cc) cc{1},get([obj.ItemsList.NameText]','String'),'UniformOutput',false),fieldName);
             if sum(indexfieldName)
                 obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)

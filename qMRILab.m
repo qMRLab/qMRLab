@@ -70,17 +70,47 @@ if ~isfield(handles,'opened') % qMRI already opened?
     ModelDir=[qMRILabDir filesep 'Models'];
     addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
     
+    % Fill FileBrowser with buttons
+    MethodList = getappdata(0, 'MethodList');
+    MethodList = strrep(MethodList, '.m', '');
+    for iMethod=1:length(MethodList)
+        % Create browser panel buttons
+        switch MethodList{iMethod}
+            case 'bSSFP'
+                MRIinputs = {'Mask' 'MTdata' 'R1map'};
+            case 'SIRFSE'
+                MRIinputs = {'Mask' 'MTdata' 'R1map'};
+            case 'SPGR'
+                MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
+            otherwise
+                Modelfun = str2func(MethodList{iMethod});
+                Model = Modelfun();
+                MRIinputs = Model.MRIinputs;
+        end
+        % create file browser uicontrol with specific inputs
+        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{MethodList{iMethod} MRIinputs{:}});
+        FileBrowserList(iMethod).Visible('off');
+    end
+
+    SetAppData(FileBrowserList);
+    
     % LOAD DEFAULTS
-    if length(varargin)>1
+    if ~isempty(varargin)
         Model = varargin{1};
         SetAppData(Model);
         Method = class(Model);
+        if length(varargin)>1
+            data=varargin{2};
+            for ff=fieldnames(data)';
+                FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+            end
+        end
     else
         load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
     end
     % Set Default
     set(handles.MethodMenu, 'String', Method);
-
+    
     
     SetActive('FitData', handles);
     MethodMenu_Callback(hObject, eventdata, handles,Method);
@@ -185,45 +215,14 @@ if ~isempty(h)
 end
 OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
-MethodList = getappdata(0, 'MethodList');
-MethodList = strrep(MethodList, '.m', '');
-MethodCount = numel(MethodList);
-
-if ~isfield(handles,'FileBrowserList')
-    % Create File Browser uicontrols for all methods if doesn't exist
-    FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
-    FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
-    SetAppData(FileBrowserList);
-    handles.FileBrowserList = FileBrowserList;
-else
-    FileBrowserList = GetAppData('FileBrowserList');
-end
-
-for i=1:MethodCount
+% Show FileBrowser
+FileBrowserList = GetAppData('FileBrowserList');
+MethodNum = find(strcmp([FileBrowserList.MethodID],Method));
+for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
-
-% Create browser panel buttons
-switch Method
-    case 'bSSFP'
-        MRIinputs = {'Mask' 'MTdata' 'R1map'};
-    case 'SIRFSE'
-        MRIinputs = {'Mask' 'MTdata'};
-    case 'SPGR'
-        MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
-    otherwise
-        Model = getappdata(0,'Model');
-        MRIinputs = Model.MRIinputs;
-end
-
-MethodNum = find(strcmp(MethodList, Method));
-if strcmp(FileBrowserList(MethodNum).GetMethod, 'unassigned')
-    % create file browser uicontrol with specific inputs
-    FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
-end
-
 FileBrowserList(MethodNum).Visible('on');
-SetAppData(FileBrowserList);
+
 guidata(hObject, handles);
 
 function SimfunGUI(functionName)
