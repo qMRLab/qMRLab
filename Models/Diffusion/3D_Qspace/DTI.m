@@ -12,7 +12,7 @@ classdef DTI
         
         % Protocol
         ProtFormat ={'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; 
-        Prot  = []; % You can define a default protocol here.
+        Prot  = txt2mat('DefaultProtocol_NODDI.scheme'); % You can define a default protocol here.
         
         % Model options
         buttons = {};
