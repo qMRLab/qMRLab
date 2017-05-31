@@ -5,7 +5,8 @@ function [bvals, bvec, f_bvec, f_bvals] = scd_scheme2bvecsbvals(scheme, acq_base
 
 
 bvec = scheme(:,1:3);
-bvals = (2*pi*scheme(:,8).*10^(3)).^2.*(scheme(:,5)-scheme(:,6)/3)*10^(-3);
+gyro = 42.57; % kHz/mT
+bvals = (2*pi*gyro*scheme(:,4).*scheme(:,6).*10^(3)).^2.*(scheme(:,5)-scheme(:,6)/3)*10^(-3);
 
 if nargin>1
 f_bvec=[acq_basename '.bvec.txt'];
