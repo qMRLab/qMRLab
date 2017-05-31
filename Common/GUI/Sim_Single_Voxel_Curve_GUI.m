@@ -45,6 +45,8 @@ end
 
 % --- Executes just before Sim_Single_Voxel_Curve_GUI is made visible.
 function Sim_Single_Voxel_Curve_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
+set(findobj('Name','qMRILab'),'pointer', 'watch'); drawnow;
+
 if ~isfield(handles,'opened')
     handles.output = hObject;
     handles.Model = varargin{1};
@@ -62,6 +64,7 @@ if ~isfield(handles,'opened')
         FitOptTable(:,2) = mat2cell(ones(Nparam,1),ones(Nparam,1));
     end
     set(handles.ParamTable,'Data',FitOptTable)
+    
     % launch plot
     UpdatePlot_Callback(hObject, eventdata, handles)
     
@@ -71,10 +74,13 @@ if ~isfield(handles,'opened')
 end
 % Update handles structure
 guidata(hObject, handles);
+set(findobj('Name','qMRILab'),'pointer', 'arrow'); drawnow;
+
 
 
 % --- Executes on button press in UpdatePlot.
 function UpdatePlot_Callback(hObject, eventdata, handles)
+set(findobj('Name','SimCurve'),'pointer', 'watch'); drawnow;
 axes(handles.SimCurveAxe)
 x = get(handles.ParamTable,'Data');
 SNR = str2double(get(handles.options.SNR,'String'));
@@ -86,7 +92,7 @@ hold off;
 % put results in table
 ff = fieldnames(FitResults);
 for ii=1:length(ff)
-    index = ~cellfun(@isempty,strfind(x(:,1),ff{ii}));
+    index = strcmp(x(:,1),ff{ii});
     if find(index)
         x{index,3} = FitResults.(ff{ii})(1);
         x{index,4} = round((FitResults.(ff{ii})(1) - x{index,2})/x{index,2}*100);
@@ -96,6 +102,8 @@ for ii=1:length(ff)
     end
 end
 set(handles.ParamTable,'Data',x);
+set(findobj('Name','SimCurve'),'pointer', 'arrow'); drawnow;
+
 
 
 
