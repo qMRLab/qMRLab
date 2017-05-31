@@ -22,8 +22,13 @@ classdef NODDI
     methods
         function obj = NODDI
             obj = button2opts(obj);
-%             model = MakeModel(obj.options.modelName);
-%             obj.xnames = model.paramsStr;
+            obj = UpdateFields(obj);
+        end
+        
+        function obj = UpdateFields(obj)
+            model = MakeModel(obj.options.modelName);
+            obj.xnames = model.paramsStr;
+            obj.fx = model.GD.fixed;
         end
         
         function [Smodel, fibredir] = equation(obj, x)
