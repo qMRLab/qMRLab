@@ -187,9 +187,9 @@ classdef CHARMED
             end
         end
         
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs)
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
             % SimVaryGUI
-            SimVaryResults = SimVary(obj, SNR, runs);
+            SimVaryResults = SimVary(obj, SNR, runs, OptTable);
             
         end
 

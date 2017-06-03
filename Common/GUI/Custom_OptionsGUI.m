@@ -179,7 +179,8 @@ setappdata(0,'Model',Model);
 
 % FitOptTable CellEdit
 function FitOptTable_CellEditCallback(hObject, eventdata, handles)
-SetOpt(handles);
+Model = SetOpt(handles);
+OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
 
 function FitOptTable_CreateFcn(hObject, eventdata, handles)
 

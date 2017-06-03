@@ -1,14 +1,22 @@
-function SimVaryResults = SimVary(obj, SNR, runs)
-for pp=1:length(obj.xnames)
-    if ~obj.fx(pp)
-        Sens.x = linspace(obj.lb(pp),obj.ub(pp),10);
+function SimVaryResults = SimVary(obj, SNR, runs, OptTable)
+
+if ~exist('OptTable','var'), OptTable = obj; end % use fitting boundaries
+
+fx = [OptTable.fx];
+st = [OptTable.st];
+lb = [OptTable.lb];
+ub = [OptTable.ub];
+
+for pp=1:length(OptTable)
+    if ~fx(pp)
+        Sens.x = linspace(lb(pp),ub(pp),10);
         % Create waitbar
         h = waitbar(0, sprintf('Data 0/%0.0f',length(Sens.x)), 'Name', sprintf('Simulating %s sensitivity data', obj.xnames{pp}));
         setappdata(h,'canceling',0);
         setappdata(0,'Cancel',0);
         
         for ii=1:length(Sens.x)
-            x = obj.st; x(pp)=Sens.x(ii);
+            x = st; x(pp)=Sens.x(ii);
             for N=1:runs
                 Fittmp = obj.Sim_Single_Voxel_Curve(x, SNR,0);
                 if ~isfield(Sens,'fit')
@@ -29,7 +37,7 @@ for pp=1:length(obj.xnames)
         for ff=fieldnames(Sens.fit)'
             Sens.(ff{1}).mean = mean(Sens.fit.(ff{1}),2);
             Sens.(ff{1}).std = std(Sens.fit.(ff{1}),0,2);
-            Sens.(ff{1}).GroundTruth = obj.st(strcmp(obj.xnames,ff{1}));
+            Sens.(ff{1}).GroundTruth = st(strcmp(obj.xnames,ff{1}));
         end
         SimVaryResults.(obj.xnames{pp})=Sens;
     end

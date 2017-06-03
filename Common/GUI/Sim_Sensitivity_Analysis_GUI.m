@@ -22,7 +22,7 @@ function varargout = Sim_Sensitivity_Analysis_GUI(varargin)
 
 % Edit the above text to modify the response to help Sim_Sensitivity_Analysis_GUI
 
-% Last Modified by GUIDE v2.5 22-May-2017 21:13:25
+% Last Modified by GUIDE v2.5 02-Jun-2017 00:13:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,8 +55,11 @@ if ~isfield(handles,'opened')
     FitOptTable(:,1)=handles.Model.xnames(:);
     if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,2)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
-        FitOptTable(:,3)=mat2cell(handles.Model.lb(:),ones(Nparam,1));
-        FitOptTable(:,4)=mat2cell(handles.Model.ub(:),ones(Nparam,1));
+        FitOptTable(:,3)=mat2cell(handles.Model.st(:),ones(Nparam,1));
+    end
+    if isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
+        FitOptTable(:,4)=mat2cell(handles.Model.lb(:),ones(Nparam,1));
+        FitOptTable(:,5)=mat2cell(handles.Model.ub(:),ones(Nparam,1));
     end
     set(handles.SimVaryOptTable,'Data',FitOptTable)
     % fill parameters
@@ -188,8 +191,9 @@ end
 function SimVaryUpdate_Callback(hObject, eventdata, handles)
 runs = str2double(get(handles.options.x_OfRuns,'String'));
 SNR = str2double(get(handles.options.SNR,'String'));
-
-handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(SNR,runs);
+FitOptTable = get(handles.SimVaryOptTable,'Data'); FitOptTable(:,2)=mat2cell(~[FitOptTable{:,2}]',ones(size(FitOptTable,1),1), 1);
+FitOptTable = cell2struct(FitOptTable,{'xnames','fx','st','lb','ub'},2);
+handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(SNR,runs,FitOptTable);
 set(handles.SimVaryPlotX,'String',fieldnames(handles.SimVaryResults));
 SimVaryPlotResults(handles)
 guidata(hObject, handles);
@@ -223,3 +227,6 @@ if isfield(handles,'SimVaryResults')
     Yaxis = get(handles.SimVaryPlotY,'String'); Yaxis = Yaxis{get(handles.SimVaryPlotY,'Value')};
     SimVaryPlot(handles.SimVaryResults,Xaxis,Yaxis)
 end
+
+
+function SimVaryOptTable_CellEditCallback(hObject, eventdata, handles)
