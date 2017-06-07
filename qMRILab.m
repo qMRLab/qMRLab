@@ -54,22 +54,10 @@ if ~isfield(handles,'opened') % qMRI already opened?
     MethodList = {}; SetAppData(MethodList);
     handles.output = hObject;
     guidata(hObject, handles);
-    
-    % LOAD DEFAULTS
-    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    
-    % add custom models
-    ModelDir=[qMRILabDir filesep 'Models'];
-    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
-    
-    
-    % Set Default
-    set(handles.MethodMenu, 'String', Method);
-    
+        
     % cd(fullfile(handles.root, Method));
     LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
     LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
-    
     
     % SET WINDOW AND PANELS
     movegui(gcf,'center')
@@ -77,6 +65,22 @@ if ~isfield(handles,'opened') % qMRI already opened?
     NewPos     = CurrentPos;
     NewPos(1)  = CurrentPos(1) - 40;
     set(gcf, 'Position', NewPos);
+    
+    % Fill Menu with models
+    ModelDir=[qMRILabDir filesep 'Models'];
+    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
+    
+    % LOAD DEFAULTS
+    if length(varargin)>1
+        Model = varargin{1};
+        SetAppData(Model);
+        Method = class(Model);
+    else
+        load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
+    end
+    % Set Default
+    set(handles.MethodMenu, 'String', Method);
+
     
     SetActive('FitData', handles);
     MethodMenu_Callback(hObject, eventdata, handles,Method);
@@ -131,6 +135,7 @@ end
 function MethodMenu_Callback(hObject, eventdata, handles,Method)
 SetAppData(Method)
 set(handles.MethodMenu,'String',Method)
+% Simulations?
 handles.method = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
@@ -152,7 +157,7 @@ MethodList = getappdata(0, 'MethodList');
 MethodList = strrep(MethodList, '.m', '');
 MethodCount = numel(MethodList);
 
-if ~isfield(handles,'FileBrowserList');
+if ~isfield(handles,'FileBrowserList')
     % Create File Browser uicontrols for all methods if doesn't exist
     FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
     FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
@@ -1268,11 +1273,11 @@ end
 
 % OPEN VIEWER
 function Viewer_Callback(hObject, eventdata, handles)
-FitResults = GetAppData('FitResults');
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 file = fullfile(handles.root,strcat(Source,'.nii'));
-nii = make_nii(FitResults.(Source));
+Data = handles.CurrentData;
+nii = make_nii(Data.(Source));
 save_nii(nii,file);
 nii_viewer(file);
 

@@ -25,6 +25,7 @@ if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
     % Get dimensions
     MRIinputs = fieldnames(data);
+    MRIinputs(structfun(@isempty,data))=[];
     qData = double(data.(MRIinputs{1}));
     dim = ndims(qData);
     x = 1; y = 1; z = 1;
@@ -42,7 +43,7 @@ if Model.voxelwise % process voxelwise
     for ii = 1:length(MRIinputs)
         if ndims(data.(MRIinputs{ii})) == 4
             data.(MRIinputs{ii}) = reshape(data.(MRIinputs{ii}),nV,nT);
-        else
+        elseif ~isempty(data.(MRIinputs{ii}))
             data.(MRIinputs{ii}) = reshape(data.(MRIinputs{ii}),nV,1);
         end
     end
