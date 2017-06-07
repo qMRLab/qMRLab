@@ -11,7 +11,7 @@ classdef CHARMED
     % ----------------------------------------------------------------------------------------------------
     %
     %  Fitted Parameters:
-    %    * fh :     fraction of water in the hindered compartment
+    %    * fr :     fraction of water in the restricted compartment
     %    * Dh :    Apparent diffusion coefficient of the hindered compartment
     %    * axon diameter index : Mean axonal diameter
     %                                           (weighted by the axonal area --> biased toward the larger axons).
@@ -43,14 +43,14 @@ classdef CHARMED
     
     properties
         MRIinputs = {'DiffusionData','Mask'}; % input data required
-        xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
+        xnames = {'fr','Dh','diameter_mean','fcsf','lc','Dcsf','Dintra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [0.6     0.7        6         0         0      ]; % starting point
-        lb            = [0       0.3        3          0         0    ]; % lower bound
-        ub           = [1       3         10         1          20    ]; % upper bound
-        fx            = [0      0           0           1          1  ]; % fix parameters
+        st           = [0.5     0.7        6           0         0    3     1.4 ]; % starting point
+        lb            = [0       0.3        3          0         0    1     0.3 ]; % lower bound
+        ub           = [1       3         10           1        8    4     3   ]; % upper bound
+        fx            = [0      0           0          1         1    1     1   ]; % fix parameters
         
         % Protocol
         ProtFormat = {'Gx' 'Gy'  'Gz'   '|G| (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}; % columns of the Protocol matrix.
@@ -120,6 +120,12 @@ classdef CHARMED
             obj.st(~fixedparam)=xopt; xopt = obj.st;
             
             %% OUTPUTS
+            % S0
+            S0vals = unique([S0 Prot(:,7)],'rows');
+            for ii=1:size(S0vals,1)
+                xopt(end+1) = S0vals(ii,1);
+                obj.xnames{end+1}=['S0_TE' num2str(S0vals(ii,2))];
+            end
             % T2
             if exist('T2','var')
                 xopt(end+1) = T2;
@@ -127,7 +133,7 @@ classdef CHARMED
             end
             % fr
             xopt(end+1) = 1 - xopt(4) - xopt(1);
-            obj.xnames{end+1}='fr';
+            obj.xnames{end+1}='fh';
             % residue
             xopt(end+1) = residue;
             obj.xnames{end+1}='residue';
