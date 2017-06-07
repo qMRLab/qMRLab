@@ -45,7 +45,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     qMRILabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRILabDir));
     handles.root = qMRILabDir;
-    handles.method = '';
+    handles.methodfiles = '';
     handles.CurrentData = [];
     handles.FitDataDim = [];
     handles.FitDataSize = [];
@@ -70,17 +70,47 @@ if ~isfield(handles,'opened') % qMRI already opened?
     ModelDir=[qMRILabDir filesep 'Models'];
     addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
     
+    % Fill FileBrowser with buttons
+    MethodList = getappdata(0, 'MethodList');
+    MethodList = strrep(MethodList, '.m', '');
+    for iMethod=1:length(MethodList)
+        % Create browser panel buttons
+        switch MethodList{iMethod}
+            case 'bSSFP'
+                MRIinputs = {'Mask' 'MTdata' 'R1map'};
+            case 'SIRFSE'
+                MRIinputs = {'Mask' 'MTdata' 'R1map'};
+            case 'SPGR'
+                MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
+            otherwise
+                Modelfun = str2func(MethodList{iMethod});
+                Model = Modelfun();
+                MRIinputs = Model.MRIinputs;
+        end
+        % create file browser uicontrol with specific inputs
+        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{MethodList{iMethod} MRIinputs{:}});
+        FileBrowserList(iMethod).Visible('off');
+    end
+
+    SetAppData(FileBrowserList);
+    
     % LOAD DEFAULTS
-    if length(varargin)>1
+    if ~isempty(varargin)
         Model = varargin{1};
         SetAppData(Model);
         Method = class(Model);
+        if length(varargin)>1
+            data=varargin{2};
+            for ff=fieldnames(data)';
+                FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+            end
+        end
     else
         load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
     end
     % Set Default
     set(handles.MethodMenu, 'String', Method);
-
+    
     
     SetActive('FitData', handles);
     MethodMenu_Callback(hObject, eventdata, handles,Method);
@@ -134,16 +164,48 @@ end
 % METHODMENU
 function MethodMenu_Callback(hObject, eventdata, handles,Method)
 SetAppData(Method)
+% Start by updating the Model object
+if ~ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+    if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
+        Model = getappdata(0,'Model');
+    else % otherwise create a new object of this method
+        modelfun  = str2func(Method);
+        Model = modelfun();
+    end
+    SetAppData(Model)
+end
+
+% Now create Simulation panel
 set(handles.MethodMenu,'String',Method)
-% Simulations?
-handles.method = fullfile(handles.root,'Models_Functions',[Method 'fun']);
+handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.uipanel35,'Visible','on') % show the simulation panel
-    PathName = fullfile(handles.method,'Parameters');
+    PathName = fullfile(handles.methodfiles,'Parameters');
     LoadDefaultOptions(PathName);
 else
+    % find the Simulation functions of the selected Method
+    Methodfun = methods(Method);
+    Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
     % Update Options Panel
-    set(handles.uipanel35,'Visible','off') % hide the simulation panel
+    if isempty(Simfun)
+        set(handles.uipanel35,'Visible','off') % hide the simulation panel
+    else
+        set(handles.uipanel35,'Visible','on') % show the simulation panel
+        delete(setdiff(findobj(handles.uipanel35),handles.uipanel35))
+        
+        N = length(Simfun); %
+        Jh = min(0.14,.8/N);
+        J=1:max(N,6); J=(J-1)/max(N,6)*0.85; J=1-J-Jh-.01;
+        for i = 1:N
+            if exist([Simfun{i} '_GUI'],'file')
+                uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
+                    'Parent',handles.uipanel35,'Units','normalized','Position',[.04 J(i) .92 Jh],...
+                    'HorizontalAlignment','center','FontWeight','bold','Callback',...
+                    @(x,y) SimfunGUI([Simfun{i} '_GUI']));
+            end
+        end
+        
+    end
 end
 
 % Update Options Panel
@@ -153,46 +215,21 @@ if ~isempty(h)
 end
 OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
-MethodList = getappdata(0, 'MethodList');
-MethodList = strrep(MethodList, '.m', '');
-MethodCount = numel(MethodList);
-
-if ~isfield(handles,'FileBrowserList')
-    % Create File Browser uicontrols for all methods if doesn't exist
-    FitDataPanelObj = findobj('Tag', 'FitDataFileBrowserPanel');
-    FileBrowserList = repmat(MethodBrowser(FitDataPanelObj),1,MethodCount);
-    SetAppData(FileBrowserList);
-    handles.FileBrowserList = FileBrowserList;
-else
-    FileBrowserList = GetAppData('FileBrowserList');
-end
-
-for i=1:MethodCount
+% Show FileBrowser
+FileBrowserList = GetAppData('FileBrowserList');
+MethodNum = find(strcmp([FileBrowserList.MethodID],Method));
+for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
-
-% Create browser panel buttons
-switch Method
-    case 'bSSFP'
-        MRIinputs = {'Mask' 'MTdata' 'R1map'};
-    case 'SIRFSE'
-        MRIinputs = {'Mask' 'MTdata'};
-    case 'SPGR'
-        MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
-    otherwise
-        Model = getappdata(0,'Model');
-        MRIinputs = Model.MRIinputs;
-end
-
-MethodNum = find(strcmp(MethodList, Method));
-if strcmp(FileBrowserList(MethodNum).GetMethod, 'unassigned')
-    % create file browser uicontrol with specific inputs
-    FileBrowserList(MethodNum) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{Method MRIinputs{:}});
-end
-
 FileBrowserList(MethodNum).Visible('on');
-SetAppData(FileBrowserList);
+
 guidata(hObject, handles);
+
+function SimfunGUI(functionName)
+Model = getappdata(0,'Model');
+SimfunGUI = str2func(functionName);
+SimfunGUI(Model);
+
 
 function MethodMenu_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -248,12 +285,7 @@ switch Method
     case 'SIRFSE'
         SIRFSE_OptionsGUI(gcf);
     otherwise
-        if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
-            Model = getappdata(0,'Model');
-        else % otherwise create a new object of this method
-            modelfun  = str2func(Method);
-            Model = modelfun();
-        end
+        Model = getappdata(0,'Model');
         Custom_OptionsGUI(gcf,Model);
 end
 
@@ -269,7 +301,7 @@ end
 
 % SimSave
 function SimSave_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile(handles.method,'SimResults','SimResults.mat'));
+[FileName,PathName] = uiputfile(fullfile(handles.methodfiles,'SimResults','SimResults.mat'));
 if PathName == 0, return; end
 CurrentPanel = GetAppData('CurrentPanel');
 switch CurrentPanel
@@ -374,7 +406,7 @@ SimCurveResults = SimCurveFitData(MTdata);
 SimCurveSetFitResults(SimCurveResults, handles);
 axes(handles.SimCurveAxe);
 SimCurvePlotResults(handles);
-SimCurveSaveResults(fullfile(handles.method,'SimResults'), 'SimCurveTempResults.mat', handles)
+SimCurveSaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimCurveTempResults.mat', handles)
 
 % SET FIT RESULTS TABLE
 function SimCurveSetFitResults(SimCurveResults, handles)
@@ -489,7 +521,7 @@ for ii = 1:8
 end
 
 SetAppData(SimVaryResults);
-SimVarySaveResults(fullfile(handles.method,'SimResults'), 'SimVaryTempResults.mat', handles);
+SimVarySaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimVaryTempResults.mat', handles);
 SimVaryUpdatePopUp(handles);
 axes(handles.SimVaryAxe);
 SimVaryPlotResults(handles);
@@ -647,7 +679,7 @@ if (isempty(RndParam)); RndParam = GetRndParam(handles); end
 SimRndResults  =  VaryRndParam(Sim,Prot,FitOpt,SimRndOpt,RndParam,Method);
 SetAppData(SimRndResults);
 AnalyzeResults(RndParam, SimRndResults, handles);
-SimRndSaveResults(fullfile(handles.method,'SimResults'), 'SimRndTempResults.mat', handles)
+SimRndSaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimRndTempResults.mat', handles)
 
 
 %########################### RANDOM OPTIONS ###############################
@@ -917,7 +949,6 @@ SetActive('FitData', handles);
 function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 Method = GetMethod(handles);
-handles.method = fullfile(handles.root,Method);
 FitGo_FitData(hObject, eventdata, handles);
 
 

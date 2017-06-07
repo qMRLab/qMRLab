@@ -1,7 +1,7 @@
 classdef DTI
     properties
         MRIinputs = {'Diffusiondata','Mask'};
-        xnames = { 'FA','L1','L2','L3'};
+        xnames = { 'L1','L2','L3'};
         voxelwise = 1;
 
         % fitting options
@@ -12,7 +12,7 @@ classdef DTI
         
         % Protocol
         ProtFormat ={'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; 
-        Prot  = []; % You can define a default protocol here.
+        Prot  = txt2mat('DefaultProtocol_NODDI.scheme'); % You can define a default protocol here.
         
         % Model options
         buttons = {};
@@ -21,11 +21,18 @@ classdef DTI
     end
     
     methods
+        function obj = DTI
+            obj = button2opts(obj);
+        end
+
         function Smodel = equation(obj, x)
             Prot = ConvertSchemeUnits(obj.Prot);
             bvec = Prot(:,1:3);
             bvalue = scd_scheme_bvalue(Prot);
-            D = zeros(3,3); D(:) = x.D;
+            D = zeros(3,3); 
+            if isfield(x,'D'), D(:) = x.D;
+            else, D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3;
+            end
             Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
         end
         
@@ -78,6 +85,34 @@ classdef DTI
             % plot fitting curves
             scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'none','-');
         end
+        
+        
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+            if ~exist('display','var'), display=1; end
+            Smodel = equation(obj, x);
+            sigma = max(Smodel)/SNR;
+            data.Diffusiondata = random('rician',Smodel,sigma);
+            FitResults = fit(obj,data);
+            D = zeros(3,3); D(:) = FitResults.D;
+            [V,L]=eig(D);
+            [L,I]=max(diag(L));
+            fiberdirection=V(:,I);
+
+            if display
+                plotmodel(obj, FitResults, data);
+                hold on
+                Prot = ConvertSchemeUnits(obj.Prot);
+                h = scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'o','none');
+                set(h,'LineWidth',.5)
+            end
+        end
+        
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, SNR, runs);
+            
+        end
+
         
     end
 end

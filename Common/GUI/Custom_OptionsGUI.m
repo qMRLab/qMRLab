@@ -38,13 +38,14 @@ handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
 handles.caller = [];            % Handle to caller GUI
-if (~isempty(varargin))         % If called from GUI, set position to dock left
+if (~isempty(varargin) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
     handles.caller = varargin{1};
     CurrentPos = get(gcf, 'Position');
     CallerPos = get(handles.caller, 'Position');
     NewPos = [CallerPos(1)+CallerPos(3), CallerPos(2)+CallerPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
     set(gcf, 'Position', NewPos);
 end
+handles.opened = 1;
 
 % Load model parameters
 Model = varargin{2};
@@ -107,7 +108,7 @@ if ~isempty(opts)
     for ih=1:length(OptionsPanel_handle)
         set(OptionsPanel_handle(ih),'Callback',@(src,event) ModelOptions_Callback(handles))
     end
-    ModelOptions_Callback(handles);
+    SetOpt(handles);
 end
 
 guidata(hObject, handles);
@@ -170,12 +171,16 @@ for i=1:N
     end
     Model.options.(matlab.lang.makeValidName(opts{2*i-1}))=optionvalue;
 end
+if ismethod(Model,'UpdateFields')
+    Model = Model.UpdateFields();
+end
 setappdata(0,'Model',Model);
 
 
 % FitOptTable CellEdit
 function FitOptTable_CellEditCallback(hObject, eventdata, handles)
-SetOpt(handles);
+Model = SetOpt(handles);
+OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
 
 function FitOptTable_CreateFcn(hObject, eventdata, handles)
 
@@ -198,7 +203,8 @@ set(handles.ProtFileName,'String',FileName);
 % #########################################################################
 
 function ModelOptions_Callback(handles)
-SetOpt(handles);
+Model = SetOpt(handles);
+OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
 
 
 % --- Executes on button press in Helpbutton.

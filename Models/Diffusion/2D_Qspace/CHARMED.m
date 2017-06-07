@@ -11,7 +11,7 @@ classdef CHARMED
     % ----------------------------------------------------------------------------------------------------
     %
     %  Fitted Parameters:
-    %    * fh :     fraction of water in the hindered compartment
+    %    * fr :     fraction of water in the restricted compartment
     %    * Dh :    Apparent diffusion coefficient of the hindered compartment
     %    * axon diameter index : Mean axonal diameter
     %                                           (weighted by the axonal area --> biased toward the larger axons).
@@ -30,9 +30,8 @@ classdef CHARMED
     %
     % Options:
     %   Sigma of the noise : Standard deviation of the noise, assuming Rician.
-    %                                       Use scd_noise_std_estimation to
-    %                                       measure noise level
-    %                                       If "Compute sigma noise per pixel" is checked, STD across >5 repetitions is used.
+    %                        Use scd_noise_std_estimation to measure noise level
+    %                        Not used if "Compute sigma noise per pixel" is checked. Instead, STD across >5 repetitions is used.
     %   S0 normalization :
     %     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
     %     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
@@ -44,18 +43,20 @@ classdef CHARMED
     
     properties
         MRIinputs = {'DiffusionData','Mask'}; % input data required
-        xnames = {'fh','Dh','diameter_mean','fcsf','lc'}; % name of the fitted parameters
+        xnames = {'fr','Dh','diameter_mean','fcsf','lc','Dcsf','Dintra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [0.6     0.7        6         0         0      ]; % starting point
-        lb            = [0       0.3        3          0         0    ]; % lower bound
-        ub           = [1       3         10         1          20    ]; % upper bound
-        fx            = [0      0           0           1          1  ]; % fix parameters
+        st           = [0.5     0.7        6           0         0    3     1.4 ]; % starting point
+        lb            = [0       0.3        3          0         0    1     0.3 ]; % lower bound
+        ub           = [1       3         10           1        8    4     3   ]; % upper bound
+        fx            = [0      0           0          1         1    1     1   ]; % fix parameters
         
         % Protocol
-        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; % columns of the Protocol matrix.
-        Prot  = [ones(100,1) zeros(100,2) linspace(0,300,100)'*1e-3 0.040*ones(100,1) 0.003*ones(100,1) 0.070*ones(100,1)];
+        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G| (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}; % columns of the Protocol matrix.
+        Prot  = cat(1,[ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.020*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
+                       [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.030*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
+                       [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.040*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)]);
         
         % Model options
         buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'},'S0 normalization',{'Use b=0','Single T2 compartment'},'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
@@ -69,6 +70,13 @@ classdef CHARMED
         end
         
         function Smodel = equation(obj, x)
+            if isstruct(x) % if x is a structure, convert to vector
+                for ix = 1:length(obj.xnames)
+                    xtmp(ix) = x.(obj.xnames{ix});
+                end
+                x = xtmp;
+            end
+            
             x = [x(1:3) 0 x(4:end)]; % add diameter STD parameter (used in the original AxCaliber model)
             opt=obj.options;
             opt.scheme=ConvertSchemeUnits(obj.Prot);
@@ -80,7 +88,7 @@ classdef CHARMED
             
             % Prepare data
             data = max(eps,double(data.DiffusionData)); nT=length(data);
-            if nT~=size(obj.Prot,1), error(['<strong>Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.</strong>']); end
+            if nT~=size(obj.Prot,1), errordlg(['Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.']); end
             
             Prot = ConvertSchemeUnits(obj.Prot);
             
@@ -112,6 +120,12 @@ classdef CHARMED
             obj.st(~fixedparam)=xopt; xopt = obj.st;
             
             %% OUTPUTS
+            % S0
+            S0vals = unique([S0 Prot(:,7)],'rows');
+            for ii=1:size(S0vals,1)
+                xopt(end+1) = S0vals(ii,1);
+                obj.xnames{end+1}=['S0_TE' num2str(S0vals(ii,2))];
+            end
             % T2
             if exist('T2','var')
                 xopt(end+1) = T2;
@@ -119,7 +133,7 @@ classdef CHARMED
             end
             % fr
             xopt(end+1) = 1 - xopt(4) - xopt(1);
-            obj.xnames{end+1}='fr';
+            obj.xnames{end+1}='fh';
             % residue
             xopt(end+1) = residue;
             obj.xnames{end+1}='residue';
@@ -132,16 +146,12 @@ classdef CHARMED
         
         function plotmodel(obj, x, data)
             % u.plotmodel(u.st)
-            if isstruct(x) % if x is a structure, convert to vector
-                for ix = 1:length(obj.xnames)
-                    xtmp(ix) = x.(obj.xnames{ix});
-                end
-                x = xtmp;
-            end
             Prot = ConvertSchemeUnits(obj.Prot);
-            
-            Smodel=obj.equation(x);
+            if ~isempty(x)
+                Smodel=obj.equation(x);
+            end
             % plot data
+            S0 = 1;
             if nargin>2
                 switch obj.options.S0Normalization
                     case 'Single T2 compartment'
@@ -150,7 +160,6 @@ classdef CHARMED
                     case 'Use b=0'
                         S0 = scd_preproc_getS0(data.DiffusionData,Prot);
                 end
-                Smodel = Smodel.*S0;
                 h = scd_display_qspacedata(data.DiffusionData,Prot,strcmp(obj.options.DisplayType,'b-value'));
                 hold on
                 % remove data legends
@@ -162,11 +171,34 @@ classdef CHARMED
             end
             
             % plot fitting curves
-            scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'none','-');
-            
+            if ~isempty(x)
+                Smodel = Smodel.*S0;
+                scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'none','-');
+            end
             hold off
         end
         
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+            if ~exist('display','var'), display=1; end
+            Smodel = equation(obj, x);
+            sigma = max(Smodel)/SNR;
+            data.DiffusionData = random('rician',Smodel,sigma);
+            FitResults = fit(obj,data);
+            if display
+                plotmodel(obj, FitResults, data);
+                hold on
+                Prot = ConvertSchemeUnits(obj.Prot);
+                h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
+                set(h,'LineWidth',.5)
+            end
+        end
+        
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, SNR, runs, OptTable);
+            
+        end
+
     end
 end
 

@@ -3,8 +3,8 @@ function output=scd_model_CHARMED(x,Ax)
 
 % INPUT
 %==========================================================================
-%   x           vector(>7)          fitted params includes: [fh    Dh   mean    std    fcsf  useless(test)   scale1  scale2  scale3  scale4  sca...]
-%                                       fh: hindered diffusion fraction
+%   x           vector(>7)          fitted params includes: [fr    Dh   mean    std    fcsf  useless(test)   scale1  scale2  scale3  scale4  sca...]
+%                                       fr: restricted water fraction
 %                                       Dh: diffusion coefficient for the hindered (extra-axonal) compartment
 %                                       alpha and b define the gamma distribution of weights for different axon diameters (a)
 %--------------------------------------------------------------------------
@@ -38,11 +38,10 @@ G = Ax.scheme(index,4); G=G(:);
 Sdata=Ax.data(index); 
 Sdata=Sdata(:);
 x = real(x);
-fh = x(1); Dh = x(2); mean_d = x(3); std_d = x(4); fcsf = x(5); A = x(6)^2*0.2; % lc = sqrt(A)/0.2 : length of coherence for time dependence (experimental)
+fr = x(1); Dh = x(2); mean_d = x(3); std_d = x(4); fcsf = x(5); A = x(6)^2*0.2; Dcsf = x(7); Dr = x(8);% lc = sqrt(A)/0.2 : length of coherence for time dependence (experimental)
 x=[x(:)' ones(1,10)];
 
 
-if isfield(Ax,'Dr'), Dr = Ax.Dr; else Dr = 1.4; end % tortuosity model, D. Alexander 2008
 if isfield(Ax,'plotfit'), plotfit = Ax.plotfit; else plotfit = 0; end
 if isfield(Ax,'figures'), figures = Ax.figures; else figures = 0; end
 if isfield(Ax,'onediam'), onediam = Ax.onediam; else onediam = 1; end
@@ -50,8 +49,8 @@ if isfield(Ax,'fitname'), fitname = Ax.fitname; else fitname = 'fitplot'; end
 if isfield(Ax,'norm'), norm = Ax.norm; else norm.method = 'fit'; end
 if isfield(Ax,'output_signal'), output_signal = Ax.output_signal; else output_signal = 1; end
 if ~isfield(Ax,'save_plot'), Ax.save_plot=0; end
-if ~isfield(Ax,'Dcsf'), Ax.Dcsf=3; end
-if ~isfield(Ax,'fixDh'), Dh=x(2); else if Ax.fixDh, Dh=Dr*fh/(1-fcsf); end; end
+if ~isfield(Ax,'Dcsf'), Dcsf=3; end
+if ~isfield(Ax,'fixDh'), Dh=x(2); else if Ax.fixDh, Dh=Dr*(1-fr-fcsf)/(1-fcsf); end; end  % tortuosity model, D. Alexander 2008
 
 
 
@@ -77,7 +76,7 @@ Eh=exp(-(2*pi*q).^2.*Dh.*(bigdelta-littledelta/3));
 %Signal model for CSF;
 %==========================================================================
 
-Ecsf=exp(-(2*pi*q).^2*Ax.Dcsf.*(bigdelta-littledelta/3));
+Ecsf=exp(-(2*pi*q).^2*Dcsf.*(bigdelta-littledelta/3));
 
 
 %==========================================================================
@@ -123,7 +122,7 @@ else % cylinders
 end
 
 % Calculating total response :
-CHARMED = fh.*Eh + (1-fh-fcsf).*Er_sum + fcsf.*Ecsf;
+CHARMED = (1-fr-fcsf).*Eh + fr.*Er_sum + fcsf.*Ecsf;
 CHARMED(isnan(CHARMED))=1;
 
 

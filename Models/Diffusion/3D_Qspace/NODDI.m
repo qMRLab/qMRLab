@@ -11,17 +11,42 @@ classdef NODDI
         
         % Protocol
         ProtFormat ={'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'};
-        Prot  = []; % You can define a default protocol here.
+        Prot  = txt2mat('DefaultProtocol_NODDI.scheme'); % You can define a default protocol here.
         
         % Model options
-        buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}, 'Dcsf',2e-9};
+        buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};
         options= struct();
         
     end
     
     methods
+        function obj = NODDI
+            obj = button2opts(obj);
+            obj = UpdateFields(obj);
+        end
+        
+        function obj = UpdateFields(obj)
+            model = MakeModel(obj.options.modelName);
+            Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});
+            obj.xnames = model.paramsStr(Pindex);
+            obj.fx = model.GD.fixed(Pindex);
+            grid = GetSearchGrid(obj.options.modelName, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
+            scale = GetScalingFactors(obj.options.modelName);
+            obj.st = model.GD.fixedvals(Pindex).*scale(Pindex);
+            obj.lb = min(grid,[],2)'.*scale(Pindex);
+            obj.ub = max(grid,[],2)'.*scale(Pindex);
+        end
+        
         function [Smodel, fibredir] = equation(obj, x)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
+            if isstruct(x) % if x is a structure, convert to vector
+                if isfield(x,'ODI'), x = rmfield(x,'ODI'); end
+                x = struct2array(x);
+            end
+            
+            model = MakeModel(obj.options.modelName);
+            if length(x)<length(model.GD.fixedvals)-2, x(end+1)=1; end % b0
+            if length(x)<length(model.GD.fixedvals)-1, x(end+1)=0; x(end+1)=0; end % phi and theta
             
             scale = GetScalingFactors(obj.options.modelName);
             if (strcmp(obj.options.modelName, 'ExCrossingCylSingleRadGPD') ||...
@@ -47,11 +72,12 @@ classdef NODDI
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end
             % load model
             model = MakeModel(obj.options.modelName);
-                        
-            isoIdx=GetParameterIndex(obj.options.modelName,'diso');
-            model.GD.fixed(isoIdx)=1; % gradient descent
-            model.GS.fixed(isoIdx)=1; % grid search
-            model.GS.fixedvals(isoIdx)=obj.options.Dcsf; model.GD.fixedvals(isoIdx)=obj.options.Dcsf;
+            Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});            
+            model.GD.fixed(Pindex)=obj.fx; % gradient descent
+            model.GS.fixed(Pindex)=obj.fx; % grid search
+            scale = GetScalingFactors(obj.options.modelName);
+            model.GS.fixedvals(Pindex)=obj.st./scale(Pindex);
+            model.GD.fixedvals(Pindex)=obj.st./scale(Pindex);
             
             protocol = SchemeToProtocol(obj.Prot);
             
@@ -66,9 +92,6 @@ classdef NODDI
         end
         
         function plotmodel(obj, x, data)
-            if isstruct(x) % if x is a structure, convert to vector
-                x = struct2array(x); x(end) = [];
-            end
             [Smodel, fibredir]=obj.equation(x);
             Prot = ConvertProtUnits(obj.Prot);
                         
@@ -88,6 +111,27 @@ classdef NODDI
             scd_display_qspacedata3D(Smodel,Prot,fibredir,'none','-');
            
             hold off
+            
+        end
+        
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+            if ~exist('display','var'), display=1; end
+            [Smodel, fibredir] = equation(obj, x);
+            sigma = max(Smodel)/SNR;
+            data.DiffusionData = random('rician',Smodel,sigma);
+            FitResults = fit(obj,data);
+            if display
+                plotmodel(obj, FitResults, data);
+                hold on
+                Prot = ConvertProtUnits(obj.Prot);
+                h = scd_display_qspacedata3D(Smodel,Prot,fibredir,'o','none');
+                set(h,'LineWidth',.5)
+            end
+        end
+        
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, SNR, runs, OptTable);
             
         end
     end
