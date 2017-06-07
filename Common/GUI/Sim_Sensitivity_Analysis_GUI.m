@@ -194,8 +194,7 @@ SNR = str2double(get(handles.options.SNR,'String'));
 FitOptTable = get(handles.SimVaryOptTable,'Data'); FitOptTable(:,2)=mat2cell(~[FitOptTable{:,2}]',ones(size(FitOptTable,1),1), 1);
 FitOptTable = cell2struct(FitOptTable,{'xnames','fx','st','lb','ub'},2);
 handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(SNR,runs,FitOptTable);
-set(handles.SimVaryPlotX,'String',fieldnames(handles.SimVaryResults));
-SimVaryPlotResults(handles)
+SetSimVaryResults(handles)
 guidata(hObject, handles);
 
 
@@ -215,9 +214,15 @@ Method = class(handles.Model);
 if PathName == 0, return; end
 load(fullfile(PathName,FileName));
 handles.SimVaryResults = SimVaryResults;
-set(handles.SimVaryPlotX,'String',fieldnames(handles.SimVaryResults));
-set(handles.SimVaryPlotY,'String',fieldnames(handles.SimVaryResults));
+SetSimVaryResults(handles)
 guidata(hObject, handles);
+
+function SetSimVaryResults(handles)
+ff=fieldnames(handles.SimVaryResults);
+set(handles.SimVaryPlotX,'String',ff);
+ff=fieldnames(handles.SimVaryResults.(ff{1}));
+set(handles.SimVaryPlotY,'String',ff(~ismember(ff,{'x','fit'})));
+SimVaryPlotResults(handles)
 
 
 
