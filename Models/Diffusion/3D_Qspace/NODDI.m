@@ -21,6 +21,7 @@ classdef NODDI
     
     methods
         function obj = NODDI
+            if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             obj = button2opts(obj);
             obj = UpdateFields(obj);
         end
@@ -38,7 +39,6 @@ classdef NODDI
         end
         
         function [Smodel, fibredir] = equation(obj, x)
-            if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             if isstruct(x) % if x is a structure, convert to vector
                 if isfield(x,'ODI'), x = rmfield(x,'ODI'); end
                 x = struct2array(x);

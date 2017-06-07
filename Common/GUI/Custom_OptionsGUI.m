@@ -81,7 +81,7 @@ if ~isempty(opts)
     [I,J]=ind2sub([1 nboptions],1:2*N); Iw = 0.8/max(I); I=(0.1+0.8*(I-1)/max(I)); 
     Jh = 0.1; J=(J-1)/nboptions*0.85; J=1-J-0.07;
     for i = 1:N
-        if isfield(Model.options,matlab.lang.makeValidName(opts{2*i-1})), val = Model.options.(matlab.lang.makeValidName(opts{2*i-1})); else val = opts{2*i}; end % retrieve previous value
+        if isfield(Model.options,genvarname(opts{2*i-1})), val = Model.options.(genvarname(opts{2*i-1})); else val = opts{2*i}; end % retrieve previous value
         if islogical(opts{2*i})
             OptionsPanel_handle(i) = uicontrol('Style','checkbox','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
                 'Parent',handles.OptionsPanel,'Units','normalized','Position',[I(2*i-1) J(2*i-1) Iw Jh/2],...
@@ -169,7 +169,7 @@ for i=1:N
     elseif iscell(opts{2*i})
         optionvalue = opts{2*i}{get(handles.OptionsPanel_handle(i),'Value')};
     end
-    Model.options.(matlab.lang.makeValidName(opts{2*i-1}))=optionvalue;
+    Model.options.(genvarname(opts{2*i-1}))=optionvalue;
 end
 if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
