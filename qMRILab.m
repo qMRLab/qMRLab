@@ -164,6 +164,9 @@ end
 % METHODMENU
 function MethodMenu_Callback(hObject, eventdata, handles,Method)
 SetAppData(Method)
+% Display the fitting panel
+SetActive('FitData',handles)
+
 % Start by updating the Model object
 if ~ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
@@ -270,11 +273,9 @@ end
 
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
-eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.73,0.83,0.96])', panel));
 
 function PanelOff(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', panel));
-eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.94,0.94,0.94])', panel));
 
 % OPEN OPTIONS
 function OpenOptionsPanel_Callback(hObject, eventdata, handles)
