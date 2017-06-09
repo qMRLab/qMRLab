@@ -6,7 +6,7 @@ N = length(opts)/2;
 Jh = min(maxSize,1/(N+1)); J=1-Jh:-Jh:0; Jh=1.5*Jh;
 for i = 1:N
     val = opts{2*i};
-    tag=matlab.lang.makeValidName(opts{2*i-1});
+    tag=genvarname(opts{2*i-1});
     if islogical(opts{2*i})
         handle.(tag) = uicontrol('Style','checkbox','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
             'Parent',ParentPanel,'Units','normalized','Position',[I(i) J(i) Iw Jh/2],...

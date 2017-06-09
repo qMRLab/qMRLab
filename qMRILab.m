@@ -164,6 +164,9 @@ end
 % METHODMENU
 function MethodMenu_Callback(hObject, eventdata, handles,Method)
 SetAppData(Method)
+% Display the fitting panel
+SetActive('FitData',handles)
+
 % Start by updating the Model object
 if ~ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
@@ -179,6 +182,7 @@ end
 set(handles.MethodMenu,'String',Method)
 handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+    set(handles.SimPanel,'Visible','off') % hide the simulation panel
     set(handles.uipanel35,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.methodfiles,'Parameters');
     LoadDefaultOptions(PathName);
@@ -187,11 +191,12 @@ else
     Methodfun = methods(Method);
     Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
     % Update Options Panel
+    set(handles.uipanel35,'Visible','off') % hide the simulation panel for qMT methods
     if isempty(Simfun)
-        set(handles.uipanel35,'Visible','off') % hide the simulation panel
+        set(handles.SimPanel,'Visible','off') % hide the simulation panel
     else
-        set(handles.uipanel35,'Visible','on') % show the simulation panel
-        delete(setdiff(findobj(handles.uipanel35),handles.uipanel35))
+        set(handles.SimPanel,'Visible','on') % show the simulation panel
+        delete(setdiff(findobj(handles.SimPanel),handles.SimPanel))
         
         N = length(Simfun); %
         Jh = min(0.14,.8/N);
@@ -199,7 +204,7 @@ else
         for i = 1:N
             if exist([Simfun{i} '_GUI'],'file')
                 uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
-                    'Parent',handles.uipanel35,'Units','normalized','Position',[.04 J(i) .92 Jh],...
+                    'Parent',handles.SimPanel,'Units','normalized','Position',[.04 J(i) .92 Jh],...
                     'HorizontalAlignment','center','FontWeight','bold','Callback',...
                     @(x,y) SimfunGUI([Simfun{i} '_GUI']));
             end
@@ -268,11 +273,9 @@ end
 
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
-eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.73,0.83,0.96])', panel));
 
 function PanelOff(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', panel));
-eval(sprintf('set(handles.%sBtn,''BackgroundColor'', [0.94,0.94,0.94])', panel));
 
 % OPEN OPTIONS
 function OpenOptionsPanel_Callback(hObject, eventdata, handles)
@@ -1407,3 +1410,31 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 function MethodqMT_Callback(hObject, eventdata, handles)
 function ChooseMethod_Callback(hObject, eventdata, handles)
+
+
+% --- Executes on button press in pushbutton169.
+function pushbutton169_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton169 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton168.
+function pushbutton168_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton168 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton167.
+function pushbutton167_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton167 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton166.
+function pushbutton166_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton166 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
