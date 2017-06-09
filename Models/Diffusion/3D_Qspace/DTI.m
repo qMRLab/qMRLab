@@ -3,16 +3,17 @@ classdef DTI
         MRIinputs = {'Diffusiondata','Mask'};
         xnames = { 'L1','L2','L3'};
         voxelwise = 1;
-
+        
         % fitting options
-%         st           = [ 0.7	0.5    0.5	 0.5]; % starting point
-%         lb            = [  0       0       0       0]; % lower bound
-%         ub           = [ 1        3       3       3]; % upper bound
-%         fx            = [ 0        0        0       0]; % fix parameters
+        %         st           = [ 0.7	0.5    0.5	 0.5]; % starting point
+        %         lb            = [  0       0       0       0]; % lower bound
+        %         ub           = [ 1        3       3       3]; % upper bound
+        %         fx            = [ 0        0        0       0]; % fix parameters
         
         % Protocol
-        ProtFormat ={'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}; 
-        Prot  = txt2mat('DefaultProtocol_NODDI.scheme'); % You can define a default protocol here.
+        Prot = struct('DiffusionData',...
+                    struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
+                            'Mat',txt2mat('DefaultProtocol_NODDI.scheme'))); % You can define a default protocol here.
         
         % Model options
         buttons = {};
@@ -24,12 +25,12 @@ classdef DTI
         function obj = DTI
             obj = button2opts(obj);
         end
-
+        
         function Smodel = equation(obj, x)
-            Prot = ConvertSchemeUnits(obj.Prot);
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             bvec = Prot(:,1:3);
             bvalue = scd_scheme_bvalue(Prot);
-            D = zeros(3,3); 
+            D = zeros(3,3);
             if isfield(x,'D'), D(:) = x.D;
             else, D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3;
             end
@@ -37,8 +38,8 @@ classdef DTI
         end
         
         function FitResults = fit(obj,data)
-            if isempty(obj.Prot) || size(obj.Prot,1)~=length(data.Diffusiondata(:)), errordlg('Load a valid protocol'); FitResults=[]; return; end
-            Prot = ConvertSchemeUnits(obj.Prot);
+            if isempty(obj.Prot.DiffusionData.Mat) || size(obj.Prot.DiffusionData.Mat,1)~=length(data.Diffusiondata(:)), errordlg('Load a valid protocol'); FitResults=[]; return; end
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             data = data.Diffusiondata;
             % fit
             D=scd_model_dti(data./scd_preproc_getS0(data,Prot),Prot);
@@ -57,7 +58,7 @@ classdef DTI
             if isempty(FitResults), return; end
             data = data.Diffusiondata;
             % Prepare inputs
-            Prot = ConvertSchemeUnits(obj.Prot);
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             
             % compute model
             Smodel = equation(obj, FitResults);
@@ -97,11 +98,11 @@ classdef DTI
             [V,L]=eig(D);
             [L,I]=max(diag(L));
             fiberdirection=V(:,I);
-
+            
             if display
                 plotmodel(obj, FitResults, data);
                 hold on
-                Prot = ConvertSchemeUnits(obj.Prot);
+                Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
                 h = scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'o','none');
                 set(h,'LineWidth',.5)
             end
@@ -112,7 +113,7 @@ classdef DTI
             SimVaryResults = SimVary(obj, SNR, runs);
             
         end
-
+        
         
     end
 end

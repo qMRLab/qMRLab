@@ -53,11 +53,14 @@ classdef CHARMED
         fx            = [0      0           0          1         1    1     1   ]; % fix parameters
         
         % Protocol
-        ProtFormat = {'Gx' 'Gy'  'Gz'   '|G| (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}; % columns of the Protocol matrix.
-        Prot  = cat(1,[ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.020*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
-                       [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.030*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
-                       [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.040*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)]);
-        
+        Prot = struct('DiffusionData',...
+                 struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
+                        'Mat',  cat(1,[ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.020*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
+                             [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.030*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)],...
+                             [ones(100,1) zeros(100,2) [0 0 0 0 linspace(0,300,96)]'*1e-3 0.040*ones(100,1) 0.008*ones(100,1) 0.070*ones(100,1)])...
+                       )...
+                     ); % You can define a default protocol here.
+
         % Model options
         buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'},'S0 normalization',{'Use b=0','Single T2 compartment'},'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
@@ -79,7 +82,7 @@ classdef CHARMED
             
             x = [x(1:3) 0 x(4:end)]; % add diameter STD parameter (used in the original AxCaliber model)
             opt=obj.options;
-            opt.scheme=ConvertSchemeUnits(obj.Prot);
+            opt.scheme=ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             Smodel = scd_model_CHARMED(x,opt);
         end
         
@@ -88,9 +91,9 @@ classdef CHARMED
             
             % Prepare data
             data = max(eps,double(data.DiffusionData)); nT=length(data);
-            if nT~=size(obj.Prot,1), errordlg(['Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot,1)) ' rows.']); end
+            if nT~=size(obj.Prot.DiffusionData.Mat,1), errordlg(['Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot.DiffusionData.Mat,1)) ' rows.']); end
             
-            Prot = ConvertSchemeUnits(obj.Prot);
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             
             switch obj.options.S0Normalization
                 case 'Single T2 compartment'
@@ -109,7 +112,7 @@ classdef CHARMED
             %% RICIAN NOISE
             % use Rician noise and fix fix b=0
             if obj.options.ComputeSigmaPerVoxel
-                SigmaNoise = computesigmanoise(obj.Prot,data);
+                SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data);
                 if ~SigmaNoise, return; end
             else
                 SigmaNoise = obj.options.SigmaOfTheNoise;
@@ -146,7 +149,7 @@ classdef CHARMED
         
         function plotmodel(obj, x, data)
             % u.plotmodel(u.st)
-            Prot = ConvertSchemeUnits(obj.Prot);
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             if ~isempty(x)
                 Smodel=obj.equation(x);
             end
@@ -178,6 +181,16 @@ classdef CHARMED
             hold off
         end
         
+        function plotProt(obj)
+            % round bvalue
+            Prot = obj.Prot.DiffusionData.Mat;
+            Prot(:,4)=round(scd_scheme2bvecsbvals(Prot)*100)*10;
+            % display
+            scd_scheme_display(Prot)
+            subplot(2,2,4)
+            scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat))
+        end
+
         function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
             if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
@@ -187,7 +200,7 @@ classdef CHARMED
             if display
                 plotmodel(obj, FitResults, data);
                 hold on
-                Prot = ConvertSchemeUnits(obj.Prot);
+                Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
                 h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
                 set(h,'LineWidth',.5)
             end
@@ -196,8 +209,15 @@ classdef CHARMED
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, SNR, runs, OptTable);
-            
         end
+        
+        function Sim_Display_Protocol(obj)
+            % round bvalue
+            obj.Prot.DiffusionData.Mat(:,4)=round(scd_scheme2bvecsbvals(obj.Prot.DiffusionData.Mat)*100)*10;
+            % display
+            scd_scheme_display(obj.Prot.DiffusionData.Mat)
+        end
+
 
     end
 end
