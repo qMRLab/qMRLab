@@ -112,7 +112,8 @@ classdef BrowserSet
             Data = getappdata(0,'Data');
             tmp = [];
             if strcmp(ext,'.mat');
-                tmp = load(obj.FullFile);                                
+                mat = load(obj.FullFile);
+                tmp = mat.(name);
             elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
                 nii = load_untouch_nii(obj.FullFile);
                 tmp = nii.img;
