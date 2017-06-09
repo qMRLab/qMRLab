@@ -8,9 +8,12 @@ classdef MTSAT
         voxelwise = 0;
         
         % Protocol
-        ProtFormat ={'Flip Angle' 'TR'};
-        Prot  = [5 0.031; 5 0.031; 15 0.011]; % You can define a default protocol here.
-        
+        Prot = struct('MT',struct('Format',{{'Flip Angle' 'TR (s)' 'Offset (Hz)'}},...
+                                   'Mat',  [5 0.031 500]),...
+                      'T1',struct('Format',{{'Flip Angle' 'TR'}},...
+                                   'Mat',  [5 0.031]),...
+                      'PD',struct('Format',{{'Flip Angle' 'TR'}},...
+                                   'Mat',  [15 0.011]));        
         % Model options
         buttons = {'offset frequency (Hz)', 1000};
         options= struct();
@@ -23,11 +26,11 @@ classdef MTSAT
         end
         
         function FitResult = fit(obj,data)
-            MTparams = obj.Prot(1,:); 
-            %MTparams(1,1) = MTparams(1,1)*pi()/180;
-            PDparams = obj.Prot(2,:);
+            MTparams = obj.Prot.MT.Mat; 
+
+            PDparams = obj.Prot.PD.Mat;
             
-            T1params = obj.Prot(3,:);
+            T1params = obj.Prot.T1.Mat;
             
             FitResult = MTSAT_exec(data, MTparams, PDparams, T1params);
         end

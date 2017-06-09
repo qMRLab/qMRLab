@@ -1,7 +1,7 @@
 function varargout = Custom_OptionsGUI(varargin)
 % Custom_OPTIONSGUI MATLAB code for Custom_OptionsGUI.fig
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Franï¿½is Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMTLab in your work, please cite :
 
@@ -63,15 +63,6 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     set(handles.FitOptTable,'Data',FitOptTable)
 end
 
-set(handles.ProtFormat,'String',strjoin(Model.ProtFormat))
-set(handles.tableProt,'ColumnName',Model.ProtFormat(:))
-% if class is MTSAT, put row names to ID MRI input protocol info
-if strcmp(class(Model), 'MTSAT')
-    set(handles.tableProt,'RowName', Model.MRIinputs(1:3));
-end
-set(handles.tableProt,'Data',Model.Prot)
-
-
 % Load model specific options
 opts=Model.buttons;
 
@@ -111,6 +102,21 @@ if ~isempty(opts)
     SetOpt(handles);
 end
 
+% Load Protocol
+fields=fieldnames(Model.Prot);
+N=length(fields);
+for ii=1:N
+    handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .95/N]);
+    handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .13 .9 .87]);
+    uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.05 0.02 .9 .1],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+    handles.(fields{ii}).table.ColumnEditable=true;
+    handles.(fields{ii}).table.ColumnName= Model.Prot.(fields{ii}).Format;
+    handles.(fields{ii}).table.CellEditCallback=@(hObject,Prot) UpdateProt(fields{ii},Prot);
+end
+
+if ismethod(Model,'plotProt')
+        uicontrol(handles.ProtEditPanel,'Units','normalized','Position',[.05 0 .9 .05],'Style','pushbutton','String','figure','Callback','figure(''color'',''white''), Model = getappdata(0,''Model''); Model.plotProt;');
+end
 guidata(hObject, handles);
 
 
@@ -188,15 +194,32 @@ function FitOptTable_CreateFcn(hObject, eventdata, handles)
 %                           PROTOCOL PANEL
 % #########################################################################
 
-% LOAD
-function ProtLoad_Callback(hObject, eventdata, handles)
+function DefaultProt_Callback(hObject, eventdata, handles)
+Model = getappdata(0,'Model');
+modelfun = str2func(class(Model));
+defaultModel = modelfun();
+Model.Prot = defaultModel.Prot;
+setappdata(0,'Model',Model);
+set(handles.ProtFileName,'String','Protocol Filename');
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+
+function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
 [FileName,PathName] = uigetfile({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},'Load Protocol Matrix');
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
 if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
-set(handles.tableProt,'Data',Prot)
-set(handles.ProtFileName,'String',FileName);
+set(handles.(MRIinput).table,'Data',Prot)
+Model = getappdata(0,'Model');
+Model.Prot.(MRIinput).Mat = Prot;
+setappdata(0,'Model',Model);
+
+
+function UpdateProt(MRIinput,Prot)
+Model = getappdata(0,'Model');
+Model.Prot.(MRIinput).Mat = Prot.Source.Data;
+setappdata(0,'Model',Model);
+
 
 % #########################################################################
 %                           MODEL OPTIONS PANEL
@@ -217,12 +240,10 @@ doc(class(getappdata(0,'Model')))
 
 % --- Executes on button press in Default.
 function Default_Callback(hObject, eventdata, handles)
-% hObject    handle to Default (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 oldModel = getappdata(0,'Model');
 modelfun = str2func(class(oldModel));
 Model = modelfun();
+Model.Prot = oldModel.Prot;
 setappdata(0,'Model',Model);
 set(handles.ParametersFileName,'String','Parameters Filename');
 OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
