@@ -13,7 +13,9 @@ hold on;
 if (strcmp(Xaxis,Yaxis))
     plot([Xmin Xmax], [Xmin Xmax], 'k-');
 else
-    plot([Xmin Xmax],[SimVaryResults.(Xaxis).(Yaxis).GroundTruth SimVaryResults.(Xaxis).(Yaxis).GroundTruth], 'k-');
+    if ~isempty(SimVaryResults.(Xaxis).(Yaxis).GroundTruth)
+        plot([Xmin Xmax],[SimVaryResults.(Xaxis).(Yaxis).GroundTruth SimVaryResults.(Xaxis).(Yaxis).GroundTruth], 'k-');
+    end
 end
 errorbar(X, Y, E, 'bo');
 

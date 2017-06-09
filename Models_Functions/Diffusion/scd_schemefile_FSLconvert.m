@@ -1,7 +1,7 @@
 function scd_schemefile_FSLconvert(bvalfile, bvecfile, Gmax, T180, schemefile)
 %
 % scd_schemefile_FSLconvert(bvalfile, bvecfile, Gmax, T180, schemefile)
-% scd_schemefile_FSLconvert('bvals.txt', 'bvecs.txt', 80, 5.8, 'scheme.txt')
+% scd_schemefile_FSLconvert('bvals.txt', 'bvecs.txt', 80, 18, 'scheme.txt')
 %
 % This function assumes that TE is minimized for the maximal bvalue
 % (diffusion gradients duration are maximized).
