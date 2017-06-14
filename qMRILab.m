@@ -69,7 +69,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     % Fill Menu with models
     handles.ModelDir = [qMRILabDir filesep 'Models'];
     guidata(hObject, handles);
-    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod);
+    addModelMenu(hObject, eventdata, handles);
     
     % Fill FileBrowser with buttons
     MethodList = getappdata(0, 'MethodList');
@@ -138,12 +138,10 @@ for k=1:length(Fields)
 end
 
 function MethodSelection_Callback(hObject, eventdata, handles)
-index = get(hObject,'Value');
-methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
-selection = methods{index};
-MethodMenu(hObject,eventdata,handles,selection);
+Method = GetMethod(handles);
+MethodMenu(hObject,eventdata,handles,Method);
 
-function addModelMenu(hObject, eventdata, handles, parent)
+function addModelMenu(hObject, eventdata, handles)
 methods = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
 methodsM = strcat(sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1),'.m'); 
 MethodList = GetAppData('MethodList');
@@ -247,6 +245,7 @@ end
 % SET DEFAULT METHODSELECTION
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
+setappdata(0, 'Method', Method);
 save(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'),'Method');
 
 % SIMCURVE
@@ -955,10 +954,8 @@ SetActive('FitData', handles);
 function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 Method = GetMethod(handles);
+setappdata(0, 'Method', Method);
 FitGo_FitData(hObject, eventdata, handles);
-
-
-
 
 
 
