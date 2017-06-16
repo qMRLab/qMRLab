@@ -463,7 +463,12 @@ function SimCurveResults = SimCurveFitData(MTdata)
 FitOpt.R1 = computeR1obs(Sim.Param);
 MTnoise = [];
 if (Sim.Opt.AddNoise)
-    MTnoise = noise( MTdata, Sim.Opt.SNR );
+    switch Method
+        case {'SIRFSE', 'SPGR'}
+            MTnoise = addNoise(MTdata, Sim.Opt.SNR, 'mt');
+        case 'bSSFP'
+            MTnoise = addNoise(MTdata, Sim.Opt.SNR, 'magnitude');
+    end
     data = MTnoise;
 else
     data = MTdata;
