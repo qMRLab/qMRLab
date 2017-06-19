@@ -109,12 +109,18 @@ if ~isfield(handles,'opened') % qMRI already opened?
     else
         load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
     end
+    
     % Set Default
-    set(handles.MethodSelection, 'String', Method);
+    methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
+    i = 1;
+    while ~strcmp(Method, methods{i})
+        i = i+1;
+    end  
+    set(handles.MethodSelection, 'Value', i);
     
     
     SetActive('FitData', handles);
-    MethodMenu(hObject, eventdata, handles,Method);
+    MethodMenu(hObject, eventdata, handles, Method);
 else
     OpenOptionsPanel_Callback(hObject, eventdata, handles)
 end
