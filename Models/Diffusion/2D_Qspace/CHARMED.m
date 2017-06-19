@@ -127,7 +127,7 @@ classdef CHARMED
             S0vals = unique([S0 Prot(:,7)],'rows');
             for ii=1:size(S0vals,1)
                 xopt(end+1) = S0vals(ii,1);
-                obj.xnames{end+1}=['S0_TE' num2str(S0vals(ii,2))];
+                obj.xnames{end+1}=['S0_TE' num2str(round(S0vals(ii,2)))];
             end
             % T2
             if exist('T2','var')

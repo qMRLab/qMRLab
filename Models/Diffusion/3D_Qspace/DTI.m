@@ -87,7 +87,16 @@ classdef DTI
             scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'none','-');
         end
         
-        
+        function plotProt(obj)
+            % round bvalue
+            Prot = obj.Prot.DiffusionData.Mat;
+            Prot(:,4)=round(scd_scheme2bvecsbvals(Prot)*100)*10;
+            % display
+            scd_scheme_display(Prot)
+            subplot(2,2,4)
+            scd_scheme_display_3D_Delta_delta_G(ConvertProtUnits(obj.Prot.DiffusionData.Mat))
+        end
+
         function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
             if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
