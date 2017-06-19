@@ -189,7 +189,7 @@ end
 
 % --- Executes on button press in SimVaryUpdate.
 function SimVaryUpdate_Callback(hObject, eventdata, handles)
-runs = str2double(get(handles.options.x_OfRuns,'String'));
+runs = str2double(get(handles.options.x0x23OfRuns,'String'));
 SNR = str2double(get(handles.options.SNR,'String'));
 FitOptTable = get(handles.SimVaryOptTable,'Data'); FitOptTable(:,2)=mat2cell(~[FitOptTable{:,2}]',ones(size(FitOptTable,1),1), 1);
 FitOptTable = cell2struct(FitOptTable,{'xnames','fx','st','lb','ub'},2);

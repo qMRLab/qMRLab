@@ -185,7 +185,9 @@ classdef MethodBrowser
         % set the filename
         function setFileName(obj,fieldName, FileName)
             % setFileName(obj,fieldName, FileName)
-            indexfieldName = strcmp(cellfun(@(cc) cc{1},get([obj.ItemsList.NameText]','String'),'UniformOutput',false),fieldName);
+            list_file = get([obj.ItemsList.NameText]','String');
+            if iscell(list_file{1}), list_file = cellfun(@(c) c{1}, list_file,'UniformOutput',0); end
+            indexfieldName = strcmp(list_file,fieldName);
             if sum(indexfieldName)
                 obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)
             end

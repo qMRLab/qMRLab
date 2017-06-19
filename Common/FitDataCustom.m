@@ -1,4 +1,4 @@
-function Fit = FitDataCustom( data, Model, wait )
+function Fit = FitDataCustom(Model, data, wait )
 
 % ----------------------------------------------------------------------------------------------------
 % Fit = FitData( data, Model, wait )
