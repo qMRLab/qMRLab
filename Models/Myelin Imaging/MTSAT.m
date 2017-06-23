@@ -3,7 +3,7 @@ classdef MTSAT
 % MTSAT :  Magnetization transfer saturation 
 % ----------------------------------------------------------------------------------------------------
     properties
-        MRIinputs = {'MT','T1', 'PD', 'Mask'};
+        MRIinputs = {'MTw','T1w', 'PDw', 'Mask'};
         xnames = {};
         voxelwise = 0;
         
