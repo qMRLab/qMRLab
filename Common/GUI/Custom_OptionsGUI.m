@@ -104,14 +104,15 @@ end
 
 % Load Protocol
 if ~isempty(Model.Prot)
+    delete(setdiff(findobj(handles.ProtEditPanel),handles.ProtEditPanel))
     fields=fieldnames(Model.Prot);
     N=length(fields);
     for ii=1:N
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .05*N .9 (1-.05*N)]);
         uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0 .94 .05*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
-        handles.(fields{ii}).table.ColumnEditable=true;
-        handles.(fields{ii}).table.ColumnName= Model.Prot.(fields{ii}).Format;
+        set(handles.(fields{ii}).table,'ColumnName', Model.Prot.(fields{ii}).Format);
+        handles.(fields{ii}).table.ColumnEditable=true; % Editable for Matlab version > R2015
         handles.(fields{ii}).table.CellEditCallback=@(hObject,Prot) UpdateProt(fields{ii},Prot);
     end
 end
