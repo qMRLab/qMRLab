@@ -74,6 +74,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     % Fill FileBrowser with buttons
     MethodList = getappdata(0, 'MethodList');
     MethodList = strrep(MethodList, '.m', '');
+    flist = findall(0,'type','figure');
     for iMethod=1:length(MethodList)
         % Create browser panel buttons
         switch MethodList{iMethod}
@@ -86,6 +87,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
             otherwise
                 Modelfun = str2func(MethodList{iMethod});
                 Model = Modelfun();
+                close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
                 MRIinputs = Model.MRIinputs;
         end
         % create file browser uicontrol with specific inputs
