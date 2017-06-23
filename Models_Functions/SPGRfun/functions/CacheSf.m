@@ -1,10 +1,10 @@
 function Sf = CacheSf(protocolArg)
-%CACHESF qMRILab command line tool to calculate/cache the Sf table for a
+%CACHESF qMRLab command line tool to calculate/cache the Sf table for a
 %protocol.
 %
 %   protocolArg: 'struct' or 'char' 
 %       case 'struct': Protocol structure variable (Prot).
-%       case 'char': Path to the qMRILab protocol *.mat file. Sf is saved
+%       case 'char': Path to the qMRLab protocol *.mat file. Sf is saved
 %                    to the protocol file.
 %
 %   Example usage:
@@ -101,7 +101,7 @@ function Prot = getProtocolStruct(protocolArg)
             % saved protocol .mat file
         	Prot = load(protocolArg);
         otherwise
-            error('qMRILab:CacheSf:unknownArgument', 'Input argument (protocolArg) is not of type ''struct'' or ''char''.');
+            error('qMRLab:CacheSf:unknownArgument', 'Input argument (protocolArg) is not of type ''struct'' or ''char''.');
     end
 
 end

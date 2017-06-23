@@ -105,7 +105,7 @@ classdef BrowserSet
         
         %------------------------------------------------------------------
         % -- DATA LOAD
-        %   load data from file and make accessible to qMTLab fct
+        %   load data from file and make accessible to qMRLab fct
         function DataLoad(obj)
             obj.FullFile = get(obj.FileBox, 'String');
             [pathstr,name,ext] = fileparts(obj.FullFile);
