@@ -21,12 +21,12 @@ classdef NODDI
     
     methods
         function obj = NODDI
-            if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             obj = button2opts(obj);
             obj = UpdateFields(obj);
         end
         
         function obj = UpdateFields(obj)
+            if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             model = MakeModel(obj.options.modelName);
             Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});
             obj.xnames = model.paramsStr(Pindex);
