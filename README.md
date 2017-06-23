@@ -28,7 +28,7 @@ After installation, we strongly recommend that you run all tests in this reposit
 
 If you have git available on a command-line interface (e.g. Terminal on Mac OSX, Git Shell on Windows), the installation can be completed using a few quick commands.
 
-* In the command-line interface, navigate (`cd`) to the directory that you want to install qMTLab_Tab1s.
+* In the command-line interface, navigate (`cd`) to the directory that you want to install qMRLab
 
 * Clone the directory:
 
@@ -38,7 +38,7 @@ If you have git available on a command-line interface (e.g. Terminal on Mac OSX,
 
 * If you don't have NODDI installed, download it [here](https://www.nitrc.org/projects/noddi_toolbox/) (signup required), and extract the file in the folder qMRLab/External/.
 
-* Open MATLAB, got to the qMTLab folder and run `startup`.
+* Open MATLAB, got to the qMRLab folder and run `startup`.
 
 * To start a qMRLab session, run `qMRILab`.
 
@@ -56,7 +56,7 @@ After installing the software, we suggest that the you evaluate all the test cas
 
 ### Run all tests
 
-To run all tests, from MATLAB (assuming you are already in the qMTLab_Tab1s directory), execute the following command.
+To run all tests, from MATLAB (assuming you are already in the qMRLab directory), execute the following command.
 
 `result = runtests(pwd, 'Recursively', true)`
 
