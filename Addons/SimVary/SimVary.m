@@ -26,6 +26,7 @@ for pp=1:length(OptTable)
                         Sens.fit.(ff{1})(ii,N) = Fittmp.(ff{1});
                     end
                 end
+                %if ~isvalid(h), return; end
                 %if getappdata(h,'canceling'); setappdata(0,'Cancel',1); return; end
             end
             if ishandle(h)

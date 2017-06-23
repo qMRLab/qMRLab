@@ -65,8 +65,8 @@ if ~isfield(handles,'opened')
     end
     set(handles.ParamTable,'Data',FitOptTable)
     
-    % launch plot
-    UpdatePlot_Callback(hObject, eventdata, handles)
+%     % launch plot
+%     UpdatePlot_Callback(hObject, eventdata, handles)
     
     
     % opened
@@ -82,26 +82,32 @@ set(findobj('Name','qMRILab'),'pointer', 'arrow'); drawnow;
 function UpdatePlot_Callback(hObject, eventdata, handles)
 set(findobj('Name','SimCurve'),'pointer', 'watch'); drawnow;
 axes(handles.SimCurveAxe)
-x = get(handles.ParamTable,'Data');
+xtable = get(handles.ParamTable,'Data');
+x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
 SNR = str2double(get(handles.options.SNR,'String'));
 
 if get(handles.options.holdPlot,'value'), hold on; end
-FitResults = Sim_Single_Voxel_Curve(handles.Model,cell2struct(x(~cellfun(@isempty,x(:,2)),2),x(~cellfun(@isempty,x(:,2)),1)),SNR);
+FitResults = Sim_Single_Voxel_Curve(handles.Model,x,SNR);
+F = SimCRLB(handles.Model,handles.Model.Prot.DiffusionData.Mat,x,1/SNR);
 hold off;
 
 % put results in table
 ff = fieldnames(FitResults);
 for ii=1:length(ff)
-    index = strcmp(x(:,1),ff{ii});
+    index = strcmp(xtable(:,1),ff{ii});
     if find(index)
-        x{index,3} = FitResults.(ff{ii})(1);
-        x{index,4} = round((FitResults.(ff{ii})(1) - x{index,2})/x{index,2}*100);
+        xtable{index,3} = FitResults.(ff{ii})(1);
+        xtable{index,4} = round((FitResults.(ff{ii})(1) - xtable{index,2})/xtable{index,2}*100);
     else
-        x{end+1,1} = ff{ii};
-        x{end,3} = FitResults.(ff{ii})(1);
+        xtable{end+1,1} = ff{ii};
+        xtable{end,3} = FitResults.(ff{ii})(1);
     end
 end
-set(handles.ParamTable,'Data',x);
+for ii=1:sum(~handles.Model.fx)
+    ll=find(~handles.Model.fx);
+    xtable{ll(ii),5}=F(ii)*100;
+end
+set(handles.ParamTable,'Data',xtable);
 set(findobj('Name','SimCurve'),'pointer', 'arrow'); drawnow;
 
 

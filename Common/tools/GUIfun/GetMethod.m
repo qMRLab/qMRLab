@@ -1,5 +1,5 @@
 % GET METHOD
 function Method = GetMethod(handles)
-contents =  cellstr(get(handles.MethodMenu, 'String'));
-Method   =  contents{get(handles.MethodMenu, 'Value')};
-setappdata(0, 'Method', Method);
+index = get(handles.MethodSelection,'Value');
+methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
+Method = methods{index};

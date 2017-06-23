@@ -11,7 +11,7 @@ for i = 1:N
         handle.(tag) = uicontrol('Style','checkbox','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
             'Parent',ParentPanel,'Units','normalized','Position',[I(i) J(i) Iw Jh/2],...
             'Value',val,'HorizontalAlignment','center');
-    elseif isnumeric(opts{2*i})
+    elseif isnumeric(opts{2*i}) && length(opts{2*i})==1
         uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
             'Parent',ParentPanel,'Units','normalized','HorizontalAlignment','left','Position',[I(i) J(i) Iw/2 Jh/2]);
         handle.(tag) = uicontrol('Style','edit',...
@@ -22,7 +22,9 @@ for i = 1:N
         if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*i},'UniformOutput',0))); end % retrieve previous value
         handle.(tag) = uicontrol('Style','popupmenu',...
             'Parent',ParentPanel,'Units','normalized','Position',[(I(i)+Iw/3) J(i) 2.2*Iw/3 Jh/2],'String',opts{2*i},'Value',val);
-        
+    elseif isnumeric(opts{2*i}) && length(opts{2*i})>1
+             handle.(tag) = uitable(ParentPanel,'Data',opts{2*i},'Units','normalized','Position',[I(i) J(i) Iw Jh/2]);
+
     end
 end
 

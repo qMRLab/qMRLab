@@ -104,7 +104,12 @@ for i = 1:length(x)
     
     for k = 1:runs
         if (AddNoise)
-            MTdata = noise( M, SNR );
+            switch Method
+            	case {'SIRFSE', 'SPGR'}
+                	MTdata = addNoise(M, SNR, 'mt');
+                case 'bSSFP'
+                    MTdata = addNoise(M, SNR, 'magnitude');
+            end
         else
             MTdata = M;
         end     

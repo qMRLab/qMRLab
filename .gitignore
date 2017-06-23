@@ -57,3 +57,10 @@ SIRFSE/SimResults/SimCurveTempResults.mat
 SIRFSE/SimResults/SimRndTempResults.mat
 Data/SPGR_demo/flipdata.m
 MTSAT/interface.jpg
+
+# External Toolboxes
+External/*
+
+# Exceptions
+!.gitemptydir
+
