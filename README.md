@@ -28,7 +28,7 @@ After installation, we strongly recommend that you run all tests in this reposit
 
 If you have git available on a command-line interface (e.g. Terminal on Mac OSX, Git Shell on Windows), the installation can be completed using a few quick commands.
 
-* In the command-line interface, navigate (`cd`) to the directory that you want to install qMTLab_Tab1s.
+* In the command-line interface, navigate (`cd`) to the directory that you want to install qMRLab
 
 * Clone the directory:
 
