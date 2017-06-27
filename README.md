@@ -6,11 +6,11 @@ qMRlab is a powerful, open source, scalable, easy to use and intuitive software 
 
 
 qMRLab is a fork from the initial project ['qMTLab'] (https://github.com/neuropoly/qMTLab):
-  For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'] (https://github.com/neuropoly/qMRLab/raw/master/qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube'](https://youtu.be/WG0tVe-SFww).
+  For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'] (https://github.com/neuropoly/qMRLab/raw/master/Documentation/qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube'](https://youtu.be/WG0tVe-SFww).
 
 The simulation part allows end users to easily simulate qMT data using the above described methods, evaluate how well these models perform under known parameters input, determine the most appropriate acquisition protocol and evaluate how fitting constraints impact the results. The data fitting part provides a simple interface to import real-world qMT data, fit them using the selected fitting procedure, and visualize the resulting parameters maps.
 
-Please view ['ReadMe.docx'](https://github.com/neuropoly/qMRLab/raw/master/ReadMe.docx) for details.
+Please view ['ReadMe.docx'](https://github.com/neuropoly/qMRLab/raw/master/Documentation/ReadMe.docx) for details.
 
 Please report any bug or suggestions in [github](https://github.com/neuropoly/qMRLab/issues).
 
