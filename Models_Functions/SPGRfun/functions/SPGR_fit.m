@@ -10,7 +10,7 @@ function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 %
 % Adapted for qMRILab by: Ian Gagnon, 2017
 % ----------------------------------------------------------------------------------------------------
-% If you use qMTLab in your work, please cite :
+% If you use qMRLab in your work, please cite :
 
 % Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
 % Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),

@@ -3,7 +3,7 @@ function varargout = Custom_OptionsGUI(varargin)
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-Fran�is Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
-% If you use qMTLab in your work, please cite :
+% If you use qMRLab in your work, please cite :
 
 % Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
 % Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
@@ -187,6 +187,30 @@ function createButtons(handles, opts, Model, Panel)
         set(OptionsPanel_handle(ih),'Callback',@(src,event) ModelOptions_Callback(handles))
     end
     SetOpt(handles);
+end
+
+% Load Protocol
+if ~isempty(Model.Prot)
+    delete(setdiff(findobj(handles.ProtEditPanel),handles.ProtEditPanel))
+    fields=fieldnames(Model.Prot);
+    N=length(fields);
+    for ii=1:N
+        handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
+        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .05*N .9 (1-.05*N)]);
+        uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0 .94 .05*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+        set(handles.(fields{ii}).table,'ColumnName', Model.Prot.(fields{ii}).Format);
+        handles.(fields{ii}).table.ColumnEditable=true; % Editable for Matlab version > R2015
+        handles.(fields{ii}).table.CellEditCallback=@(hObject,Prot) UpdateProt(fields{ii},Prot);
+    end
+end
+
+if ismethod(Model,'plotProt')
+        uicontrol(handles.ProtEditPanel,'Units','normalized','Position',[.05 0 .9 .05],'Style','pushbutton','String','Plot Protocol','Callback','figure(''color'',''white''), Model = getappdata(0,''Model''); Model.plotProt;');
+end
+guidata(hObject, handles);
+
+
+
 
 
 function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles) 
@@ -316,41 +340,4 @@ setappdata(0,'Model',Model);
 % #########################################################################
 
 function ModelOptions_Callback(handles)
-Model = SetOpt(handles);
-OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
-
-% --- Executes on button press in Helpbutton.
-function Helpbutton_Callback(hObject, eventdata, handles)
-doc(class(getappdata(0,'Model')))
-
-% --- Executes on button press in Default.
-function Default_Callback(hObject, eventdata, handles)
-oldModel = getappdata(0,'Model');
-modelfun = str2func(class(oldModel));
-Model = modelfun();
-Model.Prot = oldModel.Prot;
-setappdata(0,'Model',Model);
-set(handles.ParametersFileName,'String','Parameters Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller, Model)
-
-% --- Executes on button press in Load.
-function Load_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile('*.mat');
-if PathName == 0, return; end
-load(fullfile(PathName,FileName));
-oldModel = getappdata(0,'Model');
-if ~isa(Model,class(oldModel))
-    errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
-    return;
-end
-setappdata(0,'Model',Model)
-set(handles.ParametersFileName,'String',FileName);
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
-
-% --- Executes on button press in Save.
-function Save_Callback(hObject, eventdata, handles)
-Model = getappdata(0,'Model');
-[file,path] = uiputfile(['qMRILab_' class(Model) 'Parameters.mat'],'Save file name');
-save(fullfile(path,file),'Model')
-
-
+Model                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
