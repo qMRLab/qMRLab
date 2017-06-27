@@ -6,13 +6,13 @@ qMRlab is a powerful, open source, scalable, easy to use and intuitive software 
 
 
 qMRLab is a fork from the initial project ['qMTLab'] (https://github.com/neuropoly/qMTLab):
-  For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'] (https://github.com/neuropoly/qMTLab/raw/master/qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube'](https://youtu.be/WG0tVe-SFww).
+  For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'] (https://github.com/neuropoly/qMRLab/raw/master/qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube'](https://youtu.be/WG0tVe-SFww).
 
 The simulation part allows end users to easily simulate qMT data using the above described methods, evaluate how well these models perform under known parameters input, determine the most appropriate acquisition protocol and evaluate how fitting constraints impact the results. The data fitting part provides a simple interface to import real-world qMT data, fit them using the selected fitting procedure, and visualize the resulting parameters maps.
 
-Please view ['ReadMe.docx'](https://github.com/neuropoly/qMRILab/raw/master/ReadMe.docx) for details.
+Please view ['ReadMe.docx'](https://github.com/neuropoly/qMRLab/raw/master/ReadMe.docx) for details.
 
-Please report any bug or suggestions in [github](https://github.com/neuropoly/qMRILab/issues).
+Please report any bug or suggestions in [github](https://github.com/neuropoly/qMRLab/issues).
 
 ## Dependencies
 
@@ -32,7 +32,7 @@ If you have git available on a command-line interface (e.g. Terminal on Mac OSX,
 
 * Clone the directory:
 
-`git clone https://github.com/neuropoly/qMRILab.git`
+`git clone https://github.com/neuropoly/qMRLab.git`
 
 * If you have NODDI already on installed, ensure that it is included in your default MATLAB path, or add it in startup.m.
 
@@ -40,11 +40,11 @@ If you have git available on a command-line interface (e.g. Terminal on Mac OSX,
 
 * Open MATLAB, got to the qMRLab folder and run `startup`.
 
-* To start a qMRLab session, run `qMRILab`.
+* To start a qMRLab session, run `qMRLab`.
 
 ### Zip Download Instructions
 
-The latest stable version of qMRLab can be downloaded freely [here](https://github.com/neuropoly/qMRILab/tarball/master).
+The latest stable version of qMRLab can be downloaded freely [here](https://github.com/neuropoly/qMRLab/tarball/master).
 
 * Extract the downloaded file to the directory you want to install qMRLab.
 
@@ -61,7 +61,7 @@ To run all tests, from MATLAB (assuming you are already in the qMRLab directory)
 `result = runtests(pwd, 'Recursively', true)`
 
 Any failed test should be resolved prior to starting a workflow. Users are invited to raise the issue on the GitHub
-repository: https://github.com/neuropoly/qMRILab/issues
+repository: https://github.com/neuropoly/qMRLab/issues
 
 ### Run Test Suite
 
