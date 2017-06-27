@@ -1,5 +1,5 @@
-function varargout = qMRILab(varargin)
-% qMRILAB MATLAB code for qMRILab.fig
+function varargout = qMRLab(varargin)
+% qmrlab MATLAB code for qMRLab.fig
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
@@ -8,10 +8,10 @@ function varargout = qMRILab(varargin)
 % -- MTSAT functionality: P. Beliveau, 2017
 % -- File Browser changes: P. Beliveau 2017
 % ----------------------------------------------------------------------------------------------------
-% If you use qMRILab in your work, please cite :
+% If you use qMRLab in your work, please cite :
 
 % Cabana, JF. et al (2016).
-% Quantitative magnetization transfer imaging made easy with qMRILab
+% Quantitative magnetization transfer imaging made easy with qMRLab
 % Software for data simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
@@ -20,8 +20,8 @@ function varargout = qMRILab(varargin)
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
-    'gui_OpeningFcn', @qMRILab_OpeningFcn, ...
-    'gui_OutputFcn',  @qMRILab_OutputFcn, ...
+    'gui_OpeningFcn', @qMRLab_OpeningFcn, ...
+    'gui_OutputFcn',  @qMRLab_OutputFcn, ...
     'gui_LayoutFcn',  [] , ...
     'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -36,15 +36,15 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before qMRILab is made visible.
-function qMRILab_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before qMRLab is made visible.
+function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
 if ~isfield(handles,'opened') % qMRI already opened?
     handles.opened = 1;
     clc;
     % startup;
-    qMRILabDir = fileparts(which(mfilename()));
-    addpath(genpath(qMRILabDir));
-    handles.root = qMRILabDir;
+    qMRLabDir = fileparts(which(mfilename()));
+    addpath(genpath(qMRLabDir));
+    handles.root = qMRLabDir;
     handles.methodfiles = '';
     handles.CurrentData = [];
     handles.FitDataDim = [];
@@ -67,7 +67,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     set(gcf, 'Position', NewPos);
     
     % Fill Menu with models
-    handles.ModelDir = [qMRILabDir filesep 'Models'];
+    handles.ModelDir = [qMRLabDir filesep 'Models'];
     guidata(hObject, handles);
     addModelMenu(hObject, eventdata, handles);
     
@@ -126,13 +126,13 @@ else
 end
 
 % Outputs from this function are returned to the command line.
-function varargout = qMRILab_OutputFcn(hObject, eventdata, handles)
+function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 wh=findall(0,'tag','TMWWaitbar');
 delete(wh);
 
-% Executes when user attempts to close qMRILab.
-function qMRILab_CloseRequestFcn(hObject, eventdata, handles)
+% Executes when user attempts to close qMRLab.
+function qMRLab_CloseRequestFcn(hObject, eventdata, handles)
 h = findobj('Tag','OptionsGUI');
 delete(h);
 delete(hObject);
@@ -190,7 +190,7 @@ end
 handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.SimPanel,'Visible','off') % hide the simulation panel
-    set(handles.uipanel35,'Visible','on') % show the simulation panel
+    set(handles.SimPanel,'Visible','on') % show the simulation panel
     PathName = fullfile(handles.methodfiles,'Parameters');
     LoadDefaultOptions(PathName);
 else
@@ -198,7 +198,7 @@ else
     Methodfun = methods(Method);
     Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
     % Update Options Panel
-    set(handles.uipanel35,'Visible','off') % hide the simulation panel for qMT methods
+    set(handles.SimPanel,'Visible','off') % hide the simulation panel for qMT methods
     if isempty(Simfun)
         set(handles.SimPanel,'Visible','off') % hide the simulation panel
     else

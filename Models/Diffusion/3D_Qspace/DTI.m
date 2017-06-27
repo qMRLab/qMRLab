@@ -8,7 +8,7 @@ classdef DTI
         %         st           = [ 0.7	0.5    0.5	 0.5]; % starting point
         %         lb            = [  0       0       0       0]; % lower bound
         %         ub           = [ 1        3       3       3]; % upper bound
-        %         fx            = [ 0        0        0       0]; % fix parameters
+        fx            = [ 0        0        0]; % fix parameters
         
         % Protocol
         Prot = struct('DiffusionData',...
@@ -25,14 +25,25 @@ classdef DTI
         function obj = DTI
             obj = button2opts(obj);
         end
+        function obj = UpdateFields(obj)
+            obj.fx=[0 0 0]; 
+        end
         
         function Smodel = equation(obj, x)
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             bvec = Prot(:,1:3);
             bvalue = scd_scheme_bvalue(Prot);
             D = zeros(3,3);
-            if isfield(x,'D'), D(:) = x.D;
-            else, D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3;
+            if isnumeric(x)
+                if min(size(x)==[3 3])
+                    D = x;
+                else
+                    D=diag(x)
+                end
+            else
+                if isfield(x,'D'), D(:) = x.D;
+                else, D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3;
+                end
             end
             Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
         end
