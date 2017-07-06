@@ -211,6 +211,11 @@ classdef CHARMED
             SimVaryResults = SimVary(obj, SNR, runs, OptTable);
         end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, SNR, runs, OptTable)
+            % SimVaryGUI
+            SimRndResults = SimRnd(Model, RndParam, Opt)
+        end
+        
         function Sim_Display_Protocol(obj)
             % round bvalue
             obj.Prot.DiffusionData.Mat(:,4)=round(scd_scheme2bvecsbvals(obj.Prot.DiffusionData.Mat)*100)*10;
