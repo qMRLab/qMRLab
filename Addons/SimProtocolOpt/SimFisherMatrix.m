@@ -16,7 +16,6 @@ for i=variables
     end
 end
 J=J(variables,variables);
-if J<0, error('bug'); end
 
 
 % % Rician Noise
