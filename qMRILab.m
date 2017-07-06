@@ -67,12 +67,14 @@ if ~isfield(handles,'opened') % qMRI already opened?
     set(gcf, 'Position', NewPos);
     
     % Fill Menu with models
-    ModelDir=[qMRILabDir filesep 'Models'];
-    addModelMenu(hObject, eventdata, handles, handles.ChooseMethod,ModelDir);
+    handles.ModelDir = [qMRILabDir filesep 'Models'];
+    guidata(hObject, handles);
+    addModelMenu(hObject, eventdata, handles);
     
     % Fill FileBrowser with buttons
     MethodList = getappdata(0, 'MethodList');
     MethodList = strrep(MethodList, '.m', '');
+    flist = findall(0,'type','figure');
     for iMethod=1:length(MethodList)
         % Create browser panel buttons
         switch MethodList{iMethod}
@@ -85,6 +87,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
             otherwise
                 Modelfun = str2func(MethodList{iMethod});
                 Model = Modelfun();
+                close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
                 MRIinputs = Model.MRIinputs;
         end
         % create file browser uicontrol with specific inputs
@@ -109,11 +112,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
         load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
     end
     % Set Default
-    set(handles.MethodMenu, 'String', Method);
+    set(handles.MethodSelection, 'String', Method);
     
     
     SetActive('FitData', handles);
-    MethodMenu_Callback(hObject, eventdata, handles,Method);
+    MethodMenu(hObject, eventdata, handles,Method);
 else
     OpenOptionsPanel_Callback(hObject, eventdata, handles)
 end
@@ -136,33 +139,34 @@ for k=1:length(Fields)
     rmappdata(0, Fields{k});
 end
 
-function addModelMenu(hObject, eventdata, handles, parent,folderinit)
-% list folders
-folders=sct_tools_ls([folderinit filesep '*'], 0, 1, 1);
-Nfolders = length(folders);
-for iff = 1:Nfolders
-    child = uimenu(parent,'Label',folders{iff});
-    addModelMenu(hObject, eventdata, handles,child,[folderinit filesep folders{iff}]);
-end
+function MethodSelection_Callback(hObject, eventdata, handles)
+Method = GetMethod(handles);
+MethodMenu(hObject,eventdata,handles,Method);
 
-% list methods
-methods=sct_tools_ls([folderinit filesep '*.m'], 0, 1, 2);
+function addModelMenu(hObject, eventdata, handles)
+methods = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
+methodsM = strcat(sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1),'.m'); 
 MethodList = GetAppData('MethodList');
-MethodList = {MethodList{:} methods{:}};
+MethodList = {MethodList{:} methodsM{:}};
 SetAppData(MethodList)
-for im = 1:length(methods)
-    uimenu(parent,'Label',methods{im},'Callback', @(x,y) MethodMenu_Callback(hObject,eventdata,guidata(hObject),strrep(methods{im},'.m','')));
-end
-
-
 
 
 %###########################################################################################
 %                                 COMMON FUNCTIONS
 %###########################################################################################
 
-% METHODMENU
-function MethodMenu_Callback(hObject, eventdata, handles,Method)
+% METHODSELECTION
+function MethodMenu(hObject, eventdata, handles, Method)
+
+% Display all the options in the popupmenu
+list = sct_tools_ls([handles.ModelDir filesep '*.m'],1,0,2,1);
+choices = strrep(list{1},[handles.ModelDir filesep],'');
+for i = 2:length(list)
+    choices = strvcat(choices, strrep(list{i},[handles.ModelDir filesep],''));
+end
+set(handles.MethodSelection,'String',choices);
+
+
 SetAppData(Method)
 % Display the fitting panel
 SetActive('FitData',handles)
@@ -179,7 +183,6 @@ if ~ismember(Method,{'bSSFP','SIRFSE','SPGR'})
 end
 
 % Now create Simulation panel
-set(handles.MethodMenu,'String',Method)
 handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
 if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
     set(handles.SimPanel,'Visible','off') % hide the simulation panel
@@ -236,14 +239,15 @@ SimfunGUI = str2func(functionName);
 SimfunGUI(Model);
 
 
-function MethodMenu_CreateFcn(hObject, eventdata, handles)
+function MethodSelection_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
 
-% SET DEFAULT METHODMENU
+% SET DEFAULT METHODSELECTION
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
+setappdata(0, 'Method', Method);
 save(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'),'Method');
 
 % SIMCURVE
@@ -461,7 +465,12 @@ function SimCurveResults = SimCurveFitData(MTdata)
 FitOpt.R1 = computeR1obs(Sim.Param);
 MTnoise = [];
 if (Sim.Opt.AddNoise)
-    MTnoise = noise( MTdata, Sim.Opt.SNR );
+    switch Method
+        case {'SIRFSE', 'SPGR'}
+            MTnoise = addNoise(MTdata, Sim.Opt.SNR, 'mt');
+        case 'bSSFP'
+            MTnoise = addNoise(MTdata, Sim.Opt.SNR, 'magnitude');
+    end
     data = MTnoise;
 else
     data = MTdata;
@@ -942,8 +951,8 @@ SimRndPlotResults(handles);
 
 % FITDATA
 function FitDataBtn_Callback(hObject, eventdata, handles)
-contents =  cellstr(get(handles.MethodMenu, 'String'));
-Method   =  contents{get(handles.MethodMenu, 'Value')};
+contents =  cellstr(get(handles.MethodSelection, 'String'));
+Method   =  contents{get(handles.MethodSelection, 'Value')};
 SetActive('FitData', handles);
 
 
@@ -952,10 +961,8 @@ SetActive('FitData', handles);
 function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 Method = GetMethod(handles);
+setappdata(0, 'Method', Method);
 FitGo_FitData(hObject, eventdata, handles);
-
-
-
 
 
 
@@ -1017,6 +1024,11 @@ set(handles.CurrentFitId,'String','FitResults.mat');
 % Save nii maps
 fn = fieldnames(FitResults.Files);
 mainfile = FitResults.Files.(fn{1});
+ii = 1;
+while isempty(mainfile)
+    ii = ii+1;
+    mainfile = FitResults.Files.(fn{ii});
+end    
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     file = strcat(map,'.nii');
@@ -1063,19 +1075,19 @@ if isfield(FitResults,'Model')
 end
 
 % find model value in the method menu list
-val = find(strcmp(get(handles.MethodMenu,'String'),Method));
-set(handles.MethodMenu,'Value',val)
+val = find(strcmp(get(handles.MethodSelection,'String'),Method));
+set(handles.MethodSelection,'Value',val)
 
-MethodMenu_Callback(hObject, eventdata, handles,Method)
+MethodMenu(hObject, eventdata, handles,Method)
 handles = guidata(hObject); % update handle
 FileBrowserList = GetAppData('FileBrowserList');
-if isfield(FitResults,'WD'), FileBrowserList.setWD(FitResults.WD); end
-if isfield(FitResults,'StudyID'), FileBrowserList.setStudyID(FitResults.StudyID); end
-if isfield(FitResults,'Files'),
-    for ifile = fieldnames(FitResults.Files)'
-        FileBrowserList.setFileName(ifile{1},FitResults.Files.(ifile{1}))
-    end
-end
+% if isfield(FitResults,'WD'), FileBrowserList.setWD(FitResults.WD); end
+% if isfield(FitResults,'StudyID'), FileBrowserList.setStudyID(FitResults.StudyID); end
+% if isfield(FitResults,'Files'),
+%     for ifile = fieldnames(FitResults.Files)'
+%         FileBrowserList.setFileName(ifile{1},FitResults.Files.(ifile{1}))
+%     end
+% end
 
 SetAppData(FileBrowserList);
 SetActive('FitData', handles);
@@ -1383,8 +1395,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 function uibuttongroup1_SizeChangedFcn(hObject, eventdata, handles)
-function popupmenu20_Callback(hObject, eventdata, handles)
-function popupmenu20_CreateFcn(hObject, eventdata, handles)
+function Method_Selection_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -1412,29 +1423,7 @@ function MethodqMT_Callback(hObject, eventdata, handles)
 function ChooseMethod_Callback(hObject, eventdata, handles)
 
 
-% --- Executes on button press in pushbutton169.
 function pushbutton169_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton169 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton168.
 function pushbutton168_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton168 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton167.
 function pushbutton167_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton167 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton166.
 function pushbutton166_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton166 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)

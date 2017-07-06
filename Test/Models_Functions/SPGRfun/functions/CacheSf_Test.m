@@ -31,7 +31,7 @@ classdef (TestTags = {'SPGR', 'Unit'}) CacheSf_Test < matlab.unittest.TestCase
                  testError = ME;
              end
              
-             assertEqual(testCase, testError.identifier, 'qMRILab:CacheSf:unknownArgument');
+             assertEqual(testCase, testError.identifier, 'qMRLab:CacheSf:unknownArgument');
          end
          
          function test_CacheSf_returns_struct_with_expected_fields(testCase)

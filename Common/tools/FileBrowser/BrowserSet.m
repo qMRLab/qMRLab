@@ -105,14 +105,15 @@ classdef BrowserSet
         
         %------------------------------------------------------------------
         % -- DATA LOAD
-        %   load data from file and make accessible to qMTLab fct
+        %   load data from file and make accessible to qMRLab fct
         function DataLoad(obj)
             obj.FullFile = get(obj.FileBox, 'String');
             [pathstr,name,ext] = fileparts(obj.FullFile);
             Data = getappdata(0,'Data');
             tmp = [];
             if strcmp(ext,'.mat');
-                tmp = load(obj.FullFile);                                
+                mat = load(obj.FullFile);
+                tmp = mat.(name);
             elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
                 nii = load_untouch_nii(obj.FullFile);
                 tmp = nii.img;

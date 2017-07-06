@@ -1,11 +1,11 @@
 classdef (TestTags = {'SPGR', 'Demo', 'Integration'}) SimDemo_SPGR_Test < matlab.unittest.TestCase
 
     properties
-       qmrilabPath = cell2mat(regexp(cd, '.*qMRILab/', 'match'));
+       qmrlabPath = cell2mat(regexp(cd, '.*qMRLab/', 'match'));
     end
     methods (TestClassSetup)
-        function addqMRILabToPath(testCase)
-            addpath(genpath(testCase.qmrilabPath));
+        function addqMRLabToPath(testCase)
+            addpath(genpath(testCase.qmrlabPath));
         end
     end
 
@@ -17,7 +17,7 @@ classdef (TestTags = {'SPGR', 'Demo', 'Integration'}) SimDemo_SPGR_Test < matlab
 
     methods (Test)
         function testFittedParamsNearInputValues(testCase)
-            run([testCase.qmrilabPath, '/Models_Functions/SPGRfun/SimDemo_SPGR.m'])
+            run([testCase.qmrlabPath, '/Models_Functions/SPGRfun/SimDemo_SPGR.m'])
 
             inputParams  = Sim.Param;
             outputParams = SimCurveResults;

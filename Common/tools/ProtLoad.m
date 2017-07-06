@@ -11,6 +11,3 @@ switch filterindex
     case 3
         Prot = txt2mat(fullfilepath);
 end
-Model = getappdata(0,'Model');
-Model.Prot = Prot;
-setappdata(0,'Model',Model);

@@ -10,8 +10,8 @@ classdef NODDI
         fx            = [ ]; % fix parameters
         
         % Protocol
-        ProtFormat ={'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'};
-        Prot  = txt2mat('DefaultProtocol_NODDI.scheme'); % You can define a default protocol here.
+        Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
+                                      	     'Mat',  txt2mat('DefaultProtocol_NODDI.scheme'))); % You can define a default protocol here.
         
         % Model options
         buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};
@@ -21,12 +21,12 @@ classdef NODDI
     
     methods
         function obj = NODDI
-            if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             obj = button2opts(obj);
             obj = UpdateFields(obj);
         end
         
         function obj = UpdateFields(obj)
+            if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             model = MakeModel(obj.options.modelName);
             Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});
             obj.xnames = model.paramsStr(Pindex);
@@ -64,7 +64,7 @@ classdef NODDI
             constants.roots_cyl = BesselJ_RootsCyl(30);
             
             
-            Smodel = SynthMeas(obj.options.modelName, xsc, SchemeToProtocol(obj.Prot), fibredir, constants);
+            Smodel = SynthMeas(obj.options.modelName, xsc, SchemeToProtocol(obj.Prot.DiffusionData.Mat), fibredir, constants);
             
         end
         
@@ -79,7 +79,7 @@ classdef NODDI
             model.GS.fixedvals(Pindex)=obj.st./scale(Pindex);
             model.GD.fixedvals(Pindex)=obj.st./scale(Pindex);
             
-            protocol = SchemeToProtocol(obj.Prot);
+            protocol = SchemeToProtocol(obj.Prot.DiffusionData.Mat);
             
             % fit
             [xopt] = ThreeStageFittingVoxel(double(max(eps,data.DiffusionData)), protocol, model);
@@ -93,7 +93,7 @@ classdef NODDI
         
         function plotmodel(obj, x, data)
             [Smodel, fibredir]=obj.equation(x);
-            Prot = ConvertProtUnits(obj.Prot);
+            Prot = ConvertProtUnits(obj.Prot.DiffusionData.Mat);
                         
             % plot
             if exist('data','var')
@@ -114,6 +114,16 @@ classdef NODDI
             
         end
         
+        function plotProt(obj)
+            % round bvalue
+            Prot = obj.Prot.DiffusionData.Mat;
+            Prot(:,4)=round(scd_scheme2bvecsbvals(Prot)*100)*10;
+            % display
+            scd_scheme_display(Prot)
+            subplot(2,2,4)
+            scd_scheme_display_3D_Delta_delta_G(ConvertProtUnits(obj.Prot.DiffusionData.Mat))
+        end
+
         function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
             if ~exist('display','var'), display=1; end
             [Smodel, fibredir] = equation(obj, x);
@@ -123,7 +133,7 @@ classdef NODDI
             if display
                 plotmodel(obj, FitResults, data);
                 hold on
-                Prot = ConvertProtUnits(obj.Prot);
+                Prot = ConvertProtUnits(obj.Prot.DiffusionData.Mat);
                 h = scd_display_qspacedata3D(Smodel,Prot,fibredir,'o','none');
                 set(h,'LineWidth',.5)
             end
@@ -134,6 +144,7 @@ classdef NODDI
             SimVaryResults = SimVary(obj, SNR, runs, OptTable);
             
         end
+        
     end
 end
 

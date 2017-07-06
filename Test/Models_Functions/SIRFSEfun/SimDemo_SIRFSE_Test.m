@@ -1,11 +1,11 @@
 classdef (TestTags = {'SIRFSE', 'Demo', 'Integration'}) SimDemo_SIRFSE_Test < matlab.unittest.TestCase
 
     properties
-       qmrilabPath = cell2mat(regexp(cd, '.*qMRILab/', 'match'));
+       qmrlabPath = cell2mat(regexp(cd, '.*qMRLab/', 'match'));
     end
     methods (TestClassSetup)
         function addqMRILabToPath(testCase)
-            addpath(genpath(testCase.qmrilabPath));
+            addpath(genpath(testCase.qmrlabPath));
         end
     end
 
@@ -17,7 +17,7 @@ classdef (TestTags = {'SIRFSE', 'Demo', 'Integration'}) SimDemo_SIRFSE_Test < ma
 
     methods (Test)
         function testFittedParamsNearInputValues(testCase)
-            run([testCase.qmrilabPath, '/Models_Functions/SIRFSEfun/SimDemo_SIRFSE.m'])
+            run([testCase.qmrlabPath, '/Models_Functions/SIRFSEfun/SimDemo_SIRFSE.m'])
 
             inputParams  = Sim.Param;
             outputParams = SimCurveResults;

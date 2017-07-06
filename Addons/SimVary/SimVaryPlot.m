@@ -14,10 +14,10 @@ if (strcmp(Xaxis,Yaxis))
     plot([Xmin Xmax], [Xmin Xmax], 'k-');
 else
     if ~isempty(SimVaryResults.(Xaxis).(Yaxis).GroundTruth)
-        plot([Xmin Xmax],[SimVaryResults.(Xaxis).(Yaxis).GroundTruth SimVaryResults.(Xaxis).(Yaxis).GroundTruth], 'k-');
+        plot([Xmin Xmax],[SimVaryResults.(Xaxis).(Yaxis).GroundTruth SimVaryResults.(Xaxis).(Yaxis).GroundTruth], 'k-','DisplayName','GroundTruth');
     end
 end
-errorbar(X, Y, E, 'bo');
+errorbar(X, Y, E, 'bo','DisplayName','Mean +/- Std');
 
 xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
 ylabel(sprintf('Fitted %s', Yaxis), 'FontWeight', 'Bold');
