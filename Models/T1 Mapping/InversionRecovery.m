@@ -42,6 +42,14 @@ classdef InversionRecovery
             obj = button2opts(obj);
         end
         
+        function obj = UpdateFields(obj)
+            Default = InversionRecovery;
+            obj.fx = Default.fx;
+            obj.st= Default.st;
+            obj.lb= Default.lb;
+            obj.ub= Default.ub;
+        end
+        
         function Smodel = equation(obj, x)
             % Check input
             if ~isstruct(x) % if x is a structure, convert to vector
