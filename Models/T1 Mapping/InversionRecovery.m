@@ -1,35 +1,25 @@
 classdef InversionRecovery
-% ----------------------------------------------------------------------------------------------------
-% InversionRecovery :  T1 map using Inversion Recovery 
-% ----------------------------------------------------------------------------------------------------
-% Assumptions :
-% ----------------------------------------------------------------------------------------------------
-%
-%  Fitted Parameters:
-%               (1) T1 
-%               (2) 'b' or 'rb' parameter 
-%               (3) 'a' or 'ra' parameter
-%               (4) residual from the fit%    
-%
-%  Non-Fitted Parameters:
-%    * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
-%    * residue : Fitting residue.
-%
-%
-% Options:
-%   Sigma of the noise : Standard deviation of the noise, assuming Rician.
-%                                       Use scd_noise_std_estimation to
-%                                       measure noise level
-%                                       If "Compute sigma noise per pixel" is checked, STD across >5 repetitions is used.
-% ----------------------------------------------------------------------------------------------------
-% Written by: Tanguy Duval, 2016
-% Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted 
-% model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
-% ----------------------------------------------------------------------------------------------------
-
-properties
+    % ----------------------------------------------------------------------------------------------------
+    % InversionRecovery :  T1 map using Inversion Recovery
+    % ----------------------------------------------------------------------------------------------------
+    % Assumptions :
+    % ----------------------------------------------------------------------------------------------------
+    %
+    %  Fitted Parameters:
+    %               (1) T1
+    %               (2) 'b' or 'rb' parameter
+    %               (3) 'a' or 'ra' parameter
+    %               (4) residual from the fit%
+    %
+    % Options:
+    
+    % ----------------------------------------------------------------------------------------------------
+    % Written by: Ilana Leppert 2017
+    % ----------------------------------------------------------------------------------------------------
+    
+    properties
         MRIinputs = {'IRdata','Mask'}; % input data required
-        xnames = {'T1','rb','ra'}; % name of the fitted parameters
+        xnames = {'T1(s)','rb','ra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
@@ -39,33 +29,62 @@ properties
         fx            = [0      0           0    ]; % fix parameters
         
         % Protocol
-        ProtFormat = {'TI'}; % columns of the Protocol matrix. 
-        Prot  = [];
+        ProtFormat = {'TI(s)'}; % columns of the Protocol matrix.
+        Prot  = [200 550 1000 2300 2500]';
         
         % Model options
-        buttons = {'method',{'Complex','Magnitude'}};
+        buttons = {'method',{'Magnitude','Complex'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
-
+        
     end
     
     methods
-        function obj = CHARMED
+        function obj = InversionRecovery
             obj = button2opts(obj);
         end
         
         function Smodel = equation(obj, x)
+            Smodel = x.ra + x.rb * exp(-obj.Prot./x.T1);
+            
         end
         
         
         function FitResults = fit(obj,data)
-            mtv_fitT1_IR(data,obj.Prot,obj.options.method);
+            data = data.IRdata;
+            [T1,rb,ra,res,idx]=fitT1_IR(data,obj.Prot,obj.options.method);
             FitResults.T1 = T1;
             FitResults.rb = rb;
+            FitResults.ra = ra;
+            FitResults.res = res;
+            if (strcmp(obj.options.method, 'Magnitude'))
+                FitResults.idx=idx;
+            end
         end
         
-        function plotmodel(obj, x, data)
+        function plotmodel(obj, FitResults, data)
+            if isempty(FitResults), return; end
+            data = data.IRdata;
+            
+            
+            % compute model
+            Smodel = equation(obj, FitResults);
+            
+            % plot
+            plot(obj.Prot,data,'.','MarkerSize',15)
+            hold on
+            if (strcmp(obj.options.method, 'Magnitude'))
+                % plot the polarity restored data points
+                data_rest=-1.*data(1:FitResults.idx); 
+                plot(obj.Prot(1:FitResults.idx),data_rest,'o','MarkerSize',5,'MarkerEdgeColor','b','MarkerFaceColor',[1 0 0])
+            end
+            % plot fitting curve
+            plot(obj.Prot,Smodel,'Linewidth',3)
+            xlabel('Inversion Time [s]','FontSize',15);
+            ylabel('Signal','FontSize',15);
+            legend('data', 'polarity restored', 'fit')
+            legend('show','Location','Best')
+            set(gca,'FontSize',15)
+            
         end
-           
     end
 end
-
