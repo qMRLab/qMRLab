@@ -10,7 +10,7 @@ FitOpt.R1 = computeR1obs(Sim.Param);
 % Bloch simulation
 tic;
 MTdata  = SPGR_sim(Sim, Prot);
-MTnoise = addNoise(MTdata, Sim.Opt.SNR, 'mt');
+MTnoise = noise(MTdata, Sim.Opt.SNR);
 timeSim = toc
 
 %%

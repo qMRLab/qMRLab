@@ -86,12 +86,7 @@ for i = 1:length(x)
 
     for k = 1:runs
         if (AddNoise)
-            switch Method
-            	case {'SIRFSE', 'SPGR'}
-                	MTdata = addNoise(M, SNR, 'mt');
-                case 'bSSFP'
-                    MTdata = addNoise(M, SNR, 'magnitude');
-            end
+            MTdata = noise( M, SNR );
         else
             MTdata = M;
         end

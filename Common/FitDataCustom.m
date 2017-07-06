@@ -1,4 +1,4 @@
-function Fit = FitDataCustom( data, Model, wait )
+function Fit = FitDataCustom(data, Model, wait )
 
 % ----------------------------------------------------------------------------------------------------
 % Fit = FitData( data, Model, wait )
@@ -37,6 +37,14 @@ if Model.voxelwise % process voxelwise
         case 2
             nT = length(qData);
     end
+    
+%     for ff = 1:length(MRIinputs)
+%         dim(ff,:) = size(data.(MRIinputs{ff}));
+%     end
+%     if size(unique(dim,'rows'),1) > 1
+%         errordlg('')
+%         return
+%     end
     
     % Arrange voxels into a column
     nV = x*y*z;     % number of voxels
@@ -117,7 +125,7 @@ else % process entire volume
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
 end
-Fit.Time = toc
+Fit.Time = toc;
 Fit.Protocol = Model.Prot;
 
 end

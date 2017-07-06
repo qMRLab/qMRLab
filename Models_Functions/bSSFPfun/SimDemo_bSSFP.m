@@ -9,7 +9,7 @@ FitOpt.R1 = Sim.Param.R1f;                           % simulate R1 map value
 % Bloch simulation
 tic;
 MTdata  = bSSFP_sim(Sim, Prot);	
-MTnoise = addNoise(MTdata, Sim.Opt.SNR, 'magnitude');
+MTnoise = noise(MTdata,Sim.Opt.SNR);
 timeSim = toc
 
 % Fitting
