@@ -1,7 +1,7 @@
 classdef (TestTags = {'bSSFP', 'Demo', 'Integration'}) SimDemo_bSSFP_Test < matlab.unittest.TestCase
 
     properties
-       qmrlabPath = cell2mat(regexp(cd, '.*qMRILab/', 'match'));
+       qmrlabPath = cell2mat(regexp(cd, '.*qMRLab/', 'match'));
     end
     methods (TestClassSetup)
         function addqMRILabToPath(testCase)

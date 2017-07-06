@@ -1,7 +1,7 @@
 classdef (TestTags = {'SIRFSE', 'Demo', 'Integration'}) SimDemo_SIRFSE_Test < matlab.unittest.TestCase
 
     properties
-       qmrlabPath = cell2mat(regexp(cd, '.*qMRILab/', 'match'));
+       qmrlabPath = cell2mat(regexp(cd, '.*qMRLab/', 'match'));
     end
     methods (TestClassSetup)
         function addqMRILabToPath(testCase)
