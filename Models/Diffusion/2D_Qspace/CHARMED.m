@@ -69,7 +69,7 @@ classdef CHARMED
     
     methods
         function obj = CHARMED
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
         function Smodel = equation(obj, x)
@@ -210,7 +210,12 @@ classdef CHARMED
             % SimVaryGUI
             SimVaryResults = SimVary(obj, SNR, runs, OptTable);
         end
-        
+
+        function SimVaryResults = Sim_Multi_Voxel_Dist(obj, SNR, runs, OptTable)
+            % SimVaryGUI
+            
+        end
+
         function Sim_Display_Protocol(obj)
             % round bvalue
             obj.Prot.DiffusionData.Mat(:,4)=round(scd_scheme2bvecsbvals(obj.Prot.DiffusionData.Mat)*100)*10;

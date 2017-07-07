@@ -42,7 +42,7 @@ classdef VFA_T1
     methods
         
         function obj = VFA_T1
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
         function FitResult = fit(obj,data)           
