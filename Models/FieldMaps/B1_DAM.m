@@ -40,7 +40,7 @@ classdef B1_DAM
     
     methods
         function obj = B1_DAM
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
         function FitResult = fit(obj,data)

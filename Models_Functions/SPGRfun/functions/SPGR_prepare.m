@@ -8,7 +8,7 @@ w1rp  = w1cw;
 Tau   = w1cw;
 
 for ii = 1:length(Angles)
-    Pulse = GetPulse(Angles(ii), Offsets(ii), Prot.Tm, Prot.MTpulse.shape, Prot.MTpulse.opt);
+    Pulse = GetPulse(Angles(ii), Offsets(ii), Prot.Tm, Prot.MTpulse.shape, Prot.MTpulse.Npulse);
     w1cw(ii) = compute_w1cw(Prot.TR, Pulse);
     w1rms(ii) = compute_w1rms(Pulse);
     [w1rp(ii), Tau(ii)] = compute_w1rp(Pulse);

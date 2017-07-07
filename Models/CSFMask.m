@@ -40,7 +40,7 @@ classdef CSFMask
     methods
         
         function obj = CSFMask
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
         function FitResult = fit(obj,data)           

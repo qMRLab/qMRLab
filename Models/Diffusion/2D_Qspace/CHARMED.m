@@ -69,7 +69,7 @@ classdef CHARMED
     
     methods
         function obj = CHARMED
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
         function Smodel = equation(obj, x)

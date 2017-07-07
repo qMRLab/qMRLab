@@ -21,7 +21,7 @@ classdef NODDI
     
     methods
         function obj = NODDI
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
         

@@ -22,7 +22,7 @@ classdef MTSAT
     
     methods
         function obj = MTSAT
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
         function FitResult = fit(obj,data)

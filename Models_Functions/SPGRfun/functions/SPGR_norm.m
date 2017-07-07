@@ -6,10 +6,11 @@ Param   = Sim.Param;
 Rpulse  = GetPulse(Prot.Alpha, 0, Prot.Tp, 'sinc');
 Param.G = computeG(0, Param.T2r, Param.lineshape);
 
-nP = Prot.Npulse;
+nP = Prot.MTpulse.Npulse;
 Mevol = zeros(nP,1);
 ww = 0;
-M0 = [0 0 Param.M0f Param.M0r];
+M0r = Param.M0f*Param.F;
+M0 = [0 0 Param.M0f M0r];
 Mread = 0;
 Mprev = 0;
 SScount = 0;

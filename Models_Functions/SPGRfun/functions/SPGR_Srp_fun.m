@@ -43,7 +43,18 @@ w1rp    =  xData(:,3);
 
 Mxy = zeros(length(Angles),1);
 
-Sf = GetSf(Angles,Offsets,T2f,Prot.Sf);
+if ~isfield(FitOpt,'Sf')
+    Trf = Prot.Tm;
+    shape = Prot.MTpulse.shape;
+    PulseOpt = Prot.MTpulse.Npulse;
+    Sf = zeros(size(Angles,1),1);
+    for ii=1:length(Angles)
+    MTpulse = GetPulse(Angles(ii),Offsets(ii),Trf,shape,PulseOpt);
+    Sf(ii) = computeSf(T2f, MTpulse);
+    end
+else
+    Sf = GetSf(Angles,Offsets,T2f,FitOpt.Sf);
+end
 Sr = 1;
 
 if (FitOpt.fx(6))

@@ -1,4 +1,4 @@
-function SimVaryResults = SimVary(obj, SNR, runs, OptTable)
+function SimVaryResults = SimVary(obj, runs, OptTable, Opts)
 
 if ~exist('OptTable','var'), OptTable = obj; end % use fitting boundaries
 
@@ -18,7 +18,7 @@ for pp=1:length(OptTable)
         for ii=1:length(Sens.x)
             x = st; x(pp)=Sens.x(ii);
             for N=1:runs
-                Fittmp = obj.Sim_Single_Voxel_Curve(x, SNR,0);
+                Fittmp = obj.Sim_Single_Voxel_Curve(x, Opts,0);
                 if ~isfield(Sens,'fit')
                     Sens.fit = Fittmp;
                 else

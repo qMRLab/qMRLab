@@ -93,6 +93,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
         % create file browser uicontrol with specific inputs
         FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{MethodList{iMethod} MRIinputs{:}});
         FileBrowserList(iMethod).Visible('off');
+        
     end
 
     SetAppData(FileBrowserList);
@@ -1278,7 +1279,7 @@ else
         Fit = FitData(data,Prot,FitOpt,Method,0);
     else
         Model = getappdata(0,'Model');
-        Fit = Model.fit(data) % Display fitting results in command window
+        Fit = Model.fit(data); % Display fitting results in command window
         Model.plotmodel(Fit,data);
     end
     
@@ -1416,7 +1417,7 @@ function slider5_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-function popupmenu21_CreateFcn(hObject, eventdata, handles)
+function RoiDraw_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
@@ -1428,3 +1429,71 @@ function pushbutton169_Callback(hObject, eventdata, handles)
 function pushbutton168_Callback(hObject, eventdata, handles)
 function pushbutton167_Callback(hObject, eventdata, handles)
 function pushbutton166_Callback(hObject, eventdata, handles)
+
+
+function RoiLoad_Callback(hObject, eventdata, handles)
+
+
+function RoiSave_Callback(hObject, eventdata, handles)
+Method = GetAppData('Method');
+FileBrowserList = GetAppData('FileBrowserList');
+MethodList = getappdata(0, 'MethodList');
+MethodList = strrep(MethodList, '.m', '');
+MethodCount = numel(MethodList);
+
+for i=1:MethodCount
+    if FileBrowserList(i).IsMethodID(Method)
+        MethodID = i;
+    end
+end
+WD = FileBrowserList(MethodID).getWD;
+
+[fileName, pathName] = uiputfile({'*.mat'},'Save as');
+fullPathName = strcat(pathName, fileName);
+Mask = handles.ROI;
+if fileName ~= 0
+    save(fullPathName,'Mask');
+end
+
+
+
+function RoiDraw_Callback(hObject, eventdata, handles)
+contents = cellstr(get(hObject,'String'));
+model = contents{get(hObject,'Value')};
+switch model
+    case 'Ellipse'
+        draw = imellipse();
+    case 'Polygone'
+        draw = impoly();
+    case 'Rectangle'
+        draw = imrect();
+    case 'FreeHand'
+        draw = imfreehand();
+    otherwise
+        warning('Choose a Drawing Method');
+end
+Map = getimage(gcbf);
+handles.ROI = double(draw.createMask());
+handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
+guidata(gcbo, handles); 
+% FIGURE
+imagesc(handles.NewMap);
+axis equal off;
+colorbar('south','YColor','white');
+
+function RoiStats_Callback(hObject, eventdata, handles)
+
+
+
+
+function RoiTreshMin_Callback(hObject, eventdata, handles)
+function RoiTreshMin_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function RoiTreshMax_Callback(hObject, eventdata, handles)
+function RoiTreshMax_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

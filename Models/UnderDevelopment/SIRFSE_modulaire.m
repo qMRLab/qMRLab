@@ -1,6 +1,6 @@
 classdef SIRFSE_modulaire
 % ----------------------------------------------------------------------------------------------------
-% SIRFSE :  FILL
+% SIRFSE :  qMT using Inversion Recovery Fast Spin Echo acquisition
 % ----------------------------------------------------------------------------------------------------
 % Assumptions :
 % (1) FILL
@@ -40,12 +40,13 @@ classdef SIRFSE_modulaire
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.1    30      1        1      -0.9     0.6564    1 ]; % starting point
-        lb           = [ 0       0      0.05     0.05   -1       0         0 ]; % lower bound
-        ub           = [ 1     100     10       10       0       1         2 ]; % upper bound
+        st           = [ 0.1    30      1        1      0.9     0.6564    1 ]; % starting point
+        lb           = [ 0       0      0.05     0.05    0       0         0 ]; % lower bound
+        ub           = [ 1     100     10       10       1       1         2 ]; % upper bound
         fx           = [ 0       0      0        1       0       1         0 ]; % fix parameters
         
         % Protocol
+        % You can define a default protocol here.
         Prot = struct('MTdata',...
                                struct('Format',{{'Ti' 'Td'}},...
                                       'Mat', [0.0030 3.5; 0.0037 3.5; 0.0047 3.5; 0.0058 3.5; 0.0072 3.5 
@@ -55,43 +56,84 @@ classdef SIRFSE_modulaire
                                               0.2409 3.5; 0.3000 3.5; 1.0000 3.5; 2.0000 3.5; 10.0000 3.5]),...
                       'FSEsequence',...
                                struct('Format',{{'Trf (s)'; 'Tr (s)'; 'Npulse'}},...
-                                      'Mat',[0.001; 0.01; 16])); % You can define a default protocol here.
+                                      'Mat',[0.001; 0.01; 16])); 
                                            
         % Model options
-        buttons = {'Use R1map to constrain R1f',false,...
-                   'Fix R1r = R1f',true,...
-                   'PANEL',2,'Inversion pulse',1,...
-                   'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)', 0.001};
+        buttons = {'PANEL','Inversion_Pulse',2,...
+                   'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)', 0.001,...
+                   'Use R1map to constrain R1f',false,...
+                   'Fix R1r = R1f',true};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
+        % Simulations Default options
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
     methods
         function obj = SIRFSE_modulaire
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
         end
         
         function obj = UpdateFields(obj)
+            if obj.options.UseR1maptoconstrainR1f
+                obj.fx(3)=true;
+            end
         end
         
-        function Smodel = equation(obj, x)
+        function mz = equation(obj, x, Opt)
+            for ix = 1:length(x)
+                Sim.Param.(obj.xnames{ix}) = x(ix);
+            end
+            Protocol = GetProt(obj);
+            switch Opt.Method
+                case 'Block equation'
+                    Sim.Param.lineshape = obj.options.Lineshape;
+                    Sim.Param.M0f = 1;
+                    Sim.Opt.Reset = Opt.ResetMz;
+                    Sim.Opt.SScheck = 1;
+                    Sim.Opt.SStol = 1e-4;
+                    mz = SIRFSE_sim(Sim, Protocol, 1);
+                case 'Analytical equation'
+                    SimCurveResults = SIRFSE_SimCurve(Sim.Param, Protocol, obj.GetFitOpt,0);
+                    mz = SimCurveResults.curve;
+            end
         end
         
-        function FitResults = fit(obj,data)
-            if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
-            FitOpt.names = obj.xnames;
-            FitOpt.fx = obj.fx;
-            FitOpt.st = obj.st;
-            FitOpt.lb = obj.lb;
-            FitOpt.ub = obj.ub;
-            FitOpt.R1reqR1f = obj.options.FixR1r0x3DR1f;
-            Protocol = Prot2Protocol(obj);                            
+        function FitResults = fit(obj,data)            
+            Protocol = GetProt(obj);       
+            FitOpt = GetFitOpt(obj,data);
             FitResults = SIRFSE_fit(data.MTdata,Protocol,FitOpt);                  
         end
         
-%         function plotmodel(obj, x, data)
-%           
-%         end
+        function plotmodel(obj, x, data)
+            Protocol = GetProt(obj);
+            FitOpt = GetFitOpt(obj,data);
+            SimCurveResults = SIRFSE_SimCurve(x, Protocol, FitOpt );
+            Sim.Opt.AddNoise = 0;
+            SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults);
+            title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
+                x.F,x.kf,x.R1f,x.R1r,x.Sf,x.Sr,x.M0f,x.resnorm), ...
+                'FontSize',10);
+        end
+        
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
+            if ~exist('display','var'), display = 1; end
+            Smodel = equation(obj, x+eps, Opt);
+            sigma = max(Smodel)/Opt.SNR;
+            data.MTdata = random('rician',Smodel,sigma);
+            FitResults = fit(obj,data);
+            if display
+                plotmodel(obj, FitResults, data);
+            end
+        end
+        
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+        end
         
 %         function plotProt(obj)
 %             subplot(1,1,2)
@@ -108,12 +150,25 @@ classdef SIRFSE_modulaire
 %             ViewPulse(Pulse,'b1');
 %         end
 %         
-    function Protocol = Prot2Protocol(obj)  
-            Protocol.ti = obj.Prot.MTdata.Mat(:,1);
-            Protocol.td = obj.Prot.MTdata.Mat(:,2);
-            Protocol.Trf = obj.Prot.FSEsequence.Mat(1);
-            Protocol.Tr = obj.Prot.FSEsequence.Mat(2);
-            Protocol.Npulse = obj.Prot.FSEsequence.Mat(3);  
+        function Prot = GetProt(obj)  
+            Prot.ti = obj.Prot.MTdata.Mat(:,1);
+            Prot.td = obj.Prot.MTdata.Mat(:,2);
+            Prot.Trf = obj.Prot.FSEsequence.Mat(1);
+            Prot.Tr = obj.Prot.FSEsequence.Mat(2);
+            Prot.Npulse = obj.Prot.FSEsequence.Mat(3);  
+        end
+        
+        function FitOpt = GetFitOpt(obj,data)
+            if exist('data','var')
+                if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
+            end
+            FitOpt.R1map = obj.options.UseR1maptoconstrainR1f;
+            FitOpt.names = obj.xnames;
+            FitOpt.fx = obj.fx;
+            FitOpt.st = obj.st;
+            FitOpt.lb = obj.lb;
+            FitOpt.ub = obj.ub;
+            FitOpt.R1reqR1f = obj.options.FixR1rR1f;
         end
 
     end

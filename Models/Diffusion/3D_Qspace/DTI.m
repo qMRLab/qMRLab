@@ -23,7 +23,7 @@ classdef DTI
     
     methods
         function obj = DTI
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         function obj = UpdateFields(obj)
             obj.fx=[0 0 0]; 

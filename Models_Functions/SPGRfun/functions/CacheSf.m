@@ -65,7 +65,7 @@ function Sf = CacheSf(protocolArg)
            0.0900 0.2500 0.5000 1.0000];
     Trf = Prot.Tm;
     shape = Prot.MTpulse.shape;
-    PulseOpt = Prot.MTpulse.opt;
+    PulseOpt = Prot.MTpulse.Npulse;
     
     %% Compue Sf Cache
     %
