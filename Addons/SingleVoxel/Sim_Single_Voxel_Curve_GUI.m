@@ -51,7 +51,9 @@ if ~isfield(handles,'opened')
     handles.output = hObject;
     handles.Model = varargin{1};
     % OPTIONS
-    opts = {'SNR',50,'hold plot',false};
+    opts = {};
+    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
+    
     handles.options = GenerateButtons(opts,handles.OptionsPanel,.15);
     
     
@@ -84,11 +86,8 @@ set(findobj('Name','SimCurve'),'pointer', 'watch'); drawnow;
 axes(handles.SimCurveAxe)
 xtable = get(handles.ParamTable,'Data');
 x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
-SNR = str2double(get(handles.options.SNR,'String'));
 
-if get(handles.options.holdPlot,'value'), hold on; end
-FitResults = Sim_Single_Voxel_Curve(handles.Model,x,SNR);
-F = SimCRLB(handles.Model,handles.Model.Prot.DiffusionData.Mat,x,1/SNR);
+FitResults = Sim_Single_Voxel_Curve(handles.Model,x,button_handle2opts(handles.options));
 hold off;
 
 % put results in table
@@ -103,10 +102,15 @@ for ii=1:length(ff)
         xtable{end,3} = FitResults.(ff{ii})(1);
     end
 end
-for ii=1:sum(~handles.Model.fx)
-    ll=find(~handles.Model.fx);
-    xtable{ll(ii),5}=F(ii)*100;
-end
+
+% % CRLB
+% SNR = str2double(get(handles.options.SNR,'String'));
+% F = SimCRLB(handles.Model,handles.Model.Prot.DiffusionData.Mat,x,1/SNR);
+% 
+% for ii=1:sum(~handles.Model.fx)
+%     ll=find(~handles.Model.fx);
+%     xtable{ll(ii),5}=F(ii)*100;
+% end
 set(handles.ParamTable,'Data',xtable);
 set(findobj('Name','SimCurve'),'pointer', 'arrow'); drawnow;
 

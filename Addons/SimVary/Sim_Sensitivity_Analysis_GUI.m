@@ -67,7 +67,11 @@ if ~isfield(handles,'opened')
     set(handles.SimVaryPlotY,'String',handles.Model.xnames')
     
     % Options
-    handles.options = GenerateButtons({'SNR',50,'# of runs',5},handles.OptionsPanel,.3,1);    
+    opts={};
+    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
+    if isprop(handles.Model,'Sim_Sensitivity_Analysis_buttons'), opts = cat(2,opts,handles.Model.Sim_Sensitivity_Analysis_buttons); end
+
+    handles.options = GenerateButtons(opts,handles.OptionsPanel,.4,1);
     handles.opened = 1;
 end
 % Update handles structure
@@ -189,11 +193,10 @@ end
 
 % --- Executes on button press in SimVaryUpdate.
 function SimVaryUpdate_Callback(hObject, eventdata, handles)
-runs = str2double(get(handles.options.x0x23OfRuns,'String'));
-SNR = str2double(get(handles.options.SNR,'String'));
 FitOptTable = get(handles.SimVaryOptTable,'Data'); FitOptTable(:,2)=mat2cell(~[FitOptTable{:,2}]',ones(size(FitOptTable,1),1), 1);
 FitOptTable = cell2struct(FitOptTable,{'xnames','fx','st','lb','ub'},2);
-handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(SNR,runs,FitOptTable);
+Opts = button_handle2opts(handles.options);
+handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(FitOptTable,Opts);
 SetSimVaryResults(handles)
 guidata(hObject, handles);
 
