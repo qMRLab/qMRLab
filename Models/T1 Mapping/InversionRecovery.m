@@ -39,7 +39,7 @@ classdef InversionRecovery
     
     methods
         function obj = InversionRecovery
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
 %         function obj = UpdateFields(obj)

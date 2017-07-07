@@ -18,7 +18,7 @@ for ii = 1:n
     for ix=1:length(Model.xnames)
         x(ix) = RndParam.(Model.xnames{ix})(ii);
     end
-    Fit = Model.Sim_Single_Voxel_Curve(x,Opt.SNR,0);
+    Fit = Model.Sim_Single_Voxel_Curve(x,Opt,0);
     fields = fieldnames(Fit);
     
     for jj = 1:length(fields)

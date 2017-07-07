@@ -51,7 +51,7 @@ if ~isfield(handles,'opened')
     handles.output = hObject;
     handles.Model = varargin{1};
     % OPTIONS
-    opts = {};
+    opts = {'SNR',50};
     if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
     
     handles.options = GenerateButtons(opts,handles.OptionsPanel,.15);

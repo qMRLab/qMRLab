@@ -75,7 +75,7 @@ classdef SPGR_modulaire
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
@@ -127,6 +127,7 @@ classdef SPGR_modulaire
         end
         
         function mz = equation(obj, x, Opt)
+            x = x+eps;
             for ix = 1:length(x)
                 Sim.Param.(obj.xnames{ix}) = x(ix);
             end
@@ -166,6 +167,11 @@ classdef SPGR_modulaire
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+        end
+
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
         function plotmodel(obj, x, data)

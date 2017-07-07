@@ -49,7 +49,10 @@ if ~isfield(handles,'opened')
     set(handles.SimRndPlotY,'String','Voxels count')
     
     % Options
-    handles.options = GenerateButtons({'SNR',50,'# of voxels',100},handles.OptionsPanel,.3,1);    
+    opts = {'SNR',50,'# of voxels',100};
+    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
+    handles.options = GenerateButtons(opts,handles.OptionsPanel,.15);
+
     handles.opened = 1;
 end
 % Update handles structure
@@ -146,9 +149,8 @@ function SimRndVaryUpdate_Callback(hObject, eventdata, handles)
 SimRndOpt = get(handles.SimRndVaryOptTable,'Data'); SimRndOpt(:,1)=mat2cell(~[SimRndOpt{:,1}]',ones(size(SimRndOpt,1),1), 1);
 SimRndOpt = cell2struct(SimRndOpt,{'fx','Mean','Std','Min','Max'},2);
 [SimRndOpt.xnames] = deal(handles.Model.xnames{:});
-NumVoxels = str2num(get(handles.options.x0x23OfVoxels,'String'));
-Opt.SNR = str2num(get(handles.options.SNR,'String'));
-handles.RndParam = GetRndParam(SimRndOpt,NumVoxels);
+Opt = button_handle2opts(handles.options);
+handles.RndParam = GetRndParam(SimRndOpt,Opt.Nofvoxels);
 handles.SimRndResults = handles.Model.Sim_Multi_Voxel_Distribution(handles.RndParam, Opt);
 SimRndPlotResultsgui(handles);
 guidata(hObject, handles);
