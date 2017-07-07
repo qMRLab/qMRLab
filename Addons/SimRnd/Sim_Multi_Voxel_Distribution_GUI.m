@@ -33,14 +33,16 @@ if ~isfield(handles,'opened')
     axes(handles.SimRndAxe)
     % fill table
     Nparam=length(handles.Model.xnames);
-    FitOptTable(:,1)=handles.Model.xnames(:);
-    if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,2)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
+    if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,1)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
-        FitOptTable(:,3)=mat2cell(handles.Model.st(:),ones(Nparam,1));
+        FitOptTable(:,2)=mat2cell(handles.Model.st(:),ones(Nparam,1));
     end
     if isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
-        FitOptTable(:,4)=mat2cell((handles.Model.ub(:) - handles.Model.lb(:))/10,ones(Nparam,1));
+        FitOptTable(:,3)=mat2cell((handles.Model.ub(:) - handles.Model.lb(:))/10,ones(Nparam,1));
+        FitOptTable(:,4)=mat2cell(handles.Model.lb(:),ones(Nparam,1));
+        FitOptTable(:,5)=mat2cell(handles.Model.ub(:),ones(Nparam,1));
     end
+    set(handles.SimRndVaryOptTable,'RowName',handles.Model.xnames(:))
     set(handles.SimRndVaryOptTable,'Data',FitOptTable)
     % fill parameters
     set(handles.SimRndPlotX,'String',handles.Model.xnames')
@@ -67,70 +69,6 @@ function varargout = Sim_Multi_Voxel_Distribution_OutputFcn(hObject, eventdata, 
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
-
-% --------------------------------------------------------------------
-function FileMenu_Callback(hObject, eventdata, handles)
-% hObject    handle to FileMenu (see GCBO)
-
-
-
-
-% --------------------------------------------------------------------
-function OpenMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to OpenMenuItem (see GCBO)
-
-
-file = uigetfile('*.fig');
-if ~isequal(file, 0)
-    open(file);
-end
-
-% --------------------------------------------------------------------
-function PrintMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to PrintMenuItem (see GCBO)
-
-
-printdlg(handles.figure1)
-
-% --------------------------------------------------------------------
-function CloseMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to CloseMenuItem (see GCBO)
-
-
-selection = questdlg(['Close ' get(handles.figure1,'Name') '?'],...
-    ['Close ' get(handles.figure1,'Name') '...'],...
-    'Yes','No','Yes');
-if strcmp(selection,'No')
-    return;
-end
-
-delete(handles.figure1)
-
-
-% --- Executes on selection change in popupmenu1.
-function popupmenu1_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-
-
-
-% Hints: contents = get(hObject,'String') returns popupmenu1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu1
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-set(hObject, 'String', {'plot(rand(5))', 'plot(sin(1:0.01:25))', 'bar(1:.5:10)', 'plot(membrane)', 'surf(peaks)'});
 
 
 % --- Executes on selection change in SimVaryPlotX.
@@ -203,10 +141,7 @@ if isfield(handles,'SimVaryResults')
 end
 
 
-function SimRndVaryOptTable_CellEditCallback(hObject, eventdata, handles)
-
 function SimRndUpdatePopUp(handles)
-[RndParam, SimRndResults, SimRndStats] = GetAppData('RndParam','SimRndResults','SimRndStats');
 axes(handles.SimRndAxe);
 colormap('default');
 set(handles.SimRndPlotX, 'Value', 1);
@@ -215,24 +150,24 @@ PlotTypeFields = cellstr(get(handles.SimRndPlotType, 'String'));
 PlotType = PlotTypeFields{get(handles.SimRndPlotType, 'Value')};
 switch PlotType
     case 'Input parameters'
-        XdataFields = fieldnames(RndParam);
+        XdataFields = fieldnames(handles.RndParam);
         set(handles.SimRndPlotX, 'String', XdataFields);
         set(handles.SimRndPlotY, 'String', 'Voxels count');
     case 'Fit results'
-        XdataFields = SimRndResults.fields;
+        XdataFields = handles.SimRndResults.fields;
         set(handles.SimRndPlotX, 'String', XdataFields);
         set(handles.SimRndPlotY, 'String', 'Voxels count');
     case 'Input vs. Fit'
-        XdataFields = fieldnames(RndParam);
+        XdataFields = fieldnames(handles.RndParam);
         set(handles.SimRndPlotX, 'String', XdataFields);
-        YdataFields = SimRndResults.fields;
+        YdataFields = handles.SimRndResults.fields;
         set(handles.SimRndPlotY, 'String', YdataFields);
     case 'Error'
-        XdataFields = fieldnames(SimRndStats.Error);
+        XdataFields = fieldnames(handles.SimRndResults.Error);
         set(handles.SimRndPlotX, 'String', XdataFields);
         set(handles.SimRndPlotY, 'String', 'Voxels count');
     case 'Pct error'
-        XdataFields = fieldnames(SimRndStats.PctError);
+        XdataFields = fieldnames(handles.SimRndResults.PctError);
         set(handles.SimRndPlotX, 'String', XdataFields);
         set(handles.SimRndPlotY, 'String', 'Voxels count');
     case 'RMSE'
@@ -250,54 +185,45 @@ guidata(gcbf,handles);
 
 % --- Executes on selection change in SimRndPlotY.
 function SimRndPlotY_Callback(hObject, eventdata, handles)
-SimRndPlotResults(handles);
+SimRndPlotResultsgui(handles);
 
 % --- Executes on selection change in SimRndPlotX.
 function SimRndPlotX_Callback(hObject, eventdata, handles)
-SimRndPlotResults(handles);
+SimRndPlotResultsgui(handles);
 
 % --- Executes on selection change in SimRndPlotType.
 function SimRndPlotType_Callback(hObject, eventdata, handles)
 SimRndUpdatePopUp(handles);
-SimRndPlotResults(handles);
+SimRndPlotResultsgui(handles);
 
-
-
-
+function SimRndPlotResultsgui(handles)
+PlotTypeFields  = cellstr(get(handles.SimRndPlotType, 'String'));
+PlotType = PlotTypeFields{get(handles.SimRndPlotType, 'Value')};
+XdataFields    =     cellstr(get(handles.SimRndPlotX, 'String'));
+Xdata          = XdataFields{get(handles.SimRndPlotX, 'Value')};
+YdataFields    =     cellstr(get(handles.SimRndPlotY, 'String'));
+Ydata          = YdataFields{get(handles.SimRndPlotY, 'Value')};
+SimRndPlotResults(handles.RndParam,handles.SimRndResults,PlotType,Xdata,Ydata);
 
 % --- Executes on button press in SimRndVaryUpdate.
 function SimRndVaryUpdate_Callback(hObject, eventdata, handles)
 % Read Table
 SimRndOpt = get(handles.SimRndVaryOptTable,'Data'); SimRndOpt(:,2)=mat2cell(~[SimRndOpt{:,2}]',ones(size(SimRndOpt,1),1), 1);
-SimRndOpt = cell2struct(SimRndOpt,{'xnames','fx','Mean','Std'},2);
-RndParam = GetRndParam(handles);
-handles.SimRndResults = handles.Model.Sim_Multi_Voxel_Distribution(Sim, Prot, FitOpt, SimRndOpt, RndParam);
-handles.SimRndStats = AnalyzeResults(RndParam, handles.SimRndResults);
+SimRndOpt = cell2struct(SimRndOpt,{'fx','Mean','Std','Min','Max'},2);
+[SimRndOpt.xnames] = deal(handles.Model.xnames{:});
+NumVoxels = str2num(get(handles.options.x0x23OfVoxels,'String'));
+Opt.SNR = str2num(get(handles.options.SNR,'String'));
+handles.RndParam = GetRndParam(SimRndOpt,NumVoxels);
+handles.SimRndResults = handles.Model.Sim_Multi_Voxel_Distribution(handles.RndParam, Opt);
 guidata(hObject, handles);
-
-
-function SimRndStats = AnalyzeResults(Input, Results)
-Fields = intersect(fieldnames(Input), fieldnames(Results));
-for ii = 1:length(Fields)
-    n = length(Input.(Fields{ii}));
-    SimRndStats.Error.(Fields{ii})    = Results.(Fields{ii}) - Input.(Fields{ii}) ;
-    SimRndStats.PctError.(Fields{ii}) = 100*(Results.(Fields{ii}) - Input.(Fields{ii})) ./ Input.(Fields{ii});
-    SimRndStats.MPE.(Fields{ii})      = 100/n*sum((Results.(Fields{ii}) - Input.(Fields{ii})) ./ Input.(Fields{ii}));
-    SimRndStats.RMSE.(Fields{ii})     = sqrt(sum((Results.(Fields{ii}) - Input.(Fields{ii})).^2 )/n);
-    SimRndStats.NRMSE.(Fields{ii})    = SimRndStats.RMSE.(Fields{ii}) / (max(Input.(Fields{ii})) - min(Input.(Fields{ii})));
-end
 
 
 
 function RndParam = GetRndParam(table,NumVoxels)
 n    = NumVoxels;
-Vary = table(:,2);
-Mean = table(:,3);
-Std  = table(:,4);
-fields = table(:,1);
-for ii = 1:length(fields)
-    if(Vary(ii)); RndParam.(fields{ii}) = abs(Mean(ii) + Std(ii)*(randn(n,1)));
-    else          RndParam.(fields{ii}) = Mean(ii)*(ones(n,1));
+for ii = 1:length(table)
+    if~(table(ii).fx); RndParam.(table(ii).xnames) = min(table(ii).Max, max(table(ii).Min,table(ii).Mean + table(ii).Std*(randn(n,1))));
+    else          RndParam.(table(ii).xnames) = table(ii).Mean*(ones(n,1));
     end
 end
 
@@ -316,6 +242,7 @@ function RmAppData(varargin)
 for k=1:nargin; rmappdata(0, varargin{k}); end
 
 % --- Executes during object creation, after setting all properties.
+function SimRndVaryOptTable_CellEditCallback(hObject, eventdata, handles)
 function SimRndPlotType_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');

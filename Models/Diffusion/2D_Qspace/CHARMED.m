@@ -211,9 +211,9 @@ classdef CHARMED
             SimVaryResults = SimVary(obj, SNR, runs, OptTable);
         end
         
-        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, SNR, runs, OptTable)
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimVaryGUI
-            SimRndResults = SimRnd(Model, RndParam, Opt)
+            SimRndResults = SimRnd(obj, RndParam, Opt);
         end
         
         function Sim_Display_Protocol(obj)
