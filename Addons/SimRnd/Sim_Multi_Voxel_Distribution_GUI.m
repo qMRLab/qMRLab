@@ -140,6 +140,19 @@ if isfield(handles,'SimVaryResults')
     SimVaryPlot(handles.SimVaryResults,Xaxis,Yaxis)
 end
 
+% --- Executes on button press in SimRndVaryUpdate.
+function SimRndVaryUpdate_Callback(hObject, eventdata, handles)
+% Read Table
+SimRndOpt = get(handles.SimRndVaryOptTable,'Data'); SimRndOpt(:,1)=mat2cell(~[SimRndOpt{:,1}]',ones(size(SimRndOpt,1),1), 1);
+SimRndOpt = cell2struct(SimRndOpt,{'fx','Mean','Std','Min','Max'},2);
+[SimRndOpt.xnames] = deal(handles.Model.xnames{:});
+NumVoxels = str2num(get(handles.options.x0x23OfVoxels,'String'));
+Opt.SNR = str2num(get(handles.options.SNR,'String'));
+handles.RndParam = GetRndParam(SimRndOpt,NumVoxels);
+handles.SimRndResults = handles.Model.Sim_Multi_Voxel_Distribution(handles.RndParam, Opt);
+SimRndPlotResultsgui(handles);
+guidata(hObject, handles);
+
 
 function SimRndUpdatePopUp(handles)
 axes(handles.SimRndAxe);
@@ -204,19 +217,6 @@ Xdata          = XdataFields{get(handles.SimRndPlotX, 'Value')};
 YdataFields    =     cellstr(get(handles.SimRndPlotY, 'String'));
 Ydata          = YdataFields{get(handles.SimRndPlotY, 'Value')};
 SimRndPlotResults(handles.RndParam,handles.SimRndResults,PlotType,Xdata,Ydata);
-
-% --- Executes on button press in SimRndVaryUpdate.
-function SimRndVaryUpdate_Callback(hObject, eventdata, handles)
-% Read Table
-SimRndOpt = get(handles.SimRndVaryOptTable,'Data'); SimRndOpt(:,2)=mat2cell(~[SimRndOpt{:,2}]',ones(size(SimRndOpt,1),1), 1);
-SimRndOpt = cell2struct(SimRndOpt,{'fx','Mean','Std','Min','Max'},2);
-[SimRndOpt.xnames] = deal(handles.Model.xnames{:});
-NumVoxels = str2num(get(handles.options.x0x23OfVoxels,'String'));
-Opt.SNR = str2num(get(handles.options.SNR,'String'));
-handles.RndParam = GetRndParam(SimRndOpt,NumVoxels);
-handles.SimRndResults = handles.Model.Sim_Multi_Voxel_Distribution(handles.RndParam, Opt);
-guidata(hObject, handles);
-
 
 
 function RndParam = GetRndParam(table,NumVoxels)
