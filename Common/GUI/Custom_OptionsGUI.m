@@ -3,7 +3,7 @@ function varargout = Custom_OptionsGUI(varargin)
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-Fran�is Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
-% If you use qMRLab in your work, please cite :
+% If you use qMTLab in your work, please cite :
 
 % Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
 % Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
@@ -54,7 +54,7 @@ Nparam = length(Model.xnames);
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
     FitOptTable(:,1) = Model.xnames(:);
-    if isprop(Model,'fx') && ~isempty(Model.fx),    FitOptTable(:,2)=mat2cell(logical(Model.fx(:)),ones(Nparam,1)); end
+    if isprop(Model,'fx') && ~isempty(Model.fx), FitOptTable(:,2) = mat2cell(logical(Model.fx(:)),ones(Nparam,1)); end
     if isprop(Model,'st') && ~isempty(Model.st),
         FitOptTable(:,3) = mat2cell(Model.st(:),ones(Nparam,1));
         FitOptTable(:,4) = mat2cell(Model.lb(:),ones(Nparam,1));
@@ -63,47 +63,26 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     set(handles.FitOptTable,'Data',FitOptTable)
 end
 
-
-% Load model specific options
-
-nPanel = sum(strcmp(Model.buttons,'PANEL'));
-nOpts = length(Model.buttons)-4*nPanel;
-opts = cell(1,nOpts);
-Panel.i = ones(1,nPanel);
-Panel.nElements = ones(1,nPanel);
-Panel.Title = cell(1,nPanel);
-ii = 1;
-jj = 1;
-kk = 1;
-while jj<(nOpts+1) 
-    if strcmp(Model.buttons(ii),'PANEL')
-        Panel.i(kk) = (ii+1)/2;
-        Panel.nElements(kk) = Model.buttons{ii+1};
-        Panel.Title(kk) = Model.buttons(ii+2);
-        ii = ii+4;
-        kk = kk+1;
+if ~isempty(Model.buttons)
+    
+    % Generate Buttons
+    handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel);
+    
+    % Create CALLBACK for buttons
+    ff = fieldnames(handles.OptionsPanel_handle);
+    for ii=1:length(ff)
+        set(handles.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(handles));
+        switch get(handles.OptionsPanel_handle.(ff{ii}),'Style')
+            case 'popupmenu'
+                val =  find(cell2mat(cellfun(@(x) strcmp(x,Model.options.(ff{ii})),get(handles.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
+                set(handles.OptionsPanel_handle.(ff{ii}),'Value',val);
+            case 'checkbox'
+                set(handles.OptionsPanel_handle.(ff{ii}),'Value',Model.options.(ff{ii}));
+            case 'edit'
+                set(handles.OptionsPanel_handle.(ff{ii}),'String',Model.options.(ff{ii}));
+        end     
     end
-        opts(jj) = Model.buttons(ii);
-        ii = ii+1;
-        jj = jj+1;
-end
-
-if ~isempty(opts)
-    
-    N = length(opts);
-    
-    Width = 0.905;
-    Height = 0.045 + 0.06*Panel.nElements;
-    x = 0.05;
-    y = 1.05 - Height - 0.08*Panel.i;
-    
-    for i = 1:nPanel
-            Panel.ui = uipanel(handles.OptionsPanel,'Title',Panel.Title{i},'FontSize',11,'FontWeight','bold',...
-                            'BackgroundColor',[0.94 0.94 0.94],'Position',[x y Width Height]);
-    end
-
-    createButtons(handles,opts,Model,Panel);
-
+    SetOpt(handles);
 end
 
 % Load Protocol
@@ -120,7 +99,7 @@ if ~isempty(Model.Prot)
         else
             handles.(fields{ii}).table.ColumnName = Model.Prot.(fields{ii}).Format;
         end
-        handles.(fields{ii}).table.CellEditCallback = @(hObject,Prot) UpdateProt(fields{ii},Prot);
+        handles.(fields{ii}).table.CellEditCallback = @(hObject,Prot) UpdateProt(fields{ii},Prot,handles);
     end
 end
 
@@ -130,93 +109,12 @@ end
 guidata(hObject, handles);
 
 
-function createButtons(handles, opts, Model, Panel)
-    N = length(opts)/2;
-    nboptions = max(25,2*N);
-    [II,JJJ] = ind2sub([1 nboptions],1:2*N);
-    I = (0.1+0.8*(II-1)/max(II));
-    JJ = (JJJ-1)/nboptions*0.85; 
-    Iw = 0.8/max(II); 
-    nPanel = 0;
-    for i = 1:N      
-        % If the value is associate with a Panel, the parent is set as the
-        % Panel and the uicontrol is resize to fit well
-        if ismember(i,Panel.i)
-            nPanel = Panel.nElements;
-            ref = i;
-        end
-        if nPanel > 0
-            parent = Panel.ui; 
-            Jh = 1.4/Panel.nElements;
-            J = 0.55 + 0.8*(Panel.nElements^0.2) - 13.8*JJ/(Panel.nElements^1.04);
-            y = J(2*(ref-i));
-        else
-            parent = handles.OptionsPanel; 
-            Jh = 0.1;
-            J = 0.93 - 1.14*JJ;
-            y = J(2*i-1);
-        end
-        
-        if isfield(Model.options,genvarname(opts{2*i-1})), val = Model.options.(genvarname(opts{2*i-1})); else val = opts{2*i}; end % retrieve previous value
-        
-        if islogical(opts{2*i})
-            OptionsPanel_handle(i) = uicontrol('Style','checkbox','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
-                'Parent',parent,'Units','normalized','Position',[I(2*i-1) y Iw Jh/2],...
-                'Value',val,'HorizontalAlignment','center');
-        elseif isnumeric(opts{2*i})
-            uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
-                'Parent',parent,'Units','normalized','HorizontalAlignment','left','Position',[I(2*i-1) y Iw/2 Jh/2]);
-            OptionsPanel_handle(i) = uicontrol('Style','edit',...
-                'Parent',parent,'Units','normalized','Position',[(I(2*i-1)+Iw/2) y Iw/2 Jh/2],'String',val);
-        elseif iscell(opts{2*i})
-            uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
-                'Parent',parent,'Units','normalized','HorizontalAlignment','left','Position',[I(2*i-1) y Iw/3 Jh/2]);
-            if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*i},'UniformOutput',0))); end % retrieve previous value
-            OptionsPanel_handle(i) = uicontrol('Style','popupmenu',...
-                'Parent',parent,'Units','normalized','Position',[(I(2*i-1)+Iw/3) y 2.2*Iw/3 Jh/2],'String',opts{2*i},'Value',val);           
-        end
-               
-        nPanel = nPanel - 1;
-              
-    end
     
-    % Create CALLBACK for buttons
-    setappdata(0,'Model',Model);
-    handles.OptionsPanel_handle = OptionsPanel_handle;
-    for ih = 1:length(OptionsPanel_handle)
-        set(OptionsPanel_handle(ih),'Callback',@(src,event) ModelOptions_Callback(handles))
-    end
-    SetOpt(handles);
-end
-
-% Load Protocol
-if ~isempty(Model.Prot)
-    delete(setdiff(findobj(handles.ProtEditPanel),handles.ProtEditPanel))
-    fields=fieldnames(Model.Prot);
-    N=length(fields);
-    for ii=1:N
-        handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .05*N .9 (1-.05*N)]);
-        uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0 .94 .05*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
-        set(handles.(fields{ii}).table,'ColumnName', Model.Prot.(fields{ii}).Format);
-        handles.(fields{ii}).table.ColumnEditable=true; % Editable for Matlab version > R2015
-        handles.(fields{ii}).table.CellEditCallback=@(hObject,Prot) UpdateProt(fields{ii},Prot);
-    end
-end
-
-if ismethod(Model,'plotProt')
-        uicontrol(handles.ProtEditPanel,'Units','normalized','Position',[.05 0 .9 .05],'Style','pushbutton','String','Plot Protocol','Callback','figure(''color'',''white''), Model = getappdata(0,''Model''); Model.plotProt;');
-end
-guidata(hObject, handles);
 
 
-
-
-
+    
 function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles) 
 %varargout{1} = handles.output;
-
-
 
 % #########################################################################
 %                           SIMULATION PANEL
@@ -236,7 +134,8 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 
 % GETFITOPT Get Fit Option from table
 function Model = SetOpt(handles)
-% fitting options
+
+% READ FITTING TABLE
 fittingtable = get(handles.FitOptTable,'Data'); % Get options
 Model = getappdata(0,'Model');
 Model.xnames = fittingtable(:,1)';
@@ -254,43 +153,10 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         set(handles.FitOptTable,'Data',fittingtable);
     end
 end
-% ModelOptions
-nPanel = sum(strcmp(Model.buttons,'PANEL'));
-nOpts = length(Model.buttons)-4*nPanel;
-opts = cell(1,nOpts);
-Panel.nb = ones(1,nPanel);
-Panel.nElements = ones(1,nPanel);
-Panel.Title = cell(1,nPanel);
-ii = 1;
-jj = 1;
-kk = 1;
-while jj<(nOpts+1) 
-    if strcmp(Model.buttons(ii),'PANEL')
-        Panel.nb(kk) = ii;
-        Panel.nElements(kk) = Model.buttons{ii+1};
-        Panel.Title(kk) = Model.buttons(ii+2);
-        ii = ii+4;
-        kk = kk+1;
-    end
-        opts(jj) = Model.buttons(ii);
-        ii = ii+1;
-        jj = jj+1;
-end
 
-N = length(opts)/2;
-for i = 1:N
-    
-    
-    
-    if islogical(opts{2*i})
-        optionvalue = get(handles.OptionsPanel_handle(i),'Value');
-    elseif isnumeric(opts{2*i})
-        optionvalue = str2num(get(handles.OptionsPanel_handle(i),'String'));
-    elseif iscell(opts{2*i})
-        optionvalue = opts{2*i}{get(handles.OptionsPanel_handle(i),'Value')};
-    end
-    Model.options.(genvarname(opts{2*i-1})) = optionvalue;
-end
+% READ BUTTONS
+Model.options = button_handle2opts(handles.OptionsPanel_handle);
+
 if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end
@@ -329,10 +195,15 @@ Model.Prot.(MRIinput).Mat = Prot;
 setappdata(0,'Model',Model);
 
 
-function UpdateProt(MRIinput,Prot)
+function UpdateProt(MRIinput,Prot,handles)
 Model = getappdata(0,'Model');
 Model.Prot.(MRIinput).Mat = Prot.Source.Data;
+if ismethod(Model,'UpdateFields')
+    Model = Model.UpdateFields();
+end
 setappdata(0,'Model',Model);
+OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+
 
 
 % #########################################################################
@@ -340,4 +211,41 @@ setappdata(0,'Model',Model);
 % #########################################################################
 
 function ModelOptions_Callback(handles)
-Model                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+Model = SetOpt(handles);
+OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+
+% --- Executes on button press in Helpbutton.
+function Helpbutton_Callback(hObject, eventdata, handles)
+doc(class(getappdata(0,'Model')))
+
+% --- Executes on button press in Default.
+function Default_Callback(hObject, eventdata, handles)
+oldModel = getappdata(0,'Model');
+modelfun = str2func(class(oldModel));
+Model = modelfun();
+Model.Prot = oldModel.Prot;
+setappdata(0,'Model',Model);
+set(handles.ParametersFileName,'String','Parameters Filename');
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller, Model)
+
+% --- Executes on button press in Load.
+function Load_Callback(hObject, eventdata, handles)
+[FileName,PathName] = uigetfile('*.mat');
+if PathName == 0, return; end
+load(fullfile(PathName,FileName));
+oldModel = getappdata(0,'Model');
+if ~isa(Model,class(oldModel))
+    errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
+    return;
+end
+setappdata(0,'Model',Model)
+set(handles.ParametersFileName,'String',FileName);
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+
+% --- Executes on button press in Save.
+function Save_Callback(hObject, eventdata, handles)
+Model = getappdata(0,'Model');
+[file,path] = uiputfile(['qMRILab_' class(Model) 'Parameters.mat'],'Save file name');
+save(fullfile(path,file),'Model')
+
+

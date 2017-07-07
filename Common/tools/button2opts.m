@@ -1,9 +1,25 @@
-function obj = button2opts(obj)
-opts=obj.buttons;
-for io = 1:2:length(opts)
-    if iscell(opts{io+1})
-        obj.options.(genvarname(opts{io})) = opts{io+1}{1};
+function options = button2opts(opts)
+io=1;
+options = struct();
+while io < length(opts)
+    if strcmp(opts{io},'PANEL')
+        PanelName = opts{io+1}; panelNum = opts{io+2};
+        io = io+3;
+        for ii=1:panelNum            
+            if iscell(opts{io+1})
+                options.(genvarname_v2([PanelName '_' opts{io}])) = opts{io+1}{1};
+                io = io+2;
+            else
+                options.(genvarname_v2([PanelName '_' opts{io}])) = opts{io+1};
+                io = io+2;
+            end
+        end
     else
-        obj.options.(genvarname(opts{io})) = opts{io+1};
+        if iscell(opts{io+1})
+            options.(genvarname_v2(opts{io})) = opts{io+1}{1};
+        else
+            options.(genvarname_v2(opts{io})) = opts{io+1};
+        end
+        io = io+2;
     end
 end
