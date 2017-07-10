@@ -1357,7 +1357,6 @@ fig = gcf;
 handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
-
 function RefreshPlot(handles)
 Current = GetCurrent(handles);
 xl = xlim;
@@ -1368,6 +1367,131 @@ axis equal off;
 RefreshColorMap(handles)
 xlim(xl);
 ylim(yl);
+
+
+% ##############################################################################################
+%                                    ROI
+% ##############################################################################################
+
+% DRAW
+function RoiDraw_Callback(hObject, eventdata, handles)
+contents = cellstr(get(hObject,'String'));
+model = contents{get(hObject,'Value')};
+switch model
+    case 'Ellipse'
+        draw = imellipse();
+    case 'Polygone'
+        draw = impoly();
+    case 'Rectangle'
+        draw = imrect();
+    case 'FreeHand'
+        draw = imfreehand();
+    otherwise
+        warning('Choose a Drawing Method');
+end
+Map = getimage(handles.FitDataAxe);
+handles.ROI = double(draw.createMask());
+handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
+guidata(gcbo, handles); 
+% figure
+set(handles.FitDataAxe);
+imagesc(handles.NewMap);
+axis equal off;
+colorbar('south','YColor','white');
+
+% THRESHOLD
+function RoiThreshMin_Callback(hObject, eventdata, handles)
+handles.threshMin = str2double(get(hObject, 'String'));
+if ~isempty(get(handles.RoiThreshMax, 'String'))
+    handles.threshMax = str2double(get(handles.RoiThreshMax, 'String'));
+else
+    handles.threshMax = str2double(get(handles.MaxValue, 'String'));
+end
+handles.NewMap = getimage(handles.FitDataAxe);
+handles.NewMap(handles.NewMap<handles.threshMin) = 0;
+handles.NewMap(handles.NewMap>handles.threshMax) = 0;
+% figure
+set(handles.FitDataAxe);
+imagesc(handles.NewMap);
+axis equal off;
+colorbar('south','YColor','white');
+function RoiThreshMax_Callback(hObject, eventdata, handles)
+handles.threshMax = str2double(get(hObject, 'String'));
+if ~isempty(get(handles.RoiThreshMin, 'String'))
+    handles.threshMin = str2double(get(handles.RoiThreshMin, 'String'));
+else
+    handles.threshMin = str2double(get(handles.MinValue, 'String'));
+end
+handles.NewMap = getimage(handles.FitDataAxe);
+handles.NewMap(handles.NewMap<handles.threshMin) = 0;
+handles.NewMap(handles.NewMap>handles.threshMax) = 0;
+% figure
+set(handles.FitDataAxe);
+imagesc(handles.NewMap);
+axis equal off;
+colorbar('south','YColor','white');
+
+% STATISTICS
+function RoiStats_Callback(hObject, eventdata, handles)
+RoiMap = nonzeros(getimage(handles.FitDataAxe));
+Stats = sprintf('Mean: %5.4f \n   Std: %5.4f',mean(RoiMap),std(RoiMap));
+set(handles.FitDataAxe);
+text(2,5,Stats,'FontWeight','bold','FontSize',12,'Color','white');
+
+% SAVE
+function RoiSave_Callback(hObject, eventdata, handles)
+% Get the WD
+Method = GetAppData('Method');
+FileBrowserList = GetAppData('FileBrowserList');
+MethodList = getappdata(0, 'MethodList');
+MethodList = strrep(MethodList, '.m', '');
+MethodCount = numel(MethodList);
+for i=1:MethodCount
+    if FileBrowserList(i).IsMethodID(Method)
+        MethodID = i;
+    end
+end
+WD = FileBrowserList(MethodID).getWD;
+Mask = handles.ROI;
+if ~isempty(WD)
+    if exist(fullfile(WD, 'Mask.mat'),'file') || exist(fullfile(WD, 'Mask.nii'),'file')
+        choice = questdlg('Replace the old mask?','A mask exist!','Yes','No','No');
+        switch choice
+            case 'Yes'
+                FullPathName = fullfile(WD, 'Mask');
+                save(FullPathName,'Mask');                 
+            case 'No'
+                [FileName, PathName] = uiputfile({'*.mat'},'Save as');
+                FullPathName = fullfile(PathName, FileName);
+                if FileName ~= 0
+                    save(FullPathName,'Mask');
+                end
+        end
+    else
+        FullPathName = fullfile(WD, 'Mask');
+        save(FullPathName,'Mask');
+    end
+else
+    [FileName, PathName] = uiputfile({'*.mat'},'Save as');
+    FullPathName = fullfile(PathName, FileName);
+    if FileName ~= 0
+        save(FullPathName,'Mask');
+    end  
+end
+
+% LOAD
+function RoiLoad_Callback(hObject, eventdata, handles)
+[FileName,PathName] = uigetfile;
+FullPathName = fullfile(PathName, FileName);
+Tmp = load(FullPathName);
+Roi = Tmp.Mask;
+Map = getimage(handles.FitDataAxe);
+handles.NewMap = Map(:,:,1,1).*Roi;
+% figure
+set(handles.FitDataAxe);
+imagesc(handles.NewMap);
+axis equal off;
+colorbar('south','YColor','white');
 
 
 % ######################## CREATE FUNCTIONS ##############################
@@ -1421,79 +1545,18 @@ function RoiDraw_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+function RoiThreshMin_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function RoiThreshMax_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 function MethodqMT_Callback(hObject, eventdata, handles)
 function ChooseMethod_Callback(hObject, eventdata, handles)
-
 
 function pushbutton169_Callback(hObject, eventdata, handles)
 function pushbutton168_Callback(hObject, eventdata, handles)
 function pushbutton167_Callback(hObject, eventdata, handles)
 function pushbutton166_Callback(hObject, eventdata, handles)
-
-
-function RoiLoad_Callback(hObject, eventdata, handles)
-
-
-function RoiSave_Callback(hObject, eventdata, handles)
-Method = GetAppData('Method');
-FileBrowserList = GetAppData('FileBrowserList');
-MethodList = getappdata(0, 'MethodList');
-MethodList = strrep(MethodList, '.m', '');
-MethodCount = numel(MethodList);
-
-for i=1:MethodCount
-    if FileBrowserList(i).IsMethodID(Method)
-        MethodID = i;
-    end
-end
-WD = FileBrowserList(MethodID).getWD;
-
-[fileName, pathName] = uiputfile({'*.mat'},'Save as');
-fullPathName = strcat(pathName, fileName);
-Mask = handles.ROI;
-if fileName ~= 0
-    save(fullPathName,'Mask');
-end
-
-
-
-function RoiDraw_Callback(hObject, eventdata, handles)
-contents = cellstr(get(hObject,'String'));
-model = contents{get(hObject,'Value')};
-switch model
-    case 'Ellipse'
-        draw = imellipse();
-    case 'Polygone'
-        draw = impoly();
-    case 'Rectangle'
-        draw = imrect();
-    case 'FreeHand'
-        draw = imfreehand();
-    otherwise
-        warning('Choose a Drawing Method');
-end
-Map = getimage(gcbf);
-handles.ROI = double(draw.createMask());
-handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
-guidata(gcbo, handles); 
-% FIGURE
-imagesc(handles.NewMap);
-axis equal off;
-colorbar('south','YColor','white');
-
-function RoiStats_Callback(hObject, eventdata, handles)
-
-
-
-
-function RoiTreshMin_Callback(hObject, eventdata, handles)
-function RoiTreshMin_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-function RoiTreshMax_Callback(hObject, eventdata, handles)
-function RoiTreshMax_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end

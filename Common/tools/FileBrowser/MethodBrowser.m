@@ -146,7 +146,7 @@ classdef MethodBrowser
         %------------------------------------------------------------------
         % get working directory name
         function WD = getWD(obj)
-            WD = obj.WorkDir_FullPath;
+            WD = get(obj.WorkDir_FileNameArea, 'String');
         end
         
         %------------------------------------------------------------------
