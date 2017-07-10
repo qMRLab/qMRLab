@@ -47,7 +47,7 @@ classdef CustomExample % Name your Model
     methods
         function obj = CustomExample
             dbstop in CustomExample.m at 59
-            obj = button2opts(obj); % converts buttons values to option structure
+            obj.options = button2opts(obj.buttons); % converts buttons values to option structure
         end
         
         function Smodel = equation(obj, x)
