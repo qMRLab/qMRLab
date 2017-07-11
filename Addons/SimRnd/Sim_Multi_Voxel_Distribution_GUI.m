@@ -30,7 +30,7 @@ handles.output = hObject;
 handles.Model = varargin{1};
 if ~isfield(handles,'opened')
     % clear axe
-    axes(handles.SimRndAxe)
+    %axes(handles.SimRndAxe)
     % fill table
     Nparam=length(handles.Model.xnames);
     if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,1)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
