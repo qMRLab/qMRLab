@@ -69,10 +69,13 @@ classdef CHARMED
     end
     
     methods
+% -------------CONSTRUCTOR-------------------------------------------------------------------------
         function obj = CHARMED
             obj.options = button2opts(obj.buttons);
         end
-        
+
+% -------------CHARMED EQUATION-------------------------------------------------------------------------
+
         function Smodel = equation(obj, x)
             if isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
@@ -87,7 +90,7 @@ classdef CHARMED
             Smodel = scd_model_CHARMED(x,opt);
         end
         
-        
+% -------------DATA FITTING-------------------------------------------------------------------------
         function FitResults = fit(obj,data)
             
             % Prepare data
@@ -147,7 +150,8 @@ classdef CHARMED
             
             
         end
-        
+     
+% -------------PLOT EQUATION-------------------------------------------------------------------------
         function plotmodel(obj, x, data)
             % u.plotmodel(u.st)
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
@@ -181,7 +185,8 @@ classdef CHARMED
             end
             hold off
         end
-        
+
+% -------------PLOT DIFFUSION PROTOCOL-------------------------------------------------------------------------
         function plotProt(obj)
             % round bvalue
             Prot = obj.Prot.DiffusionData.Mat;
@@ -191,7 +196,9 @@ classdef CHARMED
             subplot(2,2,4)
             scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat))
         end
+        
 
+% -------------SIMULATIONS-------------------------------------------------------------------------
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
@@ -217,6 +224,53 @@ classdef CHARMED
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
+        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+            TEmax = 120*1e-3;
+            Treadout = 35*1e-3;
+            T180 = 10*1e-3;
+            deltamin=3*1e-3;
+            Gmax = 80*1e-3;
+            % |G| Delta delta
+            planes = [0 -1 -1 TEmax % TE-delta-DELTA>0
+                0  1 -1 0     % Delta-delta>0
+                0  0  1 -deltamin % delta - deltamin>0
+                1  0  0 0     % G>0
+                -1 0  0 Gmax];   % Gmax - |G| > 0
+            
+            LSP = meshgrid_polyhedron(planes);
+            
+            T2=40*1e-3; 
+            TE0=40*1e-3;
+            sigma0=.05; %SNR=20 at TE0 
+            sigma = @(Prot) sigma0*exp(((Prot(:,2)+Prot(:,3)+Treadout)-TE0)/T2);
+
+            GenerateRandFunction = @() LSP(randi(size(LSP,1),nV,1),:);
+            CheckProtInBoundFunc = @(Prot) checkInBoundsAndUptade(Prot,LSP,planes);
+            %% Optimize Protocol
+            [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,[zeros(size(Prot,1),2) ones(size(Prot,1),1) Prot],xvalues,sigma(Prot),1:2)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, obj.Prot.DiffusionData.Mat(:,4:6));
+            
+            %% Generate Rest
+            schemeLEADER = retVal.schemeLEADER;
+            % add b0 value
+            schemeLEADER = [schemeLEADER(1,:);schemeLEADER]; % add b0 value
+            schemeLEADER(1,1:4) = 0;
+            schemeLEADER(1,8:9) = 0;
+            
+            % different acq
+            acq = unique(schemeLEADER(:,5:6), 'rows');
+            [~, index1] = sort(acq(:,1));
+            acq = acq(index1,:);
+            Nacq = size(acq, 1);
+            for s=1:nV
+                [ind,~] = find(sum(abs(acq - repmat(schemeLEADER(s,5:6),Nacq,1)), 2) == 0);
+                schemeLEADER(s,9) = ind;
+            end
+            [~, index2] = sort(schemeLEADER(:,9));
+            schemeLEADER = schemeLEADER(index2,:);
+            
+            fprintf('SOMA HAS FINISHED \n')
+                        
+        end
     end
 end
 
@@ -234,9 +288,13 @@ scheme(:,4)=scheme(:,4).*sqrt(sum(scheme(:,1:3).^2,2))*1e-3; % G mT/um
 scheme(:,1:3)=scheme(:,1:3)./repmat(sqrt(scheme(:,1).^2+scheme(:,2).^2+scheme(:,3).^2),1,3); scheme(isnan(scheme))=0;
 scheme(:,5) = scheme(:,5)*10^3; % DELTA ms
 scheme(:,6) = scheme(:,6)*10^3; % delta ms
-scheme(:,7) = scheme(:,7)*10^3; % TE ms
-gyro = 42.57; % kHz/mT
-scheme(:,8) = gyro*scheme(:,4).*scheme(:,6); % um-1
+if size(scheme,2)>6
+    scheme(:,7) = scheme(:,7)*10^3; % TE ms
+else
+    scheme(:,7) = scheme(:,5)+scheme(:,6)+35; % approximation
+end
+    gyro = 42.57; % kHz/mT
+    scheme(:,8) = gyro*scheme(:,4).*scheme(:,6); % um-1
 
 % differentiate session based on Delta/delta/TE values
 list=unique(scheme(:,7:-1:5),'rows');
