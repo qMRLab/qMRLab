@@ -85,8 +85,6 @@ function UpdatePlot_Callback(hObject, eventdata, handles)
 set(findobj('Name','SimCurve'),'pointer', 'watch'); drawnow;
 if isvalid(handles.SimCurveAxe)
     axes(handles.SimCurveAxe)
-else
-    axes(handles.uipanel_curve)
 end
 
 xtable = get(handles.ParamTable,'Data');
