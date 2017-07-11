@@ -7,8 +7,6 @@ function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 % Output : Fit structure with fitted parameters
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-François Cabana, 2016
-%
-% Adapted for qMRILab by: Ian Gagnon, 2017
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
@@ -18,7 +16,7 @@ function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
-if ~isfield(FitOpt,'Sf') || isempty(FitOpt.Sf)
+if ~isfield(Prot,'Sf') || isempty(Prot.Sf)
     errordlg('Please build Sf Table in the options panel to enable fitting...'); 
 end
 

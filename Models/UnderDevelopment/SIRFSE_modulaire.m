@@ -66,7 +66,7 @@ classdef SIRFSE_modulaire
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
@@ -135,6 +135,11 @@ classdef SIRFSE_modulaire
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
         end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
 %         function plotProt(obj)
 %             subplot(1,1,2)
 %             plot(obj.Prot.MTdata(:,1),obj.Prot.MTdata(:,2))

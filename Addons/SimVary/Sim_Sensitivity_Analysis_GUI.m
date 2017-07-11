@@ -67,7 +67,7 @@ if ~isfield(handles,'opened')
     set(handles.SimVaryPlotY,'String',handles.Model.xnames')
     
     % Options
-    opts={};
+    opts = {'SNR',50};
     if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
     if isprop(handles.Model,'Sim_Sensitivity_Analysis_buttons'), opts = cat(2,opts,handles.Model.Sim_Sensitivity_Analysis_buttons); end
 

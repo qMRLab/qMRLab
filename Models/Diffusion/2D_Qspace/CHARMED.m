@@ -65,6 +65,7 @@ classdef CHARMED
         buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'},'S0 normalization',{'Use b=0','Single T2 compartment'},'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
+        Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
     methods
@@ -95,7 +96,7 @@ classdef CHARMED
             
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             
-            switch obj.options.S0Normalization
+            switch obj.options.S0normalization
                 case 'Single T2 compartment'
                     [S0,T2,obj.st(2)] = scd_preproc_getS0_T2(Prot,data,0,1000);
                     S0 = S0*exp(-Prot(:,7)./T2);
@@ -111,11 +112,11 @@ classdef CHARMED
             
             %% RICIAN NOISE
             % use Rician noise and fix fix b=0
-            if obj.options.ComputeSigmaPerVoxel
+            if obj.options.ComputeSigmapervoxel
                 SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data);
                 if ~SigmaNoise, return; end
             else
-                SigmaNoise = obj.options.SigmaOfTheNoise;
+                SigmaNoise = obj.options.Sigmaofthenoise;
             end
             
             %% FITTING (with rician assumption)
@@ -156,7 +157,7 @@ classdef CHARMED
             % plot data
             S0 = 1;
             if nargin>2
-                switch obj.options.S0Normalization
+                switch obj.options.S0normalization
                     case 'Single T2 compartment'
                         [S0, T2]= scd_preproc_getS0_T2(Prot,data.DiffusionData,0,1000);
                         S0 = S0*exp(-Prot(:,7)./T2);
@@ -206,23 +207,15 @@ classdef CHARMED
             end
         end
         
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
-            SimVaryResults = SimVary(obj, SNR, runs, OptTable);
+            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
         end
         
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
-        
-        function Sim_Display_Protocol(obj)
-            % round bvalue
-            obj.Prot.DiffusionData.Mat(:,4)=round(scd_scheme2bvecsbvals(obj.Prot.DiffusionData.Mat)*100)*10;
-            % display
-            scd_scheme_display(obj.Prot.DiffusionData.Mat)
-        end
-
 
     end
 end
