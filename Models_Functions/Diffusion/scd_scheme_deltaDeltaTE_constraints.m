@@ -22,10 +22,10 @@ y = [y1 y2 y3];
 
 
 
-fill(x, y, 'r')
-xlabel('\delta (in ms)')
-ylabel('\Delta (in ms)')
-title({'2D space of feasible (\Delta,\delta) combinations' ; ['TE : ', num2str(TE),' ms', '   ','Treadout : ', num2str(Treadout),' ms', '   ']});
+% fill(x, y, 'r')
+% xlabel('\delta (in ms)')
+% ylabel('\Delta (in ms)')
+% title({'2D space of feasible (\Delta,\delta) combinations' ; ['TE : ', num2str(TE),' ms', '   ','Treadout : ', num2str(Treadout),' ms', '   ']});
 
 end
 
