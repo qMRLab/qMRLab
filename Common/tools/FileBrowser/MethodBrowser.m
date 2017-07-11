@@ -22,7 +22,6 @@ classdef MethodBrowser
         StudyID_TextID;
     end
     
-    
     methods
         %------------------------------------------------------------------
         % constructor
@@ -51,20 +50,19 @@ classdef MethodBrowser
                 end
                 
                 % setup work directory and study ID display
+                obj.WorkDir_FullPath = '';
                 obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
+                obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
                 obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
                     'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
-                obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
-                obj.WorkDir_FullPath = '';
                 obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
                 obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
             end
         end % end constructor
-                
-        
+                  
         %------------------------------------------------------------------
         % Visible
         function Visible(obj, Visibility)
@@ -197,9 +195,7 @@ classdef MethodBrowser
                
     end
     
-    
-    
-    
+
     methods(Static)
         %------------------------------------------------------------------
         % -- WD_BrowseBtn_callback
