@@ -5,14 +5,17 @@ if ~exist('variables','var'), variables=1:5; end
 if ~exist('sigma','var'), sigma=0.1; end
 
 J=zeros(max(variables));
+S_nominal = obj.equation(x);
 % Gaussian Noise
 for i=variables
     for j=variables
         Xi = x;
-        Xi(i) = Xi(i) + Xi(i) / 100;
+        Xistep = max(1e-10,Xi(i) / 100);
+        Xi(i) = Xi(i) + Xistep;
         Xj = x;
-        Xj(j) = Xj(j) + Xj(j) / 100;
-        J(i,j) = sum( 1./sigma.^2 .* (obj.equation(x) - obj.equation(Xi))/(x(i)/100) .* (obj.equation(x) - obj.equation(Xj))/(x(j)/100));
+        Xjstep = max(1e-10,Xj(j) / 100);
+        Xj(j) = Xj(j) + Xjstep;
+        J(i,j) = sum( 1./sigma.^2 .* (S_nominal - obj.equation(Xi))/Xistep .* (S_nominal - obj.equation(Xj))/Xjstep);
     end
 end
 J=J(variables,variables);
