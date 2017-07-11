@@ -22,7 +22,7 @@ function varargout = Sim_Single_Voxel_Curve_GUI(varargin)
 
 % Edit the above text to modify the response to help Sim_Single_Voxel_Curve_GUI
 
-% Last Modified by GUIDE v2.5 19-May-2017 17:41:23
+% Last Modified by GUIDE v2.5 10-Jul-2017 21:03:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -51,7 +51,7 @@ if ~isfield(handles,'opened')
     handles.output = hObject;
     handles.Model = varargin{1};
     % OPTIONS
-    opts = {};
+    opts = {'SNR',50};
     if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
     
     handles.options = GenerateButtons(opts,handles.OptionsPanel,.15);
@@ -83,7 +83,12 @@ set(findobj('Name','qMRILab'),'pointer', 'arrow'); drawnow;
 % --- Executes on button press in UpdatePlot.
 function UpdatePlot_Callback(hObject, eventdata, handles)
 set(findobj('Name','SimCurve'),'pointer', 'watch'); drawnow;
-axes(handles.SimCurveAxe)
+if isvalid(handles.SimCurveAxe)
+    axes(handles.SimCurveAxe)
+else
+    axes(handles.uipanel_curve)
+end
+
 xtable = get(handles.ParamTable,'Data');
 x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
 

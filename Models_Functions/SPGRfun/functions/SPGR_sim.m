@@ -7,7 +7,7 @@ Param = Sim.Param;
 Angles = Prot.Angles;
 Offsets = Prot.Offsets;
 nA = length(Angles);
-nP = Prot.MTpulse.Npulse;
+nP = Prot.Npulse;
 Mz = zeros(nA,1);
 Mevol = zeros(nA,nP);
 stop = 0;
@@ -35,7 +35,7 @@ end
 % Loop over all data points
 for kk = 1:nA
     
-    Pulse = GetPulse(Angles(kk), Offsets(kk), Prot.Tm, Prot.MTpulse.shape, Prot.MTpulse.Npulse); 
+    Pulse = GetPulse(Angles(kk), Offsets(kk), Prot.Tm, Prot.MTpulse.shape, Prot.MTpulse.opt); 
     SScount = 0;
     G = computeG(Offsets(kk), Param.T2r, Param.lineshape);
     

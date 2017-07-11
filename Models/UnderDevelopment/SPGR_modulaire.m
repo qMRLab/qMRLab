@@ -41,7 +41,7 @@ classdef SPGR_modulaire
         
         % fitting options
         st           = [ 0.16    10      1        1       0.03     1.3e-05 ]; % starting point
-        lb           = [ 0       0       0.05     0.05    0        0       ]; % lower bound
+        lb           = [ 0       0       0.05     0.05    0.003      3e-6       ]; % lower bound
         ub           = [ 0.5     30      5        5       0.5      5.0e-05 ]; % upper bound
         fx           = [ 0       0       1        1       0        0       ]; % fix parameters
         
@@ -61,7 +61,7 @@ classdef SPGR_modulaire
         buttons = {'PANEL','MT_Pulse',5,...
             'Shape',{'gausshann','gaussian','hard','sinc','sinchann','sincgauss','fermi'},...
             'Sinc TBW', nan,...
-            'Gaussian bandwidth',200,...
+            'Bandwidth',200,...
             'Fermi transition (a)', nan,...
             '# of MT pulses',100,...
             'Model',{'SledPikeRP','SledPikeCW','Yarnykh','Ramani'},...
@@ -75,7 +75,7 @@ classdef SPGR_modulaire
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
@@ -90,7 +90,10 @@ classdef SPGR_modulaire
             SPGRDir = getSPGRDir();
             SfTablePath = [SPGRDir filesep 'SfTable.mat'];
             LastProt = loadStruct(SfTablePath,'LastProt'); 
-            CurrentProt = GetProt(obj); 
+            CurrentProt = GetProt(obj);
+            if isfield(CurrentProt,'Sf')
+                CurrentProt = rmfield(CurrentProt,'Sf');
+            end
             if isequal(CurrentProt,LastProt)
                 obj.ProtSfTable = loadStruct(SfTablePath,'SfTable'); % SfTable associated with last protocol used
                 obj.options.SfTable_Good = 'YES';
@@ -127,6 +130,7 @@ classdef SPGR_modulaire
         end
         
         function mz = equation(obj, x, Opt)
+            x = x+eps;
             for ix = 1:length(x)
                 Sim.Param.(obj.xnames{ix}) = x(ix);
             end
@@ -168,6 +172,11 @@ classdef SPGR_modulaire
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
         end
 
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
         function plotmodel(obj, x, data)
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
@@ -199,12 +208,17 @@ classdef SPGR_modulaire
             Prot.Offsets = obj.Prot.MTdata.Mat(:,2);
             Prot.Alpha = obj.options.Readpulsealpha;
             Prot.MTpulse.shape = obj.options.MT_Pulse_Shape;
+            Prot.MTpulse.opt.bw = obj.options.MT_Pulse_Bandwidth;
            	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;    
             Prot.Tm = obj.Prot.TimingTable.Mat(1);
             Prot.Ts = obj.Prot.TimingTable.Mat(2);
             Prot.Tp = obj.Prot.TimingTable.Mat(3);
             Prot.Tr = obj.Prot.TimingTable.Mat(4);
             Prot.TR = obj.Prot.TimingTable.Mat(5);
+            % Check is the Sf table had already been compute
+            if ~isempty(fieldnames(obj.ProtSfTable))
+                Prot.Sf = obj.ProtSfTable;
+            end
         end
         
         function FitOpt = GetFitOpt(obj,data)
@@ -220,10 +234,6 @@ classdef SPGR_modulaire
             FitOpt.ub = obj.ub;
             FitOpt.names = obj.xnames;
             FitOpt.lineshape = obj.options.Lineshape;
-            % Check is the Sf table had already been compute
-            if ~isempty(obj.ProtSfTable);
-                FitOpt.Sf = obj.ProtSfTable;
-            end
             FitOpt.R1reqR1f = obj.options.FixR1rR1f;
             FitOpt.model = obj.options.Model;
         end
@@ -236,7 +246,7 @@ function SPGRDir = getSPGRDir()
     SPGRDir = [qMRLabDir 'Data' filesep 'SPGR_demo'];
 end
 
-function struct = loadStruct(fullPathName,structName)
+function struct = loadStruct(fullPathName,fieldName)
     tmp = load(fullPathName);
-    struct = tmp.(structName);
+    struct = tmp.(fieldName);
 end

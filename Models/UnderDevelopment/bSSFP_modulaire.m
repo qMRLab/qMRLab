@@ -67,6 +67,8 @@ classdef bSSFP_modulaire
                    'Prepulse',true}; % (Alpha/2 - TR/2 )
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
+        Sim_Single_Voxel_Curve_buttons = {'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
     methods
@@ -84,6 +86,28 @@ classdef bSSFP_modulaire
             end
         end
         
+        function mxy = equation(obj, x, Opt)
+            x = x+eps;
+            for ix = 1:length(x)
+                Sim.Param.(obj.xnames{ix}) = x(ix);
+            end
+            Sim.Param.G = obj.options.G0;
+            Protocol = GetProt(obj);
+            switch Opt.Method
+                case 'Block equation'
+                    Sim.Opt.Reset = Opt.ResetMz;
+                    Sim.Opt.SScheck = 1;
+                    Sim.Opt.SStol = 1e-4;
+                    mxy = bSSFP_sim(Sim, Protocol, 1);
+                case 'Analytical equation'
+                    FitOpt = obj.GetFitOpt;
+                    [alpha1, Trf1, TR1, W1] = bSSFP_prepare(Protocol,FitOpt);
+                    xdata = [alpha1, Trf1, TR1, W1];
+                    mxy = bSSFP_fun( x, xdata, FitOpt );
+            end
+        end
+        
+                
         function FitResults = fit(obj,data)
             Protocol = GetProt(obj); 
             FitOpt = GetFitOpt(obj,data);
@@ -118,17 +142,43 @@ classdef bSSFP_modulaire
 %             ViewPulse(Pulse,'b1');
 %         end
 %         
+
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
+            if ~exist('display','var'), display = 1; end      
+            Smodel = equation(obj, x, Opt);
+            sigma = max(Smodel)/Opt.SNR;
+            data.MTdata = random('rician',Smodel,sigma);
+            FitResults = fit(obj,data);
+            if display
+                plotmodel(obj, FitResults, data);
+            end
+        end
+
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+        end
+        
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
+%   INTERFACE VARIABLES WITH OLD VERSION OF qMTLAB:
         function Prot = GetProt(obj)  
             Prot.alpha = obj.Prot.MTdata.Mat(:,1);
             Prot.Trf = obj.Prot.MTdata.Mat(:,2);
             Prot.FixTR = obj.options.FixTR;
             Prot.TR = obj.options.TRValue;
             Prot.Td = obj.options.TRTrfValue;
-            Prot.PulseShape = obj.options.Inversion_Pulse_Shape;
+            Prot.Pulse.shape = obj.options.Inversion_Pulse_Shape;
+            Prot.Npulse = obj.options.Inversion_Pulse_NofRFpulses;
+            Prot.prepulse = obj.options.Prepulse;
         end
                 
         function FitOpt = GetFitOpt(obj,data)
-            if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
+            if exist('data','var') && isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
             FitOpt.R1map = obj.options.UseR1maptoconstrainR1f;
             FitOpt.names = obj.xnames;
             FitOpt.fx = obj.fx;

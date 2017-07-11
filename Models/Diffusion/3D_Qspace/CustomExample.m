@@ -55,15 +55,8 @@ classdef CustomExample % Name your Model
             % x can be both a structure (FieldNames based on xnames) or a
             % vector (same order as xnames).
             
-            % parse input
-            if isstruct(x) % if x is a structure, convert to vector
-                for ix = 1:length(obj.xnames)
-                    xtmp(ix) = x.(obj.xnames{ix});
-                end
-                x = xtmp;
-            end
-            
             D = rand(3,3)*1e-3;
+            D(1,1) = x(1); D(2,2) = x(2);
             %D(:) = x(??);
             bvalue=obj.Prot.DiffusionData.Mat(:,4);
             bvec = obj.Prot.DiffusionData.Mat(:,1:3);
@@ -92,7 +85,7 @@ classdef CustomExample % Name your Model
         
         
         function plotmodel(obj, FitResults, data)
-            %  Plot the Model and Data
+            %  Plot the Model and Data.
             Smodel = equation(obj, FitResults);
             bvalue = obj.Prot.DiffusionData.Mat(:,4);
             plot(bvalue,Smodel,'b+')

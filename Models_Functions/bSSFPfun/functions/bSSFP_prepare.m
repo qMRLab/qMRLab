@@ -11,7 +11,7 @@ else
 end
 
 for ii = 1:length(alpha)
-    Pulse = GetPulse(alpha(ii),0,Trf(ii),Prot.PulseShape);
+    Pulse = GetPulse(alpha(ii),0,Trf(ii),Prot.Pulse.shape);
     W(ii) = computeW(FitOpt.G, Pulse);
 end
 
