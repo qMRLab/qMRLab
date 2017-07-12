@@ -83,7 +83,7 @@ set(findobj('Name','qMRILab'),'pointer', 'arrow'); drawnow;
 % --- Executes on button press in UpdatePlot.
 function UpdatePlot_Callback(hObject, eventdata, handles)
 set(findobj('Name','SimCurve'),'pointer', 'watch'); drawnow;
-if isvalid(handles.SimCurveAxe)
+if isgraphics(handles.SimCurveAxe)
     axes(handles.SimCurveAxe)
 end
 
