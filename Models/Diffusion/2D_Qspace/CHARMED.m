@@ -47,10 +47,10 @@ classdef CHARMED
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [0.5     0.7        6           0         0    3     1.4 ]; % starting point
-        lb            = [0       0.3        3          0         0    1     0.3 ]; % lower bound
-        ub           = [1       3         10           1        8    4     3   ]; % upper bound
-        fx            = [0      0           0          1         1    1     1   ]; % fix parameters
+        st           = [0.5     0.7        6          0         0    3     1.4 ]; % starting point
+        lb           = [0       0.3        3          0         0    1     0.3 ]; % lower bound
+        ub           = [1       3         10          1         8    4     3   ]; % upper bound
+        fx           = [0       0          0          1         1    1     1   ]; % fix parameters
         
         % Protocol
         Prot = struct('DiffusionData',...
@@ -64,7 +64,6 @@ classdef CHARMED
         % Model options
         buttons = {'Dcsf',3,'Dr',1.4,'Sigma of the noise',10,'Compute Sigma per voxel',true,'Display Type',{'q-value','b-value'},'S0 normalization',{'Use b=0','Single T2 compartment'},'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
-        
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
