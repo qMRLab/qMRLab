@@ -1410,6 +1410,9 @@ end
 handles.NewMap = getimage(handles.FitDataAxe);
 handles.NewMap(handles.NewMap<handles.threshMin) = 0;
 handles.NewMap(handles.NewMap>handles.threshMax) = 0;
+handles.ROI = handles.NewMap;
+handles.ROI(handles.ROI~=0) = 1;
+guidata(gcbo, handles); 
 % figure
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
@@ -1425,6 +1428,9 @@ end
 handles.NewMap = getimage(handles.FitDataAxe);
 handles.NewMap(handles.NewMap<handles.threshMin) = 0;
 handles.NewMap(handles.NewMap>handles.threshMax) = 0;
+handles.ROI = handles.NewMap;
+handles.ROI(handles.ROI~=0) = 1;
+guidata(gcbo, handles); 
 % figure
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
@@ -1452,7 +1458,7 @@ for i=1:MethodCount
     end
 end
 WD = FileBrowserList(MethodID).getWD;
-Mask = handles.ROI;
+Mask = rot90(handles.ROI,-1);
 if ~isempty(WD)
     if exist(fullfile(WD, 'Mask.mat'),'file') || exist(fullfile(WD, 'Mask.nii'),'file')
         choice = questdlg('Replace the old mask?','A mask exist!','Yes','No','No');
