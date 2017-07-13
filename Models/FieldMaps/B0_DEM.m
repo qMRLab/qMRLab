@@ -51,10 +51,10 @@ classdef B0_DEM
             save_nii(make_nii(Magn),'tmp/Magn.nii');
             unix('prelude -p tmp/Phase.nii -a tmp/Magn.nii -o tmp/Ph_uw -f');
             b0 = load_untouch_nii('tmp/Ph_uw.nii.gz');
+            cd ..
             rmdir('tmp','s')
             b0.img = unwrap(b0.img,[],4);
-            FitResult.b0map = (b0.img(:,:,:,2) - b0.img(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);
-            
+            FitResult.b0map = (b0.img(:,:,:,2) - b0.img(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);           
         end        
     end
 end
