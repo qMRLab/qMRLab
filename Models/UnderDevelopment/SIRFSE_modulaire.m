@@ -10,19 +10,20 @@ classdef SIRFSE_modulaire
 % ----------------------------------------------------------------------------------------------------
 %
 %  Fitted Parameters:
-%    * fr :     fraction of water in the restricted compartment
-%    * Dh :    Apparent diffusion coefficient of the hindered compartment
-%    
-%    * fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
-%    * lc :   length of coherence. if >0, this parameter models the time dependence of the hindered
-%             diffusion coefficient Dh. Els Fieremans et al. Neuroimage 2016.
-%             Interpretation is not perfectly known. Use
-%             option "Time-Dependent Models" to get different interpretations.
+%    * F      : pool size ratio
+%    * kf     : rate of MT from the free to the restricted pool
+%    * kr     : rate of MT from the restricted to the free pool
+%    * R1f    : rate of longitudinal relaxation in the free pool when there is no MT (=1/T1f)
+%    * R1r    : rate of longitudinal relaxation in the restricted pool when there is no MT (=1/T1r)
+%    * Sf     : instantaneous fraction of magnetization after vs. before the pulse in the free pool
+%    * Sr     : instantaneous fraction of magnetization after vs. before the pulse in the restricted pool
+%    * M0f    : equilibrium value of the longitudinal magnetization for the free pool
+%    * M0r    : equilibrium value of the longitudinal magnetization for the restricted pool
+%    * resnorm: fitting residual 
 %
 %
 %  Non-Fitted Parameters:
-%    * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
-%    * residue : Fitting residue.
+%    * 
 %
 %
 % Options:
@@ -40,10 +41,10 @@ classdef SIRFSE_modulaire
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.1    30      1        1      0.9     0.6564    1 ]; % starting point
-        lb           = [ 0       0      0.05     0.05    0       0         0 ]; % lower bound
-        ub           = [ 1     100     10       10       1       1         2 ]; % upper bound
-        fx           = [ 0       0      0        1       0       1         0 ]; % fix parameters
+        st           = [ 0.1    30      1        1       0.9     0.6564   1 ]; % starting point
+        lb           = [ 0       0      0.05     0.05    0       0        0 ]; % lower bound
+        ub           = [ 1     100     10       10       1       1        2 ]; % upper bound
+        fx           = [ 0       0      0        1       0       1        0 ]; % fix parameters
         
         % Protocol
         % You can define a default protocol here.
@@ -62,7 +63,10 @@ classdef SIRFSE_modulaire
         buttons = {'PANEL','Inversion_Pulse',2,...
                    'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)', 0.001,...
                    'Use R1map to constrain R1f',false,...
-                   'Fix R1r = R1f',true};
+                   'Fix R1r = R1f',true,...
+                   'PANEL','Sr_Calculation',2,...
+                   'T2r',1e-05,...       
+                   'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
@@ -78,8 +82,11 @@ classdef SIRFSE_modulaire
         
         function obj = UpdateFields(obj)
             if obj.options.UseR1maptoconstrainR1f
-                obj.fx(3)=true;
+                obj.fx(3) = true;
             end
+            SrParam = GetSrParam(obj);
+            SrProt = GetSrProt(obj);
+            obj.st(6) = computeSr(SrParam,SrProt);
         end
         
         function mz = equation(obj, x, Opt)
@@ -175,6 +182,23 @@ classdef SIRFSE_modulaire
             FitOpt.ub = obj.ub;
             FitOpt.R1reqR1f = obj.options.FixR1rR1f;
         end
-
+        
+        function SrParam = GetSrParam(obj)           
+            SrParam.F = 0.1;
+            SrParam.kf = 3;
+            SrParam.kr = SrParam.kf/SrParam.F;
+            SrParam.R1f = 1;
+            SrParam.R1r = 1;
+            SrParam.T2f = 0.04;
+            SrParam.T2r = obj.options.Sr_Calculation_T2r; 
+            SrParam.M0f = 1;
+            SrParam.M0r = SrParam.F*SrParam.M0f;
+            SrParam.lineshape = obj.options.Sr_Calculation_Lineshape;
+        end
+        
+        function SrProt = GetSrProt(obj)
+            SrProt.InvPulse.Trf = obj.Prot.FSEsequence.Mat(1);
+            SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
+        end
     end
 end

@@ -1,38 +1,37 @@
 classdef SPGR_modulaire
-    % ----------------------------------------------------------------------------------------------------
-    % SPGR :  qMT using Spoiled Gradient Echo (or FLASH)
-    % ----------------------------------------------------------------------------------------------------
-    % Assumptions :
-    % (1) FILL
-    % (2)
-    % (3)
-    % (4)
-    % ----------------------------------------------------------------------------------------------------
-    %
-    %  Fitted Parameters:
-    %    * fr :     fraction of water in the restricted compartment
-    %    * Dh :    Apparent diffusion coefficient of the hindered compartment
-    %
-    %    * fcsf :  fraction of water in the CSF compartment. (fixed to 0 by default)
-    %    * lc :   length of coherence. if >0, this parameter models the time dependence of the hindered
-    %             diffusion coefficient Dh. Els Fieremans et al. Neuroimage 2016.
-    %             Interpretation is not perfectly known. Use
-    %             option "Time-Dependent Models" to get different interpretations.
-    %
-    %
-    %  Non-Fitted Parameters:
-    %    * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
-    %    * residue : Fitting residue.
-    %
-    %
-    % Options:
-    %   FILL
-    %
-    %
-    % ----------------------------------------------------------------------------------------------------
-    % Written by: Ian Gagnon, 2017
-    % Reference: FILL
-    % ----------------------------------------------------------------------------------------------------
+% ----------------------------------------------------------------------------------------------------
+% SPGR :  qMT using Spoiled Gradient Echo (or FLASH)
+% ----------------------------------------------------------------------------------------------------
+% Assumptions :
+% (1) FILL
+% (2)
+% (3)
+% (4)
+% ----------------------------------------------------------------------------------------------------
+%
+%  Fitted Parameters:
+%    * F      : pool size ratio
+%    * kf     : rate of MT from the free to the restricted pool
+%    * kr     : rate of MT from the restricted to the free pool
+%    * R1f    : rate of longitudinal relaxation in the free pool when there is no MT (=1/T1f)
+%    * R1r    : rate of longitudinal relaxation in the restricted pool when there is no MT (=1/T1r)
+%    * T2f    : spin relaxation time in the free pool
+%    * T2r    : spin relaxation time in the restricted pool
+%    * resnorm: fitting residual
+%
+%
+%  Non-Fitted Parameters:
+%    * 
+%
+%
+% Options:
+%   FILL
+%
+%
+% ----------------------------------------------------------------------------------------------------
+% Written by: Ian Gagnon, 2017
+% Reference: FILL
+% ----------------------------------------------------------------------------------------------------
     
     properties
         MRIinputs = {'MTdata','R1map','B1map','B0map','Mask'}; % input data required

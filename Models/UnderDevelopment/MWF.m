@@ -6,29 +6,26 @@ classdef MWF
 % FILL
 % ----------------------------------------------------------------------------------------------------
 %
-%  Output Parameters:
-%    * MWF
+%  Fitted Parameters:
+%    * MWF : Myelin Water Fraction
+%    * T2  : spin relaxation time
 %
 %
 %  Non-Fitted Parameters:
-%    *     
-%    * FILL
+%    * None    
 %
 %
 % Options:
-%   FILL:
-%     *
-%     *
-%   FILL:
-%     * 
-%     * 
+%    * 
+%    * 
+%    * 
 % ----------------------------------------------------------------------------------------------------
-% Written by: I. Gagnon, 2017
+% Written by: Ian Gagnon, 2017
 % Reference: FILL
 % ----------------------------------------------------------------------------------------------------
 
     properties
-        MRIinputs = {'MET2','Mask'};
+        MRIinputs = {'MET2data','Mask'};
         xnames = {};
         voxelwise = 0;
         
@@ -48,8 +45,13 @@ classdef MWF
             obj.options = button2opts(obj.buttons);
         end
         
-        function FitResult = fit(obj,data)            
-            multi_comp_fit(data.MET2, 'T2', data.Mask);   
+        function FitResult = fit(obj,data)
+            Echo.First   = obj.Prot.Echo.Mat(1);
+            Echo.Spacing = obj.Prot.Echo.Mat(2);
+            Cutoff  = obj.Prot.Echo.Mat(3);
+            MET2 = data.MET2data;
+            Mask = data.Mask;
+            FitResult = multi_comp_fit_v2(MET2, 'T2', Echo, Cutoff, 'tissue',Mask);
         end
         
     end
