@@ -57,8 +57,7 @@ if (FitOpt.R1reqR1f)
 end
 
 if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
-     R1 = FitOpt.R1;
-     Fit.R1f = R1 - Fit.kf*(Fit.R1r - R1) / (Fit.R1r - R1 + Fit.kf/Fit.F);
+     Fit.R1f = computeR1(Fit, FitOpt.R1);
 end
 
 % Fit.residuals = residuals;
