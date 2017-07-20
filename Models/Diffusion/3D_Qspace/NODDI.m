@@ -27,12 +27,12 @@ classdef NODDI
         
         function obj = UpdateFields(obj)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
-            model = MakeModel(obj.options.modelName);
+            model = MakeModel(obj.options.modelname);
             Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});
             obj.xnames = model.paramsStr(Pindex);
             obj.fx = model.GD.fixed(Pindex);
-            grid = GetSearchGrid(obj.options.modelName, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
-            scale = GetScalingFactors(obj.options.modelName);
+            grid = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
+            scale = GetScalingFactors(obj.options.modelname);
             obj.st = model.GD.fixedvals(Pindex).*scale(Pindex);
             obj.lb = min(grid,[],2)'.*scale(Pindex);
             obj.ub = max(grid,[],2)'.*scale(Pindex);
@@ -44,13 +44,13 @@ classdef NODDI
                 x = struct2array(x);
             end
             
-            model = MakeModel(obj.options.modelName);
+            model = MakeModel(obj.options.modelname);
             if length(x)<length(model.GD.fixedvals)-2, x(end+1)=1; end % b0
             if length(x)<length(model.GD.fixedvals)-1, x(end+1)=0; x(end+1)=0; end % phi and theta
             
-            scale = GetScalingFactors(obj.options.modelName);
-            if (strcmp(obj.options.modelName, 'ExCrossingCylSingleRadGPD') ||...
-                    strcmp(obj.options.modelName, 'ExCrossingCylSingleRadIsoDotTortIsoV_GPD_B0'))
+            scale = GetScalingFactors(obj.options.modelname);
+            if (strcmp(obj.options.modelname, 'ExCrossingCylSingleRadGPD') ||...
+                    strcmp(obj.options.modelname, 'ExCrossingCylSingleRadIsoDotTortIsoV_GPD_B0'))
                 xsc = x(1:(end-4))./scale(1:(end-1));
                 theta = [x(end-3) x(end-1)]';
                 phi = [x(end-2) x(end)]';
@@ -64,18 +64,18 @@ classdef NODDI
             constants.roots_cyl = BesselJ_RootsCyl(30);
             
             
-            Smodel = SynthMeas(obj.options.modelName, xsc, SchemeToProtocol(obj.Prot.DiffusionData.Mat), fibredir, constants);
+            Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocol(obj.Prot.DiffusionData.Mat), fibredir, constants);
             
         end
         
         function FitResults = fit(obj,data)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end
             % load model
-            model = MakeModel(obj.options.modelName);
+            model = MakeModel(obj.options.modelname);
             Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});            
             model.GD.fixed(Pindex)=obj.fx; % gradient descent
             model.GS.fixed(Pindex)=obj.fx; % grid search
-            scale = GetScalingFactors(obj.options.modelName);
+            scale = GetScalingFactors(obj.options.modelname);
             model.GS.fixedvals(Pindex)=obj.st./scale(Pindex);
             model.GD.fixedvals(Pindex)=obj.st./scale(Pindex);
             
