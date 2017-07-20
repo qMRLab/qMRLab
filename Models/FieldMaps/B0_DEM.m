@@ -41,6 +41,10 @@ classdef B0_DEM
     methods
         function obj = B0_DEM
             obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
+        end
+        
+        function obj = UpdateFields(obj)
         end
         
         function FitResult = fit(obj,data)
@@ -50,11 +54,11 @@ classdef B0_DEM
             save_nii(make_nii(Phase),'tmp/Phase.nii');
             save_nii(make_nii(Magn),'tmp/Magn.nii');
             unix('prelude -p tmp/Phase.nii -a tmp/Magn.nii -o tmp/Ph_uw -f');
-            b0 = load_untouch_nii('tmp/Ph_uw.nii.gz');
-            cd ..
+            B0 = load_untouch_nii('tmp/Ph_uw.nii.gz');
+%             cd ..
             rmdir('tmp','s')
-            b0.img = unwrap(b0.img,[],4);
-            FitResult.b0map = (b0.img(:,:,:,2) - b0.img(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);           
+            B0.img = unwrap(B0.img,[],4);
+            FitResult.B0map = (B0.img(:,:,:,2) - B0.img(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);           
         end        
     end
 end

@@ -44,7 +44,7 @@ classdef B1_DAM
         end
         
         function FitResult = fit(obj,data)
-            FitResult.B1_DAM = abs(acos(data.SF120./(2*data.SF60))./(60*pi/180));
+            FitResult.B1map = abs(acos(data.SF120./(2*data.SF60))./(60*pi/180));
         end
         
     end
