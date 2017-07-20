@@ -13,7 +13,7 @@ classdef DTI
         % Protocol
         Prot = struct('DiffusionData',...
                     struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
-                            'Mat',txt2mat('DefaultProtocol_NODDI.scheme'))); % You can define a default protocol here.
+                            'Mat',txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'NODDI_DTI_demo', 'Protocol.txt')))); % You can define a default protocol here.
         
         % Model options
         buttons = {};
