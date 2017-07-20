@@ -1,4 +1,4 @@
-function FitResultsSave_nii(FitResults,fname_copyheader,folder)
+function FitResultsSave_mat(FitResults,folder)
 % Save FitResutls with headers copied from nifti file
 % FitResultsSave_nii(FitResults,fname_copyheader)
 % FitResultsSave_nii(FitResults,fname_copyheader,folder)
@@ -9,7 +9,7 @@ if ~exist('folder','var'), folder = 'FitResults'; end
 mkdir(folder)
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
-    file = strcat(map,'.nii');
-    save_nii_v2(FitResults.(map),fullfile(folder,file),fname_copyheader,64);
+    file = strcat(map,'.mat');
+    save(fullfile(folder,file),'-struct','FitResults',map);
 end
 save(fullfile(folder,'FitResults.mat'),'-struct','FitResults')
