@@ -1,4 +1,4 @@
-% Batch to process CHARMED data without qMRLab graphical interface
+% Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 %% FIT Experimental MRI data
 % Create Model object 
