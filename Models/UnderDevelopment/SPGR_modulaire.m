@@ -10,18 +10,17 @@ classdef SPGR_modulaire
 % ----------------------------------------------------------------------------------------------------
 %
 %  Fitted Parameters:
-%    * F      : pool size ratio
 %    * kf     : rate of MT from the free to the restricted pool
 %    * kr     : rate of MT from the restricted to the free pool
 %    * R1f    : rate of longitudinal relaxation in the free pool when there is no MT (=1/T1f)
 %    * R1r    : rate of longitudinal relaxation in the restricted pool when there is no MT (=1/T1r)
-%    * T2f    : spin relaxation time in the free pool
-%    * T2r    : spin relaxation time in the restricted pool
-%    * resnorm: fitting residual
+%    * T2f    : T2 relaxation time in the free pool
+%    * T2r    : T2 relaxation time in the restricted pool
 %
 %
 %  Non-Fitted Parameters:
-%    * 
+%    * resnorm: fitting residual
+%    * F      : pool size ratio = kr/kf
 %
 %
 % Options:
@@ -71,7 +70,7 @@ classdef SPGR_modulaire
             'PANEL','SfTable',2,...
             'Good',0,...
             'Compute',false};
-        options= struct(); % structure filled by the buttons. Leave empty in the code
+        options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'Method',{'Analytical equation','Block equation'},'Reset Mz',false};

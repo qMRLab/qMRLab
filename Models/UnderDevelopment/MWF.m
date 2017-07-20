@@ -43,6 +43,10 @@ classdef MWF
         
         function obj = MWF
             obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
+        end
+        
+        function obj = UpdateFields(obj)
         end
         
         function FitResult = fit(obj,data)
