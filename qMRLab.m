@@ -1077,7 +1077,8 @@ if isfield(FitResults,'Model')
 end
 
 % find model value in the method menu list
-val = find(strcmp(get(handles.MethodSelection,'String'),Method));
+methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
+val = find(strcmp(methods,Method));
 set(handles.MethodSelection,'Value',val)
 
 MethodMenu(hObject, eventdata, handles,Method)
