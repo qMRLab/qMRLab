@@ -18,8 +18,6 @@ Please report any bug or suggestions in [github](https://github.com/neuropoly/qM
 
 * MATLAB_R2013a or later
 
-* [NODDI Matlab Toolbox v0.9 or later](https://www.nitrc.org/projects/noddi_toolbox/)
-
 ## Installation
 
 After installation, we strongly recommend that you run all tests in this repository (see Test section below) to ensure correct installation and code compatibility with your operating system and MATLAB version.
@@ -34,10 +32,6 @@ If you have git available on a command-line interface (e.g. Terminal on Mac OSX,
 
 `git clone https://github.com/neuropoly/qMRLab.git`
 
-* If you have NODDI already on installed, ensure that it is included in your default MATLAB path, or add it in startup.m.
-
-* If you don't have NODDI installed, download it [here](https://www.nitrc.org/projects/noddi_toolbox/) (signup required), and extract the file in the folder qMRLab/External/.
-
 * Open MATLAB, got to the qMRLab folder and run `startup`.
 
 * To start a qMRLab session, run `qMRLab`.
@@ -48,7 +42,9 @@ The latest stable version of qMRLab can be downloaded freely [here](https://gith
 
 * Extract the downloaded file to the directory you want to install qMRLab.
 
-* Follow the instructions from the previous section from the NODDI point onward.
+* Open MATLAB, got to the qMRLab folder and run `startup`.
+
+* To start a qMRLab session, run `qMRLab`.
 
 ## Tests
 
