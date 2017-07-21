@@ -30,8 +30,9 @@ if ( FitOpt.R1reqR1f )
 end
 
 if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
-     R1 = FitOpt.R1;
-     R1f = R1 - kf*(R1r - R1) / (R1r - R1 + kf/F);
+    tmpParam = struct('F', F, 'kf', kf, 'R1r', R1r); % Create temp struct with required fields
+    R1f = computeR1(tmpParam, FitOpt.R1);
+    clear tmpParam % Not needed after this point
 end
 
 R1_P = 1/2.*(R1f+R1r+kf+kr + sqrt((R1f-R1r+kf-kr)^2 + 4.*kf.*kr)); %R1+ fast rate
