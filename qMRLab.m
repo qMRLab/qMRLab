@@ -951,21 +951,12 @@ SimRndPlotResults(handles);
 %                                    FIT DATA
 % ##############################################################################################
 
-% FITDATA
-function FitDataBtn_Callback(hObject, eventdata, handles)
-contents =  cellstr(get(handles.MethodSelection, 'String'));
-Method   =  contents{get(handles.MethodSelection, 'Value')};
-SetActive('FitData', handles);
-
-
-% ############################# FIT DATA ##################################
 % FITDATA GO
 function FitGO_Callback(hObject, eventdata, handles)
 SetActive('FitData', handles);
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
 FitGo_FitData(hObject, eventdata, handles);
-
 
 
 % Original FitGo function
@@ -1221,16 +1212,29 @@ delete(h);
 
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
-Current = GetCurrent(handles);
+Data =  getappdata(0,'Data');
+Map = getimage(handles.FitDataAxe);
+% exclude the 0 from mask
+if isfield(Data,'Mask')    
+    if ~isempty(Data.Mask)
+        Map(~rot90(Data.Mask)) = 0;
+    end
+end
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
-ii = find(Current);
+ii = find(Map);
 nVox = length(ii);
-data = reshape(Current(ii),1,nVox);
-figure();
-hist(data,20);
+data = reshape(Map(ii),1,nVox);
+% figure
+figure
+histogram(data,20);
 xlabel(Source);
 ylabel('Counts');
+% statistics (mean and standard deviation)
+xLimits = get(gca,'XLim'); X = xLimits(2) - 0.25*(xLimits(2) - xLimits(1));
+yLimits = get(gca,'YLim'); Y = 0.92*yLimits(2);
+Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
+text(X,Y,Stats,'FontWeight','bold','FontSize',12,'Color','black');
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
@@ -1437,13 +1441,6 @@ set(handles.FitDataAxe);
 imagesc(handles.NewMap);
 axis equal off;
 colorbar('south','YColor','white');
-
-% STATISTICS
-function RoiStats_Callback(hObject, eventdata, handles)
-RoiMap = nonzeros(getimage(handles.FitDataAxe));
-Stats = sprintf('Mean: %5.4f \n   Std: %5.4f',mean(RoiMap),std(RoiMap));
-set(handles.FitDataAxe);
-text(2,5,Stats,'FontWeight','bold','FontSize',12,'Color','white');
 
 % SAVE
 function RoiSave_Callback(hObject, eventdata, handles)
