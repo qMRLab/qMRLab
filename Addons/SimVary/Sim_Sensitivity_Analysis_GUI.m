@@ -193,6 +193,10 @@ end
 
 % --- Executes on button press in SimVaryUpdate.
 function SimVaryUpdate_Callback(hObject, eventdata, handles)
+Model_new = getappdata(0,'Model');
+if ~isempty(Model_new) && ~strcmp(class(Model_new),class(handles.Model))
+    handles.Model = Model_new;
+end
 FitOptTable = get(handles.SimVaryOptTable,'Data'); FitOptTable(:,2)=mat2cell(~[FitOptTable{:,2}]',ones(size(FitOptTable,1),1), 1);
 FitOptTable = cell2struct(FitOptTable,{'xnames','fx','st','lb','ub'},2);
 Opts = button_handle2opts(handles.options);

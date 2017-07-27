@@ -146,6 +146,10 @@ end
 % --- Executes on button press in SimRndVaryUpdate.
 function SimRndVaryUpdate_Callback(hObject, eventdata, handles)
 % Read Table
+Model_new = getappdata(0,'Model');
+if ~isempty(Model_new) && ~strcmp(class(Model_new),class(handles.Model))
+    handles.Model = Model_new;
+end
 SimRndOpt = get(handles.SimRndVaryOptTable,'Data'); SimRndOpt(:,1)=mat2cell(~[SimRndOpt{:,1}]',ones(size(SimRndOpt,1),1), 1);
 SimRndOpt = cell2struct(SimRndOpt,{'fx','Mean','Std','Min','Max'},2);
 [SimRndOpt.xnames] = deal(handles.Model.xnames{:});
