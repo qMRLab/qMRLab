@@ -137,6 +137,7 @@ delete(wh);
 % Executes when user attempts to close qMRLab.
 function qMRLab_CloseRequestFcn(hObject, eventdata, handles)
 h = findobj('Tag','OptionsGUI');
+delete(findobj('Tag','Simu'))
 delete(h);
 delete(hObject);
 % cd(handles.root);

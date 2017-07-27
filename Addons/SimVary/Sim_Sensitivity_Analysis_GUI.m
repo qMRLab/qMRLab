@@ -22,7 +22,7 @@ function varargout = Sim_Sensitivity_Analysis_GUI(varargin)
 
 % Edit the above text to modify the response to help Sim_Sensitivity_Analysis_GUI
 
-% Last Modified by GUIDE v2.5 09-Jun-2017 16:43:19
+% Last Modified by GUIDE v2.5 27-Jul-2017 17:23:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,7 +79,7 @@ guidata(hObject, handles);
 
 
 % UIWAIT makes Sim_Sensitivity_Analysis_GUI wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.Simu);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -115,21 +115,21 @@ function PrintMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to PrintMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-printdlg(handles.figure1)
+printdlg(handles.Simu)
 
 % --------------------------------------------------------------------
 function CloseMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to CloseMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-selection = questdlg(['Close ' get(handles.figure1,'Name') '?'],...
-    ['Close ' get(handles.figure1,'Name') '...'],...
+selection = questdlg(['Close ' get(handles.Simu,'Name') '?'],...
+    ['Close ' get(handles.Simu,'Name') '...'],...
     'Yes','No','Yes');
 if strcmp(selection,'No')
     return;
 end
 
-delete(handles.figure1)
+delete(handles.Simu)
 
 
 % --- Executes on selection change in popupmenu1.

@@ -3,7 +3,7 @@ function varargout = Sim_Multi_Voxel_Distribution_GUI(varargin)
 
 % Edit the above text to modify the response to help Sim_Multi_Voxel_Distribution
 
-% Last Modified by GUIDE v2.5 06-Jul-2017 17:14:09
+% Last Modified by GUIDE v2.5 27-Jul-2017 17:23:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,7 +60,7 @@ guidata(hObject, handles);
 
 
 % UIWAIT makes Sim_Multi_Voxel_Distribution wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.Simu);
 
 
 % --- Outputs from this function are returned to the command line.
