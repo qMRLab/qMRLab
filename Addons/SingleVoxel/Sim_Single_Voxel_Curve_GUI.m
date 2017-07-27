@@ -83,7 +83,7 @@ set(findobj('Name','qMRILab'),'pointer', 'arrow'); drawnow;
 % --- Executes on button press in UpdatePlot.
 function UpdatePlot_Callback(hObject, eventdata, handles)
 Model_new = getappdata(0,'Model');
-if ~isempty(Model_new) && ~strcmp(class(Model_new),class(handles.Model))
+if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
     handles.Model = Model_new;
 end
 set(findobj('Name','SimCurve'),'pointer', 'watch'); drawnow;
