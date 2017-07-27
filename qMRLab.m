@@ -1381,6 +1381,8 @@ ylim(yl);
 
 % DRAW
 function RoiDraw_Callback(hObject, eventdata, handles)
+set(gcf,'Pointer','Cross');
+set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'off')
 contents = cellstr(get(hObject,'String'));
 model = contents{get(hObject,'Value')};
 switch model
@@ -1395,15 +1397,23 @@ switch model
     otherwise
         warning('Choose a Drawing Method');
 end
-Map = getimage(handles.FitDataAxe);
-handles.ROI = double(draw.createMask());
-handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
-guidata(gcbo, handles); 
-% figure
-set(handles.FitDataAxe);
-imagesc(handles.NewMap);
-axis equal off;
-colorbar('south','YColor','white');
+Press = waitforbuttonpress;
+while Press == 0
+    Press = waitforbuttonpress;
+end
+if Press == 1
+    Map = getimage(handles.FitDataAxe);
+    handles.ROI = double(draw.createMask());
+    handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
+    guidata(gcbo, handles); 
+    % figure
+    set(handles.FitDataAxe);
+    imagesc(handles.NewMap);
+    axis equal off;
+    colorbar('south','YColor','white');
+end
+set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'on');
+set(gcf,'Pointer','Arrow');
 
 % THRESHOLD
 function RoiThreshMin_Callback(hObject, eventdata, handles)
