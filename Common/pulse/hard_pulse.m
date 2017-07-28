@@ -13,6 +13,9 @@ function pulse = hard_pulse(t,Trf,~)
 %   t: Function handle variable, represents the time.
 %   Trf: Width of the hard/square RF pulse.
 %
+%   Reference: Matt A. Bernstein, Kevin F. Kink and Xiaohong Joe Zhou.
+%              Handbook of MRI Pulse Sequences, pp. 37, Table 2.1, (2004)
+%
 
 pulse = single(~(t < 0 | t>Trf));
 
