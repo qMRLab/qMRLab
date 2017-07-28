@@ -22,7 +22,7 @@ function pulse = sinchann_pulse(t,Trf,PulseOpt)
 %              Handbook of MRI Pulse Sequences, pp. 38-39, Eqs. 2.2-2.4 and
 %              2.6, (2004)
 %
-%   See also GETPULSE, VIEWPULSE.
+%   See also SINC_PULSE, GETPULSE, VIEWPULSE.
 %
 
 sincpulse = sinc_pulse(t,Trf,PulseOpt);

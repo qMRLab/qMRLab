@@ -23,7 +23,7 @@ function pulse = gausshann_pulse(t, Trf, PulseOpt)
 %              Handbook of MRI Pulse Sequences, pp. 39 and 110, Eqs. 2.6
 %              and 4.10, (2004)
 %
-%   See also GETPULSE, VIEWPULSE.
+%   See also GAUSSIAN_PULSE, GETPULSE, VIEWPULSE.
 %
 
 gauss = gaussian_pulse(t, Trf, PulseOpt);
