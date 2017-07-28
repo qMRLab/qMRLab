@@ -21,7 +21,7 @@ function pulse = sinc_pulse(t,Trf,PulseOpt)
 %              Handbook of MRI Pulse Sequences, pp. 38, Eqs. 2.2-2.4, (2004)
 %
 %   See also GETPULSE, VIEWPULSE.
-
+%
 
 
 if (nargin < 3); PulseOpt = struct; end
