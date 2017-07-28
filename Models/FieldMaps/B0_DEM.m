@@ -50,15 +50,12 @@ classdef B0_DEM
         function FitResult = fit(obj,data)
             Phase = data.Phase;
             Magn = data.Magn;
-            mkdir('tmp')
-            save_nii(make_nii(Phase),'tmp/Phase.nii');
-            save_nii(make_nii(Magn),'tmp/Magn.nii');
-            unix('prelude -p tmp/Phase.nii -a tmp/Magn.nii -o tmp/Ph_uw -f');
-            B0 = load_untouch_nii('tmp/Ph_uw.nii.gz');
-%             cd ..
-            rmdir('tmp','s')
-            B0.img = unwrap(B0.img,[],4);
-            FitResult.B0map = (B0.img(:,:,:,2) - B0.img(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);           
+            Complex = Magn.*exp(Phase*1i);
+            Phase_uw = Phase;
+            for it = 1:size(Magn,4)
+                Phase_uw(:,:,:,it) = sunwrap(Complex(:,:,:,it));
+            end
+            FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);           
         end        
     end
 end
