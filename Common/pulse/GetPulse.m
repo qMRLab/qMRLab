@@ -1,4 +1,28 @@
 function Pulse = GetPulse(alpha, delta, Trf, shape, PulseOpt)
+%GETPULSE Generate an RF pulse structure.
+%   Pulse = GetPulse(alpha, delta, Trf, shape, PulseOpt)
+%
+%   --args--
+%   alpha: Flip angle (in degrees).
+%   delta: Off-resonance frequency (in Hz);
+%   Trf: RF pulse duration (in seconds)
+%   shape: String. Represents the shape of the RF enveloppe, and each have
+%          their own unique functions handles associated to them.
+%
+%           -values-
+%           'hard'
+%           'sinc'
+%           'sinchann'
+%           'gaussian'
+%           'gausshann'
+%           'sincgauss'
+%
+%   --optional args--
+%   PulseOpt: Struct. Contains optional parameters for pulse shapes. See
+%             pulse shape objective function files for more information.
+%
+%   See also VIEWPULSE.
+%
 
 gamma = 2*pi*42576;
 
