@@ -16,9 +16,9 @@ function pulse = hard_pulse(t,Trf,~)
 %   Reference: Matt A. Bernstein, Kevin F. Kink and Xiaohong Joe Zhou.
 %              Handbook of MRI Pulse Sequences, pp. 37, Table 2.1, (2004)
 %
+%   See also GETPULSE, VIEWPULSE.
+
 
 pulse = single(~(t < 0 | t>Trf));
 
 end
-
-%   See also GETPULSE, VIEWPULSE.
