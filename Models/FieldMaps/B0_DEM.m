@@ -30,7 +30,7 @@ classdef B0_DEM
         
         % Protocol
         % You can define a default protocol here.
-        Prot = struct('Time',struct('Format',{'TE2'},'Mat', 1.92e-3));
+        Prot = struct('Time',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
         
         % Model options
         buttons = {};
