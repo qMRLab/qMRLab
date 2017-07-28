@@ -7,7 +7,7 @@ function Pulse = GetPulse(alpha, delta, Trf, shape, PulseOpt)
 %   delta: Off-resonance frequency (in Hz);
 %   Trf: RF pulse duration (in seconds)
 %   shape: String. Represents the shape of the RF enveloppe, and each have
-%          their own unique objective functions.
+%          their own unique functions handles associated to them.
 %
 %           -values-
 %           'hard'
