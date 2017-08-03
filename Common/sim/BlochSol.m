@@ -28,7 +28,7 @@ function M = BlochSol(t, M, Param, Pulse)
 %               (2000)
 %
 %               Sharon Portnoy and Greg J. Stanisz. Modeling Pulsed 
-%               Magnetization Transfer, Mag. Res in Med, 58:144?155, Eq. 6
+%               Magnetization Transfer, Mag. Res in Med, 58:144-155, Eq. 6
 %               (2007)
 %
 %   See also COMPUTEG, GETPULSE, BLOCH, BLOCHNOMT.
