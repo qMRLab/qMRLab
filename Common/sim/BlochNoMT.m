@@ -14,7 +14,7 @@ function dM = BlochNoMT(t, M, T2f, Pulse)
 %              Physical Principles and Sequence Design, Second Edition, 
 %              pp. 62-63, Eqs. 4.37-4.39
 %
-%   See also BLOCH, BLOCHSOL.
+%   See also GETPULSE, BLOCH, BLOCHSOL.
 %
 
 dM    =  zeros(3,1);
