@@ -1,38 +1,62 @@
 classdef bSSFP_modulaire
 % ----------------------------------------------------------------------------------------------------
 % bSSFP : qMT using Balanced Steady State Free Precession acquisition
-% ----------------------------------------------------------------------------------------------------
-% Assumptions :
+%-----------------------------------------------------------------------------------------------------
+%-------------%
+% ASSUMPTIONS %
+%-------------% 
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
-% ----------------------------------------------------------------------------------------------------
 %
-%  Fitted Parameters:
-%    * F      : pool size ratio
-%    * kf     : rate of MT from the free to the restricted pool
-%    * kr     : rate of MT from the restricted to the free pool
-%    * R1f    : rate of longitudinal relaxation in the free pool when there is no MT (=1/T1f)
-%    * R1r    : rate of longitudinal relaxation in the restricted pool when there is no MT (=1/T1r)
-%    * T2f    : spin relaxation time in the free pool
-%    * M0f    : equilibrium value of the longitudinal magnetization for the free pool
-%    * M0r    : equilibrium value of the longitudinal magnetization for the restricted pool
-%    * resnorm: fitting residual
+%-----------------------------------------------------------------------------------------------------
+%--------%
+% INPUTS %
+%--------%
+%   1) MTdata : Magnetization Transfert data
+%   2) R1map  : 1/T1map (OPTIONAL)
+%   3) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OUTPUTS %
+%---------%
+%   Fitting Parameters
+%       * F   : Ratio of number of restricted pool to free pool, defined as F = M0r/M0f = kf/kr.
+%       * kr  : Exchange rate from the free to the restricted pool 
+%                  (note that kf and kr are related to one another via the definition of F. 
+%                   Changing the value of kf will change kr accordingly, and vice versa).
+%       * R1f : Longitudinal relaxation rate of the free pool (R1f = 1/T1f).
+%       * R1r : Longitudinal relaxation rate of the restricted pool (R1r = 1/T1r).
+%       * T2f : Tranverse relaxation time of the free pool (T2f = 1/R2f).
+%       * M0f : Equilibrium value of the free pool longitudinal magnetization.
+%
+%   Additional output parameters
+%       * M0r    : Equilibrium value of the restricted pool longitudinal magnetization.
+%       * kf     : Exchange rate from the restricted to the free pool.
+%       * resnorm: Fitting residual.
+%
+%-----------------------------------------------------------------------------------------------------
+%----------%
+% PROTOCOL %
+%----------%
+%   MTdata
+%       * Alpha : Flip angle of the RF pulses (degree)
+%       * Trf   : Duration of the RF pulses (s)
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   
 %
 %
-%  Non-Fitted Parameters:
-%    * 
 %
-%
-% Options:
-%   FILL
-%
-%
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
 % Reference: FILL
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
     
     properties
         MRIinputs = {'MTdata','R1map','Mask'}; % input data required

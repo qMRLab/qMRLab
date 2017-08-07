@@ -1,36 +1,69 @@
 classdef SPGR_modulaire
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 % SPGR :  qMT using Spoiled Gradient Echo (or FLASH)
-% ----------------------------------------------------------------------------------------------------
-% Assumptions :
+%-----------------------------------------------------------------------------------------------------
+%-------------%
+% ASSUMPTIONS %
+%-------------% 
 % (1) FILL
-% (2)
-% (3)
-% (4)
-% ----------------------------------------------------------------------------------------------------
+% (2) 
+% (3) 
+% (4) 
+%-----------------------------------------------------------------------------------------------------
+%--------%
+% INPUTS %
+%--------%
+%   1) MTdata : Magnetization Transfert data
+%   2) R1map  : 1/T1map (OPTIONAL)
+%   3) B1map  : B1 field map (OPTIONAL)
+%   4) B0map  : B0 field map (OPTIONAL)
+%   5) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
 %
-%  Fitted Parameters:
-%    * kf     : rate of MT from the free to the restricted pool
-%    * kr     : rate of MT from the restricted to the free pool
-%    * R1f    : rate of longitudinal relaxation in the free pool when there is no MT (=1/T1f)
-%    * R1r    : rate of longitudinal relaxation in the restricted pool when there is no MT (=1/T1r)
-%    * T2f    : T2 relaxation time in the free pool
-%    * T2r    : T2 relaxation time in the restricted pool
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OUTPUTS %
+%---------%
+%   Fitting Parameters
+%       * F   : Ratio of number of restricted pool to free pool, defined as F = M0r/M0f = kf/kr.
+%       * kr  : Exchange rate from the free to the restricted pool 
+%                  (note that kf and kr are related to one another via the definition of F. 
+%                   Changing the value of kf will change kr accordingly, and vice versa).
+%       * R1f : Longitudinal relaxation rate of the free pool (R1f = 1/T1f).
+%       * R1r : Longitudinal relaxation rate of the restricted pool (R1r = 1/T1r).
+%       * T2f : Tranverse relaxation time of the free pool (T2f = 1/R2f).
+%       * T2r : Tranverse relaxation time of the restricted pool (T2r = 1/R2r).
+%
+%   Additional output parameters
+%       * kf     : Exchange rate from the restricted to the free pool.
+%       * resnorm: Fitting residual.
+%
+%-----------------------------------------------------------------------------------------------------
+%----------%
+% PROTOCOL %
+%----------%
+%   1) MTdata
+%       * Angle  : MT pulses angles (degree)
+%       * Offset : Offset frequencies (Hz)
+%
+%   2) TimingTable
+%       * Tmt : Duration of the MT pulses (s)
+%       * Ts  : Free precession delay between the MT and excitation pulses (s)
+%       * Tp  : Duration of the excitation pulse (s)
+%       * Tr  : Free precession delay after tje excitation pulse, before the next MT pulse (s)
+%       * TR  : Repetition time of the whole sequence (TR = Tmt + Ts + Tp + Tr)
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   
 %
 %
-%  Non-Fitted Parameters:
-%    * resnorm: fitting residual
-%    * F      : pool size ratio = kr/kf
 %
-%
-% Options:
-%   FILL
-%
-%
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
 % Reference: FILL
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
     
     properties
         MRIinputs = {'MTdata','R1map','B1map','B0map','Mask'}; % input data required
@@ -116,7 +149,7 @@ classdef SPGR_modulaire
                     obj.options.SfTable_Good = 'YES';
                 end
             end
-            % TR must be the sum of Tm, Ts, Tp and Tr
+            % TR must be the sum of Tmt, Ts, Tp and Tr
             obj.Prot.TimingTable.Mat(5) = obj.Prot.TimingTable.Mat(1)+...
                                           obj.Prot.TimingTable.Mat(2)+...
                                           obj.Prot.TimingTable.Mat(3)+...
