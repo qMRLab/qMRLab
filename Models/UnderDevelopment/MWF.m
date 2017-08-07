@@ -8,14 +8,14 @@ classdef MWF
 %
 %  Fitted Parameters:
 %    * MWF : Myelin Water Fraction
-%    * T2  : spin relaxation time
+%    * T2  : Spin relaxation time
 %
 %
 %  Non-Fitted Parameters:
 %    * None    
 %
 %
-% Options:
+%  Options:
 %    * 
 %    * 
 %    * 
@@ -27,14 +27,14 @@ classdef MWF
     properties
         MRIinputs = {'MET2data','Mask'};
         xnames = {};
-        voxelwise = 0;
+        voxelwise = 1;
         
         % Protocol
-        Prot  = struct('Echo',struct('Format',{{'First (ms)'; 'Spacing (ms)'; 'Cutoff (ms)'}},...
-                                     'Mat', [10; 10; 50])); % You can define a default protocol here.
+        Prot  = struct('Echo',struct('Format',{{'First (ms)'; 'Spacing (ms)'}},...
+                                     'Mat', [10; 10])); % You can define a default protocol here.
         
         % Model options
-        buttons = {};
+        buttons = {'Cutoff (ms)',50, 'Sigma', 28};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
     end
@@ -48,14 +48,16 @@ classdef MWF
         
         function obj = UpdateFields(obj)
         end
+
         
-        function FitResult = fit(obj,data)
+        function FitResults = fit(obj,data)
             Echo.First   = obj.Prot.Echo.Mat(1);
             Echo.Spacing = obj.Prot.Echo.Mat(2);
-            Cutoff  = obj.Prot.Echo.Mat(3);
+            Cutoff  = obj.options.Cutoffms;
+            Sigma = obj.options.Sigma;
             MET2 = data.MET2data;
-            Mask = data.Mask;
-            FitResult = multi_comp_fit_v2(MET2, 'T2', Echo, Cutoff, 'tissue',Mask);
+            Mask = data.Mask;            
+            FitResults = multi_comp_fit_v2(reshape(MET2,[1 1 1 length(MET2)]), 'T2', Echo, Cutoff, Sigma, 'tissue', Mask);
         end
         
     end
