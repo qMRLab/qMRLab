@@ -20,6 +20,16 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
 %       - Assert that a magnetization vector with only transverse values
 %         decays to 0 after a time much greater than T2f (x10)
 %
+%   test_steady_state_smaller_for_small_delta_than_big
+%       - Assert that steady-state longitudinal (free) magnization is
+%         smaller for the case of a small offset frequency than large 
+%         offset freq.
+%
+%   test_steady_state_larger_for_small_FA_than_big
+%       - Assert that steady-state longitudinal (free) magnization is
+%         larger for the case of a small flip angle (per millisec) than 
+%         large flip angle.
+%
 
     properties
         Param = struct('M0f', 1,           ...
@@ -150,6 +160,69 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             
             %                    Actual ,  Expected
             testCase.assertEqual(double(M(end,1:2)), [0 0], 'AbsTol', 0.001);
+        end
+        
+        function test_steady_state_smaller_for_small_delta_than_big(testCase)
+            %% Prep
+            %
+            Param1 = testCase.Param;
+            Param2 = testCase.Param;
+            
+            delta1 = 100;
+            delta2 = 10*delta1;
+
+            Param1.G = computeG(delta1,1/Param1.R2f, 'SuperLorentzian');
+            Param2.G = computeG(delta2,1/Param2.R2f, 'SuperLorentzian');
+
+            pulseDur = 10; % seconds
+            pulseShape = 'hard';
+            
+            flipAngle = 40; % FA per millisec 
+            Pulse1 = GetPulse((flipAngle*1000)*pulseDur, delta1, pulseDur, pulseShape);
+            Pulse2 = GetPulse((flipAngle*1000)*pulseDur, delta2, pulseDur, pulseShape);
+
+            M0 = [0 0 testCase.Param.M0f testCase.Param.M0r]'; % Initial magnetization, Xf Yf Zf Zr
+            
+            timeRange = linspace(0, pulseDur, 1000); % in seconds, 10x T2f
+            
+            for ii =1:length(timeRange)
+               M1(ii, :) = BlochSol(timeRange(ii), M0, Param1, Pulse1);
+               M2(ii, :) = BlochSol(timeRange(ii), M0, Param2, Pulse2);
+            end
+            
+            %                          Small delta, Big delta
+            testCase.assertLessThan(M1(end,3)  , M2(end,3));
+        end
+ 
+        function test_steady_state_larger_for_small_FA_than_big(testCase)
+            %% Prep
+            %
+            Param = testCase.Param;
+            
+            delta = 1000;
+
+            Param.G = computeG(delta,1/Param.R2f, 'SuperLorentzian');
+
+            pulseDur = 10; % seconds
+            pulseShape = 'hard';
+            
+            flipAngle1 = 40; % FA per millisec
+            flipAngle2 = 2*flipAngle1 ; % FA per millisec 
+
+            Pulse1 = GetPulse((flipAngle1*1000)*pulseDur, delta, pulseDur, pulseShape);
+            Pulse2 = GetPulse((flipAngle2*1000)*pulseDur, delta, pulseDur, pulseShape);
+
+            M0 = [0 0 testCase.Param.M0f testCase.Param.M0r]'; % Initial magnetization, Xf Yf Zf Zr
+            
+            timeRange = linspace(0, pulseDur, 1000); % in seconds, 10x T2f
+            
+            for ii =1:length(timeRange)
+               M1(ii, :) = BlochSol(timeRange(ii), M0, Param, Pulse1);
+               M2(ii, :) = BlochSol(timeRange(ii), M0, Param, Pulse2);
+            end
+            
+            %                          Small FA , Big FA
+            testCase.assertGreaterThan(M1(end,3), M2(end,3));
         end
     end
     
