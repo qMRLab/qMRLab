@@ -1,4 +1,25 @@
 classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.TestCase
+%% BLOCHSOL_TEST Test class for BlochSol.m
+%
+%   --tests--
+%   test_no_pulse_mag_remains_unchanged
+%       - Assert that a magnetization vector with only longitudinal values
+%         remains constant for a constant pulse of 0 degree FA.
+%
+%   test_no_longi_mag_evol_for_transverse_inital_mag_inf_t2_t1
+%       - Assert that a magnetization vector with only transverse values
+%         does not accrue longitudinal magnetization for the case of
+%         infinite T1 and T2 (0 deg FA).
+%
+%   test_magn_evols_to_equilibrium_vals
+%       - Assert that an empty magnetization vector evolves to the
+%         equilibrium longitudinal values (M0f and M0r) after a time
+%         much greater than T1f (10x) and 0 deg FA.
+%
+%   test_mag_goes_to_zero_for_time_much_greater_than_t2f
+%       - Assert that a magnetization vector with only transverse values
+%         decays to 0 after a time much greater than T2f (x10)
+%
 
     properties
         Param = struct('M0f', 1,           ...
@@ -55,7 +76,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             pulseShape = 'hard';
             
             
-            flipAngle = 0; % Assume a pulse that gives 90 deg per milliseconds, and calculate the FA for 10 seconds
+            flipAngle = 0; 
             Pulse = GetPulse(flipAngle, delta, pulseDur, pulseShape);
             
             %***
@@ -73,8 +94,8 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
                M(ii, :) = BlochSol(timeRange(ii), M0, Param, Pulse);
             end
             
-            %                    Actual ,  Expected
-            testCase.assertEqual(double(M(end,3)), M0(3), 'AbsTol', 0.001);
+            %                    Actual                     , Expected
+            testCase.assertEqual(double([M(end,3) M(end,4)]), [M0(3) M0(4)], 'AbsTol', 0.001);
         end
         
         function test_magn_evols_to_equilibrium_vals(testCase)
@@ -89,7 +110,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             pulseShape = 'hard';
             
             
-            flipAngle = 0; % Assume a pulse that gives 90 deg per milliseconds, and calculate the FA for 10 seconds
+            flipAngle = 0; 
             Pulse = GetPulse(flipAngle, delta, pulseDur, pulseShape);
             
             M0 = [0 0 0 0]'; % Initial magnetization, Xf Yf Zf Zr
@@ -104,7 +125,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             testCase.assertEqual(double(M(end,:)), [0 0 Param.M0f Param.M0r], 'AbsTol', 0.001);
         end
         
-        function test_mag_goes_to_zero_for_time_much_greater_than_t2f(testCase)            %% Prep
+        function test_mag_goes_to_zero_for_time_much_greater_than_t2f(testCase)
             %% Prep
             %
             Param = testCase.Param;
@@ -116,7 +137,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             pulseShape = 'hard';
             
             
-            flipAngle = 0; % Assume a pulse that gives 90 deg per milliseconds, and calculate the FA for 10 seconds
+            flipAngle = 0; 
             Pulse = GetPulse(flipAngle, delta, pulseDur, pulseShape);
             
             M0 = [1 0 0 0]'; % Initial magnetization, Xf Yf Zf Zr
