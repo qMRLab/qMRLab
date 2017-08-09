@@ -14,7 +14,7 @@ classdef SPGR_modulaire
 % INPUTS %
 %--------%
 %   1) MTdata : Magnetization Transfert data
-%   2) R1map  : 1/T1map (OPTIONAL)
+%   2) R1map  : 1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
 %   3) B1map  : B1 field map (OPTIONAL)
 %   4) B0map  : B0 field map (OPTIONAL)
 %   5) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
@@ -24,16 +24,20 @@ classdef SPGR_modulaire
 % OUTPUTS %
 %---------%
 %   Fitting Parameters
-%       * F   : Ratio of number of restricted pool to free pool, defined as F = M0r/M0f = kf/kr.
+%       * F   : Ratio of number of restricted pool to free pool, defined 
+%               as F = M0r/M0f = kf/kr.
 %       * kr  : Exchange rate from the free to the restricted pool 
-%                  (note that kf and kr are related to one another via the definition of F. 
-%                   Changing the value of kf will change kr accordingly, and vice versa).
-%       * R1f : Longitudinal relaxation rate of the free pool (R1f = 1/T1f).
-%       * R1r : Longitudinal relaxation rate of the restricted pool (R1r = 1/T1r).
+%               (note that kf and kr are related to one another via the 
+%               definition of F. Changing the value of kf will change kr 
+%               accordingly, and vice versa).
+%       * R1f : Longitudinal relaxation rate of the free pool 
+%               (R1f = 1/T1f).
+%       * R1r : Longitudinal relaxation rate of the restricted pool 
+%               (R1r = 1/T1r).
 %       * T2f : Tranverse relaxation time of the free pool (T2f = 1/R2f).
 %       * T2r : Tranverse relaxation time of the restricted pool (T2r = 1/R2r).
 %
-%   Additional output parameters
+%   Additional Outputs
 %       * kf     : Exchange rate from the restricted to the free pool.
 %       * resnorm: Fitting residual.
 %
@@ -49,16 +53,65 @@ classdef SPGR_modulaire
 %       * Tmt : Duration of the MT pulses (s)
 %       * Ts  : Free precession delay between the MT and excitation pulses (s)
 %       * Tp  : Duration of the excitation pulse (s)
-%       * Tr  : Free precession delay after tje excitation pulse, before the next MT pulse (s)
+%       * Tr  : Free precession delay after tje excitation pulse, before 
+%               the next MT pulse (s)
 %       * TR  : Repetition time of the whole sequence (TR = Tmt + Ts + Tp + Tr)
 %
 %-----------------------------------------------------------------------------------------------------
 %---------%
 % OPTIONS %
 %---------%
-%   
+%   MT Pulse
+%       * Shape          : Shape of the MT pulse.
+%                          Available shapes are:
+%                          - hard
+%                          - gaussian
+%                          - gausshann (gaussian pulse with Hanning window)
+%                          - sinc
+%                          - sinchann (sinc pulse with Hanning window)
+%                          - singauss (sinc pulse with gaussian window)
+%                          - fermi
+%       * Sinc TBW       : Time-bandwidth product for the sinc MT pulses 
+%                          (applicable to sinc, sincgauss, sinchann MT 
+%                          pulses).
+%       * Bandwidth      : Bandwidth of the gaussian MT pulse (applicable 
+%                          to gaussian, gausshann and sincgauss MT pulses).
+%       * Fermi 
+%         transition (a) : ?a? parameter (related to the transition width) 
+%                           of the Fermi pulse (applicable to fermi MT 
+%                           pulse).
+%       * # of MT pulses : Number of pulses used to achieve steady-state
+%                          before a readout is made.
 %
+%   Global
+%       * Model         : Model you want to use for fitting. 
+%                         Available models are: 
+%                         - SledPikeRP (Sled & Pike rectangular pulse), 
+%                         - SledPikeCW (Sled & Pike continuous wave), 
+%                         - Yarkykh (Yarnykh & Yuan)
+%                         - Ramani
+%                         Note: Sled & Pike models will show different  
+%                               options than Yarnykh or Ramani.
+%       * Lineshape     : The absorption lineshape of the restricted pool. 
+%                         Available lineshapes are:
+%                         - Gaussian
+%                         - Lorentzian
+%                         - SuperLorentzian
+%       * Use R1map to  : By checking this box, you tell the fitting 
+%         constrain R1f   algorithm to check for an observed R1map and use
+%                         its value to constrain R1f. Checking this box 
+%                         will automatically set the R1f fix box to true             
+%                         in the Fit parameters table.  
+%       * Fix R1r = R1f : By checking this box, you tell the fitting
+%                         algorithm to fix R1r equal to R1f. Checking this 
+%                         box will automatically set the R1r fix box to 
+%                         true in the Fit parameters table.
+%       * Read pulse    : Flip angle of the excitation pulse.
+%         alpha          
 %
+%   SfTable
+%       * Good    : Indicate if the current SfTable fits with the protocol                  
+%       * Compute : By checking this box, you compute a new SfTable
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
@@ -71,10 +124,10 @@ classdef SPGR_modulaire
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.16    10      1        1       0.03     1.3e-05 ]; % starting point
-        lb           = [ 0       0       0.05     0.05    0.003      3e-6       ]; % lower bound
-        ub           = [ 0.5     500      5        5       0.5      5.0e-05 ]; % upper bound
-        fx           = [ 0       0       1        1       0        0       ]; % fix parameters
+        st           = [ 0.16    10     1        1       0.03     1.3e-05 ]; % starting point
+        lb           = [ 0        0     0.05     0.05    0.003    3e-6    ]; % lower bound
+        ub           = [ 0.5    500     5        5       0.5      5.0e-05 ]; % upper bound
+        fx           = [ 0        0     1        1       0        0       ]; % fix parameters
         
         % Protocol
         % You can define a default protocol here.
@@ -89,11 +142,11 @@ classdef SPGR_modulaire
         ProtSfTable = struct; % SfTable declaration
         
         % Model options
-        buttons = {'PANEL','MT_Pulse',5,...
+        buttons = {'PANEL','MT_Pulse', 5,...
             'Shape',{'gausshann','gaussian','hard','sinc','sinchann','sincgauss','fermi'},...
-            'Sinc TBW', nan,...
+            'Sinc TBW',nan,...
             'Bandwidth',200,...
-            'Fermi transition (a)', nan,...
+            'Fermi transition (a)',nan,...
             '# of MT pulses',100,...
             'Model',{'SledPikeRP','SledPikeCW','Yarnykh','Ramani'},...
             'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'},...

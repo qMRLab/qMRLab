@@ -1,28 +1,46 @@
 classdef MWF
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 % MWF :  Myelin Water Fraction
-% ----------------------------------------------------------------------------------------------------
-% Assumptions :
-% FILL
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
+%-------------%
+% ASSUMPTIONS %
+%-------------% 
+% (1) FILL
+% (2) 
+% (3) 
+% (4) 
+%-----------------------------------------------------------------------------------------------------
+%--------%
+% INPUTS %
+%--------%
+%   1) MET2data : Multi-Exponential T2 data
+%   2) Mask     : Binary mask to accelerate the fitting (OPTIONAL)
 %
-%  Fitted Parameters:
-%    * MWF : Myelin Water Fraction
-%    * T2  : Spin relaxation time
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OUTPUTS %
+%---------%
+%	* MWF : Myelin Water Fraction
+%	* T2  : Spin relaxation time
 %
+%-----------------------------------------------------------------------------------------------------
+%----------%
+% PROTOCOL %
+%----------%
+%	* First   : Time of the first echo (s) 
+%	* Spacing : Time interval between each echo (s)
 %
-%  Non-Fitted Parameters:
-%    * None    
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   * Cutoff : Time cutoff (s) 
+%   * Sigma  : Noise's sigma ?????
 %
-%
-%  Options:
-%    * 
-%    * 
-%    * 
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
 % Reference: FILL
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 
     properties
         MRIinputs = {'MET2data','Mask'};
@@ -30,12 +48,12 @@ classdef MWF
         voxelwise = 1;
         
         % Protocol
-        Prot  = struct('Echo',struct('Format',{{'First (ms)'; 'Spacing (ms)'}},...
-                                     'Mat', [10; 10])); % You can define a default protocol here.
+        Prot  = struct('Echo',struct('Format',{{'First (s)'; 'Spacing (s)'}},...
+                                     'Mat', [0.01; 0.01])); % You can define a default protocol here.
         
         % Model options
-        buttons = {'Cutoff (ms)',50, 'Sigma', 28};
-        options= struct(); % structure filled by the buttons. Leave empty in the code
+        buttons = {'Cutoff (s)',0.05, 'Sigma', 28};
+        options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
     
@@ -51,9 +69,9 @@ classdef MWF
 
         
         function FitResults = fit(obj,data)
-            Echo.First   = obj.Prot.Echo.Mat(1);
-            Echo.Spacing = obj.Prot.Echo.Mat(2);
-            Cutoff  = obj.options.Cutoffms;
+            Echo.First   = 1000*obj.Prot.Echo.Mat(1);
+            Echo.Spacing = 1000*obj.Prot.Echo.Mat(2);
+            Cutoff  = 1000*obj.options.Cutoffs;
             Sigma = obj.options.Sigma;
             MET2 = data.MET2data;
             Mask = data.Mask;            

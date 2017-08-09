@@ -1,5 +1,5 @@
 classdef bSSFP_modulaire
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 % bSSFP : qMT using Balanced Steady State Free Precession acquisition
 %-----------------------------------------------------------------------------------------------------
 %-------------%
@@ -15,7 +15,7 @@ classdef bSSFP_modulaire
 % INPUTS %
 %--------%
 %   1) MTdata : Magnetization Transfert data
-%   2) R1map  : 1/T1map (OPTIONAL)
+%   2) R1map  : 1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
 %   3) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
 %
 %-----------------------------------------------------------------------------------------------------
@@ -23,17 +23,23 @@ classdef bSSFP_modulaire
 % OUTPUTS %
 %---------%
 %   Fitting Parameters
-%       * F   : Ratio of number of restricted pool to free pool, defined as F = M0r/M0f = kf/kr.
+%       * F   : Ratio of number of restricted pool to free pool, defined 
+%               as F = M0r/M0f = kf/kr.
 %       * kr  : Exchange rate from the free to the restricted pool 
-%                  (note that kf and kr are related to one another via the definition of F. 
-%                   Changing the value of kf will change kr accordingly, and vice versa).
-%       * R1f : Longitudinal relaxation rate of the free pool (R1f = 1/T1f).
-%       * R1r : Longitudinal relaxation rate of the restricted pool (R1r = 1/T1r).
+%               (note that kf and kr are related to one another via the 
+%               definition of F. Changing the value of kf will change kr 
+%               accordingly, and vice versa).
+%       * R1f : Longitudinal relaxation rate of the free pool 
+%               (R1f = 1/T1f).
+%       * R1r : Longitudinal relaxation rate of the restricted pool 
+%               (R1r = 1/T1r).
 %       * T2f : Tranverse relaxation time of the free pool (T2f = 1/R2f).
-%       * M0f : Equilibrium value of the free pool longitudinal magnetization.
+%       * M0f : Equilibrium value of the free pool longitudinal 
+%               magnetization.
 %
-%   Additional output parameters
-%       * M0r    : Equilibrium value of the restricted pool longitudinal magnetization.
+%   Additional Outputs
+%       * M0r    : Equilibrium value of the restricted pool longitudinal 
+%                  magnetization.
 %       * kf     : Exchange rate from the restricted to the free pool.
 %       * resnorm: Fitting residual.
 %
@@ -49,9 +55,37 @@ classdef bSSFP_modulaire
 %---------%
 % OPTIONS %
 %---------%
-%   
+%   Inversion Pulse
+%       * Shape          : Shape of the RF pulses.
+%                          Available shapes are:
+%                          - hard
+%                          - gaussian
+%                          - gausshann (gaussian pulse with Hanning window)
+%                          - sinc
+%                          - sinchann (sinc pulse with Hanning window)
+%                          - singauss (sinc pulse with gaussian window)
+%                          - fermi
+%       * # of RF pulses : Number of RF pulses applied before readout.
 %
-%
+%   Global
+%       * G(0)          : The assumed value of the absorption lineshape of
+%                         the restricted pool.
+%       * Use R1map to  : By checking this box, you tell the fitting 
+%         constrain R1f   algorithm to check for an observed R1map and use
+%                         its value to constrain R1f. Checking this box 
+%                         will automatically set the R1f fix box to true in            
+%                         the Fit parameters table.                
+%       * Fix R1r = R1f : By checking this box, you tell the fitting
+%                         algorithm to fix R1r equal to R1f. Checking this 
+%                         box will automatically set the R1r fix box to 
+%                         true in the Fit parameters table.
+%       * Fix TR        : Select this option and enter a value in the text 
+%                         box below to set a fixed repetition time.
+%       * Fix TR - Trf  : Select this option and enter a value in the text 
+%                         box below to set a fixed free precession time
+%                         (TR - Trf).
+%       * Prepulse      : Perform an Alpha/2 - TR/2 prepulse before each 
+%                         series of RF pulses.
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
@@ -79,17 +113,17 @@ classdef bSSFP_modulaire
                                               35 0.0021]));
                                       
         % Model options
-        buttons = {'G(0)',1.2524e-05,...
+        buttons = {'PANEL', 'Inversion_Pulse',2,...
+                   'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'# of RF pulses',500,...
+                   'G(0)',1.2524e-05,...
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'Fix TR',false,...
-                   'TR Value', 0.00519,...
-                   'PANEL','Inversion_Pulse',2,...
-                   'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'# of RF pulses', 500,...
+                   'TR Value',0.00519,...
                    'Fix TR - Trf',true,...
-                   'TR - Trf Value', 0.00269,...
-                   'Prepulse',true}; % (Alpha/2 - TR/2 )
-        options= struct(); % structure filled by the buttons. Leave empty in the code
+                   'TR - Trf Value',0.00269,...
+                   'Prepulse',true};
+        options = struct(); % structure filled by the buttons. Leave empty in the code
         
         Sim_Single_Voxel_Curve_buttons = {'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
@@ -107,6 +141,9 @@ classdef bSSFP_modulaire
             end
             if obj.options.UseR1maptoconstrainR1f
                 obj.fx(3)=true;
+            end
+            if obj.options.FixR1rR1f
+                obj.fx(4)=true;
             end
         end
         
