@@ -26,6 +26,7 @@ if Model.voxelwise % process voxelwise
     % Get dimensions
     MRIinputs = fieldnames(data);
     MRIinputs(structfun(@isempty,data))=[];
+    MRIinputs(strcmp(MRIinputs,'hdr'))=[];
     qData = double(data.(MRIinputs{1}));
     dim = ndims(qData);
     x = 1; y = 1; z = 1;
@@ -89,6 +90,7 @@ if Model.voxelwise % process voxelwise
         for iii = 1:length(MRIinputs)
             M.(MRIinputs{iii}) = data.(MRIinputs{iii})(vox,:)';
         end
+        if isfield(data,'hdr'), M.hdr = data.hdr; end
         % Fit data
         tempFit = Model.fit(M);
         if isempty(tempFit), Fit=[]; return; end
