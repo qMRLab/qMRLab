@@ -20,8 +20,9 @@ classdef MWF
 %---------%
 % OUTPUTS %
 %---------%
-%	* MWF : Myelin Water Fraction
-%	* T2  : Spin relaxation time
+%	* MWF   : Myelin Water Fraction
+%	* T2MW  : Spin relaxation time for Myelin Water (MW)
+%   * T2IEW : Spin relaxation time for Intra/Extracellular Water (IEW)
 %
 %-----------------------------------------------------------------------------------------------------
 %----------%
@@ -66,7 +67,6 @@ classdef MWF
         
         function obj = UpdateFields(obj)
         end
-
         
         function FitResults = fit(obj,data)
             Echo.First   = 1000*obj.Prot.Echo.Mat(1);

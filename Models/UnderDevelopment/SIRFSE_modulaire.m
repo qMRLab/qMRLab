@@ -98,7 +98,7 @@ classdef SIRFSE_modulaire
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.1    30      1        1     -0.9     0.6564    1 ]; % starting point
+        st           = [ 0.1    30      1        1     -0.9     0.6564    1  ]; % starting point
         lb           = [ 0       0      0.05     0.05   -1       0         0 ]; % lower bound
         ub           = [ 1     100     10       10       0       1         2 ]; % upper bound
         fx           = [ 0       0      0        1       0       1         0 ]; % fix parameters
@@ -257,7 +257,7 @@ classdef SIRFSE_modulaire
         end
         
         function SrProt = GetSrProt(obj)
-            SrProt.InvPulse.Trf = obj.Prot.FSEsequence.Mat(1);
+            SrProt.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
         end
     end
