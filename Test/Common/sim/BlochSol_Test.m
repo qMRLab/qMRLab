@@ -71,7 +71,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             end
             
             %                    Actual ,  Expected
-            testCase.assertEqual(double(M(end,:)), M0', 'AbsTol', 0.001);
+            testCase.assertEqual(M(end,:), M0', 'AbsTol', 0.001);
         end
         
         function test_no_longi_mag_evol_for_transverse_inital_mag_inf_t2_t1(testCase)
@@ -105,7 +105,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             end
             
             %                    Actual                     , Expected
-            testCase.assertEqual(double([M(end,3) M(end,4)]), [M0(3) M0(4)], 'AbsTol', 0.001);
+            testCase.assertEqual([M(end,3) M(end,4)], [M0(3) M0(4)], 'AbsTol', 0.001);
         end
         
         function test_magn_evols_to_equilibrium_vals(testCase)
@@ -132,7 +132,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             end
             
             %                    Actual ,  Expected
-            testCase.assertEqual(double(M(end,:)), [0 0 Param.M0f Param.M0r], 'AbsTol', 0.001);
+            testCase.assertEqual(M(end,:), [0 0 Param.M0f Param.M0r], 'AbsTol', 0.001);
         end
         
         function test_mag_goes_to_zero_for_time_much_greater_than_t2f(testCase)
@@ -159,7 +159,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             end
             
             %                    Actual ,  Expected
-            testCase.assertEqual(double(M(end,1:2)), [0 0], 'AbsTol', 0.001);
+            testCase.assertEqual(M(end,1:2), [0 0], 'AbsTol', 0.001);
         end
         
         function test_steady_state_smaller_for_small_delta_than_big(testCase)

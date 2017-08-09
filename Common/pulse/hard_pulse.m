@@ -19,6 +19,6 @@ function pulse = hard_pulse(t,Trf,~)
 %   See also GETPULSE, VIEWPULSE.
 %
 
-pulse = single(~(t < 0 | t>Trf));
+pulse = double(~(t < 0 | t>Trf));
 
 end
