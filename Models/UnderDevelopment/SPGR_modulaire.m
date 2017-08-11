@@ -77,7 +77,7 @@ classdef SPGR_modulaire
 %       * Bandwidth      : Bandwidth of the gaussian MT pulse (applicable 
 %                          to gaussian, gausshann and sincgauss MT pulses).
 %       * Fermi 
-%         transition (a) : ?a? parameter (related to the transition width) 
+%         transition (a) : 'a' parameter (related to the transition width) 
 %                           of the Fermi pulse (applicable to fermi MT 
 %                           pulse).
 %       * # of MT pulses : Number of pulses used to achieve steady-state
@@ -153,9 +153,7 @@ classdef SPGR_modulaire
             'Use R1map to constrain R1f',true,...
             'Fix R1r = R1f',false,...
             'Read pulse alpha',7,...
-            'PANEL','SfTable',2,...
-            'Good',0,...
-            'Compute',false};
+            'Compute SfTable',{'NO','YES'}};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
@@ -170,37 +168,9 @@ classdef SPGR_modulaire
         end
         
         function obj = UpdateFields(obj)
-            % Verification that the SfTable matches the current protocol
-            SPGRDir = getSPGRDir();
-            SfTablePath = [SPGRDir filesep 'SfTable.mat'];
-            LastProt = loadStruct(SfTablePath,'LastProt'); 
-            CurrentProt = GetProt(obj);
-            if isfield(CurrentProt,'Sf')
-                CurrentProt = rmfield(CurrentProt,'Sf');
-            end
-            if isequal(CurrentProt,LastProt)
-                obj.ProtSfTable = loadStruct(SfTablePath,'SfTable'); % SfTable associated with last protocol used
-                obj.options.SfTable_Good = 'YES';
-                obj.options.SfTable_Compute = false;
-            else
-                obj.options.SfTable_Good = 'NO';
-                if obj.options.SfTable_Compute
-                    obj.ProtSfTable = CacheSf(CurrentProt);
-                    % Construct a questdlg with three options
-                    choice = questdlg('Save this SfTable as default?', ...
-                        'Save', ...
-                        'Yes','No','Yes');
-                    % Handle response
-                    switch choice
-                        case 'Yes'
-                            SfTable = obj.ProtSfTable;
-                            LastProt = CurrentProt;    
-                            save(SfTablePath,'SfTable','LastProt');
-                        case 'No'       
-                    end
-                    obj.options.SfTable_Compute = false;
-                    obj.options.SfTable_Good = 'YES';
-                end
+            if strcmp(obj.options.ComputeSfTable,'YES')
+                obj.ProtSfTable = CacheSf(GetProt(obj));
+                obj.options.ComputeSfTable = 'NO';
             end
             % TR must be the sum of Tmt, Ts, Tp and Tr
             obj.Prot.TimingTable.Mat(5) = obj.Prot.TimingTable.Mat(1)+...
@@ -211,6 +181,12 @@ classdef SPGR_modulaire
             if obj.options.UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
+        end
+        
+        function obj = Precompute(obj)
+            if isempty(fieldnames(obj.ProtSfTable))
+                obj.ProtSfTable = CacheSf(GetProt(obj));   
+            end         
         end
         
         function mz = equation(obj, x, Opt)
@@ -292,8 +268,10 @@ classdef SPGR_modulaire
             Prot.Offsets = obj.Prot.MTdata.Mat(:,2);
             Prot.Alpha = obj.options.Readpulsealpha;
             Prot.MTpulse.shape = obj.options.MT_Pulse_Shape;
+            Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;            
             Prot.MTpulse.opt.bw = obj.options.MT_Pulse_Bandwidth;
-           	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;    
+            Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
+           	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;             
             Prot.Tm = obj.Prot.TimingTable.Mat(1);
             Prot.Ts = obj.Prot.TimingTable.Mat(2);
             Prot.Tp = obj.Prot.TimingTable.Mat(3);
@@ -322,15 +300,4 @@ classdef SPGR_modulaire
             FitOpt.model = obj.options.Model;
         end
     end
-end
-
-function SPGRDir = getSPGRDir()
-    fctPath = fileparts(which(mfilename()));
-    qMRLabDir = fctPath(1:strfind(fctPath,'qMRLab')+6);
-    SPGRDir = [qMRLabDir 'Data' filesep 'SPGR_demo'];
-end
-
-function struct = loadStruct(fullPathName,fieldName)
-    tmp = load(fullPathName);
-    struct = tmp.(fieldName);
 end
