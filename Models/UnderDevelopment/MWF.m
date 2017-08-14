@@ -73,9 +73,9 @@ classdef MWF
         function obj = UpdateFields(obj)
         end
         
-        function equation
+        function equation(obj)
             T2vals = getT2(obj);
-            
+        end
         function FitResults = fit(obj,data)
             Echo.First   = 1000*obj.Prot.Echo.Mat(1);
             Echo.Spacing = 1000*obj.Prot.Echo.Mat(2);
