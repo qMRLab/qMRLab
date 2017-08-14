@@ -16,7 +16,7 @@ function [M0, T1] = mtv_compute_m0_t1(data, flipAngles, TR, b1Map, roi, fixT1, v
 % fixT1: scalar or Matrix. If 0 --> do not fix T1.
 % verbose: logical
 %
-dbstop if error
+
 
 if (nargin < 4) || isempty(b1Map)
     dataSize = size(data);
