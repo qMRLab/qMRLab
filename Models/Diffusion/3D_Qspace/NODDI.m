@@ -124,10 +124,10 @@ classdef NODDI
             scd_scheme_display_3D_Delta_delta_G(ConvertProtUnits(obj.Prot.DiffusionData.Mat))
         end
 
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             if ~exist('display','var'), display=1; end
             [Smodel, fibredir] = equation(obj, x);
-            sigma = max(Smodel)/SNR;
+            sigma = max(Smodel)/Opt.SNR;
             data.DiffusionData = random('rician',Smodel,sigma);
             FitResults = fit(obj,data);
             if display
