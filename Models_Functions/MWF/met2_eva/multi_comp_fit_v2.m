@@ -195,7 +195,6 @@ end
 %% NNLS fitting routine presets
 %%-------------------------------------------------------------------------
 
-[decay_matrix, t2_vals] = prepare_NNLS(echo_times, t2_range, num_t2_vals);
 
 % find cutoff indices
 lower_cutoff_MW_index  = find_cutoff_index(lower_cutoff_MW, t2_vals);

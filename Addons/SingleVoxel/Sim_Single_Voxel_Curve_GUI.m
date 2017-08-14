@@ -62,8 +62,8 @@ if ~isfield(handles,'opened')
     FitOptTable(:,1)=handles.Model.xnames(:);
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
         FitOptTable(:,2)=mat2cell(handles.Model.st(:),ones(Nparam,1));
-    else
-        FitOptTable(:,2) = mat2cell(ones(Nparam,1),ones(Nparam,1));
+    elseif isprop(handles.Model,'lb') && ~isempty(handles.Model.lb) && isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
+        FitOptTable(:,2) = mat2cell(mean(handles.Model.lb(:), handles.Model.ub(:),2),ones(Nparam,1));
     end
     set(handles.ParamTable,'Data',FitOptTable)
     

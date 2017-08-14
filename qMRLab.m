@@ -1285,6 +1285,8 @@ else
         Fit = FitData(data,Prot,FitOpt,Method,0);
     else
         Model = getappdata(0,'Model');
+        if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
+        if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
         Fit = Model.fit(data); % Display fitting results in command window
         Model.plotmodel(Fit,data);
     end

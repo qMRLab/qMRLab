@@ -51,7 +51,11 @@ classdef NoiseLevel
             if any(strcmp('NoiseMask',fieldnames(data)))
                data.Data4D(data.NoiseMask==0) = 0;
             end 
-            [FitResults.N, FitResults.eta, FitResults.sigma_g] = histfit_noncentralchi(data.Data4D);
+            [N, eta, sigma_g] = histfit_noncentralchi(data.Data4D);
+            init=ones(size(data.Data4D,1),size(data.Data4D,2),size(data.Data4D,3));
+            FitResults.N = N*init;
+            FitResults.eta = eta*init;
+            FitResults.sigma_g = sigma_g*init;
         end
         
     end
