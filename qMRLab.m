@@ -1228,7 +1228,7 @@ nVox = length(ii);
 data = reshape(Map(ii),1,nVox);
 % figure
 figure
-histogram(data,20);
+hist(data,20);
 xlabel(Source);
 ylabel('Counts');
 % statistics (mean and standard deviation)
