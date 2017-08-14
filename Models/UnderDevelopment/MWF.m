@@ -51,7 +51,7 @@ classdef MWF
         % Protocol
         Prot  = struct('Echo',struct('Format',{{'First (s)'; 'Spacing (s)'}},...
                                      'Mat', [0.01; 0.01])); % You can define a default protocol here.
-        
+        decay_matrix = [];
         % Model options
         buttons = {'Cutoff (s)',0.05, 'Sigma', 28};
         options = struct(); % structure filled by the buttons. Leave empty in the code
@@ -65,9 +65,17 @@ classdef MWF
             obj = UpdateFields(obj);
         end
         
+        function obj = Precompute(obj)
+            echotimes = Prot;
+            obj.decay_matrix = prepare_NNLS(echotimes, T2);
+        end
+        
         function obj = UpdateFields(obj)
         end
         
+        function equation
+            T2vals = getT2(obj);
+            
         function FitResults = fit(obj,data)
             Echo.First   = 1000*obj.Prot.Echo.Mat(1);
             Echo.Spacing = 1000*obj.Prot.Echo.Mat(2);
@@ -77,6 +85,11 @@ classdef MWF
             Mask = data.Mask;            
             FitResults = multi_comp_fit_v2(reshape(MET2,[1 1 1 length(MET2)]), 'T2', Echo, Cutoff, Sigma, 'tissue', Mask);
         end
-        
+       
+        function t2_vals  = getT2(obj)
+            NT2 = 120;
+            T2 = [t2_range(1)*(t2_range(2)/t2_range(1)).^(0:(1/(NT2-1)):1)'];
+        end
     end
 end
+
