@@ -1499,9 +1499,9 @@ function RoiLoad_Callback(hObject, eventdata, handles)
 [FileName,PathName] = uigetfile;
 FullPathName = fullfile(PathName, FileName);
 Tmp = load(FullPathName);
-Roi = Tmp.Mask;
+Roi = rot90(Tmp.Mask);
 Map = getimage(handles.FitDataAxe);
-handles.NewMap = Map(:,:,1,1).*Roi;
+handles.NewMap = Map.*Roi;
 % figure
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
@@ -1575,3 +1575,5 @@ function pushbutton169_Callback(hObject, eventdata, handles)
 function pushbutton168_Callback(hObject, eventdata, handles)
 function pushbutton167_Callback(hObject, eventdata, handles)
 function pushbutton166_Callback(hObject, eventdata, handles)
+
+%----------------------------------------- END ------------------------------------------%

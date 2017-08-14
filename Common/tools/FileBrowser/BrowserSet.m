@@ -113,7 +113,8 @@ classdef BrowserSet
             tmp = [];
             if strcmp(ext,'.mat');
                 mat = load(obj.FullFile);
-                tmp = mat.(name);
+                mapName = fieldnames(mat);
+                tmp = mat.(mapName{1});
             elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
                 nii = load_untouch_nii(obj.FullFile);
                 tmp = nii.img;
