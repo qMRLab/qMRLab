@@ -21,30 +21,16 @@ function Fit = FitDataCustom(data, Model, wait )
 % ----------------------------------------------------------------------------------------------------
 
 tic;
+if ismethod(Model,'Precompute'), Model = Model.Precompute; end
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
     % Get dimensions
     MRIinputs = fieldnames(data);
     MRIinputs(structfun(@isempty,data))=[];
+    MRIinputs(strcmp(MRIinputs,'hdr'))=[];
     qData = double(data.(MRIinputs{1}));
-    dim = ndims(qData);
     x = 1; y = 1; z = 1;
-    switch dim
-        case 4
-            [x,y,z,nT] = size(qData);
-        case 3
-            [x,y,nT] = size(qData);
-        case 2
-            nT = length(qData);
-    end
-    
-%     for ff = 1:length(MRIinputs)
-%         dim(ff,:) = size(data.(MRIinputs{ff}));
-%     end
-%     if size(unique(dim,'rows'),1) > 1
-%         errordlg('')
-%         return
-%     end
+    [x,y,z,nT] = size(qData);   
     
     % Arrange voxels into a column
     nV = x*y*z;     % number of voxels
@@ -89,6 +75,7 @@ if Model.voxelwise % process voxelwise
         for iii = 1:length(MRIinputs)
             M.(MRIinputs{iii}) = data.(MRIinputs{iii})(vox,:)';
         end
+        if isfield(data,'hdr'), M.hdr = data.hdr; end
         % Fit data
         tempFit = Model.fit(M);
         if isempty(tempFit), Fit=[]; return; end

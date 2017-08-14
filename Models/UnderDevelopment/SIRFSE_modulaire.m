@@ -1,39 +1,96 @@
 classdef SIRFSE_modulaire
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
 % SIRFSE :  qMT using Inversion Recovery Fast Spin Echo acquisition
-% ----------------------------------------------------------------------------------------------------
-% Assumptions :
+%-----------------------------------------------------------------------------------------------------
+%-------------%
+% ASSUMPTIONS %
+%-------------% 
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
-% ----------------------------------------------------------------------------------------------------
 %
-%  Fitted Parameters:
-%    * F      : pool size ratio
-%    * kf     : rate of MT from the free to the restricted pool
-%    * kr     : rate of MT from the restricted to the free pool
-%    * R1f    : rate of longitudinal relaxation in the free pool when there is no MT (=1/T1f)
-%    * R1r    : rate of longitudinal relaxation in the restricted pool when there is no MT (=1/T1r)
-%    * Sf     : instantaneous fraction of magnetization after vs. before the pulse in the free pool
-%    * Sr     : instantaneous fraction of magnetization after vs. before the pulse in the restricted pool
-%    * M0f    : equilibrium value of the longitudinal magnetization for the free pool
-%    * M0r    : equilibrium value of the longitudinal magnetization for the restricted pool
-%    * resnorm: fitting residual 
+%-----------------------------------------------------------------------------------------------------
+%--------%
+% INPUTS %
+%--------%
+%   1) MTdata : Magnetization Transfert data
+%   2) R1map  : 1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
+%   3) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
 %
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OUTPUTS %
+%---------%
+%   Fitting Parameters
+%       * F   : Ratio of number of restricted pool to free pool, defined 
+%               as F = M0r/M0f = kf/kr.
+%       * kr  : Exchange rate from the free to the restricted pool 
+%               (note that kf and kr are related to one another via the 
+%               definition of F. Changing the value of kf will change kr 
+%               accordingly, and vice versa).
+%       * R1f : Longitudinal relaxation rate of the free pool 
+%               (R1f = 1/T1f).
+%       * R1r : Longitudinal relaxation rate of the restricted pool 
+%               (R1r = 1/T1r).
+%       * Sf  : Instantaneous fraction of magnetization after vs. before 
+%               the pulse in the free pool.
+%       * Sr  : Instantaneous fraction of magnetization after vs. before 
+%               the pulse in the restricted pool.
+%       * M0f : Equilibrium value of the free pool longitudinal 
+%               magnetization.
 %
-%  Non-Fitted Parameters:
-%    * 
+%   Additional Outputs
+%       * M0r    : Equilibrium value of the restricted pool longitudinal 
+%                  magnetization. Computed using M0f = M0r * F. 
+%       * kf     : Exchange rate from the restricted to the free pool. 
+%                  Computed using kf = kr * F.
+%       * resnorm: Fitting residual.
 %
+%-----------------------------------------------------------------------------------------------------
+%----------%
+% PROTOCOL %
+%----------%
+%   1) MTdata
+%       * Ti : Inversion times (s)
+%       * Td : Delay times (s)   
 %
-% Options:
-%   FILL
+%   2) FSEsequence
+%       * Trf    : Duration of the pulses in the FSE sequence (s)
+%       * Tr     : Delay between the pulses in the FSE sequnece (s)
+%       * Npulse : Number of refocusing pulses in the FSE sequence
 %
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   Inversion Pulse
+%       * Shape    : Shape of the inversion pulse.
+%                    Available shapes are:
+%                    - hard
+%                    - gaussian
+%                    - gausshann (gaussian pulse with Hanning window)
+%                    - sinc
+%                    - sinchann (sinc pulse with Hanning window)
+%                    - singauss (sinc pulse with gaussian window)
+%                    - fermi
+%       * Duration : Duration of the inversion pulse (s)
 %
-% ----------------------------------------------------------------------------------------------------
+%   Global
+%       * Use R1map to  : By checking this box, you tell the fitting 
+%         constrain R1f   algorithm to check for an observed R1map and use
+%                         its value to constrain R1f. Checking this box 
+%                         will automatically set the R1f fix box to true in            
+%                         the Fit parameters table.                
+%       * Fix R1r = R1f : By checking this box, you tell the fitting
+%                         algorithm to fix R1r equal to R1f. Checking this 
+%                         box will automatically set the R1r fix box to 
+%                         true in the Fit parameters table.
+%
+%-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
 % Reference: FILL
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
     
     properties
         MRIinputs = {'MTdata','R1map','Mask'}; % input data required
@@ -41,7 +98,7 @@ classdef SIRFSE_modulaire
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.1    30      1        1     -0.9     0.6564    1 ]; % starting point
+        st           = [ 0.1    30      1        1     -0.9     0.6564    1  ]; % starting point
         lb           = [ 0       0      0.05     0.05   -1       0         0 ]; % lower bound
         ub           = [ 1     100     10       10       0       1         2 ]; % upper bound
         fx           = [ 0       0      0        1       0       1         0 ]; % fix parameters
@@ -61,13 +118,13 @@ classdef SIRFSE_modulaire
                                            
         % Model options
         buttons = {'PANEL','Inversion_Pulse',2,...
-                   'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)', 0.001,...
+                   'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)',0.001,...
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'PANEL','Sr_Calculation',2,...
                    'T2r',1e-05,...       
                    'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'}};
-        options= struct(); % structure filled by the buttons. Leave empty in the code
+        options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
@@ -200,7 +257,7 @@ classdef SIRFSE_modulaire
         end
         
         function SrProt = GetSrProt(obj)
-            SrProt.InvPulse.Trf = obj.Prot.FSEsequence.Mat(1);
+            SrProt.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
         end
     end

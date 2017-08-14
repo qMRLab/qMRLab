@@ -1240,7 +1240,7 @@ text(X,Y,Stats,'FontWeight','bold','FontSize',12,'Color','black');
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
 % Get data
-data =  getappdata(0,'Data'); MRIinput = fieldnames(data);
+data =  getappdata(0,'Data'); MRIinput = fieldnames(data); MRIinput(strcmp(MRIinput,'hdr'))=[];
 [Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
 
 % Get selected voxel
