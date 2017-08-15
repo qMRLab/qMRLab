@@ -1,13 +1,53 @@
 classdef NODDI
+%-----------------------------------------------------------------------------------------------------
+% NODDI :  FILL
+%-----------------------------------------------------------------------------------------------------
+%-------------%
+% ASSUMPTIONS %
+%-------------% 
+% (1) FILL
+% (2) 
+% (3) 
+% (4) 
+%
+%-----------------------------------------------------------------------------------------------------
+%--------%
+% INPUTS %
+%--------%
+%   FILL 
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OUTPUTS %
+%---------%
+%	FILL
+%      
+%-----------------------------------------------------------------------------------------------------
+%----------%
+% PROTOCOL %
+%----------%
+%   FILL
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   FILL
+%
+%-----------------------------------------------------------------------------------------------------
+% Written by: FILL
+% Reference: FILL
+%-----------------------------------------------------------------------------------------------------    
+    
     properties
         MRIinputs = {'DiffusionData','Mask'};
         xnames = { };
         
         % fitting options
-        st           =  [ ]; % starting point
-        lb            = [ ]; % lower bound
+        st           = [ ]; % starting point
+        lb           = [ ]; % lower bound
         ub           = [ ]; % upper bound
-        fx            = [ ]; % fix parameters
+        fx           = [ ]; % fix parameters
         
         % Protocol
         Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
@@ -27,15 +67,15 @@ classdef NODDI
         
         function obj = UpdateFields(obj)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
-            model = MakeModel(obj.options.modelname);
-            Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});
+            model  = MakeModel(obj.options.modelname);
+            Pindex =~ ismember(model.paramsStr,{'b0','theta','phi'});
             obj.xnames = model.paramsStr(Pindex);
-            obj.fx = model.GD.fixed(Pindex);
-            grid = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
+            obj.fx     = model.GD.fixed(Pindex);
+            grid  = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
             scale = GetScalingFactors(obj.options.modelname);
-            obj.st = model.GD.fixedvals(Pindex).*scale(Pindex);
-            obj.lb = min(grid,[],2)'.*scale(Pindex);
-            obj.ub = max(grid,[],2)'.*scale(Pindex);
+            obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
+            obj.lb     = min(grid,[],2)'.*scale(Pindex);
+            obj.ub     = max(grid,[],2)'.*scale(Pindex);
         end
         
         function [Smodel, fibredir] = equation(obj, x)
@@ -45,24 +85,23 @@ classdef NODDI
             end
             
             model = MakeModel(obj.options.modelname);
-            if length(x)<length(model.GD.fixedvals)-2, x(end+1)=1; end % b0
-            if length(x)<length(model.GD.fixedvals)-1, x(end+1)=0; x(end+1)=0; end % phi and theta
+            if length(x)<length(model.GD.fixedvals)-2, x(end+1) = 1; end % b0
+            if length(x)<length(model.GD.fixedvals)-1, x(end+1) = 0; x(end+1)=0; end % phi and theta
             
             scale = GetScalingFactors(obj.options.modelname);
             if (strcmp(obj.options.modelname, 'ExCrossingCylSingleRadGPD') ||...
-                    strcmp(obj.options.modelname, 'ExCrossingCylSingleRadIsoDotTortIsoV_GPD_B0'))
-                xsc = x(1:(end-4))./scale(1:(end-1));
-                theta = [x(end-3) x(end-1)]';
-                phi = [x(end-2) x(end)]';
+                strcmp(obj.options.modelname, 'ExCrossingCylSingleRadIsoDotTortIsoV_GPD_B0'))
+                xsc      = x(1:(end-4))./scale(1:(end-1));
+                theta    = [x(end-3) x(end-1)]';
+                phi      = [x(end-2) x(end)]';
                 fibredir = [cos(phi).*sin(theta) sin(phi).*sin(theta) cos(theta)]';
             else
-                xsc = x(1:(end-2))./scale(1:(end-1));
-                theta = x(end-1);
-                phi = x(end);
+                xsc      = x(1:(end-2))./scale(1:(end-1));
+                theta    = x(end-1);
+                phi      = x(end);
                 fibredir = [cos(phi)*sin(theta) sin(phi)*sin(theta) cos(theta)]';
             end
             constants.roots_cyl = BesselJ_RootsCyl(30);
-            
             
             Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocol(obj.Prot.DiffusionData.Mat), fibredir, constants);
             
@@ -72,12 +111,12 @@ classdef NODDI
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end
             % load model
             model = MakeModel(obj.options.modelname);
-            Pindex=~ismember(model.paramsStr,{'b0','theta','phi'});            
-            model.GD.fixed(Pindex)=obj.fx; % gradient descent
-            model.GS.fixed(Pindex)=obj.fx; % grid search
+            Pindex =~ ismember(model.paramsStr,{'b0','theta','phi'});            
+            model.GD.fixed(Pindex) = obj.fx; % gradient descent
+            model.GS.fixed(Pindex) = obj.fx; % grid search
             scale = GetScalingFactors(obj.options.modelname);
-            model.GS.fixedvals(Pindex)=obj.st./scale(Pindex);
-            model.GD.fixedvals(Pindex)=obj.st./scale(Pindex);
+            model.GS.fixedvals(Pindex) = obj.st./scale(Pindex);
+            model.GD.fixedvals(Pindex) = obj.st./scale(Pindex);
             
             protocol = SchemeToProtocol(obj.Prot.DiffusionData.Mat);
             
@@ -92,7 +131,7 @@ classdef NODDI
         end
         
         function plotmodel(obj, x, data)
-            [Smodel, fibredir]=obj.equation(x);
+            [Smodel, fibredir] = obj.equation(x);
             Prot = ConvertProtUnits(obj.Prot.DiffusionData.Mat);
                         
             % plot
@@ -116,8 +155,8 @@ classdef NODDI
         
         function plotProt(obj)
             % round bvalue
-            Prot = obj.Prot.DiffusionData.Mat;
-            Prot(:,4)=round(scd_scheme2bvecsbvals(Prot)*100)*10;
+            Prot      = obj.Prot.DiffusionData.Mat;
+            Prot(:,4) = round(scd_scheme2bvecsbvals(Prot)*100)*10;
             % display
             scd_scheme_display(Prot)
             subplot(2,2,4)
@@ -162,12 +201,12 @@ function protocol = SchemeToProtocol(Prot)
 Prot = Prot';
 
 % Create the protocol
-protocol.pulseseq = 'PGSE';
+protocol.pulseseq  = 'PGSE';
 protocol.grad_dirs = Prot(1:3,:)';
-protocol.G = Prot(4,:);
-protocol.delta = Prot(5,:);
-protocol.smalldel = Prot(6,:);
-protocol.TE = Prot(7,:);
+protocol.G         = Prot(4,:);
+protocol.delta     = Prot(5,:);
+protocol.smalldel  = Prot(6,:);
+protocol.TE        = Prot(7,:);
 protocol.totalmeas = length(Prot);
 
 % Find the B0's
@@ -178,17 +217,17 @@ end
 
 function Prot = ConvertProtUnits(Prot)
 % convert units
-Prot(:,4)=Prot(:,4).*sqrt(sum(Prot(:,1:3).^2,2))*1e-3; % G mT/um
-Prot(:,1:3)=Prot(:,1:3)./repmat(sqrt(Prot(:,1).^2+Prot(:,2).^2+Prot(:,3).^2),1,3); Prot(isnan(Prot))=0;
-Prot(:,5) = Prot(:,5)*10^3; % DELTA ms
-Prot(:,6) = Prot(:,6)*10^3; % delta ms
-Prot(:,7) = Prot(:,7)*10^3; % TE ms
+Prot(:,4)   = Prot(:,4).*sqrt(sum(Prot(:,1:3).^2,2))*1e-3; % G mT/um
+Prot(:,1:3) = Prot(:,1:3)./repmat(sqrt(Prot(:,1).^2+Prot(:,2).^2+Prot(:,3).^2),1,3); Prot(isnan(Prot))=0;
+Prot(:,5)   = Prot(:,5)*10^3; % DELTA ms
+Prot(:,6)   = Prot(:,6)*10^3; % delta ms
+Prot(:,7)   = Prot(:,7)*10^3; % TE ms
 gyro = 42.57; % kHz/mT
-Prot(:,8) = gyro*Prot(:,4).*Prot(:,6); % um-1
+Prot(:,8)   = gyro*Prot(:,4).*Prot(:,6); % um-1
 
 % Find different shells
-list_G=unique(round(Prot(:,[4 5 6 7])*1e5)/1e5,'rows');
-nnn = size(list_G,1);
+list_G = unique(round(Prot(:,[4 5 6 7])*1e5)/1e5,'rows');
+nnn    = size(list_G,1);
 for j = 1 : nnn
     for i = 1 : size(Prot,1)
         if  min(round(Prot(i,[4 5 6 7])*1e5)/1e5 == list_G(j,:))
