@@ -2,6 +2,7 @@ classdef NODDI
     properties
         MRIinputs = {'DiffusionData','Mask'};
         xnames = { };
+        voxelwise = 1;
         
         % fitting options
         st           =  [ ]; % starting point
