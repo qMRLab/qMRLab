@@ -1,7 +1,45 @@
 classdef MTSAT
-% ----------------------------------------------------------------------------------------------------
-% MTSAT :  Magnetization transfer saturation 
-% ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
+% MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1 
+%-----------------------------------------------------------------------------------------------------
+%-------------%
+% ASSUMPTIONS %
+%-------------% 
+% (1) FILL
+% (2) 
+% (3) 
+% (4) 
+%
+%-----------------------------------------------------------------------------------------------------
+%--------%
+% INPUTS %
+%--------%
+%   FILL 
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OUTPUTS %
+%---------%
+%	FILL
+%      
+%-----------------------------------------------------------------------------------------------------
+%----------%
+% PROTOCOL %
+%----------%
+%   One T1-weighted
+%   One MT-weighted
+%   One PD-weighted
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   None
+%
+%-----------------------------------------------------------------------------------------------------
+% Written by: Pascale Beliveau (pascale.beliveau@polymtl.ca)
+% Reference: Helms, G., Dathe, H., Kallenberg, K., Dechent, P., 2008. High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magn. Reson. Med. 60, 1396?1407.
+%-----------------------------------------------------------------------------------------------------
     properties
         MRIinputs = {'MTw','T1w', 'PDw', 'Mask'};
         xnames = {};
@@ -15,7 +53,7 @@ classdef MTSAT
                       'PD',struct('Format',{{'Flip Angle' 'TR'}},...
                                    'Mat',  [15 0.011]));        
         % Model options
-        buttons = {'offset frequency (Hz)', 1000};
+        buttons = {};
         options= struct();
         
     end
@@ -32,7 +70,7 @@ classdef MTSAT
             
             T1params = obj.Prot.T1.Mat;
             
-            FitResult = MTSAT_exec(data, MTparams, PDparams, T1params);
+            FitResult.MTSAT = MTSAT_exec(data, MTparams, PDparams, T1params);
         end
         
     end
