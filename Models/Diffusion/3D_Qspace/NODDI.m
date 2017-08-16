@@ -1,42 +1,64 @@
 classdef NODDI
 %-----------------------------------------------------------------------------------------------------
-% NODDI :  FILL
+% NODDI :  Neurite Orientation Dispersion and Density Imaging
+%          Three-compartment model for fitting multi-shell DWI
+%           
 %-----------------------------------------------------------------------------------------------------
 %-------------%
 % ASSUMPTIONS %
 %-------------% 
-% (1) FILL
-% (2) 
-% (3) 
-% (4) 
+% (1) neuronal fibers (axons) are impermeable sticks (Dperp = 0)
+% (2) Presence of orientation dispersion of the fibers (Watson distribution). Note that NODDI is more robust to
+% crossing fibers that DTI  (Campbell, NIMG 2017)
+% and isotropic diffusion coefficient (parameters di and diso)
+%
+% Intra-cellular Model:
+% (3) Fixed diffusion coefficient (parameter di)
+%
+% Extra-cellular Model:
+% (4) Tortuosity model. Parallel diffusivity is equal to
+% intra-diffusivity.Perpendicular diffusivity is proportional to fiber
+% density
+% (5) No time dependence of the diffusion
+%
 %
 %-----------------------------------------------------------------------------------------------------
 %--------%
 % INPUTS %
 %--------%
-%   FILL 
+%   DiffusionData: 4D diffusion weighted dataset
 %
 %-----------------------------------------------------------------------------------------------------
 %---------%
 % OUTPUTS %
 %---------%
-%	FILL
+%       * di            : Diffusion coefficient in the restricted compartment.
+%       * ficvf         : Fraction of water in the restricted compartment.
+%       * diso (fixed)  : diffusion coefficient of the isotropic compartment (CSF)
+%       * kappa         : Orientation dispersion index                               
+%       * b0            : Signal at b=0
+%       * theta         : angle of the fibers
+%       * phi           : angle of the fibers
+%
 %      
 %-----------------------------------------------------------------------------------------------------
 %----------%
 % PROTOCOL %
 %----------%
-%   FILL
+%   Multi-shell diffusion-weighted acquisition : 
+%       - at least 2 non-zeros bvalues)
+%       - at least 5 b=0 (used to compute noise standard deviation)
 %
 %-----------------------------------------------------------------------------------------------------
 %---------%
 % OPTIONS %
 %---------%
-%   FILL
+%   Model Name: Model part of NODDI. WatsonSHStickTortIsoVIsoDot_B0 is a
+%   four model compartment used for ex-vivo datasets
 %
 %-----------------------------------------------------------------------------------------------------
-% Written by: FILL
-% Reference: FILL
+% Written by: Tanguy Duval
+% Reference: Zhang, H., Schneider, T., Wheeler-Kingshott, C.A., Alexander, D.C., 2012. NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage 61, 1000?1016.
 %-----------------------------------------------------------------------------------------------------    
     
     properties
