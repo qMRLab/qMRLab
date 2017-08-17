@@ -1,5 +1,4 @@
-function A = prepare_NNLS(times, T2)
-
+function [A, T2] = prepare_NNLS(times, t2_range, N)
 %----------------------------------------------------------------------
 % function prepare_NNLS(times, t2_range, N)
 %
@@ -26,10 +25,9 @@ function A = prepare_NNLS(times, T2)
 
 
 M = length(times);
-N = length(T2);
 
 % For no T2 offset:
-
+T2 = t2_range(1)*(t2_range(2)/t2_range(1)).^(0:(1/(N-1)):1)';
 
 % generate  A matrix
 A = zeros(M,N);
