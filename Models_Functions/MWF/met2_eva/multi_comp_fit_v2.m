@@ -1,6 +1,6 @@
 function [FitResult,Spectrum] = multi_comp_fit_v2(data_vol, EchoTimes, DecayMatrix, T2, Opt, varargin)
 %
-% multi_comp_fit_v2(data_file_name, Opt, EchoTimes, ['ROI', roi_vol, 'tissue', mask_vol])
+% multi_comp_fit_v2(data_file_name, EchoTimes, DecayMatrix, T2, Opt, ['ROI', roi_vol, 'tissue', mask_vol])
 %
 %**************************************************************************
 % DESCRIPTION:
@@ -27,21 +27,21 @@ function [FitResult,Spectrum] = multi_comp_fit_v2(data_vol, EchoTimes, DecayMatr
 %**************************************************************************
 % INPUTS:
 %
-%   * data_vol               = echo train data set to be analyzed
-%   * Opt                    = struct with 3 parameters
-%      1) Opt.Cutoff         = cutoff in ms
-%      2) Opt.RelaxationType = 'T2' or 'T2star'
-%      3) Opt.Sigma          = noise's sigma
-%   * EchoTimes              = struct with echo parameters
-%                               * Echo.First   = First echo in ms 
-%                               * Echo.Spacing = Echo spacing in ms
-%   * 'ROI'                  = ROI processing flag
-%   * roi_vol                = ROI mask
-%   * 'tissue'               = tissue processing flag
-%   * mask_vol               = tissue classification mask (1->CSF, 2->GM, 3->WM)
-%                              Can be used to limit processing time
-%   * varargin  = optional file limiting the number of echoes to be used for
-%                 analysis. This can be 
+%   * data_vol     = echo train data set to be analyzed
+%   * EchoTimes    = vector with all echo times 
+%   * DecayMatrix  = matrix 
+%   * Opt          = struct that must contains:
+%       1) RelaxationType   : 'T2' or 'T2star'
+%       2) Sigma            : noise's sigma
+%       3) lower_cutoff_MW  : lower cutoff on Myelin Water T2 
+%       4) upper_cutoff_MW  : upper cutoff on Myelin Water T2 
+%       5) upper_cutoff_IEW : upper cutoff on Intra/Extracellular Water T2
+%   * 'ROI'        = ROI processing flag
+%   * roi_vol      = ROI mask
+%   * 'tissue'     = tissue processing flag
+%   * mask_vol     = tissue mask, can be used to limit processing time
+%   * varargin     = optional file limiting the number of echoes to be used
+%                    for analysis. This can be:
 %                  1) max_echoes.mnc file obtained from'in_plane_correction.m' 
 %                     to perform in-plane field inhomogeneity correction
 %                  2) correction_mask.mnc, obtained from 'Gz_correction.m'.
@@ -54,7 +54,7 @@ function [FitResult,Spectrum] = multi_comp_fit_v2(data_vol, EchoTimes, DecayMatr
 %
 %**************************************************************************
 % EXAMPLE USES:
-% multi_comp_fit_v2(vol, 'T2', 'tissue',Echo, Cutoff, cls_mask)
+% multi_comp_fit_v2(EchoTimes, DecayMatrix, T2, Opt, 'tissue', cls_mask)
 % --> Analyze vol T2 relaxation data, using a
 % tissue classification mask: cls_mask.
 % 

@@ -89,8 +89,8 @@ classdef MWF
             T2          = getT2(obj,EchoTimes);
             DecayMatrix = getDecayMatrix(EchoTimes,T2.vals);
             % Options
-            Opt.Sigma            = obj.options.Sigma;
             Opt.RelaxationType   = obj.options.RelaxationType; 
+            Opt.Sigma            = obj.options.Sigma;
             Opt.lower_cutoff_MW  = 1.5*obj.Prot.Echo.Mat(1); % 1.5 * FirstEcho
             Opt.upper_cutoff_MW  = obj.options.Cutoffms;
             Opt.upper_cutoff_IEW = obj.ub(3);            
