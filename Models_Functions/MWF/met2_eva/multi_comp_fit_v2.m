@@ -333,7 +333,7 @@ else
 
                     % Do regulaized NNLS 
                     [spectrum_regNNLS(i,j,slice,:), chi2_regNNLS(i,j,slice)] = ...
-                    iterate_NNLS(mu,chi2_min,chi2_max,T2.num,double(squeeze(data_vol(i,j,slice,1:this_num_echoes)))',this_DecayMatrix,chi2_NNLS(i,j,slice),Opt.Sigma(slice));
+                    iterate_NNLS(mu,chi2_min,chi2_max,double(squeeze(data_vol(i,j,slice,1:this_num_echoes)))',this_DecayMatrix,chi2_NNLS(i,j,slice),Opt.Sigma(slice));
                     %------------------------------
                     % Do multi-exponential fitting
                     %------------------------------    

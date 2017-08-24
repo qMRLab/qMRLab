@@ -1,4 +1,4 @@
-function [reg_spectrum, chi2_regNNLS] = do_regNNLS(num_t2_vals, decay_matrix, measurements, sigma, mu)
+function [reg_spectrum, chi2_regNNLS] = do_regNNLS(decay_matrix, measurements, sigma, mu)
 
 %-------------------------------------------------------------------
 % function [s_NNLS, chi2_NNLS] = do_regNNLS(num_t2_vals, decay_matrix, measurements, sigma, mu)
@@ -9,6 +9,7 @@ function [reg_spectrum, chi2_regNNLS] = do_regNNLS(num_t2_vals, decay_matrix, me
 %-------------------------------------------------------------------
 
 % generate minimum energy regularization
+num_t2_vals = size(decay_matrix,2);
 H = eye(num_t2_vals);
 H_temp = mu*H;
 this_decay_matrix = [decay_matrix; H_temp];
