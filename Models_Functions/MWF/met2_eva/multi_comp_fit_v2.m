@@ -1,6 +1,6 @@
-function FitResult = multi_comp_fit_v2(data_vol, relaxation_type, Echo, Cutoff, Sigma, varargin)
+function [FitResult,Spectrum] = multi_comp_fit_v2(data_vol, EchoTimes, DecayMatrix, T2, Opt, varargin)
 %
-% multi_comp_fit_v2(data_file_name, relaxation_type, Echo, Cutoff, Sigma,['ROI', roi_vol, 'tissue', mask_vol])
+% multi_comp_fit_v2(data_file_name, EchoTimes, DecayMatrix, T2, Opt, ['ROI', roi_vol, 'tissue', mask_vol])
 %
 %**************************************************************************
 % DESCRIPTION:
@@ -27,33 +27,34 @@ function FitResult = multi_comp_fit_v2(data_vol, relaxation_type, Echo, Cutoff, 
 %**************************************************************************
 % INPUTS:
 %
-%   * data_vol        = echo train data set to be analyzed
-%   * relaxation_type = 'T2' or 'T2star'
-%   * Echo            = struct with echo parameters
-%                           * Echo.First   = First echo in ms 
-%                           * Echo.Spacing = Echo spacing in ms
-%   * Cutoff          = cutoff in ms
-%   * Sigma           = noise's sigma
-%   * 'ROI'           = ROI processing flag
-%   * roi_vol         = ROI mask
-%   * 'tissue'        = tissue processing flag
-%   * mask_vol        = tissue classification mask (1->CSF, 2->GM, 3->WM)
-%                       Can be used to limit processing time
-%   * varargin        = optional file limiting the number of echoes to be used for
-%                       analysis. This can be 
-%                       1. max_echoes.mnc file obtained from'in_plane_correction.m' 
-%                          to perform in-plane field inhomogeneity correction
-%                       2. correction_mask.mnc, obtained from 'Gz_correction.m'.
-%                          This binary file has voxels where the field gradient (Gz) 
-%                          was > 2mG/cm set to 0 (no field inhomog. correction performed*), 
-%                          and areas where Gz was < 2mG/cm set to 1. 
-%                          *The correction fails where Gz > 2mG/cm. In order to limit 
-%                          effect of field inhomogeneities in these voxels,
-%                          processing is limited to 45 echoes, instead of 64. 
+%   * data_vol     = echo train data set to be analyzed
+%   * EchoTimes    = vector with all echo times 
+%   * DecayMatrix  = matrix 
+%   * Opt          = struct that must contains:
+%       1) RelaxationType   : 'T2' or 'T2star'
+%       2) Sigma            : noise's sigma
+%       3) lower_cutoff_MW  : lower cutoff on Myelin Water T2 
+%       4) upper_cutoff_MW  : upper cutoff on Myelin Water T2 
+%       5) upper_cutoff_IEW : upper cutoff on Intra/Extracellular Water T2
+%   * 'ROI'        = ROI processing flag
+%   * roi_vol      = ROI mask
+%   * 'tissue'     = tissue processing flag
+%   * mask_vol     = tissue mask, can be used to limit processing time
+%   * varargin     = optional file limiting the number of echoes to be used
+%                    for analysis. This can be:
+%                  1) max_echoes.mnc file obtained from'in_plane_correction.m' 
+%                     to perform in-plane field inhomogeneity correction
+%                  2) correction_mask.mnc, obtained from 'Gz_correction.m'.
+%                     This binary file has voxels where the field gradient (Gz) 
+%                     was > 2mG/cm set to 0 (no field inhomog. correction performed*), 
+%                     and areas where Gz was < 2mG/cm set to 1. 
+%                     *The correction fails where Gz > 2mG/cm. In order to limit 
+%                     effect of field inhomogeneities in these voxels,
+%                     processing is limited to 45 echoes, instead of 64. 
 %
 %**************************************************************************
 % EXAMPLE USES:
-% multi_comp_fit_v2(vol, 'T2', 'tissue',Echo, Cutoff, cls_mask)
+% multi_comp_fit_v2(EchoTimes, DecayMatrix, T2, Opt, 'tissue', cls_mask)
 % --> Analyze vol T2 relaxation data, using a
 % tissue classification mask: cls_mask.
 % 
@@ -81,11 +82,11 @@ mask_flag          = 0;
 % default number of inputs
 ndef_inputs = 5;
 
-if nargin > 5 
-    if nargin < 8
-        mask_opts = nargin-ndef_inputs;
+if nargin > ndef_inputs 
+    if nargin < ndef_inputs+3
+        mask_opts = nargin - ndef_inputs;
     else
-        mask_opts = nargin-ndef_inputs-1;
+        mask_opts = nargin - ndef_inputs - 1;
     end
         
     for counter = 2:2:(mask_opts)
@@ -132,42 +133,10 @@ if tissue_flag ~= 0
 end
 
 %%-------------------------------------------------------------------------
-%% Echo times calculation
-%%-------------------------------------------------------------------------
-
-echo_times(1:num_echoes) = Echo.First + Echo.Spacing*(0:num_echoes-1);
-
-%%-------------------------------------------------------------------------
-%% Set default settings according to relaxation time
-%%-------------------------------------------------------------------------
-
-switch relaxation_type
-    case 'T2'
-        t2_range = [1.5*echo_times(1), 2000]; % Kolind et al. doi: 10.1002/mrm.21966
-        % set cutoff times for myelin water (MW) and intra/extracellular water (IEW) components (in ms)
-        lower_cutoff_MW = t2_range(1);
-        upper_cutoff_MW = Cutoff;
-        %upper_cutoff_MW = 40; % Kolind et al. doi: 10.1002/mrm.21966
-        upper_cutoff_IEW = 200; % Kolind et al. doi: 10.1002/mrm.21966
-        
-    case 'T2star'
-        t2_range = [1.5*echo_times(1), 300]; % Lenz et al. doi: 10.1002/mrm.23241
-%         t2_range = [1.5*echo_times(1), 600]; % Use this to look at CSF component        
-        % set cutoff times for myelin water (MW) and intra/extracellular water (IEW) components (in ms)  
-        lower_cutoff_MW = t2_range(1);
-        %upper_cutoff_MW = 25; % Lenz et al. doi: 10.1002/mrm.23241 
-        upper_cutoff_MW = Cutoff;
-        upper_cutoff_IEW = 200; 
-         
-    otherwise
-        error(sprintf('\nRelaxation type must be either T2 or T2star!'));
-end
-
-%%-------------------------------------------------------------------------
 %% default values for NNLS fitting
 %%-------------------------------------------------------------------------
 
-num_t2_vals = 120;
+T2.num = 120;
   
 % set default values for reg-NNLS (taken from C. Chia)
 set(0,'RecursionLimit',5000)
@@ -176,13 +145,6 @@ chi2range = [2 2.5];
 chi2_min  = chi2range(1);
 chi2_max  = chi2range(2);
     
-
-%%-------------------------------------------------------------------------
-%% Calculate background noise 
-%%-------------------------------------------------------------------------
-
-% sigma = calc_bkgrnd_noise(data_vol, data_dim);
-
 %%-------------------------------------------------------------------------
 %% apply ROI mask to data volumes
 %%-------------------------------------------------------------------------
@@ -195,11 +157,10 @@ end
 %% NNLS fitting routine presets
 %%-------------------------------------------------------------------------
 
-
 % find cutoff indices
-lower_cutoff_MW_index  = find_cutoff_index(lower_cutoff_MW, t2_vals);
-upper_cutoff_MW_index  = find_cutoff_index(upper_cutoff_MW, t2_vals);
-upper_cutoff_IEW_index = find_cutoff_index(upper_cutoff_IEW, t2_vals);
+lower_cutoff_MW_index  = find_cutoff_index(Opt.lower_cutoff_MW, T2.vals);
+upper_cutoff_MW_index  = find_cutoff_index(Opt.upper_cutoff_MW, T2.vals);
+upper_cutoff_IEW_index = find_cutoff_index(Opt.upper_cutoff_IEW, T2.vals);
 
 %%-------------------------------------------------------------------------
 %% data fitting and analysis
@@ -213,9 +174,9 @@ if (ROI_flag == 1 && voxelwise_ROI_flag == 0)
             %------------------------------    
 
             % Do non-regularized NNLS
-            [spectrum_NNLS(slice,:), chi2_NNLS(slice)] = do_NNLS(decay_matrix, double(squeeze(mean_roi_data(slice,:))), Sigma(slice));
+            [spectrum_NNLS(slice,:), chi2_NNLS(slice)] = do_NNLS(DecayMatrix, double(squeeze(mean_roi_data(slice,:))), Opt.Sigma(slice));
             
-            ssq_res_NNLS(slice) = sum((decay_matrix*squeeze(spectrum_NNLS(slice,:)') - squeeze(mean_roi_data(slice,:))').^2);
+            ssq_res_NNLS(slice) = sum((DecayMatrix*squeeze(spectrum_NNLS(slice,:)') - squeeze(mean_roi_data(slice,:))').^2);
             s0_NNLS(slice)      = sum(spectrum_NNLS(slice,:));
             mwf_NNLS(slice)     = sum(spectrum_NNLS(slice,lower_cutoff_MW_index:upper_cutoff_MW_index))/s0_NNLS(slice);
 
@@ -230,8 +191,8 @@ if (ROI_flag == 1 && voxelwise_ROI_flag == 0)
             end
             
             % Calculate the geometric mean of the T2 distribition for the non-reg NNLS 
-            gm_t2_NNLS(slice)     = exp(sum(squeeze(spectrum_NNLS(slice,:))'.*log(t2_vals))/sum(spectrum_NNLS(slice,:)));
-            gm_IEW_t2_NNLS(slice) = exp(sum(squeeze(spectrum_NNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index))'.*log(t2_vals(upper_cutoff_MW_index:upper_cutoff_IEW_index)))/sum(spectrum_NNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index)));
+            gm_t2_NNLS(slice)     = exp(sum(squeeze(spectrum_NNLS(slice,:))'.*log(T2.vals))/sum(spectrum_NNLS(slice,:)));
+            gm_IEW_t2_NNLS(slice) = exp(sum(squeeze(spectrum_NNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index))'.*log(T2.vals(upper_cutoff_MW_index:upper_cutoff_IEW_index)))/sum(spectrum_NNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index)));
 
             if isnan(gm_t2_NNLS(slice))
                 gm_t2_NNLS(slice) = 0;
@@ -242,9 +203,9 @@ if (ROI_flag == 1 && voxelwise_ROI_flag == 0)
             
             % Do regulaized NNLS 
             [spectrum_regNNLS(slice,:), chi2_regNNLS(slice)] = ...
-            iterate_NNLS(mu,chi2_min,chi2_max,num_t2_vals,double(squeeze(mean_roi_data(slice,:))),decay_matrix,chi2_NNLS(slice),Sigma(slice));
+            iterate_NNLS(mu,chi2_min,chi2_max,T2.num,double(squeeze(mean_roi_data(slice,:))),DecayMatrix,chi2_NNLS(slice),Opt.Sigma(slice));
 
-            ssq_res_regNNLS(slice) = sum((decay_matrix*squeeze(spectrum_regNNLS(slice,:)') - squeeze(mean_roi_data(slice,:))').^2);
+            ssq_res_regNNLS(slice) = sum((DecayMatrix*squeeze(spectrum_regNNLS(slice,:)') - squeeze(mean_roi_data(slice,:))').^2);
             s0_regNNLS(slice)      = sum(spectrum_regNNLS(slice,:));
             mwf_regNNLS(slice)     = sum(spectrum_regNNLS(slice,1:upper_cutoff_MW_index))/s0_regNNLS(slice);
 
@@ -259,8 +220,8 @@ if (ROI_flag == 1 && voxelwise_ROI_flag == 0)
             end
             
             % Calculate the geometric mean of the T2 distribition for the reg NNLS 
-            gm_t2_regNNLS(slice)     = exp(sum(squeeze(spectrum_regNNLS(slice,:))'.*log(t2_vals))/sum(spectrum_regNNLS(slice,:)));
-            gm_IEW_t2_regNNLS(slice) = exp(sum(squeeze(spectrum_regNNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index))'.*log(t2_vals(upper_cutoff_MW_index:upper_cutoff_IEW_index)))/sum(spectrum_regNNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index)));    
+            gm_t2_regNNLS(slice)     = exp(sum(squeeze(spectrum_regNNLS(slice,:))'.*log(T2.vals))/sum(spectrum_regNNLS(slice,:)));
+            gm_IEW_t2_regNNLS(slice) = exp(sum(squeeze(spectrum_regNNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index))'.*log(T2.vals(upper_cutoff_MW_index:upper_cutoff_IEW_index)))/sum(spectrum_regNNLS(slice,upper_cutoff_MW_index:upper_cutoff_IEW_index)));    
             
             if isnan(gm_t2_regNNLS(slice))
                 gm_t2_regNNLS(slice) = 0;
@@ -277,7 +238,7 @@ if (ROI_flag == 1 && voxelwise_ROI_flag == 0)
             t2_guess = 100;
             guess = [t2_guess, mean_roi_data(slice,1)];
 
-            [s0_fit(slice), t2_fit(slice)] = mono_exp_fit(double(squeeze(mean_roi_data(slice,:))), echo_times, double(guess));
+            [s0_fit(slice), t2_fit(slice)] = mono_exp_fit(double(squeeze(mean_roi_data(slice,:))), EchoTimes, double(guess));
            
             if isnan(s0_fit(slice))
                 s0_fit(slice) = 0;
@@ -304,8 +265,8 @@ else
         end
     end
 
-    % initialize all data vecotrs to zero
-    spectrum_NNLS  = zeros(data_height,data_width,data_slices,num_t2_vals);
+    % initialize all data vectors to zero
+    spectrum_NNLS  = zeros(data_height,data_width,data_slices,T2.num);
     chi2_NNLS      = zeros(data_height,data_width,data_slices);
     gm_t2_NNLS     = zeros(data_height,data_width,data_slices);
     gm_IEW_t2_NNLS = zeros(data_height,data_width,data_slices);
@@ -313,11 +274,11 @@ else
     s0_NNLS        = zeros(data_height,data_width,data_slices);
     mwf_NNLS       = zeros(data_height,data_width,data_slices);
 
-    spectrum_regNNLS        = zeros(data_height,data_width,data_slices, num_t2_vals);
-    spectrum_regNNLS_A      = zeros(data_height,data_width,data_slices, num_t2_vals);
-    spectrum_regNNLS_B      = zeros(data_height,data_width,data_slices, num_t2_vals);
-    amp_spectrum_regNNLS    = zeros(data_height,data_width,data_slices, num_t2_vals);
-    phase_spectrum_regNNLS  = zeros(data_height,data_width,data_slices, num_t2_vals);
+    spectrum_regNNLS        = zeros(data_height,data_width,data_slices, T2.num);
+    spectrum_regNNLS_A      = zeros(data_height,data_width,data_slices, T2.num);
+    spectrum_regNNLS_B      = zeros(data_height,data_width,data_slices, T2.num);
+    amp_spectrum_regNNLS    = zeros(data_height,data_width,data_slices, T2.num);
+    phase_spectrum_regNNLS  = zeros(data_height,data_width,data_slices, T2.num);
     chi2_regNNLS            = zeros(data_height,data_width,data_slices);
     gm_t2_regNNLS           = zeros(data_height,data_width,data_slices);
     gm_IEW_t2_regNNLS       = zeros(data_height,data_width,data_slices);
@@ -337,16 +298,16 @@ else
         %-------------------------------------------
         figure; hold on;
         set(gca,'xscale','log','FontSize',20,'XMinorTick','on')
-        xlim([t2_range(1) t2_range(2)])
+        xlim([T2.range(1) T2.range(2)])
         ylabel('Normalized Signal');
-        if strcmp(relaxation_type,'T2')
+        if strcmp(Opt.RelaxationType,'T2')
             xlabel('T2 (ms)');
             title('T_2 Spectrum','FontSize',20);
-        elseif strcmp(relaxation_type,'T2star')
+        elseif strcmp(Opt.RelaxationType,'T2star')
             xlabel('T2* (ms)');
             title('T_2^* Spectrum','FontSize',20);  
         end
-        x = [upper_cutoff_MW, upper_cutoff_MW];
+        x = [Opt.upper_cutoff_MW, Opt.upper_cutoff_MW];
         y = [0, 1];
         plot(x,y,'r-','LineWidth', 4);
         grid minor;
@@ -360,19 +321,19 @@ else
 
                 % only fill in what corresponds to the mask
                 if mask_vol(i,j,slice) == mask_flag                   
-                    this_echo_times             = echo_times;
+                    this_echo_times             = EchoTimes;
                     this_num_echoes             = num_echoes;
-                    this_decay_matrix           = decay_matrix;
+                    this_DecayMatrix            = DecayMatrix;
                     this_lower_cutoff_MW_index  = lower_cutoff_MW_index;
                     this_upper_cutoff_MW_index  = upper_cutoff_MW_index;
                     this_upper_cutoff_IEW_index = upper_cutoff_IEW_index;
                     
                     % Do non-regularized NNLS
-                    [spectrum_NNLS(i,j,slice,:), chi2_NNLS(i,j,slice)] = do_NNLS(this_decay_matrix, double(squeeze(data_vol(i,j,slice,1:this_num_echoes)))', Sigma(slice));
+                    [spectrum_NNLS(i,j,slice,:), chi2_NNLS(i,j,slice)] = do_NNLS(this_DecayMatrix, double(squeeze(data_vol(i,j,slice,1:this_num_echoes)))', Opt.Sigma(slice));
 
                     % Do regulaized NNLS 
                     [spectrum_regNNLS(i,j,slice,:), chi2_regNNLS(i,j,slice)] = ...
-                    iterate_NNLS(mu,chi2_min,chi2_max,num_t2_vals,double(squeeze(data_vol(i,j,slice,1:this_num_echoes)))',this_decay_matrix,chi2_NNLS(i,j,slice),Sigma(slice));
+                    iterate_NNLS(mu,chi2_min,chi2_max,T2.num,double(squeeze(data_vol(i,j,slice,1:this_num_echoes)))',this_DecayMatrix,chi2_NNLS(i,j,slice),Opt.Sigma(slice));
                     %------------------------------
                     % Do multi-exponential fitting
                     %------------------------------    
@@ -381,9 +342,9 @@ else
                     mwf_regNNLS(i,j,slice) = sum(spectrum_regNNLS(i,j,slice,1:this_upper_cutoff_MW_index))/s0_regNNLS(i,j,slice);
 
                     % Calculate the geometric mean of the T2 distribition for the reg NNLS 
-                    gm_t2_regNNLS(i,j,slice)     = exp(sum(squeeze(spectrum_regNNLS(i,j,slice,:)).*log(t2_vals))/sum(spectrum_regNNLS(i,j,slice,:)));
-                    gm_IEW_t2_regNNLS(i,j,slice) = exp(sum(squeeze(spectrum_regNNLS(i,j,slice,this_upper_cutoff_MW_index:this_upper_cutoff_IEW_index)).*log(t2_vals(this_upper_cutoff_MW_index:this_upper_cutoff_IEW_index)))/sum(spectrum_regNNLS(i,j,slice,this_upper_cutoff_MW_index:this_upper_cutoff_IEW_index)));
-                    gm_MW_t2_regNNLS(i,j,slice)  = exp(sum(squeeze(spectrum_regNNLS(i,j,slice,this_lower_cutoff_MW_index:this_upper_cutoff_MW_index)).*log(t2_vals(this_lower_cutoff_MW_index:this_upper_cutoff_MW_index)))/sum(spectrum_regNNLS(i,j,slice,this_lower_cutoff_MW_index:this_upper_cutoff_MW_index)));
+                    gm_t2_regNNLS(i,j,slice)     = exp(sum(squeeze(spectrum_regNNLS(i,j,slice,:)).*log(T2.vals))/sum(spectrum_regNNLS(i,j,slice,:)));
+                    gm_IEW_t2_regNNLS(i,j,slice) = exp(sum(squeeze(spectrum_regNNLS(i,j,slice,this_upper_cutoff_MW_index:this_upper_cutoff_IEW_index)).*log(T2.vals(this_upper_cutoff_MW_index:this_upper_cutoff_IEW_index)))/sum(spectrum_regNNLS(i,j,slice,this_upper_cutoff_MW_index:this_upper_cutoff_IEW_index)));
+                    gm_MW_t2_regNNLS(i,j,slice)  = exp(sum(squeeze(spectrum_regNNLS(i,j,slice,this_lower_cutoff_MW_index:this_upper_cutoff_MW_index)).*log(T2.vals(this_lower_cutoff_MW_index:this_upper_cutoff_MW_index)))/sum(spectrum_regNNLS(i,j,slice,this_lower_cutoff_MW_index:this_upper_cutoff_MW_index)));
 
                     if isnan(gm_t2_regNNLS(i,j,slice))
                         gm_t2_regNNLS(i,j,slice) = 0;
@@ -415,7 +376,7 @@ else
                         norm_spectrum_NNLS(i,j,slice,:)    = spectrum_NNLS(i,j,slice,:)/max(spectrum_NNLS(i,j,slice,:));
                         norm_spectrum_regNNLS(i,j,slice,:) = spectrum_regNNLS(i,j,slice,:)/max(spectrum_regNNLS(i,j,slice,:));
 
-                        plot(t2_vals,squeeze(norm_spectrum_regNNLS(i,j,slice,:)), 'b-','LineWidth',0.1);
+                        plot(T2.vals,squeeze(norm_spectrum_regNNLS(i,j,slice,:)), 'b-','LineWidth',0.1);
                         print('-djpeg','superimposed_spectrum.jpeg');
                         
                     end
@@ -440,7 +401,7 @@ if ( ROI_flag == 1 && voxelwise_ROI_flag == 0 )
 
         figure; hold on;
         grid minor;
-        %bar1 = bar(t2_vals,norm_spectrum_NNLS(slice,:),'FaceColor', 'g', 'EdgeColor', 'g','LineWidth',1);
+        %bar1 = bar(T2.vals,norm_spectrum_NNLS(slice,:),'FaceColor', 'g', 'EdgeColor', 'g','LineWidth',1);
         %set(bar1,'BarWidth',0.1); 
         
 %         %--------------------
@@ -450,37 +411,37 @@ if ( ROI_flag == 1 && voxelwise_ROI_flag == 0 )
 %         T2 = [5 50]';
 %         frac = [0.12 0.88]';
 % 
-%         true_spectrum = zeros(size(t2_vals));
+%         true_spectrum = zeros(size(T2.vals));
 %         for j = 1: size(T2)
-%             for i = 1:(size(t2_vals)-1)
+%             for i = 1:(size(T2.vals)-1)
 %                 if i == 1
-%                     if T2(j) == t2_vals(i)
+%                     if T2(j) == T2.vals(i)
 %                         true_spectrum(i) = frac(j);
 %                     end
 %                 end
 % 
-%                 if ((t2_vals(i+1) >= T2(j)) && (t2_vals(i) <= T2(j)))
+%                 if ((T2.vals(i+1) >= T2(j)) && (T2.vals(i) <= T2(j)))
 %                     true_spectrum(i) = frac(j);
 %                 end
 %             end
 %         end
-%         bar2 = bar(t2_vals,true_spectrum(:),'FaceColor', 'm', 'EdgeColor', 'm','LineWidth',1);
+%         bar2 = bar(T2.vals,true_spectrum(:),'FaceColor', 'm', 'EdgeColor', 'm','LineWidth',1);
 %         %set(bar2,'BarWidth',0.1); 
 %         %--------------------
         
-        plot(t2_vals,norm_spectrum_regNNLS(slice,:), 'b-','LineWidth',1.5);
+        plot(T2.vals,norm_spectrum_regNNLS(slice,:), 'b-','LineWidth',1.5);
         set(gca,'xscale','log','FontSize',20)
-        xlim([t2_range(1) t2_range(2)])
+        xlim([T2.range(1) T2.range(2)])
         %xlim([0.002*1e3 4*1e3]) %keep T2* and T2 ranges the same for plot
         ylabel('Normalized Signal');
-        if strcmp(relaxation_type,'T2')
+        if strcmp(Opt.RelaxationType,'T2')
             xlabel('T2 (ms)');
             title('T_2 Spectrum','FontSize',20);
-        elseif strcmp(relaxation_type,'T2star')
+        elseif strcmp(Opt.RelaxationType,'T2star')
             xlabel('T2* (ms)');
             title('T_2^* Spectrum','FontSize',20);   
         end
-        x = [upper_cutoff_MW, upper_cutoff_MW];
+        x = [Opt.lower_cutoff_MW, Opt.upper_cutoff_MW];
         y = [0, 1];
         plot(x,y,'r-','LineWidth', 2);
 %         legend('location', 'NorthEast','NNLS multi-exp fit','True Spectrum','regularized NNLS multi-exp fit')
@@ -493,19 +454,19 @@ if ( ROI_flag == 1 && voxelwise_ROI_flag == 0 )
         % Reconstruct the signal intensities and plot back on 
         % top of the original data.
 
-        single_sig_recon(slice,:)    = s0_fit(slice).*exp(-echo_times/t2_fit(slice));
-        multi_sig_recon(slice,:)     = decay_matrix * spectrum_NNLS(slice,:)';
-        reg_multi_sig_recon(slice,:) = decay_matrix * spectrum_regNNLS(slice,:)';
+        single_sig_recon(slice,:)    = s0_fit(slice).*exp(-EchoTimes/t2_fit(slice));
+        multi_sig_recon(slice,:)     = DecayMatrix * spectrum_NNLS(slice,:)';
+        reg_multi_sig_recon(slice,:) = DecayMatrix * spectrum_regNNLS(slice,:)';
 
         figure; hold on;
-        plot(echo_times, mean_roi_data(slice,:), 'kx', 'MarkerSize',10);
+        plot(EchoTimes, mean_roi_data(slice,:), 'kx', 'MarkerSize',10);
 %         plot(echo_times, single_sig_recon(slice,:), 'g-.','LineWidth',2);
 %         plot(echo_times, multi_sig_recon(slice,:), 'b-','LineWidth',2);
-        plot(echo_times, reg_multi_sig_recon(slice,:), 'r--','LineWidth',2);
-        if strcmp(relaxation_type,'T2')
+        plot(EchoTimes, reg_multi_sig_recon(slice,:), 'r--','LineWidth',2);
+        if strcmp(Opt.RelaxationType,'T2')
 %             legend('location', 'best', 'SE data','mono-exponential fit','NNLS multi-exp fit','regularized NNLS multi-exp fit');
             legend('location', 'best', 'SE data','regularized NNLS multi-exp fit');
-        elseif strcmp(relaxation_type,'T2star')
+        elseif strcmp(Opt.RelaxationType,'T2star')
 %             legend('location', 'best','GRE data','mono-exponential fit','NNLS multi-exp fit','regularized NNLS multi-exp fit');
             legend('location', 'best', 'SE data','regularized NNLS multi-exp fit');
         end
@@ -514,11 +475,11 @@ if ( ROI_flag == 1 && voxelwise_ROI_flag == 0 )
         grid on;
         print('-djpeg','signal_decay.jpeg');
 
-        if strcmp(relaxation_type,'T2')
+        if strcmp(Opt.RelaxationType,'T2')
             %disp(fprintf('\nmulti-exp NNLS (slice %d) => <T2>: %3.2f ms, MWF:  %3.2f', slice, gm_t2_NNLS(slice), mwf_NNLS(slice))); 
             disp(fprintf('multi-exp regNNLS (slice %d) => IE water <T2>: %3.2f ms, MWF:  %3.2f', slice, gm_IEW_t2_regNNLS(slice), 100*mwf_regNNLS(slice))); 
             %disp(fprintf('Mono-exponential T2 fit (slice %d): %3.2f ms', slice, t2_fit(slice)));    
-        elseif strcmp(relaxation_type,'T2star')
+        elseif strcmp(Opt.RelaxationType,'T2star')
             %disp(fprintf('\nmulti-exp NNLS (slice %d) => <T2*>: %3.2f ms, MWF:  %3.2f', slice, gm_t2_NNLS(slice), mwf_NNLS(slice))); 
             disp(fprintf('multi-exp regNNLS (slice %d) => IE water <T2*>: %3.2f ms, MWF:  %3.2f', slice, gm_IEW_t2_regNNLS(slice), 100*mwf_regNNLS(slice))); 
             %disp(fprintf('Mono-exponential T2* fit (slice %d): %3.2f ms', slice, t2_fit(slice)));    
@@ -530,6 +491,7 @@ elseif ROI_flag == 0
     FitResult.MWF   = 100*mwf_regNNLS;
     FitResult.T2IEW = gm_IEW_t2_regNNLS;    
     FitResult.T2MW  = gm_MW_t2_regNNLS;
+    Spectrum        = squeeze(spectrum_regNNLS);
 end   
 
 if ( tissue_flag ~= 0 || voxelwise_ROI_flag == 1 )
