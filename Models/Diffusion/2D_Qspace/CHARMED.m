@@ -83,6 +83,7 @@ classdef CHARMED
                    'S0 normalization',{'Use b=0','Single T2 compartment'},...
                    'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
