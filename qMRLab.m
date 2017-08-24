@@ -1232,10 +1232,8 @@ hist(data,20);
 xlabel(Source);
 ylabel('Counts');
 % statistics (mean and standard deviation)
-xLimits = get(gca,'XLim'); X = xLimits(2) - 0.25*(xLimits(2) - xLimits(1));
-yLimits = get(gca,'YLim'); Y = 0.92*yLimits(2);
 Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
-text(X,Y,Stats,'FontWeight','bold','FontSize',12,'Color','black');
+text(0.77,0.94,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
