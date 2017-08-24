@@ -114,7 +114,7 @@ if ~isempty(opts)
                 htmp = GenerateButtonsInPanels(opts(io:NumPanel(2,ip)),ReelPanel(ip));
                 f = fieldnames(htmp);
                 for i = 1:length(f)
-                    handles.([PanelTitle{ip} '_' f{i}]) = htmp.(f{i});
+                    handles.([genvarname_v2(PanelTitle{ip}) '_' f{i}]) = htmp.(f{i});
                 end
                 io = NumPanel(2,ip)+1;
                 ip = ip+1;
