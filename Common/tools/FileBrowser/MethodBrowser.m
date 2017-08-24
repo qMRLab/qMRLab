@@ -117,22 +117,12 @@ classdef MethodBrowser
             % manage protocol and fit options
             Method = getappdata(0,'Method');
             for i = 1:length(fileList)
-                if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
-                    if strcmp(fileList{i}, 'Protocol.mat')
-                        Prot = load(fullfile(Path,'Protocol.mat'));
-                        SetAppData(Prot);
-                    elseif strcmp(fileList{i}, 'FitOpt.mat')
-                        FitOpt = load(fullfile(Path,'FitOpt.mat'));
-                        SetAppData(FitOpt);
-                    end
-                else
-                    if ~~strfind(fileList{i}, 'Protocol')
-                       ProtLoad(fullfile(Path,fileList{i}));
-                       Model = getappdata(0,'Model');
-                       Custom_OptionsGUI(gcf,Model);
-                    end
+                if ~~strfind(fileList{i}, 'Protocol')
+                    ProtLoad(fullfile(Path,fileList{i}));
+                    Model = getappdata(0,'Model');
+                    Custom_OptionsGUI(gcf,Model);
                 end
-            end            
+            end
             
             % Manage each data items
             for i=1:obj.NbItems
