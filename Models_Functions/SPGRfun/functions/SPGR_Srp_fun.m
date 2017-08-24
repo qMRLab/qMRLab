@@ -47,7 +47,7 @@ Mxy = zeros(length(Angles),1);
 if ~isfield(Prot,'Sf')
     Trf = Prot.Tm;
     shape = Prot.MTpulse.shape;
-    PulseOpt = Prot.Npulse;
+    PulseOpt = Prot.MTpulse.Npulse;
     Sf = zeros(size(Angles,1),1);
     for ii=1:length(Angles)
     MTpulse = GetPulse(Angles(ii),Offsets(ii),Trf,shape,PulseOpt);

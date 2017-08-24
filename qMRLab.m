@@ -55,9 +55,6 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.output = hObject;
     guidata(hObject, handles);
         
-    % cd(fullfile(handles.root, Method));
-    LoadSimVaryOpt(fullfile(handles.root,'Common','Parameters'), 'DefaultSimVaryOpt.mat', handles);
-    LoadSimRndOpt(fullfile(handles.root, 'Common','Parameters'), 'DefaultSimRndOpt.mat',  handles);
     
     % SET WINDOW AND PANELS
     movegui(gcf,'center')
@@ -76,20 +73,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
     MethodList = strrep(MethodList, '.m', '');
     flist = findall(0,'type','figure');
     for iMethod=1:length(MethodList)
-        % Create browser panel buttons
-        switch MethodList{iMethod}
-            case 'bSSFP'
-                MRIinputs = {'Mask' 'MTdata' 'R1map'};
-            case 'SIRFSE'
-                MRIinputs = {'Mask' 'MTdata' 'R1map'};
-            case 'SPGR'
-                MRIinputs = {'Mask' 'MTdata' 'R1map' 'B1map' 'B0map'};
-            otherwise
-                Modelfun = str2func(MethodList{iMethod});
-                Model = Modelfun();
-                close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
-                MRIinputs = Model.MRIinputs;
-        end
+        
+        Modelfun = str2func(MethodList{iMethod});
+        Model = Modelfun();
+        close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
+        MRIinputs = Model.MRIinputs;
         % create file browser uicontrol with specific inputs
         FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{MethodList{iMethod} MRIinputs{:}});
         FileBrowserList(iMethod).Visible('off');
@@ -122,7 +110,6 @@ if ~isfield(handles,'opened') % qMRI already opened?
     set(handles.MethodSelection, 'Value', i);
     
     
-    SetActive('FitData', handles);
     MethodMenu(hObject, eventdata, handles, Method);
 else
     OpenOptionsPanel_Callback(hObject, eventdata, handles)
@@ -176,53 +163,44 @@ set(handles.MethodSelection,'String',choices);
 
 
 SetAppData(Method)
-% Display the fitting panel
-SetActive('FitData',handles)
 
 % Start by updating the Model object
-if ~ismember(Method,{'bSSFP','SIRFSE','SPGR'})
-    if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
-        Model = getappdata(0,'Model');
-    else % otherwise create a new object of this method
-        modelfun  = str2func(Method);
-        Model = modelfun();
-    end
-    SetAppData(Model)
+if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
+    Model = getappdata(0,'Model');
+else % otherwise create a new object of this method
+    modelfun  = str2func(Method);
+    Model = modelfun();
 end
+SetAppData(Model)
+
 
 % Now create Simulation panel
 handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
-if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
+% find the Simulation functions of the selected Method
+Methodfun = methods(Method);
+Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
+% Update Options Panel
+set(handles.SimPanel,'Visible','off') % hide the simulation panel for qMT methods
+if isempty(Simfun)
     set(handles.SimPanel,'Visible','off') % hide the simulation panel
-    set(handles.SimPanel,'Visible','on') % show the simulation panel
-    PathName = fullfile(handles.methodfiles,'Parameters');
-    LoadDefaultOptions(PathName);
 else
-    % find the Simulation functions of the selected Method
-    Methodfun = methods(Method);
-    Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
-    % Update Options Panel
-    set(handles.SimPanel,'Visible','off') % hide the simulation panel for qMT methods
-    if isempty(Simfun)
-        set(handles.SimPanel,'Visible','off') % hide the simulation panel
-    else
-        set(handles.SimPanel,'Visible','on') % show the simulation panel
-        delete(setdiff(findobj(handles.SimPanel),handles.SimPanel))
-        
-        N = length(Simfun); %
-        Jh = min(0.14,.8/N);
-        J=1:max(N,6); J=(J-1)/max(N,6)*0.85; J=1-J-Jh-.01;
-        for i = 1:N
-            if exist([Simfun{i} '_GUI'],'file')
-                uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
-                    'Parent',handles.SimPanel,'Units','normalized','Position',[.04 J(i) .92 Jh],...
-                    'HorizontalAlignment','center','FontWeight','bold','Callback',...
-                    @(x,y) SimfunGUI([Simfun{i} '_GUI']));
-            end
+    set(handles.SimPanel,'Visible','on') % show the simulation panel
+    delete(setdiff(findobj(handles.SimPanel),handles.SimPanel))
+    
+    N = length(Simfun); %
+    Jh = min(0.14,.8/N);
+    J=1:max(N,6); J=(J-1)/max(N,6)*0.85; J=1-J-Jh-.01;
+    for i = 1:N
+        if exist([Simfun{i} '_GUI'],'file')
+            uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
+                'Parent',handles.SimPanel,'Units','normalized','Position',[.04 J(i) .92 Jh],...
+                'HorizontalAlignment','center','FontWeight','bold','Callback',...
+                @(x,y) SimfunGUI([Simfun{i} '_GUI']));
         end
-        
     end
+    
 end
+
 
 % Update Options Panel
 h = findobj('Tag','OptionsGUI');
@@ -258,31 +236,6 @@ Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
 save(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'),'Method');
 
-% SIMCURVE
-function SimCurveBtn_Callback(hObject, eventdata, handles)
-SetActive('SimCurve', handles);
-
-% SIMVARY
-function SimVaryBtn_Callback(hObject, eventdata, handles)
-SetActive('SimVary', handles);
-
-% SIMRND
-function SimRndBtn_Callback(hObject, eventdata, handles)
-SetActive('SimRnd', handles);
-
-% SET ACTIVE PANEL
-function SetActive(panel, handles)
-setappdata(0, 'CurrentPanel', panel);
-Panels = {'SimCurve', 'SimVary', 'SimRnd', 'FitData'};
-
-for ii = 1:length(Panels)
-    if (strcmp(panel,Panels{ii}))
-        PanelOn(Panels{ii}, handles);
-    else
-        PanelOff(Panels{ii}, handles);
-    end
-end
-
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
 
@@ -292,17 +245,9 @@ eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', panel));
 % OPEN OPTIONS
 function OpenOptionsPanel_Callback(hObject, eventdata, handles)
 Method = GetAppData('Method');
-switch Method
-    case 'bSSFP'
-        bSSFP_OptionsGUI(gcf);
-    case 'SPGR'
-        SPGR_OptionsGUI(gcf);
-    case 'SIRFSE'
-        SIRFSE_OptionsGUI(gcf);
-    otherwise
-        Model = getappdata(0,'Model');
-        Custom_OptionsGUI(gcf,Model);
-end
+Model = getappdata(0,'Model');
+Custom_OptionsGUI(gcf,Model);
+
 
 % UPDATE OPTIONS
 function UpdateOptions(Sim,Prot,FitOpt)
@@ -314,51 +259,6 @@ if ~isempty(h)
     set(OptionsGUIhandles.FitOptFileName,'String',  FitOpt.FileName);
 end
 
-% SimSave
-function SimSave_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile(handles.methodfiles,'SimResults','SimResults.mat'));
-if PathName == 0, return; end
-CurrentPanel = GetAppData('CurrentPanel');
-switch CurrentPanel
-    case 'SimCurve'
-        SimCurveSaveResults(PathName, FileName, handles);
-    case 'SimVary'
-        SimVarySaveResults(PathName,  FileName, handles);
-    case 'SimRnd'
-        SimRndSaveResults(PathName,   FileName, handles);
-end
-
-% SimLoad
-function SimLoad_Callback(hObject, eventdata, handles)
-[Filename,Pathname] = uigetfile(fullfile('*.mat'));
-if Pathname == 0, return; end
-load(fullfile(Pathname,Filename));
-
-switch FileType
-    case 'SimCurveResults'
-        SetActive('SimCurve', handles)
-        SimCurveLoadResults(Pathname, Filename, handles);
-    case 'SimVaryResults'
-        SetActive('SimVary', handles)
-        SimVaryLoadResults(Pathname, Filename, handles);
-    case 'SimRndResults'
-        SetActive('SimRnd', handles)
-        SimRndLoadResults(Pathname, Filename, handles);
-    otherwise
-        errordlg('Invalid simulation results file');
-end
-
-% SimGO
-function SimGO_Callback(hObject, eventdata, handles)
-CurrentPanel = GetAppData('CurrentPanel');
-switch CurrentPanel
-    case 'SimCurve'
-        SimCurveGO(handles);
-    case 'SimVary'
-        SimVaryGO(handles);
-    case 'SimRnd'
-        SimRndGO(handles);
-end
 
 % GETAPPDATA
 function varargout = GetAppData(varargin)
@@ -372,589 +272,12 @@ for k=1:nargin; setappdata(0, inputname(k), varargin{k}); end
 function RmAppData(varargin)
 for k=1:nargin; rmappdata(0, varargin{k}); end
 
-
-
-% ##############################################################################################
-%                                SINGLE VOXEL SIM
-% ##############################################################################################
-
-% SIMULATE DATA
-function SimCurveGO(handles)
-[Method,Prot,Sim] = GetAppData('Method','Prot','Sim');
-switch Method
-    case 'bSSFP';   MTdata = bSSFP_sim(Sim, Prot, 1);
-    case 'SIRFSE';  MTdata = SIRFSE_sim(Sim, Prot, 1);
-    case 'SPGR';    MTdata = SPGR_sim(Sim, Prot, 1);
-end
-SetAppData(MTdata);
-SimCurveUpdate(handles);
-
-% POP FIG
-function SimCurvePopFig_Callback(hObject, eventdata, handles)
-FileName =  get(handles.SimCurveFileName,'String');
-Method   =  GetAppData('Method');
-figure('Name',FileName);
-switch Method
-    case 'bSSFP'
-        axe1 = handles.SimCurveAxe1;
-        axe2 = handles.SimCurveAxe2;
-        subplot(2,1,1);
-        handles.SimCurveAxe1 = gca;
-        subplot(2,1,2);
-        handles.SimCurveAxe2 = gca;
-        guidata(hObject, handles);
-        SimCurvePlotResults(handles);
-        handles.SimCurveAxe1 = axe1;
-        handles.SimCurveAxe2 = axe2;
-        guidata(hObject, handles);
-    otherwise
-        SimCurvePlotResults(handles);
-end
-
-% UPDATE FIT
-function SimCurveUpdate_Callback(hObject, eventdata, handles)
-SimCurveUpdate(handles);
-
-function SimCurveUpdate(handles)
-MTdata = GetAppData('MTdata');
-SimCurveResults = SimCurveFitData(MTdata);
-SimCurveSetFitResults(SimCurveResults, handles);
-axes(handles.SimCurveAxe);
-SimCurvePlotResults(handles);
-SimCurveSaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimCurveTempResults.mat', handles)
-
-% SET FIT RESULTS TABLE
-function SimCurveSetFitResults(SimCurveResults, handles)
-SetAppData(SimCurveResults);
-[Method, Sim, Prot] = GetAppData('Method','Sim','Prot');
-Param = Sim.Param;
-switch Method
-    case 'bSSFP'
-        names = {'F  '; 'kr '; 'R1f'; 'R1r'; 'T2f '; 'M0f'};
-        input = [Param.F; Param.kr; Param.R1f; Param.R1r; Param.T2f; Param.M0f];
-    case 'SIRFSE'
-        names = {'F  '; 'kr '; 'R1f'; 'R1r'; 'Sf '; 'Sr '; 'M0f'};
-        [Sr,Sf] = computeSr(Param, Prot);
-        input = [Param.F; Param.kr;  Param.R1f; Param.R1r; Sf; Sr; Param.M0f];
-    case 'SPGR'
-        names = {'F  '; 'kr '; 'R1f'; 'R1r'; 'T2f '; 'T2r'};
-        input = [Param.F; Param.kr;  Param.R1f; Param.R1r; Param.T2f; Param.T2r];
-end
-error =  100*(SimCurveResults.table - input)./input;
-data  =  [names, num2cell(input), num2cell(SimCurveResults.table), num2cell(error)];
-set(handles.SimCurveResultsTable, 'Data', data);
-
-% SAVE SIM RESULTS
-function SimCurveSaveResults(PathName, FileName, handles)
-FileType = 'SimCurveResults';
-[Sim,Prot,FitOpt,MTdata,MTnoise,SimCurveResults] =  GetAppData(...
-    'Sim','Prot','FitOpt','MTdata','MTnoise','SimCurveResults');
-save(fullfile(PathName,FileName), '-regexp', '^(?!(handles)$).');
-set(handles.SimCurveFileName,'String',FileName);
-
-% LOAD SIM RESULTS
-function SimCurveLoadResults(PathName, FileName, handles)
-load(fullfile(PathName,FileName));
-if (~exist('SimCurveResults', 'var'))
-    errordlg('Invalid fit simulation results file');
-    return;
-end
-SetAppData(Sim, Prot, FitOpt, MTdata, MTnoise, SimCurveResults);
-UpdateOptions(Sim, Prot, FitOpt);
-SimCurveSetFitResults(SimCurveResults, handles);
-axes(handles.SimCurveAxe);
-SimCurvePlotResults(handles);
-set(handles.SimCurveFileName, 'String', FileName);
-
-% FIT DATA
-function SimCurveResults = SimCurveFitData(MTdata)
-[Sim,Prot,FitOpt,Method] = GetAppData('Sim', 'Prot', 'FitOpt', 'Method');
-
-FitOpt.R1 = computeR1obs(Sim.Param);
-MTnoise = [];
-if (Sim.Opt.AddNoise)
-    MTnoise = noise( MTdata, Sim.Opt.SNR );
-    data = MTnoise;
-else
-    data = MTdata;
-end
-
-switch Method
-    case 'bSSFP'
-        Fit = bSSFP_fit(data, Prot, FitOpt );
-        SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
-    case 'SPGR'
-        Fit = SPGR_fit(data, Prot, FitOpt );
-        SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
-    case 'SIRFSE'
-        Fit = SIRFSE_fit(data, Prot, FitOpt);
-        SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
-end
-SetAppData(MTnoise,SimCurveResults);
-
-% PLOT DATA
-function SimCurvePlotResults(handles)
-[ Method,  Sim,  Prot,  MTdata,  MTnoise,  SimCurveResults] = GetAppData(...
-    'Method','Sim','Prot','MTdata','MTnoise','SimCurveResults');
-cla;
-switch Method
-    case 'bSSFP'
-        axe(1) = handles.SimCurveAxe1;
-        axe(2) = handles.SimCurveAxe2;
-        cla(axe(1)); cla(axe(2));
-        bSSFP_PlotSimCurve(MTdata,  MTnoise, Prot, Sim, SimCurveResults, axe);
-    case 'SIRFSE'
-        SIRFSE_PlotSimCurve(MTdata, MTnoise, Prot, Sim, SimCurveResults);
-    case 'SPGR'
-        SPGR_PlotSimCurve(MTdata,   MTnoise, Prot, Sim, SimCurveResults);
-end
-grid('on');
-
-
-
-% ##############################################################################################
-%                                 VARY PARAMETER SIM
-% ##############################################################################################
-
-% SIMULATE DATA
-function SimVaryGO(handles)
-[Sim,Prot,FitOpt,Method] = GetAppData('Sim','Prot','FitOpt','Method');
-SimVaryOpt = GetSimVaryOpt(handles);
-
-opt = SimVaryOpt.table;
-fields = {'F';'kr';'R1f';'R1r';'T2f';'T2r';'M0f';'SNR'};
-
-% Data simulation
-for ii = 1:8
-    if opt(ii,1)
-        SimVaryOpt.min  = opt(ii, 2);
-        SimVaryOpt.max  = opt(ii, 3);
-        SimVaryOpt.step = opt(ii, 4);
-        SimVaryResults.(fields{ii}) = VaryParam(fields{ii},Sim,Prot,FitOpt,SimVaryOpt,Method);
-    end
-    if (getappdata(0, 'Cancel'));  break;  end
-end
-
-SetAppData(SimVaryResults);
-SimVarySaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimVaryTempResults.mat', handles);
-SimVaryUpdatePopUp(handles);
-axes(handles.SimVaryAxe);
-SimVaryPlotResults(handles);
-
-
-% ######################### SIMVARY OPTIONS ################################
-% SAVE SimVaryOpt
-function SimVaryOptSave_Callback(hObject, eventdata, handles)
-SimVaryOpt = GetSimVaryOpt(handles);
-SimVaryOpt.FileType = 'SimVaryOpt';
-[FileName,PathName] = uiputfile(fullfile(handles.root,'Common','Parameters','SimVaryOpt.mat'));
-if PathName == 0, return; end
-save(fullfile(PathName,FileName),'-struct','SimVaryOpt');
-setappdata(gcf, 'oldSimVaryOpt', SimVaryOpt);
-
-% LOAD SimVaryOpt
-function SimVaryOptLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile(handles.root,'Common','Parameters','*.mat'));
-if PathName == 0, return; end
-LoadSimVaryOpt(PathName, FileName, handles);
-
-% RESET SimVaryOpt
-function SimVaryOptReset_Callback(hObject, eventdata, handles)
-SimVaryOpt = getappdata(gcf, 'oldSimVaryOpt');
-SetSimVaryOpt(SimVaryOpt, handles);
-
-
-% ########################### PLOT ########################################
-% PLOT XAXIS MENU
-function SimVaryPlotX_Callback(hObject, eventdata, handles)
-axes(handles.SimVaryAxe);
-SimVaryPlotResults(handles);
-
-% PLOT YAXIS MENU
-function SimVaryPlotY_Callback(hObject, eventdata, handles)
-axes(handles.SimVaryAxe);
-SimVaryPlotResults(handles);
-
-% POP FIG
-function SimVaryPopFig_Callback(hObject, eventdata, handles)
-FileName = get(handles.SimVaryFileName,'String');
-figure('Name',FileName);
-SimVaryPlotResults(handles);
-
-
-%############################ FUNCTIONS ###################################
-% SAVE SIM RESULTS
-function SimVarySaveResults(PathName, FileName, handles)
-FileType = 'SimVaryResults';
-[ Sim,  Prot,  FitOpt,  SimVaryOpt,  SimVaryResults] = GetAppData(...
-    'Sim','Prot','FitOpt','SimVaryOpt','SimVaryResults');
-
-save(fullfile(PathName,FileName), '-regexp', '^(?!(handles)$).');
-set(handles.SimVaryFileName, 'String', FileName);
-
-% LOAD SIM RESULTS
-function SimVaryLoadResults(PathName, FileName, handles)
-load(fullfile(PathName, FileName));
-if (~exist('SimVaryResults','var'))
-    errordlg('Invalid simulation results file');
-    return;
-end
-set(handles.SimVaryFileName,'String', FileName);
-SetAppData(Sim, Prot, FitOpt, SimVaryOpt, SimVaryResults)
-SetSimVaryOpt(SimVaryOpt, handles);
-UpdateOptions(Sim, Prot, FitOpt);
-SimVaryUpdatePopUp(handles);
-axes(handles.SimVaryAxe);
-SimVaryPlotResults(handles);
-
-% GET GetSimVaryOpt Get SimVaryOpt from table
-function SimVaryOpt = GetSimVaryOpt(handles)
-data = get(handles.SimVaryOptTable,'Data');
-table(:,2:4) =  cell2mat(data(:,2:4));
-table(:,1)   =  cell2mat(data(:,1));
-SimVaryOpt.table =  table;
-SimVaryOpt.runs  =  str2double(get(handles.SimVaryOptRuns,'String'));
-SetAppData(SimVaryOpt);
-
-% SET SetSimVaryOpt Set SimVaryOpt table data
-function SetSimVaryOpt(SimVaryOpt, handles)
-data = [num2cell(logical(SimVaryOpt.table(:,1))), num2cell(SimVaryOpt.table(:,2:4))];
-set(handles.SimVaryOptTable, 'Data',   data);
-set(handles.SimVaryOptRuns,  'String', SimVaryOpt.runs);
-SetAppData(SimVaryOpt);
-
-function SimVaryOptRuns_Callback(hObject, eventdata, handles)
-GetSimVaryOpt(handles);
-
-% LOAD LoadSimVaryOpt SimVaryOpt
-function LoadSimVaryOpt(PathName, FileName, handles)
-SimVaryOpt = load(fullfile(PathName, FileName));
-if (~any(strcmp('FileType',fieldnames(SimVaryOpt))) || ~strcmp(SimVaryOpt.FileType,'SimVaryOpt') )
-    errordlg('Invalid options file');
-    return;
-end
-SetSimVaryOpt(SimVaryOpt, handles);
-setappdata(gcf, 'oldSimVaryOpt', SimVaryOpt);
-
-% UPDATE POPUP Update the PopUp menus
-function SimVaryUpdatePopUp(handles)
-[FitOpt, SimVaryResults] = GetAppData('FitOpt','SimVaryResults');
-fieldsX = fieldnames(SimVaryResults);
-fieldsY = FitOpt.names;
-set(handles.SimVaryPlotX, 'Value',  1);
-set(handles.SimVaryPlotY, 'Value',  1);
-set(handles.SimVaryPlotX, 'String', fieldsX);
-set(handles.SimVaryPlotY, 'String', fieldsY);
-
-% PLOT RESULTS
-function SimVaryPlotResults(handles)
-[Sim, SimVaryResults] = GetAppData('Sim','SimVaryResults');
-Param     =  Sim.Param;
-Xcontents =  cellstr(get(handles.SimVaryPlotX,   'String'));
-Xaxis     =  Xcontents{get(handles.SimVaryPlotX, 'Value')};
-Ycontents =  cellstr(get(handles.SimVaryPlotY,   'String'));
-Yaxis     =  Ycontents{get(handles.SimVaryPlotY, 'Value')};
-
-Xmin =  SimVaryResults.(Xaxis).x(1)   - SimVaryResults.(Xaxis).step;
-Xmax =  SimVaryResults.(Xaxis).x(end) + SimVaryResults.(Xaxis).step;
-X    =  SimVaryResults.(Xaxis).x;
-Y    =  SimVaryResults.(Xaxis).(Yaxis).mean;
-E    =  SimVaryResults.(Xaxis).(Yaxis).std;
-
-cla;
-hold on;
-if (strcmp(Xaxis,Yaxis))
-    plot([Xmin Xmax], [Xmin Xmax], 'k-');
-elseif (any(strcmp(Yaxis,fieldnames(Param))))
-    plot([Xmin Xmax],[Param.(Yaxis) Param.(Yaxis)], 'k-');
-end
-errorbar(X, Y, E, 'bo');
-
-xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
-ylabel(sprintf('Fitted %s', Yaxis), 'FontWeight', 'Bold');
-xlim([Xmin Xmax]);
-hold off;
-grid('on');
-
-
-
-
-% ##############################################################################################
-%                              RANDOM PARAMETERS SIM
-% ##############################################################################################
-
-%############################# SIMULATION #################################
-% SIMULATE DATA
-function SimRndGO(handles)
-SimRndOpt = GetSimRndOpt(handles);
-[ Sim,  Prot,  FitOpt,  RndParam,  Method] = GetAppData(...
-    'Sim','Prot','FitOpt','RndParam','Method');
-if (isempty(RndParam)); RndParam = GetRndParam(handles); end
-
-SimRndResults  =  VaryRndParam(Sim,Prot,FitOpt,SimRndOpt,RndParam,Method);
-SetAppData(SimRndResults);
-AnalyzeResults(RndParam, SimRndResults, handles);
-SimRndSaveResults(fullfile(handles.methodfiles,'SimResults'), 'SimRndTempResults.mat', handles)
-
-
-%########################### RANDOM OPTIONS ###############################
-% SAVE SimRndOpt
-function SimRndOptSave_Callback(hObject, eventdata, handles)
-SimRndOpt = GetSimRndOpt(handles);
-SimRndOpt.FileType  =  'SimRndOpt';
-[FileName,PathName] =  uiputfile(fullfile(handles.root,'Common','Parameters','SimRndOpt.mat'));
-if PathName == 0, return; end
-save(fullfile(PathName,FileName), '-struct', 'SimRndOpt');
-setappdata(gcf, 'oldSimRndOpt', SimRndOpt);
-
-% LOAD SimRndOpt
-function SimRndOptLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile(fullfile(handles.root,'Common','Parameters','*.mat'));
-if PathName == 0, return; end
-LoadSimRndOpt(PathName, FileName, handles);
-
-% RESET SimRndOpt
-function SimRndOptReset_Callback(hObject, eventdata, handles)
-SimRndOpt = getappdata(0, 'oldSimRndOpt');
-SetSimRndOpt(SimRndOpt, handles);
-
-% SimRndOpt TABLE EDIT
-function SimRndOptTable_CellEditCallback(hObject, eventdata, handles)
-SimRndOptEdit(handles);
-
-% NUMVOXELS
-function SimRndOptVoxels_Callback(hObject, eventdata, handles)
-SimRndOptEdit(handles);
-
-% GET RND OPT
-function SimRndOpt = GetSimRndOpt(handles)
-data = get(handles.SimRndOptTable, 'Data');
-table(:,2:3) =  cell2mat(data(:,2:3));
-table(:,1)   =  cell2mat(data(:,1));
-SimRndOpt.table     =  table;
-SimRndOpt.NumVoxels =  str2double(get(handles.SimRndOptVoxels, 'String'));
-SetAppData(SimRndOpt);
-
-% SET RND OPT
-function SetSimRndOpt(SimRndOpt,handles)
-data = [num2cell(logical(SimRndOpt.table(:,1))), num2cell(SimRndOpt.table(:,2:3))];
-set(handles.SimRndOptTable,  'Data',   data);
-set(handles.SimRndOptVoxels, 'String', SimRndOpt.NumVoxels);
-SetAppData(SimRndOpt);
-
-% LOAD RND OPT
-function LoadSimRndOpt(PathName, FileName, handles)
-FullFile = fullfile(PathName,FileName);
-if PathName == 0, return; end
-SimRndOpt = load(FullFile);
-if (~any(strcmp('FileType',fieldnames(SimRndOpt))) || ~strcmp(SimRndOpt.FileType,'SimRndOpt') )
-    errordlg('Invalid random parameters options file');
-    return;
-end
-SetSimRndOpt(SimRndOpt,handles);
-setappdata(0, 'oldSimRndOpt', SimRndOpt);
-
-% RND OPT EDIT
-function SimRndOptEdit(handles)
-RndParam = GetRndParam(handles);
-SetAppData(RndParam);
-
-% GETRNDPARAM
-function SimRndGetParam_Callback(hObject, eventdata, handles)
-SimRndOptEdit(handles)
-SimRndUpdatePopUp(handles);
-SimRndPlotResults(handles);
-
-% GET RANDOM PARAMETERS
-function RndParam = GetRndParam(handles)
-Sim   = GetAppData('Sim');
-Param = Sim.Param;
-SimRndOpt = GetSimRndOpt(handles);
-n    = SimRndOpt.NumVoxels;
-Vary = SimRndOpt.table(:,1);
-Mean = SimRndOpt.table(:,2);
-Std  = SimRndOpt.table(:,3);
-fields = {'F','kr','R1f','R1r','T2f','T2r','M0f'};
-for ii = 1:length(fields)
-    if(Vary(ii)); RndParam.(fields{ii}) = abs(Mean(ii) + Std(ii)*(randn(n,1)));
-    else          RndParam.(fields{ii}) = Param.(fields{ii})*(ones(n,1));
-    end
-end
-SetAppData(RndParam);
-
-
-% ########################### SIM RESULTS #################################
-% SAVE SIM RESULTS
-function SimRndSaveResults(PathName, FileName, handles)
-FileType = 'SimRndResults';
-[ Sim,  Prot,  FitOpt,  SimRndOpt,  RndParam,  SimRndResults] = GetAppData(...
-    'Sim','Prot','FitOpt','SimRndOpt','RndParam','SimRndResults');
-save(fullfile(PathName,FileName),'Sim','Prot','FitOpt','SimRndOpt','RndParam','SimRndResults','FileType');
-set(handles.SimRndFileName, 'String', FileName);
-
-% LOAD SIM RESULTS
-function SimRndLoadResults(PathName, FileName, handles)
-load(fullfile(PathName,FileName));
-if (~exist('SimRndResults','var'))
-    errordlg('Invalid random simulation results file');
-    return;
-end
-set(handles.SimRndFileName,'String', FileName);
-SetAppData(Sim,Prot,FitOpt,SimRndOpt,RndParam,SimRndResults);
-SetSimRndOpt(SimRndOpt,handles)
-UpdateOptions(Sim,Prot,FitOpt);
-AnalyzeResults(RndParam, SimRndResults, handles);
-
-% ANALYZE SIM RESULTS
-function SimRndStats = AnalyzeResults(Input, Results, handles)
-Fields = intersect(fieldnames(Input), fieldnames(Results));
-for ii = 1:length(Fields)
-    n = length(Input.(Fields{ii}));
-    SimRndStats.Error.(Fields{ii})    = Results.(Fields{ii}) - Input.(Fields{ii}) ;
-    SimRndStats.PctError.(Fields{ii}) = 100*(Results.(Fields{ii}) - Input.(Fields{ii})) ./ Input.(Fields{ii});
-    SimRndStats.MPE.(Fields{ii})      = 100/n*sum((Results.(Fields{ii}) - Input.(Fields{ii})) ./ Input.(Fields{ii}));
-    SimRndStats.RMSE.(Fields{ii})     = sqrt(sum((Results.(Fields{ii}) - Input.(Fields{ii})).^2 )/n);
-    SimRndStats.NRMSE.(Fields{ii})    = SimRndStats.RMSE.(Fields{ii}) / (max(Input.(Fields{ii})) - min(Input.(Fields{ii})));
-end
-SetAppData(SimRndStats);
-SimRndUpdatePopUp(handles);
-SimRndPlotResults(handles);
-
-
-% ############################## FIGURE ###################################
-% UPDATE POPUP MENU
-function SimRndUpdatePopUp(handles)
-[RndParam, SimRndResults, SimRndStats] = GetAppData('RndParam','SimRndResults','SimRndStats');
-axes(handles.SimRndAxe);
-colormap('default');
-set(handles.SimRndPlotX, 'Value', 1);
-set(handles.SimRndPlotY, 'Value', 1);
-PlotTypeFields = cellstr(get(handles.SimRndPlotType, 'String'));
-PlotType = PlotTypeFields{get(handles.SimRndPlotType, 'Value')};
-switch PlotType
-    case 'Input parameters'
-        XdataFields = fieldnames(RndParam);
-        set(handles.SimRndPlotX, 'String', XdataFields);
-        set(handles.SimRndPlotY, 'String', 'Voxels count');
-    case 'Fit results'
-        XdataFields = SimRndResults.fields;
-        set(handles.SimRndPlotX, 'String', XdataFields);
-        set(handles.SimRndPlotY, 'String', 'Voxels count');
-    case 'Input vs. Fit'
-        XdataFields = fieldnames(RndParam);
-        set(handles.SimRndPlotX, 'String', XdataFields);
-        YdataFields = SimRndResults.fields;
-        set(handles.SimRndPlotY, 'String', YdataFields);
-    case 'Error'
-        XdataFields = fieldnames(SimRndStats.Error);
-        set(handles.SimRndPlotX, 'String', XdataFields);
-        set(handles.SimRndPlotY, 'String', 'Voxels count');
-    case 'Pct error'
-        XdataFields = fieldnames(SimRndStats.PctError);
-        set(handles.SimRndPlotX, 'String', XdataFields);
-        set(handles.SimRndPlotY, 'String', 'Voxels count');
-    case 'RMSE'
-        set(handles.SimRndPlotX, 'String', 'Parameters');
-        set(handles.SimRndPlotY, 'String', 'RMSE');
-    case 'NRMSE'
-        set(handles.SimRndPlotX, 'String', 'Parameters');
-        set(handles.SimRndPlotY, 'String', 'NRMSE');
-    case 'MPE'
-        set(handles.SimRndPlotX, 'String', 'Parameters');
-        set(handles.SimRndPlotY, 'String', 'MPE');
-end
-guidata(gcbf,handles);
-
-% PLOT DATA
-function SimRndPlotResults(handles)
-[RndParam, SimRndResults, SimRndStats] = GetAppData('RndParam','SimRndResults','SimRndStats');
-PlotTypeFields  = cellstr(get(handles.SimRndPlotType, 'String'));
-PlotType = PlotTypeFields{get(handles.SimRndPlotType, 'Value')};
-XdataFields    =     cellstr(get(handles.SimRndPlotX, 'String'));
-Xdata          = XdataFields{get(handles.SimRndPlotX, 'Value')};
-YdataFields    =     cellstr(get(handles.SimRndPlotY, 'String'));
-Ydata          = YdataFields{get(handles.SimRndPlotY, 'Value')};
-
-switch PlotType
-    case 'Input parameters'
-        hist(RndParam.(Xdata), 30);
-        xlabel(['Input ', Xdata], 'FontWeight', 'Bold');
-        ylabel(Ydata, 'FontWeight',' Bold');
-    case 'Fit results'
-        hist(SimRndResults.(Xdata), 30);
-        xlabel(['Fitted ', Xdata], 'FontWeight','Bold');
-        ylabel(Ydata, 'FontWeight','Bold');
-    case 'Input vs. Fit'
-        plot(RndParam.(Xdata), SimRndResults.(Ydata),'.');
-        xlabel(['Input ' , Xdata], 'FontWeight','Bold');
-        ylabel(['Fitted ', Ydata], 'FontWeight','Bold');
-    case 'Error'
-        hist(SimRndStats.Error.(Xdata), 30);
-        xlabel(['Error ', Xdata], 'FontWeight','Bold');
-        ylabel(Ydata, 'FontWeight','Bold');
-    case 'Pct error'
-        hist(SimRndStats.PctError.(Xdata), 30);
-        xlabel(['Pct Error ', Xdata], 'FontWeight','Bold');
-        ylabel(Ydata, 'FontWeight','Bold');
-    case 'RMSE'
-        Fields = fieldnames(SimRndStats.RMSE);
-        for ii = 1:length(Fields)
-            dat(ii) = SimRndStats.RMSE.(Fields{ii});
-        end
-        bar(diag(dat),'stacked');
-        set(gca,'Xtick',1:5,'XTickLabel', Fields);
-        legend(Fields);
-        xlabel('Fitted parameters', 'FontWeight','Bold');
-        ylabel('Root Mean Squared Error', 'FontWeight','Bold');
-    case 'NRMSE'
-        Fields = fieldnames(SimRndStats.NRMSE);
-        for ii = 1:length(Fields)
-            dat(ii) = SimRndStats.NRMSE.(Fields{ii});
-        end
-        bar(diag(dat),'stacked');
-        set(gca,'Xtick',1:5,'XTickLabel', Fields);
-        legend(Fields);
-        xlabel('Fitted parameters', 'FontWeight','Bold');
-        ylabel('Normalized Root Mean Squared Error', 'FontWeight','Bold');
-    case 'MPE'
-        Fields = fieldnames(SimRndStats.MPE);
-        for ii = 1:length(Fields)
-            dat(ii) = SimRndStats.MPE.(Fields{ii});
-        end
-        bar(diag(dat),'stacked');
-        set(gca,'Xtick',1:5,'XTickLabel', Fields);
-        legend(Fields);
-        xlabel('Fitted parameters', 'FontWeight','Bold');
-        ylabel('Mean Percentage Error', 'FontWeight','Bold');
-end
-
-
-% ########################### PLOT RESULTS ################################
-function SimRndPopFig_Callback(hObject, eventdata, handles)
-FileName = get(handles.SimRndFileName,'String');
-figure('Name', FileName);
-SimRndPlotResults(handles);
-
-function SimRndPlotType_Callback(hObject, eventdata, handles)
-SimRndUpdatePopUp(handles);
-SimRndPlotResults(handles);
-
-function SimRndPlotX_Callback(hObject, eventdata, handles)
-SimRndPlotResults(handles);
-
-function SimRndPlotY_Callback(hObject, eventdata, handles)
-SimRndPlotResults(handles);
-
-
-
-
 % ##############################################################################################
 %                                    FIT DATA
 % ##############################################################################################
 
 % FITDATA GO
 function FitGO_Callback(hObject, eventdata, handles)
-SetActive('FitData', handles);
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
 FitGo_FitData(hObject, eventdata, handles);
@@ -976,13 +299,10 @@ if (strcmp(Method,'SPGR') && (strcmp(FitOpt.model, 'SledPikeCW') || strcmp(FitOp
 end
 
 % Do the fitting
-if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
-    FitResults = FitData(data,Prot,FitOpt,Method,1);
-else
-    Model = getappdata(0,'Model');
-    FitResults = FitDataCustom(data,Model,1);
-    FitResults.Model = Model;
-end
+Model = getappdata(0,'Model');
+FitResults = FitData(data,Model,1);
+FitResults.Model = Model;
+
 
 % Save info with results
 FileBrowserList = GetAppData('FileBrowserList');
@@ -1085,7 +405,6 @@ FileBrowserList = GetAppData('FileBrowserList');
 % end
 
 SetAppData(FileBrowserList);
-SetActive('FitData', handles);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
@@ -1244,7 +563,7 @@ data =  getappdata(0,'Data'); MRIinput = fieldnames(data); MRIinput(strcmp(MRIin
 % Get selected voxel
 S = size(data.(MRIinput{1}));
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
-    disp('<strong>Select a voxel in the image using cursor</strong>')
+    helpdlg('Select a voxel in the image using cursor')
 else
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
@@ -1272,53 +591,19 @@ else
         hAnnotation = get(haxes,'Annotation');
         % remove their legends
         for ih=1:length(hAnnotation)
-            hLegendEntry = get(hAnnotation{ih},'LegendInformation');
+            if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
+            hLegendEntry = get(hAnnot,'LegendInformation');
             set(hLegendEntry,'IconDisplayStyle','off');
         end
     end
     hold on;
     
     % Do the fitting
-    if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
-        Fit = FitData(data,Prot,FitOpt,Method,0);
-    else
-        Model = getappdata(0,'Model');
-        if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
-        if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
-        Fit = Model.fit(data); % Display fitting results in command window
-        Model.plotmodel(Fit,data);
-    end
-    
-    % Start Fitting
-    switch Method
-        case 'bSSFP'
-            %         Fit.T2f = FitResults.T2f(index);
-            %         Fit.M0f = FitResults.M0f(index);
-            SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt );
-            axe(1) = subplot(2,1,1);
-            axe(2) = subplot(2,1,2);
-            bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults, axe);
-            title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
-                index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.M0f,Fit.resnorm), ...
-                'FontSize',10);
-        case 'SPGR'
-            %         Fit.T2f = FitResults.T2f(index);
-            %         Fit.T2r = FitResults.T2r(index);
-            SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt );
-            SPGR_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
-            title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
-                index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.T2f,Fit.T2r,Fit.resnorm),...
-                'FontSize',10);
-        case 'SIRFSE'
-            %         Fit.Sf = FitResults.Sf(index);
-            %         Fit.Sr = FitResults.Sr(index);
-            %         Fit.M0f = FitResults.M0f(index);
-            SimCurveResults = SIRFSE_SimCurve(Fit, Prot, FitOpt );
-            SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Prot, Sim, SimCurveResults);
-            title(sprintf('Voxel %d : F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
-                index, Fit.F,Fit.kf,Fit.R1f,Fit.R1r,Fit.Sf,Fit.Sr,Fit.M0f,Fit.resnorm), ...
-                'FontSize',10);
-    end
+    Model = getappdata(0,'Model');
+    if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
+    if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
+    Fit = Model.fit(data); % Display fitting results in command window
+    Model.plotmodel(Fit,data);
     
     % update legend
     legend('Location','NorthEast')
