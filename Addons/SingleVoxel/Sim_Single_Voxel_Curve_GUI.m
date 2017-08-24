@@ -51,10 +51,13 @@ if ~isfield(handles,'opened')
     handles.output = hObject;
     handles.Model = varargin{1};
     % OPTIONS
-    opts = {'SNR',50};
-    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
+    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons') 
+        opts = handles.Model.Sim_Single_Voxel_Curve_buttons; 
+    else
+        opts = {'SNR',50};
+    end
     
-    handles.options = GenerateButtons(opts,handles.OptionsPanel,.15);
+    handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
     
     
     % fill Table
@@ -63,7 +66,7 @@ if ~isfield(handles,'opened')
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
         FitOptTable(:,2)=mat2cell(handles.Model.st(:),ones(Nparam,1));
     elseif isprop(handles.Model,'lb') && ~isempty(handles.Model.lb) && isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
-        FitOptTable(:,2) = mat2cell(mean(handles.Model.lb(:), handles.Model.ub(:),2),ones(Nparam,1));
+        FitOptTable(:,2) = mat2cell(mean([handles.Model.lb(:), handles.Model.ub(:)],2),ones(Nparam,1));
     end
     set(handles.ParamTable,'Data',FitOptTable)
     
