@@ -138,8 +138,7 @@ classdef BrowserSet
         %------------------------------------------------------------------
         % -- setPath
         % search for filenames that match the NameText
-        function setPath(obj, Path, fileList)           
-            
+        function setPath(obj, Path, fileList)       
             % clear previous file paths
             set(obj.FileBox, 'String', '');
             DataName = get(obj.NameText, 'String');

@@ -124,6 +124,11 @@ classdef MethodBrowser
                 end
             end
             
+            % clear previous data
+            if isappdata(0,'Data')
+                rmappdata(0,'Data'); 
+            end
+            
             % Manage each data items
             for i=1:obj.NbItems
                 obj.ItemsList(i).setPath(Path, fileList);
