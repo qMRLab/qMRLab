@@ -288,18 +288,17 @@ function FitGo_FitData(hObject, eventdata, handles)
 
 % Get data
 data =  GetAppData('Data');
-[Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
+Method = GetAppData('Method');
+Model = getappdata(0,'Model');
 
-% If SPGR with SledPike, check for Sf table
-if (strcmp(Method,'SPGR') && (strcmp(FitOpt.model, 'SledPikeCW') || strcmp(FitOpt.model, 'SledPikeRP')))
-    if (~isfield(Prot,'Sf') || isempty(Prot.Sf))
-        errordlg('An Sf table needs to be computed for this protocol prior to fitting. Please use the protocol panel do do so.','Missing Sf table');
+if strcmp(Method,'SPGR') && (strcmp(Model.options.Model,'SledPikeCW') || strcmp(Model.options.Model,'SledPikeRP'))
+    if isempty(fieldnames(Model.ProtSfTable))
+        errordlg('An SfTable needs to be computed for this protocol prior to fitting. Please use the option panel to do so.','Missing SfTable');
         return;
     end
 end
 
 % Do the fitting
-Model = getappdata(0,'Model');
 FitResults = FitData(data,Model,1);
 FitResults.Model = Model;
 
