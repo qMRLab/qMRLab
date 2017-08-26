@@ -145,7 +145,7 @@ Model.xnames = fittingtable(:,1)';
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
     if size(fittingtable,2)>1, Model.fx = cell2mat(fittingtable(:,2)'); end
     if size(fittingtable,2)>2
-        if ~isempty(cell2mat(fittingtable(:,3)'))
+        if ~any(cellfun('isempty',fittingtable(:,3)))
             Model.st = cell2mat(fittingtable(:,3)');
             % check that starting point > lb and < ub
             Model.st = max([Model.st; Model.lb],[],1);
