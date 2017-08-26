@@ -108,10 +108,8 @@ classdef SPGR
 %                         true in the Fit parameters table.
 %       * Read pulse    : Flip angle of the excitation pulse.
 %         alpha          
-%
-%   SfTable
-%       * Good    : Indicate if the current SfTable fits with the protocol                  
-%       * Compute : By checking this box, you compute a new SfTable
+%       * Compute       : By checking this box, you compute a new SfTable
+%         SfTable           
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
@@ -189,29 +187,20 @@ classdef SPGR
             end         
         end
         
-        function mz = equation(obj, x, Opt)
-            x = x+eps;
-            for ix = 1:length(x)
-                Sim.Param.(obj.xnames{ix}) = x(ix);
-            end
-            Protocol = GetProt(obj);
-            switch Opt.Method
-                case 'Block equation'
-                    Sim.Param.lineshape = obj.options.Lineshape;
-                    Sim.Param.M0f = 1;
-                    Sim.Opt.Reset = Opt.ResetMz;
-                    Sim.Opt.SScheck = 1;
-                    Sim.Opt.SStol = 1e-4;
-                    mz = SPGR_sim(Sim, Protocol, 1);
-                case 'Analytical equation'
-                    SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
-                    mz = SimCurveResults.curve;
-            end
-        end
-        
         function FitResults = fit(obj,data)
             Protocol = GetProt(obj);
-            FitOpt = GetFitOpt(obj,data);
+            FitOpt   = GetFitOpt(obj,data);
+            % normalize data
+            NoMT = Protocol.Angles<1;
+            if ~any(NoMT)
+                warning('No MToff. MTData cannot be normalized.');
+                
+            else
+                data.MTdata = data.MTdata/median(data.MTdata(NoMT));
+                data.MTdata = data.MTdata(~NoMT);
+                Protocol.Angles  = Protocol.Angles(~NoMT);
+                Protocol.Offsets = Protocol.Offsets(~NoMT);
+            end
             FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
         end
         
@@ -236,11 +225,42 @@ classdef SPGR
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
-
+        
+        function mz = equation(obj, x, Opt)
+            x = x+eps;
+            for ix = 1:length(x)
+                Sim.Param.(obj.xnames{ix}) = x(ix);
+            end
+            Protocol = GetProt(obj);
+            switch Opt.Method
+                case 'Block equation'
+                    Sim.Param.lineshape = obj.options.Lineshape;
+                    Sim.Param.M0f       = 1;
+                    Sim.Opt.Reset       = Opt.ResetMz;
+                    Sim.Opt.SScheck     = 1;
+                    Sim.Opt.SStol       = 1e-4;
+                    mz = SPGR_sim(Sim, Protocol, 1);
+                case 'Analytical equation'
+                    SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
+                    mz = SimCurveResults.curve;
+            end
+        end
+        
+        
         function plotmodel(obj, x, data)
             Protocol = GetProt(obj);
-            FitOpt = GetFitOpt(obj,data);
-            SimCurveResults = SPGR_SimCurve(x, Protocol, FitOpt );
+            FitOpt   = GetFitOpt(obj,data);
+            % normalize data
+            NoMT = Protocol.Angles<1;
+            if ~any(NoMT)
+                warning('No MToff. MTData cannot be normalized.');               
+            else
+                data.MTdata = data.MTdata/median(data.MTdata(NoMT));
+                data.MTdata = data.MTdata(~NoMT);
+                Protocol.Angles  = Protocol.Angles(~NoMT);
+                Protocol.Offsets = Protocol.Offsets(~NoMT);
+            end
+            SimCurveResults  = SPGR_SimCurve(x, Protocol, FitOpt );
             Sim.Opt.AddNoise = 0;
             SPGR_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults);
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
@@ -264,13 +284,21 @@ classdef SPGR
         %         end
         %
         function Prot = GetProt(obj)
-            Prot.Angles = obj.Prot.MTdata.Mat(:,1);
-            Prot.Offsets = obj.Prot.MTdata.Mat(:,2);
-            Prot.Alpha = obj.options.Readpulsealpha;
+            Prot.Angles        = obj.Prot.MTdata.Mat(:,1);
+            Prot.Offsets       = obj.Prot.MTdata.Mat(:,2);
+            Prot.Alpha         = obj.options.Readpulsealpha;
             Prot.MTpulse.shape = obj.options.MT_Pulse_Shape;
-            Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;            
-            Prot.MTpulse.opt.bw = obj.options.MT_Pulse_Bandwidth;
-            Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
+            switch  obj.options.MT_Pulse_Shape    
+                case {'sinc','sinchann'}
+                    Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;    
+                case {'gausshann','gaussian'}
+                    Prot.MTpulse.opt.bw = obj.options.MT_Pulse_Bandwidth;
+                case 'sincgauss'
+                    Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;
+                    Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_Bandwidth;
+                case 'fermi'                    
+                    Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
+            end
            	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;             
             Prot.Tm = obj.Prot.TimingTable.Mat(1);
             Prot.Ts = obj.Prot.TimingTable.Mat(2);
@@ -294,10 +322,11 @@ classdef SPGR
             FitOpt.st = obj.st;
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
-            FitOpt.names = obj.xnames;
+            FitOpt.names     = obj.xnames;
             FitOpt.lineshape = obj.options.Lineshape;
-            FitOpt.R1reqR1f = obj.options.FixR1rR1f;
-            FitOpt.model = obj.options.Model;
+            FitOpt.R1reqR1f  = obj.options.FixR1rR1f;
+            FitOpt.model     = obj.options.Model;
         end
+        
     end
 end
