@@ -31,10 +31,9 @@ qMRLab(Model,file);
 %**************************************************************************
 
 % Echo (time in millisec)
-First = 10;
-Spacing  = 10;
-Cutoff  = 50;
-Model.Prot.Echo.Mat = [ First ; Spacing ; Cutoff ];
+EchoTimes = [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
+            180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320];
+Model.Prot.Echo.Mat = EchoTimes;
 
 % Update the model
 Model = Model.UpdateFields;
@@ -54,12 +53,21 @@ data.Mask     = double(Mask);
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
-FitResults       = FitDataCustom(data,Model,1); % 3rd argument plots a waitbar
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 delete('logfile_multi_comp_fit');
 
 %**************************************************************************
-% IV- SAVE
+% IV- CHECK FITTING RESULT IN A VOXEL
+%**************************************************************************
+figure
+voxel           = [50, 60, 1];
+FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
+dataVox         = extractvoxel(data,voxel);
+Model.plotmodel(FitResultsVox,dataVox)
+
+%**************************************************************************
+% V- SAVE
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);

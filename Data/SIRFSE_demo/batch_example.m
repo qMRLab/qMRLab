@@ -1,4 +1,4 @@
-% Batch to process SIRFSE_modulaire data without qMRLab GUI (graphical user interface)
+% Batch to process SIRFSE data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
@@ -6,7 +6,7 @@
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('SIRFSE_modulaireParameters.mat');
+load('SIRFSEParameters.mat');
 
 %% Check data and fitting (Optinal)
 
@@ -62,14 +62,15 @@ data.Mask   = double(load_nii_data('Mask.nii'));
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
-FitResults       = FitDataCustom(data,Model,1); % 3rd argument plots a waitbar
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 delete('FitTempResults.mat');
 
 %**************************************************************************
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
-voxel           = [48, 21, 1];
+figure
+voxel           = [50, 60, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
 Model.plotmodel(FitResultsVox,dataVox)

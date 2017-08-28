@@ -6,7 +6,7 @@
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('bSSFP_modulaireParameters.mat');
+load('bSSFPParameters.mat');
 
 %% Check data and fitting (Optional)
 
@@ -55,13 +55,14 @@ data.Mask   = double(load_nii_data('Mask.nii'));
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
-FitResults       = FitDataCustom(data,Model,1); % 3rd argument plots a waitbar
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 delete('FitTempResults.mat');
 
 %**************************************************************************
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
+figure
 voxel           = [50, 70, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);

@@ -1,4 +1,4 @@
-% Batch to process SPGR_modulaire data without qMRLab GUI (graphical user interface)
+% Batch to process SPGR data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
@@ -6,7 +6,7 @@
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('SPGR_modulaireParameters.mat');
+load('SPGRParameters.mat');
 
 %% Check data and fitting (Optional)
 
@@ -48,10 +48,12 @@ Model.Prot.TimingTable.Mat = [ Tmt ; Ts ; Tp ; Tr ; TR ];
 
 % *** To change other option, go directly in qMRLab ***
 
-% Update the model and compute SfTable if necessary
+% Update the model and 
 Model = Model.UpdateFields;
+
+% Compute SfTable if necessary
 Prot = Model.GetProt;
-if strcmp(Model.options.SfTable_Good,'NO'), Model.ProtSfTable = CacheSf(Prot); end
+Model.ProtSfTable = CacheSf(Prot);
 
 %**************************************************************************
 % II- LOAD EXPERIMENTAL DATA
@@ -74,14 +76,15 @@ data.Mask   = double(Mask);
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
-FitResults       = FitDataCustom(data,Model,1); % 3rd argument plots a waitbar
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 delete('FitTempResults.mat');
 
 %**************************************************************************
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
-voxel           = [48, 21, 1];
+figure
+voxel           = [34, 46, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
 Model.plotmodel(FitResultsVox,dataVox)

@@ -39,7 +39,7 @@ data.SF120  = double(load_nii_data('SF120.nii.gz'));
 %**************************************************************************
 % II- FIT DATASET
 %**************************************************************************
-FitResults       = FitDataCustom(data,Model,1); % 3rd argument plots a waitbar
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 
 %**************************************************************************
