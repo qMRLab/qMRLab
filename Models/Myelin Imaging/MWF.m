@@ -114,6 +114,8 @@ classdef MWF
                 T2          = getT2(obj,EchoTimes);
                 hold on
                 plot(T2.vals,Spectrum,'b');
+                Legend          = legend('Fitted Spectrum','Simulated Spectrum','Location','Best');
+                Legend.FontSize = 10;
                 hold off
             end
         end
@@ -128,7 +130,8 @@ classdef MWF
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
         
-        function plotmodel(obj, x, data)
+        function plotmodel(obj, x, data, PlotSpectrum)
+            if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
             EchoTimes   = obj.Prot.Echo.Mat;
             T2          = getT2(obj,EchoTimes);
             if exist('data','var')
@@ -139,30 +142,43 @@ classdef MWF
                 [Smodel, Spectrum] = equation(obj,x);
             end
             
-            % Figure with SPECTRUM
-            %----------------------- subplot 1 -----------------------%
-            subplot(2,1,1)
-            plot(T2.vals,Spectrum,'r');
-            Title           = title('Spectrums comparison');
-            Title.FontSize  = 12;
-            Legend          = legend('Fitted Spectrum','Location','Best');
-            Legend.FontSize = 10;
-            xlabel('T2 (ms)');
-            ylabel('Proton density');
-            %----------------------- subplot 2 -----------------------%
-            subplot(2,1,2)
-            plot(EchoTimes,data.MET2data,'+')
-            hold on
-            plot(EchoTimes,Smodel,'r')
-            hold off
-            Title           = title('Fitting');
-            Title.FontSize  = 12;
-            Legend          = legend('Simulated data','Fitted curve','Location','Best');
-            Legend.FontSize = 10;
-            xlabel('EchoTimes (ms)');
-            ylabel('MET2 ()');
-            
-            %---------------------------------------------------------%
+            if PlotSpectrum
+                % Figure with SPECTRUM
+                %----------------------- subplot 1 -----------------------%
+                subplot(2,1,1)
+                plot(T2.vals,Spectrum,'r');
+                Title           = title('Spectrums comparison');
+                Title.FontSize  = 12;
+                xlabel('T2 (ms)');
+                ylabel('Proton density');
+                %----------------------- subplot 2 -----------------------%
+                subplot(2,1,2)
+                plot(EchoTimes,data.MET2data,'+')
+                hold on
+                plot(EchoTimes,Smodel,'r')
+                hold off
+                Title           = title('Fitting');
+                Title.FontSize  = 12;
+                Legend          = legend('Simulated data','Fitted curve','Location','Best');
+                Legend.FontSize = 10;
+                xlabel('EchoTimes (ms)');
+                ylabel('MET2 ()'); 
+                %---------------------------------------------------------%
+            else
+                % Figure without SPECTRUM
+                %---------------------------------------------------------%
+                plot(EchoTimes,data.MET2data,'+')
+                hold on
+                plot(EchoTimes,Smodel,'r')
+                hold off
+                Title           = title('Fitting');
+                Title.FontSize  = 12;
+                Legend          = legend('Simulated data','Fitted curve','Location','Best');
+                Legend.FontSize = 10;
+                xlabel('EchoTimes (ms)');
+                ylabel('MET2 ()');
+                %---------------------------------------------------------%
+            end
         end
         
         function [Smodel, Spectrum] = equation(obj,x,Opt)
@@ -191,20 +207,20 @@ classdef MWF
 end
 
 function T2 = getT2(obj,EchoTimes)
-T2.num = 120;
-switch obj.options.RelaxationType
-    case 'T2'
-        T2.range = [1.5*EchoTimes(1), 400]; % Kolind et al. doi: 10.1002/mrm.21966
-    case 'T2star'
-        T2.range = [1.5*EchoTimes(1), 300]; % Lenz et al. doi: 10.1002/mrm.23241
-        %             T2_range = [1.5*echo_times(1), 600]; % Use this to look at CSF component
-end
-T2.vals = T2.range(1)*(T2.range(2)/T2.range(1)).^(0:(1/(T2.num-1)):1)';
+    T2.num = 120;
+    switch obj.options.RelaxationType
+        case 'T2'
+            T2.range = [1.5*EchoTimes(1), 400]; % Kolind et al. doi: 10.1002/mrm.21966
+        case 'T2star'
+            T2.range = [1.5*EchoTimes(1), 300]; % Lenz et al. doi: 10.1002/mrm.23241
+            %             T2_range = [1.5*echo_times(1), 600]; % Use this to look at CSF component
+    end
+    T2.vals = T2.range(1)*(T2.range(2)/T2.range(1)).^(0:(1/(T2.num-1)):1)';
 end
 
 function DecayMatrix = getDecayMatrix(EchoTimes,T2vals)
-DecayMatrix = zeros(length(EchoTimes),length(T2vals));
-for j = 1:length(T2vals)
-    DecayMatrix(:,j) = exp(-EchoTimes/T2vals(j))';
-end
+    DecayMatrix = zeros(length(EchoTimes),length(T2vals));
+    for j = 1:length(T2vals)
+        DecayMatrix(:,j) = exp(-EchoTimes/T2vals(j))';
+    end
 end
