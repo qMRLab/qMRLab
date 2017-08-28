@@ -80,8 +80,9 @@ if ~isempty(opts)
     
 % ----------------------------------------------------------------------------------------------------
 %   PANELS DISPLAY
-
-    PanelHeight = 1;
+    
+    Position = getpixelposition(ParentHandle);
+    PanelHeight = 30/Position(4);
     PanelGap = 0.02;
 % ----------------------------------------------------------------------------------------------------
     
@@ -92,20 +93,20 @@ if ~isempty(opts)
             location = 'Panel';
             x = 0.05;            
             Width = 0.905;           
-            Height = PanelHeight*0.07*PanelnElements(ip);
+            Height = PanelHeight*PanelnElements(ip);
             y = yPrev - PanelGap - Height;
         elseif find(NumNoPanel(1,:)==io)
             location = 'NoPanel';
             x = 0;
             Width = 1;       
-            Height = PanelHeight*0.07*NoPanelnElements(inp);
+            Height = PanelHeight*NoPanelnElements(inp);
             y = yPrev - PanelGap - Height;
         else 'WARNING';
         end
         yPrev = y;
         
         
-        % Create Panels and fill it
+        % Create Panels and fill them
         switch location 
             
             case 'Panel' % Reel Panels
