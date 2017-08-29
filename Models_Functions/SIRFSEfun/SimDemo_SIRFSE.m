@@ -7,7 +7,7 @@ FitOpt =  load('SIRFSEfun/Parameters/DefaultFitOpt.mat'); % load default fit opt
 %% Simulation
 tic
 MTdata = SIRFSE_sim(Sim, Prot);
-MTnoise = noise( MTdata, Sim.Opt.SNR );         % add noise
+MTnoise = addNoise(MTdata, Sim.Opt.SNR, 'mt');         % add noise
 timeSim = toc
 
 tic;
