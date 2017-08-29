@@ -20,14 +20,14 @@ Please report any bug or suggestions in [github](https://github.com/neuropoly/qM
 * Diffusion/2D_Qspace/CHARMED (e.g. AxCaliber, Time-dependence)
 * Diffusion/3D_Qspace/DTI
 * Diffusion/3D_Qspace/NODDI
-* FieldMaps/B0_DEM
-* FieldMaps/B1_DAM
+* FieldMaps/B0_DEM (Dual-echo method)
+* FieldMaps/B1_DAM (Dual-angle method)
 * Myelin Imaging/MTSAT
 * Myelin Imaging/MWF
 * Myelin Imaging/qMT/SIRFSE
 * Myelin Imaging/qMT/SPGR
 * Myelin Imaging/qMT/bSSFP
-* Noise/NoiseLevel
+* Noise/NoiseLevel (Used in qMR methods to avoid signal bias)
 * T1 Mapping/InversionRecovery
 * T1 Mapping/VFA_T1
     
