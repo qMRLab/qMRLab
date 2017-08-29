@@ -1,4 +1,19 @@
 function SimVaryResults = SimVary(obj, runs, OptTable, Opts)
+% Performs Sensitivity analysis on Model object
+% Each Parameter (obj.xnames) is varied in 10 steps between OptTable.lb and OptTable.ub.
+% Noise is added N=runs times and simulated MR signals is fitted using obj.Sim_Single_Voxel_Curve
+%
+% USAGE: SimVaryResults = SimVary(obj, runs, OptTable, Opts)
+%
+%        obj: qMR Model
+%        runs: Number of runs
+%        OptTable: structure with vectors defining options for each fitting parameters obj.xnames
+%               OptTable.fx: true/false. Vary this parameter?
+%               OptTable.st: Nominal Values
+%               OptTable.lb
+%               OptTable.ub
+%        Opts.SNR
+%
 
 if ~exist('OptTable','var'), OptTable = obj; end % use fitting boundaries
 
