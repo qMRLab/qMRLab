@@ -12,6 +12,11 @@ if nargin < 5, arborescence=0; end
 
 % [list, path]=sct_tools_ls('*T.txt);
 list=dir(fname);
+[path,name,ext]= fileparts(fname); 
+path=[path filesep]; name = [name ext];
+if strcmp(path,filesep)
+    path=['.' filesep];
+end
 
 if folders==1
     list=list(cat(1,list.isdir));
@@ -20,25 +25,14 @@ elseif folders==2
 end
 
 % sort by name
-[listName, Iorder]=sort_nat({list.name});
-path = {list(Iorder).folder};
-list = listName;
+list=sort_nat({list.name});
+
 
 % remove files starting with .
-rm = cellfun(@(x) strcmp(x(1),'.'), list);
-list(rm)=[];
-path(rm)=[];
-
-[~,name,ext]= fileparts(fname); 
-% path=[path filesep]; 
-name = [name ext];
-% if strcmp(path,filesep)
-%     path=['.' filesep];
-% end
-
+list(cellfun(@(x) strcmp(x(1),'.'), list))=[];
 if keeppath
     for iL=1:length(list)
-        list{iL}=[path{iL} filesep list{iL}];
+        list{iL}=[path list{iL}];
     end
 end
 
