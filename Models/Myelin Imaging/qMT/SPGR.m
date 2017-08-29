@@ -267,21 +267,23 @@ classdef SPGR
                 'FontSize',10);
         end
         
-        %         function plotProt(obj)
-        %             subplot(1,1,2)
-        %             plot(obj.Prot.MTdata(:,1),obj.Prot.MTdata(:,2))
-        %             subplot(2,1,2)
-        %             title('MTpulse')
-        %             angles = Prot.Angles(1);
-        %             offsets = Prot.Offsets(1);
-        %             shape = Prot.MTpulse.shape;
-        %             Trf = Prot.Tm;
-        %             PulseOpt = Prot.MTpulse.opt;
-        %             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
-        %             figure();
-        %             ViewPulse(Pulse,'b1');
-        %         end
-        %
+        function plotProt(obj)
+            Prot = GetProt(obj);
+            subplot(2,1,1)
+            plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
+            ylabel('Angle (°)')
+            xlabel('offset (Hz)')
+            subplot(2,1,2)
+            title('MTpulse')
+            angles = Prot.Angles(1);
+            offsets = Prot.Offsets(1);
+            shape = Prot.MTpulse.shape;
+            Trf = Prot.Tm;
+            PulseOpt = Prot.MTpulse.opt;
+            Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
+            ViewPulse(Pulse,'b1');
+        end
+        
         function Prot = GetProt(obj)
             Prot.Angles        = obj.Prot.MTdata.Mat(:,1);
             Prot.Offsets       = obj.Prot.MTdata.Mat(:,2);
@@ -297,6 +299,8 @@ classdef SPGR
                     Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_Bandwidth;
                 case 'fermi'                    
                     Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
+                otherwise
+                    Prot.MTpulse.opt = [];
             end
            	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;             
             Prot.Tm = obj.Prot.TimingTable.Mat(1);
