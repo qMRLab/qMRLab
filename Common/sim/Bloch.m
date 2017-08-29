@@ -42,9 +42,20 @@ else
 end
 
 W = pi*Param.G.*omega2;
-R2f = 1/Param.T2f;
-kf = Param.kr*Param.F;
-M0r = Param.M0f*Param.F;
+
+if isfield(Param,'T2f')
+    R2f = 1./Param.T2f;
+else
+    R2f = Param.R2f;
+end
+
+if isfield(Param,'F')
+    kf = Param.kr*Param.F;
+    M0r = Param.M0f*Param.F;
+else
+    kf = Param.kf;
+    M0r = Param.M0r;
+end
 
 dM(1) = -R2f*M(1) - 2*pi*delta*M(2);
 dM(2) = -R2f*M(2) + 2*pi*delta*M(1) + omega*M(3);

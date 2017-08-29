@@ -42,10 +42,16 @@ else
     R2f = Param.R2f;
 end
 R1r = Param.R1r;
-kf  = Param.kr.*Param.F;
+if isfield(Param,'F')
+    kf  = Param.kr.*Param.F;
+    M0r = Param.M0f.*Param.F;
+else
+    kf = Param.kf;
+    M0r = Param.M0r;
+end
+
 kr  = Param.kr;
 M0f = Param.M0f;
-M0r = Param.M0f.*Param.F;
 M0  = [0; 0; M0f; M0r];
 
 if (nargin < 4)
