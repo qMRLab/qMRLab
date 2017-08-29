@@ -1,0 +1,4 @@
+Free software:
+http://www.ft.utb.cz/people/zelinka/soma/
+
+Zelinka, I., 2004. SOMA — Self-Organizing Migrating Algorithm, in: New Optimization Techniques in Engineering, Studies in Fuzziness and Soft Computing. Springer Berlin Heidelberg, pp. 167–217.
