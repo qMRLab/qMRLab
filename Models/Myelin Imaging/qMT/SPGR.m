@@ -208,8 +208,7 @@ classdef SPGR
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end      
             Smodel = equation(obj, x, Opt);
-            sigma = max(Smodel)/Opt.SNR;
-            data.MTdata = random('rician',Smodel,sigma);
+            data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
             FitResults = fit(obj,data);
             if display
                 plotmodel(obj, FitResults, data);
