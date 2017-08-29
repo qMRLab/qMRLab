@@ -82,7 +82,7 @@ if ~isempty(opts)
 %   PANELS DISPLAY
     
     Position = getpixelposition(ParentHandle);
-    PanelHeight = 30/Position(4);
+    PanelHeight = 35/Position(4);
     PanelGap = 0.02;
 % ----------------------------------------------------------------------------------------------------
     

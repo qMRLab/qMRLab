@@ -54,24 +54,36 @@ if ~isfield(handles,'opened')
     Nparam=length(handles.Model.xnames);
     FitOptTable(:,1)=handles.Model.xnames(:);
     if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,2)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
-    if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
-        FitOptTable(:,3)=mat2cell(handles.Model.st(:),ones(Nparam,1));
-    end
+    
     if isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
         FitOptTable(:,4)=mat2cell(handles.Model.lb(:),ones(Nparam,1));
         FitOptTable(:,5)=mat2cell(handles.Model.ub(:),ones(Nparam,1));
     end
+    if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
+        FitOptTable(:,3)=mat2cell(handles.Model.st(:),ones(Nparam,1));
+    elseif size(FitOptTable,2)==5
+        FitOptTable(:,3) = mat2cell(mean(cat(2,handles.Model.lb(:),handles.Model.ub(:)),2),ones(Nparam,1));
+    else
+        FitOptTable(:,3) = mat2cell(ones(Nparam,1),ones(Nparam,1));
+    end
+    
     set(handles.SimVaryOptTable,'Data',FitOptTable)
     % fill parameters
     set(handles.SimVaryPlotX,'String',handles.Model.xnames')
     set(handles.SimVaryPlotY,'String',handles.Model.xnames')
     
     % Options
-    opts = {'SNR',50};
-    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
-    if isprop(handles.Model,'Sim_Sensitivity_Analysis_buttons'), opts = cat(2,opts,handles.Model.Sim_Sensitivity_Analysis_buttons); end
+    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons')
+        opts = handles.Model.Sim_Single_Voxel_Curve_buttons;
+    else
+        opts = {'SNR',50};
+    end
+    if isprop(handles.Model,'Sim_Sensitivity_Analysis_buttons'), opts = cat(2,opts,handles.Model.Sim_Sensitivity_Analysis_buttons); 
+    else
+        opts = cat(2,opts,{'# of run',20});
+    end
 
-    handles.options = GenerateButtons(opts,handles.OptionsPanel,.4,1);
+    handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
     handles.opened = 1;
 end
 % Update handles structure
