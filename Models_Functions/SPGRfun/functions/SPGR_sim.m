@@ -14,6 +14,7 @@ stop = 0;
 ww = 0;
 Rpulse = GetPulse(Prot.Alpha, 0, Prot.Tp, 'sinc');
 G0 = computeG(0, Param.T2r, Param.lineshape);
+Param.M0r = Param.M0f*Param.F;
 M0 = [0 0 Param.M0f Param.M0r];
 Mread = 0;
 Mprev = 0;

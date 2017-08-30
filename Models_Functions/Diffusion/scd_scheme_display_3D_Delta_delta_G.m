@@ -14,7 +14,7 @@ end
 fill3(xd, yD, 0.*[1 1 1], [1 1 1]); 
 hold on
 scatter3(scheme(:,6), scheme(:,5), sqrt(sum(scheme(:,[1 2 3]).^2,2)).*scheme(:,4)*1e6, 20, scheme(:,4), 'o');
-
+hold off
 % legend('2D space of feasible (\Delta,\delta)','Protocol in (\Delta,\delta,G) space');
 
 xlabel('\delta (in ms)');

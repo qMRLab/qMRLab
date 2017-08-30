@@ -1,5 +1,4 @@
-function SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt )
-
+function SimCurveResults = bSSFP_SimCurve(Fit, Prot, FitOpt)
 FitOpt.R1map = 0;
 FitOpt.R1reqR1f = 0;
 

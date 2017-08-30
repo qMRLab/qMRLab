@@ -1,4 +1,6 @@
-function SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt )
+function SimCurveResults = SPGR_SimCurve(Fit, Prot, FitOpt , same)
+
+if ~exist('same','var'), same=0; end
 
 FitOpt.R1map = 0;
 FitOpt.R1reqR1f = 0;
@@ -8,22 +10,28 @@ xFit = [Fit.F, Fit.kr, Fit.R1f, Fit.R1r, Fit.T2f, Fit.T2r];
 Fit.table = xFit';
 
 offsets = unique(Prot.Offsets);
-OffsetCurve = zeros(length(offsets)*4 +2,1);
-OffsetCurve(1) = 100;
-OffsetCurve(end) = max(offsets) + 1000;
-maxOff = 100;
-offsets = [0; offsets];
-ind = 4;
-for i = 2:length(offsets)
-    OffsetCurve(ind-2) = 0.5*(offsets(i) + offsets(i-1));
-    OffsetCurve(ind-1) = offsets(i) - maxOff;
-    OffsetCurve(ind) = offsets(i);
-    OffsetCurve(ind+1) = offsets(i) + maxOff;
-    ind = ind + 4;
+if same
+    OffsetCurve=offsets;
+else
+    OffsetCurve = zeros(length(offsets)*4 +2,1);
+    OffsetCurve(1) = 100;
+    OffsetCurve(end) = max(offsets) + 1000;
+    maxOff = 100;
+    offsets = [0; offsets];
+    ind = 4;
+    for i = 2:length(offsets)
+        OffsetCurve(ind-2) = 0.5*(offsets(i) + offsets(i-1));
+        OffsetCurve(ind-1) = offsets(i) - maxOff;
+        OffsetCurve(ind) = offsets(i);
+        OffsetCurve(ind+1) = offsets(i) + maxOff;
+        ind = ind + 4;
+    end
 end
 
 AngleCurve  =  unique(Prot.Angles);
-[Prot.Angles, Prot.Offsets] = SPGR_GetSeq(AngleCurve,OffsetCurve);
+if ~same
+    [Prot.Angles, Prot.Offsets] = SPGR_GetSeq(AngleCurve,OffsetCurve);
+end
 [Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
 Prot.Tau = Tau(1);
 
@@ -48,7 +56,9 @@ switch FitOpt.model
 end
 
 Mcurve = func(xFit, xData, Prot, FitOpt);
-Mcurve = reshape(Mcurve,length(OffsetCurve),length(AngleCurve));
+if ~same
+    Mcurve = reshape(Mcurve,length(OffsetCurve),length(AngleCurve));
+end
 Fit.curve = Mcurve;
 Fit.Offsets = OffsetCurve;
 SimCurveResults = Fit;

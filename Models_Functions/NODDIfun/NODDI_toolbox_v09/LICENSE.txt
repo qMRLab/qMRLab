@@ -1,0 +1,14 @@
+LICENSE for NODDI matlab toolbox:
+
+The Software is made available for use under the Open Source-approved Artistic Licence 2.0. The Owner draws your attention to the fact that the Software has been developed for and is intended for use in a research environment only. No endorsement can be given for other use including, but not limited to, use in a clinical environment.
+
+External tools included in NODDI matlab toolbox:
+
+1. erfi matlab function
+ * By Per Sundqvist, No license specified
+ * Downloaded from http://www.mathworks.com/matlabcentral/fileexchange/18238-erfi-function
+
+2. PARFOR Progress Monitor v2
+ * BSD license
+ * Downloaded from http://www.mathworks.com/matlabcentral/fileexchange/31673-parfor-progress-monitor-v2
+

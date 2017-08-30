@@ -12,4 +12,4 @@ for i = 1:length(FitResults.fields)
     file = strcat(map,'.nii');
     save_nii_v2(FitResults.(map),fullfile(folder,file),fname_copyheader,64);
 end
-save(fullfile(folder,'FitResults.mat'),'FitResults')
+save(fullfile(folder,'FitResults.mat'),'-struct','FitResults')

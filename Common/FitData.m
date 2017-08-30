@@ -1,7 +1,7 @@
-function Fit = FitData( data, Protocol, FitOpt, Method, wait )
+function Fit = FitData(data, Model, wait )
 
 % ----------------------------------------------------------------------------------------------------
-% Fit = FitData( data, Protocol, FitOpt, Method, wait )
+% Fit = FitData( data, Model, wait )
 % Takes 2D or 3D MTdata and returns fitted parameters maps
 % ----------------------------------------------------------------------------------------------------
 % data = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
@@ -20,133 +20,99 @@ function Fit = FitData( data, Protocol, FitOpt, Method, wait )
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
-
-%############################# INITIALIZE #################################
-% Get dimensions
-MTdata = double(data.MTdata);
-dim = ndims(MTdata);
-x = 1; y = 1; z = 1;
-switch dim
-    case 4
-        [x,y,z,nT] = size(MTdata);
-    case 3
-        [x,y,nT] = size(MTdata);
-    case 2
-        nT = length(MTdata);
-end
-
-% Arrange voxels into a column
-nV = x*y*z;     % number of voxels
-MTdata = reshape(MTdata,nV,nT);
-M = zeros(nT,1);
-
-switch Method
-    case 'SIRFSE'; fields = {'F';'kf';'kr';'R1f';'R1r';'Sf';'Sr';'M0f';'M0r';'resnorm'};        
-    case 'bSSFP';  fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'M0f';'M0r';'resnorm'};        
-    case 'SPGR';   fields = {'F';'kf';'kr';'R1f';'R1r';'T2f';'T2r';'resnorm'};
-end
-
-for ii = 1:length(fields)
-    Fit.(fields{ii}) = zeros(x,y,z);
-    Fit.(fields{ii}) = reshape(Fit.(fields{ii}),nV,1);
-end
-Fit.fields = fields;
-Fit.computed = Fit.(fields{1});
-
-% initialize
-if ~isfield(data,'R1map'), data.R1map = []; end
-if ~isfield(data,'B1map'), data.B1map = []; end
-if ~isfield(data,'B0map'), data.B0map = []; end
-if ~isfield(data,'Mask'), data.Mask = []; end
-
-% Apply mask
-if (~isempty(data.Mask))
-    Fit.Mask = single(data.Mask);
-    Mask = reshape(data.Mask,nV,1);
-    MTdata = MTdata.*repmat(Mask,[1,nT]);
-end
-
-% Find voxels that are not empty
-Voxels = find(all(MTdata,2));
-l = length(Voxels);
-
-if (~isempty(data.R1map));  R1map = reshape(double(data.R1map),nV,1); end
-
-if (~isempty(data.B1map));  B1map = reshape(double(data.B1map),nV,1); end
-
-if (~isempty(data.B0map));  B0map = reshape(double(data.B0map),nV,1); end
-
-FitOpt.R1 = [];
-FitOpt.B1 = [];
-FitOpt.B0 = [];
-
-%############################# FITTING LOOP ###############################
-% Create waitbar
-h=[];
-if (wait)
-    h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
-        'setappdata(gcbf,''canceling'',1)');
-    setappdata(h,'canceling',0)
-end
-
 tic;
-for ii = 1:l
-    vox = Voxels(ii);
+if ismethod(Model,'Precompute'), Model = Model.Precompute; end
+if Model.voxelwise % process voxelwise
+    %############################# INITIALIZE #################################
+    % Get dimensions
+    MRIinputs = fieldnames(data);
+    MRIinputs(structfun(@isempty,data))=[];
+    MRIinputs(strcmp(MRIinputs,'hdr'))=[];
+    qData = double(data.(MRIinputs{1}));
+    x = 1; y = 1; z = 1;
+    [x,y,z,nT] = size(qData);   
     
-    % Update waitbar
-    if (isempty(h))
-        fprintf('Fitting voxel %d/%d\r',ii,l);
-    else
-        if getappdata(h,'canceling');  break;  end  % Allows user to cancel
-        waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
-    end
-    
-    % Get current voxel data
-    M(:,1) = MTdata(vox,:);
-    
-    if (FitOpt.R1map && ~isempty(data.R1map)); FitOpt.R1 = R1map(vox); end
-    
-    if (~isempty(data.B1map)); FitOpt.B1 = B1map(vox); end
-    
-    if (~isempty(data.B0map)); FitOpt.B0 = B0map(vox); end
-    
-    if (isfield(FitOpt,'PreviousFit'))
-        names = FitOpt.names;
-        for ff = 1:length(names)
-            FitOpt.st(ff) = FitOpt.PreviousFit.(names{ff})(vox);
+    % Arrange voxels into a column
+    nV = x*y*z;     % number of voxels
+    for ii = 1:length(MRIinputs)
+        if ndims(data.(MRIinputs{ii})) == 4
+            data.(MRIinputs{ii}) = reshape(data.(MRIinputs{ii}),nV,nT);
+        elseif ~isempty(data.(MRIinputs{ii}))
+            data.(MRIinputs{ii}) = reshape(data.(MRIinputs{ii}),nV,1);
         end
     end
     
-    % Fit data
-    switch Method
-        case 'SIRFSE'; tempFit = SIRFSE_fit(M, Protocol, FitOpt);
-        case 'bSSFP';  tempFit = bSSFP_fit(M, Protocol, FitOpt);
-        case 'SPGR';   tempFit = SPGR_fit(M, Protocol, FitOpt );
+    % Find voxels that are not empty
+    if isfield(data,'Mask') && (~isempty(data.Mask))
+        Voxels = find(all(data.Mask,2));
+    else
+        Voxels = (1:nV)';
     end
-        
-    % Assign current voxel fitted values
-    for ff = 1:length(fields)
-        Fit.(fields{ff})(vox) = tempFit.(fields{ff});
+    l = length(Voxels);
+    
+    
+    %############################# FITTING LOOP ###############################
+    % Create waitbar
+    h=[];
+    if exist('wait','var') && (wait)
+        h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
+            'setappdata(gcbf,''canceling'',1)');
+        setappdata(h,'canceling',0)
     end
     
-    Fit.computed(ii) = 1;
-
-    %-- save temp file every 20 voxels
-    if(mod(ii,20) == 0)
-      save('FitTempResults.mat', '-struct','Fit');
+    for ii = 1:l
+        vox = Voxels(ii);
+        
+        % Update waitbar
+        if (isempty(h))
+            fprintf('Fitting voxel %d/%d\r',ii,l);
+        else
+            if getappdata(h,'canceling');  break;  end  % Allows user to cancel
+            waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
+        end
+        
+        % Get current voxel data
+        for iii = 1:length(MRIinputs)
+            M.(MRIinputs{iii}) = data.(MRIinputs{iii})(vox,:)';
+        end
+        if isfield(data,'hdr'), M.hdr = data.hdr; end
+        % Fit data
+        tempFit = Model.fit(M);
+        if isempty(tempFit), Fit=[]; return; end
+        
+        % initialize the outputs
+        if ii==1 
+            fields =  fieldnames(tempFit)';
+            
+            for ff = 1:length(fields)
+                Fit.(fields{ff}) = zeros(x,y,z,length(tempFit.(fields{ff})));
+            end
+            Fit.fields = fields;
+            Fit.computed = zeros(x,y,z);
+        end
+        
+        % Assign current voxel fitted values
+        for ff = 1:length(fields)
+            [xii,yii,zii] = ind2sub([x,y,z],vox);
+            Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
+        end
+        
+        Fit.computed(ii) = 1;
+        
+        %-- save temp file every 20 voxels
+        if(mod(ii,20) == 0)
+            save('FitTempResults.mat', '-struct','Fit');
+        end
     end
+    
+    % delete waitbar
+    if (~isempty(h));  delete(h); end
+    
+else % process entire volume
+    Fit = Model.fit(data);
+    Fit.fields = fieldnames(Fit);
 end
-
-if (~isempty(h));  delete(h); end
-
-% Reshape Fit
-for ff = 1:length(fields)
-    Fit.(fields{ff}) = reshape(Fit.(fields{ff}),x,y,z);
-end
-Fit.computed = reshape(Fit.computed,x,y,z);
-
-Fit.Time = toc
-Fit.Protocol = Protocol;
-Fit.FitOpt = FitOpt;
+Fit.Time = toc;
+Fit.Protocol = Model.Prot;
 
 end

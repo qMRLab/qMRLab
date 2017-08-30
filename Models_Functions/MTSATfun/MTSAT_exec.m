@@ -1,6 +1,6 @@
 
 
-function Fit = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
+function MTSATdata = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
 
 if ~isfield(data,'Mask'), data.Mask=''; end
 
@@ -12,9 +12,9 @@ if (~isempty(data.Mask))
     data.T1 = data.T1.*data.Mask;
 end
 
-S_T1 = data.T1;
-S_PD = data.PD;
-S_TM = double(data.MT);
+S_T1 = data.T1w;
+S_PD = data.PDw;
+S_TM = double(data.MTw);
 
 [r,c] = find(S_TM);
 
@@ -70,16 +70,6 @@ MTSATdata = 100*Rawdelta;
 %         Index = find(MTSATdata < -3.5);
 %         MTSATdata(Index) = -3.5;
 
-fields = {'computed'}; 
-Fit.fields = fields;
-Fit.(fields{1}) = MTSATdata;
-
-
-[NZ_Row_MT, NZ_Col_MT, NZ_Val_MT] = find(data.MT);
-[NZ_Row_PD, NZ_Col_PD, NZ_Val_PD] = find(data.PD);
-[NZ_Row_T1, NZ_Col_T1, NZ_Val_T1] = find(data.T1);
-
-
     % since we introduced new values to avoid /0, make sure to
     % null positions where MTdata was initially 0 (when mask applied to 
     % raw image). In case the mask file was provided, use it to null the 
@@ -87,10 +77,9 @@ Fit.(fields{1}) = MTSATdata;
 if (~isempty(data.Mask))
     MTSATdata = MTSATdata.*data.Mask;
 else
-    Index = find(~data.MT);
+    Index = find(~data.MTw);
     MTSATdata(Index) = 0;
 end
-[NZ_Row_Re, NZ_Col_Re, NZ_Val_Re] = find(MTSATdata);
 
 % figure
 % h_MT = histogram(NZ_Val_MT)

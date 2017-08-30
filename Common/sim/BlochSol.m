@@ -36,12 +36,22 @@ function M = BlochSol(t, M, Param, Pulse)
 
 gamma = 2*pi*42576;
 R1f = Param.R1f;
-R2f = Param.R2f;
+if isfield(Param,'T2f')
+    R2f = 1./Param.T2f;
+else
+    R2f = Param.R2f;
+end
 R1r = Param.R1r;
-kf  = Param.kf;
+if isfield(Param,'F')
+    kf  = Param.kr.*Param.F;
+    M0r = Param.M0f.*Param.F;
+else
+    kf = Param.kf;
+    M0r = Param.M0r;
+end
+
 kr  = Param.kr;
 M0f = Param.M0f;
-M0r = Param.M0r;
 M0  = [0; 0; M0f; M0r];
 
 if (nargin < 4)

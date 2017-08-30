@@ -22,7 +22,6 @@ classdef MethodBrowser
         StudyID_TextID;
     end
     
-    
     methods
         %------------------------------------------------------------------
         % constructor
@@ -51,20 +50,19 @@ classdef MethodBrowser
                 end
                 
                 % setup work directory and study ID display
+                obj.WorkDir_FullPath = '';
                 obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
+                obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
                 obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
                     'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
-                obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
-                obj.WorkDir_FullPath = '';
                 obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
                 obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
             end
         end % end constructor
-                
-        
+                  
         %------------------------------------------------------------------
         % Visible
         function Visible(obj, Visibility)
@@ -119,22 +117,17 @@ classdef MethodBrowser
             % manage protocol and fit options
             Method = getappdata(0,'Method');
             for i = 1:length(fileList)
-                if ismember(Method,{'bSSFP','SIRFSE','SPGR'})
-                    if strcmp(fileList{i}, 'Protocol.mat')
-                        Prot = load(fullfile(Path,'Protocol.mat'));
-                        SetAppData(Prot);
-                    elseif strcmp(fileList{i}, 'FitOpt.mat')
-                        FitOpt = load(fullfile(Path,'FitOpt.mat'));
-                        SetAppData(FitOpt);
-                    end
-                else
-                    if ~~strfind(fileList{i}, 'Protocol')
-                       ProtLoad(fullfile(Path,fileList{i}));
-                       Model = getappdata(0,'Model');
-                       Custom_OptionsGUI(gcf,Model);
-                    end
+                if ~~strfind(fileList{i}, 'Protocol')
+                    ProtLoad(fullfile(Path,fileList{i}));
+                    Model = getappdata(0,'Model');
+                    Custom_OptionsGUI(gcf,Model);
                 end
-            end            
+            end
+            
+            % clear previous data
+            if isappdata(0,'Data')
+                rmappdata(0,'Data'); 
+            end
             
             % Manage each data items
             for i=1:obj.NbItems
@@ -146,7 +139,7 @@ classdef MethodBrowser
         %------------------------------------------------------------------
         % get working directory name
         function WD = getWD(obj)
-            WD = obj.WorkDir_FullPath;
+            WD = get(obj.WorkDir_FileNameArea, 'String');
         end
         
         %------------------------------------------------------------------
@@ -185,7 +178,9 @@ classdef MethodBrowser
         % set the filename
         function setFileName(obj,fieldName, FileName)
             % setFileName(obj,fieldName, FileName)
-            indexfieldName = strcmp(cellfun(@(cc) cc{1},get([obj.ItemsList.NameText]','String'),'UniformOutput',false),fieldName);
+            list_file = get([obj.ItemsList.NameText]','String');
+            if iscell(list_file{1}), list_file = cellfun(@(c) c{1}, list_file,'UniformOutput',0); end
+            indexfieldName = strcmp(list_file,fieldName);
             if sum(indexfieldName)
                 obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)
             end
@@ -195,9 +190,7 @@ classdef MethodBrowser
                
     end
     
-    
-    
-    
+
     methods(Static)
         %------------------------------------------------------------------
         % -- WD_BrowseBtn_callback

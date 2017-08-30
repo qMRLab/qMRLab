@@ -28,17 +28,18 @@ if isstr(gradient_vectors)
 end
 
 if size(gradient_vectors,2)>3
-    gradient_vectors=gradient_vectors(:,1:3).*repmat(gradient_vectors(:,4),[1 3]);
+    gradient_vectors = gradient_vectors(:,1:3).*repmat(gradient_vectors(:,4),[1 3]);
 end
 
 % gradient_vectors=gradient_vectors/max(max(gradient_vectors));
-gradient_norm=sqrt(gradient_vectors(:,1).^2+gradient_vectors(:,2).^2+gradient_vectors(:,3).^2);
+gradient_norm = sqrt(gradient_vectors(:,1).^2+gradient_vectors(:,2).^2+gradient_vectors(:,3).^2);
 display_3d = 0;
-color=jet(gradient_norm/max(gradient_norm));
-
+colorindex = jet(1000);
+colorprct = max(1,round(gradient_norm/max(gradient_norm)*1000));
+color = colorindex(colorprct,:);
 % display gradients
 if display_3d
-	for i=1:size(gradient_vectors,1)
+	for i = 1:size(gradient_vectors,1)
 		plot3(gradient_vectors(i,1),gradient_vectors(i,2),gradient_vectors(i,3),'.','MarkerSize',10,'Color',color(i,:))
 		hold on
 	end
@@ -54,7 +55,7 @@ end
 
 % display gradients
 subplot(2,2,1)
-for i=1:size(gradient_vectors,1)
+for i = 1:size(gradient_vectors,1)
     plot3(gradient_vectors(i,1),gradient_vectors(i,2),gradient_vectors(i,3),'.','MarkerSize',10,'Color',color(i,:))
     hold on
 end
@@ -71,7 +72,7 @@ xlim([-lim lim]); ylim([-lim lim]); zlim([-lim lim]);
  
 
 subplot(2,2,2)
-for i=1:size(gradient_vectors,1)
+for i = 1:size(gradient_vectors,1)
     plot3(gradient_vectors(i,1),gradient_vectors(i,2),gradient_vectors(i,3),'.','MarkerSize',10,'Color',color(i,:))
     hold on
 end
@@ -87,7 +88,7 @@ lim = max(max(abs([xlim; ylim; zlim])));
 xlim([-lim lim]); ylim([-lim lim]); zlim([-lim lim]);
 
 subplot(2,2,3)
-for i=1:size(gradient_vectors,1)
+for i = 1:size(gradient_vectors,1)
     plot3(gradient_vectors(i,1),gradient_vectors(i,2),gradient_vectors(i,3),'.','MarkerSize',10,'Color',color(i,:))
     hold on
 end
@@ -104,14 +105,14 @@ xlim([-lim lim]); ylim([-lim lim]); zlim([-lim lim]);
 
 % % Voronoi transformation
 if exist('display_voronoi','var') && display_voronoi 
-	X=gradient_vectors;
+	X = gradient_vectors;
 	h_fig = figure('name','Voronoi');
 	[V,C] = voronoin(X);
 	K = convhulln(X);
 	d = [1 2 3 1];       % Index into K
 	for i = 1:size(K,1)
 	   j = K(i,d);
-	   h(i)=patch(X(j,1),X(j,2),X(j,3),i,'FaceColor','white','FaceLighting','phong','EdgeColor','black');
+	   h(i) = patch(X(j,1),X(j,2),X(j,3),i,'FaceColor','white','FaceLighting','phong','EdgeColor','black');
 	end
 	hold off
 	view(2)
