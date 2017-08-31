@@ -238,6 +238,7 @@ classdef SPGR
                     Sim.Opt.Reset       = Opt.ResetMz;
                     Sim.Opt.SScheck     = 1;
                     Sim.Opt.SStol       = 1e-4;
+                    Protocol.Npulse = Protocol.MTpulse.Npulse;
                     mz = SPGR_sim(Sim, Protocol, 1);
                 case 'Analytical equation'
                     SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);

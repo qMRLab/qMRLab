@@ -92,6 +92,18 @@ classdef CHARMED
         function obj = CHARMED
             obj.options = button2opts(obj.buttons);
         end
+        
+        function obj = UpdateFields(obj)
+            Prot = obj.Prot.DiffusionData.Mat;
+            Prot(Prot(:,4)==0,1:6) = 0;
+            [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
+            cmax = max(c); % find images repeated more than 5 times (for relevant STD)
+            if cmax<5
+                warndlg({'Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+                obj.options.ComputeSigmapervoxel = false;
+            end
+                
+        end
 
 % -------------CHARMED EQUATION-------------------------------------------------------------------------
 
@@ -163,6 +175,11 @@ classdef CHARMED
             % residue
             xopt(end+1) = residue;
             obj.xnames{end+1} = 'residue';
+            % Noise Level
+            if obj.options.ComputeSigmapervoxel
+                xopt(end+1) = SigmaNoise;
+                obj.xnames{end+1} = 'SigmaNoise';
+            end
             % convert to structure
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
             
@@ -328,15 +345,15 @@ end
 end
 
 function SigmaNoise = computesigmanoise(Prot,data)
-Prot(Prot(:,4)==0,[5 6]) = 0;
+Prot(Prot(:,4)==0,1:6) = 0;
 % find images that where repeated
 [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
 cmax = max(c); % find images repeated more than 5 times (for relevant STD)
 if cmax<5, uiwait(errordlg('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead. (see scd_noise_fit_histo_nii.m to estimate the noise STD).')); end
 
-repeated_measured = find(c==cmax);
+repeated_measured = find(ismember(c,c(c>5)));
 for irep = 1:length(repeated_measured)
-    STDs(irep) = std(data(ind==repeated_measured(irep)));
+    vars(irep) = var(data(ind==repeated_measured(irep)));
 end
-SigmaNoise = mean(STDs);
+SigmaNoise = sqrt(median(vars));
 end

@@ -34,6 +34,15 @@ classdef DTI
 %---------%
 %   FILL
 %
+%---------%
+% METHODS %
+%---------%
+%  plotmodel - Plot the diffusion-weighted signal as a function of Gparallel
+%               EXAMPLE:
+%               A = DTI;
+%               L1 = 1; L2 = 1; L3 = 3; % um2/ms
+%               A.plotmodel([L1 L2 L3]);
+%  doThat - Description of doThat
 %-----------------------------------------------------------------------------------------------------
 % Written by: FILL
 % Reference: FILL
@@ -69,7 +78,7 @@ classdef DTI
             obj.fx = [0 0 0]; 
         end
         
-        function Smodel = equation(obj, x)
+        function [Smodel, fiberdirection] = equation(obj, x)
             Prot   = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             bvec   = Prot(:,1:3);
             bvalue = scd_scheme_bvalue(Prot);
@@ -86,6 +95,11 @@ classdef DTI
                 end
             end
             Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
+            
+            % compute Fiber Direction
+            [V,L] = eig(D);
+            [L,I] = max(diag(L));
+            fiberdirection = V(:,I);
         end
         
         function FitResults = fit(obj,data)
@@ -106,22 +120,23 @@ classdef DTI
         end
         
         function plotmodel(obj, FitResults, data)
+            % plotmodel(obj, FitResults, data)
+            % EXAMPLE: 
+            %   A = DTI;
+            %   L1 = 1; L2 = 1; L3 = 3;
+            %   A.plotmodel([L1 L2 L3]);
+            
             if isempty(FitResults), return; end
-            data = data.Diffusiondata;
+            
             % Prepare inputs
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             
             % compute model
-            Smodel = equation(obj, FitResults);
-            
-            % compute Xaxis
-            D = zeros(3,3); D(:) = FitResults.D;
-            [V,L] = eig(D);
-            [L,I] = max(diag(L));
-            fiberdirection = V(:,I);
-            
+            [Smodel, fiberdirection] = equation(obj, FitResults);
+                        
             % plot
             if exist('data','var')
+                data = data.Diffusiondata;
                 h = scd_display_qspacedata3D(data,Prot,fiberdirection);
                 S0 = scd_preproc_getS0(data,Prot);
                 Smodel = S0.*Smodel;
