@@ -2,18 +2,35 @@
 
 qMRlab is a powerful, open source, scalable, easy to use and intuitive software for qMRI data simulation, fitting and analysis. The software consists of two parts:
 1) a qMRI data fitting and visualization interface
-2) a qMT data simulator
+2) a qMRI data simulator
 
 
-qMRLab is a fork from the initial project ['qMTLab'](https://github.com/neuropoly/qMTLab):
-  For a quick introduction to qMTLab functionnalities, see the ['qMTLab presentation e-poster'](https://github.com/neuropoly/qMRLab/raw/master/Documentation/qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube'](https://youtu.be/WG0tVe-SFww).
+qMRLab is a fork from the initial project ['qMTLab'](https://github.com/neuropoly/qMTLab).  
+For a quick **introduction** to qMTLab functionnalities, see the ['qMTLab presentation e-poster'](https://github.com/neuropoly/qMRLab/raw/master/Documentation/qMTLab-Presentation.ppsx), or alternatively you can view it on ['YouTube'](https://youtu.be/WG0tVe-SFww).  
+For further **documentation**, visit the ['Wiki page'](https://github.com/neuropoly/qMRLab/wiki) 
 
-The simulation part allows end users to easily simulate qMT data using the above described methods, evaluate how well these models perform under known parameters input, determine the most appropriate acquisition protocol and evaluate how fitting constraints impact the results. The data fitting part provides a simple interface to import real-world qMT data, fit them using the selected fitting procedure, and visualize the resulting parameters maps.
+The simulation part allows end users to easily simulate qMRI data using the above described methods, evaluate how well these models perform under known parameters input, determine the most appropriate acquisition protocol and evaluate how fitting constraints impact the results. 
+The data fitting part provides a simple interface to import real-world qMT data, fit them using the selected fitting procedure, visualize the fitting quality in a specific pixel, visualize the resulting parameters maps.
 
 Please view ['ReadMe.docx'](https://github.com/neuropoly/qMRLab/raw/master/Documentation/ReadMe.docx) for details.
 
 Please report any bug or suggestions in [github](https://github.com/neuropoly/qMRLab/issues).
 
+## qMR methods available:
+* Diffusion/2D_Qspace/CHARMED (e.g. AxCaliber, Time-dependence)
+* Diffusion/3D_Qspace/DTI
+* Diffusion/3D_Qspace/NODDI
+* FieldMaps/B0_DEM (Dual-echo method)
+* FieldMaps/B1_DAM (Dual-angle method)
+* Myelin Imaging/MTSAT
+* Myelin Imaging/MWF
+* Myelin Imaging/qMT/SIRFSE
+* Myelin Imaging/qMT/SPGR
+* Myelin Imaging/qMT/bSSFP
+* Noise/NoiseLevel (Used in qMR methods to avoid signal bias)
+* T1 Mapping/InversionRecovery
+* T1 Mapping/VFA_T1
+    
 ## Dependencies
 
 * MATLAB_R2013a or later
