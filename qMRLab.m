@@ -67,7 +67,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.ModelDir = [qMRLabDir filesep 'Models'];
     guidata(hObject, handles);
     addModelMenu(hObject, eventdata, handles);
-    
+
     % Fill FileBrowser with buttons
     MethodList = getappdata(0, 'MethodList');
     MethodList = strrep(MethodList, '.m', '');
@@ -139,11 +139,11 @@ Method = GetMethod(handles);
 MethodMenu(hObject,eventdata,handles,Method);
 
 function addModelMenu(hObject, eventdata, handles)
-methods = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
-methodsM = strcat(sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1),'.m'); 
-MethodList = GetAppData('MethodList');
-MethodList = {MethodList{:} methodsM{:}};
+% Display all the options in the popupmenu
+[MethodList, pathmodels] = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
 SetAppData(MethodList)
+for iM=1:length(MethodList), MethodList{iM} = [strrep(pathmodels{iM},[handles.ModelDir filesep],'') MethodList{iM}]; end
+set(handles.MethodSelection,'String',MethodList);
 
 
 %###########################################################################################
@@ -152,15 +152,6 @@ SetAppData(MethodList)
 
 % METHODSELECTION
 function MethodMenu(hObject, eventdata, handles, Method)
-
-% Display all the options in the popupmenu
-list = sct_tools_ls([handles.ModelDir filesep '*.m'],1,0,2,1);
-choices = strrep(list{1},[handles.ModelDir filesep],'');
-for i = 2:length(list)
-    choices = strvcat(choices, strrep(list{i},[handles.ModelDir filesep],''));
-end
-set(handles.MethodSelection,'String',choices);
-
 
 SetAppData(Method)
 
