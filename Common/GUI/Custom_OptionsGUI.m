@@ -196,12 +196,16 @@ if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.(MRIinput).table,'Data',Prot)
 Model = getappdata(0,'Model');
 Model.Prot.(MRIinput).Mat = Prot;
-setappdata(0,'Model',Model);
+UpdateProt(MRIinput,Prot,handles)
 
 
 function UpdateProt(MRIinput,Prot,handles)
 Model = getappdata(0,'Model');
-Model.Prot.(MRIinput).Mat = Prot.Source.Data;
+if isnumeric(Prot)
+    Model.Prot.(MRIinput).Mat = Prot;
+else
+    Model.Prot.(MRIinput).Mat = Prot.Source.Data;
+end
 if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end
