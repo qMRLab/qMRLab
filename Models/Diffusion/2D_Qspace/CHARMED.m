@@ -220,6 +220,8 @@ classdef CHARMED
 % -------------SIMULATIONS-------------------------------------------------------------------------
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             if ~exist('display','var'), display=1; end
+            if ~exist('Opt','var'), Opt.SNR=inf; end
+            if ~exist('x','var'), x=obj.st; end
             Smodel = equation(obj, x);
             sigma  = max(Smodel)/Opt.SNR;
             data.DiffusionData = random('rician',Smodel,sigma);
@@ -244,6 +246,8 @@ classdef CHARMED
         end
 
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+            % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+            % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
             TEmax    = 120*1e-3;
             Treadout = 35*1e-3;
             T180     = 10*1e-3;

@@ -79,7 +79,9 @@ classdef InversionRecovery
             end
             % equation
             Smodel = x.ra + x.rb * exp(-obj.Prot.IRData.Mat./x.T1);
-            
+            if (strcmp(obj.options.method, 'Magnitude'))
+                Smodel = abs(Smodel);
+            end
         end
         
         
@@ -95,11 +97,15 @@ classdef InversionRecovery
             end
         end
         
-         function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             if ~exist('display','var'), display = 1; end
             Smodel = equation(obj, x);
-            sigma = max(Smodel)/SNR;
-            data.IRData = random('rician',Smodel,sigma);
+            sigma = max(abs(Smodel))/Opt.SNR;
+            if (strcmp(obj.options.method, 'Magnitude'))
+                data.IRData = random('rician',Smodel,sigma);
+            else
+                data.IRData = random('normal',Smodel,sigma);
+            end
             FitResults = fit(obj,data);
             if display
                 plotmodel(obj, FitResults, data);
@@ -110,11 +116,15 @@ classdef InversionRecovery
             % SimVaryGUI
             SimVaryResults = SimVary(obj, SNR, runs, OptTable);
         end
-        
+
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
         
         function plotmodel(obj, FitResults, data)
             if isempty(FitResults), return; end
-            if exist('data','var'),
+            if exist('data','var')
                 data = data.IRData;
                 % plot
                 plot(obj.Prot.IRData.Mat,data,'.','MarkerSize',15)
@@ -129,6 +139,7 @@ classdef InversionRecovery
             
             
             % compute model
+            obj.Prot.IRData.Mat = linspace(min(obj.Prot.IRData.Mat),max(obj.Prot.IRData.Mat),100);
             Smodel = equation(obj, FitResults);
             
             % plot fitting curve
