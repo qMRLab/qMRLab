@@ -70,7 +70,7 @@ if ~isempty(Model.buttons)
     % Generate Buttons
     handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel);
     
-    % Create CALLBACK for buttons
+    % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
     ff = fieldnames(handles.OptionsPanel_handle);
     for ii=1:length(ff)
         set(handles.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(handles));

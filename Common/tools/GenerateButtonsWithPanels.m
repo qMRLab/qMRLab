@@ -185,7 +185,10 @@ for i = 1:N
             'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(i) Width Height],'String',opts{2*i},'Value',val);
     elseif isnumeric(opts{2*i}) && length(opts{2*i})>1
              handle.(tag) = uitable(PanelHandle,'Data',opts{2*i},'Units','normalized','Position',[0.45 y(i) Width Height]);
-
+    elseif strcmp(opts{2*i},'pushbutton')         
+            handle.(tag) = uicontrol('Style','togglebutton','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
+            'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(i) 0.9 Height],...
+            'HorizontalAlignment','center');
     end
 end
 
