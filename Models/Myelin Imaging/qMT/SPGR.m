@@ -151,7 +151,7 @@ classdef SPGR
             'Use R1map to constrain R1f',true,...
             'Fix R1r = R1f',false,...
             'Read pulse alpha',7,...
-            'Compute SfTable',{'NO','YES'}};
+            'Compute SfTable','pushbutton'};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
@@ -166,9 +166,9 @@ classdef SPGR
         end
         
         function obj = UpdateFields(obj)
-            if strcmp(obj.options.ComputeSfTable,'YES')
+            if obj.options.ComputeSfTable
                 obj.ProtSfTable = CacheSf(GetProt(obj));
-                obj.options.ComputeSfTable = 'NO';
+                obj.ProtSfTable.Prot = obj.Prot;
             end
             % TR must be the sum of Tmt, Ts, Tp and Tr
             obj.Prot.TimingTable.Mat(5) = obj.Prot.TimingTable.Mat(1)+...
@@ -183,7 +183,9 @@ classdef SPGR
         
         function obj = Precompute(obj)
             if isempty(fieldnames(obj.ProtSfTable))
-                obj.ProtSfTable = CacheSf(GetProt(obj));   
+                obj.ProtSfTable = CacheSf(GetProt(obj));
+            else
+                obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
             end         
         end
         
@@ -210,8 +212,10 @@ classdef SPGR
             Smodel = equation(obj, x, Opt);
             data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
             FitResults = fit(obj,data);
+            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
             if display
                 plotmodel(obj, FitResults, data);
+                drawnow;
             end
         end
         

@@ -1,13 +1,29 @@
-function Sf = BuildSfTable(angles, offsets, T2f, Trf, shape, PulseOpt)
+function Sf = BuildSfTable(angles, offsets, T2f, Trf, shape, PulseOpt,oldSf)
 %BuildSfTable Precompute the values of Sf for a range of MT pulse angles,
 %offsets and T2f values.
 
 nA = length(angles);
 nO = length(offsets);
 nT = length(T2f);
-values = zeros(nA,nO,nT);
+values = nan(nA,nO,nT);
 
 if (nargin < 6); PulseOpt = struct; end
+
+% Check if same as old Sf Table
+Sf.angles  =  angles;
+Sf.offsets =  offsets;
+Sf.T2f     =  T2f;
+Sf.values  =  values;
+Sf.PulseShape = shape;
+Sf.PulseTrf = Trf;
+Sf.PulseOpt = PulseOpt;
+
+if exist('oldSf','var')
+    [~,d1,d2] = comp_struct(rmfield(Sf,'values'),rmfield(oldSf,'values'));
+    % same as oldSf? return old Sf.
+    if isempty(d1) && isempty(d2), Sf = oldSf; return; end
+end
+
 
 % Create waitbar
 h = waitbar(0,'','Name','Computing Sf table','CreateCancelBtn',...
@@ -33,13 +49,8 @@ for ii = 1:nA
 end
 
 delete(h);
-
-Sf.angles  =  angles;
-Sf.offsets =  offsets;
-Sf.T2f     =  T2f;
-Sf.values  =  values;
-Sf.PulseShape = shape;
-Sf.PulseTrf = Trf;
-Sf.PulseOpt = PulseOpt;
+if stop
+    Sf=[];
+end
 
 end

@@ -17,7 +17,7 @@ function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 % ----------------------------------------------------------------------------------------------------
 
 if ~isfield(Prot,'Sf') || isempty(Prot.Sf)
-    errordlg('Please build Sf Table in the options panel to enable fitting...'); 
+    warndlg('Build Sf Lookup Table in the options panel for faster fitting...','Lookup Table empty'); 
 end
 
 if length(Prot.Angles)~=length(MTdata)
