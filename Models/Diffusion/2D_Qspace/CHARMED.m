@@ -107,7 +107,7 @@ classdef CHARMED
 
 % -------------CHARMED EQUATION-------------------------------------------------------------------------
 
-        function Smodel = equation(obj, x)
+        function [Smodel, x] = equation(obj, x)
             if isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
                     xtmp(ix) = x.(obj.xnames{ix});
@@ -119,6 +119,7 @@ classdef CHARMED
             opt = obj.options;
             opt.scheme = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             Smodel = scd_model_CHARMED(x,opt);
+            x(4)=[];
         end
         
 % -------------DATA FITTING-------------------------------------------------------------------------
@@ -190,9 +191,10 @@ classdef CHARMED
 % -------------PLOT EQUATION-------------------------------------------------------------------------
         function plotmodel(obj, x, data)
             % u.plotmodel(u.st)
+            if nargin<2, x=obj.st; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
             if ~isempty(x)
-                Smodel = obj.equation(x);
+                [Smodel, x]= obj.equation(x);
             end
             % plot data
             S0 = 1;
@@ -220,6 +222,7 @@ classdef CHARMED
                 scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'none','-');
             end
             hold off
+            title(strrep(strrep(cell2str_v2(Interleave(obj.xnames,repmat('=',1,length(obj.xnames)),x)),''', ''='',',' ='),'''',''),'FontSize',8)
         end
 
 % -------------PLOT DIFFUSION PROTOCOL-------------------------------------------------------------------------

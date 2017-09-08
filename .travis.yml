@@ -22,12 +22,7 @@ before_install:
     - travis_retry sudo apt-get -y -qq update
     # get Octave 4,0
     - travis_retry sudo apt-get -y -qq install octave liboctave-dev
-    # install qMRLab
-    - cd ..
-    - rm -rf qMRLab
-    - git clone https://github.com/neuropoly/qMRLab.git
-
 script:
-    octave --no-gui --eval "addpath('~/git/qMRLab');cd('~/git/qMRLab');startup;cd('Test');moxunit_runtests('-recursive')"
+    octave --no-gui --eval "startup;cd('Test');moxunit_runtests('-recursive')"
 
 
