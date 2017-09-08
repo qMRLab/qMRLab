@@ -26,10 +26,6 @@ before_install:
     - cd ..
     - rm -rf qMRLab
     - git clone https://github.com/qMRLab/qMRLab.git
-    # retrieve MOdox
-    - rm -rf MOdox
-    - travis_retry git clone -v git://github.com/MOdox/MOdox.git
-    - make -C MOdox install
 
 script:
     octave --no-gui --eval "addpath('~/git/qMRLab');startup;runtests(pwd, 'Recursively', true)"
