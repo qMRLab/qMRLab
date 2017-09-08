@@ -1,5 +1,5 @@
-![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)
-# qMRLab (beta)
+# qMRLab (beta) [![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)
+
 
 qMRlab is a powerful, open source, scalable, easy to use and intuitive software for qMRI data simulation, fitting and analysis. The software consists of two parts:
 1) a qMRI data fitting and visualization interface
