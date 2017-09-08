@@ -113,7 +113,8 @@ classdef BrowserSet
             tmp = [];
             if strcmp(ext,'.mat');
                 mat = load(obj.FullFile);
-                tmp = mat.(name);
+                mapName = fieldnames(mat);
+                tmp = mat.(mapName{1});
             elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
                 nii = load_untouch_nii(obj.FullFile);
                 tmp = nii.img;
@@ -130,14 +131,14 @@ classdef BrowserSet
                 tmp = File;
             end  
             Data.(obj.NameID{1}) = double(tmp);
+            if exist('nii','var'),	Data.hdr = nii.hdr; end
             setappdata(0, 'Data', Data);            
         end
         
         %------------------------------------------------------------------
         % -- setPath
         % search for filenames that match the NameText
-        function setPath(obj, Path, fileList)           
-            
+        function setPath(obj, Path, fileList)       
             % clear previous file paths
             set(obj.FileBox, 'String', '');
             DataName = get(obj.NameText, 'String');

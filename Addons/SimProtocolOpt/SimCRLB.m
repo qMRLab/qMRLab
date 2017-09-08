@@ -5,8 +5,10 @@ function [F,xnames,CRLB]=SimCRLB(obj,Prot,xvalues,sigma,vars)
 %
 % this function look at the stability of model equation -->
 % outputs a score F : minimum COV per variable
-
-variables=find(~obj.fx);
+if ~isfield(obj,'fx'), variables = 1:length(obj.xnames);
+else
+    variables=find(~obj.fx);
+end
 F=zeros(size(xvalues,1),length(variables));
 
 for ix=1:size(xvalues,1)

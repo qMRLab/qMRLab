@@ -1,0 +1,13 @@
+Enter the tissue flag to be used for processing (1->CSF, 2->GM, 3->WM): 3
+Does the data acquisition use one (1) or two (2) sequences?: 1
+Enter the first echo time in ms: 10
+Enter the echo spacing in ms: 10
+Enter the desired upper cutoff for myelin water (in ms): 50
+{Error using <a href="matlab:helpUtils.errorDocCallback('multi_comp_fit', '/home/Julien/Documents/MATLAB/met2_eva/multi_comp_fit.m', 80)" style="font-weight:bold">multi_comp_fit</a> (<a href="matlab: opentoline('/home/Julien/Documents/MATLAB/met2_eva/multi_comp_fit.m',80,0)">line 80</a>)
+
+Error in multi_comp_fit: cannot find input data file vol.mnc
+
+} 
+multi_comp_fit('vol.mnc', 'T2', 'tissue', 'brain_classified_SS.mnc')
+multi_comp_fit       : $Revision: 1.0 $
+multi_comp_fit       : Current date and time: 10-Mar-2016 15:51:48

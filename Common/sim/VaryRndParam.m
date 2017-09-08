@@ -48,11 +48,11 @@ for ii = 1:n
     SimRndResults.MTdata(ii,:) = M;
     
     if (Sim.Opt.AddNoise)
-        switch Method
-            case {'SIRFSE', 'SPGR'}
-                MTdata = addNoise(M, SNR, 'mt');
-            case 'bSSFP'
-                MTdata = addNoise(M, SNR, 'magnitude');
+    	switch Method
+			case {'SIRFSE', 'SPGR'}
+            	MTdata = addNoise(M, SNR, 'mt');
+        	case 'bSSFP'
+            	MTdata = addNoise(M, SNR, 'magnitude');
         end
     else
         MTdata = M;

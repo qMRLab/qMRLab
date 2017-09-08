@@ -2,11 +2,12 @@ function handle = GenerateButtons(opts,ParentPanel, maxSize, ncol)
 ncol=1;
 
 N = length(opts)/2;
+if isempty(opts), handle=struct(); return; end
 [I,J]=ind2sub([ncol N],1:(2*N)); Iw = 0.8/max(I); I=(0.1+0.8*(I-1)/max(I));
 Jh = min(maxSize,1/(N+1)); J=1-Jh:-Jh:0; Jh=1.5*Jh;
 for i = 1:N
     val = opts{2*i};
-    tag=genvarname(opts{2*i-1});
+    tag=genvarname_v2(opts{2*i-1});
     if islogical(opts{2*i})
         handle.(tag) = uicontrol('Style','checkbox','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
             'Parent',ParentPanel,'Units','normalized','Position',[I(i) J(i) Iw Jh/2],...

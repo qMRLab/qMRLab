@@ -22,7 +22,7 @@ function varargout = Sim_Sensitivity_Analysis_GUI(varargin)
 
 % Edit the above text to modify the response to help Sim_Sensitivity_Analysis_GUI
 
-% Last Modified by GUIDE v2.5 09-Jun-2017 16:43:19
+% Last Modified by GUIDE v2.5 27-Jul-2017 17:23:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -54,20 +54,36 @@ if ~isfield(handles,'opened')
     Nparam=length(handles.Model.xnames);
     FitOptTable(:,1)=handles.Model.xnames(:);
     if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,2)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
-    if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
-        FitOptTable(:,3)=mat2cell(handles.Model.st(:),ones(Nparam,1));
-    end
+    
     if isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
         FitOptTable(:,4)=mat2cell(handles.Model.lb(:),ones(Nparam,1));
         FitOptTable(:,5)=mat2cell(handles.Model.ub(:),ones(Nparam,1));
     end
+    if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
+        FitOptTable(:,3)=mat2cell(handles.Model.st(:),ones(Nparam,1));
+    elseif size(FitOptTable,2)==5
+        FitOptTable(:,3) = mat2cell(mean(cat(2,handles.Model.lb(:),handles.Model.ub(:)),2),ones(Nparam,1));
+    else
+        FitOptTable(:,3) = mat2cell(ones(Nparam,1),ones(Nparam,1));
+    end
+    
     set(handles.SimVaryOptTable,'Data',FitOptTable)
     % fill parameters
     set(handles.SimVaryPlotX,'String',handles.Model.xnames')
     set(handles.SimVaryPlotY,'String',handles.Model.xnames')
     
     % Options
-    handles.options = GenerateButtons({'SNR',50,'# of runs',5},handles.OptionsPanel,.3,1);    
+    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons')
+        opts = handles.Model.Sim_Single_Voxel_Curve_buttons;
+    else
+        opts = {'SNR',50};
+    end
+    if isprop(handles.Model,'Sim_Sensitivity_Analysis_buttons'), opts = cat(2,opts,handles.Model.Sim_Sensitivity_Analysis_buttons); 
+    else
+        opts = cat(2,opts,{'# of run',20});
+    end
+
+    handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
     handles.opened = 1;
 end
 % Update handles structure
@@ -75,7 +91,7 @@ guidata(hObject, handles);
 
 
 % UIWAIT makes Sim_Sensitivity_Analysis_GUI wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.Simu);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -111,21 +127,21 @@ function PrintMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to PrintMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-printdlg(handles.figure1)
+printdlg(handles.Simu)
 
 % --------------------------------------------------------------------
 function CloseMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to CloseMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-selection = questdlg(['Close ' get(handles.figure1,'Name') '?'],...
-    ['Close ' get(handles.figure1,'Name') '...'],...
+selection = questdlg(['Close ' get(handles.Simu,'Name') '?'],...
+    ['Close ' get(handles.Simu,'Name') '...'],...
     'Yes','No','Yes');
 if strcmp(selection,'No')
     return;
 end
 
-delete(handles.figure1)
+delete(handles.Simu)
 
 
 % --- Executes on selection change in popupmenu1.
@@ -189,11 +205,14 @@ end
 
 % --- Executes on button press in SimVaryUpdate.
 function SimVaryUpdate_Callback(hObject, eventdata, handles)
-runs = str2double(get(handles.options.x0x23OfRuns,'String'));
-SNR = str2double(get(handles.options.SNR,'String'));
+Model_new = getappdata(0,'Model');
+if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
+    handles.Model = Model_new;
+end
 FitOptTable = get(handles.SimVaryOptTable,'Data'); FitOptTable(:,2)=mat2cell(~[FitOptTable{:,2}]',ones(size(FitOptTable,1),1), 1);
 FitOptTable = cell2struct(FitOptTable,{'xnames','fx','st','lb','ub'},2);
-handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(SNR,runs,FitOptTable);
+Opts = button_handle2opts(handles.options);
+handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(FitOptTable,Opts);
 SetSimVaryResults(handles)
 guidata(hObject, handles);
 

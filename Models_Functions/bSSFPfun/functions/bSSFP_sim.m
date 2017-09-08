@@ -8,6 +8,7 @@ PulseShape = Prot.Pulse.shape;
 
 alpha = Prot.alpha;
 Trf = Prot.Trf;
+M0r = Param.F.*Param.M0f;
 
 if (Prot.FixTR)
     TR = Prot.TR * ones(length(alpha),1);
@@ -22,7 +23,7 @@ Mevol = zeros(nA,nP);
 stop = 0;
 ww = 0;
 
-M0 = [0 0 Param.M0f Param.M0r]';
+M0 = [0 0 Param.M0f M0r]';
 Mread = 0;
 Mprev = 0;
 h = [];
@@ -47,7 +48,7 @@ for kk = 1:nA
    
     % Reset M to equilibrium
     if (Sim.Opt.Reset)
-        M0 = [0 0 Param.M0f Param.M0r]';
+        M0 = [0 0 Param.M0f M0r]';
     else
         M0(1:2) = 0;
     end

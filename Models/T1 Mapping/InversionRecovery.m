@@ -1,21 +1,40 @@
 classdef InversionRecovery
-    % ----------------------------------------------------------------------------------------------------
-    % InversionRecovery :  T1 map using Inversion Recovery
-    % ----------------------------------------------------------------------------------------------------
-    % Assumptions :
-    % ----------------------------------------------------------------------------------------------------
-    %
-    %  Fitted Parameters:
-    %               (1) T1
-    %               (2) 'b' or 'rb' parameter
-    %               (3) 'a' or 'ra' parameter
-    %               (4) residual from the fit%
-    %
-    % Options:
-    
-    % ----------------------------------------------------------------------------------------------------
-    % Written by: Ilana Leppert 2017
-    % ----------------------------------------------------------------------------------------------------
+%-----------------------------------------------------------------------------------------------------
+% InversionRecovery :  T1 map using Inversion Recovery
+%-----------------------------------------------------------------------------------------------------
+%-------------%
+% ASSUMPTIONS %
+%-------------% 
+% (1) FILL
+% (2) 
+% (3) 
+% (4) 
+%
+%-----------------------------------------------------------------------------------------------------
+%--------%
+% INPUTS %
+%--------%
+%   1) IRData : Inversion Recovery data
+%   2) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OUTPUTS %
+%---------%
+%	Fitting Parameters
+%       * T1
+%       * 'b' or 'rb' parameter
+%       * 'a' or 'ra' parameter
+%       * Fitting residual
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   FILL
+%-----------------------------------------------------------------------------------------------------
+% Written by: Ilana Leppert 2017
+%-----------------------------------------------------------------------------------------------------
     
     properties
         MRIinputs = {'IRData','Mask'}; % input data required
@@ -23,23 +42,23 @@ classdef InversionRecovery
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [600     -1000        500     ]; % starting point
-        lb            = [0     -10000        0       ]; % lower bound
-        ub           = [5000       0         10000       ]; % upper bound
-        fx            = [0      0           0    ]; % fix parameters
+        st           = [  600    -1000      500 ]; % starting point
+        lb           = [    0   -10000        0 ]; % lower bound
+        ub           = [ 5000        0    10000 ]; % upper bound
+        fx           = [    0        0        0 ]; % fix parameters
         
         % Protocol
         Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'));
         
         % Model options
         buttons = {'method',{'Magnitude','Complex'}};
-        options= struct(); % structure filled by the buttons. Leave empty in the code
+        options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
     
     methods
         function obj = InversionRecovery
-            obj = button2opts(obj);
+            obj.options = button2opts(obj.buttons);
         end
         
 %         function obj = UpdateFields(obj)
@@ -66,18 +85,18 @@ classdef InversionRecovery
         
         function FitResults = fit(obj,data)
             data = data.IRData;
-            [T1,rb,ra,res,idx]=fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
-            FitResults.T1 = T1;
-            FitResults.rb = rb;
-            FitResults.ra = ra;
+            [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
+            FitResults.T1  = T1;
+            FitResults.rb  = rb;
+            FitResults.ra  = ra;
             FitResults.res = res;
             if (strcmp(obj.options.method, 'Magnitude'))
-                FitResults.idx=idx;
+                FitResults.idx = idx;
             end
         end
         
          function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
-            if ~exist('display','var'), display=1; end
+            if ~exist('display','var'), display = 1; end
             Smodel = equation(obj, x);
             sigma = max(Smodel)/SNR;
             data.IRData = random('rician',Smodel,sigma);
@@ -102,7 +121,7 @@ classdef InversionRecovery
                 hold on
                 if (strcmp(obj.options.method, 'Magnitude'))
                     % plot the polarity restored data points
-                    data_rest=-1.*data(1:FitResults.idx);
+                    data_rest = -1.*data(1:FitResults.idx);
                     plot(obj.Prot.IRData.Mat(1:FitResults.idx),data_rest,'o','MarkerSize',5,'MarkerEdgeColor','b','MarkerFaceColor',[1 0 0])
                 end
             end
