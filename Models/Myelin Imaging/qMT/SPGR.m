@@ -137,7 +137,7 @@ classdef SPGR
             struct('Format',{{'Tmt (s)'; 'Ts (s)'; 'Tp (s)'; 'Tr (s)'; 'TR (s)'}},...
             'Mat',[0.0102; 0.0030; 0.0018; 0.0100; 0.0250]));
         
-        ProtSfTable = struct; % SfTable declaration
+        ProtSfTable = load('DefaultSFTable.mat'); % SfTable declaration
         
         % Model options
         buttons = {'PANEL','MT_Pulse', 5,...
@@ -168,7 +168,6 @@ classdef SPGR
         function obj = UpdateFields(obj)
             if obj.options.ComputeSfTable
                 obj.ProtSfTable = CacheSf(GetProt(obj));
-                obj.ProtSfTable.Prot = obj.Prot;
             end
             % TR must be the sum of Tmt, Ts, Tp and Tr
             obj.Prot.TimingTable.Mat(5) = obj.Prot.TimingTable.Mat(1)+...
@@ -195,14 +194,14 @@ classdef SPGR
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');
-                
+                warning('No MToff. MTData cannot be normalized.');  
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
                 Protocol.Angles  = Protocol.Angles(~NoMT);
                 Protocol.Offsets = Protocol.Offsets(~NoMT);
             end
+            % fit data
             FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
         end
         
@@ -313,9 +312,11 @@ classdef SPGR
             Prot.Tp = obj.Prot.TimingTable.Mat(3);
             Prot.Tr = obj.Prot.TimingTable.Mat(4);
             Prot.TR = obj.Prot.TimingTable.Mat(5);
-            % Check is the Sf table had already been compute
-            if ~isempty(fieldnames(obj.ProtSfTable))
-                Prot.Sf = obj.ProtSfTable;
+            % Check is the Sf table had already been compute and
+            % corresponds to the current Protocol
+            if ~isempty(obj.ProtSfTable)
+                Sf = CacheSf(Prot,obj.ProtSfTable,0);
+                if ~isempty(Sf), Prot.Sf=Sf; end
             end
         end
         

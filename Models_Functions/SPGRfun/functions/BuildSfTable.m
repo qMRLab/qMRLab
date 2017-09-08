@@ -1,11 +1,11 @@
-function Sf = BuildSfTable(angles, offsets, T2f, Trf, shape, PulseOpt,oldSf)
+function Sf = BuildSfTable(angles, offsets, T2f, Trf, shape, PulseOpt,oldSf, compute)
 %BuildSfTable Precompute the values of Sf for a range of MT pulse angles,
 %offsets and T2f values.
 
 nA = length(angles);
 nO = length(offsets);
 nT = length(T2f);
-values = nan(nA,nO,nT);
+Sf.values = zeros(nA,nO,nT);
 
 if (nargin < 6); PulseOpt = struct; end
 
@@ -13,7 +13,6 @@ if (nargin < 6); PulseOpt = struct; end
 Sf.angles  =  angles;
 Sf.offsets =  offsets;
 Sf.T2f     =  T2f;
-Sf.values  =  values;
 Sf.PulseShape = shape;
 Sf.PulseTrf = Trf;
 Sf.PulseOpt = PulseOpt;
@@ -23,7 +22,7 @@ if exist('oldSf','var')
     % same as oldSf? return old Sf.
     if isempty(d1) && isempty(d2), Sf = oldSf; return; end
 end
-
+if exist('compute','var') && compute==0, Sf=[]; return; end
 
 % Create waitbar
 h = waitbar(0,'','Name','Computing Sf table','CreateCancelBtn',...
@@ -40,7 +39,7 @@ for ii = 1:nA
             waitbar(ww/(nA*nO*nT),h,sprintf('Data %d/%d', ww, nA*nO*nT));
             
             MTpulse = GetPulse(angles(ii),offsets(jj),Trf,shape,PulseOpt);
-            values(ii,jj,kk) = computeSf(T2f(kk), MTpulse);
+            Sf.values(ii,jj,kk) = computeSf(T2f(kk), MTpulse);
             ww = ww+1;
         end
         if (stop); break; end;
