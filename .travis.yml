@@ -25,9 +25,9 @@ before_install:
     # install qMRLab
     - cd ..
     - rm -rf qMRLab
-    - git clone https://github.com/qMRLab/qMRLab.git
+    - git clone https://github.com/neuropoly/qMRLab.git
 
 script:
-    octave --no-gui --eval "addpath('~/git/qMRLab');startup;runtests(pwd, 'Recursively', true)"
+    octave --no-gui --eval "addpath('~/git/qMRLab');cd('~/git/qMRLab');startup;cd('Test');moxunit_runtests('-recursive')"
 
 
