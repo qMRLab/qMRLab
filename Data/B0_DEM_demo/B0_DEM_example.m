@@ -21,7 +21,7 @@ file.Magn = 'Magn.nii';
 %**************************************************************************
 % II- CHECK DATA AND FITTING
 %**************************************************************************
-qMRLab(Model,file);
+%qMRLab(Model,file);
 
 
 %% Create Quantitative Maps
