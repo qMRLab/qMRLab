@@ -4,7 +4,7 @@ function [w1rp, Tau] = compute_w1rp(Pulse)
       
 Trf = Pulse.Trf;
 omega2 = Pulse.omega2;
-int = integral(omega2, 0, Trf);
+int = quad(omega2, 0, Trf);
 
 if strcmp(Pulse.shape,'hard')
     Tau = Trf;

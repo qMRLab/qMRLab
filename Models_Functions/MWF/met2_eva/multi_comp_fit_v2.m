@@ -139,7 +139,9 @@ end
 T2.num = 120;
   
 % set default values for reg-NNLS (taken from C. Chia)
-set(0,'RecursionLimit',5000)
+if ~moxunit_util_platform_is_octave
+    set(0,'RecursionLimit',5000)
+end
 mu = 0.25;
 chi2range = [2 2.5];
 chi2_min  = chi2range(1);

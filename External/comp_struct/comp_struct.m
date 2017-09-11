@@ -121,7 +121,7 @@ if ~isequal(s1,s2)
 				if min(size(s1) == size(s2)) && ...
 						(isa(s1,'single') || isa(s1,'double'))
 					% tolerance match?
-					if numel(find(abs(s1-s2) < tol)) == numel(s1)
+					if ((s1==0 || s2 ==0) && abs(s1-s2) < tol) || numel(find(abs(s1-s2)/s1 < tol)) == numel(s1)
 						flag(1) = 0;
 					end
 				else

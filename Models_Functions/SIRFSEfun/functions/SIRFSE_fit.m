@@ -35,7 +35,7 @@ end
 fix = FitOpt.fx;
 
 % Fitting
-opt = optimoptions(@lsqcurvefit, 'Display', 'off');
+opt.Display = 'off';
 
 [x_free, resnorm, residuals] = lsqcurvefit(@(x,xdata) SIRFSE_fun(choose( FitOpt.st, x, fix ),xdata, FitOpt),...
                      FitOpt.st(~fix), t, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);

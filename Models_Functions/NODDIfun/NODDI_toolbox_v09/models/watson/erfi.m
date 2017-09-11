@@ -15,7 +15,9 @@ function ans=erfi(x)
 % z=x+i*y;
 % figure(1), clf;contourf(x,y,log(erfi(z)))
 % axis equal;axis off
-xc=5.7;%cut for asymptotic approximation (when x is real)
-ans=~isreal(x).*(-(sqrt(-x.^2)./(x+isreal(x))).*gammainc(-x.^2,1/2))+...
-    isreal(x).*real(-sqrt(-1).*sign(x).*((x<xc).*gammainc(-x.^2,1/2))+...
-    (x>=xc).*exp(x.^2)./x/sqrt(pi));
+ans = Faddeeva_erfi(x);
+% 
+% xc=5.7;%cut for asymptotic approximation (when x is real)
+% ans=~isreal(x).*(-(sqrt(-x.^2)./(x+isreal(x))).*gammainc(-x.^2,1/2))+...
+%     isreal(x).*real(-sqrt(-1).*sign(x).*((x<xc).*gammainc(-x.^2,1/2))+...
+%     (x>=xc).*exp(x.^2)./x/sqrt(pi));

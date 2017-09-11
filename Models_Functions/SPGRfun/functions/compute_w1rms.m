@@ -4,7 +4,7 @@ function w1rms = compute_w1rms(Pulse)
 
 Trf = Pulse.Trf;
 omega2 = Pulse.omega2;
-int = integral(omega2, 0, Trf);
+int = quad(omega2, 0, Trf);
 w1rms = sqrt( int / Trf );
 
 end
