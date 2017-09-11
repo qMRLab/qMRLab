@@ -23,6 +23,6 @@ before_install:
     # get Octave 4,0
     - travis_retry sudo apt-get -y -qq install octave liboctave-dev
 script:
-    octave --no-gui --eval "startup;cd('Test');moxunit_runtests('-recursive')"
+    octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');moxunit_runtests('-recursive')"
 
 
