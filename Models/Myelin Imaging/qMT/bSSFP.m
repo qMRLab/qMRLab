@@ -176,6 +176,11 @@ classdef bSSFP
         end
         
         function plotmodel(obj, x, data)
+            if nargin<2, x = obj.st; data.MTdata = []; end
+            if isnumeric(x)
+                x=mat2struct(x,obj.xnames);
+            end
+
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
             SimCurveResults = bSSFP_SimCurve(x, Protocol, FitOpt );
@@ -183,6 +188,8 @@ classdef bSSFP
             axe(1) = subplot(2,1,1);
             axe(2) = subplot(2,1,2);
             bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults, axe);
+            if ~isfield(x,'kf'), x.kf = x.kr/x.F; end;
+            if ~isfield(x,'resnorm'), x.resnorm = 0; end;
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
                 x.F,x.kf,x.R1f,x.R1r,x.T2f,x.M0f,x.resnorm), ...
                 'FontSize',10);

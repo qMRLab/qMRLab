@@ -174,12 +174,19 @@ classdef SIRFSE
         end
         
         function plotmodel(obj, x, data)
+            if nargin<2, x = obj.st; data.MTdata = []; end
+            if isnumeric(x)
+                x=mat2struct(x,obj.xnames);
+            end
+
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
             x.Sf = - x.Sf;
             SimCurveResults = SIRFSE_SimCurve(x, Protocol, FitOpt );
             Sim.Opt.AddNoise = 0;
             SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults);
+            if ~isfield(x,'kf'), x.kf = x.kr/x.F; end;
+            if ~isfield(x,'resnorm'), x.resnorm = 0; end;
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
                 x.F,x.kf,x.R1f,x.R1r,-x.Sf,x.Sr,x.M0f,x.resnorm), ...
                 'FontSize',10);

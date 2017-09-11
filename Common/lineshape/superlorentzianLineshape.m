@@ -20,6 +20,6 @@ for ii = 1:length(delta)
     fun = @(u) sqrt(2/pi) .* (T2r./abs(3*u.^2-1)) .* ...
         exp(-2*((2*pi .* delta(ii) .* T2r)./(3*u.^2-1)).^2);
     
-    g_Super(ii) = integral(fun, 0, 1);
+    g_Super(ii) = quad(fun, 0, 1);
 end
 

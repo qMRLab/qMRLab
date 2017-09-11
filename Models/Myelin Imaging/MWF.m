@@ -82,6 +82,30 @@ classdef MWF
             obj.lb(3) = obj.options.Cutoffms;            
         end
         
+        function [Smodel, Spectrum] = equation(obj,x,Opt)
+            if isnumeric(x), xbu = x; x=struct; x.MWF = xbu(1); x.T2MW = xbu(2); x.T2IEW = xbu(3); end
+            if nargin < 3, Opt.Spectrumvariance_T2Myelin = 5; Opt.Spectrumvariance_T2IntraExtracellularWater = 20; end
+            x.MWF = x.MWF/100;
+            % EchoTimes, T2 and DecayMatrix
+            EchoTimes   = obj.Prot.Echo.Mat;
+            T2          = getT2(obj,EchoTimes);
+            DecayMatrix = getDecayMatrix(EchoTimes,T2.vals);
+            % MF (Myelin Fraction) and IEF (Intra/Extracellular Fraction)
+            % with their index (index of the closest value)
+            MF  = x.MWF;
+            IEF = 1 - MF;
+            varT2 = Opt.Spectrumvariance_T2Myelin+eps; meanT2 = x.T2MW; beta=varT2/meanT2; alpha = meanT2/beta;
+            SpectrumMW = gampdf(T2.vals,alpha,beta); SpectrumMW(isnan(SpectrumMW))=0;
+            SpectrumMW = SpectrumMW/sum(SpectrumMW);
+            varT2 = Opt.Spectrumvariance_T2IntraExtracellularWater+eps; meanT2 = x.T2IEW; beta=varT2/meanT2; alpha = meanT2/beta;
+            SpectrumIEW = gampdf(T2.vals,alpha,beta); SpectrumIEW(isnan(SpectrumIEW))=0;
+            SpectrumIEW = SpectrumIEW/sum(SpectrumIEW);
+            % Create the spectrum
+            Spectrum = MF*SpectrumMW + IEF*SpectrumIEW;
+            % Generate the signal
+            Smodel = DecayMatrix * Spectrum;
+        end
+
         function [FitResults,Spectrum] = fit(obj,data)
             % EchoTimes, T2 and DecayMatrix
             EchoTimes   = obj.Prot.Echo.Mat;
@@ -104,7 +128,7 @@ classdef MWF
             if ~exist('Opt','var'), Opt = button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             [Smodel, Spectrum] = equation(obj,x,Opt);
             sigma = 1./Opt.SNR;
-            data.MET2data = random('rician',Smodel,sigma);
+            data.MET2data = ricernd(Smodel,sigma);
             data.Mask = 1;
             FitResults = fit(obj,data);
             if display
@@ -114,8 +138,9 @@ classdef MWF
                 T2          = getT2(obj,EchoTimes);
                 hold on
                 plot(T2.vals,Spectrum,'b');
-                Legend          = legend('Fitted Spectrum','Simulated Spectrum','Location','Best');
-                Legend.FontSize = 10;
+                if ~moxunit_util_platform_is_octave
+                legend({'Fitted Spectrum','Simulated Spectrum'},'FontSize',10);
+                end
                 hold off
             end
         end
@@ -131,6 +156,7 @@ classdef MWF
         end
         
         function plotmodel(obj, x, data, PlotSpectrum)
+            if nargin<2, x = mean([obj.lb(:),obj.ub(:)],2); end
             if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
             EchoTimes   = obj.Prot.Echo.Mat;
             T2          = getT2(obj,EchoTimes);
@@ -147,20 +173,21 @@ classdef MWF
                 %----------------------- subplot 1 -----------------------%
                 subplot(2,1,1)
                 plot(T2.vals,Spectrum,'r');
-                Title           = title('Spectrums comparison');
-                Title.FontSize  = 12;
+                title('Spectrums comparison','FontSize',12);
                 xlabel('T2 (ms)');
                 ylabel('Proton density');
                 %----------------------- subplot 2 -----------------------%
                 subplot(2,1,2)
-                plot(EchoTimes,data.MET2data,'+')
-                hold on
+                if exist('data','var')
+                    plot(EchoTimes,data.MET2data,'+')
+                    hold on
+                end
                 plot(EchoTimes,Smodel,'r')
                 hold off
-                Title           = title('Fitting');
-                Title.FontSize  = 12;
-                Legend          = legend('Simulated data','Fitted curve','Location','Best');
-                Legend.FontSize = 10;
+                title('Fitting','FontSize',12);
+                if ~moxunit_util_platform_is_octave
+                legend({'Simulated data','Fitted curve'},'Location','best','FontSize',12);
+                end
                 xlabel('EchoTimes (ms)');
                 ylabel('MET2 ()'); 
                 %---------------------------------------------------------%
@@ -173,54 +200,13 @@ classdef MWF
                 hold off
                 Title           = title('Fitting');
                 Title.FontSize  = 12;
-                Legend          = legend('Simulated data','Fitted curve','Location','Best');
-                Legend.FontSize = 10;
+                if ~moxunit_util_platform_is_octave
+                legend('Simulated data','Fitted curve','Location','best','FontSize',10);
+                end
                 xlabel('EchoTimes (ms)');
                 ylabel('MET2 ()');
                 %---------------------------------------------------------%
             end
-        end
-        
-        function [Smodel, Spectrum] = equation(obj,x,Opt)
-            if isnumeric(x), xbu = x; x=struct; x.MWF = xbu(1); x.T2MW = xbu(2); x.T2IEW = xbu(3); end
-            if nargin < 3, Opt.T2MW_Var = 0; Opt.T2IEW_Var = 0; end
-            x.MWF = x.MWF/100;
-            % EchoTimes, T2 and DecayMatrix
-            EchoTimes   = obj.Prot.Echo.Mat;
-            T2          = getT2(obj,EchoTimes);
-            DecayMatrix = getDecayMatrix(EchoTimes,T2.vals);
-            % MF (Myelin Fraction) and IEF (Intra/Extracellular Fraction)
-            % with their index (index of the closest value)
-            MF  = x.MWF;
-            IEF = 1 - MF;
-            SpectrumMW = pdf('rician',T2.vals,x.T2MW,sqrt(Opt.Spectrumvariance_T2Myelin+eps));
-            SpectrumMW = SpectrumMW/sum(SpectrumMW);
-            SpectrumIEW = pdf('rician',T2.vals,x.T2IEW,sqrt(Opt.Spectrumvariance_T2IntraExtracellularWater+eps));
-            SpectrumIEW = SpectrumIEW/sum(SpectrumIEW);
-            
-            % Create the spectrum
-            Spectrum = MF*SpectrumMW + IEF*SpectrumIEW;
-            % Generate the signal
-            Smodel = DecayMatrix * Spectrum;
-        end
-    end
-end
-
-function T2 = getT2(obj,EchoTimes)
-    T2.num = 120;
-    switch obj.options.RelaxationType
-        case 'T2'
-            T2.range = [1.5*EchoTimes(1), 400]; % Kolind et al. doi: 10.1002/mrm.21966
-        case 'T2star'
-            T2.range = [1.5*EchoTimes(1), 300]; % Lenz et al. doi: 10.1002/mrm.23241
-            %             T2_range = [1.5*echo_times(1), 600]; % Use this to look at CSF component
-    end
-    T2.vals = T2.range(1)*(T2.range(2)/T2.range(1)).^(0:(1/(T2.num-1)):1)';
-end
-
-function DecayMatrix = getDecayMatrix(EchoTimes,T2vals)
-    DecayMatrix = zeros(length(EchoTimes),length(T2vals));
-    for j = 1:length(T2vals)
-        DecayMatrix(:,j) = exp(-EchoTimes/T2vals(j))';
+        end        
     end
 end

@@ -102,7 +102,7 @@ classdef InversionRecovery
             Smodel = equation(obj, x);
             sigma = max(abs(Smodel))/Opt.SNR;
             if (strcmp(obj.options.method, 'Magnitude'))
-                data.IRData = random('rician',Smodel,sigma);
+                data.IRData = ricernd(Smodel,sigma);
             else
                 data.IRData = random('normal',Smodel,sigma);
             end
@@ -123,7 +123,7 @@ classdef InversionRecovery
         end
         
         function plotmodel(obj, FitResults, data)
-            if isempty(FitResults), return; end
+            if nargin<2 || isempty(FitResults), FitResults = obj.st; end
             if exist('data','var')
                 data = data.IRData;
                 % plot

@@ -86,12 +86,16 @@ classdef CustomExample % Name your Model
         
         function plotmodel(obj, FitResults, data)
             %  Plot the Model and Data.
+            if nargin<2, FitResults=obj.st; end
+
             Smodel = equation(obj, FitResults);
             bvalue = obj.Prot.DiffusionData.Mat(:,4);
             plot(bvalue,Smodel,'b+')
-            hold on
-            plot(bvalue,data.DiffusionData,'r+')
-            hold off
+            if exist('data','var');
+                hold on
+                plot(bvalue,data.DiffusionData,'r+')
+                hold off
+            end
             legend({'Model','Data'})
         end
         
