@@ -18,10 +18,10 @@ if moxunit_util_platform_is_octave
 end
 
 try 
-    erfi(.8)
+    erfi(.8);
 catch
     cur = pwd;
-    cd(fullfile('External','Faddeeva_MATLAB'))
+    cd(fullfile(fileparts(mfilename('fullpath')),'External','Faddeeva_MATLAB'))
     Faddeeva_build
     cd(cur)
 end
