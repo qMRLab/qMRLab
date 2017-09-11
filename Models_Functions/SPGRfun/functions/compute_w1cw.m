@@ -3,6 +3,10 @@ function w1cw = compute_w1cw(TR, Pulse)
 
 Trf = Pulse.Trf;
 omega2 = Pulse.omega2;
-int = quad(omega2, 0, Trf);
+if moxunit_util_platform_is_octave
+    int = quad(omega2, 0, Trf);
+else
+    int = integral(omega2, 0, Trf);
+end
 w1cw = sqrt( int / TR );
 

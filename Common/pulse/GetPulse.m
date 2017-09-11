@@ -41,7 +41,11 @@ switch shape
 end
 
 b1     =  @(t) pulse_fcn(t,Trf,PulseOpt);
-amp    =  2*pi*alpha / ( 360 * gamma * quad(@(t) (b1(t)), 0, Trf) );
+if moxunit_util_platform_is_octave
+    amp    =  2*pi*alpha / ( 360 * gamma * quad(@(t) (b1(t)), 0, Trf) );
+else
+    amp    =  2*pi*alpha / ( 360 * gamma * integral(@(t) (b1(t)), 0, Trf) );
+end
 % amp    =  2*pi*alpha / ( 360 * gamma * integral(@(t) abs(b1(t)), 0, Trf,'ArrayValued',true) );
 omega  =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt));
 omega2 =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt)).^2;
