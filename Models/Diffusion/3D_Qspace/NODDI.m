@@ -90,15 +90,18 @@ classdef NODDI
         
         function obj = UpdateFields(obj)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
-            model  = MakeModel(obj.options.modelname);
-            Pindex =~ ismember(model.paramsStr,{'b0','theta','phi'});
+            model      = MakeModel(obj.options.modelname);
+            Pindex     =~ ismember(model.paramsStr,{'b0','theta','phi'});
             obj.xnames = model.paramsStr(Pindex);
             obj.fx     = model.GD.fixed(Pindex);
-            grid  = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
-            scale = GetScalingFactors(obj.options.modelname);
+            grid       = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
+            scale      = GetScalingFactors(obj.options.modelname);
             obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
             obj.lb     = min(grid,[],2)'.*scale(Pindex);
             obj.ub     = max(grid,[],2)'.*scale(Pindex);
+            obj.st     = max(obj.st,obj.lb);
+            obj.st     = min(obj.st,obj.ub);
+            obj.st(ismember(model.paramsStr,{'ficvf'})) = .5;
         end
         
         function [Smodel, fibredir] = equation(obj, x)

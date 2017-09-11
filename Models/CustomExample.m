@@ -46,7 +46,7 @@ classdef CustomExample % Name your Model
     
     methods
         function obj = CustomExample
-            dbstop in CustomExample.m at 59
+            dbstop in CustomExample.m at 58
             obj.options = button2opts(obj.buttons); % converts buttons values to option structure
         end
         

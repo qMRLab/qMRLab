@@ -15,57 +15,43 @@ disp('testing plotmodel...')
 MethodList = list_models;
 for im = 1:length(MethodList)
     Model = str2func(MethodList{im}); Model = Model();
+    if ~Model.voxelwise, continue; end
     disp([class(Model) '...'])
-    if ~moxunit_util_platform_is_octave
-        if ismethod(Model,'plotmodel')
-            disp ..ok
-        else
-            disp('..skipped (plotmodel method does not exist)')
-        end
-    else
-        try    Model.plotmodel;
-            disp ..ok
-        catch err
-            if isempty(strfind(err.message,'unknown method or property: plotmodel'))
-                Model.plotmodel;
-            else
-                disp('..skipped (plotmodel method does not exist)')
-            end
-        end
-    end
+	Model.plotmodel;
 end
+
+function test_equation
+disp('testing equations...')
+MethodList = list_models;
+for im = 1:length(MethodList)
+    Model = str2func(MethodList{im}); Model = Model();
+    if ~Model.voxelwise, continue; end
+    disp(class(Model))
+    try st = Model.st; catch, try st = mean([Model.lb(:),Model.ub(:)],2); catch, st = ones(length(Model.xnames),1); end; end
+    Smodel = Model.equation(st);
+    % compare with Ground Truth
+    GT = load(['value_' class(Model) '.mat']);
+    assertEqual(Smodel,GT.Smodel)
+    assertEqual(st,GT.st)
+end
+
 
 function test_Sim
 disp('testing Simulation Single Voxel Curve...')
 MethodList = list_models;
 for im = 1:length(MethodList)
     Model = str2func(MethodList{im}); Model = Model();
+    if ~Model.voxelwise, continue; end
     disp(class(Model))
-    try %ismethod(Model,'Sim_Single_Voxel_Curve')
-        try Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons); end
-        try st = Model.st; catch, try st = mean([Model.lb(:),Model.ub(:)],2); catch, st = ones(length(Model.xnames),1); end; end
-        Opt.SNR = 1000;
-        FitResults = Model.Sim_Single_Voxel_Curve(st,Opt);
-
-        % Compare inputs and outputs
-        fnm=fieldnames(FitResults);
-        FitResults = rmfield(FitResults,fnm(~ismember(fnm,Model.xnames))); fnm=fieldnames(FitResults);
-        [~,FitResults,GroundTruth]=comp_struct(FitResults,mat2struct(st,Model.xnames),[],[],.20);
-        assertTrue(isempty(FitResults) & isempty(GroundTruth),evalc('FitResults, GroundTruth'))
-        disp ..ok
-    catch err
-        if isempty(strfind(err.message,'No appropriate method, property, or field ''Sim_Single_Voxel_Curve''')) && isempty(strfind(err.message,'unknown method or property: Sim_Single_Voxel_Curve'))
-            FitResults = Model.Sim_Single_Voxel_Curve(st,Opt);
-            
-            % Compare inputs and outputs
-            fnm=fieldnames(FitResults);
-            FitResults = rmfield(FitResults,fnm(~ismember(fnm,Model.xnames))); fnm=fieldnames(FitResults);
-            [~,FitResults,GroundTruth]=comp_struct(FitResults,mat2struct(st,Model.xnames),[],[],.20);
-            assertTrue(isempty(FitResults) & isempty(GroundTruth),evalc('FitResults, GroundTruth'))
-            disp ..ok
-        else
-            disp('..skipped (Sim_Single_Voxel_Curve method does not exist)')
-        end
-    end
+    try Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons); end
+    try st = Model.st; catch, try st = mean([Model.lb(:),Model.ub(:)],2); catch, st = ones(length(Model.xnames),1); end; end
+    Opt.SNR = 1000;
+    FitResults = Model.Sim_Single_Voxel_Curve(st,Opt);
+    
+    % Compare inputs and outputs
+    fnm=fieldnames(FitResults);
+    FitResults = rmfield(FitResults,fnm(~ismember(fnm,Model.xnames))); fnm=fieldnames(FitResults);
+    [~,FitResults,GroundTruth]=comp_struct(FitResults,mat2struct(st,Model.xnames),[],[],.20);
+    assertTrue(isempty(FitResults) & isempty(GroundTruth),evalc('FitResults, GroundTruth'))
+    disp ..ok
 end
-

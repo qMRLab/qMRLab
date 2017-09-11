@@ -147,6 +147,7 @@ classdef SIRFSE
         end
         
         function mz = equation(obj, x, Opt)
+            if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             for ix = 1:length(x)
                 Sim.Param.(obj.xnames{ix}) = x(ix);
             end
