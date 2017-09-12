@@ -34,9 +34,11 @@ classdef SIRFSE
 %       * R1r : Longitudinal relaxation rate of the restricted pool 
 %               (R1r = 1/T1r).
 %       * Sf  : Instantaneous fraction of magnetization after vs. before 
-%               the pulse in the free pool.
+%               the pulse in the free pool. Starting point is computed using Block
+%               simulation.
 %       * Sr  : Instantaneous fraction of magnetization after vs. before 
-%               the pulse in the restricted pool.
+%               the pulse in the restricted pool. Starting point is computed using block
+%               simulation.
 %       * M0f : Equilibrium value of the free pool longitudinal 
 %               magnetization.
 %
@@ -143,7 +145,7 @@ classdef SIRFSE
             end
             SrParam = GetSrParam(obj);
             SrProt = GetSrProt(obj);
-            obj.st(6) = computeSr(SrParam,SrProt);
+            [obj.st(6),obj.st(5)] = computeSr(SrParam,SrProt);
         end
         
         function mz = equation(obj, x, Opt)
