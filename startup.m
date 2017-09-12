@@ -2,22 +2,29 @@ addpath(genpath(pwd))
 
 % install octave package
 if moxunit_util_platform_is_octave
-    try
-        pkg load optim
-    catch
-        pkg install -forge struct
-        pkg install -forge optim
-        pkg load optim
-    end
-    try
-        pkg load statistics
-    catch
-        pkg install -forge io
-        pkg install -forge statistics
+    installlist = {'struct','optim','io','statistics'};
+    for ii=1:length(installlist)
+        try
+            pkg('load',installlist{ii})
+        catch
+            errorcount = 1;
+            while errorcount % try to install 30 times (Travis)
+                try
+                    pkg('install','-forge',installlist{ii})
+                    pkg('load',installlist{ii})
+                    errorcount = 0;
+                catch err
+                    errorcount = errorcount+1;
+                    if errorcount>30
+                        error(err.message)
+                    end
+                end
+            end
+        end
     end
 end
 
-try 
+try
     erfi(.8);
 catch
     cur = pwd;
