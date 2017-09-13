@@ -36,7 +36,8 @@ classdef MWF
     % OPTIONS %
     %---------%
     %   * Cutoff : Time cutoff (s)
-    %   * Sigma  : Noise's sigma ?????
+    %   * Sigma  : Noise standard deviation. Currently not corrected for
+    %              rician bias...
     %
     %-----------------------------------------------------------------------------------------------------
     % Written by: Ian Gagnon, 2017
@@ -64,7 +65,7 @@ classdef MWF
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulation Options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',200,'PANEL','Spectrum variance',2,'T2 Myelin',5,'T2 Intra/Extracellular Water',20};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',200,'PANEL','T2 Spectrum variance',2,'Myelin',5,'IE (Intra/Extracellular Water)',20};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         
     end
@@ -84,7 +85,7 @@ classdef MWF
         
         function [Smodel, Spectrum] = equation(obj,x,Opt)
             if isnumeric(x), xbu = x; x=struct; x.MWF = xbu(1); x.T2MW = xbu(2); x.T2IEW = xbu(3); end
-            if nargin < 3, Opt.Spectrumvariance_T2Myelin = 5; Opt.Spectrumvariance_T2IntraExtracellularWater = 20; end
+            if nargin < 3, Opt.T2Spectrumvariance_Myelin = 5; Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20; end
             x.MWF = x.MWF/100;
             % EchoTimes, T2 and DecayMatrix
             EchoTimes   = obj.Prot.Echo.Mat;
@@ -94,10 +95,10 @@ classdef MWF
             % with their index (index of the closest value)
             MF  = x.MWF;
             IEF = 1 - MF;
-            varT2 = Opt.Spectrumvariance_T2Myelin+eps; meanT2 = x.T2MW; beta=varT2/meanT2; alpha = meanT2/beta;
+            varT2 = Opt.T2Spectrumvariance_Myelin+eps; meanT2 = x.T2MW; beta=varT2/meanT2; alpha = meanT2/beta;
             SpectrumMW = gampdf(T2.vals,alpha,beta); SpectrumMW(isnan(SpectrumMW))=0;
             SpectrumMW = SpectrumMW/sum(SpectrumMW);
-            varT2 = Opt.Spectrumvariance_T2IntraExtracellularWater+eps; meanT2 = x.T2IEW; beta=varT2/meanT2; alpha = meanT2/beta;
+            varT2 = Opt.T2Spectrumvariance_IEIntraExtracellularWater+eps; meanT2 = x.T2IEW; beta=varT2/meanT2; alpha = meanT2/beta;
             SpectrumIEW = gampdf(T2.vals,alpha,beta); SpectrumIEW(isnan(SpectrumIEW))=0;
             SpectrumIEW = SpectrumIEW/sum(SpectrumIEW);
             % Create the spectrum
@@ -173,7 +174,7 @@ classdef MWF
                 %----------------------- subplot 1 -----------------------%
                 subplot(2,1,1)
                 plot(T2.vals,Spectrum,'r');
-                title('Spectrums comparison','FontSize',12);
+                title('Spectrums','FontSize',12);
                 xlabel('T2 (ms)');
                 ylabel('Proton density');
                 %----------------------- subplot 2 -----------------------%
