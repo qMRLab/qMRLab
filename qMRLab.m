@@ -15,7 +15,7 @@ function varargout = qMRLab(varargin)
 % Software for data simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
-
+if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -291,8 +291,6 @@ end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
-FitResults.Model = Model;
-
 
 % Save info with results
 FileBrowserList = GetAppData('FileBrowserList');
@@ -321,8 +319,13 @@ if(~isempty(FitResults.StudyID))
 else
     filename = 'FitResults.mat';
 end
-if ~exist(fullfile(FitResults.WD,'FitResults','dir')), mkdir(fullfile(FitResults.WD,'FitResults')); end
-save(fullfile(FitResults.WD,'FitResults',filename),'-struct','FitResults');
+outputdir = fullfile(FitResults.WD,'FitResults');
+if ~exist(outputdir,'dir'), mkdir(outputdir); 
+else
+    outputdir = fullfile(FitResults.WD,['FitResults' datestr(now,'_yyyymmdd_HHMM')]);
+    mkdir(outputdir); 
+end
+save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
@@ -335,12 +338,14 @@ while isempty(mainfile)
 end    
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
-    file = strcat(map,'.nii');
     [~,~,ext]=fileparts(mainfile);
     if strcmp(ext,'.mat')
-        save_nii_v2(make_nii(FitResults.(map)),fullfile(FitResults.WD,'FitResults',file),[],64);
+        file = strcat(map,'.mat');
+        eval([map ' = FitResults.(map);'])
+        save(fullfile(outputdir,file),map);
     else
-        save_nii_v2(FitResults.(map),fullfile(FitResults.WD,'FitResults',file),mainfile,64);
+        file = strcat(map,'.nii');
+        save_nii_v2(FitResults.(map),fullfile(outputdir,file),mainfile,64);
     end
 end
 
@@ -592,7 +597,7 @@ else
     Model = getappdata(0,'Model');
     if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
     if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
-    Fit = Model.fit(data); % Display fitting results in command window
+    Fit = Model.fit(data) % Display fitting results in command window
     Model.plotmodel(Fit,data);
     
     % update legend
