@@ -56,6 +56,7 @@ Model = Model.UpdateFields;
 % .MAT file : load('DATA_FILE');
 %             data.DATA = double(DATA);
 % .NII file : data.DATA = double(load_nii_data('DATA_FILE'));
+data = struct;
 data.MTdata = double(load_nii_data('MTdata.nii'));
 data.Mask   = double(load_nii_data('Mask.nii'));
 

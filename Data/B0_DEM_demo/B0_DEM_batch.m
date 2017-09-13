@@ -1,4 +1,4 @@
-% Batch to process MTV data without qMRLab GUI (graphical user interface)
+% Batch to generate B0map with Dual Echo Method (DEM) without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
@@ -6,7 +6,7 @@
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('MTVParameters.mat');
+load('B0_DEMParameters.mat');
 
 %% Check data and fitting (Optional)
 
@@ -15,14 +15,14 @@ load('MTVParameters.mat');
 %**************************************************************************
 % Create a struct "file" that contains the NAME of all data's FILES
 % file.DATA = 'DATA_FILE';
-file.SPGR = 'SPGR.mat';
-file.B1map = 'B1map.mat';
-file.CSFMask = 'CSFMask.mat';
+file = struct;
+file.Phase = 'Phase.nii';
+file.Magn = 'Magn.nii';
 
 %**************************************************************************
 % II- CHECK DATA AND FITTING
 %**************************************************************************
-qMRLab(Model,file);
+%qMRLab(Model,file);
 
 
 %% Create Quantitative Maps
@@ -32,9 +32,8 @@ qMRLab(Model,file);
 %**************************************************************************
 
 % Echo (time in millisec)
-FlipAngle = [ 4 ; 10 ; 20];
-TR        = 0.025 * ones(length(FlipAngle),1);
-Model.Prot.MTV.Mat = [ FlipAngle , TR ];
+TE2 = 1.92e-3;
+Model.Prot.Time.Mat = TE2;
 
 % Update the model
 Model = Model.UpdateFields;
@@ -46,18 +45,13 @@ Model = Model.UpdateFields;
 % .MAT file : load('DATA_FILE');
 %             data.DATA = double(DATA);
 % .NII file : data.DATA = double(load_nii_data('DATA_FILE'));
-load('SPGR.mat');
-data.SPGR    = double(SPGR);
-load('B1map.mat');
-data.B1map   = double(B1map);
-load('CSFMask.mat');
-data.CSFMask = double(CSFMask);
-
+data.Phase = double(load_nii_data('Phase.nii'));
+data.Magn  = double(load_nii_data('Magn.nii'));
 
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
-FitResults       = FitDataCustom(data,Model);
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 
 %**************************************************************************
@@ -65,7 +59,7 @@ FitResults.Model = Model;
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_mat(FitResults);
+FitResultsSave_nii(FitResults,'Phase.nii');
 save('Parameters.mat','Model');
 
 %% Check the results

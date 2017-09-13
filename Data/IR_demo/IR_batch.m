@@ -1,0 +1,65 @@
+% Batch to process CHARMED data without qMRLab GUI (graphical user interface)
+% Run this script line by line
+%**************************************************************************
+%% I- LOAD DATASET
+%**************************************************************************
+
+% Create Model object 
+Model = InversionRecovery;
+% Load Diffusion Protocol
+Model.Prot.IRData.Mat = txt2mat('TI.txt');
+
+%**************************************************************************
+%% II - Perform Simulations
+%**************************************************************************
+
+% Generate MR Signal using analytical equation and perform sensitivity
+% analysis: Noise 
+% Call Sensitivity_Analysis addons and click update
+Sim_Sensitivity_Analysis_GUI(Model);
+
+% Alternatively use command line:
+help SimVary
+runs = 50; % Run simulation with additive noise 50 times
+%             'T1'    'rb'    'ra'
+OptTable.fx = [false   true   true];  % Vary T1...
+OptTable.lb = [100     nan      nan]; % ...between 100..
+OptTable.ub = [2000    nan      nan]; % and 2000ms
+OptTable.st = [nan    -1000     500]; % Define nominal values for rb and ra
+
+SimVaryResults = SimVary(Model, runs,OptTable);
+figure
+SimVaryPlot(SimVaryResults,'T1','T1')
+% %             'T1'    'rb'    'ra'
+% OptTable.fx = [0        1       1]; % Define Parameters that will not be varied
+% OptTable.st = [600   -1000    500]; % Define Nominal value
+%**************************************************************************
+%% III - MRI Data Fitting
+%**************************************************************************
+% data required:
+disp(Model.MRIinputs)
+% load data
+data = struct;
+data.IRData = load_nii_data('IRdata.nii');
+
+% plot fit in one voxel
+voxel = [70 60 20];
+datavox.IRData = squeeze(data.IRData(voxel(1),voxel(2),voxel(3),:));
+FitResults = Model.fit(datavox);
+Model.plotmodel(FitResults,datavox)
+
+% all voxels
+data.Mask=load_nii_data('Mask.nii.gz');
+FitResults = FitData(data,Model);
+delete('FitTempResults.mat');
+
+%**************************************************************************
+%% V- SAVE
+%**************************************************************************
+% .MAT file : FitResultsSave_mat(FitResults,folder);
+% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
+FitResultsSave_nii(FitResults,'IRdata.nii.gz');
+save('IRParameters.mat','Model');
+
+%% Check the results
+% Load them in qMRLab

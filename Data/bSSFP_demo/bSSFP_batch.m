@@ -1,4 +1,4 @@
-% Batch to process SPGR data without qMRLab GUI (graphical user interface)
+% Batch to process bSSFP_modulaire data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
@@ -6,7 +6,7 @@
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('SPGRParameters.mat');
+load('bSSFPParameters.mat');
 
 %% Check data and fitting (Optional)
 
@@ -15,11 +15,10 @@ load('SPGRParameters.mat');
 %**************************************************************************
 % Create a struct "file" that contains the NAME of all data's FILES
 % file.DATA = 'DATA_FILE';
-file.MTdata = 'MTdata.mat';
-file.R1map = 'R1map.mat';
-file.B1map = 'B1map.mat';
-file.B0map = 'B0map.mat';
-file.Mask = 'Mask.mat';
+file = struct;
+file.MTdata = 'MTdata.nii';
+file.R1map = 'R1map.nii';
+file.Mask = 'Mask.nii';
 
 %**************************************************************************
 % II- CHECK DATA AND FITTING
@@ -34,26 +33,16 @@ qMRLab(Model,file);
 %**************************************************************************
 
 % MTdata
-Angles  = [ 142 ; 426 ; 142  ; 426  ; 142  ; 426  ; 142  ; 426  ; 142  ; 426   ];
-Offsets = [ 443 ; 443 ; 1088 ; 1088 ; 2732 ; 2732 ; 6862 ; 6862 ; 17235; 17235 ];
-Model.Prot.MTdata.Mat = [Angles,Offsets];
-
-% Timing Table (time in sec)
-Tmt = 0.0102;
-Ts  = 0.0030;
-Tp  = 0.0018;
-Tr  = 0.0100;
-TR  = Tmt + Ts + Tp + Tr;
-Model.Prot.TimingTable.Mat = [ Tmt ; Ts ; Tp ; Tr ; TR ];
-
+Alpha = [ 5      ; 10     ; 15     ; 20     ; 25     ; 30     ; 35     ; 40     ; 35     ; 35     ; 35     ; 35     ; 35     ; 35     ; 35    ; 35     ];
+Trf   = [ 2.7e-4 ; 2.7e-4 ; 2.7e-4 ; 2.7e-4 ; 2.7e-4 ; 2.7e-4 ; 2.7e-4 ; 2.7e-4 ; 2.3e-4 ; 3.0e-4 ; 4.0e-4 ; 5.8e-4 ; 8.4e-4 ; 0.0012 ;0.0012 ; 0.0021 ];
+Model.Prot.MTdata.Mat = [Alpha,Trf];
 % *** To change other option, go directly in qMRLab ***
 
-% Update the model and 
+% Use R1map to constrain R1f and R1r
+Model.options.R1_UseR1maptoconstrainR1f=true;
+Model.options.R1_FixR1rR1f = true;
+% Update the model
 Model = Model.UpdateFields;
-
-% Compute SfTable if necessary
-Prot = Model.GetProt;
-Model.ProtSfTable = CacheSf(Prot);
 
 %**************************************************************************
 % II- LOAD EXPERIMENTAL DATA
@@ -62,29 +51,22 @@ Model.ProtSfTable = CacheSf(Prot);
 % .MAT file : load('DATA_FILE');
 %             data.DATA = double(DATA);
 % .NII file : data.DATA = double(load_nii_data('DATA_FILE'));
-load('MTdata.mat');
-data.MTdata	= double(MTdata);
-load('R1map.mat');
-data.R1map  = double(R1map);
-load('B1map.mat');
-data.B1map  = double(B1map);
-load('B0map.mat');
-data.B0map  = double(B0map);
-load('Mask.mat');
-data.Mask   = double(Mask);
+data = struct;
+data.MTdata = double(load_nii_data('MTdata.nii'));
+data.R1map = double(load_nii_data('R1map.nii'));
+data.Mask   = double(load_nii_data('Mask.nii'));
 
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
 FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
-FitResults.Model = Model;
 delete('FitTempResults.mat');
 
 %**************************************************************************
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
 figure
-voxel           = [34, 46, 1];
+voxel           = [50, 70, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
 Model.plotmodel(FitResultsVox,dataVox)
@@ -94,8 +76,8 @@ Model.plotmodel(FitResultsVox,dataVox)
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_mat(FitResults);
-save('Parameters.mat','Model');
+FitResultsSave_nii(FitResults,'MTdata.nii');
+save('bSSFPParameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab
