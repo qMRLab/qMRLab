@@ -1,116 +1,41 @@
 
 
-function MTSATdata = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
+function MTsat = MTSAT_exec(data, MTParams, PDParams, T1Params) % add 
+% Compute MT saturation map from a PD-weigthed, a T1-weighted and a MT-weighted FLASH images
+% according to Helms et al., MRM, 60:1396?1407 (2008) and equation erratum in MRM, 64:1856 (2010).
+%   First 3 arguments are (becareful to respect the order): the PD-weighted image, the T1-weighted
+%   image and the MT-weigthed image.
+%   Next 3 arguments are the corresponding flip angles used for the acquisition of each image (in
+%   the same order).
+%   Next 3 arguments are the corresponding TR used for the acquisition of each image (in the same
+%   order).
+%   Next 2 aguments are the names of the output nifti files for the MT saturation map and the T1 map
+%   in this order (optional arguments, defaults ='MTsat.nii.gz','T1.nii.gz')
+%   Last argument is the path to a previously computed T1 map to give in input (optional argument).
+%   If no T1 map is given in input, this function outputs it. If it is given in input, this function
+%   uses it to compute the MT saturation map.
 
-if ~isfield(data,'Mask'), data.Mask=''; end
+% Load nii
+PDw_data = double(data.PDw); % convert data coding to double
 
-% Apply mask
-if (~isempty(data.Mask))
-    Res.Mask = single(data.Mask);    
-    data.MT = data.MT.*data.Mask;
-    data.PD = data.PD.*data.Mask;
-    data.T1 = data.T1.*data.Mask;
-end
+T1w_data = double(data.T1w); % convert data coding to double
 
-S_T1 = data.T1w;
-S_PD = data.PDw;
-S_TM = double(data.MTw);
+MTw_data = double(data.MTw); % convert data coding to double
 
-[r,c] = find(S_TM);
+% Convert angles into radians
+alpha_PD = (pi/180)*PDParams(1);
+TR_PD    = PDParams(2);
+alpha_T1 = (pi/180)*T1Params(1);
+TR_T1    = T1Params(2);
+alpha_MT = (pi/180)*MTParams(1);
+TR_MT    = MTParams(2);
 
-alpha = MTParams(1);
-TR = MTParams(2);
-alpha_T1 = T1Params(1);
-TR_T1 = T1Params(2);
-alpha_PD = PDParams(1);
-TR_PD = PDParams(2);
+% check if a T1 map was given in input; if not, compute it
+R1 = 0.5*((alpha_T1/TR_T1)*T1w_data - (alpha_PD/TR_PD)*PDw_data)./(PDw_data/alpha_PD - T1w_data/alpha_T1);
 
-
-% Equation - 1
-a1 = (S_T1.*alpha_T1)./TR_T1; % max 15565
-a2 = (S_PD.*alpha_PD)./TR_PD; % max 1534.2
-b1 = (S_PD./alpha_PD); % max 6245.2
-b2 = (S_T1./alpha_T1); % max 2498.1
-BB = b1 - b2;
-Index = find(~BB); % locate the 0s in the array
-BB(Index) = 0.001;
-R1 = (1/2).*((a1 - a2)./(BB)); 
-
-% Equation - 2
-a3 = (TR_PD*alpha_T1)/alpha_PD;
-a4 = (TR_T1*alpha_PD)/alpha_T1;
-b3 = S_T1.*TR_PD.*alpha_T1;
-b4 = S_PD.*TR_T1.*alpha_PD;
-Denom = b3-b4;  
-Index = find(~Denom);
-Denom(Index) = 0.001;
-A = (S_PD.*S_T1.*(a3 - a4))./(Denom);
-
-% Equation - 3
-a5 = A.*alpha;
-b5 = (alpha^2)/2;
-Index = 0;
-Index = find(~S_TM);
-S_TM(Index) = 0.001; % keep this in case values cancel out
-    % since we are introducing new values here by avoiding /0, make sure to
-    % null positions where MT data was initially 0 (when mask applied to 
-    % raw image). In case the mask file was provided, use it to null the 
-    % background in the result image.
-Rawdelta = (R1.*TR.*((a5./S_TM)-1))- b5;
-MTSATdata = 100*Rawdelta;
-
-% RMin = min(MTSATdata(MTSATdata > 0))
-% 
-%         % delimiting signal intensity range for display
-%         Index=0;
-%         Index = find(MTSATdata > 4); % was previously 7
-%         MTSATdata(Index) = 4;
-% 
-%         Index=0;
-%         Index = find(MTSATdata < -3.5);
-%         MTSATdata(Index) = -3.5;
-
-    % since we introduced new values to avoid /0, make sure to
-    % null positions where MTdata was initially 0 (when mask applied to 
-    % raw image). In case the mask file was provided, use it to null the 
-    % background in the result image.
-if (~isempty(data.Mask))
-    MTSATdata = MTSATdata.*data.Mask;
-else
-    Index = find(~data.MTw);
-    MTSATdata(Index) = 0;
-end
-
-% figure
-% h_MT = histogram(NZ_Val_MT)
-% title('MT non zero values')
-% xlim([0,550])
-% 
-% figure
-% h_PD = histogram(NZ_Val_PD)
-% title('PD non zero values')
-% xlim([0,550])
-% 
-% figure
-% h_T1 = histogram(NZ_Val_T1)
-% title('T1 non zero values')
-% xlim([0,550])
-% 
-% figure
-% H_RE = histogram(NZ_Val_Re)
-% title('MT sat non zero values')
-% 
-% 
-% [R,C] = find(MTSATdata < -5);
-% t=10
-% S_TM(R(t),C(t))
-% S_PD(R(t),C(t))
-% S_T1(R(t),C(t))
-% MTSATdata(R(t),C(t))
-% 
-% 
-% 
-% 
-% t = 'test'
+% compute A
+A = (TR_PD*alpha_T1/alpha_PD - TR_T1*alpha_PD/alpha_T1)*((PDw_data.*T1w_data)./(TR_PD*alpha_T1*T1w_data - TR_T1*alpha_PD*PDw_data));
+% compute MTsat
+MTsat = TR_MT*(alpha_MT*(A./MTw_data) - ones(size(MTw_data))).*R1 - (alpha_MT^2)/2;
 
 end
