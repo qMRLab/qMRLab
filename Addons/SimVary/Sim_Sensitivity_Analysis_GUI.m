@@ -23,6 +23,7 @@ function varargout = Sim_Sensitivity_Analysis_GUI(varargin)
 % Edit the above text to modify the response to help Sim_Sensitivity_Analysis_GUI
 
 % Last Modified by GUIDE v2.5 27-Jul-2017 17:23:32
+if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
