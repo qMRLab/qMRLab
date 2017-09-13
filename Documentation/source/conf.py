@@ -55,8 +55,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'qMRlab'
-copyright = u'2017, Ilana Leppert'
-author = u'Ilana Leppert'
+copyright = u'2017, NeuroPoly'
+author = u'NeuroPoly'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -98,6 +98,13 @@ html_theme = 'alabaster'
 # documentation.
 #
 # html_theme_options = {}
+html_theme_options = {
+    'logo': 'logo-neuropoly.png',
+    'github_user': 'neuropoly',
+    'github_repo': 'qMRLab',
+    'github_button': True,
+    'github_banner': True,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
