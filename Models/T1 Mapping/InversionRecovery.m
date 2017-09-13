@@ -5,10 +5,7 @@ classdef InversionRecovery
 %-------------%
 % ASSUMPTIONS %
 %-------------% 
-% (1) FILL
-% (2) 
-% (3) 
-% (4) 
+% (1) None. Gold standard for T1 mapping
 %
 %-----------------------------------------------------------------------------------------------------
 %--------%
@@ -23,19 +20,33 @@ classdef InversionRecovery
 %---------%
 %	Fitting Parameters
 %       * T1
-%       * 'b' or 'rb' parameter
-%       * 'a' or 'ra' parameter
-%       * Fitting residual
+%       * 'b' or 'rb' parameter (S=a + b*exp(-TI/T1))
+%       * 'a' or 'ra' parameter (S=a + b*exp(-TI/T1))
+%       * idx: index of last polaroty restored datapoint (only used for magnitude data)
+%       * res: Fitting residual
 %
 %-----------------------------------------------------------------------------------------------------
 %---------%
 % OPTIONS %
 %---------%
-%   FILL
+%   method: Method to use in order to fit the data, based on whether
+%               complex or only magnitude data is available.
+%                 'complex'   : RD-NLS (Reduced-Dimension Non-Linear Least
+%                                Squares)
+%                              S=a + b*exp(-TI/T1)
+%             or  'magnitude' : RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares
+%                               with Polarity Restoration)
+%                              S=|a + b*exp(-TI/T1)|
+%----------%
+% PROTOCOL %
+%----------%
+%   TI:  Array containing the Inversion times, in ms
+%
 %-----------------------------------------------------------------------------------------------------
 % Written by: Ilana Leppert 2017
 %-----------------------------------------------------------------------------------------------------
-    
+
+
     properties
         MRIinputs = {'IRData','Mask'}; % input data required
         xnames = {'T1','rb','ra'}; % name of the fitted parameters
@@ -112,9 +123,9 @@ classdef InversionRecovery
             end
         end
         
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
-            SimVaryResults = SimVary(obj, SNR, runs, OptTable);
+            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
