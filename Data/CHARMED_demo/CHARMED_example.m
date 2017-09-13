@@ -1,6 +1,9 @@
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
-%% FIT Experimental MRI data
+%**************************************************************************
+%% I- LOAD DATASET
+%**************************************************************************
+
 % Create Model object 
 Model = CHARMED;
 % Load Diffusion Protocol
@@ -8,7 +11,10 @@ Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');
 % Launch Fitting procedure
 % save Results in NIFTI
 
-%% Simulations
+%**************************************************************************
+%% II - Perform Simulations
+%**************************************************************************
+
 % Generate MR Signal using analytical equation
 opt.SNR = 50;
 x.fr = .5;
@@ -20,13 +26,31 @@ x.Dcsf=3;
 x.Dintra = 1.4;
 Model.Sim_Single_Voxel_Curve(x,opt)
 
-%% Data Fitting
+%**************************************************************************
+%% III - MRI Data Fitting
+%**************************************************************************
+% load data
+data = struct;
 data.DiffusionData = load_nii_data('DiffusionData.nii.gz');
-% one voxel
+
+% plot fit in one voxel
 voxel = [32 29];
 datavox.DiffusionData = squeeze(data.DiffusionData(voxel(1),voxel(2),:,:));
 FitResults = Model.fit(datavox)
 Model.plotmodel(FitResults,datavox)
-%all voxels
+
+% all voxels
 data.Mask=load_nii_data('Mask.nii.gz');
-FitResults = FitData(data,Model)
+FitResults = FitData(data,Model);
+delete('FitTempResults.mat');
+
+%**************************************************************************
+%% V- SAVE
+%**************************************************************************
+% .MAT file : FitResultsSave_mat(FitResults,folder);
+% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
+FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
+save('CHARMEDParameters.mat','Model');
+
+%% Check the results
+% Load them in qMRLab
