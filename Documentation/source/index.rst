@@ -5,6 +5,10 @@
 
 Welcome to qMRlab's documentation!
 ==================================
+.. image:: _static/logo-neuropoly.png
+   :scale: 60 %
+   :align: center
+
 
 .. toctree::
    :maxdepth: 4
