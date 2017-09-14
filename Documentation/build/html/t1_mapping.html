@@ -47,17 +47,22 @@
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="gui">
 <h4>GUI<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h4>
+<p>Link to tutorial?</p>
 </div>
 <div class="section" id="command-line">
 <h4>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h4>
+<p>Link to batch script example?
+../../Data/IR_demo/batch_example.m</p>
 </div>
 </div>
 <div class="section" id="reference">
 <h3>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h3>
-<p>If you use this module please cite:</p>
-<p>A robust methodology for in vivo T1 mapping.
+<p>Please cite the following if you use this module:</p>
+<p><em>A robust methodology for in vivo T1 mapping.
 Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG.
-Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</p>
+Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
+<p>In addition to citing the package:</p>
+<p><em>Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357</em></p>
 </div>
 <div class="section" id="module-Models.T1_Mapping">
 <span id="definition"></span><h3>Definition<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h3>
@@ -75,7 +80,7 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[T1 ,b, a, res]: T1 value, ‘b’ and ‘a’ are fitting parameters and ‘res’ is the residual of the fit</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[T1 ,b, a, res, idx]: T1 value, ‘b’ and ‘a’ are fitting parameters and ‘res’ is the residual of the fit, ‘idx’ is the index of last polarity restored datapoint</p>
 </td>
 </tr>
 </tbody>
@@ -234,10 +239,22 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">qMRlab</a></h1>
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-neuropoly.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=neuropoly&repo=qMRLab&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
 
 
 
@@ -292,7 +309,7 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2017, Ilana Leppert.
+      &copy;2017, NeuroPoly.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
@@ -303,6 +320,10 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/neuropoly/qMRLab" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     
