@@ -8,8 +8,8 @@ classdef CustomExample % Name your Model
     % ----------------------------------------------------------------------------------------------------
     %
     %  Fitted Parameters:
-    %    * D1 :    
-    %    * D2 :    
+    %    * Param1 :    
+    %    * Param2 :    
     %
     %  Non-Fitted Parameters:
     %    * residue : Fitting residue.
@@ -26,7 +26,7 @@ classdef CustomExample % Name your Model
         MRIinputs = {'DiffusionData','Mask'}; % used in the data panel 
         
         % fitting options
-        xnames = { 'D1','D2'}; % name of the parameters to fit
+        xnames = { 'Param1','Param2'}; % name of the parameters to fit
         voxelwise = 1; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
         st           = [ 0.7	0.5 ]; % starting point
         lb            = [  0      0 ]; % lower bound
