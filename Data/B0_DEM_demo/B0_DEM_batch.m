@@ -59,7 +59,7 @@ FitResults.Model = Model;
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'Phase.nii');
-save('Parameters.mat','Model');
+%save('Parameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab

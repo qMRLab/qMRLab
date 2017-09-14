@@ -23,7 +23,7 @@ classdef CustomExample % Name your Model
     % ----------------------------------------------------------------------------------------------------
 
     properties
-        MRIinputs = {'DiffusionData','Mask'}; % used in the data panel 
+        MRIinputs = {'Data4D','Mask'}; % used in the data panel 
         
         % fitting options
         xnames = { 'Param1','Param2'}; % name of the parameters to fit
@@ -34,12 +34,12 @@ classdef CustomExample % Name your Model
         fx            = [ 0       0 ]; % fix parameters
         
         % Protocol
-        Prot = struct('DiffusionData',... % Creates a Panel DiffusionData Protocol in Model Options menu
-                        struct('Format',{{'Gx' 'Gy'  'Gz'   'bvalue'}},... % columns name
-                        'Mat', [rand(64,3) linspace(0,2000,64)'])); % provide a default DKI protocol (Nx4 matrix)
+        Prot = struct('Data4D',... % Creates a Panel Data4D Protocol in Model Options menu
+                        struct('Format',{{'TE' 'TR'}},... % columns name
+                        'Mat', [rand(64,1) ones(64,1)])); % provide a default DKI protocol (Nx4 matrix)
         
         % Model options
-        buttons = {'Qspace regularization',true,'Model',{'simple','advanced'},'SNR',50};
+        buttons = {'SMS',true,'Model',{'simple','advanced'}};
         options= struct();
         
     end
@@ -54,15 +54,16 @@ classdef CustomExample % Name your Model
             % Compute the Signal Model based on parameters x. 
             % x can be both a structure (FieldNames based on xnames) or a
             % vector (same order as xnames).
+            x = struct2mat(x,obj.xnames);
             
-            D = rand(3,3)*1e-3;
-            D(1,1) = x(1); D(2,2) = x(2);
-            %D(:) = x(??);
-            bvalue=obj.Prot.DiffusionData.Mat(:,4);
-            bvec = obj.Prot.DiffusionData.Mat(:,1:3);
+            %% CHANGE HERE:
+            D = zeros(1,2);
+            D(1) = x(1); 
+            D(2) = x(2);
+            Tvec = obj.Prot.Data4D.Mat(:,1:2);
             
             % COMPUTE SIGNAL
-            Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
+            Smodel = exp(-D*Tvec');
         end
         
         function FitResults = fit(obj,data)
@@ -70,11 +71,11 @@ classdef CustomExample % Name your Model
             %  data is a structure. FieldNames are based on property
             %  MRIinputs. 
             
-            if obj.options.QspaceRegularization
+            if obj.options.SMS
                 % buttons values can be access with obj.options
             end
             
-            ydata = data.DiffusionData;
+            ydata = data.Data4D;
             [xopt, resnorm] = lsqcurvefit(@(x,xdata) obj.equation(addfix(obj.st,x,obj.fx)),...
                      obj.st(~obj.fx), [], ydata, obj.lb(~obj.fx), obj.ub(~obj.fx));
                  
@@ -86,26 +87,29 @@ classdef CustomExample % Name your Model
         
         function plotmodel(obj, FitResults, data)
             %  Plot the Model and Data.
-            if nargin<2, FitResults=obj.st; end
+            if nargin<2, qMRusage(obj,'plotmodel'), FitResults=obj.st; end
 
             Smodel = equation(obj, FitResults);
-            bvalue = obj.Prot.DiffusionData.Mat(:,4);
-            plot(bvalue,Smodel,'b+')
+            Tvec = obj.Prot.Data4D.Mat(:,1:2); 
+            [Tvec,Iorder] = sort(Tvec);
+            plot(Tvec,Smodel(Iorder),'b-')
             if exist('data','var');
                 hold on
-                plot(bvalue,data.DiffusionData,'r+')
+                plot(Tvec(:,1),data.Data4D(Iorder),'r+')
                 hold off
             end
             legend({'Model','Data'})
         end
         
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR)
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
             % Compute Smodel and plot
             Smodel = equation(obj, x);
-            sigma = max(Smodel)/SNR;
-            data.DiffusionData = random('rician',Smodel,sigma);
+            sigma = max(Smodel)/Opt.SNR;
+            data.Data4D = random('rician',Smodel,sigma);
             FitResults = fit(obj,data);
-            plotmodel(obj, FitResults, data);
+            if display
+                plotmodel(obj, FitResults, data);
+            end
         end
 
     end
