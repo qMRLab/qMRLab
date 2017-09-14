@@ -11,7 +11,7 @@ Model = InversionRecovery;
 % II- LOAD PROTOCOL
 %**************************************************************************
 % Vector of inversion times
-TI = [350,500,650,800,950,1100]';
+TI = [350,500,650,800,950,1100,1250,1400,1700]';
 Prot.IRData.Mat = TI;
 
 %**************************************************************************
@@ -35,7 +35,7 @@ FitResults.Model = Model;
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'Mask-2slices.nii'); % this will save all output files in folder 'FitResults' using the 2nd argument as a template
+FitResultsSave_nii(FitResults,'IRdata-2slices.nii'); % this will save all output files in folder 'FitResults' using the 2nd argument as a template
 % A .mat file called 'FitResults.mat' will also be saved in the 'FitResults' folder, which can be loaded for later use
 
 %% Check the results
