@@ -5,8 +5,7 @@
 %% Load dataset
 
 % Load your parameters to create your Model
-% load('MODELPamameters.mat');
-load('B0_DEMParameters.mat');
+Model = B0_DEM;
 
 %% Check data and fitting (Optional)
 
@@ -22,7 +21,7 @@ file.Magn = 'Magn.nii';
 %**************************************************************************
 % II- CHECK DATA AND FITTING
 %**************************************************************************
-%qMRLab(Model,file);
+qMRLab(Model,file);
 
 
 %% Create Quantitative Maps
