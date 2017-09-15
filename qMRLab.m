@@ -339,12 +339,10 @@ end
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     [~,~,ext]=fileparts(mainfile);
+    file = strcat(map,'.nii.gz');
     if strcmp(ext,'.mat')
-        file = strcat(map,'.mat');
-        eval([map ' = FitResults.(map);'])
-        save(fullfile(outputdir,file),map);
+        save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
-        file = strcat(map,'.nii');
         save_nii_v2(FitResults.(map),fullfile(outputdir,file),mainfile,64);
     end
 end

@@ -95,7 +95,7 @@ Model.plotmodel(FitResultsVox,dataVox)
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_mat(FitResults);
+FitResultsSave_nii(FitResults);
 save('Parameters.mat','Model');
 
 %% Check the results

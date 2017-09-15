@@ -1,28 +1,30 @@
 classdef NoiseLevel
-% ----------------------------------------------------------------------------------------------------
-% NoiseLevel :  Noise histogram fitting to find sigma
-% ----------------------------------------------------------------------------------------------------
-% Assumptions :
-% FILL
-% ----------------------------------------------------------------------------------------------------
-%
-%  Fitted Parameters:
-%    * Sigma
-%
-%
-%  Non-Fitted Parameters:
-%    * None    
-%
-%
-% Options:
-%    * None
-%  
-%
-% ----------------------------------------------------------------------------------------------------
-% Written by: Ian Gagnon, 2017
-% Reference: FILL
-% ----------------------------------------------------------------------------------------------------
-
+    % ----------------------------------------------------------------------------------------------------
+    % NoiseLevel :  Noise histogram fitting within a noise mask
+    % ----------------------------------------------------------------------------------------------------
+    % Assumptions :
+    %   * Uniform noise distribution. Outputs are scalar : all voxels have
+    %     the same value
+    % ----------------------------------------------------------------------------------------------------
+    %
+    %  Fitted Parameters:
+    % Non-central Chi Parameters:
+    %    * Sigma
+    %    * eta
+    %    * N
+    %
+    % Options:
+    %    * figure : plot noise histogram fit
+    % Noise Distribution
+    %    * Rician          : valid if using one coil OR adaptive combine
+    %    * Non-central Chi : valid for multi-coil and parallel imaging (parameter N reprensent the effective number of coils)
+    %
+    %
+    % ----------------------------------------------------------------------------------------------------
+    % Written by: Ian Gagnon, 2017
+    % Reference: 
+    % ----------------------------------------------------------------------------------------------------
+    
     properties
         MRIinputs = {'Data4D','NoiseMask'};
         xnames = {};
@@ -32,7 +34,7 @@ classdef NoiseLevel
         Prot  = struct(); % You can define a default protocol here.
         
         % Model options
-        buttons = {};
+        buttons = {'figure',true,'Noise Distribution',{'Rician','Non-central Chi'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
     end
@@ -49,13 +51,17 @@ classdef NoiseLevel
         
         function FitResults = fit(obj,data)
             if any(strcmp('NoiseMask',fieldnames(data)))
-               data.Data4D(data.NoiseMask==0) = 0;
-            end 
-            [N, eta, sigma_g] = histfit_noncentralchi(data.Data4D);
+                dat = reshape2D(data.Data4D,4)';
+                dat = dat(logical(data.NoiseMask(:)),:);
+            end
+            
+            [N, eta, sigma_g] = scd_noise_fit_histo(dat,'fig',obj.options.figure,'distrib',obj.options.NoiseDistribution);
             init=ones(size(data.Data4D,1),size(data.Data4D,2),size(data.Data4D,3));
-            FitResults.N = N*init;
-            FitResults.eta = eta*init;
             FitResults.sigma_g = sigma_g*init;
+            if strcmp(obj.options.NoiseDistribution,'Non-central Chi')
+                FitResults.eta = eta*init;
+                FitResults.N = N*init;
+            end
         end
         
     end
