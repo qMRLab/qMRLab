@@ -1,35 +1,76 @@
 classdef InversionRecovery
-	% Computed a T1 map using Inversion Recovery data
-    %
-    % :param IRData: Inversion Recovery data
-    % :param Mask: Binary mask to accelerate the fitting (OPTIONAL)
-    % :returns: [T1 ,b, a, res, idx]: T1 value, 'b' and 'a' are fitting parameters and 'res' is the residual of the fit, 'idx' is the index of last polarity restored datapoint
-
-    properties
+    % Compute a T1 map using Inversion Recovery data
+		%
+	   % %-------------
+     % ASSUMPTIONS
+     %-------------
+     % 	1) Gold standard for T1 mapping
+     %
+     %-----------------------------------------------------------------------------------------------------
+     % %--------
+     % INPUTS
+     %--------
+     %   1) IRData : Inversion Recovery data (4D nii file)
+     %   2) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
+     %
+     %-----------------------------------------------------------------------------------------------------
+     % %---------
+     % OUTPUTS
+		 %---------
+     %	Fitting Parameters
+     %       * T1 (transverse relaxation)
+     %       * 'b' or 'rb' parameter (S=a + b*exp(-TI/T1))
+     %       * 'a' or 'ra' parameter (S=a + b*exp(-TI/T1))
+     %       * idx: index of last polaroty restored datapoint (only used for magnitude data)
+     %       * res: Fitting residual
+     %
+     %-----------------------------------------------------------------------------------------------------
+     % %---------
+     % OPTIONS
+		 %---------
+     %   method: Method to use in order to fit the data, based on whether
+     %               complex or only magnitude data is available.
+     %                 'complex'   : RD-NLS (Reduced-Dimension Non-Linear Least
+     %                                Squares)
+     %                              S=a + b*exp(-TI/T1)
+     %             or  'magnitude' : RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares
+     %                               with Polarity Restoration)
+     %                              S=|a + b*exp(-TI/T1)|
+     % %----------
+     % PROTOCOL
+		 %----------
+     %   TI:  Array containing the Inversion times, in ms
+     %
+     % %-----------------------------------------------------------------------------------------------------
+     % Written by: Ilana Leppert 2017
+     %-----------------------------------------------------------------------------------------------------
+		 %
+		 % %----------------------------
+		properties
         MRIinputs = {'IRData','Mask'}; % input data required
         xnames = {'T1','rb','ra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
-        
+
         % fitting options
         st           = [  600    -1000      500 ]; % starting point
         lb           = [    0   -10000        0 ]; % lower bound
         ub           = [ 5000        0    10000 ]; % upper bound
         fx           = [    0        0        0 ]; % fix parameters
-        
+
         % Protocol
         Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]')); %default protocol
-        
+
         % Model options
         buttons = {'method',{'Magnitude','Complex'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
-        
+
     end
-    
+
     methods
         function  obj = InversionRecovery()
             obj.options = button2opts(obj.buttons);
         end
-        
+
         %         function obj = UpdateFields(obj)
         %             Default = InversionRecovery;
         %             obj.fx = Default.fx;
@@ -37,13 +78,13 @@ classdef InversionRecovery
         %             obj.lb= Default.lb;
         %             obj.ub= Default.ub;
         %         end
-        
+
         function Smodel = equation(obj, x)
             % Generates an IR signal based on input parameters
             %
             % :param x: [struct] containing fit parameters 'a' 'b' and 'T1'
             % :returns: Smodel: generated signal
-            
+
             if ~isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
                     xtmp.(obj.xnames{ix}) = x(ix);
@@ -52,15 +93,15 @@ classdef InversionRecovery
             end
             % equation
             Smodel = x.ra + x.rb * exp(-obj.Prot.IRData.Mat./x.T1);
-            
+
         end
-        
+
         function FitResults = fit(obj,data)
             % Fits the data
             %
             % :param data: [struct] input data
             % :returns: [struct] FitResults
-            
+
             data = data.IRData;
             [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
             FitResults.T1  = T1;
@@ -71,7 +112,7 @@ classdef InversionRecovery
                 FitResults.idx = idx;
             end
         end
-        
+
          function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
             % Simulates Single Voxel
             %
@@ -79,7 +120,7 @@ classdef InversionRecovery
             % :param SNR: [struct] signal to noise ratio to use
             % :param display: 1=display, 0=nodisplay
             % :returns: [struct] FitResults
-            
+
             if ~exist('display','var'), display = 1; end
             Smodel = equation(obj, x);
             sigma = max(Smodel)/SNR;
@@ -89,13 +130,13 @@ classdef InversionRecovery
                 plotmodel(obj, FitResults, data);
             end
         end
-        
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, SNR, runs, OptTable);
         end
-        
-        
+
+
         function plotmodel(obj, FitResults, data)
             % Plots the fit
             %
@@ -113,12 +154,12 @@ classdef InversionRecovery
                     plot(obj.Prot.IRData.Mat(1:FitResults.idx),data_rest,'o','MarkerSize',5,'MarkerEdgeColor','b','MarkerFaceColor',[1 0 0])
                 end
             end
-            
-            
-            
+
+
+
             % compute model
             Smodel = equation(obj, FitResults);
-            
+
             % plot fitting curve
             plot(obj.Prot.IRData.Mat,Smodel,'Linewidth',3)
             xlabel('Inversion Time [ms]','FontSize',15);
