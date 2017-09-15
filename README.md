@@ -1,4 +1,5 @@
-# qMRLab (beta)
+# qMRLab (beta) [![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)
+
 
 qMRlab is a powerful, open source, scalable, easy to use and intuitive software for qMRI data simulation, fitting and analysis. The software consists of two parts:
 1) a qMRI data fitting and visualization interface
@@ -59,13 +60,13 @@ The latest stable version of qMRLab can be downloaded freely [here](https://gith
 
 * Extract the downloaded file to the directory you want to install qMRLab.
 
-* Open MATLAB, got to the qMRLab folder and run `startup`.
+* Open MATLAB, go to the qMRLab folder and run `startup`.
 
 * To start a qMRLab session, run `qMRLab`.
 
 ## Tests
 
-After installing the software, we suggest that the you evaluate all the test cases for the software. 
+After installing the software, we recommend you evaluate all the test cases for the software.
 
 ### Run all tests
 
