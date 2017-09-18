@@ -4,7 +4,11 @@ function [w1rp, Tau] = compute_w1rp(Pulse)
       
 Trf = Pulse.Trf;
 omega2 = Pulse.omega2;
-int = integral(omega2, 0, Trf);
+if moxunit_util_platform_is_octave
+    int = quad(omega2, 0, Trf);
+else
+    int = integral(omega2, 0, Trf);
+end
 
 if strcmp(Pulse.shape,'hard')
     Tau = Trf;

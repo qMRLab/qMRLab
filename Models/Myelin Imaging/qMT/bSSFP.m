@@ -67,9 +67,16 @@ classdef bSSFP
 %                          - fermi
 %       * # of RF pulses : Number of RF pulses applied before readout.
 %
-%   Global
-%       * G(0)          : The assumed value of the absorption lineshape of
-%                         the restricted pool.
+%   Protocol Timing
+%       * Fix TR        : Select this option and enter a value in the text 
+%                         box below to set a fixed repetition time.
+%       * Fix TR - Trf  : Select this option and enter a value in the text 
+%                         box below to set a fixed free precession time
+%                         (TR - Trf).
+%       * Prepulse      : Perform an Alpha/2 - TR/2 prepulse before each 
+%                         series of RF pulses.
+%
+%   R1
 %       * Use R1map to  : By checking this box, you tell the fitting 
 %         constrain R1f   algorithm to check for an observed R1map and use
 %                         its value to constrain R1f. Checking this box 
@@ -79,13 +86,10 @@ classdef bSSFP
 %                         algorithm to fix R1r equal to R1f. Checking this 
 %                         box will automatically set the R1r fix box to 
 %                         true in the Fit parameters table.
-%       * Fix TR        : Select this option and enter a value in the text 
-%                         box below to set a fixed repetition time.
-%       * Fix TR - Trf  : Select this option and enter a value in the text 
-%                         box below to set a fixed free precession time
-%                         (TR - Trf).
-%       * Prepulse      : Perform an Alpha/2 - TR/2 prepulse before each 
-%                         series of RF pulses.
+%
+%   Global
+%       * G(0)          : The assumed value of the absorption lineshape of
+%                         the restricted pool.
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
@@ -101,7 +105,7 @@ classdef bSSFP
         st           = [ 0.1    30      1        1        0.04    1 ]; % starting point
         lb           = [ 0       0      0.2      0.2      0.01    0 ]; % lower bound
         ub           = [ 0.3   100      3        3        0.2     2 ]; % upper bound
-        fx           = [ 0       0      1        1        0       0 ]; % fix parameters
+        fx           = [ 0       0      0        1        0       0 ]; % fix parameters
         
         % Protocol
         % You can define a default protocol here.
@@ -115,14 +119,14 @@ classdef bSSFP
         % Model options
         buttons = {'PANEL', 'Inversion_Pulse',2,...
                    'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'# of RF pulses',500,...
+                   'PANEL','Protocol Timing',2,...
+                   'Type',{'fix TR - Trf','fix TR'},...
+                   'Value',0.00269,...
+                   'Prepulse',true,...
                    'G(0)',1.2524e-05,...
+                   'PANEL','R1',2,...
                    'Use R1map to constrain R1f',false,...
-                   'Fix R1r = R1f',true,...
-                   'Fix TR',false,...
-                   'TR Value',0.00519,...
-                   'Fix TR - Trf',true,...
-                   'TR - Trf Value',0.00269,...
-                   'Prepulse',true};
+                   'Fix R1r = R1f',true};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
@@ -136,18 +140,16 @@ classdef bSSFP
         end
         
         function obj = UpdateFields(obj)
-            if obj.options.FixTRTrf
-                obj.options.FixTR = false;
-            end
-            if obj.options.UseR1maptoconstrainR1f
+            if obj.options.R1_UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
-            if obj.options.FixR1rR1f
+            if obj.options.R1_FixR1rR1f
                 obj.fx(4)=true;
             end
         end
         
         function mxy = equation(obj, x, Opt)
+            if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x = x+eps;
             for ix = 1:length(x)
                 Sim.Param.(obj.xnames{ix}) = x(ix);
@@ -172,10 +174,15 @@ classdef bSSFP
         function FitResults = fit(obj,data)
             Protocol = GetProt(obj); 
             FitOpt = GetFitOpt(obj,data);
-            FitResults = bSSFP_fit(data.MTdata,Protocol,FitOpt);                  
+            FitResults = bSSFP_fit(data.MTdata,Protocol,FitOpt);
         end
         
         function plotmodel(obj, x, data)
+            if nargin<2, x = obj.st; data.MTdata = []; end
+            if isnumeric(x)
+                x=mat2struct(x,obj.xnames);
+            end
+
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
             SimCurveResults = bSSFP_SimCurve(x, Protocol, FitOpt );
@@ -183,6 +190,8 @@ classdef bSSFP
             axe(1) = subplot(2,1,1);
             axe(2) = subplot(2,1,2);
             bSSFP_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults, axe);
+            if ~isfield(x,'kf'), x.kf = x.kr/x.F; end;
+            if ~isfield(x,'resnorm'), x.resnorm = 0; end;
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
                 x.F,x.kf,x.R1f,x.R1r,x.T2f,x.M0f,x.resnorm), ...
                 'FontSize',10);
@@ -229,9 +238,9 @@ classdef bSSFP
         function Prot = GetProt(obj)  
             Prot.alpha = obj.Prot.MTdata.Mat(:,1);
             Prot.Trf = obj.Prot.MTdata.Mat(:,2);
-            Prot.FixTR = obj.options.FixTR;
-            Prot.TR = obj.options.TRValue;
-            Prot.Td = obj.options.TRTrfValue;
+            Prot.FixTR = strcmp(obj.options.ProtocolTiming_Type,'fix TR');
+            Prot.TR = obj.options.ProtocolTiming_Value;
+            Prot.Td = obj.options.ProtocolTiming_Value;
             Prot.Pulse.shape = obj.options.Inversion_Pulse_Shape;
             Prot.Npulse = obj.options.Inversion_Pulse_NofRFpulses;
             Prot.prepulse = obj.options.Prepulse;
@@ -239,13 +248,13 @@ classdef bSSFP
                 
         function FitOpt = GetFitOpt(obj,data)
             if exist('data','var') && isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
-            FitOpt.R1map = obj.options.UseR1maptoconstrainR1f;
+            FitOpt.R1map = obj.options.R1_UseR1maptoconstrainR1f;
             FitOpt.names = obj.xnames;
             FitOpt.fx = obj.fx;
             FitOpt.st = obj.st;
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
-            FitOpt.R1reqR1f = obj.options.FixR1rR1f;
+            FitOpt.R1reqR1f = obj.options.R1_FixR1rR1f;
             FitOpt.G = obj.options.G0;
         end
 

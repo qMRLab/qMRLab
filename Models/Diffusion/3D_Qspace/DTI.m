@@ -34,6 +34,15 @@ classdef DTI
 %---------%
 %   FILL
 %
+%---------%
+% METHODS %
+%---------%
+%  plotmodel - Plot the diffusion-weighted signal as a function of Gparallel
+%               EXAMPLE:
+%               A = DTI;
+%               L1 = 1; L2 = 1; L3 = 3; % um2/ms
+%               A.plotmodel([L1 L2 L3]);
+%  doThat - Description of doThat
 %-----------------------------------------------------------------------------------------------------
 % Written by: FILL
 % Reference: FILL
@@ -45,7 +54,7 @@ classdef DTI
         voxelwise = 1;
         
         % fitting options
-        %         st           = [ 0.7	0.5    0.5	 0.5]; % starting point
+        st           = [ 2      0.7     0.7]; % starting point
         %         lb            = [  0       0       0       0]; % lower bound
         %         ub           = [ 1        3       3       3]; % upper bound
         fx            = [ 0        0        0]; % fix parameters
@@ -69,8 +78,9 @@ classdef DTI
             obj.fx = [0 0 0]; 
         end
         
-        function Smodel = equation(obj, x)
-            Prot   = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
+        function [Smodel, fiberdirection] = equation(obj, x)
+            if isnumeric(x), x = mat2struct(x,obj.xnames); end
+            Prot   = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             bvec   = Prot(:,1:3);
             bvalue = scd_scheme_bvalue(Prot);
             D      = zeros(3,3);
@@ -86,11 +96,16 @@ classdef DTI
                 end
             end
             Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
+            
+            % compute Fiber Direction
+            [V,L] = eig(D);
+            [L,I] = max(diag(L));
+            fiberdirection = V(:,I);
         end
         
         function FitResults = fit(obj,data)
             if isempty(obj.Prot.DiffusionData.Mat) || size(obj.Prot.DiffusionData.Mat,1) ~= length(data.Diffusiondata(:)), errordlg('Load a valid protocol'); FitResults = []; return; end
-            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             data = data.Diffusiondata;
             % fit
             D=scd_model_dti(data./scd_preproc_getS0(data,Prot),Prot);
@@ -106,31 +121,34 @@ classdef DTI
         end
         
         function plotmodel(obj, FitResults, data)
-            if isempty(FitResults), return; end
-            data = data.Diffusiondata;
+            % plotmodel(obj, FitResults, data)
+            % EXAMPLE: 
+            %   A = DTI;
+            %   L1 = 1; L2 = 1; L3 = 3;
+            %   A.plotmodel([L1 L2 L3]);
+            
+            if nargin<2, FitResults=obj.st; end
+
             % Prepare inputs
-            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
             
             % compute model
-            Smodel = equation(obj, FitResults);
-            
-            % compute Xaxis
-            D = zeros(3,3); D(:) = FitResults.D;
-            [V,L] = eig(D);
-            [L,I] = max(diag(L));
-            fiberdirection = V(:,I);
-            
+            [Smodel, fiberdirection] = equation(obj, FitResults);
+                        
             % plot
             if exist('data','var')
+                data = data.Diffusiondata;
                 h = scd_display_qspacedata3D(data,Prot,fiberdirection);
                 S0 = scd_preproc_getS0(data,Prot);
                 Smodel = S0.*Smodel;
                 hold on
                 % remove data legends
                 for iD = 1:length(h)
-                    hAnnotation = get(h(iD),'Annotation');
-                    hLegendEntry = get(hAnnotation','LegendInformation');
-                    set(hLegendEntry,'IconDisplayStyle','off');
+                    if ~moxunit_util_platform_is_octave
+                        hAnnotation = get(h(iD),'Annotation');
+                        hLegendEntry = get(hAnnotation','LegendInformation');
+                        set(hLegendEntry,'IconDisplayStyle','off');
+                    end
                 end
             end
             
@@ -148,11 +166,11 @@ classdef DTI
             scd_scheme_display_3D_Delta_delta_G(ConvertProtUnits(obj.Prot.DiffusionData.Mat))
         end
 
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, SNR,display)
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
-            sigma  = max(Smodel)/SNR;
-            data.Diffusiondata = random('rician',Smodel,sigma);
+            sigma  = max(Smodel)/Opt.SNR;
+            data.Diffusiondata = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             D = zeros(3,3); D(:) = FitResults.D;
             [V,L] = eig(D);
@@ -162,7 +180,7 @@ classdef DTI
             if display
                 plotmodel(obj, FitResults, data);
                 hold on
-                Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat);
+                Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
                 h = scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'o','none');
                 set(h,'LineWidth',.5)
             end
@@ -176,28 +194,4 @@ classdef DTI
         
         
     end
-end
-
-
-function scheme = ConvertSchemeUnits(scheme)
-% convert units
-scheme(:,4)   = scheme(:,4).*sqrt(sum(scheme(:,1:3).^2,2))*1e-3; % G mT/um
-scheme(:,1:3) = scheme(:,1:3)./repmat(sqrt(scheme(:,1).^2+scheme(:,2).^2+scheme(:,3).^2),1,3); scheme(isnan(scheme)) = 0;
-scheme(:,5)   = scheme(:,5)*10^3; % DELTA ms
-scheme(:,6)   = scheme(:,6)*10^3; % delta ms
-scheme(:,7)   = scheme(:,7)*10^3; % TE ms
-gyro = 42.57; % kHz/mT
-scheme(:,8) = gyro*scheme(:,4).*scheme(:,6); % um-1
-
-% Find different shells
-list_G = unique(round(scheme(:,[4 5 6 7])*1e5)/1e5,'rows');
-nnn = size(list_G,1);
-for j = 1 : nnn
-    for i = 1 : size(scheme,1)
-        if  min(round(scheme(i,[4 5 6 7])*1e5)/1e5 == list_G(j,:))
-            scheme(i,9) = j;
-        end
-    end
-end
-%scheme(ismember(scheme(:,9),find(list_G(:,1)==0)),9) = find(list_G(:,1)==0,1,'first');
 end

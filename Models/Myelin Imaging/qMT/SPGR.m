@@ -137,7 +137,7 @@ classdef SPGR
             struct('Format',{{'Tmt (s)'; 'Ts (s)'; 'Tp (s)'; 'Tr (s)'; 'TR (s)'}},...
             'Mat',[0.0102; 0.0030; 0.0018; 0.0100; 0.0250]));
         
-        ProtSfTable = struct; % SfTable declaration
+        ProtSfTable = load('DefaultSFTable.mat'); % SfTable declaration
         
         % Model options
         buttons = {'PANEL','MT_Pulse', 5,...
@@ -151,7 +151,7 @@ classdef SPGR
             'Use R1map to constrain R1f',true,...
             'Fix R1r = R1f',false,...
             'Read pulse alpha',7,...
-            'Compute SfTable',{'NO','YES'}};
+            'Compute SfTable','pushbutton'};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
@@ -166,9 +166,8 @@ classdef SPGR
         end
         
         function obj = UpdateFields(obj)
-            if strcmp(obj.options.ComputeSfTable,'YES')
+            if obj.options.ComputeSfTable
                 obj.ProtSfTable = CacheSf(GetProt(obj));
-                obj.options.ComputeSfTable = 'NO';
             end
             % TR must be the sum of Tmt, Ts, Tp and Tr
             obj.Prot.TimingTable.Mat(5) = obj.Prot.TimingTable.Mat(1)+...
@@ -183,7 +182,9 @@ classdef SPGR
         
         function obj = Precompute(obj)
             if isempty(fieldnames(obj.ProtSfTable))
-                obj.ProtSfTable = CacheSf(GetProt(obj));   
+                obj.ProtSfTable = CacheSf(GetProt(obj));
+            else
+                obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
             end         
         end
         
@@ -193,14 +194,14 @@ classdef SPGR
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');
-                
+                warning('No MToff. MTData cannot be normalized.');  
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
                 Protocol.Angles  = Protocol.Angles(~NoMT);
                 Protocol.Offsets = Protocol.Offsets(~NoMT);
             end
+            % fit data
             FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
         end
         
@@ -210,8 +211,10 @@ classdef SPGR
             Smodel = equation(obj, x, Opt);
             data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
             FitResults = fit(obj,data);
+            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
             if display
                 plotmodel(obj, FitResults, data);
+                drawnow;
             end
         end
         
@@ -226,6 +229,7 @@ classdef SPGR
         end
         
         function mz = equation(obj, x, Opt)
+            if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x = x+eps;
             for ix = 1:length(x)
                 Sim.Param.(obj.xnames{ix}) = x(ix);
@@ -238,6 +242,7 @@ classdef SPGR
                     Sim.Opt.Reset       = Opt.ResetMz;
                     Sim.Opt.SScheck     = 1;
                     Sim.Opt.SStol       = 1e-4;
+                    Protocol.Npulse = Protocol.MTpulse.Npulse;
                     mz = SPGR_sim(Sim, Protocol, 1);
                 case 'Analytical equation'
                     SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
@@ -247,6 +252,10 @@ classdef SPGR
         
         
         function plotmodel(obj, x, data)
+            if nargin<2, x = obj.st; data.MTdata = []; end
+            if isnumeric(x)
+                x=mat2struct(x,obj.xnames); 
+            end
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data
@@ -263,25 +272,27 @@ classdef SPGR
             Sim.Opt.AddNoise = 0;
             SPGR_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults);
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
-                x.F,x.kf,x.R1f,x.R1r,x.T2f,x.T2r),...
+                x.F,x.R1f,x.R1r,x.T2f,x.T2r),...
                 'FontSize',10);
         end
         
-        %         function plotProt(obj)
-        %             subplot(1,1,2)
-        %             plot(obj.Prot.MTdata(:,1),obj.Prot.MTdata(:,2))
-        %             subplot(2,1,2)
-        %             title('MTpulse')
-        %             angles = Prot.Angles(1);
-        %             offsets = Prot.Offsets(1);
-        %             shape = Prot.MTpulse.shape;
-        %             Trf = Prot.Tm;
-        %             PulseOpt = Prot.MTpulse.opt;
-        %             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
-        %             figure();
-        %             ViewPulse(Pulse,'b1');
-        %         end
-        %
+        function plotProt(obj)
+            Prot = GetProt(obj);
+            subplot(2,1,1)
+            plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
+            ylabel('Angle (°)')
+            xlabel('offset (Hz)')
+            subplot(2,1,2)
+            title('MTpulse')
+            angles = Prot.Angles(1);
+            offsets = Prot.Offsets(1);
+            shape = Prot.MTpulse.shape;
+            Trf = Prot.Tm;
+            PulseOpt = Prot.MTpulse.opt;
+            Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
+            ViewPulse(Pulse,'b1');
+        end
+        
         function Prot = GetProt(obj)
             Prot.Angles        = obj.Prot.MTdata.Mat(:,1);
             Prot.Offsets       = obj.Prot.MTdata.Mat(:,2);
@@ -297,6 +308,8 @@ classdef SPGR
                     Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_Bandwidth;
                 case 'fermi'                    
                     Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
+                otherwise
+                    Prot.MTpulse.opt = [];
             end
            	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;             
             Prot.Tm = obj.Prot.TimingTable.Mat(1);
@@ -304,9 +317,11 @@ classdef SPGR
             Prot.Tp = obj.Prot.TimingTable.Mat(3);
             Prot.Tr = obj.Prot.TimingTable.Mat(4);
             Prot.TR = obj.Prot.TimingTable.Mat(5);
-            % Check is the Sf table had already been compute
-            if ~isempty(fieldnames(obj.ProtSfTable))
-                Prot.Sf = obj.ProtSfTable;
+            % Check is the Sf table had already been compute and
+            % corresponds to the current Protocol
+            if ~isempty(obj.ProtSfTable)
+                Sf = CacheSf(Prot,obj.ProtSfTable,0);
+                if ~isempty(Sf), Prot.Sf=Sf; end
             end
         end
         

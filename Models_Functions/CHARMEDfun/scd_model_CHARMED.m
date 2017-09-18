@@ -39,14 +39,12 @@ Sdata=Ax.data(index);
 Sdata=Sdata(:);
 x = real(x);
 fr = x(1); Dh = x(2); mean_d = x(3); std_d = x(4); fcsf = x(5); A = x(6)^2*0.2; Dcsf = x(7); Dr = x(8);% lc = sqrt(A)/0.2 : length of coherence for time dependence (experimental)
-x=[x(:)' ones(1,10)];
 
 
 if isfield(Ax,'plotfit'), plotfit = Ax.plotfit; else plotfit = 0; end
 if isfield(Ax,'figures'), figures = Ax.figures; else figures = 0; end
 if isfield(Ax,'onediam'), onediam = Ax.onediam; else onediam = 1; end
 if isfield(Ax,'fitname'), fitname = Ax.fitname; else fitname = 'fitplot'; end
-if isfield(Ax,'norm'), norm = Ax.norm; else norm.method = 'fit'; end
 if isfield(Ax,'output_signal'), output_signal = Ax.output_signal; else output_signal = 1; end
 if ~isfield(Ax,'save_plot'), Ax.save_plot=0; end
 if ~isfield(Ax,'Dcsf'), Dcsf=3; end
@@ -124,23 +122,6 @@ end
 % Calculating total response :
 CHARMED = (1-fr-fcsf).*Eh + fr.*Er_sum + fcsf.*Ecsf;
 CHARMED(isnan(CHARMED))=1;
-
-
-% S0 : signal without diffusion encoding
-Nb_seq = length(unique(Ax.scheme(:,7)));
-seqnumbering = unique(Ax.scheme(:,7));
-for iseq = 1:Nb_seq
-    seq_ind = Ax.scheme(:,7) == seqnumbering(iseq);
-    if strcmp(norm,'fit')
-        CHARMED(seq_ind)=abs(CHARMED(seq_ind))*x(iseq+7); %OR max(abs(Sdata(TM{i_Delta})))*0.85;
-    elseif strcmp(norm,'max')
-        Sdata(seq_ind)=abs(Sdata(seq_ind))/max(abs(Sdata))*norm.maxvalue;
-        CHARMED(seq_ind)=abs(CHARMED(seq_ind))/max(abs(CHARMED(seq_ind)))*norm.maxvalue;
-    elseif strcmp(norm,'onefit')
-         Sdata(seq_ind)=abs(Sdata(seq_ind))/x(8);
-         x(iseq+8)=x(7);
-    end
-end
 
 
 

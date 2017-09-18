@@ -34,9 +34,11 @@ classdef SIRFSE
 %       * R1r : Longitudinal relaxation rate of the restricted pool 
 %               (R1r = 1/T1r).
 %       * Sf  : Instantaneous fraction of magnetization after vs. before 
-%               the pulse in the free pool.
+%               the pulse in the free pool. Starting point is computed using Block
+%               simulation.
 %       * Sr  : Instantaneous fraction of magnetization after vs. before 
-%               the pulse in the restricted pool.
+%               the pulse in the restricted pool. Starting point is computed using block
+%               simulation.
 %       * M0f : Equilibrium value of the free pool longitudinal 
 %               magnetization.
 %
@@ -143,10 +145,11 @@ classdef SIRFSE
             end
             SrParam = GetSrParam(obj);
             SrProt = GetSrProt(obj);
-            obj.st(6) = computeSr(SrParam,SrProt);
+            [obj.st(6),obj.st(5)] = computeSr(SrParam,SrProt);
         end
         
         function mz = equation(obj, x, Opt)
+            if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             for ix = 1:length(x)
                 Sim.Param.(obj.xnames{ix}) = x(ix);
             end
@@ -174,12 +177,19 @@ classdef SIRFSE
         end
         
         function plotmodel(obj, x, data)
+            if nargin<2, x = obj.st; data.MTdata = []; end
+            if isnumeric(x)
+                x=mat2struct(x,obj.xnames);
+            end
+
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
             x.Sf = - x.Sf;
             SimCurveResults = SIRFSE_SimCurve(x, Protocol, FitOpt );
             Sim.Opt.AddNoise = 0;
             SIRFSE_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults);
+            if ~isfield(x,'kf'), x.kf = x.kr/x.F; end;
+            if ~isfield(x,'resnorm'), x.resnorm = 0; end;
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
                 x.F,x.kf,x.R1f,x.R1r,-x.Sf,x.Sr,x.M0f,x.resnorm), ...
                 'FontSize',10);

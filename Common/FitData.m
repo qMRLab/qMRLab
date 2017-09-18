@@ -114,5 +114,6 @@ else % process entire volume
 end
 Fit.Time = toc;
 Fit.Protocol = Model.Prot;
+Fit.Model = Model;
 
 end

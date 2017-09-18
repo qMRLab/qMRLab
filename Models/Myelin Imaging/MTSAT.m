@@ -1,6 +1,8 @@
 classdef MTSAT
 %-----------------------------------------------------------------------------------------------------
 % MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1 
+%          MTsat is a semi-quantitative method. MTsat values depend on
+%          protocol parameters.
 %-----------------------------------------------------------------------------------------------------
 %-------------%
 % ASSUMPTIONS %
@@ -49,11 +51,11 @@ classdef MTSAT
         
         % Protocol
         Prot = struct('MT',struct('Format',{{'Flip Angle' 'TR (s)' 'Offset (Hz)'}},...
-                                   'Mat',  [5 0.031 500]),...
+                                   'Mat',  [6 0.028 1000]),...
                       'T1',struct('Format',{{'Flip Angle' 'TR'}},...
-                                   'Mat',  [5 0.031]),...
+                                   'Mat',  [20 0.018]),...
                       'PD',struct('Format',{{'Flip Angle' 'TR'}},...
-                                   'Mat',  [15 0.011]));        
+                                   'Mat',  [6 0.028]));        
         % Model options
         buttons = {};
         options= struct();

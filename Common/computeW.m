@@ -10,6 +10,10 @@ W = zeros(length(Pulse),1);
 for ii = 1:length(Pulse)
     omega2 = Pulse(ii).omega2;
     Trf = Pulse(ii).Trf;
-    int = integral(omega2, 0, Trf, 'ArrayValued', true);
+    if moxunit_util_platform_is_octave
+        int = quadv(omega2, 0, Trf);
+    else
+        int = integral(omega2, 0, Trf, 'ArrayValued', true);
+    end
     W(ii) = G * pi/Trf * int;
 end

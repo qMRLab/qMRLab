@@ -1,15 +1,16 @@
 function SPGR_PlotSimCurve(MTdata, MTnoise, Prot, Sim, SimCurveResults)
 
-semilogx(Prot.Offsets, MTdata,'bx'); hold on;
-
+leg = {};
+if ~isempty(MTdata)
+    semilogx(Prot.Offsets, MTdata,'bx'); hold on;
+    leg{1} = 'Raw data';
+end
 if (Sim.Opt.AddNoise)
     semilogx(Prot.Offsets, MTnoise,'bo','MarkerSize',8);
 end
 
 semilogx(SimCurveResults.Offsets, SimCurveResults.curve);
 
-leg = {};
-leg{1} = 'Raw data';
 
 if (Sim.Opt.AddNoise)
    leg{2} = 'Noisy data';
@@ -25,7 +26,10 @@ for i = 1:nAngles
     end        
 end
 hleg = legend(leg);
-set(hleg,'location','best','FontSize',8);
-legend('boxoff');
+set(hleg,'FontSize',8)
+if ~moxunit_util_platform_is_octave
+    set(hleg,'location','best');
+    legend('boxoff');
+end
 xlabel('Offets (Hz)','FontWeight','bold','FontSize',10);
 ylabel('|Mz|','FontWeight','bold','FontSize',10);

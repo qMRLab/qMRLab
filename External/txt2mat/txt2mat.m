@@ -1,6 +1,7 @@
 function [A,ffn,numHeader,repChar,hl,fpos] = txt2mat(varargin)
 
 % TXT2MAT read an ascii file and convert a data table to a matrix
+% Slightly Modified to be compatible with OCTAVE
 %
 % Syntax:
 %  A = txt2mat
@@ -790,6 +791,7 @@ if doAnalyzeFile
         readMode = anaReadMode;
     end
     % add new replacement character strings from anatxt:
+    if isnumeric(repChar), repChar={}; end
     isNewRC	= ~ismember(anaRepChar, repChar);
     numRC   = numRC + sum(isNewRC);
     repChar = [repChar,anaRepChar(isNewRC)];
@@ -1817,7 +1819,7 @@ komma    = uint8(',');               	% ,
 other    = setdiff(prnAscii, [sep_wi_k, dec_nr_p]); % printables without separators and decimals
 
 % characters not expected to appear in the data lines:
-is_othr = ismembc(f8d,double(other));       % switch to double for compatibility 
+is_othr = ismember(f8d,double(other));       % switch to double for compatibility 
 is_beg_othr = diff([false, is_othr]);       % true where groups of such characters begin
 idc_beg_othr = find(is_beg_othr==1);        % start indices of these groups
 [~, sidx] = sort([posLb(2:end).',idc_beg_othr]);     % in sidx, the numbers (1:num_lb) representing the linebreaks are placed between the indices of the start indices from above
@@ -2160,25 +2162,25 @@ else
     p.addOptional(  'NumHeaderLines', NaN , @(x)isempty(x)||(isnumeric(x)&&isscalar(x)))
     p.addOptional(  'NumColumns'    , []  , @(x)isempty(x)||(isnumeric(x)&&isscalar(x)))
     p.addOptional(  'Format'        , '%f', @(x)isempty(x)||(ischar(x)&&any(x=='%')))
-    p.addOptional(  'ReplaceChar'   , {}  , @(x)isempty(x)||iscellstr(x)||ischar(x))
-    p.addOptional(  'BadLineString' , {}  , @(x)isempty(x)||iscellstr(x))
+    p.addOptional(  'ReplaceChar'   , []  , @(x)isempty(x)||iscellstr(x)||ischar(x))
+    p.addOptional(  'BadLineString' , []  , @(x)isempty(x)||iscellstr(x))
     %-- param/value only inputs:
-    p.addParamValue('SelectLineFun' , {}  , @(x)isa(x,'function_handle'))
-    p.addParamValue('GoodLineString', {}  , @(x)isempty(x)||iscellstr(x))
-    p.addParamValue('ReplaceStr'    , {}  , @(x)isempty(x)||iscell(x))
-    p.addParamValue('ReplaceRegExpr', {}  , @(x)isempty(x)||iscell(x))
-    p.addParamValue('NumericType'   , 'double', @(x)ischar(x))
-    p.addParamValue('RowRange'      , [1,Inf] , @(x)isnumeric(x)&&(numel(x)==2))
-    p.addParamValue('FilePos'       , 0   , @(x)isnumeric(x)&&isscalar(x))
-    p.addParamValue('ReadMode'      , 'auto', @(x)ischar(x))
-    p.addParamValue('DialogString'  , 'Select File', @(x)ischar(x))
-    p.addParamValue('InfoLevel'     , 2   , @(x)isnumeric(x)&&isscalar(x))
-    p.addParamValue('MemPar'        , 65536, @(x)isnumeric(x)&&isscalar(x))
+    p.addParameter('SelectLineFun' , {}  , @(x)isa(x,'function_handle'))
+    p.addParameter('GoodLineString', {}  , @(x)isempty(x)||iscellstr(x))
+    p.addParameter('ReplaceStr'    , {}  , @(x)isempty(x)||iscell(x))
+    p.addParameter('ReplaceRegExpr', {}  , @(x)isempty(x)||iscell(x))
+    p.addParameter('NumericType'   , 'double', @(x)ischar(x))
+    p.addParameter('RowRange'      , [1,Inf] , @(x)isnumeric(x)&&(numel(x)==2))
+    p.addParameter('FilePos'       , 0   , @(x)isnumeric(x)&&isscalar(x))
+    p.addParameter('ReadMode'      , 'auto', @(x)ischar(x))
+    p.addParameter('DialogString'  , 'Select File', @(x)ischar(x))
+    p.addParameter('InfoLevel'     , 2   , @(x)isnumeric(x)&&isscalar(x))
+    p.addParameter('MemPar'        , 65536, @(x)isnumeric(x)&&isscalar(x))
     %-- older param names, still accepted
-    p.addParamValue('ConvString'    , '%f', @(x)isempty(x)||ischar(x))
-    p.addParamValue('ReplaceExpr'   , {}  , @(x)isempty(x)||iscell(x))
+    p.addParameter('ConvString'    , '%f', @(x)isempty(x)||ischar(x))
+    p.addParameter('ReplaceExpr'   , {}  , @(x)isempty(x)||iscell(x))
     %-- parse inputs:
-    p.parse(allargin{2:end})
+    p.parse()
 
     % rearrange input argument parsing results to a nested struct called
     % 'arg', with
