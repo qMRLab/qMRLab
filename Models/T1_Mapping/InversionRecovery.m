@@ -1,10 +1,4 @@
 classdef InversionRecovery
-    % Computed a T1 map using Inversion Recovery data
-    %
-    % :param IRData: Inversion Recovery data
-    % :param Mask: Binary mask to accelerate the fitting (OPTIONAL)
-    % :returns: [T1 ,b, a, res, idx]: T1 value, 'b' and 'a' are fitting parameters and 'res' is the residual of the fit, 'idx' is the index of last polarity restored datapoint
-    %
     %-----------------------------------------------------------------------------------------------------
     % InversionRecovery :  T1 map using Inversion Recovery
     %-----------------------------------------------------------------------------------------------------

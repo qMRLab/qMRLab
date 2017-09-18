@@ -1,5 +1,5 @@
 function qMRusage(obj,mstr)
-if nargin<2, mstr=methods(obj); end
+if nargin<2, mstr=methods(obj); disp(['<strong>Methods available in obj=' class(obj) ':</strong>']); end
 if ischar(mstr), mstr = {mstr}; end
 for im=1:length(mstr)
     mess = {};
@@ -23,16 +23,17 @@ for im=1:length(mstr)
                 ['data: [struct] containing: ' cell2str_v2(obj.MRIinputs)]};
             
         case 'Sim_Single_Voxel_Curve'
-            Opt.SNR = 50;
+            Opt.SNR=50;
             try
                 Opt = button2opts(obj.Sim_Single_Voxel_Curve_buttons);
             end
-            mess = {'Simulates Single Voxel',...
+            mess = {'Simulates Single Voxel curves',...
                 'USAGE: FitResults = Sim_Single_Voxel_Curve(obj, x)',...
                 '       FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)',...
                 ['x: [struct] OR [vector] containing fit results: ' cell2str_v2(obj.xnames)],...
+                 'display: [binary] 1=display, 0=nodisplay',... 
                  'Opt.SNR: [float] signal to noise ratio',...
-                 'display: [binary] 1=display, 0=nodisplay'};
+                 strrep(evalc('Opt'),sprintf(['\nOpt = \n\n']),'')};
 
     end
     if ~isempty(mess)
