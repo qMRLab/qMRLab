@@ -15,8 +15,8 @@ load('SIRFSEParameters.mat');
 %**************************************************************************
 % Create a struct "file" that contains the NAME of all data's FILES
 % file.DATA = 'DATA_FILE';file.MTdata = 'MTdata.nii';
-file.MTdata = 'MTdata.nii';
-file.Mask   = 'Mask.nii';
+file.MTdata = 'MTdata.nii.gz';
+file.Mask   = 'Mask.nii.gz';
 
 %**************************************************************************
 % II- CHECK DATA AND FITTING
@@ -57,8 +57,8 @@ Model = Model.UpdateFields;
 %             data.DATA = double(DATA);
 % .NII file : data.DATA = double(load_nii_data('DATA_FILE'));
 data = struct;
-data.MTdata = double(load_nii_data('MTdata.nii'));
-data.Mask   = double(load_nii_data('Mask.nii'));
+data.MTdata = double(load_nii_data('MTdata.nii.gz'));
+data.Mask   = double(load_nii_data('Mask.nii.gz'));
 
 %**************************************************************************
 % III- FIT DATASET
@@ -81,8 +81,8 @@ Model.plotmodel(FitResultsVox,dataVox)
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'MTdata.nii');
-save('Parameters.mat','Model');
+FitResultsSave_nii(FitResults,'MTdata.nii.gz');
+save('SIRFSEParameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab

@@ -16,7 +16,7 @@ Model.Prot.IRData.Mat = txt2mat('TI.txt');
 % Generate MR Signal using analytical equation and perform sensitivity
 % analysis: Noise 
 % Call Sensitivity_Analysis addons and click update
-Sim_Sensitivity_Analysis_GUI(Model);
+%Sim_Sensitivity_Analysis_GUI(Model);
 
 % Alternatively use command line:
 help SimVary
@@ -48,20 +48,20 @@ datavox.IRData = squeeze(data.IRData(voxel(1),voxel(2),voxel(3),:));
 FitResults = Model.fit(datavox);
 Model.plotmodel(FitResults,datavox)
 
-% all voxels (slice 20 only to go faster)
-data.Mask=load_nii_data('Mask.nii.gz');
-data.IRData = data.IRData(:,:,20,:); % take slice 20
-data.Mask = data.Mask(:,:,20,:); % take slice 20
+% all voxels (slice 23 only to go faster)
+Mask=load_nii_data('Mask.nii.gz');
+data.Mask = false(size(Mask));
+data.Mask(:,:,23) = Mask(:,:,23); % fit slice 23 only
 
 FitResults = FitData(data,Model);
 delete('FitTempResults.mat');
 
 %**************************************************************************
-%% V- SAVE
+%% IV- SAVE
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'IRdata.nii.gz');
+FitResultsSave_nii(FitResults,'IRdata.nii.gz'); % use header from 'IRdata.nii.gz'
 save('IRParameters.mat','Model');
 
 %% Check the results
