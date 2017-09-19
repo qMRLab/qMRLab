@@ -78,7 +78,7 @@ classdef SIRFSE
 %                    - fermi
 %       * Duration : Duration of the inversion pulse (s)
 %
-%   Global
+%   Fitting
 %       * Use R1map to  : By checking this box, you tell the fitting 
 %         constrain R1f   algorithm to check for an observed R1map and use
 %                         its value to constrain R1f. Checking this box 
@@ -88,6 +88,10 @@ classdef SIRFSE
 %                         algorithm to fix R1r equal to R1f. Checking this 
 %                         box will automatically set the R1r fix box to 
 %                         true in the Fit parameters table.
+%
+%   Sr Calculation
+%       * Lineshape: The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
+%       * T2r: Transverse relaxation time of the restricted pool (T2r = 1/R2r)
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
@@ -121,6 +125,7 @@ classdef SIRFSE
         % Model options
         buttons = {'PANEL','Inversion_Pulse',2,...
                    'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)',0.001,...
+                   'PANEL','Fitting',2,...
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'PANEL','Sr_Calculation',2,...
@@ -129,7 +134,7 @@ classdef SIRFSE
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'T2f (Used in Block equation)',0.040};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
@@ -140,7 +145,7 @@ classdef SIRFSE
         end
         
         function obj = UpdateFields(obj)
-            if obj.options.UseR1maptoconstrainR1f
+            if obj.options.Fitting_UseR1maptoconstrainR1f
                 obj.fx(3) = true;
             end
             SrParam = GetSrParam(obj);
@@ -164,10 +169,12 @@ classdef SIRFSE
             switch Opt.Method
                 case 'Block equation'
                     Sim.Param.M0f = 1;
-                    Sim.Opt.Reset = Opt.ResetMz;
+                    Sim.Param.R2f = 1/Opt.T2fUsedinBlockequation;
+                    Sim.Param.G   = 1.4176e-5;
                     Sim.Opt.SScheck = 1;
                     Sim.Opt.SStol = 1e-4;
-                    Protocol.InvPulse.Trf = Protocol.Trf;
+                    Protocol.FSE = Protocol;
+                    Protocol.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
                     Protocol.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
                     mz = SIRFSE_sim(Sim, Protocol, 1);
                 case 'Analytical equation'
@@ -272,13 +279,13 @@ classdef SIRFSE
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
             end
-            FitOpt.R1map = obj.options.UseR1maptoconstrainR1f;
+            FitOpt.R1map = obj.options.Fitting_UseR1maptoconstrainR1f;
             FitOpt.names = obj.xnames;
             FitOpt.fx = obj.fx;
             FitOpt.st = obj.st;
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
-            FitOpt.R1reqR1f = obj.options.FixR1rR1f;
+            FitOpt.R1reqR1f = obj.options.Fitting_FixR1rR1f;
         end
         
         function SrParam = GetSrParam(obj)           
