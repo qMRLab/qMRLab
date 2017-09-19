@@ -2,6 +2,7 @@ function M = SIRFSE_sim(Sim, Prot, wait)
 %SIRFSE_sim Simulate magnetization after full sequence for all Ti and return Mzf
 
 Param = Sim.Param;
+if ~isfield(Param,'M0r'), Param.M0r = Param.F*Param.M0f; end
 n  = length(Prot.ti);
 M  = zeros(n,1);
 ti = Prot.ti;
