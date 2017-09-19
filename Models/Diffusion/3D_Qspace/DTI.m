@@ -81,7 +81,7 @@ classdef DTI
         end
         
         function [Smodel, fiberdirection] = equation(obj, x)
-            if isnumeric(x) && length(x(:))==9, x.D=x(:); end
+            if isnumeric(x) && length(x(:))==9, xtmp=x; clear x; x.D=xtmp(:); end
             x = mat2struct(x,obj.xnames);
             Prot   = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             bvec   = Prot(:,1:3);
@@ -118,8 +118,9 @@ classdef DTI
                 SigmaNoise = obj.options.Sigmaofthenoise;
             end
             if ~moxunit_util_platform_is_octave
-                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
-                obj.st(~fixedparam) = xopt; xopt = obj.st;
+                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
+                FitResults.D(:)=xopt;
+                FitResults.residue = residue;
             end
 
             % compute metrics
