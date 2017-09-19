@@ -106,7 +106,7 @@ classdef DTI
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             data = data.Diffusiondata;
             % normalize with respect to b0
-            data = data./scd_preproc_getS0(data,Prot);
+            FitResults.S0 = scd_preproc_getS0(data,Prot);
             % fit
             D=scd_model_dti(data,Prot);
             % RICIAN NOISE
@@ -118,12 +118,17 @@ classdef DTI
                 SigmaNoise = obj.options.Sigmaofthenoise;
             end
             if ~moxunit_util_platform_is_octave
-                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
-                FitResults.D(:)=xopt;
+                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,FitResults.S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
+                D(:)=xopt;
                 FitResults.residue = residue;
             end
 
             % compute metrics
+            [~,L] = eig(D); L = sort(diag(L),'descend');
+            FitResults.L1 = L(1);
+            FitResults.L2 = L(2);
+            FitResults.L3 = L(3);
+            FitResults.D  = D(:);
             L_mean = sum(L)/3;
             FitResults.FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2));
             
