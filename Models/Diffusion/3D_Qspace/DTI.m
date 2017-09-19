@@ -65,7 +65,9 @@ classdef DTI
                             'Mat',txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'NODDI_DTI_demo', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
-        buttons = {};
+        buttons = {'Sigma of the noise',10,...
+            'Compute Sigma per voxel',true,...
+            'S0 normalization',{'Use b=0','Single T2 compartment'}};
         options = struct();
         
     end
