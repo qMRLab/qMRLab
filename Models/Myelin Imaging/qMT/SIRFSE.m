@@ -129,7 +129,7 @@ classdef SIRFSE
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
     
@@ -154,13 +154,21 @@ classdef SIRFSE
                 Sim.Param.(obj.xnames{ix}) = x(ix);
             end
             Protocol = GetProt(obj);
+            if strcmp(Opt.Method,'Block equation assuming M=0 after Tr (full recovery) (slow)')
+                Sim.Opt.method = 'FastSim';
+                Opt.Method = 'Block equation'; 
+            elseif strcmp(Opt.Method,'Block equation with full FSE (very slow)')
+                Sim.Opt.method = 'FullSim';
+                Opt.Method = 'Block equation'; 
+            end
             switch Opt.Method
                 case 'Block equation'
-                    Sim.Param.lineshape = obj.options.Lineshape;
                     Sim.Param.M0f = 1;
                     Sim.Opt.Reset = Opt.ResetMz;
                     Sim.Opt.SScheck = 1;
                     Sim.Opt.SStol = 1e-4;
+                    Protocol.InvPulse.Trf = Protocol.Trf;
+                    Protocol.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
                     mz = SIRFSE_sim(Sim, Protocol, 1);
                 case 'Analytical equation'
                     Sim.Param.Sf = -Sim.Param.Sf;
