@@ -79,22 +79,18 @@ classdef DTI
         end
         
         function [Smodel, fiberdirection] = equation(obj, x)
-            if isnumeric(x), x = mat2struct(x,obj.xnames); end
+            if isnumeric(x) && length(x(:))==9, x.D=x(:); end
+            x = mat2struct(x,obj.xnames);
             Prot   = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             bvec   = Prot(:,1:3);
             bvalue = scd_scheme_bvalue(Prot);
             D      = zeros(3,3);
-            if isnumeric(x)
-                if min(size(x)==[3 3])
-                    D = x;
-                else
-                    D = diag(x);
-                end
-            else
-                if isfield(x,'D'), D(:) = x.D;
-                else D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3;
-                end
+            % parse input
+            if isfield(x,'D'), D(:) = x.D; % full tensor
+            else D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3; 
             end
+            
+            % equation
             Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
             
             % compute Fiber Direction
@@ -107,13 +103,23 @@ classdef DTI
             if isempty(obj.Prot.DiffusionData.Mat) || size(obj.Prot.DiffusionData.Mat,1) ~= length(data.Diffusiondata(:)), errordlg('Load a valid protocol'); FitResults = []; return; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             data = data.Diffusiondata;
+            % normalize with respect to b0
+            data = data./scd_preproc_getS0(data,Prot);
             % fit
-            D=scd_model_dti(data./scd_preproc_getS0(data,Prot),Prot);
-            [~,L] = eig(D); L = sort(diag(L),'descend');
-            FitResults.L1 = L(1);
-            FitResults.L2 = L(2);
-            FitResults.L3 = L(3);
-            FitResults.D  = D(:);
+            D=scd_model_dti(data,Prot);
+            % RICIAN NOISE
+            % use Rician noise and fix b=0
+            if obj.options.ComputeSigmapervoxel
+                SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data);
+                if ~SigmaNoise, return; end
+            else
+                SigmaNoise = obj.options.Sigmaofthenoise;
+            end
+            if ~moxunit_util_platform_is_octave
+                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
+                obj.st(~fixedparam) = xopt; xopt = obj.st;
+            end
+
             % compute metrics
             L_mean = sum(L)/3;
             FitResults.FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2));
