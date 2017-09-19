@@ -231,6 +231,27 @@ classdef SIRFSE
 %             ViewPulse(Pulse,'b1');
 %         end
 %         
+
+
+        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+            % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+            % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
+            sigma  = .05;
+            TImax = 15;
+            GenerateRandFunction = @() rand(nV,1)*TImax+1e-3; % do not sort... or you might fall in a local minima
+            CheckProtInBoundFunc = @(Prot) min(max(1e-3,Prot),TImax);
+            % Optimize Protocol
+            td = 3.5;
+            [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,[Prot ones(size(Prot,1),1)*td],xvalues,sigma)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, obj.Prot.MTdata.Mat(:,1));
+            
+            % Generate Rest
+            schemeLEADER = retVal.schemeLEADER;
+            schemeLEADER = [schemeLEADER ones(size(Prot,1),1)*td];
+            
+            fprintf('SOMA HAS FINISHED \n')
+            
+        end
+
         function Prot = GetProt(obj)  
             Prot.ti = obj.Prot.MTdata.Mat(:,1);
             Prot.td = obj.Prot.MTdata.Mat(:,2);
