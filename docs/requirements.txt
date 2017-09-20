@@ -1,1 +1,1 @@
-sphinxcontrib.matlab
+sphinxcontrib-matlabdomain
