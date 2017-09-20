@@ -9,7 +9,7 @@ if ~exist('folder','var'), folder = 'FitResults'; end
 mkdir(folder)
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
-    file = strcat(map,'.nii');
+    file = strcat(map,'.nii.gz');
     if ~exist('fname_copyheader','var') || isempty(fname_copyheader)
         save_nii_v2(make_nii(FitResults.(map)),fullfile(folder,file),[],64);
     else

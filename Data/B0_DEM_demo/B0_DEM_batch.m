@@ -15,8 +15,8 @@ Model = B0_DEM;
 % Create a struct "file" that contains the NAME of all data's FILES
 % file.DATA = 'DATA_FILE';
 file = struct;
-file.Phase = 'Phase.nii';
-file.Magn = 'Magn.nii';
+file.Phase = 'Phase.nii.gz';
+file.Magn = 'Magn.nii.gz';
 
 %**************************************************************************
 % II- CHECK DATA AND FITTING
@@ -44,8 +44,8 @@ Model = Model.UpdateFields;
 % .MAT file : load('DATA_FILE');
 %             data.DATA = double(DATA);
 % .NII file : data.DATA = double(load_nii_data('DATA_FILE'));
-data.Phase = double(load_nii_data('Phase.nii'));
-data.Magn  = double(load_nii_data('Magn.nii'));
+data.Phase = double(load_nii_data('Phase.nii.gz'));
+data.Magn  = double(load_nii_data('Magn.nii.gz'));
 
 %**************************************************************************
 % III- FIT DATASET
@@ -58,7 +58,7 @@ FitResults.Model = Model;
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'Phase.nii');
+FitResultsSave_nii(FitResults,'Phase.nii.gz');
 %save('Parameters.mat','Model');
 
 %% Check the results

@@ -96,7 +96,7 @@ Model.plotmodel(FitResultsVox,dataVox)
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults);
-save('Parameters.mat','Model');
+save('SPGRParameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab

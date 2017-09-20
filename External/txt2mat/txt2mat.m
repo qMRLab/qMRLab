@@ -2180,7 +2180,7 @@ else
     p.addParameter('ConvString'    , '%f', @(x)isempty(x)||ischar(x))
     p.addParameter('ReplaceExpr'   , {}  , @(x)isempty(x)||iscell(x))
     %-- parse inputs:
-    p.parse()
+    p.parse(allargin{2:length(allargin)})
 
     % rearrange input argument parsing results to a nested struct called
     % 'arg', with

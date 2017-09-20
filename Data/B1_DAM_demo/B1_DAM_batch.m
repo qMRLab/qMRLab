@@ -41,7 +41,6 @@ data.SF120  = double(load_nii_data('SF120.nii.gz'));
 % II- FIT DATASET
 %**************************************************************************
 FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
-FitResults.Model = Model;
 
 %**************************************************************************
 % III- SAVE
@@ -49,7 +48,7 @@ FitResults.Model = Model;
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'SF60.nii.gz');
-save('Parameters.mat','Model');
+%save('Parameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab

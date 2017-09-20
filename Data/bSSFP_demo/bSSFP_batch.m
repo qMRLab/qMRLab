@@ -16,9 +16,9 @@ load('bSSFPParameters.mat');
 % Create a struct "file" that contains the NAME of all data's FILES
 % file.DATA = 'DATA_FILE';
 file = struct;
-file.MTdata = 'MTdata.nii';
-file.R1map = 'R1map.nii';
-file.Mask = 'Mask.nii';
+file.MTdata = 'MTdata.nii.gz';
+file.R1map = 'R1map.nii.gz';
+file.Mask = 'Mask.nii.gz';
 
 %**************************************************************************
 % II- CHECK DATA AND FITTING
@@ -52,9 +52,9 @@ Model = Model.UpdateFields;
 %             data.DATA = double(DATA);
 % .NII file : data.DATA = double(load_nii_data('DATA_FILE'));
 data = struct;
-data.MTdata = double(load_nii_data('MTdata.nii'));
-data.R1map = double(load_nii_data('R1map.nii'));
-data.Mask   = double(load_nii_data('Mask.nii'));
+data.MTdata = double(load_nii_data('MTdata.nii.gz'));
+data.R1map = double(load_nii_data('R1map.nii.gz'));
+data.Mask   = double(load_nii_data('Mask.nii.gz'));
 
 %**************************************************************************
 % III- FIT DATASET
@@ -76,7 +76,7 @@ Model.plotmodel(FitResultsVox,dataVox)
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'MTdata.nii');
+FitResultsSave_nii(FitResults,'MTdata.nii.gz');
 save('bSSFPParameters.mat','Model');
 
 %% Check the results
