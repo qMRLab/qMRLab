@@ -67,7 +67,6 @@ end
 ylabel('Signal (%b0)','FontSize',15);
 
 
-set(gca,'FontSize',15)
 if ~moxunit_util_platform_is_octave
     lgd = legend('show','Location','Best');
     set(lgd,'FontSize',8);
