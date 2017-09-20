@@ -15,6 +15,8 @@ function varargout = qMRLab(varargin)
 % Software for data simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
+qMRLabDir = fileparts(which(mfilename()));
+addpath(genpath(qMRLabDir));
 if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -281,6 +283,7 @@ function FitGo_FitData(hObject, eventdata, handles)
 data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
+data = data.(Method);
 
 if strcmp(Method,'SPGR') && (strcmp(Model.options.Model,'SledPikeCW') || strcmp(Model.options.Model,'SledPikeRP'))
     if isempty(fieldnames(Model.ProtSfTable))
@@ -550,7 +553,7 @@ text(0.77,0.94,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Col
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
 % Get data
-data =  getappdata(0,'Data'); MRIinput = fieldnames(data); MRIinput(strcmp(MRIinput,'hdr'))=[];
+data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model'))); MRIinput = fieldnames(data); MRIinput(strcmp(MRIinput,'hdr'))=[];
 [Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
 
 % Get selected voxel

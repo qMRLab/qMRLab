@@ -130,7 +130,7 @@ classdef BrowserSet
                 end
                 tmp = File;
             end  
-            Data.(obj.NameID{1}) = double(tmp);
+            Data.(class(getappdata(0,'Model'))).(obj.NameID{1}) = double(tmp);
             if exist('nii','var'),	Data.hdr = nii.hdr; end
             setappdata(0, 'Data', Data);            
         end
@@ -181,7 +181,7 @@ classdef BrowserSet
         function ViewBtn_callback(obj,src, event, handles)
             obj.DataLoad();
             dat = getappdata(0, 'Data');
-            dat=dat.(obj.NameID{1,1});
+            dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
             if isempty(dat), errordlg('empty data'); return; end
             
             n = ndims(dat);
