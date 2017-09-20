@@ -39,7 +39,7 @@ for pp=1:length(OptTable)
                     Sens.fit = Fittmp;
                 else
                     for ff=fieldnames(Fittmp)'
-                        Sens.fit.(ff{1})(ii,N) = Fittmp.(ff{1});
+                        Sens.fit.(ff{1})(ii,N) = Fittmp.(ff{1})(1);
                     end
                 end
                 %if ~isvalid(h), return; end

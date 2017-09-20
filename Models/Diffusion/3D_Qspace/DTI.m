@@ -186,10 +186,9 @@ classdef DTI
             end
         end
         
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs)
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
-            SimVaryResults = SimVary(obj, SNR, runs);
-            
+            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);            
         end
         
         
