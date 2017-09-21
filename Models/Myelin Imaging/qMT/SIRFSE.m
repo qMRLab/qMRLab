@@ -251,9 +251,10 @@ classdef SIRFSE
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
+            % Optimize Inversion times
             sigma  = .05;
             TImax = 15;
-            GenerateRandFunction = @() rand(nV,1)*TImax+1e-3; % do not sort... or you might fall in a local minima
+            GenerateRandFunction = @() rand(nV,1)*TImax+1e-3; % do not sort TI values... or you might fall in a local minima
             CheckProtInBoundFunc = @(Prot) min(max(1e-3,Prot),TImax);
             % Optimize Protocol
             td = 3.5;
