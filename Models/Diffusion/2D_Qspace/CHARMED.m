@@ -16,8 +16,10 @@ classdef CHARMED
     %--------%
     % INPUTS %
     %--------%
-    %   1) DiffusionData
-    %   2) Mask : Binary mask to accelerate the fitting (OPTIONAL)
+    %   1) DiffusionData : 4D DWI
+    %   2) SigmaNoise    : map of the standard deviation of the noise per
+    %                      voxel
+    %   2) Mask          : Binary mask to accelerate the fitting (OPTIONAL)
     %
     %-----------------------------------------------------------------------------------------------------
     %---------%
@@ -45,9 +47,12 @@ classdef CHARMED
     %---------%
     % OPTIONS %
     %---------%
-    %   Sigma of the noise : Standard deviation of the noise, assuming Rician.
-    %                        Use scd_noise_std_estimation to measure noise level
-    %                        Not used if "Compute sigma noise per pixel" is checked. Instead, STD across >5 repetitions is used.
+    %   Rician noise bias: Standard deviation of the noise, assuming Rician.
+    %                      If no SigmaNoise maps are provided, two methods:
+    %       * Compute Sigma per voxel: Sigma is estimated by computing the
+    %                                  STD across repeated scans.
+    %       * fix sigma: Use scd_noise_std_estimation to measure noise level
+    %                        
     %   S0 normalization :
     %     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
     %     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
@@ -58,7 +63,7 @@ classdef CHARMED
     %-----------------------------------------------------------------------------------------------------
     
     properties
-        MRIinputs = {'DiffusionData','Mask'}; % input data required
+        MRIinputs = {'DiffusionData','SigmaNoise','Mask'}; % input data required
         xnames = {'fr','Dh','diameter_mean','fcsf','lc','Dcsf','Dintra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
         
@@ -70,12 +75,12 @@ classdef CHARMED
         
         % Protocol
         Prot = struct('DiffusionData',...
-            struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
+            struct('Format',{{'Gx' 'Gy'  'Gz'   '|G| (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}},...
             'Mat',  txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'CHARMED_demo', 'Protocol.txt'),'InfoLevel',0))...
             ); % You can define a default protocol here.
         
         % Model options
-        buttons = {'Sigma of the noise',10,...
+        buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',nan,...
             'Compute Sigma per voxel',true,...
             'Display Type',{'q-value','b-value'},...
             'S0 normalization',{'Use b=0','Single T2 compartment'},...
@@ -96,9 +101,17 @@ classdef CHARMED
             Prot(Prot(:,4)==0,1:6) = 0;
             [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
             cmax = max(c); % find images repeated more than 5 times (for relevant STD)
-            if cmax<5
-                warndlg({'Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
-                obj.options.ComputeSigmapervoxel = false;
+            if cmax<2
+                warndlg({'Your dataset doesn''t have 2 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+                obj.options.Riciannoisebias_Method = 'fix sigma';
+            elseif cmax<5
+                warndlg({'Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+            end
+            
+            if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
+                obj.options.Riciannoisebias_value  = 'auto';
+            elseif isempty(obj.options.Riciannoisebias_value)
+                obj.options.Riciannoisebias_value=10;
             end
             
         end
@@ -124,38 +137,40 @@ classdef CHARMED
         function FitResults = fit(obj,data)
             
             % Prepare data
-            data = max(eps,double(data.DiffusionData)); nT = length(data);
+            datadif = max(eps,double(data.DiffusionData)); nT = length(datadif);
             if nT ~= size(obj.Prot.DiffusionData.Mat,1), errordlg(['Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot.DiffusionData.Mat,1)) ' rows.']); end
             
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0);
             
             switch obj.options.S0normalization
                 case 'Single T2 compartment'
-                    [S0,T2,obj.st(2)] = scd_preproc_getS0_T2(Prot,data,0,1000);
+                    [S0,T2,obj.st(2)] = scd_preproc_getS0_T2(Prot,datadif,0,1000);
                     S0 = S0*exp(-Prot(:,7)./T2);
                 case 'Use b=0'
-                    S0 = scd_preproc_getS0(data,Prot);
+                    S0 = scd_preproc_getS0(datadif,Prot);
             end
             
             %% FITTING
             % initiate with Gaussian noise assumption --> more stable fitting
             fixedparam = obj.fx;
             optoptim.MaxIter = 20; optoptim.Display = 'off';
-            [xopt, residue] = lsqcurvefit(@(x,scheme) S0.*equation(obj, addfixparameters(obj.st,x,fixedparam)),obj.st(~fixedparam),Prot,double(data),double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),optoptim);
+            [xopt, residue] = lsqcurvefit(@(x,scheme) S0.*equation(obj, addfixparameters(obj.st,x,fixedparam)),obj.st(~fixedparam),Prot,double(datadif),double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),optoptim);
             obj.st(~fixedparam) = xopt; xopt = obj.st;
             
             %% RICIAN NOISE
             % use Rician noise and fix b=0
-            if obj.options.ComputeSigmapervoxel
-                SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data);
+            if isfield(data,'SigmaNoise') && ~isempty(data.SigmaNoise)
+                SigmaNoise = data.SigmaNoise(1);
+            elseif strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
+                SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,datadif);
                 if ~SigmaNoise, return; end
             else
-                SigmaNoise = obj.options.Sigmaofthenoise;
+                SigmaNoise = obj.options.Riciannoisebias_value;
             end
             
             %% FITTING (with rician assumption)
             if ~moxunit_util_platform_is_octave
-                [xopt, residue] = fmincon(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,S0.*equation(obj, addfixparameters(obj.st,x,fixedparam))), SigmaNoise))), double(obj.st(~fixedparam)), [], [], [],[],double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),[],optimoptions('fmincon','MaxIter',20,'display','off','DiffMinChange',0.03));
+                [xopt, residue] = fmincon(@(x) double(-2*sum(scd_model_likelihood_rician(datadif,max(eps,S0.*equation(obj, addfixparameters(obj.st,x,fixedparam))), SigmaNoise))), double(obj.st(~fixedparam)), [], [], [],[],double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),[],optimoptions('fmincon','MaxIter',20,'display','off','DiffMinChange',0.03));
                 obj.st(~fixedparam) = xopt; xopt = obj.st;
             end
             %% OUTPUTS

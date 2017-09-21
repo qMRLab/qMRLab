@@ -208,9 +208,9 @@ classdef NODDI
             end
         end
         
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, SNR, runs, OptTable)
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
-            SimVaryResults = SimVary(obj, SNR, runs, OptTable);
+            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
             
         end
         

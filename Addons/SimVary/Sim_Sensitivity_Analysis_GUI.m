@@ -68,6 +68,10 @@ if ~isfield(handles,'opened')
         FitOptTable(:,3) = mat2cell(ones(Nparam,1),ones(Nparam,1));
     end
     
+    if size(FitOptTable,2)<5
+        FitOptTable(:,4)=mat2cell(cell2mat(FitOptTable(:,3))/2,ones(Nparam,1));
+        FitOptTable(:,5)=mat2cell(cell2mat(FitOptTable(:,3))*2,ones(Nparam,1));
+    end
     set(handles.SimVaryOptTable,'Data',FitOptTable)
     % fill parameters
     set(handles.SimVaryPlotX,'String',handles.Model.xnames')
