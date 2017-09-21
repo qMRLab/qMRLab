@@ -49,7 +49,7 @@ classdef DTI
 %-----------------------------------------------------------------------------------------------------
 
     properties
-        MRIinputs = {'Diffusiondata','Mask'};
+        MRIinputs = {'DiffusionData','SigmaNoise','Mask'};
         xnames = { 'L1','L2','L3'};
         voxelwise = 1;
         
@@ -65,9 +65,8 @@ classdef DTI
                             'Mat',txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'NODDI_DTI_demo', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
-        buttons = {'Sigma of the noise',10,...
-            'Compute Sigma per voxel',true,...
-            'S0 normalization',{'Use b=0','Single T2 compartment'}};
+        buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
+            'Compute Sigma per voxel',true};
         options = struct();
         
     end
@@ -75,11 +74,28 @@ classdef DTI
     methods
         function obj = DTI
             obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
         end
         function obj = UpdateFields(obj)
             obj.fx = [0 0 0]; 
+            Prot = obj.Prot.DiffusionData.Mat;
+            Prot(Prot(:,4)==0,1:6) = 0;
+            [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
+            cmax = max(c); % find images repeated more than 5 times (for relevant STD)
+            if cmax<2
+                warndlg({'Your dataset doesn''t have 2 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+                obj.options.Riciannoisebias_Method = 'fix sigma';
+            elseif cmax<4
+                warndlg({'Your dataset doesn''t have 4 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+            end
+            if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
+                obj.options.Riciannoisebias_value  = 'auto';
+            elseif isempty(obj.options.Riciannoisebias_value)
+                obj.options.Riciannoisebias_value=10;
+            end
         end
-        
+
+
         function [Smodel, fiberdirection] = equation(obj, x)
             if isnumeric(x) && length(x(:))==9, xtmp=x; clear x; x.D=xtmp(:); end
             x = mat2struct(x,obj.xnames);
@@ -102,23 +118,26 @@ classdef DTI
         end
         
         function FitResults = fit(obj,data)
-            if isempty(obj.Prot.DiffusionData.Mat) || size(obj.Prot.DiffusionData.Mat,1) ~= length(data.Diffusiondata(:)), errordlg('Load a valid protocol'); FitResults = []; return; end
+            if isempty(obj.Prot.DiffusionData.Mat) || size(obj.Prot.DiffusionData.Mat,1) ~= length(data.DiffusionData(:)), errordlg('Load a valid protocol'); FitResults = []; return; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
-            data = data.Diffusiondata;
             % normalize with respect to b0
-            FitResults.S0 = scd_preproc_getS0(data,Prot);
+            FitResults.S0 = scd_preproc_getS0(data.DiffusionData,Prot);
             % fit
-            D=scd_model_dti(data,Prot);
+            D=scd_model_dti(data.DiffusionData,Prot);
             % RICIAN NOISE
             % use Rician noise and fix b=0
-            if obj.options.ComputeSigmapervoxel
-                SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data);
+            % use Rician noise and fix b=0
+            if isfield(data,'SigmaNoise') && ~isempty(data.SigmaNoise)
+                SigmaNoise = data.SigmaNoise(1);
+            elseif strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
+                SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data.DiffusionData);
                 if ~SigmaNoise, return; end
             else
-                SigmaNoise = obj.options.Sigmaofthenoise;
+                SigmaNoise = obj.options.Riciannoisebias_value;
             end
+            
             if ~moxunit_util_platform_is_octave
-                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data,max(eps,FitResults.S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
+                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,FitResults.S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
                 D(:)=xopt;
                 FitResults.residue = residue;
             end
@@ -151,7 +170,7 @@ classdef DTI
                         
             % plot
             if exist('data','var')
-                data = data.Diffusiondata;
+                data = data.DiffusionData;
                 h = scd_display_qspacedata3D(data,Prot,fiberdirection);
                 S0 = scd_preproc_getS0(data,Prot);
                 Smodel = S0.*Smodel;
@@ -184,7 +203,7 @@ classdef DTI
             if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
             sigma  = max(Smodel)/Opt.SNR;
-            data.Diffusiondata = ricernd(Smodel,sigma);
+            data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             D = zeros(3,3); D(:) = FitResults.D;
             [V,L] = eig(D);

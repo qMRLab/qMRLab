@@ -80,7 +80,7 @@ classdef CHARMED
             ); % You can define a default protocol here.
         
         % Model options
-        buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',nan,...
+        buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
             'Compute Sigma per voxel',true,...
             'Display Type',{'q-value','b-value'},...
             'S0 normalization',{'Use b=0','Single T2 compartment'},...
@@ -94,6 +94,7 @@ classdef CHARMED
         % -------------CONSTRUCTOR-------------------------------------------------------------------------
         function obj = CHARMED
             obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
         end
         
         function obj = UpdateFields(obj)
