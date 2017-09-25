@@ -1,11 +1,12 @@
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 %**************************************************************************
-%% I- LOAD DATASET
+%% I- LOAD MODEL
 %**************************************************************************
 
 % Create Model object 
 Model = CHARMED;
+Model.options.S0normalization = 'Single T2 compartment';
 % Load Diffusion Protocol
 Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');
 % Launch Fitting procedure
@@ -41,7 +42,7 @@ Model.plotmodel(FitResults,datavox)
 
 % all voxels
 data.Mask=load_nii_data('Mask.nii.gz');
-FitResults = FitData(data,Model);
+FitResults = FitData(data,Model,1);
 delete('FitTempResults.mat');
 
 %**************************************************************************
@@ -50,7 +51,7 @@ delete('FitTempResults.mat');
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
-save('CHARMEDParameters.mat','Model');
+%save('CHARMEDParameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab
