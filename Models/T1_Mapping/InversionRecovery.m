@@ -1,34 +1,27 @@
 classdef InversionRecovery
-    %-----------------------------------------------------------------------------------------------------
-    % InversionRecovery :  T1 map using Inversion Recovery
-    %-----------------------------------------------------------------------------------------------------
-    %-------------%
-    % ASSUMPTIONS %
-    %-------------% 
-    % (1) None. Gold standard for T1 mapping
+    % Compute a T1 map using Inversion Recovery data
     %
-    %-----------------------------------------------------------------------------------------------------
-    %--------%
-    % INPUTS %
-    %--------%
+    %-------------USAGE------------
+    % See
+    % https://github.com/neuropoly/qMRLab/blob/Dev/Data/IR_demo/IR_batch.m for
+    % an example
+    %
+    %-------------ASSUMPTIONS-----------------
+    % 	1) Gold standard for T1 mapping
+    %
+    %---------------INPUTS--------------
     %   1) IRData : Inversion Recovery data
     %   2) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
     %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OUTPUTS %
-    %---------%
+    %-------------OUTPUTS-----------------
     %	Fitting Parameters
-    %       * T1
+    %       * T1 (transverse relaxation)
     %       * 'b' or 'rb' parameter (S=a + b*exp(-TI/T1))
     %       * 'a' or 'ra' parameter (S=a + b*exp(-TI/T1))
-    %       * idx: index of last polaroty restored datapoint (only used for magnitude data)
+    %       * idx: index of last polarity restored datapoint (only used for magnitude data)
     %       * res: Fitting residual
     %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OPTIONS %
-    %---------%
+    %------------OPTIONS-----------------
     %   method: Method to use in order to fit the data, based on whether
     %               complex or only magnitude data is available.
     %                 'complex'   : RD-NLS (Reduced-Dimension Non-Linear Least
@@ -37,41 +30,46 @@ classdef InversionRecovery
     %             or  'magnitude' : RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares
     %                               with Polarity Restoration)
     %                              S=|a + b*exp(-TI/T1)|
-    %----------%
-    % PROTOCOL %
-    %----------%
+    %--------------PROTOCOL-----------------
     %   TI:  Array containing the Inversion times, in ms
     %
-    %-----------------------------------------------------------------------------------------------------
-    % Written by: Ilana Leppert 2017
-    %-----------------------------------------------------------------------------------------------------
-
-
-    properties
+    %---------------REFERENCE---------------
+    % Please cite the following if you use this module:
+    % 
+    % *A robust methodology for in vivo T1 mapping.
+    % Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG.
+    % Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.*
+    % 
+    % In addition to citing the package:
+    % 
+    % *Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357*
+    % 
+    %----------------------------------_------------------------------------
+	properties
         MRIinputs = {'IRData','Mask'}; % input data required
         xnames = {'T1','rb','ra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
-        
+
         % fitting options
         st           = [  600    -1000      500 ]; % starting point
         lb           = [    0   -10000        0 ]; % lower bound
         ub           = [ 5000        0    10000 ]; % upper bound
         fx           = [    0        0        0 ]; % fix parameters
-        
+
         % Protocol
         Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]')); %default protocol
-        
+
         % Model options
         buttons = {'method',{'Magnitude','Complex'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
-        
+
     end
-    
+
     methods
         function  obj = InversionRecovery()
             obj.options = button2opts(obj.buttons);
         end
-        
+
         %         function obj = UpdateFields(obj)
         %             Default = InversionRecovery;
         %             obj.fx = Default.fx;
@@ -79,13 +77,13 @@ classdef InversionRecovery
         %             obj.lb= Default.lb;
         %             obj.ub= Default.ub;
         %         end
-        
+
         function Smodel = equation(obj, x)
             % Generates an IR signal based on input parameters
             %
             % :param x: [struct] containing fit parameters 'a' 'b' and 'T1'
             % :returns: Smodel: generated signal
-            
+
             if ~isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
                     xtmp.(obj.xnames{ix}) = x(ix);
@@ -98,13 +96,13 @@ classdef InversionRecovery
                 Smodel = abs(Smodel);
             end
         end
-        
+
         function FitResults = fit(obj,data)
             % Fits the data
             %
             % :param data: [struct] input data
             % :returns: [struct] FitResults
-            
+
             data = data.IRData;
             [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
             FitResults.T1  = T1;
@@ -115,7 +113,6 @@ classdef InversionRecovery
                 FitResults.idx = idx;
             end
         end
-        
 
          function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             % Simulates Single Voxel
@@ -124,7 +121,7 @@ classdef InversionRecovery
             % :param Opt.SNR: [struct] signal to noise ratio to use
             % :param display: 1=display, 0=nodisplay
             % :returns: [struct] FitResults
-            
+
             if ~exist('display','var'), display = 1; end
             Smodel = equation(obj, x);
             sigma = max(abs(Smodel))/Opt.SNR;
@@ -137,7 +134,7 @@ classdef InversionRecovery
             if display
                 plotmodel(obj, FitResults, data);
             end
-        end
+         end
         
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
@@ -148,7 +145,6 @@ classdef InversionRecovery
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
-        
         function plotmodel(obj, FitResults, data)
             % Plots the fit
             %
@@ -166,13 +162,13 @@ classdef InversionRecovery
                     plot(obj.Prot.IRData.Mat(1:FitResults.idx),data_rest,'o','MarkerSize',5,'MarkerEdgeColor','b','MarkerFaceColor',[1 0 0])
                 end
             end
-            
-            
-            
+
+
+
             % compute model
             obj.Prot.IRData.Mat = linspace(min(obj.Prot.IRData.Mat),max(obj.Prot.IRData.Mat),100);
             Smodel = equation(obj, FitResults);
-            
+
             % plot fitting curve
             plot(obj.Prot.IRData.Mat,Smodel,'Linewidth',3)
             xlabel('Inversion Time [ms]','FontSize',15);
