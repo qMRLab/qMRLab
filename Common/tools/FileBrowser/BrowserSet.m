@@ -185,7 +185,7 @@ classdef BrowserSet
             if isempty(dat), errordlg('empty data'); return; end
             
             n = ndims(dat);
-            Data.(obj.NameID{1,1}) = mean(dat, 4);
+            Data.(obj.NameID{1,1}) = dat;
             
             Data.fields = {obj.NameID{1,1}};
             handles.CurrentData = Data;

@@ -777,7 +777,8 @@ end
 
 % LOAD
 function RoiLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile;
+[FileName,PathName] = uigetfile({'*.mat'});
+if isequal(FileName,0), return; end
 FullPathName = fullfile(PathName, FileName);
 Tmp = load(FullPathName);
 Roi = rot90(Tmp.Mask);
