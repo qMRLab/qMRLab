@@ -33,13 +33,16 @@ sys.path.insert(0, os.path.abspath('../..'))
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages', 'sphinxcontrib.matlab']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # Primary domain
 primary_domain = 'mat'
+# Matlab source dir
+matlab_src_dir = os.path.abspath('../..')
+autodoc_member_order = 'groupwise'
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -179,25 +182,3 @@ texinfo_documents = [
      author, 'qMRlab', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-import xml.etree.ElementTree
-fn = os.path.join(os.path.dirname(__file__), 'CHARMEDhtml/CHARMED_batch.html')
-
-#tree = xml.etree.ElementTree.parse(
-import io
-with io.open("generated.rst", "wb") as f:
-    #body = xml.etree.ElementTree.tostring(tree[0][1])
-    t = "CHARMED"
-    f.write(t.encode())
-    f.write(b"\n")
-    f.write(b"=" * len(t))
-    f.write(b"\n")
-    f.write(b"\n")
-    f.write(b".. raw:: html\n")
-    f.write(b"\n   \n")
-    #f.write(("  %s" % body).encode("utf-8"))
-    #f.write(b"   oihokh")
-    with io.open(fn, "rb") as fi:
-        for line in fi:
-            f.write(b"   ")
-            f.write(line)
