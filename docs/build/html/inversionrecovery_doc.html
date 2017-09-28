@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Inversion Recovery &#8212; qMRlab 0.1 documentation</title>
+    <title>Documentation &#8212; qMRlab 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Documentation" href="inversionrecovery_doc.html" />
-    <link rel="prev" title="T1 Mapping" href="t1_mapping.html" />
+    <link rel="next" title="IR Example" href="IR_batch.html" />
+    <link rel="prev" title="Inversion Recovery" href="inversionrecovery.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -40,14 +40,80 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="inversion-recovery">
-<h1>Inversion Recovery<a class="headerlink" href="#inversion-recovery" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="inversionrecovery_doc.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="IR_batch.html">IR Example</a></li>
+  <div class="section" id="module-Models.T1_Mapping">
+<span id="documentation"></span><h1>Documentation<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="Models.T1_Mapping.InversionRecovery">
+<em class="property">class </em><code class="descclassname">Models.T1_Mapping.</code><code class="descname">InversionRecovery</code><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a T1 map using Inversion Recovery data</p>
+<dl class="docutils">
+<dt>————-<strong>USAGE</strong>————</dt>
+<dd>qMRusage(InversionRecovery)</dd>
+<dt>————-<strong>EXAMPLE</strong>————</dt>
+<dd>See
+<a class="reference external" href="https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m">https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m</a> for an example</dd>
+<dt>————-<strong>ASSUMPTIONS</strong>—————–</dt>
+<dd><ol class="first last arabic simple">
+<li>Gold standard for T1 mapping</li>
+</ol>
+</dd>
+<dt>—————<strong>INPUTS</strong>————–</dt>
+<dd><ol class="first last arabic simple">
+<li>IRData : Inversion Recovery data</li>
+<li>Mask   : Binary mask to accelerate the fitting (OPTIONAL)</li>
+</ol>
+</dd>
+<dt>————-<strong>OUTPUTS</strong>—————–</dt>
+<dd><blockquote class="first">
+<div>Fitting Parameters</div></blockquote>
+<ul class="last simple">
+<li>T1 (transverse relaxation)</li>
+<li>‘b’ or ‘rb’ parameter (S=a + b*exp(-TI/T1))</li>
+<li>‘a’ or ‘ra’ parameter (S=a + b*exp(-TI/T1))</li>
+<li>idx: index of last polarity restored datapoint (only used for magnitude data)</li>
+<li>res: Fitting residual</li>
 </ul>
-</div>
+</dd>
+<dt>————<strong>OPTIONS</strong>—————–</dt>
+<dd><dl class="first last docutils">
+<dt>method: Method to use in order to fit the data, based on whether</dt>
+<dd><blockquote class="first">
+<div><dl class="docutils">
+<dt>complex or only magnitude data is available.</dt>
+<dd><dl class="first last docutils">
+<dt>‘complex’ <span class="classifier-delimiter">:</span> <span class="classifier">RD-NLS (Reduced-Dimension Non-Linear Least</span></dt>
+<dd><blockquote class="first">
+<div>Squares)</div></blockquote>
+<p class="last">S=a + b*exp(-TI/T1)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="last docutils">
+<dt>or  ‘magnitude’ <span class="classifier-delimiter">:</span> <span class="classifier">RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares</span></dt>
+<dd><blockquote class="first">
+<div>with Polarity Restoration)</div></blockquote>
+<p class="last">S=|a + b*exp(-TI/T1)|</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>————–<strong>PROTOCOL</strong>—————–</dt>
+<dd>TI:  Array containing the Inversion times, in ms</dd>
+<dt>—————<strong>REFERENCE</strong>—————</dt>
+<dd><p class="first">Please cite the following if you use this module:</p>
+<p><em>A robust methodology for in vivo T1 mapping.
+Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG.
+Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
+<p>In addition to citing the package:</p>
+<p class="last"><em>Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357</em></p>
+</dd>
+</dl>
+<p>———————————-_————————————</p>
+</dd></dl>
+
 </div>
 
 
@@ -89,8 +155,8 @@
 <li class="toctree-l3"><a class="reference internal" href="myelin.html">Myelin Imaging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">Inversion Recovery</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="inversionrecovery_doc.html">Documentation</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">Documentation</a></li>
 <li class="toctree-l5"><a class="reference internal" href="IR_batch.html">IR Example</a></li>
 </ul>
 </li>
@@ -111,8 +177,10 @@
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="documentation.html">qMRlab Introduction</a><ul>
   <li><a href="t1_mapping.html">T1 Mapping</a><ul>
-      <li>Previous: <a href="t1_mapping.html" title="previous chapter">T1 Mapping</a></li>
-      <li>Next: <a href="inversionrecovery_doc.html" title="next chapter">Documentation</a></li>
+  <li><a href="inversionrecovery.html">Inversion Recovery</a><ul>
+      <li>Previous: <a href="inversionrecovery.html" title="previous chapter">Inversion Recovery</a></li>
+      <li>Next: <a href="IR_batch.html" title="next chapter">IR Example</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -140,7 +208,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/inversionrecovery.rst.txt"
+      <a href="_sources/inversionrecovery_doc.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

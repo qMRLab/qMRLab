@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Variable Flip Angle Method &#8212; qMRlab 0.1 documentation</title>
+    <title>Variable Flip Angle &#8212; qMRlab 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Inversion Recovery" href="inversionrecovery.html" />
+    <link rel="prev" title="IR Example" href="IR_batch.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -40,62 +40,48 @@
           <div class="body" role="main">
             
   <div class="section" id="module-Models.T1_Mapping">
-<span id="variable-flip-angle-method"></span><h1>Variable Flip Angle Method<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
+<span id="variable-flip-angle"></span><h1>Variable Flip Angle<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="Models.T1_Mapping.VFA_T1">
 <em class="property">class </em><code class="descclassname">Models.T1_Mapping.</code><code class="descname">VFA_T1</code><a class="headerlink" href="#Models.T1_Mapping.VFA_T1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a T1 map using Variable Flip Angle</p>
-<blockquote>
-<div>ASSUMPTIONS %</div></blockquote>
 <dl class="docutils">
-<dt>————-% </dt>
+<dt>————-USAGE————</dt>
+<dd>See for an example</dd>
+<dt>————-ASSUMPTIONS—————–</dt>
 <dd><ol class="first last arabic simple">
-<li>FILL</li>
-<li></li>
-<li></li>
 <li></li>
 </ol>
 </dd>
-</dl>
-<dl class="docutils">
-<dt>——–%</dt>
-<dd>INPUTS %</dd>
-<dt>——–%</dt>
+<dt>—————INPUTS————–</dt>
 <dd><ol class="first last arabic simple">
-<li>SPGR  : spoiled Gradient echo. 4D volume with variable flip angles</li>
+<li>SPGR  : spoiled Gradient echo data, 4D volume with different flip angles</li>
 <li>B1map : excitation (B1+) fieldmap. Used to correct flip angles.</li>
 </ol>
 </dd>
-</dl>
-<dl class="docutils">
-<dt>———%</dt>
-<dd>OUTPUTS %</dd>
-<dt>———%</dt>
-<dd><ul class="first last simple">
+<dt>————-OUTPUTS—————–</dt>
+<dd><blockquote class="first">
+<div>Fitting Parameters</div></blockquote>
+<ul class="last simple">
 <li>T1 : Longitudinal relaxation time</li>
-<li>M0 : ????</li>
+<li>M0 : Equilibrium magnetization</li>
 </ul>
 </dd>
-</dl>
-<dl class="docutils">
-<dt>———-%</dt>
-<dd>PROTOCOL %</dd>
-<dt>———-%</dt>
+<dt>————OPTIONS—————–</dt>
+<dd>None</dd>
+<dt>————–PROTOCOL—————–</dt>
 <dd><ul class="first last simple">
-<li>Flip Angle (degree)</li>
+<li>FA : list of flip angles (degrees)</li>
 <li>TR : Repetition time of the whole sequence (s)</li>
 </ul>
 </dd>
+<dt>—————REFERENCE—————</dt>
+<dd><p class="first">Please cite the following if you use this module:</p>
+<p><em>Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357</em></p>
+<p class="last">Written by: Ian Gagnon, 2017</p>
+</dd>
 </dl>
-<dl class="docutils">
-<dt>———%</dt>
-<dd>OPTIONS %</dd>
-<dt>———%</dt>
-<dd>NONE</dd>
-</dl>
-<blockquote>
-<div>Written by: Ian Gagnon, 2017
-Reference: FILL</div></blockquote>
+<p>———————————-_————————————</p>
 <dl class="method">
 <dt id="Models.T1_Mapping.VFA_T1.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.fit" title="Permalink to this definition">¶</a></dt>
@@ -182,7 +168,7 @@ Reference: FILL</div></blockquote>
 <li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">Variable Flip Angle Method</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Variable Flip Angle</a></li>
 </ul>
 </li>
 </ul>
@@ -199,7 +185,7 @@ Reference: FILL</div></blockquote>
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="documentation.html">qMRlab Introduction</a><ul>
   <li><a href="t1_mapping.html">T1 Mapping</a><ul>
-      <li>Previous: <a href="inversionrecovery.html" title="previous chapter">Inversion Recovery</a></li>
+      <li>Previous: <a href="IR_batch.html" title="previous chapter">IR Example</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
