@@ -1,19 +1,21 @@
 classdef InversionRecovery
     % Compute a T1 map using Inversion Recovery data
     %
-    %-------------USAGE------------
-    % See
-    % https://github.com/neuropoly/qMRLab/blob/Dev/Data/IR_demo/IR_batch.m for
-    % an example
+    %-------------**USAGE**------------
+    %  qMRusage(InversionRecovery)
     %
-    %-------------ASSUMPTIONS-----------------
+    %-------------**EXAMPLE**------------
+    % See
+    % https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m for an example
+    %
+    %-------------**ASSUMPTIONS**-----------------
     % 	1) Gold standard for T1 mapping
     %
-    %---------------INPUTS--------------
+    %---------------**INPUTS**--------------
     %   1) IRData : Inversion Recovery data
     %   2) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
     %
-    %-------------OUTPUTS-----------------
+    %-------------**OUTPUTS**-----------------
     %	Fitting Parameters
     %       * T1 (transverse relaxation)
     %       * 'b' or 'rb' parameter (S=a + b*exp(-TI/T1))
@@ -21,7 +23,7 @@ classdef InversionRecovery
     %       * idx: index of last polarity restored datapoint (only used for magnitude data)
     %       * res: Fitting residual
     %
-    %------------OPTIONS-----------------
+    %------------**OPTIONS**-----------------
     %   method: Method to use in order to fit the data, based on whether
     %               complex or only magnitude data is available.
     %                 'complex'   : RD-NLS (Reduced-Dimension Non-Linear Least
@@ -30,20 +32,20 @@ classdef InversionRecovery
     %             or  'magnitude' : RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares
     %                               with Polarity Restoration)
     %                              S=|a + b*exp(-TI/T1)|
-    %--------------PROTOCOL-----------------
+    %--------------**PROTOCOL**-----------------
     %   TI:  Array containing the Inversion times, in ms
     %
-    %---------------REFERENCE---------------
+    %---------------**REFERENCE**---------------
     % Please cite the following if you use this module:
-    % 
+    %
     % *A robust methodology for in vivo T1 mapping.
     % Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG.
     % Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.*
-    % 
+    %
     % In addition to citing the package:
-    % 
+    %
     % *Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357*
-    % 
+    %
     %----------------------------------_------------------------------------
 	properties
         MRIinputs = {'IRData','Mask'}; % input data required
@@ -135,7 +137,7 @@ classdef InversionRecovery
                 plotmodel(obj, FitResults, data);
             end
          end
-        
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
