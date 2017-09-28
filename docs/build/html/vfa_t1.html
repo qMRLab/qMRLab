@@ -1,0 +1,242 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Variable Flip Angle Method &#8212; qMRlab 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Inversion Recovery" href="inversionrecovery.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-Models.T1_Mapping">
+<span id="variable-flip-angle-method"></span><h1>Variable Flip Angle Method<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="Models.T1_Mapping.VFA_T1">
+<em class="property">class </em><code class="descclassname">Models.T1_Mapping.</code><code class="descname">VFA_T1</code><a class="headerlink" href="#Models.T1_Mapping.VFA_T1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a T1 map using Variable Flip Angle</p>
+<blockquote>
+<div>ASSUMPTIONS %</div></blockquote>
+<dl class="docutils">
+<dt>————-% </dt>
+<dd><ol class="first last arabic simple">
+<li>FILL</li>
+<li></li>
+<li></li>
+<li></li>
+</ol>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>——–%</dt>
+<dd>INPUTS %</dd>
+<dt>——–%</dt>
+<dd><ol class="first last arabic simple">
+<li>SPGR  : spoiled Gradient echo. 4D volume with variable flip angles</li>
+<li>B1map : excitation (B1+) fieldmap. Used to correct flip angles.</li>
+</ol>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>———%</dt>
+<dd>OUTPUTS %</dd>
+<dt>———%</dt>
+<dd><ul class="first last simple">
+<li>T1 : Longitudinal relaxation time</li>
+<li>M0 : ????</li>
+</ul>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>———-%</dt>
+<dd>PROTOCOL %</dd>
+<dt>———-%</dt>
+<dd><ul class="first last simple">
+<li>Flip Angle (degree)</li>
+<li>TR : Repetition time of the whole sequence (s)</li>
+</ul>
+</dd>
+</dl>
+<dl class="docutils">
+<dt>———%</dt>
+<dd>OPTIONS %</dd>
+<dt>———%</dt>
+<dd>NONE</dd>
+</dl>
+<blockquote>
+<div>Written by: Ian Gagnon, 2017
+Reference: FILL</div></blockquote>
+<dl class="method">
+<dt id="Models.T1_Mapping.VFA_T1.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>T1 and M0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Models.T1_Mapping.VFA_T1.MRIinputs">
+<code class="descname">MRIinputs</code><em class="property"> = u&quot;{'SPGR','B1map'}&quot;</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.MRIinputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Models.T1_Mapping.VFA_T1.Prot">
+<code class="descname">Prot</code><em class="property"> = u&quot;struct('SPGR',struct('Format',{{'Flip Angle' 'TR'}},\n'Mat', [4 0.025; 10 0.025; 20 0.025]))&quot;</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.Prot" title="Permalink to this definition">¶</a></dt>
+<dd><p>You can define a default protocol here.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Models.T1_Mapping.VFA_T1.buttons">
+<code class="descname">buttons</code><em class="property"> = u'{}'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.buttons" title="Permalink to this definition">¶</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Models.T1_Mapping.VFA_T1.options">
+<code class="descname">options</code><em class="property"> = u'struct()'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>structure filled by the buttons. Leave empty in the code</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Models.T1_Mapping.VFA_T1.voxelwise">
+<code class="descname">voxelwise</code><em class="property"> = u'0'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.voxelwise" title="Permalink to this definition">¶</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="Models.T1_Mapping.VFA_T1.xnames">
+<code class="descname">xnames</code><em class="property"> = u'{}'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.xnames" title="Permalink to this definition">¶</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo-neuropoly.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=neuropoly&repo=qMRLab&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">qMRlab Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html#features">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html">Diffusion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fieldmaps.html">Field Maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="myelin.html">Myelin Imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Variable Flip Angle Method</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="documentation.html">qMRlab Introduction</a><ul>
+  <li><a href="t1_mapping.html">T1 Mapping</a><ul>
+      <li>Previous: <a href="inversionrecovery.html" title="previous chapter">Inversion Recovery</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, NeuroPoly.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/vfa_t1.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/neuropoly/qMRLab" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,4 +1,4 @@
-function [L, D] = legendreGaussianIntegral(x, n)
+function [L, D] = LegendreGaussianIntegral(x, n)
 % function [L, D] = legendreGaussianIntegral(x, n)
 % Computes legendre gaussian integrals up to the order specified and the
 % derivatives if requested

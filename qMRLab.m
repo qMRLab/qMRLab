@@ -15,7 +15,9 @@ function varargout = qMRLab(varargin)
 % Software for data simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
-
+qMRLabDir = fileparts(which(mfilename()));
+addpath(genpath(qMRLabDir));
+if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -67,7 +69,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.ModelDir = [qMRLabDir filesep 'Models'];
     guidata(hObject, handles);
     addModelMenu(hObject, eventdata, handles);
-    
+
     % Fill FileBrowser with buttons
     MethodList = getappdata(0, 'MethodList');
     MethodList = strrep(MethodList, '.m', '');
@@ -139,11 +141,11 @@ Method = GetMethod(handles);
 MethodMenu(hObject,eventdata,handles,Method);
 
 function addModelMenu(hObject, eventdata, handles)
-methods = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
-methodsM = strcat(sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1),'.m'); 
-MethodList = GetAppData('MethodList');
-MethodList = {MethodList{:} methodsM{:}};
+% Display all the options in the popupmenu
+[MethodList, pathmodels] = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
 SetAppData(MethodList)
+for iM=1:length(MethodList), MethodList{iM} = [strrep(pathmodels{iM},[handles.ModelDir filesep],'') MethodList{iM}]; end
+set(handles.MethodSelection,'String',MethodList);
 
 
 %###########################################################################################
@@ -152,15 +154,6 @@ SetAppData(MethodList)
 
 % METHODSELECTION
 function MethodMenu(hObject, eventdata, handles, Method)
-
-% Display all the options in the popupmenu
-list = sct_tools_ls([handles.ModelDir filesep '*.m'],1,0,2,1);
-choices = strrep(list{1},[handles.ModelDir filesep],'');
-for i = 2:length(list)
-    choices = strvcat(choices, strrep(list{i},[handles.ModelDir filesep],''));
-end
-set(handles.MethodSelection,'String',choices);
-
 
 SetAppData(Method)
 
@@ -290,6 +283,7 @@ function FitGo_FitData(hObject, eventdata, handles)
 data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
+data = data.(Method);
 
 if strcmp(Method,'SPGR') && (strcmp(Model.options.Model,'SledPikeCW') || strcmp(Model.options.Model,'SledPikeRP'))
     if isempty(fieldnames(Model.ProtSfTable))
@@ -300,8 +294,6 @@ end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
-FitResults.Model = Model;
-
 
 % Save info with results
 FileBrowserList = GetAppData('FileBrowserList');
@@ -330,8 +322,13 @@ if(~isempty(FitResults.StudyID))
 else
     filename = 'FitResults.mat';
 end
-if ~exist(fullfile(FitResults.WD,'FitResults','dir')), mkdir(fullfile(FitResults.WD,'FitResults')); end
-save(fullfile(FitResults.WD,'FitResults',filename),'-struct','FitResults');
+outputdir = fullfile(FitResults.WD,'FitResults');
+if ~exist(outputdir,'dir'), mkdir(outputdir); 
+else
+    outputdir = fullfile(FitResults.WD,['FitResults' datestr(now,'_yyyymmdd_HHMM')]);
+    mkdir(outputdir); 
+end
+save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
@@ -344,12 +341,12 @@ while isempty(mainfile)
 end    
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
-    file = strcat(map,'.nii');
     [~,~,ext]=fileparts(mainfile);
+    file = strcat(map,'.nii.gz');
     if strcmp(ext,'.mat')
-        save_nii_v2(make_nii(FitResults.(map)),fullfile(FitResults.WD,'FitResults',file),[],64);
+        save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
-        save_nii_v2(FitResults.(map),fullfile(FitResults.WD,'FitResults',file),mainfile,64);
+        save_nii_v2(FitResults.(map),fullfile(outputdir,file),mainfile,64);
     end
 end
 
@@ -556,7 +553,7 @@ text(0.77,0.94,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Col
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
 % Get data
-data =  getappdata(0,'Data'); MRIinput = fieldnames(data); MRIinput(strcmp(MRIinput,'hdr'))=[];
+data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model'))); MRIinput = fieldnames(data); MRIinput(strcmp(MRIinput,'hdr'))=[];
 [Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
 
 % Get selected voxel
@@ -601,7 +598,7 @@ else
     Model = getappdata(0,'Model');
     if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
     if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
-    Fit = Model.fit(data); % Display fitting results in command window
+    Fit = Model.fit(data) % Display fitting results in command window
     Model.plotmodel(Fit,data);
     
     % update legend
@@ -780,7 +777,8 @@ end
 
 % LOAD
 function RoiLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile;
+[FileName,PathName] = uigetfile({'*.mat'});
+if isequal(FileName,0), return; end
 FullPathName = fullfile(PathName, FileName);
 Tmp = load(FullPathName);
 Roi = rot90(Tmp.Mask);

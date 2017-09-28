@@ -1,4 +1,13 @@
 function handle = GenerateButtons(opts,ParentPanel, maxSize, ncol)
+% Generate Buttons in vertical arrangement based on a cell array
+% handle = GenerateButtons(opts,ParentPanel,maxButtonSize)
+% Example:
+%   Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false}
+%   h = figure;
+%   buttons_handle = GenerateButtons(Sim_Single_Voxel_Curve_buttons,h,.2)
+%   opts = button_handle2opts(button_handle)
+%
+% See also: button_handle2opts
 ncol=1;
 
 N = length(opts)/2;
@@ -25,7 +34,10 @@ for i = 1:N
             'Parent',ParentPanel,'Units','normalized','Position',[(I(i)+Iw/3) J(i) 2.2*Iw/3 Jh/2],'String',opts{2*i},'Value',val);
     elseif isnumeric(opts{2*i}) && length(opts{2*i})>1
              handle.(tag) = uitable(ParentPanel,'Data',opts{2*i},'Units','normalized','Position',[I(i) J(i) Iw Jh/2]);
-
+    elseif strcmp(opts{2*i},'pushbutton')         
+            handle.(tag) = uicontrol('Style','togglebutton','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
+            'Parent',ParentPanel,'Units','normalized','Position',[I(i) J(i) Iw Jh/2],...
+            'HorizontalAlignment','center');
     end
 end
 

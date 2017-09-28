@@ -1,4 +1,4 @@
-function Sf = CacheSf(protocolArg)
+function Sf = CacheSf(protocolArg,varargin)
 %CACHESF qMRLab command line tool to calculate/cache the Sf table for a
 %protocol.
 %
@@ -70,12 +70,12 @@ function Sf = CacheSf(protocolArg)
     %% Compue Sf Cache
     %
     
-    Sf = BuildSfTable(SfAngles, SfOffsets, T2f, Trf, shape, PulseOpt);
+    Sf = BuildSfTable(SfAngles, SfOffsets, T2f, Trf, shape, PulseOpt,varargin{:});
 
     %% If applicable (e.g. , Save protocol to 
     %
 
-    if ischar(protocolArg)
+    if ischar(protocolArg) && ~isempty(Sf)
         Prot.Sf = Sf;
         
         % If protocolArg is a 'char', then it is the location of the saved

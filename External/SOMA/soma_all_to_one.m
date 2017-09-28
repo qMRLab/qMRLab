@@ -82,10 +82,10 @@ startPositionOfIndividual = Individual;
 for t=0:opt.step:opt.pathLength
     
     % Generate new PRTVector for each step of this individual
-    PRTVector = zeros(opt.nV,3);
+    PRTVector = zeros(opt.nV,size(Individual,2));
     prtVectorContainOnlyZeros = true;
     while(prtVectorContainOnlyZeros)
-        for j=1:opt.nV*3
+        for j=1:opt.nV*size(Individual,2)
             if rand<opt.prt
                 PRTVector(j) = 1;
                 prtVectorContainOnlyZeros = false;
@@ -99,7 +99,7 @@ for t=0:opt.step:opt.pathLength
     tmpIndividual = startPositionOfIndividual + (leaderPosition - startPositionOfIndividual ) .* t .* PRTVector;
     
     %check boundaries
-    [newtmpIndividual, check] = opt.CheckSchemeInBoundFunc(tmpIndividual);
+    newtmpIndividual = opt.CheckSchemeInBoundFunc(tmpIndividual);
     tmpIndividual = newtmpIndividual;
     
     tmpCostValue = feval(opt.costFunctionHandle, tmpIndividual);

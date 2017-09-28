@@ -10,12 +10,13 @@ function SimVaryResults = SimVary(obj, runs, OptTable, Opts)
 %        OptTable: structure with vectors defining options for each fitting parameters obj.xnames
 %               OptTable.fx: true/false. Vary this parameter?
 %               OptTable.st: Nominal Values
-%               OptTable.lb
-%               OptTable.ub
+%               OptTable.lb: Vary from lb...
+%               OptTable.ub: ..to ub value
 %        Opts.SNR
 %
 
-if ~exist('OptTable','var'), OptTable = obj; end % use fitting boundaries
+if ~exist('OptTable','var') || isempty(OptTable), OptTable = obj; end % use fitting boundaries
+if ~exist('Opts','var') || isempty(Opts), Opts.SNR = 50; end
 
 fx = [OptTable.fx];
 st = [OptTable.st];
@@ -38,7 +39,7 @@ for pp=1:length(OptTable)
                     Sens.fit = Fittmp;
                 else
                     for ff=fieldnames(Fittmp)'
-                        Sens.fit.(ff{1})(ii,N) = Fittmp.(ff{1});
+                        Sens.fit.(ff{1})(ii,N) = Fittmp.(ff{1})(1);
                     end
                 end
                 %if ~isvalid(h), return; end

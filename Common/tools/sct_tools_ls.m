@@ -25,7 +25,7 @@ elseif folders==2
 end
 
 % sort by name
-list=sort_nat({list.name});
+list=sort_nat({list.name})';
 
 
 % remove files starting with .
@@ -35,15 +35,19 @@ if keeppath
         list{iL}=[path list{iL}];
     end
 end
+pathcur = path;
+path = repmat({path},[length(list),1]);
 
 if ~keepext
     list=cellfun(@(x) sct_tool_remove_extension(x,keeppath),list,'UniformOutput',false);
 end
 
 if arborescence
-    listdir = sct_tools_ls(path,1,1,1);
+    listdir = sct_tools_ls(pathcur,1,1,1);
     for idir = 1:length(listdir)
-        list = [list, sct_tools_ls([listdir{idir} filesep name], keeppath, keepext, folders,arborescence,0)];
+        [listidir, pathidir]=sct_tools_ls([listdir{idir} filesep name], keeppath, keepext, folders,arborescence,0);
+        list = [list; listidir];
+        path = cat(1,path, pathidir{:});
     end
 end
 

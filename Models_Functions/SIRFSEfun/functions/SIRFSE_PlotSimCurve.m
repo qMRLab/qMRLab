@@ -1,7 +1,10 @@
 function SIRFSE_PlotSimCurve(MTdata, MTnoise, Prot, Sim, SimCurveResults)
 
-plot3(Prot.ti, Prot.td, MTdata, 'bx', 'MarkerSize', 8); hold on;
-
+if ~isempty(MTdata)
+    plot3(Prot.ti, Prot.td, MTdata, 'bx', 'MarkerSize', 8); hold on;
+else
+    MTdata=1;
+end
 if (Sim.Opt.AddNoise)
     plot3(Prot.ti, Prot.td, MTnoise,'bo','MarkerSize',8);
     plot3(SimCurveResults.ti, SimCurveResults.td, SimCurveResults.curve, 'r');

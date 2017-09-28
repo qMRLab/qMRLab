@@ -70,7 +70,7 @@ if ~isempty(Model.buttons)
     % Generate Buttons
     handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel);
     
-    % Create CALLBACK for buttons
+    % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
     ff = fieldnames(handles.OptionsPanel_handle);
     for ii=1:length(ff)
         set(handles.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(handles));
@@ -136,27 +136,25 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 
 % GETFITOPT Get Fit Option from table
 function Model = SetOpt(handles)
-
 % READ FITTING TABLE
 fittingtable = get(handles.FitOptTable,'Data'); % Get options
 Model = getappdata(0,'Model');
 Model.xnames = fittingtable(:,1)';
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
-    if size(fittingtable,2)>1, Model.fx = cell2mat(fittingtable(:,2)'); end
-    if size(fittingtable,2)>2
-        if ~any(cellfun('isempty',fittingtable(:,3)))
-            Model.st = cell2mat(fittingtable(:,3)');
-            % check that starting point > lb and < ub
-            Model.st = max([Model.st; Model.lb],[],1);
-            Model.st = min([Model.st; Model.ub],[],1);
-            fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
-        end
-        Model.lb = cell2mat(fittingtable(:,4)');
-        Model.ub = cell2mat(fittingtable(:,5)');
-        set(handles.FitOptTable,'Data',fittingtable);
+    FitOptTable(:,1) = Model.xnames(:);
+    Nparam = size(FitOptTable,1);
+    if isprop(Model,'fx') && ~isempty(Model.fx), FitOptTable(:,2) = mat2cell(logical(Model.fx(:)),ones(Nparam,1)); end
+    if isprop(Model,'st') && ~isempty(Model.st)
+        FitOptTable(:,3) = mat2cell(Model.st(:),ones(Nparam,1));
     end
+    if isprop(Model,'lb') && ~isempty(Model.lb) && isprop(Model,'ub') && ~isempty(Model.ub)
+        FitOptTable(:,4) = mat2cell(Model.lb(:),ones(Nparam,1));
+        FitOptTable(:,5) = mat2cell(Model.ub(:),ones(Nparam,1));
+    end
+    set(handles.FitOptTable,'Data',FitOptTable)
 end
+
 
 % READ BUTTONS
 Model.options = button_handle2opts(handles.OptionsPanel_handle);
@@ -196,12 +194,16 @@ if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.(MRIinput).table,'Data',Prot)
 Model = getappdata(0,'Model');
 Model.Prot.(MRIinput).Mat = Prot;
-setappdata(0,'Model',Model);
+UpdateProt(MRIinput,Prot,handles)
 
 
 function UpdateProt(MRIinput,Prot,handles)
 Model = getappdata(0,'Model');
-Model.Prot.(MRIinput).Mat = Prot.Source.Data;
+if isnumeric(Prot)
+    Model.Prot.(MRIinput).Mat = Prot;
+else
+    Model.Prot.(MRIinput).Mat = Prot.Source.Data;
+end
 if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end

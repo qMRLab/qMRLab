@@ -17,7 +17,7 @@ function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 % ----------------------------------------------------------------------------------------------------
 
 if ~isfield(Prot,'Sf') || isempty(Prot.Sf)
-    errordlg('Please build Sf Table in the options panel to enable fitting...'); 
+    warndlg('Build Sf Lookup Table in the options panel for faster fitting...','Lookup Table empty'); 
 end
 
 if length(Prot.Angles)~=length(MTdata)
@@ -113,7 +113,7 @@ switch FitOpt.model
 end
 
 % Fitting
-opt = optimoptions(@lsqcurvefit, 'Display', 'off');
+opt.Display = 'off';
 [x_free,resnorm] = lsqcurvefit(func, FitOpt.st(~fix), xData, MTdata, FitOpt.lb(~fix), FitOpt.ub(~fix), opt);
 
 x = choose( FitOpt.st, x_free, fix );

@@ -1,0 +1,28 @@
+# vim ft=yaml
+# travis-ci.org definition for MOxUnit build (based on CoSMoMVPA,
+# which is based on PyMVPA, which is based on nipype configuration, 
+# which in turn was based on nipy)
+#
+# We pretend to be java because we need GNU Octave which is not
+# available (as of April 2015)
+
+language: java
+
+cache:
+  - apt
+env:
+ global:
+    - OCTAVE=octave
+before_install:
+    # to prevent IPv6 being used for APT
+    - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
+    - travis_retry sudo apt-get -y -qq update
+    - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
+    - travis_retry sudo apt-add-repository -y ppa:octave/stable
+    - travis_retry sudo apt-get -y -qq update
+    # get Octave 4,0
+    - travis_retry sudo apt-get -y -qq install octave liboctave-dev
+script:
+    octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('-recursive');exit(~res);"
+
+

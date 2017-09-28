@@ -1,4 +1,7 @@
 function opts = button_handle2opts(optsHandles)
+% Read buttons values generated using GenerateButtons
+% opts = button_handle2opts(optsHandles)
+% See also: GenerateButtons
 ff=fieldnames(optsHandles);
 N = length(ff);
 for ii = 1:N
@@ -10,5 +13,8 @@ for ii = 1:N
         case 'popupmenu'
             list = get(optsHandles.(ff{ii}),'String');
             opts.(ff{ii}) = list{get(optsHandles.(ff{ii}),'Value')};
+        case 'togglebutton'
+            opts.(ff{ii}) = get(optsHandles.(ff{ii}),'Value');
+            set(optsHandles.(ff{ii}),'Value',0);
     end
 end

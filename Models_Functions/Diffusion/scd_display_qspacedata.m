@@ -11,8 +11,9 @@ if ~exist('Marker','var'), Marker='x'; end
 if ~exist('Linestyle','var'), Linestyle='none'; end
 if ~exist('bvalue','var'), bvalue=0; end
 
+gyro = 42.57; % kHz/mT
+q = gyro*scheme(:,4).*scheme(:,6); % um-1
 
-q=double(scheme(:,8));
 [q,I] = sort(q);
 data = data(I); scheme = scheme(I,:);
 
@@ -49,9 +50,11 @@ for iD=1:ND
     end
     if exist('h','var')==1
         % don't display data legend
-        hAnnotation = get(h(iD),'Annotation');
-        hLegendEntry = get(hAnnotation','LegendInformation');
-        set(hLegendEntry,'IconDisplayStyle','off');
+        if ~moxunit_util_platform_is_octave
+            hAnnotation = get(h(iD),'Annotation');
+            hLegendEntry = get(hAnnotation','LegendInformation');
+            set(hLegendEntry,'IconDisplayStyle','off');
+        end
     end
 end
 
@@ -64,9 +67,10 @@ end
 ylabel('Signal (%b0)','FontSize',15);
 
 
-set(gca,'FontSize',15)
-lgd = legend('show');
-set(lgd,'FontSize',8,'Location','Best');
+if ~moxunit_util_platform_is_octave
+    lgd = legend('show','Location','Best');
+    set(lgd,'FontSize',8);
+end
 %ylim([0 1.2])
 grid on, box off
 

@@ -59,18 +59,21 @@ for iD=1:ND
     end
     if exist('h','var')==1
         % don't display data legend
-        hAnnotation = get(h(iD),'Annotation');
-        hLegendEntry = get(hAnnotation','LegendInformation');
-        set(hLegendEntry,'IconDisplayStyle','off');
+        if ~moxunit_util_platform_is_octave
+            hAnnotation = get(h(iD),'Annotation');
+            hLegendEntry = get(hAnnotation','LegendInformation');
+            set(hLegendEntry,'IconDisplayStyle','off');
+        end
     end
 end
 
 xlabel('G_{//}/|G|','FontSize',15); 
 ylabel('Signal','FontSize',15);
 
-
-legend('show','Location','Best')
-set(gca,'FontSize',15)
+if ~moxunit_util_platform_is_octave
+    legend('show','Location','Best')
+    set(gca,'FontSize',15)
+end
 %ylim([0 1.2])
 grid on, box off
 
