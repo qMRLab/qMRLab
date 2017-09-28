@@ -55,9 +55,9 @@ classdef DTI
         
         % fitting options
         st           = [ 2      0.7     0.7]; % starting point
-        %         lb            = [  0       0       0       0]; % lower bound
-        %         ub           = [ 1        3       3       3]; % upper bound
-        fx            = [ 0        0        0]; % fix parameters
+%         lb           = [ 0       0       0 ]; % lower bound
+%         ub           = [ 1       5       5 ]; % upper bound
+        fx           = [ 0       0        0]; % fix parameters
         
         % Protocol
         Prot = struct('DiffusionData',...
@@ -121,9 +121,9 @@ classdef DTI
             if isempty(obj.Prot.DiffusionData.Mat) || size(obj.Prot.DiffusionData.Mat,1) ~= length(data.DiffusionData(:)), errordlg('Load a valid protocol'); FitResults = []; return; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             % normalize with respect to b0
-            FitResults.S0 = scd_preproc_getS0(data.DiffusionData,Prot);
+            S0 = scd_preproc_getS0(data.DiffusionData,Prot);
             % fit
-            D=scd_model_dti(data.DiffusionData,Prot);
+            D=scd_model_dti(data.DiffusionData./S0,Prot);
             % RICIAN NOISE
             % use Rician noise and fix b=0
             % use Rician noise and fix b=0
@@ -137,7 +137,7 @@ classdef DTI
             end
             
             if ~moxunit_util_platform_is_octave
-                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,FitResults.S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
+                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
                 D(:)=xopt;
                 FitResults.residue = residue;
             end
@@ -150,7 +150,12 @@ classdef DTI
             FitResults.D  = D(:);
             L_mean = sum(L)/3;
             FitResults.FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2));
-            
+                % S0
+            S0vals = unique([S0 Prot(:,7)],'rows');
+            for ii = 1:size(S0vals,1)
+                FitResults.(['S0_TE' num2str(round(S0vals(ii,2)))]) = S0vals(ii,1);
+            end
+
         end
         
         function plotmodel(obj, FitResults, data)
