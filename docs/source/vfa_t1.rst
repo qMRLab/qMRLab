@@ -1,4 +1,4 @@
-Variable Flip Angle Method
+Variable Flip Angle
 -------------------------------------
 .. automodule:: Models.T1_Mapping
 

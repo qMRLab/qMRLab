@@ -1,7 +1,7 @@
 Inversion Recovery
 -------------------------------------
-.. automodule:: Models.T1_Mapping
+.. toctree::
+   :maxdepth: 2
 
-.. autoclass:: InversionRecovery
-    :show-inheritance:
-    :members:
+   inversionrecovery_doc
+   IR_batch
