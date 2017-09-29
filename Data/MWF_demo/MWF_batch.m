@@ -56,14 +56,13 @@ data.Mask     = double(Mask);
 % III- FIT DATASET
 %**************************************************************************
 FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
-FitResults.Model = Model;
-delete('logfile_multi_comp_fit');
+delete('FitTempResults.mat');
 
 %**************************************************************************
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
 figure
-voxel           = [50, 60, 1];
+voxel           = [37, 40, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
 Model.plotmodel(FitResultsVox,dataVox)
