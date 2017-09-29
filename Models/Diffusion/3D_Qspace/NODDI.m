@@ -93,19 +93,12 @@ classdef NODDI
             model      = MakeModel(obj.options.modelname);
             Pindex     =~ ismember(model.paramsStr,{'b0','theta','phi'});
             obj.xnames = model.paramsStr;
-            obj.fx     = model.GD.fixed;
             grid       = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
             scale      = GetScalingFactors(obj.options.modelname);
-            obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
+            
             obj.lb     = min(grid,[],2)'.*scale(Pindex);
             obj.ub     = max(grid,[],2)'.*scale(Pindex);
-            obj.st     = max(obj.st,obj.lb);
-            obj.st     = min(obj.st,obj.ub);
-            obj.st(ismember(model.paramsStr,{'ficvf'})) = .5;
             
-            obj.st(strcmp(obj.xnames,'b0'))=1; 
-            obj.st(strcmp(obj.xnames,'theta'))=0; 
-            obj.st(strcmp(obj.xnames,'phi'))=0;
             % for simulation:
             obj.lb(strcmp(obj.xnames,'b0'))=0; 
             obj.lb(strcmp(obj.xnames,'theta'))=0; 
@@ -113,6 +106,19 @@ classdef NODDI
             obj.ub(strcmp(obj.xnames,'b0'))=1e3; 
             obj.ub(strcmp(obj.xnames,'theta'))=pi; 
             obj.ub(strcmp(obj.xnames,'phi'))=pi;
+            
+            if isempty(obj.fx) % user modify can modify this
+                obj.fx     = model.GD.fixed;
+                obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
+                obj.st(strcmp(obj.xnames,'b0'))=1;
+                obj.st(strcmp(obj.xnames,'theta'))=.2; % at theta=0, phi can have any value, not good for testing
+                obj.st(strcmp(obj.xnames,'phi'))=0;
+                obj.st(ismember(model.paramsStr,{'ficvf'})) = .5;
+            end
+            
+            obj.st     = max(obj.st,obj.lb);
+            obj.st     = min(obj.st,obj.ub);
+
         end
         
         function [Smodel, fibredir] = equation(obj, x)
