@@ -5,8 +5,8 @@
 %% Load dataset
 
 % Load your parameters to create your Model
-% load('MODELPamameters.mat');
-load('MWFParameters.mat');
+% load('MWFPamameters.mat');
+Model = MWF;
 
 %% Check data and fitting (Optional)
 
@@ -74,7 +74,7 @@ Model.plotmodel(FitResultsVox,dataVox)
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_mat(FitResults);
-save('Parameters.mat','Model');
+save('MWFPamameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab
