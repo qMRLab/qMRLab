@@ -5,8 +5,7 @@ classdef InversionRecovery
     %  qMRusage(InversionRecovery)
     %
     %-------------**EXAMPLE**------------
-    % See
-    % https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m for an example
+    % See qMRLab/Data/IR_demo/IR_batch.m for an example
     %
     %-------------**ASSUMPTIONS**-----------------
     % 	1) Gold standard for T1 mapping
