@@ -165,7 +165,14 @@ else % otherwise create a new object of this method
     Model = modelfun();
 end
 SetAppData(Model)
-
+% Create empty Data
+Data = GetAppData('Data');
+for id=1:length(Model.MRIinputs)
+    if isempty(Data) || ~isfield(Data,Method) || ~isfield(Data.(Method),Model.MRIinputs{id})
+        Data.(Method).(Model.MRIinputs{id})=[];
+    end
+end
+SetAppData(Data);
 
 % Now create Simulation panel
 handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
@@ -560,6 +567,8 @@ data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model'))); MRIinput
 S = size(data.(MRIinput{1}));
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
+elseif sum(S)==0
+    helpdlg(['Specify a ' MRIinput{1} ' file in the filebrowser'])
 else
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
