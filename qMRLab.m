@@ -88,34 +88,34 @@ if ~isfield(handles,'opened') % qMRI already opened?
 
     SetAppData(FileBrowserList);
     
-    % LOAD DEFAULTS
-    if ~isempty(varargin)
-        Model = varargin{1};
-        SetAppData(Model);
-        Method = class(Model);
-        if length(varargin)>1
-            data=varargin{2};
-            for ff=fieldnames(data)';
-                FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
-            end
-        end
-    else
-        load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    end
+    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
     
-    % Set Default
-    methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
-    i = 1;
-    while ~strcmp(Method, methods{i})
-        i = i+1;
-    end  
-    set(handles.MethodSelection, 'Value', i);
-    
-    
-    MethodMenu(hObject, eventdata, handles, Method);
-else
-    OpenOptionsPanel_Callback(hObject, eventdata, handles)
 end
+% LOAD INPUT
+if ~isempty(varargin)
+    Model = varargin{1};
+    SetAppData(Model);
+    Method = class(Model);
+    FileBrowserList = GetAppData('FileBrowserList');
+    if length(varargin)>1
+        data=varargin{2};
+        for ff=fieldnames(data)';
+            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+        end
+    end
+end
+
+% Set Menu to method
+methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
+i = 1;
+while ~strcmp(Method, methods{i})
+    i = i+1;
+end
+set(handles.MethodSelection, 'Value', i);
+
+
+MethodMenu(hObject, eventdata, handles, Method);
+
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
