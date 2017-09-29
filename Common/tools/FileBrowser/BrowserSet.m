@@ -108,28 +108,30 @@ classdef BrowserSet
         %   load data from file and make accessible to qMRLab fct
         function DataLoad(obj)
             obj.FullFile = get(obj.FileBox, 'String');
-            [pathstr,name,ext] = fileparts(obj.FullFile);
-            Data = getappdata(0,'Data');
             tmp = [];
-            if strcmp(ext,'.mat');
-                mat = load(obj.FullFile);
-                mapName = fieldnames(mat);
-                tmp = mat.(mapName{1});
-            elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
-                nii = load_untouch_nii(obj.FullFile);
-                tmp = nii.img;
-            elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif');
-                TiffInfo = imfinfo(obj.FullFile);
-                NbIm = numel(TiffInfo);
-                if NbIm == 1
-                    File = imread(obj.FullFile);
-                else
-                    for ImNo = 1:NbIm;
-                        File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);            
+            if ~isempty(obj.FullFile)
+                [pathstr,name,ext] = fileparts(obj.FullFile);
+                Data = getappdata(0,'Data');
+                if strcmp(ext,'.mat');
+                    mat = load(obj.FullFile);
+                    mapName = fieldnames(mat);
+                    tmp = mat.(mapName{1});
+                elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
+                    nii = load_untouch_nii(obj.FullFile);
+                    tmp = nii.img;
+                elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif');
+                    TiffInfo = imfinfo(obj.FullFile);
+                    NbIm = numel(TiffInfo);
+                    if NbIm == 1
+                        File = imread(obj.FullFile);
+                    else
+                        for ImNo = 1:NbIm;
+                            File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);
+                        end
                     end
+                    tmp = File;
                 end
-                tmp = File;
-            end  
+            end
             Data.(class(getappdata(0,'Model'))).(obj.NameID{1}) = double(tmp);
             if exist('nii','var'),	Data.hdr = nii.hdr; end
             setappdata(0, 'Data', Data);            
