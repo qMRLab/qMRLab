@@ -31,8 +31,8 @@ for im = 1:length(MethodList)
     Smodel = Model.equation(st);
     % compare with Ground Truth
     GT = load(['value_' class(Model) '.mat']);
-    assertVectorsAlmostEqual(Smodel,GT.Smodel,'relative',1e-2)
-    assertVectorsAlmostEqual(st,GT.st,'relative',1e-4)
+    assertVectorsAlmostEqual(Smodel,GT.Smodel,'relative',1e-2,['Testing consistency of equation for Model ' MethodList{im}])
+    assertVectorsAlmostEqual(st,GT.st,'relative',1e-4,['Testing consistency of inputs for Model ' MethodList{im}])
 end
 
 
