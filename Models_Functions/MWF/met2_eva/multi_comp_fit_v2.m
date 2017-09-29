@@ -506,8 +506,8 @@ if ( tissue_flag ~= 0 || voxelwise_ROI_flag == 1 )
         stdROI_gm_IEW_t2_regNNLS(slice) = std(nonzeros(gm_IEW_t2_regNNLS(:,slice)));        
 %         mROI_gm_MW_t2_regNNLS(slice) = mean(nonzeros(gm_MW_t2_regNNLS(:,slice)));
 %         stdROI_gm_MW_t2_regNNLS(slice) = std(nonzeros(gm_MW_t2_regNNLS(:,slice)));     
-        disp(fprintf('\nAverage regMWF over tissue mask (slice %d): %3.2f +/- %3.2f %%', slice, 100*mROI_mwf_regNNLS(slice), 100*stdROI_regNNLS(slice))); 
-        disp(fprintf('\nAverage IE water gm_T2 over tissue mask (slice %d): %3.2f +/- %3.2f ms', slice, mROI_gm_IEW_t2_regNNLS(slice), stdROI_gm_IEW_t2_regNNLS(slice))); 
+%         disp(fprintf('\nAverage regMWF over tissue mask (slice %d): %3.2f +/- %3.2f %%', slice, 100*mROI_mwf_regNNLS(slice), 100*stdROI_regNNLS(slice))); 
+%         disp(fprintf('\nAverage IE water gm_T2 over tissue mask (slice %d): %3.2f +/- %3.2f ms', slice, mROI_gm_IEW_t2_regNNLS(slice), stdROI_gm_IEW_t2_regNNLS(slice))); 
 %         disp(fprintf('\nAverage Myelin water gm_T2 over tissue mask (slice %d): %3.2f +/- %3.2f ms', slice, mROI_gm_MW_t2_regNNLS(slice), stdROI_gm_MW_t2_regNNLS(slice))); 
     end
 end

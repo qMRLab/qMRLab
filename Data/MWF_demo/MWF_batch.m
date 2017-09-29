@@ -5,8 +5,8 @@
 %% Load dataset
 
 % Load your parameters to create your Model
-% load('MODELPamameters.mat');
-load('MWFParameters.mat');
+% load('MWFPamameters.mat');
+Model = MWF;
 
 %% Check data and fitting (Optional)
 
@@ -56,14 +56,13 @@ data.Mask     = double(Mask);
 % III- FIT DATASET
 %**************************************************************************
 FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
-FitResults.Model = Model;
-delete('logfile_multi_comp_fit');
+delete('FitTempResults.mat');
 
 %**************************************************************************
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
 figure
-voxel           = [50, 60, 1];
+voxel           = [37, 40, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
 Model.plotmodel(FitResultsVox,dataVox)
@@ -74,7 +73,7 @@ Model.plotmodel(FitResultsVox,dataVox)
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_mat(FitResults);
-save('Parameters.mat','Model');
+save('MWFPamameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab

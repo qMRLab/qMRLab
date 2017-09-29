@@ -22,7 +22,7 @@ switch View
         x = 1;
 end
 dim = handles.FitDataDim;
-if (dim>=3)
+if (dim(3)>1)
     slice = handles.FitDataSlice(x);
     size = handles.FitDataSize(x);
     set(handles.SliceValue,  'String', slice);
