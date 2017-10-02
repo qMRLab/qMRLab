@@ -3,6 +3,9 @@
 %**************************************************************************
 %% I- LOAD MODEL
 %**************************************************************************
+%Make sure user is in the correct directory
+[pathstr,fname,ext]=fileparts(which('CHARMED_batch.m'));
+cd (pathstr);
 
 % Create Model object 
 Model = CHARMED;

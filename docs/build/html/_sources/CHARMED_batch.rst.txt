@@ -1,0 +1,237 @@
+CHARMED_batch_example
+=====================
+
+.. raw:: html
+
+   
+   
+   <!DOCTYPE html
+     PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+   <html><head>
+         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <!--
+   This HTML was auto-generated from MATLAB code.
+   To make changes, update the MATLAB code and republish this document.
+         --><title>CHARMED_batch</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-09-25"><meta name="DC.source" content="CHARMED_batch.m"><style type="text/css">
+   html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+   
+   html { min-height:100%; margin-bottom:1px; }
+   html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+   html body td { vertical-align:top; text-align:left; }
+   
+   h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+   h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+   h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+   
+   a { color:#005fce; text-decoration:none; }
+   a:hover { color:#005fce; text-decoration:underline; }
+   a:visited { color:#004aa0; text-decoration:none; }
+   
+   p { padding:0px; margin:0px 0px 20px; }
+   img { padding:0px; margin:0px 0px 20px; border:none; }
+   p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+   
+   ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+   ul li { padding:0px; margin:0px 0px 7px 0px; }
+   ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+   ul li ol li { list-style:decimal; }
+   ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+   ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+   ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+   ol li ol li { list-style-type:lower-alpha; }
+   ol li ul { padding-top:7px; }
+   ol li ul li { list-style:square; }
+   
+   .content { font-size:1.2em; line-height:140%; padding: 20px; }
+   
+   pre, code { font-size:12px; }
+   tt { font-size: 1.2em; }
+   pre { margin:0px 0px 20px; }
+   pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+   pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+   pre.error { color:red; }
+   
+   @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+   
+   span.keyword { color:#0000FF }
+   span.comment { color:#228B22 }
+   span.string { color:#A020F0 }
+   span.untermstring { color:#B20000 }
+   span.syscmd { color:#B28C00 }
+   
+   .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+   .footer p { margin:0px; }
+   .footer a { color:#878787; }
+   .footer a:hover { color:#878787; text-decoration:underline; }
+   .footer a:visited { color:#878787; }
+   
+   table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+   table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+   
+   
+   
+   
+   
+     </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">I- LOAD MODEL</a></li><li><a href="#3">II - Perform Simulations</a></li><li><a href="#4">III - MRI Data Fitting</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process CHARMED data without qMRLab GUI (graphical user interface)</span>
+   <span class="comment">% Run this script line by line</span>
+   <span class="comment">%**************************************************************************</span>
+   </pre><h2>I- LOAD MODEL<a name="2"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   
+   <span class="comment">% Create Model object</span>
+   Model = CHARMED;
+   Model.options.S0normalization = <span class="string">'Single T2 compartment'</span>;
+   <span class="comment">% Load Diffusion Protocol</span>
+   Model.Prot.DiffusionData.Mat = txt2mat(<span class="string">'Protocol.txt'</span>);
+   <span class="comment">% Launch Fitting procedure</span>
+   <span class="comment">% save Results in NIFTI</span>
+   
+   <span class="comment">%**************************************************************************</span>
+   </pre><pre class="codeoutput">**************
+   * Protocol.txt
+   * read mode: auto
+   * 826 data lines analysed
+   * 3 header line(s)
+   * 7 data column(s)
+   * 0 string replacement(s)
+   **************
+   </pre><h2>II - Perform Simulations<a name="3"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   
+   <span class="comment">% Generate MR Signal using analytical equation</span>
+   opt.SNR = 50;
+   x.fr = .5;
+   x.Dh = .7; <span class="comment">% um2/ms</span>
+   x.diameter_mean = 6; <span class="comment">% um</span>
+   x.fcsf = 0;
+   x.lc=0;
+   x.Dcsf=3;
+   x.Dintra = 1.4;
+   Model.Sim_Single_Voxel_Curve(x,opt)
+   
+   <span class="comment">%**************************************************************************</span>
+   </pre><pre class="codeoutput">
+   ans = 
+   
+                  fr: 0.5371
+                  Dh: 0.7699
+       diameter_mean: 6.1005
+                fcsf: 0
+                  lc: 0
+                Dcsf: 3
+              Dintra: 1.4000
+             S0_TE62: 0.9225
+             S0_TE57: 0.9459
+             S0_TE52: 0.9698
+             S0_TE47: 0.9944
+             S0_TE46: 1.0000
+             S0_TE36: 1.0513
+                  T2: 200.0000
+                  fh: 0.4629
+             residue: -4.8555e+03
+          SigmaNoise: 0.0142
+   
+   </pre><img vspace="5" hspace="5" src="_images/CHARMED_batch_01.png" alt=""> <h2>III - MRI Data Fitting<a name="4"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   <span class="comment">% load data</span>
+   data = struct;
+   data.DiffusionData = load_nii_data(<span class="string">'DiffusionData.nii.gz'</span>);
+   
+   <span class="comment">% plot fit in one voxel</span>
+   voxel = [32 29];
+   datavox.DiffusionData = squeeze(data.DiffusionData(voxel(1),voxel(2),:,:));
+   FitResults = Model.fit(datavox)
+   Model.plotmodel(FitResults,datavox)
+   
+   <span class="comment">% % all voxels</span>
+   <span class="comment">% data.Mask=load_nii_data('Mask.nii.gz');</span>
+   <span class="comment">% FitResults = FitData(data,Model,1);</span>
+   <span class="comment">% delete('FitTempResults.mat');</span>
+   <span class="comment">%</span>
+   <span class="comment">% %**************************************************************************</span>
+   <span class="comment">% %% V- SAVE</span>
+   <span class="comment">% %**************************************************************************</span>
+   <span class="comment">% % .MAT file : FitResultsSave_mat(FitResults,folder);</span>
+   <span class="comment">% % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
+   <span class="comment">% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');</span>
+   <span class="comment">%save('CHARMEDParameters.mat','Model');</span>
+   </pre><pre class="codeoutput">
+   FitResults = 
+   
+                  fr: 0.1552
+                  Dh: 0.8622
+       diameter_mean: 5.3092
+                fcsf: 0
+                  lc: 0
+                Dcsf: 3
+              Dintra: 1.4000
+             S0_TE62: 1.2235e+05
+             S0_TE57: 1.2646e+05
+             S0_TE52: 1.3070e+05
+             S0_TE47: 1.3509e+05
+             S0_TE46: 1.3611e+05
+             S0_TE36: 1.4540e+05
+                  T2: 151.4642
+                  fh: 0.8448
+             residue: 1.7057e+05
+          SigmaNoise: 431.5808
+   
+   </pre><img vspace="5" hspace="5" src="_images/CHARMED_batch_02.png" alt=""> <h2>Check the results<a name="5"></a></h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+   ##### SOURCE BEGIN #####
+   % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
+   % Run this script line by line
+   %**************************************************************************
+   %% I- LOAD MODEL
+   %**************************************************************************
+   
+   % Create Model object 
+   Model = CHARMED;
+   Model.options.S0normalization = 'Single T2 compartment';
+   % Load Diffusion Protocol
+   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');
+   % Launch Fitting procedure
+   % save Results in NIFTI
+   
+   %**************************************************************************
+   %% II - Perform Simulations
+   %**************************************************************************
+   
+   % Generate MR Signal using analytical equation
+   opt.SNR = 50;
+   x.fr = .5;
+   x.Dh = .7; % um2/ms
+   x.diameter_mean = 6; % um
+   x.fcsf = 0;
+   x.lc=0;
+   x.Dcsf=3;
+   x.Dintra = 1.4;
+   Model.Sim_Single_Voxel_Curve(x,opt)
+   
+   %**************************************************************************
+   %% III - MRI Data Fitting
+   %**************************************************************************
+   % load data
+   data = struct;
+   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');
+   
+   % plot fit in one voxel
+   voxel = [32 29];
+   datavox.DiffusionData = squeeze(data.DiffusionData(voxel(1),voxel(2),:,:));
+   FitResults = Model.fit(datavox)
+   Model.plotmodel(FitResults,datavox)
+   
+   % % all voxels
+   % data.Mask=load_nii_data('Mask.nii.gz');
+   % FitResults = FitData(data,Model,1);
+   % delete('FitTempResults.mat');
+   % 
+   % %**************************************************************************
+   % %% V- SAVE
+   % %**************************************************************************
+   % % .MAT file : FitResultsSave_mat(FitResults,folder);
+   % % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
+   % FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
+   %save('CHARMEDParameters.mat','Model');
+   
+   %% Check the results
+   % Load them in qMRLab
+   
+   ##### SOURCE END #####
+   --></body></html>

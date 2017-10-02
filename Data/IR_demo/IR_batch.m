@@ -3,6 +3,8 @@
 %**************************************************************************
 %% I- LOAD DATASET
 %**************************************************************************
+[pathstr,fname,ext]=fileparts(which('IR_batch.m'));
+cd (pathstr);
 
 % Create Model object 
 Model = InversionRecovery;

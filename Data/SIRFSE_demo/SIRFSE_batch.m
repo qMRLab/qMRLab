@@ -3,6 +3,8 @@
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
+[pathstr,fname,ext]=fileparts(which('SIRFSE_batch.m'));
+cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');

@@ -39,107 +39,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-Models.T1_Mapping">
-<span id="variable-flip-angle-method"></span><h1>Variable Flip Angle Method<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="Models.T1_Mapping.VFA_T1">
-<em class="property">class </em><code class="descclassname">Models.T1_Mapping.</code><code class="descname">VFA_T1</code><a class="headerlink" href="#Models.T1_Mapping.VFA_T1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute a T1 map using Variable Flip Angle</p>
-<blockquote>
-<div>ASSUMPTIONS %</div></blockquote>
-<dl class="docutils">
-<dt>————-% </dt>
-<dd><ol class="first last arabic simple">
-<li>FILL</li>
-<li></li>
-<li></li>
-<li></li>
-</ol>
-</dd>
-</dl>
-<dl class="docutils">
-<dt>——–%</dt>
-<dd>INPUTS %</dd>
-<dt>——–%</dt>
-<dd><ol class="first last arabic simple">
-<li>SPGR  : spoiled Gradient echo. 4D volume with variable flip angles</li>
-<li>B1map : excitation (B1+) fieldmap. Used to correct flip angles.</li>
-</ol>
-</dd>
-</dl>
-<dl class="docutils">
-<dt>———%</dt>
-<dd>OUTPUTS %</dd>
-<dt>———%</dt>
-<dd><ul class="first last simple">
-<li>T1 : Longitudinal relaxation time</li>
-<li>M0 : ????</li>
-</ul>
-</dd>
-</dl>
-<dl class="docutils">
-<dt>———-%</dt>
-<dd>PROTOCOL %</dd>
-<dt>———-%</dt>
-<dd><ul class="first last simple">
-<li>Flip Angle (degree)</li>
-<li>TR : Repetition time of the whole sequence (s)</li>
-</ul>
-</dd>
-</dl>
-<dl class="docutils">
-<dt>———%</dt>
-<dd>OPTIONS %</dd>
-<dt>———%</dt>
-<dd>NONE</dd>
-</dl>
-<blockquote>
-<div>Written by: Ian Gagnon, 2017
-Reference: FILL</div></blockquote>
-<dl class="method">
-<dt id="Models.T1_Mapping.VFA_T1.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>T1 and M0</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.MRIinputs">
-<code class="descname">MRIinputs</code><em class="property"> = u&quot;{'SPGR','B1map'}&quot;</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.MRIinputs" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.Prot">
-<code class="descname">Prot</code><em class="property"> = u&quot;struct('SPGR',struct('Format',{{'Flip Angle' 'TR'}},\n'Mat', [4 0.025; 10 0.025; 20 0.025]))&quot;</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.Prot" title="Permalink to this definition">¶</a></dt>
-<dd><p>You can define a default protocol here.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.buttons">
-<code class="descname">buttons</code><em class="property"> = u'{}'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.buttons" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.options">
-<code class="descname">options</code><em class="property"> = u'struct()'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.options" title="Permalink to this definition">¶</a></dt>
-<dd><p>structure filled by the buttons. Leave empty in the code</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.voxelwise">
-<code class="descname">voxelwise</code><em class="property"> = u'0'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.voxelwise" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.xnames">
-<code class="descname">xnames</code><em class="property"> = u'{}'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.xnames" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="variable-flip-angle-method">
+<h1>Variable Flip Angle Method<a class="headerlink" href="#variable-flip-angle-method" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -223,7 +124,7 @@ Reference: FILL</div></blockquote>
       &copy;2017, NeuroPoly.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

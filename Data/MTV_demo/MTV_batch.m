@@ -4,6 +4,9 @@
 
 %% Load dataset
 
+[pathstr,fname,ext]=fileparts(which('MTV_batch.m'));
+cd (pathstr);
+
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 load('MTVParameters.mat');
