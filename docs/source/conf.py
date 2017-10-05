@@ -104,6 +104,7 @@ for root, dirs, files in os.walk("."):
             #Copy the ".png" file to the new location
             shutil.copy(fn, os.path.join(initialpath,"../source/_static"))
 
+os.chdir(initialpath)
 
 # -- General configuration ------------------------------------------------
 
@@ -126,6 +127,7 @@ templates_path = ['_templates']
 primary_domain = 'mat'
 # Matlab source dir
 matlab_src_dir = os.path.abspath('../..')
+print(matlab_src_dir)
 autodoc_member_order = 'groupwise'
 
 # The suffix(es) of source filenames.
