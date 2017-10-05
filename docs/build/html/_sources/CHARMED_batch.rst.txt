@@ -129,7 +129,7 @@ CHARMED_batch_example
              residue: -4.8555e+03
           SigmaNoise: 0.0142
    
-   </pre><img vspace="5" hspace="5" src="_images/CHARMED_batch_01.png" alt=""> <h2>III - MRI Data Fitting<a name="4"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   </pre><img vspace="5" hspace="5" src="_static/CHARMED_batch_01.png" alt=""> <h2>III - MRI Data Fitting<a name="4"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% load data</span>
    data = struct;
    data.DiffusionData = load_nii_data(<span class="string">'DiffusionData.nii.gz'</span>);
@@ -173,7 +173,7 @@ CHARMED_batch_example
              residue: 1.7057e+05
           SigmaNoise: 431.5808
    
-   </pre><img vspace="5" hspace="5" src="_images/CHARMED_batch_02.png" alt=""> <h2>Check the results<a name="5"></a></h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+   </pre><img vspace="5" hspace="5" src="_static/CHARMED_batch_02.png" alt=""> <h2>Check the results<a name="5"></a></h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
    ##### SOURCE BEGIN #####
    % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
    % Run this script line by line

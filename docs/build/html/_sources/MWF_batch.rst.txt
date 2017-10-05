@@ -91,7 +91,7 @@ MWF_batch_example
    <span class="comment">% II- CHECK DATA AND FITTING</span>
    <span class="comment">%**************************************************************************</span>
    qMRLab(Model,file);
-   </pre><img vspace="5" hspace="5" src="_images/MWF_batch_01.png" alt=""> <img vspace="5" hspace="5" src="MWF_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   </pre><img vspace="5" hspace="5" src="_static/MWF_batch_01.png" alt=""> <img vspace="5" hspace="5" src="MWF_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% I- LOAD PROTOCOL</span>
    <span class="comment">%**************************************************************************</span>
    
@@ -139,7 +139,7 @@ MWF_batch_example
    FitResultsSave_mat(FitResults);
    save(<span class="string">'MWFPamameters.mat'</span>,<span class="string">'Model'</span>);
    </pre><pre class="codeoutput">Warning: Directory already exists. 
-   </pre><img vspace="5" hspace="5" src="_images/MWF_batch_03.png" alt=""> <h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+   </pre><img vspace="5" hspace="5" src="_static/MWF_batch_03.png" alt=""> <h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
    ##### SOURCE BEGIN #####
    % Batch to process MWF data without qMRLab GUI (graphical user interface)
    % Run this script line by line

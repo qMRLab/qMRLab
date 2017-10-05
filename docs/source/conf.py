@@ -80,10 +80,10 @@ for root, dirs, files in os.walk("."):
 
                             #Save the initial path and the "_images" directory in the new path
                             initialstr = line[a+5:b+3]
-                            replacement = os.path.join("_images/",initialstr)
+                            replacement = os.path.join("_static/",initialstr)
 
                             #Replace sub-string with the new path
-                            line = line.replace(initialstr,replacement)
+                            line = line.replace(initialstr, replacement)
                         f.write(line)
 
 
@@ -102,7 +102,7 @@ for root, dirs, files in os.walk("."):
             fn = os.path.join(os.getcwd(),filepath)
 
             #Copy the ".png" file to the new location
-            shutil.copy(fn, os.path.join(initialpath,"../build/html/_images"))
+            shutil.copy(fn, os.path.join(initialpath,"../source/_static"))
 
 
 # -- General configuration ------------------------------------------------
