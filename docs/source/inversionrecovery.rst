@@ -5,3 +5,8 @@ Inversion Recovery
 .. autoclass:: InversionRecovery
     :show-inheritance:
     :members:
+
+.. toctree::
+	:maxdepth: 1
+
+	IR_batch
