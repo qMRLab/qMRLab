@@ -161,7 +161,8 @@ classdef bSSFP
                     Sim.Opt.Reset = Opt.ResetMz;
                     Sim.Opt.SScheck = 1;
                     Sim.Opt.SStol = 1e-4;
-                    mxy = bSSFP_sim(Sim, Protocol, 1);
+                    if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
+                    mxy = bSSFP_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
                     FitOpt = obj.GetFitOpt;
                     [alpha1, Trf1, TR1, W1] = bSSFP_prepare(Protocol,FitOpt);

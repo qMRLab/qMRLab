@@ -176,7 +176,8 @@ classdef SIRFSE
                     Protocol.FSE = Protocol;
                     Protocol.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
                     Protocol.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
-                    mz = SIRFSE_sim(Sim, Protocol, 1);
+                    if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
+                    mz = SIRFSE_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
                     Sim.Param.Sf = -Sim.Param.Sf;
                     SimCurveResults = SIRFSE_SimCurve(Sim.Param, Protocol, obj.GetFitOpt,0);

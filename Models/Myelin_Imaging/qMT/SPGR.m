@@ -243,7 +243,8 @@ classdef SPGR
                     Sim.Opt.SScheck     = 1;
                     Sim.Opt.SStol       = 1e-4;
                     Protocol.Npulse = Protocol.MTpulse.Npulse;
-                    mz = SPGR_sim(Sim, Protocol, 1);
+                    if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
+                    mz = SPGR_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
                     SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
                     mz = SimCurveResults.curve;
