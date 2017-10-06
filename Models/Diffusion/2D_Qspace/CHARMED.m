@@ -88,6 +88,7 @@ classdef CHARMED
         options= struct(); % structure filled by the buttons. Leave empty in the code
         Sim_Single_Voxel_Curve_buttons = {'SNR',50};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
+        Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100,'Gmax',80*1e-3};
     end
     
     methods
@@ -283,14 +284,17 @@ classdef CHARMED
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
         
-        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
+            nV         = Opt.Nofvolumes;
+            popSize    = Opt.Populationsize;
+            migrations = Opt.Nofmigrations;
+            Gmax = Opt.Gmax;
             TEmax    = 120*1e-3;
             Treadout = 35*1e-3;
             T180     = 10*1e-3;
             deltamin = 3*1e-3;
-            Gmax     = 80*1e-3;
             % |G| Delta delta
             planes = [ 0  -1  -1  TEmax     % TE-delta-DELTA>0
                 0   1  -1  0         % Delta-delta>0
@@ -312,7 +316,7 @@ classdef CHARMED
             
             %% Generate Rest
             schemeLEADER = retVal.schemeLEADER;
-            schemeLEADER = [zeros(nV,2) ones(nV,1) schemeLEADER];
+            schemeLEADER = [ones(nV,1) zeros(nV,2) schemeLEADER];
             
             % keep 5 different delta / DELTA and sort different acquisition
             schemeLEADER=discrete_delta_Delta(schemeLEADER,5);
