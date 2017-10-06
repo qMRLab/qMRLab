@@ -82,6 +82,20 @@ classdef SPGR
 %                           pulse).
 %       * # of MT pulses : Number of pulses used to achieve steady-state
 %                          before a readout is made.
+%   Fitting constraints
+%       * Use R1map to  : By checking this box, you tell the fitting 
+%         constrain R1f   algorithm to check for an observed R1map and use
+%                         its value to constrain R1f. Checking this box 
+%                         will automatically set the R1f fix box to true             
+%                         in the Fit parameters table.  
+%       * Fix R1r = R1f : By checking this box, you tell the fitting
+%                         algorithm to fix R1r equal to R1f. Checking this 
+%                         box will automatically set the R1r fix box to 
+%                         true in the Fit parameters table.
+%       * Fix R1f*T2f   : By checking this box, you tell the fitting
+%                         algorithm to compute T2f from R1f value. R1f*T2f
+%                         value is set in the next box.
+%       * R1f*T2f =     : Value of R1f*T2f (no units)
 %
 %   Global
 %       * Model         : Model you want to use for fitting. 
@@ -97,15 +111,6 @@ classdef SPGR
 %                         - Gaussian
 %                         - Lorentzian
 %                         - SuperLorentzian
-%       * Use R1map to  : By checking this box, you tell the fitting 
-%         constrain R1f   algorithm to check for an observed R1map and use
-%                         its value to constrain R1f. Checking this box 
-%                         will automatically set the R1f fix box to true             
-%                         in the Fit parameters table.  
-%       * Fix R1r = R1f : By checking this box, you tell the fitting
-%                         algorithm to fix R1r equal to R1f. Checking this 
-%                         box will automatically set the R1r fix box to 
-%                         true in the Fit parameters table.
 %       * Read pulse    : Flip angle of the excitation pulse.
 %         alpha          
 %       * Compute       : By checking this box, you compute a new SfTable
