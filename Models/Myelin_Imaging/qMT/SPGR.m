@@ -148,10 +148,11 @@ classdef SPGR
             '# of MT pulses',100,...
             'Model',{'SledPikeRP','SledPikeCW','Yarnykh','Ramani'},...
             'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'},...
+            'PANEL','fitting constraints',4,...
             'Use R1map to constrain R1f',true,...
-            'Fix R1f*T2f',true,...
-            'R1f*T2f =',0.055,...
             'Fix R1r = R1f',false,...
+            'Fix R1f*T2f',false,...
+            'R1f*T2f =',0.055,...
             'Read pulse alpha',7,...
             'Compute SfTable','pushbutton'};
         options = struct(); % structure filled by the buttons. Leave empty in the code
@@ -177,7 +178,7 @@ classdef SPGR
                                           obj.Prot.TimingTable.Mat(3)+...
                                           obj.Prot.TimingTable.Mat(4); 
             % Fix R1f if the option is chosen
-            if obj.options.UseR1maptoconstrainR1f
+            if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
         end
@@ -334,17 +335,17 @@ classdef SPGR
                 if isfield(data,'B1map'), FitOpt.B1 = data.B1map; end
                 if isfield(data,'B0map'), FitOpt.B0 = data.B0map; end
             end
-            FitOpt.R1map = obj.options.UseR1maptoconstrainR1f;
+            FitOpt.R1map = obj.options.fittingconstraints_UseR1maptoconstrainR1f;
             FitOpt.fx = obj.fx;
             FitOpt.st = obj.st;
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
             FitOpt.names     = obj.xnames;
             FitOpt.lineshape = obj.options.Lineshape;
-            FitOpt.R1reqR1f  = obj.options.FixR1rR1f;
+            FitOpt.R1reqR1f  = obj.options.fittingconstraints_FixR1rR1f;
             FitOpt.model     = obj.options.Model;
-            FitOpt.FixR1fT2f = obj.options.FixR1fT2f;
-            FitOpt.FixR1fT2fValue = obj.options.R1fT2f;
+            FitOpt.FixR1fT2f = obj.options.fittingconstraints_FixR1fT2f;
+            FitOpt.FixR1fT2fValue = obj.options.fittingconstraints_R1fT2f;
         end
         
     end
