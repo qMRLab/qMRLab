@@ -34,7 +34,7 @@ for im = 1:length(MethodList)
         Model.options = ModelOpt(iopt);
         disp(['Testing ' class(Model) ' option:'])
         disp(Model.options)
-        Model = Model.UpdateFields;
+        try Model = Model.UpdateFields; end
         try st{iopt} = Model.st; catch, try st{iopt} = mean([Model.lb(:),Model.ub(:)],2); catch, st{iopt} = ones(length(Model.xnames),1); end; end
         Smodel{iopt} = Model.equation(st{iopt});
         % CHECK CONSITENSY WITH PREVIOUS VERSIONS:
