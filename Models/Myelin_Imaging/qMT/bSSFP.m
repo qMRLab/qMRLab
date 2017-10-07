@@ -55,7 +55,7 @@ classdef bSSFP
 %---------%
 % OPTIONS %
 %---------%
-%   Inversion Pulse
+%   RF Pulse
 %       * Shape          : Shape of the RF pulses.
 %                          Available shapes are:
 %                          - hard
@@ -113,12 +113,12 @@ classdef bSSFP
                                struct('Format',{{'Alpha' 'Trf'}},...
                                       'Mat', [5 2.7e-4; 10 2.7e-4; 15 2.7e-4; 20 2.7e-4; 25 2.7e-4 
                                               30 2.7e-4; 35 2.7e-4; 40 2.7e-4; 35 2.3e-4; 35 3.0e-4
-                                              35 4.0e-4; 35 5.8e-4; 35 8.4e-4; 35 0.0012; 35 0.0012 
+                                              35 4.0e-4; 35 5.8e-4; 35 8.4e-4; 35 0.0012; 35 0.0016
                                               35 0.0021]));
                                       
         % Model options
-        buttons = {'PANEL', 'Inversion_Pulse',2,...
-                   'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'# of RF pulses',500,...
+        buttons = {'PANEL', 'RF_Pulse',2,...
+                   'Shape',{'gaussian','hard','gausshann','sinc','sinchann','sincgauss','fermi'},'# of RF pulses',500,...
                    'PANEL','Protocol Timing',2,...
                    'Type',{'fix TR - Trf','fix TR'},...
                    'Value',0.00269,...
@@ -242,8 +242,8 @@ classdef bSSFP
             Prot.FixTR = strcmp(obj.options.ProtocolTiming_Type,'fix TR');
             Prot.TR = obj.options.ProtocolTiming_Value;
             Prot.Td = obj.options.ProtocolTiming_Value;
-            Prot.Pulse.shape = obj.options.Inversion_Pulse_Shape;
-            Prot.Npulse = obj.options.Inversion_Pulse_NofRFpulses;
+            Prot.Pulse.shape = obj.options.RF_Pulse_Shape;
+            Prot.Npulse = obj.options.RF_Pulse_NofRFpulses;
             Prot.prepulse = obj.options.Prepulse;
         end
                 
