@@ -69,7 +69,7 @@ for im = 1:length(MethodList)
         % Compare inputs and outputs
         fnm=fieldnames(FitResults);
         FitResults = rmfield(FitResults,fnm(~ismember(fnm,Model.xnames))); fnm=fieldnames(FitResults);
-        [~,FitResults,GroundTruth]=comp_struct(FitResults,mat2struct(st,Model.xnames),[],[],.50);
+        [~,FitResults,GroundTruth]=comp_struct(FitResults,mat2struct(st,Model.xnames),[],[],.30);
         assertTrue(isempty(FitResults) & isempty(GroundTruth),evalc('FitResults, GroundTruth'))
     end
     disp ..ok

@@ -160,7 +160,7 @@ classdef bSSFP
                 case 'Block equation'
                     Sim.Opt.Reset = Opt.ResetMz;
                     Sim.Opt.SScheck = 1;
-                    Sim.Opt.SStol = 1e-4;
+                    Sim.Opt.SStol = 5e-5;
                     if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
                     mxy = bSSFP_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
