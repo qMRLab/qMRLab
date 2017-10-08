@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Inversion Recovery &#8212; qMRlab 0.1 documentation</title>
+    <title>Documentation &#8212; qMRlab 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,12 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-<<<<<<< HEAD
-    <link rel="next" title="IR_batch_example" href="IR_batch.html" />
-=======
-    <link rel="next" title="Documentation" href="inversionrecovery_doc.html" />
->>>>>>> 7ddb38a3978b1c3e11ccf24ce964cfa0642a2621
-    <link rel="prev" title="T1 Mapping" href="t1_mapping.html" />
+    <link rel="next" title="IR Example" href="IR_batch.html" />
+    <link rel="prev" title="Inversion Recovery" href="inversionrecovery.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -44,35 +40,30 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="inversion-recovery">
-<h1>Inversion Recovery<a class="headerlink" href="#inversion-recovery" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<<<<<<< HEAD
-<li class="toctree-l1"><a class="reference internal" href="IR_batch.html">IR_batch_example</a></li>
-</ul>
-</div>
-<span class="target" id="module-Models.T1_Mapping"></span><dl class="class">
+  <div class="section" id="module-Models.T1_Mapping">
+<span id="documentation"></span><h1>Documentation<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
 <dt id="Models.T1_Mapping.InversionRecovery">
 <em class="property">class </em><code class="descclassname">Models.T1_Mapping.</code><code class="descname">InversionRecovery</code><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a T1 map using Inversion Recovery data</p>
 <dl class="docutils">
-<dt>————-USAGE————</dt>
+<dt>————-<strong>USAGE</strong>————</dt>
+<dd>qMRusage(InversionRecovery)</dd>
+<dt>————-<strong>EXAMPLE</strong>————</dt>
 <dd>See
-<a class="reference external" href="https://github.com/neuropoly/qMRLab/blob/Dev/Data/IR_demo/IR_batch.m">https://github.com/neuropoly/qMRLab/blob/Dev/Data/IR_demo/IR_batch.m</a> for
-an example</dd>
-<dt>————-ASSUMPTIONS—————–</dt>
+<a class="reference external" href="https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m">https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m</a> for an example</dd>
+<dt>————-<strong>ASSUMPTIONS</strong>—————–</dt>
 <dd><ol class="first last arabic simple">
 <li>Gold standard for T1 mapping</li>
 </ol>
 </dd>
-<dt>—————INPUTS————–</dt>
+<dt>—————<strong>INPUTS</strong>————–</dt>
 <dd><ol class="first last arabic simple">
 <li>IRData : Inversion Recovery data</li>
 <li>Mask   : Binary mask to accelerate the fitting (OPTIONAL)</li>
 </ol>
 </dd>
-<dt>————-OUTPUTS—————–</dt>
+<dt>————-<strong>OUTPUTS</strong>—————–</dt>
 <dd><blockquote class="first">
 <div>Fitting Parameters</div></blockquote>
 <ul class="last simple">
@@ -83,7 +74,7 @@ an example</dd>
 <li>res: Fitting residual</li>
 </ul>
 </dd>
-<dt>————OPTIONS—————–</dt>
+<dt>————<strong>OPTIONS</strong>—————–</dt>
 <dd><dl class="first last docutils">
 <dt>method: Method to use in order to fit the data, based on whether</dt>
 <dd><blockquote class="first">
@@ -109,9 +100,9 @@ an example</dd>
 </dd>
 </dl>
 </dd>
-<dt>————–PROTOCOL—————–</dt>
+<dt>————–<strong>PROTOCOL</strong>—————–</dt>
 <dd>TI:  Array containing the Inversion times, in ms</dd>
-<dt>—————REFERENCE—————</dt>
+<dt>—————<strong>REFERENCE</strong>—————</dt>
 <dd><p class="first">Please cite the following if you use this module:</p>
 <p><em>A robust methodology for in vivo T1 mapping.
 Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG.
@@ -121,89 +112,8 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
 </dd>
 </dl>
 <p>———————————-_————————————</p>
-<dl class="method">
-<dt id="Models.T1_Mapping.InversionRecovery.Sim_Multi_Voxel_Distribution">
-<code class="descname">Sim_Multi_Voxel_Distribution</code><span class="sig-paren">(</span><em>RndParam</em>, <em>Opt</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery.Sim_Multi_Voxel_Distribution" title="Permalink to this definition">¶</a></dt>
-<dd><p>SimRndGUI</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="Models.T1_Mapping.InversionRecovery.Sim_Sensitivity_Analysis">
-<code class="descname">Sim_Sensitivity_Analysis</code><span class="sig-paren">(</span><em>OptTable</em>, <em>Opt</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery.Sim_Sensitivity_Analysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>SimVaryGUI</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="Models.T1_Mapping.InversionRecovery.Sim_Single_Voxel_Curve">
-<code class="descname">Sim_Single_Voxel_Curve</code><span class="sig-paren">(</span><em>x</em>, <em>Opt</em>, <em>display</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery.Sim_Single_Voxel_Curve" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulates Single Voxel</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> – [struct] fit parameters</li>
-<li><strong>Opt.SNR</strong> – [struct] signal to noise ratio to use</li>
-<li><strong>display</strong> – 1=display, 0=nodisplay</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[struct] FitResults</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="Models.T1_Mapping.InversionRecovery.equation">
-<code class="descname">equation</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery.equation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates an IR signal based on input parameters</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> – [struct] containing fit parameters ‘a’ ‘b’ and ‘T1’</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Smodel: generated signal</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="Models.T1_Mapping.InversionRecovery.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fits the data</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> – [struct] input data</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">[struct] FitResults</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="Models.T1_Mapping.InversionRecovery.plotmodel">
-<code class="descname">plotmodel</code><span class="sig-paren">(</span><em>FitResults</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery.plotmodel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots the fit</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>FitResults</strong> – [struct] Fitting parameters</li>
-<li><strong>data</strong> – [struct] input data</li>
-=======
-<li class="toctree-l1"><a class="reference internal" href="inversionrecovery_doc.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="IR_batch.html">IR Example</a></li>
->>>>>>> 7ddb38a3978b1c3e11ccf24ce964cfa0642a2621
-</ul>
-</div>
 </div>
 
 
@@ -245,8 +155,8 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
 <li class="toctree-l3"><a class="reference internal" href="myelin.html">Myelin Imaging</a></li>
 <li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">Inversion Recovery</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="inversionrecovery_doc.html">Documentation</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">Documentation</a></li>
 <li class="toctree-l5"><a class="reference internal" href="IR_batch.html">IR Example</a></li>
 </ul>
 </li>
@@ -267,12 +177,10 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="documentation.html">qMRlab Introduction</a><ul>
   <li><a href="t1_mapping.html">T1 Mapping</a><ul>
-      <li>Previous: <a href="t1_mapping.html" title="previous chapter">T1 Mapping</a></li>
-<<<<<<< HEAD
-      <li>Next: <a href="IR_batch.html" title="next chapter">IR_batch_example</a></li>
-=======
-      <li>Next: <a href="inversionrecovery_doc.html" title="next chapter">Documentation</a></li>
->>>>>>> 7ddb38a3978b1c3e11ccf24ce964cfa0642a2621
+  <li><a href="inversionrecovery.html">Inversion Recovery</a><ul>
+      <li>Previous: <a href="inversionrecovery.html" title="previous chapter">Inversion Recovery</a></li>
+      <li>Next: <a href="IR_batch.html" title="next chapter">IR Example</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -296,11 +204,11 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
       &copy;2017, NeuroPoly.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/inversionrecovery.rst.txt"
+      <a href="_sources/inversionrecovery_doc.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

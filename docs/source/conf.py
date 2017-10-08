@@ -268,3 +268,26 @@ texinfo_documents = [
      author, 'qMRlab', 'One line description of project.',
      'Miscellaneous'),
 ]
+import xml.etree.ElementTree
+fn = os.path.join(os.path.dirname(__file__), '../../Data/IR_demo/html/IR_batch.html')
+
+#tree = xml.etree.ElementTree.parse(
+import io
+with io.open("IR_batch.rst", "wb") as f:
+    #body = xml.etree.ElementTree.tostring(tree[0][1])
+    t = "IR Example"
+    f.write(t.encode())
+    f.write(b"\n")
+    f.write(b"=" * len(t))
+    f.write(b"\n")
+    f.write(b"\n")
+    f.write(b".. raw:: html\n")
+    f.write(b"\n   \n")
+    #f.write(("  %s" % body).encode("utf-8"))
+    #f.write(b"   oihokh")
+    with io.open(fn, "rb") as fi:
+        for line in fi:
+            f.write(b"   ")
+            f.write(line)
+
+os.system('cp ../../Data/IR_demo/html/*.png ../build/html/')

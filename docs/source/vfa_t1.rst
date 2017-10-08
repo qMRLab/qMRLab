@@ -1,3 +1,3 @@
-Variable Flip Angle Method
+Variable Flip Angle
 -------------------------------------
 

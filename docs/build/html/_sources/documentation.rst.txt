@@ -5,7 +5,7 @@ is to provide the community with an intuitive tool for data fitting, plotting, s
 The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!
 
 qMRLab is a fork from the initial project `qMTLab <https://github.com/neuropoly/qMTLab>`_.
-For a quick **introduction** to qMTLab functionnalities, see the `qMTLab presentation e-poster <https://github.com/neuropoly/qMRLab/blob/master/Documentation/qMTLab-Presentation.ppsx>`_ or alternatively you can view it on `YouTube <https://youtu.be/WG0tVe-SFww>`_.
+For a quick **introduction** to qMTLab functionnalities, see the `qMTLab presentation e-poster <https://github.com/neuropoly/qMRLab/blob/master/docs/qMTLab-Presentation.ppsx>`_ or alternatively you can view it on `YouTube <https://youtu.be/WG0tVe-SFww>`_.
 
 
 Features

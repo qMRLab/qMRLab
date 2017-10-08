@@ -1,4 +1,4 @@
-% Batch to process CHARMED data without qMRLab GUI (graphical user interface)
+% Batch to process Inversion Recovery data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 %**************************************************************************
 %% I- LOAD DATASET
@@ -6,9 +6,9 @@
 [pathstr,fname,ext]=fileparts(which('IR_batch.m'));
 cd (pathstr);
 
-% Create Model object 
+% Create Model object
 Model = InversionRecovery;
-% Load Diffusion Protocol
+% Load Inversion Recovery Protocol (list of inversion times, in ms)
 Model.Prot.IRData.Mat = txt2mat('TI.txt');
 
 %**************************************************************************
@@ -16,7 +16,7 @@ Model.Prot.IRData.Mat = txt2mat('TI.txt');
 %**************************************************************************
 
 % Generate MR Signal using analytical equation and perform sensitivity
-% analysis: Noise 
+% analysis: Noise
 % Call Sensitivity_Analysis addons and click update
 %Sim_Sensitivity_Analysis_GUI(Model);
 

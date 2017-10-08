@@ -1,44 +1,35 @@
 classdef VFA_T1
     % Compute a T1 map using Variable Flip Angle
     %
-    %-------------
-    % ASSUMPTIONS %
-    %-------------% 
-    % (1) FILL
-    % (2) 
-    % (3) 
-    % (4) 
-    %-----------------------------------------------------------------------------------------------------
-    %--------%
-    % INPUTS %
-    %--------%
-    %   1) SPGR  : spoiled Gradient echo. 4D volume with variable flip angles
+    %-------------USAGE------------
+    % See for an example
+    %
+    %-------------ASSUMPTIONS-----------------
+    % 	1) 
+    %
+    %---------------INPUTS--------------
+    %   1) SPGR  : spoiled Gradient echo data, 4D volume with different flip angles
     %   2) B1map : excitation (B1+) fieldmap. Used to correct flip angles.
     %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OUTPUTS %
-    %---------%
-    %	* T1 : Longitudinal relaxation time
-    %	* M0 : ????
+    %-------------OUTPUTS-----------------
+    %	Fitting Parameters
+    %       * T1 : Longitudinal relaxation time
+    %       * M0 : Equilibrium magnetization
     %
-    %-----------------------------------------------------------------------------------------------------
-    %----------%
-    % PROTOCOL %
-    %----------%
-    %	* Flip Angle (degree)
+    %------------OPTIONS-----------------
+    %   None
+    %
+    %--------------PROTOCOL-----------------
+    %	* FA : list of flip angles (degrees)
     %	* TR : Repetition time of the whole sequence (s)
     %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OPTIONS %
-    %---------%
-    %   NONE
-    %
-    %-----------------------------------------------------------------------------------------------------
+    %---------------REFERENCE---------------
+    % Please cite the following if you use this module: 
+    % 
+    % *Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357*
+    % 
     % Written by: Ian Gagnon, 2017
-    % Reference: FILL
-    %-----------------------------------------------------------------------------------------------------
+    %----------------------------------_------------------------------------
 
     properties
         MRIinputs = {'SPGR','B1map'};
