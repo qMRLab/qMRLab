@@ -127,9 +127,9 @@ classdef SPGR
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.16    30     1        1       0.03     1.3e-05 ]; % starting point
+        st           = [ 0.16    25     1        1       0.03     1.3e-05 ]; % starting point
         lb           = [ 0        0     0.05     0.05    0.003    3e-6    ]; % lower bound
-        ub           = [ 0.5    500     5        5       0.5      5.0e-05 ]; % upper bound
+        ub           = [ 0.5     30     5        5       0.5      5.0e-05 ]; % upper bound
         fx           = [ 0        0     1        1       0        0       ]; % fix parameters
         
         % Protocol
