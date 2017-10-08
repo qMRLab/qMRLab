@@ -207,6 +207,7 @@ classdef DTI
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
+            Opt.SNR=min(Opt.SNR,500);
             sigma  = max(Smodel)/Opt.SNR;
             data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
