@@ -105,7 +105,7 @@ classdef bSSFP
         st           = [ 0.1    30      1        1        0.04    1 ]; % starting point
         lb           = [ 0       0      0.2      0.2      0.01    0 ]; % lower bound
         ub           = [ 0.3   100      3        3        0.2     2 ]; % upper bound
-        fx           = [ 0       0      0        1        0       0 ]; % fix parameters
+        fx           = [ 0       0      1        1        0       0 ]; % fix parameters
         
         % Protocol
         % You can define a default protocol here.

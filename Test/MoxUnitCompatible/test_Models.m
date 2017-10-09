@@ -61,7 +61,11 @@ for im = 1:length(MethodList)
     disp(class(Model))
     try Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1); end
     try st = Model.st; catch, try st = mean([Model.lb(:),Model.ub(:)],2); catch, st = ones(length(Model.xnames),1); end; end
-    [Opt(:).SNR] = deal(1000);
+    if exist('Opt','var') && length(Opt)>1
+        [Opt(:).SNR] = deal(1000);
+    else
+        Opt.SNR=1000;
+    end
     for iopt=1:length(Opt) % Test all simulation options
         disp(['Testing ' class(Model) ' simulation option:'])
         disp(Opt(iopt))
