@@ -1,18 +1,15 @@
 Inversion Recovery
-<<<<<<< HEAD
 ====================================
-
+Example USAGE
+____________________________________
 .. toctree::
 	:maxdepth: 1
 
 	IR_batch
 
-.. automodule:: Models.T1_Mapping
-=======
--------------------------------------
-.. toctree::
-   :maxdepth: 2
->>>>>>> 7ddb38a3978b1c3e11ccf24ce964cfa0642a2621
+Description
+____________________________________
 
-   inversionrecovery_doc
-   IR_batch
+.. automodule:: Models.T1_Mapping
+
+.. autoclass:: InversionRecovery

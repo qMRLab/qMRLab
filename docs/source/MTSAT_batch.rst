@@ -12,7 +12,7 @@ MTSAT_batch_example
       <!--
    This HTML was auto-generated from MATLAB code.
    To make changes, update the MATLAB code and republish this document.
-         --><title>MTSAT_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-09-30"><meta name="DC.source" content="MTSAT_batch.m"><style type="text/css">
+         --><title>MTSAT_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-09"><meta name="DC.source" content="MTSAT_batch.m"><style type="text/css">
    html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
    
    html { min-height:100%; margin-bottom:1px; }
@@ -75,6 +75,8 @@ MTSAT_batch_example
      </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">I- LOAD DATASET</a></li><li><a href="#3">II - MRI Data Fitting</a></li><li><a href="#4">III- SAVE</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process MT_SAT</span>
    <span class="comment">% Run this script line by line</span>
    </pre><h2 id="2">I- LOAD DATASET</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   [pathstr,fname,ext]=fileparts(which(<span class="string">'MTSAT_batch.m'</span>));
+   cd (pathstr);
    
    <span class="comment">% Create Model object</span>
    Model = MTSAT;
@@ -117,6 +119,8 @@ MTSAT_batch_example
    
    %% I- LOAD DATASET
    %**************************************************************************
+   [pathstr,fname,ext]=fileparts(which('MTSAT_batch.m'));
+   cd (pathstr);
    
    % Create Model object 
    Model = MTSAT;

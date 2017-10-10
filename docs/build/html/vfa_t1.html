@@ -23,11 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-<<<<<<< HEAD
-    <link rel="prev" title="IR_batch_example" href="IR_batch.html" />
-=======
     <link rel="prev" title="IR Example" href="IR_batch.html" />
->>>>>>> 7ddb38a3978b1c3e11ccf24ce964cfa0642a2621
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -43,98 +39,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-<<<<<<< HEAD
-  <div class="section" id="variable-flip-angle-method">
-<h1>Variable Flip Angle Method<a class="headerlink" href="#variable-flip-angle-method" title="Permalink to this headline">¶</a></h1>
-=======
-  <div class="section" id="module-Models.T1_Mapping">
-<span id="variable-flip-angle"></span><h1>Variable Flip Angle<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="Models.T1_Mapping.VFA_T1">
-<em class="property">class </em><code class="descclassname">Models.T1_Mapping.</code><code class="descname">VFA_T1</code><a class="headerlink" href="#Models.T1_Mapping.VFA_T1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute a T1 map using Variable Flip Angle</p>
-<dl class="docutils">
-<dt>————-USAGE————</dt>
-<dd>See for an example</dd>
-<dt>————-ASSUMPTIONS—————–</dt>
-<dd><ol class="first last arabic simple">
-<li></li>
-</ol>
-</dd>
-<dt>—————INPUTS————–</dt>
-<dd><ol class="first last arabic simple">
-<li>SPGR  : spoiled Gradient echo data, 4D volume with different flip angles</li>
-<li>B1map : excitation (B1+) fieldmap. Used to correct flip angles.</li>
-</ol>
-</dd>
-<dt>————-OUTPUTS—————–</dt>
-<dd><blockquote class="first">
-<div>Fitting Parameters</div></blockquote>
-<ul class="last simple">
-<li>T1 : Longitudinal relaxation time</li>
-<li>M0 : Equilibrium magnetization</li>
-</ul>
-</dd>
-<dt>————OPTIONS—————–</dt>
-<dd>None</dd>
-<dt>————–PROTOCOL—————–</dt>
-<dd><ul class="first last simple">
-<li>FA : list of flip angles (degrees)</li>
-<li>TR : Repetition time of the whole sequence (s)</li>
-</ul>
-</dd>
-<dt>—————REFERENCE—————</dt>
-<dd><p class="first">Please cite the following if you use this module:</p>
-<p><em>Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357</em></p>
-<p class="last">Written by: Ian Gagnon, 2017</p>
-</dd>
-</dl>
-<p>———————————-_————————————</p>
-<dl class="method">
-<dt id="Models.T1_Mapping.VFA_T1.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>T1 and M0</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.MRIinputs">
-<code class="descname">MRIinputs</code><em class="property"> = u&quot;{'SPGR','B1map'}&quot;</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.MRIinputs" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.Prot">
-<code class="descname">Prot</code><em class="property"> = u&quot;struct('SPGR',struct('Format',{{'Flip Angle' 'TR'}},\n'Mat', [4 0.025; 10 0.025; 20 0.025]))&quot;</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.Prot" title="Permalink to this definition">¶</a></dt>
-<dd><p>You can define a default protocol here.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.buttons">
-<code class="descname">buttons</code><em class="property"> = u'{}'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.buttons" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.options">
-<code class="descname">options</code><em class="property"> = u'struct()'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.options" title="Permalink to this definition">¶</a></dt>
-<dd><p>structure filled by the buttons. Leave empty in the code</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.voxelwise">
-<code class="descname">voxelwise</code><em class="property"> = u'0'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.voxelwise" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="Models.T1_Mapping.VFA_T1.xnames">
-<code class="descname">xnames</code><em class="property"> = u'{}'</em><a class="headerlink" href="#Models.T1_Mapping.VFA_T1.xnames" title="Permalink to this definition">¶</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-</dd></dl>
-
->>>>>>> 7ddb38a3978b1c3e11ccf24ce964cfa0642a2621
+  <div class="section" id="variable-flip-angle">
+<h1>Variable Flip Angle<a class="headerlink" href="#variable-flip-angle" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -194,11 +100,7 @@
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="documentation.html">qMRlab Introduction</a><ul>
   <li><a href="t1_mapping.html">T1 Mapping</a><ul>
-<<<<<<< HEAD
-      <li>Previous: <a href="IR_batch.html" title="previous chapter">IR_batch_example</a></li>
-=======
       <li>Previous: <a href="IR_batch.html" title="previous chapter">IR Example</a></li>
->>>>>>> 7ddb38a3978b1c3e11ccf24ce964cfa0642a2621
   </ul></li>
   </ul></li>
   </ul></li>
