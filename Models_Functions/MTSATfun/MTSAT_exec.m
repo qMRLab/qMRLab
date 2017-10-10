@@ -30,6 +30,11 @@ TR_T1    = T1Params(2);
 alpha_MT = (pi/180)*MTParams(1);
 TR_MT    = MTParams(2);
 
+% Avoid /0
+PDw_data(PDw_data == 0) = 0.0001;
+T1w_data(T1w_data == 0) = 0.0001;
+MTw_data(MTw_data == 0) = 0.0001;
+
 % check if a T1 map was given in input; if not, compute it
 R1 = 0.5*((alpha_T1/TR_T1)*T1w_data - (alpha_PD/TR_PD)*PDw_data)./(PDw_data/alpha_PD - T1w_data/alpha_T1);
 
@@ -37,5 +42,8 @@ R1 = 0.5*((alpha_T1/TR_T1)*T1w_data - (alpha_PD/TR_PD)*PDw_data)./(PDw_data/alph
 A = (TR_PD*alpha_T1/alpha_PD - TR_T1*alpha_PD/alpha_T1)*((PDw_data.*T1w_data)./(TR_PD*alpha_T1*T1w_data - TR_T1*alpha_PD*PDw_data));
 % compute MTsat
 MTsat = TR_MT*(alpha_MT*(A./MTw_data) - ones(size(MTw_data))).*R1 - (alpha_MT^2)/2;
+
+% to have percent units
+MTsat = MTsat * 100;
 
 end
