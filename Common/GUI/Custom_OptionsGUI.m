@@ -146,14 +146,14 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     if size(fittingtable,2)>2
         if ~any(cellfun('isempty',fittingtable(:,3)))
             Model.st = cell2mat(fittingtable(:,3)');
-            if isfield(Model,'lb') && isfield(Model,'ub')
+            if isprop(Model,'lb') && isprop(Model,'ub')
                 % check that starting point > lb and < ub
                 Model.st = max([Model.st; Model.lb],[],1);
                 Model.st = min([Model.st; Model.ub],[],1);
                 fittingtable(:,3) = mat2cell(Model.st(:),ones(length(Model.st),1));
             end
         end
-        if isfield(Model,'lb') && isfield(Model,'ub')
+        if isprop(Model,'lb') && isprop(Model,'ub')
             Model.lb = cell2mat(fittingtable(:,4)');
             Model.ub = cell2mat(fittingtable(:,5)');
         end
