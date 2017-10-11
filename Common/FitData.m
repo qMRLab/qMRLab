@@ -115,5 +115,5 @@ end
 Fit.Time = toc;
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
-
+delete FitTempResults.mat
 end
