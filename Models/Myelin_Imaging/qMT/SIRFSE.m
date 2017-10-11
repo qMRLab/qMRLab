@@ -187,7 +187,8 @@ classdef SIRFSE
         function FitResults = fit(obj,data)            
             Protocol = GetProt(obj);       
             FitOpt = GetFitOpt(obj,data);
-            FitResults = SIRFSE_fit(data.MTdata,Protocol,FitOpt);
+            FitResults = SIRFSE_fit(data.MTdata/max(data.MTdata),Protocol,FitOpt);
+            FitResults.M0f = FitResults.M0f*max(data.MTdata);
             FitResults.Sf = - FitResults.Sf;
         end
         
