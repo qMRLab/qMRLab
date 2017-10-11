@@ -132,6 +132,7 @@ classdef BrowserSet
                     tmp = File;
                 end
             end
+            Data = getappdata(0, 'Data'); 
             Data.(class(getappdata(0,'Model'))).(obj.NameID{1}) = double(tmp);
             if exist('nii','var'),	Data.hdr = nii.hdr; end
             setappdata(0, 'Data', Data);            
