@@ -34,7 +34,7 @@ end
 
 % Loop over all data points
 for kk = 1:nA
-    
+    disp(['Voxel #' num2str(kk) '/' num2str(nA)])
     Pulse = GetPulse(Angles(kk), Offsets(kk), Prot.Tm, Prot.MTpulse.shape, Prot.MTpulse.opt); 
     SScount = 0;
     G = computeG(Offsets(kk), Param.T2r, Param.lineshape);

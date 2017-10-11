@@ -46,7 +46,6 @@ SPGR/FitResults/FitTempResults.mat
 SPGR/FitTempResults.mat
 SPGR/SimResults/SimCurveTempResults.mat
 *.asv
-*.nii
 bSSFP/SimResults/SimCurveTempResults.mat
 Demo.mat
 SIRFSE/SimResults/SimCurveTempResults.mat

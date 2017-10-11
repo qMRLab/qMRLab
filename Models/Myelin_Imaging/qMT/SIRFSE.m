@@ -171,12 +171,11 @@ classdef SIRFSE
                     Sim.Param.M0f = 1;
                     Sim.Param.R2f = 1/Opt.T2fUsedinBlockequation;
                     Sim.Param.G   = 1.4176e-5;
-                    Sim.Opt.SScheck = 1;
-                    Sim.Opt.SStol = 1e-4;
                     Protocol.FSE = Protocol;
                     Protocol.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
                     Protocol.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
-                    mz = SIRFSE_sim(Sim, Protocol, 1);
+                    if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
+                    mz = SIRFSE_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
                     Sim.Param.Sf = -Sim.Param.Sf;
                     SimCurveResults = SIRFSE_SimCurve(Sim.Param, Protocol, obj.GetFitOpt,0);
