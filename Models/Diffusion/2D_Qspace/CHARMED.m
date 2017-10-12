@@ -1,66 +1,51 @@
 classdef CHARMED
-    %-----------------------------------------------------------------------------------------------------
-    % CHARMED :  Composite Hindered and Restricted Model for Diffusion
-    %-----------------------------------------------------------------------------------------------------
-    %-------------%
-    % ASSUMPTIONS %
-    %-------------%
-    % (1) Diffusion gradients are applied perpendicularly to the neuronal fibers.
-    % (2) Neuronal fibers are parallel (orientational dispersion is negligible).
-    % (3) The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
-    %     should have little impact if the average propagator is larger than
-    %     axonal diameter (sqrt(2*Dr*Delta)>8µm).
-    % (4) Permeability of the neuronal fibers is negligible.
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %--------%
-    % INPUTS %
-    %--------%
-    %   1) DiffusionData : 4D DWI
-    %   2) SigmaNoise    : map of the standard deviation of the noise per
-    %                      voxel
-    %   2) Mask          : Binary mask to accelerate the fitting (OPTIONAL)
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OUTPUTS %
-    %---------%
-    %   Fitting Parameters
-    %       * fr            : Fraction of water in the restricted compartment.
-    %       * Dh            : Apparent diffusion coefficient of the hindered compartment.
-    %       * axon diameter : Mean axonal diameter
-    %         index           (weighted by the axonal area --> biased toward the larger axons)
-    %                          fixed to 0 --> stick model (recommended if Gmax < 300mT/m).
-    %
-    %       * fcsf          : Fraction of water in the CSF compartment. (fixed to 0 by default)
-    %       * lc            : Length of coherence. If > 0, this parameter models the time dependence
-    %                         of the hindered diffusion coefficient Dh.
-    %                         Els Fieremans et al. Neuroimage 2016.
-    %                         Interpretation is not perfectly known.
-    %                         Use option "Time-Dependent Models" to get different interpretations.
-    %
-    %   Additional Outputs
-    %       * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
-    %       * residue            : Fitting residue.
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OPTIONS %
-    %---------%
-    %   Rician noise bias: Standard deviation of the noise, assuming Rician.
-    %                      If no SigmaNoise maps are provided, two methods:
-    %       * Compute Sigma per voxel: Sigma is estimated by computing the
-    %                                  STD across repeated scans.
-    %       * fix sigma: Use scd_noise_std_estimation to measure noise level
-    %                        
-    %   S0 normalization :
-    %     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
-    %     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
-    %-----------------------------------------------------------------------------------------------------
-    % Written by: Tanguy Duval, 2016
-    % Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted
-    % model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
-    %-----------------------------------------------------------------------------------------------------
+%CHARMED: Composite Hindered and Restricted Model for Diffusion
+%
+% Assumptions:
+%   Diffusion gradients are applied perpendicularly to the neuronal fibers.
+%   Neuronal fibers are parallel (orientational dispersion is negligible).
+%   The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
+%     should have little impact if the average propagator is larger than
+%     axonal diameter (sqrt(2*Dr*Delta)>8µm).
+%   Permeability of the neuronal fibers is negligible.
+%
+% Inputs:
+%   DiffusionData       4D DWI
+%   SigmaNoise          map of the standard deviation of the noise per voxel
+%   (Mask)              Binary mask to accelerate the fitting
+%
+% Outputs:
+%   fr                  Fraction of water in the restricted compartment.
+%   Dh                  Apparent diffusion coefficient of the hindered compartment.
+%   diameter_mean       Mean axonal diameter weighted by the axonal area --> biased toward the larger axons
+%                         fixed to 0 --> stick model (recommended if Gmax < 300mT/m).
+%   fcsf                Fraction of water in the CSF compartment. (fixed to 0 by default)
+%   lc                  Length of coherence. If > 0, this parameter models the time dependence
+%                         of the hindered diffusion coefficient Dh.
+%                         Els Fieremans et al. Neuroimage 2016.
+%                         Interpretation is not perfectly known.
+%                         Use option "Time-Dependent Models" to get different interpretations.
+%   (fh)                Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf
+%   (residue)           Fitting residuals
+%
+%-----------------------------------------------------------------------------------------------------
+%---------%
+% OPTIONS %
+%---------%
+%   Rician noise bias: Standard deviation of the noise, assuming Rician.
+%                      If no SigmaNoise maps are provided, two methods:
+%       * Compute Sigma per voxel: Sigma is estimated by computing the
+%                                  STD across repeated scans.
+%       * fix sigma: Use scd_noise_std_estimation to measure noise level
+%                        
+%   S0 normalization :
+%     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
+%     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
+%-----------------------------------------------------------------------------------------------------
+% Written by: Tanguy Duval, 2016
+% Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted
+% model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+%-----------------------------------------------------------------------------------------------------
     
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'}; % input data required
