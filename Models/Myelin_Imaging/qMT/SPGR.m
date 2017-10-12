@@ -121,7 +121,7 @@ classdef SPGR
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Ian Gagnon, 2017
-% Reference: FILL
+% Reference: Sled, J.G., Pike, G.B., 2000. Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. J. Magn. Reson. 145, 24?36.
 %-----------------------------------------------------------------------------------------------------
     
     properties
