@@ -107,7 +107,9 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Load dataset</a></li><li><a href="#3">Check data and fitting (Optional)</a></li><li><a href="#4">Create Quantitative Maps</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process MWF data without qMRLab GUI (graphical user interface)</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Load dataset</a></li><li><a href="#3">Check data and fitting (Optional)</a></li><li><a href="#4">Create Quantitative Maps</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput">warning(<span class="string">'off'</span>,<span class="string">'all'</span>);
+
+<span class="comment">% Batch to process MWF data without qMRLab GUI (graphical user interface)</span>
 <span class="comment">% Run this script line by line</span>
 <span class="comment">% Written by: Ian Gagnon, 2017</span>
 </pre><h2 id="2">Load dataset</h2><pre class="codeinput">[pathstr,fname,ext]=fileparts(which(<span class="string">'MWF_batch.m'</span>));
@@ -176,9 +178,10 @@ Model.plotmodel(FitResultsVox,dataVox)
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 FitResultsSave_mat(FitResults);
 save(<span class="string">'MWFPamameters.mat'</span>,<span class="string">'Model'</span>);
-</pre><pre class="codeoutput">Warning: Directory already exists.
 </pre><img vspace="5" hspace="5" src="_static/MWF_batch_03.png" alt=""> <h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
+warning('off','all');
+
 % Batch to process MWF data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
