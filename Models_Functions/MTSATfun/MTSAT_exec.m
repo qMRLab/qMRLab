@@ -17,9 +17,7 @@ function MTsat = MTSAT_exec(data, MTParams, PDParams, T1Params) % add
 
 % Load nii
 PDw_data = double(data.PDw); % convert data coding to double
-
 T1w_data = double(data.T1w); % convert data coding to double
-
 MTw_data = double(data.MTw); % convert data coding to double
 
 % Convert angles into radians
@@ -30,20 +28,16 @@ TR_T1    = T1Params(2);
 alpha_MT = (pi/180)*MTParams(1);
 TR_MT    = MTParams(2);
 
-% Avoid /0
-PDw_data(PDw_data == 0) = 0.0001;
-T1w_data(T1w_data == 0) = 0.0001;
-MTw_data(MTw_data == 0) = 0.0001;
+Inds = find(PDw_data & T1w_data & MTw_data);
+MTsat = double(zeros(size(MTw_data)));
 
 % check if a T1 map was given in input; if not, compute it
-R1 = 0.5*((alpha_T1/TR_T1)*T1w_data - (alpha_PD/TR_PD)*PDw_data)./(PDw_data/alpha_PD - T1w_data/alpha_T1);
+R1 = 0.5*((alpha_T1/TR_T1)*T1w_data(Inds)  - (alpha_PD/TR_PD)*PDw_data(Inds))./(PDw_data(Inds)/alpha_PD - T1w_data(Inds)/alpha_T1);
 
 % compute A
-A = (TR_PD*alpha_T1/alpha_PD - TR_T1*alpha_PD/alpha_T1)*((PDw_data.*T1w_data)./(TR_PD*alpha_T1*T1w_data - TR_T1*alpha_PD*PDw_data));
-% compute MTsat
-MTsat = TR_MT*(alpha_MT*(A./MTw_data) - ones(size(MTw_data))).*R1 - (alpha_MT^2)/2;
+A = (TR_PD*alpha_T1/alpha_PD - TR_T1*alpha_PD/alpha_T1)*((PDw_data(Inds).*T1w_data(Inds))./(TR_PD*alpha_T1*T1w_data(Inds) - TR_T1*alpha_PD*PDw_data(Inds)));
 
-% to have percent units
-MTsat = MTsat * 100;
+% preallocate and compute MTsat; percent units
+MTsat(Inds) = 100 * (TR_MT*(alpha_MT*(A./MTw_data(Inds)) - ones(size(MTw_data(Inds)))).*R1 - (alpha_MT^2)/2);
 
 end
