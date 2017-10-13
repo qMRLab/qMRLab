@@ -96,7 +96,7 @@ MWF_batch_example
    <span class="comment">% II- CHECK DATA AND FITTING</span>
    <span class="comment">%**************************************************************************</span>
    qMRLab(Model,file);
-   </pre><img vspace="5" hspace="5" src="_static/MWF_batch_01.png" alt=""> <img vspace="5" hspace="5" src="MWF_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   </pre><img vspace="5" hspace="5" src="_static/MWF_batch_01.png" alt=""> <img vspace="5" hspace="5" src="_static/MWF_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% I- LOAD PROTOCOL</span>
    <span class="comment">%**************************************************************************</span>
    

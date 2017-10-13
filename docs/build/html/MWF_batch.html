@@ -23,6 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SIRFSE_batch_example" href="SIRFSE_batch.html" />
+    <link rel="prev" title="MTSAT_batch_example" href="MTSAT_batch.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -131,7 +133,7 @@ file.Mask = <span class="string">'Mask.mat'</span>;
 <span class="comment">% II- CHECK DATA AND FITTING</span>
 <span class="comment">%**************************************************************************</span>
 qMRLab(Model,file);
-</pre><img vspace="5" hspace="5" src="_static/MWF_batch_01.png" alt=""> <img vspace="5" hspace="5" src="MWF_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><img vspace="5" hspace="5" src="_static/MWF_batch_01.png" alt=""> <img vspace="5" hspace="5" src="_static/MWF_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- LOAD PROTOCOL</span>
 <span class="comment">%**************************************************************************</span>
 
@@ -295,9 +297,29 @@ save('MWFPamameters.mat','Model');
 
 
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">qMRlab Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="documentation.html#features">Features</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html#features">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html">Diffusion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fieldmaps.html">Field Maps</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="myelin.html">Myelin Imaging</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="myelin.html#mtsat">MTSAT</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="myelin.html#mwf">MWF</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">MWF_batch_example</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="myelin.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
 </ul>
@@ -306,6 +328,12 @@ save('MWFPamameters.mat','Model');
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="documentation.html">qMRlab Introduction</a><ul>
+  <li><a href="myelin.html">Myelin Imaging</a><ul>
+      <li>Previous: <a href="MTSAT_batch.html" title="previous chapter">MTSAT_batch_example</a></li>
+      <li>Next: <a href="SIRFSE_batch.html" title="next chapter">SIRFSE_batch_example</a></li>
+  </ul></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

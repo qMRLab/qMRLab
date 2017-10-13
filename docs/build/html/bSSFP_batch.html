@@ -23,6 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Noise" href="noise.html" />
+    <link rel="prev" title="SPGR_batch_example" href="SPGR_batch.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -47,7 +49,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>bSSFP_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-09"><meta name="DC.source" content="bSSFP_batch.m"><style type="text/css">
+      --><title>bSSFP_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="bSSFP_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -130,42 +132,7 @@ file.Mask = <span class="string">'Mask.nii.gz'</span>;
 <span class="comment">% II- CHECK DATA AND FITTING</span>
 <span class="comment">%**************************************************************************</span>
 qMRLab(Model,file);
-</pre><pre class="codeoutput error">Error using checkfilename&gt;validateFilename (line 165)
-Function GUNZIP was unable to find file ''MTdata.nii.gz''.
-
-Error in checkfilename (line 49)
-[fullfilename, fid] = validateFilename( ...
-
-Error in gunzip&gt;checkFilesURLInput (line 116)
-   [fullFileName, url] = checkfilename(inputFiles{1}, validExtensions, fcnName, ...
-
-Error in gunzip (line 59)
-[files, url, urlFilename] = checkFilesURLInput(files, {'gz'},'FILES',mfilename);
-
-Error in load_untouch_nii (line 147)
-         filename = gunzip(filename, tmpDir);
-
-Error in BrowserSet/DataLoad (line 120)
-                    nii = load_untouch_nii(obj.FullFile);
-
-Error in BrowserSet.BrowseBtn_callback (line 177)
-            DataLoad(obj);
-
-Error in MethodBrowser/setFileName (line 185)
-                obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)
-
-Error in qMRLab&gt;qMRLab_OpeningFcn (line 103)
-            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
-
-Error in gui_mainfcn (line 220)
-    feval(gui_State.gui_OpeningFcn, gui_hFigure, [], guidata(gui_hFigure), varargin{:});
-
-Error in qMRLab (line 36)
-    gui_mainfcn(gui_State, varargin{:});
-
-Error in bSSFP_batch (line 28)
-qMRLab(Model,file);
-</pre><h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><img vspace="5" hspace="5" src="_static/bSSFP_batch_01.png" alt=""> <img vspace="5" hspace="5" src="_static/bSSFP_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- LOAD PROTOCOL</span>
 <span class="comment">%**************************************************************************</span>
 
@@ -215,6 +182,19 @@ Model.plotmodel(FitResultsVox,dataVox)
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 FitResultsSave_nii(FitResults,<span class="string">'MTdata.nii.gz'</span>);
 save(<span class="string">'bSSFPParameters.mat'</span>,<span class="string">'Model'</span>);
+</pre><pre class="codeoutput error">Reference to non-existent field 'RF_Pulse_Shape'.
+
+Error in bSSFP/GetProt (line 245)
+            Prot.Pulse.shape = obj.options.RF_Pulse_Shape;
+
+Error in bSSFP/fit (line 176)
+            Protocol = GetProt(obj);
+
+Error in FitData (line 80)
+        tempFit = Model.fit(M);
+
+Error in bSSFP_batch (line 64)
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % Batch to process bSSFP_modulaire data without qMRLab GUI (graphical user interface)
@@ -334,9 +314,31 @@ save('bSSFPParameters.mat','Model');
 
 
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">qMRlab Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="documentation.html#features">Features</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html#features">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html">Diffusion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fieldmaps.html">Field Maps</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="myelin.html">Myelin Imaging</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="myelin.html#mtsat">MTSAT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="myelin.html#mwf">MWF</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="myelin.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="myelin.html#sirfse">SIRFSE</a></li>
+<li class="toctree-l5"><a class="reference internal" href="myelin.html#spgr">SPGR</a></li>
+<li class="toctree-l5 current"><a class="reference internal" href="myelin.html#bssfp">bSSFP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
 </ul>
@@ -345,6 +347,12 @@ save('bSSFPParameters.mat','Model');
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="documentation.html">qMRlab Introduction</a><ul>
+  <li><a href="myelin.html">Myelin Imaging</a><ul>
+      <li>Previous: <a href="SPGR_batch.html" title="previous chapter">SPGR_batch_example</a></li>
+      <li>Next: <a href="noise.html" title="next chapter">Noise</a></li>
+  </ul></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

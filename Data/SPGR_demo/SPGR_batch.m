@@ -3,6 +3,7 @@
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
+warning('off')
 [pathstr,fname,ext]=fileparts(which('SPGR_batch.m'));
 cd (pathstr);
 

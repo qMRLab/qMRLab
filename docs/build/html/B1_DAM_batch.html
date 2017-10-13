@@ -23,6 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Myelin Imaging" href="myelin.html" />
+    <link rel="prev" title="B0_DEM_batch_example" href="B0_DEM_batch.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -47,7 +49,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>B1_DAM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-09"><meta name="DC.source" content="B1_DAM_batch.m"><style type="text/css">
+      --><title>B1_DAM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="B1_DAM_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -129,7 +131,7 @@ file.SF120 = <span class="string">'SF120.nii.gz'</span>;
 <span class="comment">% II- CHECK DATA AND FITTING</span>
 <span class="comment">%**************************************************************************</span>
 qMRLab(Model,file);
-</pre><img vspace="5" hspace="5" src="_static/B1_DAM_batch_01.png" alt=""> <img vspace="5" hspace="5" src="B1_DAM_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><img vspace="5" hspace="5" src="_static/B1_DAM_batch_01.png" alt=""> <img vspace="5" hspace="5" src="_static/B1_DAM_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- LOAD EXPERIMENTAL DATA</span>
 <span class="comment">%**************************************************************************</span>
 <span class="comment">% Create a struct "data" that contains all the data</span>
@@ -242,9 +244,28 @@ FitResultsSave_nii(FitResults,'SF60.nii.gz');
 
 
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">qMRlab Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="documentation.html#features">Features</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html#features">Features</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html">Diffusion</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="fieldmaps.html">Field Maps</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b0-dem-dual-echo-method">B0_DEM (Dual-echo method)</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="fieldmaps.html#b1-dam-dual-angle-method">B1_DAM (Dual-angle method)</a><ul class="current">
+<li class="toctree-l5 current"><a class="current reference internal" href="#">B1_DAM_batch_example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="myelin.html">Myelin Imaging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
 </ul>
@@ -253,6 +274,12 @@ FitResultsSave_nii(FitResults,'SF60.nii.gz');
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="documentation.html">qMRlab Introduction</a><ul>
+  <li><a href="fieldmaps.html">Field Maps</a><ul>
+      <li>Previous: <a href="B0_DEM_batch.html" title="previous chapter">B0_DEM_batch_example</a></li>
+      <li>Next: <a href="myelin.html" title="next chapter">Myelin Imaging</a></li>
+  </ul></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

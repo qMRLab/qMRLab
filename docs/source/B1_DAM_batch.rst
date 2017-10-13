@@ -12,7 +12,7 @@ B1_DAM_batch_example
       <!--
    This HTML was auto-generated from MATLAB code.
    To make changes, update the MATLAB code and republish this document.
-         --><title>B1_DAM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-09"><meta name="DC.source" content="B1_DAM_batch.m"><style type="text/css">
+         --><title>B1_DAM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="B1_DAM_batch.m"><style type="text/css">
    html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
    
    html { min-height:100%; margin-bottom:1px; }
@@ -94,7 +94,7 @@ B1_DAM_batch_example
    <span class="comment">% II- CHECK DATA AND FITTING</span>
    <span class="comment">%**************************************************************************</span>
    qMRLab(Model,file);
-   </pre><img vspace="5" hspace="5" src="_static/B1_DAM_batch_01.png" alt=""> <img vspace="5" hspace="5" src="B1_DAM_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   </pre><img vspace="5" hspace="5" src="_static/B1_DAM_batch_01.png" alt=""> <img vspace="5" hspace="5" src="_static/B1_DAM_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% I- LOAD EXPERIMENTAL DATA</span>
    <span class="comment">%**************************************************************************</span>
    <span class="comment">% Create a struct "data" that contains all the data</span>

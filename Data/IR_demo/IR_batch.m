@@ -10,7 +10,6 @@ cd (pathstr);
 Model = InversionRecovery;
 % Load Inversion Recovery Protocol (list of inversion times, in ms)
 Model.Prot.IRData.Mat = txt2mat('TI.txt');
-
 %**************************************************************************
 %% II - Perform Simulations
 %**************************************************************************
@@ -21,7 +20,7 @@ Model.Prot.IRData.Mat = txt2mat('TI.txt');
 %Sim_Sensitivity_Analysis_GUI(Model);
 
 % Alternatively use command line:
-help SimVary
+help SimVary.m
 runs = 50; % Run simulation with additive noise 50 times
 %             'T1'    'rb'    'ra'
 OptTable.fx = [false   true   true];  % Vary T1...

@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>bSSFP_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-09"><meta name="DC.source" content="bSSFP_batch.m"><style type="text/css">
+      --><title>bSSFP_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="bSSFP_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -89,42 +89,7 @@ file.Mask = <span class="string">'Mask.nii.gz'</span>;
 <span class="comment">% II- CHECK DATA AND FITTING</span>
 <span class="comment">%**************************************************************************</span>
 qMRLab(Model,file);
-</pre><pre class="codeoutput error">Error using checkfilename&gt;validateFilename (line 165)
-Function GUNZIP was unable to find file ''MTdata.nii.gz''.
-
-Error in checkfilename (line 49)
-[fullfilename, fid] = validateFilename( ...
-
-Error in gunzip&gt;checkFilesURLInput (line 116)
-   [fullFileName, url] = checkfilename(inputFiles{1}, validExtensions, fcnName, ...
-
-Error in gunzip (line 59)
-[files, url, urlFilename] = checkFilesURLInput(files, {'gz'},'FILES',mfilename);
-
-Error in load_untouch_nii (line 147)
-         filename = gunzip(filename, tmpDir);
-
-Error in BrowserSet/DataLoad (line 120)
-                    nii = load_untouch_nii(obj.FullFile);
-
-Error in BrowserSet.BrowseBtn_callback (line 177)
-            DataLoad(obj);            
-
-Error in MethodBrowser/setFileName (line 185)
-                obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)
-
-Error in qMRLab&gt;qMRLab_OpeningFcn (line 103)
-            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
-
-Error in gui_mainfcn (line 220)
-    feval(gui_State.gui_OpeningFcn, gui_hFigure, [], guidata(gui_hFigure), varargin{:});
-
-Error in qMRLab (line 36)
-    gui_mainfcn(gui_State, varargin{:});
-
-Error in bSSFP_batch (line 28)
-qMRLab(Model,file);
-</pre><h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><img vspace="5" hspace="5" src="bSSFP_batch_01.png" alt=""> <img vspace="5" hspace="5" src="bSSFP_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- LOAD PROTOCOL</span>
 <span class="comment">%**************************************************************************</span>
 
@@ -174,6 +139,19 @@ Model.plotmodel(FitResultsVox,dataVox)
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 FitResultsSave_nii(FitResults,<span class="string">'MTdata.nii.gz'</span>);
 save(<span class="string">'bSSFPParameters.mat'</span>,<span class="string">'Model'</span>);
+</pre><pre class="codeoutput error">Reference to non-existent field 'RF_Pulse_Shape'.
+
+Error in bSSFP/GetProt (line 245)
+            Prot.Pulse.shape = obj.options.RF_Pulse_Shape;
+
+Error in bSSFP/fit (line 176)
+            Protocol = GetProt(obj); 
+
+Error in FitData (line 80)
+        tempFit = Model.fit(M);
+
+Error in bSSFP_batch (line 64)
+FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % Batch to process bSSFP_modulaire data without qMRLab GUI (graphical user interface)

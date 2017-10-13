@@ -84,17 +84,28 @@ for root, dirs, files in os.walk("."):
                         f.write(b"   ")
 
                         #If the line contains a ".png" sub-string (indicating a path to an image)
-                        if line.find(".png")!=(-1):
+                        index = 0
 
-                            #Save the index of the image path
-                            a = line.find("src")
-                            b = line.find("png")
+                        #The while loop help to find every png if there are mutliple ones in the same line
+                        while index !=(-1):
+                            if line.find(".png", index)!=(-1):
 
-                            #Save the initial path and the "_images" directory in the new path
-                            initialstr = line[a+5:b+3]
-                            replacement = os.path.join("_static/",initialstr)
-                            #Replace sub-string with the new path
-                            line = line.replace(initialstr, replacement)
+                                #Save the index of the image path (after the pervious occurrences of the path)
+                                a = line.find("src", index)
+                                b = line.find("png", index)
+
+                                #Save the index at where we have to search for the next png
+                                index = b+3+len("_static")
+
+                                #Save the initial path and the "_images" directory in the new path
+                                initialstr = line[a+5:b+3]
+                                replacement = os.path.join("_static/",initialstr)
+
+                                #Replace sub-string with the new path
+                                line = line.replace(initialstr, replacement)
+
+                            else:
+                                index = (-1)
                         f.write(line)
 
             #Return to the batch_example directory
