@@ -48,7 +48,7 @@ classdef CHARMED
 %   data = struct;  % Create data structure
 %   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
 %   data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
-%   FitResults = FitData(data,CHARMED,1);  % Fit each voxel within mask
+%   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
 %   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
 %
 % Author: Tanguy Duval, 2016
