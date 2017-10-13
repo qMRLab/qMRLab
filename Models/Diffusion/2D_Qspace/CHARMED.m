@@ -49,7 +49,7 @@ classdef CHARMED
 %   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
 %   data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
 %   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
-%   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
+%   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');  % Save in local folder: FitResults/
 %
 % Author: Tanguy Duval, 2016
 %
