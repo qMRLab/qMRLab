@@ -28,23 +28,33 @@ classdef CHARMED
 %   (fh)                Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf
 %   (residue)           Fitting residuals
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
-%   Rician noise bias: Standard deviation of the noise, assuming Rician.
-%                      If no SigmaNoise maps are provided, two methods:
-%       * Compute Sigma per voxel: Sigma is estimated by computing the
-%                                  STD across repeated scans.
-%       * fix sigma: Use scd_noise_std_estimation to measure noise level
-%                        
-%   S0 normalization :
-%     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
-%     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
-%-----------------------------------------------------------------------------------------------------
-% Written by: Tanguy Duval, 2016
-% Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted
-% model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+% Options:
+%   Rician noise bias   Use if no SigmaNoise map is provided.
+%     'Compute Sigma per voxel'  Sigma is estimated by computing the STD across repeated scans.
+%     'fix sigma'       Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
+%   Display Type:
+%     'q-value'         XXX
+%     'b-value'         XXX
+%   S0 normalization
+%     'Use b=0'         Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
+%     'Single T2 compartment'  In case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
+%   Time-dependent models:
+%     'Burcaw 2015'     XXX
+%     'Ning MRM 2016'   XXX
+%
+% Example of command line usage (also see CHARMED_batch.m):
+%   Model = CHARMED;  % Create class from model
+%   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
+%   data = struct;  % Create data structure
+%   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
+%   data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
+%   FitResults = FitData(data,CHARMED,1);  % Fit each voxel within mask
+%   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
+%
+% Author: Tanguy Duval, 2016
+%
+% References:
+%   Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
 %-----------------------------------------------------------------------------------------------------
     
     properties
