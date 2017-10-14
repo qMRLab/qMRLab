@@ -54,8 +54,10 @@ classdef CHARMED
 % Author: Tanguy Duval, 2016
 %
 % References:
-%   Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
-%-----------------------------------------------------------------------------------------------------
+%   Please cite the following if you use this module:
+%     Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'}; % input data required
