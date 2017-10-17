@@ -9,7 +9,6 @@ B0_DEM (Dual-echo method)
 
 	B0_DEM_batch
 
-
 B1_DAM (Dual-angle method)
 -----------------------------------------------------------
 
@@ -17,4 +16,3 @@ B1_DAM (Dual-angle method)
 	:maxdepth: 1
 
 	B1_DAM_batch
-

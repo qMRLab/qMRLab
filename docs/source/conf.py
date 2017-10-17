@@ -25,6 +25,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 #Save the documentation directory path
 initialpath = os.getcwd()
 
+#List with all the models qith a batch_example
+models = []
+
 #Go to the correct directory to check all the batch_examples
 os.chdir("../../Data")
 #Loop in every batch_example directory
@@ -36,7 +39,6 @@ for root, dirs, files in os.walk("."):
 			name_check = name[:-1] + "html"
 			filepath_check = os.path.join(dir_check, name_check)
 			if not(os.path.isfile(filepath_check)):
-				print(filepath_check)
 				os.system('matlab -nodesktop -nosplash -wait -r "publish(\'' + os.path.join(root,name) + '\'); quit"')
 
 
@@ -63,6 +65,8 @@ for root, dirs, files in os.walk("."):
 
             #Set the name of the file
             base = os.path.splitext(os.path.basename(filepath))[0]
+            modelIndex = base.find("_batch")
+            models.append(base[:modelIndex])
 
             #Create a ".rst" file and transcript
             with io.open(base +".rst", "wb") as f:
@@ -103,10 +107,10 @@ for root, dirs, files in os.walk("."):
 
                                 #Replace sub-string with the new path
                                 line = line.replace(initialstr, replacement)
-
                             else:
                                 index = (-1)
                         f.write(line)
+
 
             #Return to the batch_example directory
             os.chdir("../../Data")
@@ -125,8 +129,31 @@ for root, dirs, files in os.walk("."):
             #Copy the ".png" file to the new location
             shutil.copy(fn, os.path.join(initialpath,"../source/_static"))
 
-
 os.chdir(initialpath)
+#for element in models:
+#    for file in os.walk("."):
+#        for name in files:
+#            if name.find(element) and not(name.find("batch")):
+#                with io.open(element +"temp.rst", "wb") as fd:
+#                    with io.open(element+".rst", "rb") as fw:
+#                        i = -1
+#                        for line in fw:
+#                            if line.find("USAGE") != (-1):
+#                                i=2
+#                            elif i == 0 and line.find("toctree") == (-1):
+#                                fd.write(".. toctree::\n")
+#                                fd.write("\t:maxdepth: 1")
+#                                fd.write(element+"_batch")
+#                            if i > -1:
+#                                i=i-1
+#                            fd.write(line)
+#    with io.open(element+".rst", "wb") as f:
+#        with io.open(element +"temp.rst", "rb") as fd:
+#            for line in fd:
+#                f.write(line)
+#	os.remove(element +"temp.rst")
+
+
 
 # -- General configuration ------------------------------------------------
 

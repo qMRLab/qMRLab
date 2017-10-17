@@ -2,7 +2,7 @@ T1 Mapping
 ======================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    inversionrecovery
    vfa_t1

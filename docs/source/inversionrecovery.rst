@@ -3,7 +3,7 @@ Inversion Recovery
 Example USAGE
 ____________________________________
 .. toctree::
-	:maxdepth: 1
+	:maxdepth: 2
 
 	IR_batch
 
