@@ -11,7 +11,7 @@ classdef CHARMED
 %
 % Inputs:
 %   DiffusionData       4D DWI
-%   SigmaNoise          map of the standard deviation of the noise per voxel
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel
 %   (Mask)              Binary mask to accelerate the fitting
 %
 % Outputs:
@@ -28,24 +28,33 @@ classdef CHARMED
 %   (fh)                Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf
 %   (residue)           Fitting residuals
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
-%   Rician noise bias: Standard deviation of the noise, assuming Rician.
-%                      If no SigmaNoise maps are provided, two methods:
-%       * Compute Sigma per voxel: Sigma is estimated by computing the
-%                                  STD across repeated scans.
-%       * fix sigma: Use scd_noise_std_estimation to measure noise level
-%                        
-%   S0 normalization :
-%     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
-%     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
-%-----------------------------------------------------------------------------------------------------
-% Written by: Tanguy Duval, 2016
-% Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted
-% model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
-%-----------------------------------------------------------------------------------------------------
+% Options:
+%   Rician noise bias   Used if no SigmaNoise map is provided.
+%     'Compute Sigma per voxel'  Sigma is estimated by computing the STD across repeated scans.
+%     'fix sigma'       Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
+%   Display Type:
+%     'q-value'         abscissa for plots: q = gamma.delta.G (µm-1)
+%     'b-value'         abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
+%   S0 normalization
+%     'Use b=0'         Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
+%     'Single T2 compartment'  In case of variable TE acquisition:
+%                              fit single T2 using data acquired at b<1000s/mm2 (assuming Gaussian diffusion))
+%   Time-dependent models:
+%     'Burcaw 2015'     XXX
+%     'Ning MRM 2016'   XXX
+%
+% Command line usage:
+%   <a href="matlab: qMRusage(CHARMED);">qMRusage(CHARMED)</a>
+%   <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>
+%
+% Author: Tanguy Duval, 2016
+%
+% References:
+%   Please cite the following if you use this module:
+%     Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+% 
     
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'}; % input data required
@@ -66,7 +75,6 @@ classdef CHARMED
         
         % Model options
         buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
-            'Compute Sigma per voxel',true,...
             'Display Type',{'q-value','b-value'},...
             'S0 normalization',{'Use b=0','Single T2 compartment'},...
             'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
