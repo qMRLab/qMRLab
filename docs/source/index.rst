@@ -11,7 +11,7 @@ Welcome to qMRlab's documentation!
 
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 6
 
    documentation.rst
 
