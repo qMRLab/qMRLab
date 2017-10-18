@@ -185,7 +185,7 @@ classdef CHARMED
             xopt(end+1) = residue;
             obj.xnames{end+1} = 'residue';
             % Noise Level
-            if obj.options.ComputeSigmapervoxel
+            if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 xopt(end+1) = SigmaNoise;
                 obj.xnames{end+1} = 'SigmaNoise';
             end
