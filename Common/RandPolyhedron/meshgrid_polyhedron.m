@@ -20,7 +20,7 @@ function LSP = meshgrid_polyhedron(planes)
 %
 %
 % scatter3(LSP(:,1),LSP(:,2),LSP(:,3))
-   X = plotregion(planes(:,1:3),-planes(:,4));
+   X = plotregion(planes(:,1:end-1),-planes(:,end));
             if ~sum(X), error('your planes (i.e. inequalities) don''t define a closed area'); end
             Xm = min(X(:,2:end),[],2);
             XM = max(X(:,2:end),[],2);
@@ -31,7 +31,7 @@ for iv=1:size(X,1), LSP{iv} = linspace(Xm(iv),XM(iv),50); end
 dim=size(LSP);
 LSP = reshape(permute(LSP,[length(dim) 1:(length(dim)-1)]),dim(end),[])';
 % manage inequalties
-outpolyhedron = max(LSP*planes(:,1:(end-1))'<-repmat(planes(:,4)',size(LSP,1),1),[],2);
+outpolyhedron = max(LSP*planes(:,1:(end-1))'<-repmat(planes(:,end)',size(LSP,1),1),[],2);
 LSP = LSP(~outpolyhedron,:);
 
 
