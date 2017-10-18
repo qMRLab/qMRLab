@@ -9,7 +9,8 @@ cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('MTVParameters.mat');
+%load('MTVParameters.mat');
+Model = MTV
 
 %% Check data and fitting (Optional)
 

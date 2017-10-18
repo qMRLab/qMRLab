@@ -12,7 +12,7 @@ SPGR_batch_example
       <!--
    This HTML was auto-generated from MATLAB code.
    To make changes, update the MATLAB code and republish this document.
-         --><title>SPGR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="SPGR_batch.m"><style type="text/css">
+         --><title>SPGR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-18"><meta name="DC.source" content="SPGR_batch.m"><style type="text/css">
    html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
    
    html { min-height:100%; margin-bottom:1px; }
@@ -81,7 +81,27 @@ SPGR_batch_example
    
    <span class="comment">% Load your parameters to create your Model</span>
    <span class="comment">% load('MODELPamameters.mat');</span>
-   load(<span class="string">'SPGRParameters.mat'</span>);
+   <span class="comment">%load('SPGRParameters.mat');</span>
+   Model = SPGR
+   </pre><pre class="codeoutput">
+   Model = 
+   
+     SPGR with properties:
+   
+                              MRIinputs: {1&times;5 cell}
+                                 xnames: {'F'  'kr'  'R1f'  'R1r'  'T2f'  'T2r'}
+                              voxelwise: 1
+                                     st: [0.1600 30 1 1 0.0300 1.3000e-05]
+                                     lb: [0 0 0.0500 0.0500 0.0030 3.0000e-06]
+                                     ub: [0.5000 100 5 5 0.5000 5.0000e-05]
+                                     fx: [0 0 1 1 0 0]
+                                   Prot: [1&times;1 struct]
+                            ProtSfTable: [1&times;1 struct]
+                                buttons: {1&times;32 cell}
+                                options: [1&times;1 struct]
+         Sim_Single_Voxel_Curve_buttons: {1&times;6 cell}
+       Sim_Sensitivity_Analysis_buttons: {'# of run'  [5]}
+   
    </pre><h2 id="3">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% I- GENERATE FILE STRUCT</span>
    <span class="comment">%**************************************************************************</span>
@@ -97,41 +117,7 @@ SPGR_batch_example
    <span class="comment">% II- CHECK DATA AND FITTING</span>
    <span class="comment">%**************************************************************************</span>
    qMRLab(Model,file);
-   </pre><pre class="codeoutput error">Reference to non-existent field 'fittingconstraints_UseR1maptoconstrainR1f'.
-   
-   Error in SPGR/UpdateFields (line 189)
-               if obj.options.fittingconstraints_UseR1maptoconstrainR1f
-   
-   Error in Custom_OptionsGUI&gt;SetOpt (line 169)
-       Model = Model.UpdateFields();
-   
-   Error in Custom_OptionsGUI&gt;OptionsGUI_OpeningFcn (line 87)
-       SetOpt(handles);
-   
-   Error in gui_mainfcn (line 220)
-       feval(gui_State.gui_OpeningFcn, gui_hFigure, [], guidata(gui_hFigure), varargin{:});
-   
-   Error in Custom_OptionsGUI (line 30)
-       gui_mainfcn(gui_State, varargin{:});
-   
-   Error in qMRLab&gt;OpenOptionsPanel_Callback (line 249)
-   Custom_OptionsGUI(gcf,Model);
-   
-   Error in qMRLab&gt;MethodMenu (line 210)
-   OpenOptionsPanel_Callback(hObject, eventdata, handles)
-   
-   Error in qMRLab&gt;qMRLab_OpeningFcn (line 117)
-   MethodMenu(hObject, eventdata, handles, Method);
-   
-   Error in gui_mainfcn (line 220)
-       feval(gui_State.gui_OpeningFcn, gui_hFigure, [], guidata(gui_hFigure), varargin{:});
-   
-   Error in qMRLab (line 36)
-       gui_mainfcn(gui_State, varargin{:});
-   
-   Error in SPGR_batch (line 30)
-   qMRLab(Model,file);
-   </pre><h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   </pre><img vspace="5" hspace="5" src="_static/SPGR_batch_01.png" alt=""> <img vspace="5" hspace="5" src="_static/SPGR_batch_02.png" alt=""> <img vspace="5" hspace="5" src="_static/SPGR_batch_03.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% I- LOAD PROTOCOL</span>
    <span class="comment">%**************************************************************************</span>
    
@@ -199,7 +185,11 @@ SPGR_batch_example
    <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
    FitResultsSave_nii(FitResults);
    save(<span class="string">'SPGRParameters.mat'</span>,<span class="string">'Model'</span>);
-   </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+   </pre><pre class="codeoutput">MATLAB has experienced a low-level graphics error, and may not have drawn correctly.
+   Read about what you can do to prevent this issue at &lt;a href="matlab:opengl('problems')"&gt;Resolving Low-Level Graphics Issues&lt;/a&gt; then restart MATLAB.
+   To share details of this issue with MathWorks technical support,
+   please include &lt;a href="file:C:\Users\gab_b\AppData\Local\Temp\jogl.ex.15676"&gt;this file&lt;/a&gt; with your service request.
+   </pre><img vspace="5" hspace="5" src="_static/SPGR_batch_04.png" alt=""> <h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
    ##### SOURCE BEGIN #####
    % Batch to process SPGR data without qMRLab GUI (graphical user interface)
    % Run this script line by line
@@ -212,7 +202,8 @@ SPGR_batch_example
    
    % Load your parameters to create your Model
    % load('MODELPamameters.mat');
-   load('SPGRParameters.mat');
+   %load('SPGRParameters.mat');
+   Model = SPGR
    
    %% Check data and fitting (Optional)
    

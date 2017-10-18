@@ -8,7 +8,8 @@ cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('bSSFPParameters.mat');
+%load('bSSFPParameters.mat');
+Model = bSSFP
 
 %% Check data and fitting (Optional)
 

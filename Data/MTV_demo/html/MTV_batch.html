@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>MTV_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="MTV_batch.m"><style type="text/css">
+      --><title>MTV_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-18"><meta name="DC.source" content="MTV_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -74,7 +74,20 @@ cd (pathstr);
 
 <span class="comment">% Load your parameters to create your Model</span>
 <span class="comment">% load('MODELPamameters.mat');</span>
-load(<span class="string">'MTVParameters.mat'</span>);
+<span class="comment">%load('MTVParameters.mat');</span>
+Model = MTV
+</pre><pre class="codeoutput">
+Model = 
+
+  MTV with properties:
+
+    MRIinputs: {'SPGR'  'B1map'  'CSFMask'}
+       xnames: {}
+    voxelwise: 0
+         Prot: [1&times;1 struct]
+      buttons: {1&times;11 cell}
+      options: [1&times;1 struct]
+
 </pre><h2 id="3">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- GENERATE FILE STRUCT</span>
 <span class="comment">%**************************************************************************</span>
@@ -129,13 +142,14 @@ FitResults.Model = Model;
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 FitResultsSave_mat(FitResults);
 save(<span class="string">'Parameters.mat'</span>,<span class="string">'Model'</span>);
-</pre><pre class="codeoutput error">Reference to non-existent field 'CoilGain_Fitting_Polynomial'.
+</pre><pre class="codeoutput">
+ans =
 
-Error in MTV/UpdateFields (line 73)
-            if obj.options.CoilGain_Fitting_Polynomial &amp;&amp; obj.options.CoilGain_Fitting_Spline
-
-Error in MTV_batch (line 44)
-Model = Model.UpdateFields;
+    'loop over voxels...
+     
+     
+   100%
+...done
 </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % Batch to process MTV data without qMRLab GUI (graphical user interface)
@@ -149,7 +163,8 @@ cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('MTVParameters.mat');
+%load('MTVParameters.mat');
+Model = MTV
 
 %% Check data and fitting (Optional)
 

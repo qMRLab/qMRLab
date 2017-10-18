@@ -12,7 +12,7 @@ bSSFP_batch_example
       <!--
    This HTML was auto-generated from MATLAB code.
    To make changes, update the MATLAB code and republish this document.
-         --><title>bSSFP_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="bSSFP_batch.m"><style type="text/css">
+         --><title>bSSFP_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-18"><meta name="DC.source" content="bSSFP_batch.m"><style type="text/css">
    html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
    
    html { min-height:100%; margin-bottom:1px; }
@@ -80,7 +80,26 @@ bSSFP_batch_example
    
    <span class="comment">% Load your parameters to create your Model</span>
    <span class="comment">% load('MODELPamameters.mat');</span>
-   load(<span class="string">'bSSFPParameters.mat'</span>);
+   <span class="comment">%load('bSSFPParameters.mat');</span>
+   Model = bSSFP
+   </pre><pre class="codeoutput">
+   Model = 
+   
+     bSSFP with properties:
+   
+                              MRIinputs: {'MTdata'  'R1map'  'Mask'}
+                                 xnames: {'F'  'kr'  'R1f'  'R1r'  'T2f'  'M0f'}
+                              voxelwise: 1
+                                     st: [0.1000 30 1 1 0.0400 1]
+                                     lb: [0 0 0.2000 0.2000 0.0100 0]
+                                     ub: [0.3000 100 3 3 0.2000 2]
+                                     fx: [0 0 1 1 0 0]
+                                   Prot: [1&times;1 struct]
+                                buttons: {1&times;25 cell}
+                                options: [1&times;1 struct]
+         Sim_Single_Voxel_Curve_buttons: {1&times;6 cell}
+       Sim_Sensitivity_Analysis_buttons: {'# of run'  [5]}
+   
    </pre><h2 id="3">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% I- GENERATE FILE STRUCT</span>
    <span class="comment">%**************************************************************************</span>
@@ -145,20 +164,7 @@ bSSFP_batch_example
    <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
    FitResultsSave_nii(FitResults,<span class="string">'MTdata.nii.gz'</span>);
    save(<span class="string">'bSSFPParameters.mat'</span>,<span class="string">'Model'</span>);
-   </pre><pre class="codeoutput error">Reference to non-existent field 'RF_Pulse_Shape'.
-   
-   Error in bSSFP/GetProt (line 245)
-               Prot.Pulse.shape = obj.options.RF_Pulse_Shape;
-   
-   Error in bSSFP/fit (line 176)
-               Protocol = GetProt(obj); 
-   
-   Error in FitData (line 80)
-           tempFit = Model.fit(M);
-   
-   Error in bSSFP_batch (line 64)
-   FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
-   </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+   </pre><img vspace="5" hspace="5" src="_static/bSSFP_batch_03.png" alt=""> <h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
    ##### SOURCE BEGIN #####
    % Batch to process bSSFP_modulaire data without qMRLab GUI (graphical user interface)
    % Run this script line by line
@@ -170,7 +176,8 @@ bSSFP_batch_example
    
    % Load your parameters to create your Model
    % load('MODELPamameters.mat');
-   load('bSSFPParameters.mat');
+   %load('bSSFPParameters.mat');
+   Model = bSSFP
    
    %% Check data and fitting (Optional)
    

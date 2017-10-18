@@ -8,7 +8,7 @@ cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('SIRFSEParameters.mat');
+Model = SIRFSE
 
 %% Check data and fitting (Optinal)
 
