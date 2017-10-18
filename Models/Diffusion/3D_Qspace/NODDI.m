@@ -92,16 +92,38 @@ classdef NODDI
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             model      = MakeModel(obj.options.modelname);
             Pindex     =~ ismember(model.paramsStr,{'b0','theta','phi'});
-            obj.xnames = model.paramsStr(Pindex);
-            obj.fx     = model.GD.fixed(Pindex);
+            if isempty(obj.xnames) || ~isequal(obj.xnames,model.paramsStr)
+                ModelChanged=true;
+            else
+                ModelChanged=false;
+            end
+            obj.xnames = model.paramsStr;
             grid       = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
             scale      = GetScalingFactors(obj.options.modelname);
-            obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
+            
             obj.lb     = min(grid,[],2)'.*scale(Pindex);
             obj.ub     = max(grid,[],2)'.*scale(Pindex);
+            
+            % for simulation:
+            obj.lb(strcmp(obj.xnames,'b0'))=0; 
+            obj.lb(strcmp(obj.xnames,'theta'))=0; 
+            obj.lb(strcmp(obj.xnames,'phi'))=0;
+            obj.ub(strcmp(obj.xnames,'b0'))=1e3; 
+            obj.ub(strcmp(obj.xnames,'theta'))=pi; 
+            obj.ub(strcmp(obj.xnames,'phi'))=pi;
+            
+            if ModelChanged % user can modify this
+                obj.fx     = model.GD.fixed;
+                obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
+                obj.st(strcmp(obj.xnames,'b0'))=1;
+                obj.st(strcmp(obj.xnames,'theta'))=.2; % at theta=0, phi can have any value, not good for testing
+                obj.st(strcmp(obj.xnames,'phi'))=0;
+                obj.st(ismember(model.paramsStr,{'ficvf'})) = .5;
+            end
+            
             obj.st     = max(obj.st,obj.lb);
             obj.st     = min(obj.st,obj.ub);
-            obj.st(ismember(model.paramsStr,{'ficvf'})) = .5;
+
         end
         
         function [Smodel, fibredir] = equation(obj, x)
@@ -137,12 +159,14 @@ classdef NODDI
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end
             % load model
             model = MakeModel(obj.options.modelname);
-            Pindex =~ ismember(model.paramsStr,{'b0','theta','phi'});            
-            model.GD.fixed(Pindex) = obj.fx; % gradient descent
-            model.GS.fixed(Pindex) = obj.fx; % grid search
-            scale = GetScalingFactors(obj.options.modelname);
-            model.GS.fixedvals(Pindex) = obj.st./scale(Pindex);
-            model.GD.fixedvals(Pindex) = obj.st./scale(Pindex);
+            model.GD.fixed = obj.fx; % gradient descent
+            model.GS.fixed = obj.fx; % grid search
+            Pindex     =~ ismember(model.paramsStr,{'theta','phi'});
+            scale = ones(1,length(obj.xnames));
+            scaletmp = GetScalingFactors(obj.options.modelname);
+            scale(Pindex) = scaletmp(1:end-1);
+            model.GS.fixedvals = obj.st./scale;
+            model.GD.fixedvals = obj.st./scale;
             
             protocol = SchemeToProtocol(obj.Prot.DiffusionData.Mat);
             
@@ -152,7 +176,7 @@ classdef NODDI
             % Outputs
             xnames = model.paramsStr;
             xnames{end+1} = 'ODI';
-            xopt(end+1) = atan2(1, xopt(3)*10)*2/pi;
+            xopt(end+1) = atan(xopt(find(strcmp(obj.xnames,'kappa')))*10)*2/pi;
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),xnames,1);
         end
         

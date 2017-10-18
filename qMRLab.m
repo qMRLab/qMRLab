@@ -88,34 +88,34 @@ if ~isfield(handles,'opened') % qMRI already opened?
 
     SetAppData(FileBrowserList);
     
-    % LOAD DEFAULTS
-    if ~isempty(varargin)
-        Model = varargin{1};
-        SetAppData(Model);
-        Method = class(Model);
-        if length(varargin)>1
-            data=varargin{2};
-            for ff=fieldnames(data)';
-                FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
-            end
-        end
-    else
-        load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    end
+    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
     
-    % Set Default
-    methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
-    i = 1;
-    while ~strcmp(Method, methods{i})
-        i = i+1;
-    end  
-    set(handles.MethodSelection, 'Value', i);
-    
-    
-    MethodMenu(hObject, eventdata, handles, Method);
-else
-    OpenOptionsPanel_Callback(hObject, eventdata, handles)
 end
+% LOAD INPUT
+if ~isempty(varargin)
+    Model = varargin{1};
+    SetAppData(Model);
+    Method = class(Model);
+    FileBrowserList = GetAppData('FileBrowserList');
+    if length(varargin)>1
+        data=varargin{2};
+        for ff=fieldnames(data)';
+            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+        end
+    end
+end
+
+% Set Menu to method
+methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
+i = 1;
+while ~strcmp(Method, methods{i})
+    i = i+1;
+end
+set(handles.MethodSelection, 'Value', i);
+
+
+MethodMenu(hObject, eventdata, handles, Method);
+
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
@@ -165,7 +165,14 @@ else % otherwise create a new object of this method
     Model = modelfun();
 end
 SetAppData(Model)
-
+% Create empty Data
+Data = GetAppData('Data');
+for id=1:length(Model.MRIinputs)
+    if isempty(Data) || ~isfield(Data,Method) || ~isfield(Data.(Method),Model.MRIinputs{id})
+        Data.(Method).(Model.MRIinputs{id})=[];
+    end
+end
+SetAppData(Data);
 
 % Now create Simulation panel
 handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
@@ -368,7 +375,7 @@ set(handles.CurrentFitId,'String',FileName);
 
 % FITRESULTSLOAD
 function FitResultsLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile('*.mat');
+[FileName,PathName] = uigetfile({'*FitResults.mat;*FitTempResults.mat'},'FitResults.mat');
 if PathName == 0, return; end
 set(handles.CurrentFitId,'String',FileName);
 FitResults = load(fullfile(PathName,FileName));
@@ -560,6 +567,8 @@ data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model'))); MRIinput
 S = size(data.(MRIinput{1}));
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
+elseif sum(S)==0
+    helpdlg(['Specify a ' MRIinput{1} ' file in the filebrowser'])
 else
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
