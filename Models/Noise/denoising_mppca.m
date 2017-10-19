@@ -1,24 +1,31 @@
 classdef denoising_mppca
-    % ----------------------------------------------------------------------------------------------------
-    % denoising_mppca :  Denoise 4D data using adaptative pca
-    % ----------------------------------------------------------------------------------------------------
-    % Assumptions :
-    %   * Noise follows a rician distribution
-    % ----------------------------------------------------------------------------------------------------
-    %
-    %  Fitted Parameters:
-    %    * Sigma: standard deviation of the rician noise
-    %
-    % Options:
-    %
-    %
-    % ----------------------------------------------------------------------------------------------------
-    % Written by: Tanguy Duval, 2017
-    % Reference: 
-    %      Veraart, J.; Fieremans, E. & Novikov, D.S. Diffusion MRI noise mapping
-    %      using random matrix theory Magn. Res. Med., 2016, early view, doi:
-    %      10.1002/mrm.26059
-    % ----------------------------------------------------------------------------------------------------
+% denoising_mppca :  Denoise 4D data using adaptative PCA
+%
+% Assumptions:
+%   Noise follows a rician distribution
+
+% Inputs:
+%   Data4D              4D data (any modality)
+%
+% Outputs:
+%   Sigma               standard deviation of the rician noise
+%
+% Options:
+%   none
+%
+% Example of command line usage:
+%   Model = denoising_mppca;  % Create class from model
+%   data.Data4D = load_nii_data('Data4D.nii.gz');  % Load data
+%   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
+%   FitResultsSave_nii(FitResults,'Data4D.nii.gz');  % Save in local folder: FitResults/
+%
+% Author: Tanguy Duval, 2016
+%
+% References:
+%   Please cite the following if you use this module:
+%     Veraart, J.; Fieremans, E. & Novikov, D.S. Diffusion MRI noise mapping using random matrix theory Magn. Res. Med., 2016, early view, doi:10.1002/mrm.26059
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
     properties
         MRIinputs = {'Data4D'};
