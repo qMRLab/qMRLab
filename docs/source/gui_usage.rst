@@ -34,17 +34,17 @@ Clicking on the **Open Options Panel** below the method drop-down menu will open
 
 2.1.2 qMR Data Fit
 +++++++++++++++++++++++
-Clicking on the light gray **Fit qMT Data** button will change the *Main* panel to the *Fit qMR Data* view. This is where you can load your data files for fitting and for viewing the resulting parameters maps. Refer to this section :ref:`3.	Data Fitting` for more information.
+Clicking on the light gray **Fit qMT Data** button will change the *Main* panel to the *Fit qMR Data* view. This is where you can load your data files for fitting and for viewing the resulting parameters maps.
 
-Click the big **Fit Data** button only when you have selected your data files, set up your protocol and fitting options and are ready to begin the fitting process, which, depending on the size of your data and the method, can take from a few minutes to a couple of hours. The **Save Results** button will prompt you to save a .mat file with the results of your data fit. **Load Results** will load previously saved results and display them.
+Click the big **Fit Data** button only when you have selected your data files, set up your protocol and fitting options and are ready to begin the fitting process, which, depending on the size of your data and the method, can take from a few minutes to a couple of hours. The **Save Results** button will prompt you to save a .mat file with the results of your data fit. **Load Results** will load previously saved results and display them. Refer to this section :ref:`3.	Data Fitting` for more information.
 
 2.1.3 qMR Data Simulator
 ++++++++++++++++++++++++++++++++
-The three light gray buttons allows you to choose between three different data simulation mode: **Single Voxel Curve**, **Sensitivity Analysis** and **Multi Voxel Distribution**. Clicking on any one of these buttons will bring the corresponding interface to the *Main* panel. When any of these interfaces are active, clicking on the big dark gray **Simulate Data** button will launch the simulation using the current setting. The **Save Results** button will prompt you to save a .mat file with the current simulation results. **Load Results** will load previously saved simulation results and display them in the appropriate panel.
+The three light gray buttons allows you to choose between three different data simulation mode: **Single Voxel Curve**, **Sensitivity Analysis** and **Multi Voxel Distribution**. Clicking on any one of these buttons will bring the corresponding interface to the *Main* panel. When any of these interfaces are active, clicking on the big dark gray **Simulate Data** button will launch the simulation using the current setting. The **Save Results** button will prompt you to save a .mat file with the current simulation results. **Load Results** will load previously saved simulation results and display them in the appropriate panel. Refer to this section :ref:`4.	Simulation` for more information.
 
 Single Voxel Curve
 ______________________
-The *Single Voxel Curve* panel is a simple interface to simulate MR data from a single voxel, using the defined MR parameters and protocol. It is the fastest way to evaluate various acquisition protocols, the performance of the model and fitting options. Refer to section 4.1 for more information.
+The *Single Voxel Curve* panel is a simple interface to simulate MR data from a single voxel, using the defined MR parameters and protocol. It is the fastest way to evaluate various acquisition protocols, the performance of the model and fitting options. Refer to section :ref:`4.1.	Single Voxel Curve` for more information.
 
 Sensitivity Analysis
 _______________________
@@ -86,8 +86,10 @@ Currently supported file types are .mat and .nii files. Your files should respec
 
 * For .mat files, the name of the file can be anything, but the array it contains should be named appropriately. The list of input names is case sensitive and is specified at the top of the *Data* dialog box. For example, for a qMT SPGR experiment, *MTdata* (for the actual MT data array) or *R1map* / *B1map* / *B0map* / *Mask* respectively for a R1 / B1 / B0 or Mask file.
 
-.. image:: _static/inputs.png
+.. figure:: _static/inputs.png
    :scale: 100 %
+
+   Example of list of inputs for qMT SPGR experiment
 
 *	Each model will expect a different format of inputs, but in general, for single slice (2D) imaging, the main data is a 3D array with size [nx, ny, ndata], where nx/ny is the number of voxels in the x/y direction, and ndata is the number of data points for each voxel. For volume imaging (3D), data is a 4D array with size [nx, ny, nz, ndata], where nx/ny/ndata are a above, and nz is the number of voxels (or slices) in the z direction (e.g. in this example *MTdata* would have several datapoints per voxel).
 *	Other files (e.g. in this example *R1map / B1map / B0map / Mask*) are formatted as [nx, ny, nz].
@@ -110,16 +112,20 @@ This is useful when you want to preview the fit of a single voxel (note this opt
 3.	Load your data by clicking the browse button beside the ‘Data:’ line, or enter the full file path to it in the textbox.
 4.	You can view any of these maps by clicking its **View** button.
 
-.. image:: _static/view_data.png
+.. figure:: _static/view_data.png
    :scale: 100 %
+
+   Example of viewing option, in this case R1map used for qMT SPGR
 
 5.	Define or load the appropriate protocol in the *Options* panel (see section 5.1 for details).
 6.	Define your fitting options in the Options panel (see section 5.2 for details).
 7.  You can preview the fitted curve for a selected voxel by using the **View Data Fit** button. Make sure a dataset is loaded by clikcing **View** beside the data file field
 8.  Click **Select** button in the 'Cursor' section to activate voxel selection mode, select a voxel to preview and click **View Data Fit**. You can now see the fitted curve and the parameters computed for that voxel.
 
-.. image:: _static/view_fit_1vox.png
+.. figure:: _static/view_fit_1vox.png
    :scale: 100 %
+
+   Example of fitting in 1 voxel, which was selected with the cursor on the image.
 
 3.2.2 Whole dataset
 +++++++++++++++++++++
@@ -163,8 +169,10 @@ The Single Voxel Curve simulation interface allows you to simulate qMR data for 
 8.	If you want to see the effect of changing fitting options, use the *Options* panel to make your changes. Then, in the *Main* panel inside the ‘Simulation Fit Results’ panel, click on **Update Fit**. Clicking this button without changing fitting options will also generate a new noisy data distribution and recalculate the fitted curve.
 9.	Once the fitting is done, a temporary file (SimCurveTempResults) will be saved in the ‘SimResults’ subfolder of the current active method (e.g. *qMTLab/SPGR/SimResults/*). You can save the current simulation results by clicking **Save Results** in the ‘qMR Data Simulator fit’ section of the *Menu* panel. You can later load it using the **Load Results** button.
 
-.. image:: _static/single_voxel_curve.png
+.. figure:: _static/single_voxel_curve.png
    :scale: 100 %
+
+   Example result of simulation in 1 voxel. Remember to set options in 'Options' panel
 
 4.2.	Sensitivity Analysis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -180,8 +188,10 @@ The Sensitivity Analysis simulation allows you to systematically vary one parame
 8.	Once the simulation is done, the results are displayed in the ‘Plot Results’ section in the Main panel. Using the ‘x axis’ and ‘y axis’ dropdown menu, you can change the independent/dependant parameters respectively. The parameters that have been varied will be available under the ‘x axis’ menu, while all the model parameters will be available under the ‘y axis’ menu.
 9.	A temporary file (SimVaryTempResults) will be saved in the ‘SimResults’ subfolder of the current active method (*e.g. qMTLab/SPGR/SimResults/*). You can save the current simulation results by clicking **Save Results** in the ‘qMT Data Simulator fit’ section of the *Menu panel*. You can later load it using the **Load Results** button.
 
-.. image:: _static/sensitivity_analysis.png
+.. figure:: _static/sensitivity_analysis.png
    :scale: 50 %
+
+   Example of sensitivity analysis of the F parameter for qMT
 
 4.3. Multi Voxel Distribution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
