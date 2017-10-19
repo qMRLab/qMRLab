@@ -1,165 +1,117 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Documentation &#8212; qMRlab 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="IR Example" href="IR_batch.html" />
-    <link rel="prev" title="Inversion Recovery" href="inversionrecovery.html" />
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Inversion Recovery Documentation &mdash; qMRlab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="qMRlab 0.1 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <div class="wy-grid-for-nav">
 
-  </head>
-  <body>
-  
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+          
+            <a href="index.html" class="icon icon-home"> qMRlab
+          
+
+          
             
-  <div class="section" id="module-Models.T1_Mapping">
-<span id="documentation"></span><h1>Documentation<a class="headerlink" href="#module-Models.T1_Mapping" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="Models.T1_Mapping.InversionRecovery">
-<em class="property">class </em><code class="descclassname">Models.T1_Mapping.</code><code class="descname">InversionRecovery</code><a class="headerlink" href="#Models.T1_Mapping.InversionRecovery" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute a T1 map using Inversion Recovery data</p>
-<dl class="docutils">
-<dt>————-<strong>USAGE</strong>————</dt>
-<dd>qMRusage(InversionRecovery)</dd>
-<dt>————-<strong>EXAMPLE</strong>————</dt>
-<dd>See
-<a class="reference external" href="https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m">https://github.com/neuropoly/qMRLab/blob/master/Data/IR_demo/IR_batch.m</a> for an example</dd>
-<dt>————-<strong>ASSUMPTIONS</strong>—————–</dt>
-<dd><ol class="first last arabic simple">
-<li>Gold standard for T1 mapping</li>
-</ol>
-</dd>
-<dt>—————<strong>INPUTS</strong>————–</dt>
-<dd><ol class="first last arabic simple">
-<li>IRData : Inversion Recovery data</li>
-<li>Mask   : Binary mask to accelerate the fitting (OPTIONAL)</li>
-</ol>
-</dd>
-<dt>————-<strong>OUTPUTS</strong>—————–</dt>
-<dd><blockquote class="first">
-<div>Fitting Parameters</div></blockquote>
-<ul class="last simple">
-<li>T1 (transverse relaxation)</li>
-<li>‘b’ or ‘rb’ parameter (S=a + b*exp(-TI/T1))</li>
-<li>‘a’ or ‘ra’ parameter (S=a + b*exp(-TI/T1))</li>
-<li>idx: index of last polarity restored datapoint (only used for magnitude data)</li>
-<li>res: Fitting residual</li>
-</ul>
-</dd>
-<dt>————<strong>OPTIONS</strong>—————–</dt>
-<dd><dl class="first last docutils">
-<dt>method: Method to use in order to fit the data, based on whether</dt>
-<dd><blockquote class="first">
-<div><dl class="docutils">
-<dt>complex or only magnitude data is available.</dt>
-<dd><dl class="first last docutils">
-<dt>‘complex’ <span class="classifier-delimiter">:</span> <span class="classifier">RD-NLS (Reduced-Dimension Non-Linear Least</span></dt>
-<dd><blockquote class="first">
-<div>Squares)</div></blockquote>
-<p class="last">S=a + b*exp(-TI/T1)</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="last docutils">
-<dt>or  ‘magnitude’ <span class="classifier-delimiter">:</span> <span class="classifier">RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares</span></dt>
-<dd><blockquote class="first">
-<div>with Polarity Restoration)</div></blockquote>
-<p class="last">S=|a + b*exp(-TI/T1)|</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-<dt>————–<strong>PROTOCOL</strong>—————–</dt>
-<dd>TI:  Array containing the Inversion times, in ms</dd>
-<dt>—————<strong>REFERENCE</strong>—————</dt>
-<dd><p class="first">Please cite the following if you use this module:</p>
-<p><em>A robust methodology for in vivo T1 mapping.
-Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG.
-Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
-<p>In addition to citing the package:</p>
-<p class="last"><em>Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357</em></p>
-</dd>
-</dl>
-<p>———————————-_————————————</p>
-</dd></dl>
+            <img src="_static/logo-neuropoly.png" class="logo" />
+          
+          </a>
 
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
 
-
-          </div>
+          
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<p class="logo">
-  <a href="index.html">
-    <img class="logo" src="_static/logo-neuropoly.png" alt="Logo"/>
-    
-  </a>
-</p>
 
-
-
-
-
-
-<p>
-<iframe src="https://ghbtns.com/github-btn.html?user=neuropoly&repo=qMRLab&type=watch&count=true&size=large&v=2"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
-
-
-
-
-
-<h3>Navigation</h3>
-<ul class="current">
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html">qMRlab Introduction</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="documentation.html#features">Features</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#features">Features</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="diffusion.html">Diffusion</a></li>
-<li class="toctree-l3"><a class="reference internal" href="fieldmaps.html">Field Maps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="myelin.html">Myelin Imaging</a></li>
-<li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a><ul class="current">
-<li class="toctree-l5 current"><a class="current reference internal" href="#">Documentation</a></li>
-<li class="toctree-l5"><a class="reference internal" href="IR_batch.html">IR Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html">Diffusion</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="diffusion.html#d-q-space">2D Q-Space</a></li>
+<li class="toctree-l4"><a class="reference internal" href="diffusion.html#id1">3D Q-Space</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="fieldmaps.html">Field Maps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b0-dem-dual-echo-method">B0_DEM (Dual-echo method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b1-dam-dual-angle-method">B1_DAM (Dual-angle method)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="myelin.html">Myelin Imaging</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="myelin.html#mtsat">MTSAT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="myelin.html#mwf">MWF</a></li>
+<li class="toctree-l4"><a class="reference internal" href="myelin.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="noise.html#noise-level">Noise Level</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a></li>
 <li class="toctree-l4"><a class="reference internal" href="vfa_t1.html">Variable Flip Angle</a></li>
 </ul>
 </li>
@@ -167,57 +119,233 @@ Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</em></p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#installing-qmrlab">Installing qMRlab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#command-line-instructions">Command-Line Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#zip-download-instructions">Zip Download Instructions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#tests">Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#run-all-tests">Run all tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#run-test-suite">Run Test Suite</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#usage-guidelines">Usage Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui_usage.html">Graphical User Interface Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#startup">1. Startup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#interface">2. Interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#menu-panel">2.1 Menu Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#main-panel">2.2 Main Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#options-panel">2.3 Options Panel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#data-fitting">3.      Data Fitting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#data-format">3.1     Data format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#fitting-procedure">3.2     Fitting Procedure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#viewing-the-fit-results">3.3     Viewing the fit results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#simulation">4.      Simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id1">4.1.    Single Voxel Curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id2">4.2.    Sensitivity Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id3">4.3. Multi Voxel Distribution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#id4">5. Options Panel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id5">5.1 Protocol</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id6">5.2.    Fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id7">5.3. Options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#tutorial">6.      Tutorial</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#define-a-new-bssfp-protocol">6.1     Define a new bSSFP protocol</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  <li><a href="documentation.html">qMRlab Introduction</a><ul>
-  <li><a href="t1_mapping.html">T1 Mapping</a><ul>
-  <li><a href="inversionrecovery.html">Inversion Recovery</a><ul>
-      <li>Previous: <a href="inversionrecovery.html" title="previous chapter">Inversion Recovery</a></li>
-      <li>Next: <a href="IR_batch.html" title="next chapter">IR Example</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+            
+          
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2017, NeuroPoly.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
-      
-      |
-      <a href="_sources/inversionrecovery_doc.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
+    </nav>
 
-    
-    <a href="https://github.com/neuropoly/qMRLab" class="github">
-        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
-    </a>
-    
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qMRlab</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
     
-  </body>
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Inversion Recovery Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/inversionrecovery_doc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="inversion-recovery-documentation">
+<h1>Inversion Recovery Documentation<a class="headerlink" href="#inversion-recovery-documentation" title="Permalink to this headline">¶</a></h1>
+<p>InversionRecovery: Compute a T1 map using Inversion Recovery data</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Assumptions:</dt>
+<dd>Gold standard for T1 mapping</dd>
+<dt>Inputs:</dt>
+<dd>IRData:      Inversion Recovery data (4D)
+(Mask):      Binary mask to accelerate the fitting (OPTIONAL)</dd>
+<dt>Outputs:</dt>
+<dd>T1          transverse relaxation time [ms]
+b           arbitrary fit parameter (S=a + b*exp(-TI/T1))
+a           arbitrary fit parameter (S=a + b*exp(-TI/T1))
+idx         index of last polarity restored datapoint (only used for magnitude data)
+res         Fitting residual</dd>
+<dt>Options:</dt>
+<dd><dl class="first last docutils">
+<dt>method: Method to use in order to fit the data, based on whether complex or only magnitude data acquired.</dt>
+<dd><dl class="first last docutils">
+<dt>‘complex’ <span class="classifier-delimiter">:</span> <span class="classifier">RD-NLS (Reduced-Dimension Non-Linear Least Squares)</span></dt>
+<dd>S=a + b*exp(-TI/T1)</dd>
+<dt>‘magnitude’ <span class="classifier-delimiter">:</span> <span class="classifier">RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)</span></dt>
+<dd>S=|a + b*exp(-TI/T1)|</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>Protocol:</dt>
+<dd>TI      Array containing a list of inversion times [ms]</dd>
+<dt>Example of command line usage (also see qMRLab/Data/IR_demo/IR_batch.m):</dt>
+<dd>Model = InversionRecovery; % Create Model object
+Model.Prot.IRData.Mat = txt2mat(‘TI.txt’); %Load Inversion Recovery Protocol (list of inversion times, in ms)
+data = struct;  % Create data structure
+data.IRData = load_nii_data(‘IRdata.nii.gz’); % Load data
+data.Mask=load_nii_data(‘Mask.nii.gz’);  % Load mask
+FitResults = FitData(data,Model,1);  % Fit each voxel within mask
+FitResultsSave_nii(FitResults,’IRdata.nii.gz’); % use header from ‘IRdata.nii.gz’ and save in local folder: FitResults/</dd>
+</dl>
+<p>Author: Ilana Leppert, 2017</p>
+<dl class="docutils">
+<dt>References:</dt>
+<dd><dl class="first last docutils">
+<dt>Please cite the following if you use this module:</dt>
+<dd>A robust methodology for in vivo T1 mapping. Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG. Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.</dd>
+<dt>In addition to citing the package:</dt>
+<dd>Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, NeuroPoly.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
