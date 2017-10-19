@@ -1,5 +1,8 @@
+%% DESCRIPTION
+help InversionRecovery
 % Batch to process Inversion Recovery data without qMRLab GUI (graphical user interface)
 % Run this script line by line
+
 %**************************************************************************
 %% I- LOAD DATASET
 %**************************************************************************
@@ -15,25 +18,27 @@ Model.Prot.IRData.Mat = txt2mat('TI.txt');
 %**************************************************************************
 
 % Generate MR Signal using analytical equation and perform sensitivity
-% analysis: Noise
+% analysis
+%
 % Call Sensitivity_Analysis addons and click update
-%Sim_Sensitivity_Analysis_GUI(Model);
-
+% Sim_Sensitivity_Analysis_GUI(Model);
+%
 % Alternatively use command line:
-help SimVary.m
-runs = 50; % Run simulation with additive noise 50 times
+Opt=struct;
+Opt.Nofrun = 50; % Run simulation with additive noise 50 times
+Opt. SNR   = 50;
+
 %             'T1'    'rb'    'ra'
 OptTable.fx = [false   true   true];  % Vary T1...
 OptTable.lb = [100     nan      nan]; % ...between 100..
 OptTable.ub = [2000    nan      nan]; % and 2000ms
 OptTable.st = [nan    -1000     500]; % Define nominal values for rb and ra
 
-SimVaryResults = SimVary(Model, runs,OptTable);
+% SimVaryGUI
+SimVaryResults = Sim_Sensitivity_Analysis(Model, OptTable, Opt);
 figure
 SimVaryPlot(SimVaryResults,'T1','T1')
-% %             'T1'    'rb'    'ra'
-% OptTable.fx = [0        1       1]; % Define Parameters that will not be varied
-% OptTable.st = [600   -1000    500]; % Define Nominal value
+
 %**************************************************************************
 %% III - MRI Data Fitting
 %**************************************************************************

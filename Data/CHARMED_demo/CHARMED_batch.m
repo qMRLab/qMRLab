@@ -1,5 +1,8 @@
+%% DESCRIPTION
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
+help CHARMED
+
 %**************************************************************************
 %% I- LOAD MODEL
 %**************************************************************************
@@ -54,7 +57,7 @@ delete('FitTempResults.mat');
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
+% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
 %save('CHARMEDParameters.mat','Model');
 
 %% Check the results
