@@ -27,6 +27,15 @@ InversionRecovery: Compute a T1 map using Inversion Recovery data
  Protocol:
    TI      Array containing a list of inversion times [ms]
 
+ Example of command line usage (also see qMRLab/Data/IR_demo/IR_batch.m):
+      Model = InversionRecovery; % Create Model object
+      Model.Prot.IRData.Mat = txt2mat('TI.txt'); %Load Inversion Recovery Protocol (list of inversion times, in ms)
+      data = struct;  % Create data structure
+      data.IRData = load_nii_data('IRdata.nii.gz'); % Load data
+      data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
+      FitResults = FitData(data,Model,1);  % Fit each voxel within mask
+      FitResultsSave_nii(FitResults,'IRdata.nii.gz'); % use header from 'IRdata.nii.gz' and save in local folder: FitResults/
+
  Author: Ilana Leppert, 2017
 
  References:
