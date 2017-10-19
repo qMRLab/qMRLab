@@ -61,7 +61,11 @@ for im = 1:length(MethodList)
     disp(class(Model))
     try Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1); end
     try st = Model.st; catch, try st = mean([Model.lb(:),Model.ub(:)],2); catch, st = ones(length(Model.xnames),1); end; end
-    [Opt(:).SNR] = deal(1000);
+    if exist('Opt','var') && length(Opt)>1
+        [Opt(:).SNR] = deal(1000);
+    else
+        Opt.SNR=1000;
+    end
     for iopt=1:length(Opt) % Test all simulation options
         disp(['Testing ' class(Model) ' simulation option:'])
         disp(Opt(iopt))
@@ -69,7 +73,7 @@ for im = 1:length(MethodList)
         % Compare inputs and outputs
         fnm=fieldnames(FitResults);
         FitResults = rmfield(FitResults,fnm(~ismember(fnm,Model.xnames))); fnm=fieldnames(FitResults);
-        [~,FitResults,GroundTruth]=comp_struct(FitResults,mat2struct(st,Model.xnames),[],[],.50);
+        [~,FitResults,GroundTruth]=comp_struct(FitResults,mat2struct(st,Model.xnames),[],[],.30);
         assertTrue(isempty(FitResults) & isempty(GroundTruth),evalc('FitResults, GroundTruth'))
     end
     disp ..ok

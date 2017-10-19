@@ -77,9 +77,12 @@ classdef SPGR
 %       * Bandwidth      : Bandwidth of the gaussian MT pulse (applicable 
 %                          to gaussian, gausshann and sincgauss MT pulses).
 %       * Fermi 
-%         transition (a) : 'a' parameter (related to the transition width) 
+%         transition (a) : slope 'a' (related to the transition width) 
 %                           of the Fermi pulse (applicable to fermi MT 
-%                           pulse).
+%                           pulse). 
+%                           Assuming pulse duration at 60 dB (from the Bernstein handbook)
+%                           and t0 = 10a,
+%                           slope = Tmt/33.81;         
 %       * # of MT pulses : Number of pulses used to achieve steady-state
 %                          before a readout is made.
 %   Fitting constraints
@@ -127,10 +130,10 @@ classdef SPGR
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.16    10     1        1       0.03     1.3e-05 ]; % starting point
-        lb           = [ 0        0     0.05     0.05    0.003    3e-6    ]; % lower bound
-        ub           = [ 0.5    500     5        5       0.5      5.0e-05 ]; % upper bound
-        fx           = [ 0        0     1        1       0        0       ]; % fix parameters
+        st           = [ 0.16     30     1        1       0.03     1.3e-05 ]; % starting point
+        lb           = [ 0         0     0.05     0.05    0.003    3e-6    ]; % lower bound
+        ub           = [ 0.5     100     5        5       0.5      5.0e-05 ]; % upper bound
+        fx           = [ 0         0     1        1       0        0       ]; % fix parameters
         
         % Protocol
         % You can define a default protocol here.
@@ -147,10 +150,10 @@ classdef SPGR
         % Model options
         buttons = {'PANEL','MT_Pulse', 5,...
             'Shape',{'gausshann','gaussian','hard','sinc','sinchann','sincgauss','fermi'},...
-            'Sinc TBW',nan,...
+            'Sinc TBW',4,...
             'Bandwidth',200,...
-            'Fermi transition (a)',nan,...
-            '# of MT pulses',100,...
+            'Fermi transition (a)',0.0102/33.81,...
+            '# of MT pulses',600,...
             'Model',{'SledPikeRP','SledPikeCW','Yarnykh','Ramani'},...
             'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'},...
             'PANEL','fitting constraints',4,...

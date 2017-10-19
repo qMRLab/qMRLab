@@ -173,8 +173,6 @@ classdef SIRFSE
                     Sim.Param.M0f = 1;
                     Sim.Param.R2f = 1/Opt.T2fUsedinBlockequation;
                     Sim.Param.G   = 1.4176e-5;
-                    Sim.Opt.SScheck = 1;
-                    Sim.Opt.SStol = 1e-4;
                     Protocol.FSE = Protocol;
                     Protocol.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
                     Protocol.InvPulse.shape = obj.options.Inversion_Pulse_Shape;

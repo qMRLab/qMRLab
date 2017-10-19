@@ -8,6 +8,7 @@
 Model = CHARMED;
 Model.options.S0normalization = 'Single T2 compartment';
 % Load Diffusion Protocol
+% TODO: Explain how Protocol.txt should be created
 Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');
 % Launch Fitting procedure
 % save Results in NIFTI
