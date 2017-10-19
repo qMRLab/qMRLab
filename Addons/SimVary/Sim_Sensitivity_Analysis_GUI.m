@@ -51,6 +51,7 @@ handles.Model = varargin{1};
 if ~isfield(handles,'opened')
     % clear axe
     axes(handles.SimVaryAxe)
+
     % fill table
     Nparam=length(handles.Model.xnames);
     FitOptTable(:,1)=handles.Model.xnames(:);

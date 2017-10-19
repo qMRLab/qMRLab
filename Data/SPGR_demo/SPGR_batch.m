@@ -3,10 +3,14 @@
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
+warning('off')
+[pathstr,fname,ext]=fileparts(which('SPGR_batch.m'));
+cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('SPGRParameters.mat');
+%load('SPGRParameters.mat');
+Model = SPGR
 
 %% Check data and fitting (Optional)
 

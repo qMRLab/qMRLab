@@ -63,19 +63,43 @@ For a quick <strong>introduction</strong> to qMTLab functionnalities, see the <a
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="diffusion.html">Diffusion</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="diffusion.html#d-q-space">2D Q-Space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="diffusion.html#id1">3D Q-Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diffusion.html#d-q-space">2D Q-Space</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html#charmed">CHARMED</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="diffusion.html#id1">3D Q-Space</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html#dti">DTI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html#noddi">NODDI</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="fieldmaps.html">Field Maps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="fieldmaps.html#b0-dem-dual-echo-method">B0_DEM (Dual-echo method)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fieldmaps.html#b1-dam-dual-angle-method">B1_DAM (Dual-angle method)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fieldmaps.html#b0-dem-dual-echo-method">B0_DEM (Dual-echo method)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="B0_DEM_batch.html">B0_DEM_batch_example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fieldmaps.html#b1-dam-dual-angle-method">B1_DAM (Dual-angle method)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="B1_DAM_batch.html">B1_DAM_batch_example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="myelin.html">Myelin Imaging</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myelin.html#mtsat">MTSAT</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myelin.html#mwf">MWF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="myelin.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myelin.html#mtsat">MTSAT</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="MTSAT_batch.html">MTSAT_batch_example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="myelin.html#mwf">MWF</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="MWF_batch.html">MWF_batch_example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="myelin.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="myelin.html#sirfse">SIRFSE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="myelin.html#spgr">SPGR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="myelin.html#bssfp">bSSFP</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="noise.html">Noise</a><ul>
@@ -83,8 +107,12 @@ For a quick <strong>introduction</strong> to qMTLab functionnalities, see the <a
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vfa_t1.html">Variable Flip Angle Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="inversionrecovery.html#example-usage">Example USAGE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="inversionrecovery.html#module-Models.T1_Mapping">Description</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vfa_t1.html">Variable Flip Angle</a></li>
 </ul>
 </li>
 </ul>
@@ -251,7 +279,7 @@ To do so, go to the ‘test’ folder:</p>
       &copy;2017, NeuroPoly.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

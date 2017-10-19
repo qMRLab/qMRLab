@@ -3,6 +3,8 @@
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
+[pathstr,fname,ext]=fileparts(which('B0_DEM_batch.m'));
+cd (pathstr);
 
 % Load your parameters to create your Model
 Model = B0_DEM;

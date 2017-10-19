@@ -3,10 +3,13 @@
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
+[pathstr,fname,ext]=fileparts(which('bSSFP_batch.m'));
+cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-load('bSSFPParameters.mat');
+%load('bSSFPParameters.mat');
+Model = bSSFP
 
 %% Check data and fitting (Optional)
 
