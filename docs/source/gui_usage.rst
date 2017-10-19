@@ -14,8 +14,10 @@ Then open the GUI by typing::
 ----------------------------------
 When you first launch qMRLab, you will be presented with a blank interface. The interface consists of three columns, or panels. On the left, you have the *Menu* panel, in the center you have the *Main panel*, and on the right, in a separate floating window, you have the *Options* panel.
 
-.. image:: _static/gui_default.png
+.. figure:: _static/gui_default.png
    :scale: 50 %
+
+   Default interface with 3 panels: Menu, Main and floating Options
 
 2.1 Menu Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,7 +25,7 @@ The *Menu panel* is where you can choose the task you want to perform. It is div
 
 2.1.1 Method
 ++++++++++++++++
-At the top, you will find a drop-down menu where you can choose the MR acquisition method that you want to be working with. An updated list of the available methods is here:
+At the top, you will find a drop-down menu where you can choose the MR acquisition method that you want to be working with. An updated list of the available methods is here: :ref:`Methods available`
 
 Note that the *Options* panel will update to the appropriate window according to your selection.
 If you plan to be working mainly with a particular method, select it from the drop-down menu first, and the click on the **Set Default** button next to it. Next time you open qMRLab, your preferred method will be selected by default.
@@ -32,7 +34,7 @@ Clicking on the **Open Options Panel** below the method drop-down menu will open
 
 2.1.2 qMR Data Fit
 +++++++++++++++++++++++
-Clicking on the light gray **Fit qMT Data** button will change the *Main* panel to the *Fit qMR Data* view. This is where you can load your data files for fitting and for viewing the resulting parameters maps. Refer to section 3 for more information.
+Clicking on the light gray **Fit qMT Data** button will change the *Main* panel to the *Fit qMR Data* view. This is where you can load your data files for fitting and for viewing the resulting parameters maps. Refer to this section :ref:`3.	Data Fitting` for more information.
 
 Click the big **Fit Data** button only when you have selected your data files, set up your protocol and fitting options and are ready to begin the fitting process, which, depending on the size of your data and the method, can take from a few minutes to a couple of hours. The **Save Results** button will prompt you to save a .mat file with the results of your data fit. **Load Results** will load previously saved results and display them.
 
@@ -89,11 +91,12 @@ Currently supported file types are .mat and .nii files. Your files should respec
 
 *	Each model will expect a different format of inputs, but in general, for single slice (2D) imaging, the main data is a 3D array with size [nx, ny, ndata], where nx/ny is the number of voxels in the x/y direction, and ndata is the number of data points for each voxel. For volume imaging (3D), data is a 4D array with size [nx, ny, nz, ndata], where nx/ny/ndata are a above, and nz is the number of voxels (or slices) in the z direction (e.g. in this example *MTdata* would have several datapoints per voxel).
 *	Other files (e.g. in this example *R1map / B1map / B0map / Mask*) are formatted as [nx, ny, nz].
-*	For a more detailed description of the format required for each input, type this in the maltab window::
 
-    help Modelname
+For a more detailed description of the format required for each input, type this in the maltab window::
 
-where *Modelname* is nay of the available models (e.g. in this example *help SPGR*). Alternatively, in the *Options* panel, you can press on the **Help** button
+      help Modelname
+
+where *Modelname* is name of the available models (e.g. in this example *help SPGR*). Alternatively, in the *Options* panel, you can press on the **Help** button
 
 3.2	Fitting Procedure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
