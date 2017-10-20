@@ -2,6 +2,9 @@
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
+%% DESCRIPTION
+help SIRFSE
+
 %% Load dataset
 [pathstr,fname,ext]=fileparts(which('SIRFSE_batch.m'));
 cd (pathstr);

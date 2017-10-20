@@ -155,9 +155,7 @@ classdef SIRFSE
         
         function mz = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
-            for ix = 1:length(x)
-                Sim.Param.(obj.xnames{ix}) = x(ix);
-            end
+            Sim.Param = mat2struct(x,obj.xnames);
             Protocol = GetProt(obj);
             if strcmp(Opt.Method,'Block equation assuming M=0 after Tr (full recovery) (slow)')
                 Sim.Opt.method = 'FastSim';
@@ -191,10 +189,9 @@ classdef SIRFSE
         end
         
         function plotmodel(obj, x, data)
-            if nargin<2, x = obj.st; data.MTdata = []; end
-            if isnumeric(x)
-                x=mat2struct(x,obj.xnames);
-            end
+            if nargin<2, x = obj.st; end
+            if nargin<3, data.MTdata = []; end
+            x=mat2struct(x,obj.xnames);
 
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
@@ -212,8 +209,10 @@ classdef SIRFSE
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
+            x = struct2mat(x,obj.xnames);
             Smodel = equation(obj, x+eps, Opt);
             data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
+            data.R1map = x(strcmp(obj.xnames,'R1f')); % set R1map to R1f
             FitResults = fit(obj,data);
             if display
                 plotmodel(obj, FitResults, data);

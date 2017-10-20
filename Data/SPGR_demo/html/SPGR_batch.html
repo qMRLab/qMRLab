@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>SPGR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-18"><meta name="DC.source" content="SPGR_batch.m"><style type="text/css">
+      --><title>SPGR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-19"><meta name="DC.source" content="SPGR_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,37 +66,21 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Load dataset</a></li><li><a href="#3">Check data and fitting (Optional)</a></li><li><a href="#4">Create Quantitative Maps</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process SPGR data without qMRLab GUI (graphical user interface)</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">DESCRIPTION</a></li><li><a href="#3">Load dataset</a></li><li><a href="#4">Check data and fitting (Optional)</a></li><li><a href="#5">Create Quantitative Maps</a></li><li><a href="#6">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process SPGR data without qMRLab GUI (graphical user interface)</span>
 <span class="comment">% Run this script line by line</span>
 <span class="comment">% Written by: Ian Gagnon, 2017</span>
-</pre><h2 id="2">Load dataset</h2><pre class="codeinput">warning(<span class="string">'off'</span>)
+</pre><h2 id="2">DESCRIPTION</h2><pre class="codeinput">help <span class="string">SPGR</span>
+</pre><pre class="codeoutput">	SPGR is a variable of type single.
+
+</pre><h2 id="3">Load dataset</h2><pre class="codeinput"><span class="comment">%warning('off')</span>
 [pathstr,fname,ext]=fileparts(which(<span class="string">'SPGR_batch.m'</span>));
 cd (pathstr);
 
 <span class="comment">% Load your parameters to create your Model</span>
 <span class="comment">% load('MODELPamameters.mat');</span>
 <span class="comment">%load('SPGRParameters.mat');</span>
-Model = SPGR
-</pre><pre class="codeoutput">
-Model = 
-
-  SPGR with properties:
-
-                           MRIinputs: {1&times;5 cell}
-                              xnames: {'F'  'kr'  'R1f'  'R1r'  'T2f'  'T2r'}
-                           voxelwise: 1
-                                  st: [0.1600 30 1 1 0.0300 1.3000e-05]
-                                  lb: [0 0 0.0500 0.0500 0.0030 3.0000e-06]
-                                  ub: [0.5000 100 5 5 0.5000 5.0000e-05]
-                                  fx: [0 0 1 1 0 0]
-                                Prot: [1&times;1 struct]
-                         ProtSfTable: [1&times;1 struct]
-                             buttons: {1&times;32 cell}
-                             options: [1&times;1 struct]
-      Sim_Single_Voxel_Curve_buttons: {1&times;6 cell}
-    Sim_Sensitivity_Analysis_buttons: {'# of run'  [5]}
-
-</pre><h2 id="3">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+Model = SPGR;
+</pre><h2 id="4">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- GENERATE FILE STRUCT</span>
 <span class="comment">%**************************************************************************</span>
 <span class="comment">% Create a struct "file" that contains the NAME of all data's FILES</span>
@@ -111,7 +95,23 @@ file.Mask = <span class="string">'Mask.mat'</span>;
 <span class="comment">% II- CHECK DATA AND FITTING</span>
 <span class="comment">%**************************************************************************</span>
 qMRLab(Model,file);
-</pre><img vspace="5" hspace="5" src="SPGR_batch_01.png" alt=""> <img vspace="5" hspace="5" src="SPGR_batch_02.png" alt=""> <img vspace="5" hspace="5" src="SPGR_batch_03.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><pre class="codeoutput error">Expected one output from a curly brace or dot indexing expression, but there were 0 results.
+
+Error in MethodBrowser/setFileName (line 181)
+            list_file = get([obj.ItemsList.NameText]','String');
+
+Error in qMRLab&gt;qMRLab_OpeningFcn (line 103)
+            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+
+Error in gui_mainfcn (line 220)
+    feval(gui_State.gui_OpeningFcn, gui_hFigure, [], guidata(gui_hFigure), varargin{:});
+
+Error in qMRLab (line 36)
+    gui_mainfcn(gui_State, varargin{:});
+
+Error in SPGR_batch (line 34)
+qMRLab(Model,file);
+</pre><h2 id="5">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- LOAD PROTOCOL</span>
 <span class="comment">%**************************************************************************</span>
 
@@ -179,25 +179,24 @@ Model.plotmodel(FitResultsVox,dataVox)
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 FitResultsSave_nii(FitResults);
 save(<span class="string">'SPGRParameters.mat'</span>,<span class="string">'Model'</span>);
-</pre><pre class="codeoutput">MATLAB has experienced a low-level graphics error, and may not have drawn correctly.
-Read about what you can do to prevent this issue at &lt;a href="matlab:opengl('problems')"&gt;Resolving Low-Level Graphics Issues&lt;/a&gt; then restart MATLAB.
-To share details of this issue with MathWorks technical support,
-please include &lt;a href="file:C:\Users\gab_b\AppData\Local\Temp\jogl.ex.15676"&gt;this file&lt;/a&gt; with your service request.
-</pre><img vspace="5" hspace="5" src="SPGR_batch_04.png" alt=""> <h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+</pre><h2 id="6">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % Batch to process SPGR data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
+%% DESCRIPTION
+help SPGR
+
 %% Load dataset
-warning('off')
+%warning('off')
 [pathstr,fname,ext]=fileparts(which('SPGR_batch.m'));
 cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 %load('SPGRParameters.mat');
-Model = SPGR
+Model = SPGR;
 
 %% Check data and fitting (Optional)
 

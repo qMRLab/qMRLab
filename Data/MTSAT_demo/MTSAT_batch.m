@@ -1,3 +1,6 @@
+%% DESCRIPTION
+help MTSAT
+
 % Batch to process MT_SAT
 % Run this script line by line
 

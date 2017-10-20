@@ -12,7 +12,7 @@ IR_batch_example
       <!--
    This HTML was auto-generated from MATLAB code.
    To make changes, update the MATLAB code and republish this document.
-         --><title>IR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="IR_batch.m"><style type="text/css">
+         --><title>IR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-19"><meta name="DC.source" content="IR_batch.m"><style type="text/css">
    html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
    
    html { min-height:100%; margin-bottom:1px; }
@@ -72,9 +72,51 @@ IR_batch_example
    
    
    
-     </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">I- LOAD DATASET</a></li><li><a href="#3">II - Perform Simulations</a></li><li><a href="#4">III - MRI Data Fitting</a></li><li><a href="#5">IV- SAVE</a></li><li><a href="#6">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process Inversion Recovery data without qMRLab GUI (graphical user interface)</span>
+     </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">DESCRIPTION</a></li><li><a href="#2">I- LOAD DATASET</a></li><li><a href="#3">II - Perform Simulations</a></li><li><a href="#4">III - MRI Data Fitting</a></li><li><a href="#5">IV- SAVE</a></li><li><a href="#6">Check the results</a></li></ul></div><h2 id="1">DESCRIPTION</h2><pre class="codeinput">help <span class="string">InversionRecovery</span>
+   <span class="comment">% Batch to process Inversion Recovery data without qMRLab GUI (graphical user interface)</span>
    <span class="comment">% Run this script line by line</span>
+   
    <span class="comment">%**************************************************************************</span>
+   </pre><pre class="codeoutput"> InversionRecovery: Compute a T1 map using Inversion Recovery data
+    
+     Assumptions:
+     	Gold standard for T1 mapping
+    
+     Inputs:
+       IRData      Inversion Recovery data (4D)
+       (Mask)      Binary mask to accelerate the fitting (OPTIONAL)
+    
+     Outputs:
+       T1          transverse relaxation time [ms]
+       b           arbitrary fit parameter (S=a + b*exp(-TI/T1))
+       a           arbitrary fit parameter (S=a + b*exp(-TI/T1))
+       idx         index of last polarity restored datapoint (only used for magnitude data)
+       res         Fitting residual
+    
+     Options:
+       method: Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
+               'complex'   : RD-NLS (Reduced-Dimension Non-Linear Least Squares)
+                                  S=a + b*exp(-TI/T1)
+               'magnitude' : RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
+                                  S=|a + b*exp(-TI/T1)|
+    
+     Protocol:
+       TI      Array containing a list of inversion times [ms]
+    
+     Author: Ilana Leppert, 2017
+    
+     References:
+       Please cite the following if you use this module:
+           A robust methodology for in vivo T1 mapping. Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG. Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.
+       In addition to citing the package:
+           Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+    
+    ----------------------------------------------------------------------
+   
+       Reference page in Doc Center
+          doc InversionRecovery
+   
+   
    </pre><h2 id="2">I- LOAD DATASET</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    [pathstr,fname,ext]=fileparts(which(<span class="string">'IR_batch.m'</span>));
    cd (pathstr);
@@ -95,42 +137,28 @@ IR_batch_example
    </pre><h2 id="3">II - Perform Simulations</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    
    <span class="comment">% Generate MR Signal using analytical equation and perform sensitivity</span>
-   <span class="comment">% analysis: Noise</span>
+   <span class="comment">% analysis</span>
+   <span class="comment">%</span>
    <span class="comment">% Call Sensitivity_Analysis addons and click update</span>
-   <span class="comment">%Sim_Sensitivity_Analysis_GUI(Model);</span>
-   
+   <span class="comment">% Sim_Sensitivity_Analysis_GUI(Model);</span>
+   <span class="comment">%</span>
    <span class="comment">% Alternatively use command line:</span>
-   help <span class="string">SimVary.m</span>
-   runs = 50; <span class="comment">% Run simulation with additive noise 50 times</span>
+   Opt=struct;
+   Opt.Nofrun = 50; <span class="comment">% Run simulation with additive noise 50 times</span>
+   Opt. SNR   = 50;
+   
    <span class="comment">%             'T1'    'rb'    'ra'</span>
    OptTable.fx = [false   true   true];  <span class="comment">% Vary T1...</span>
    OptTable.lb = [100     nan      nan]; <span class="comment">% ...between 100..</span>
    OptTable.ub = [2000    nan      nan]; <span class="comment">% and 2000ms</span>
    OptTable.st = [nan    -1000     500]; <span class="comment">% Define nominal values for rb and ra</span>
    
-   SimVaryResults = SimVary(Model, runs,OptTable);
+   <span class="comment">% SimVaryGUI</span>
+   SimVaryResults = Sim_Sensitivity_Analysis(Model, OptTable, Opt);
    figure
    SimVaryPlot(SimVaryResults,<span class="string">'T1'</span>,<span class="string">'T1'</span>)
-   <span class="comment">% %             'T1'    'rb'    'ra'</span>
-   <span class="comment">% OptTable.fx = [0        1       1]; % Define Parameters that will not be varied</span>
-   <span class="comment">% OptTable.st = [600   -1000    500]; % Define Nominal value</span>
-   <span class="comment">%**************************************************************************</span>
-   </pre><pre class="codeoutput">  Performs Sensitivity analysis on Model object
-     Each Parameter (obj.xnames) is varied in 10 steps between OptTable.lb and OptTable.ub.
-     Noise is added N=runs times and simulated MR signals is fitted using obj.Sim_Single_Voxel_Curve
-    
-     USAGE: SimVaryResults = SimVary(obj, runs, OptTable, Opts)
-    
-            obj: qMR Model
-            runs: Number of runs
-            OptTable: structure with vectors defining options for each fitting parameters obj.xnames
-                   OptTable.fx: true/false. Vary this parameter?
-                   OptTable.st: Nominal Values
-                   OptTable.lb: Vary from lb...
-                   OptTable.ub: ..to ub value
-            Opts.SNR
-    
    
+   <span class="comment">%**************************************************************************</span>
    </pre><img vspace="5" hspace="5" src="_static/IR_batch_01.png" alt=""> <h2 id="4">III - MRI Data Fitting</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% data required:</span>
    disp(Model.MRIinputs)
@@ -160,10 +188,14 @@ IR_batch_example
    <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
    FitResultsSave_nii(FitResults,<span class="string">'IRdata.nii.gz'</span>); <span class="comment">% use header from 'IRdata.nii.gz'</span>
    save(<span class="string">'IRParameters.mat'</span>,<span class="string">'Model'</span>);
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="6">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
    ##### SOURCE BEGIN #####
+   %% DESCRIPTION
+   help InversionRecovery
    % Batch to process Inversion Recovery data without qMRLab GUI (graphical user interface)
    % Run this script line by line
+   
    %**************************************************************************
    %% I- LOAD DATASET
    %**************************************************************************
@@ -179,25 +211,27 @@ IR_batch_example
    %**************************************************************************
    
    % Generate MR Signal using analytical equation and perform sensitivity
-   % analysis: Noise
+   % analysis
+   %
    % Call Sensitivity_Analysis addons and click update
-   %Sim_Sensitivity_Analysis_GUI(Model);
-   
+   % Sim_Sensitivity_Analysis_GUI(Model);
+   %
    % Alternatively use command line:
-   help SimVary.m
-   runs = 50; % Run simulation with additive noise 50 times
+   Opt=struct;
+   Opt.Nofrun = 50; % Run simulation with additive noise 50 times
+   Opt. SNR   = 50;
+   
    %             'T1'    'rb'    'ra'
    OptTable.fx = [false   true   true];  % Vary T1...
    OptTable.lb = [100     nan      nan]; % ...between 100..
    OptTable.ub = [2000    nan      nan]; % and 2000ms
    OptTable.st = [nan    -1000     500]; % Define nominal values for rb and ra
    
-   SimVaryResults = SimVary(Model, runs,OptTable);
+   % SimVaryGUI
+   SimVaryResults = Sim_Sensitivity_Analysis(Model, OptTable, Opt);
    figure
    SimVaryPlot(SimVaryResults,'T1','T1')
-   % %             'T1'    'rb'    'ra'
-   % OptTable.fx = [0        1       1]; % Define Parameters that will not be varied
-   % OptTable.st = [600   -1000    500]; % Define Nominal value
+   
    %**************************************************************************
    %% III - MRI Data Fitting
    %**************************************************************************

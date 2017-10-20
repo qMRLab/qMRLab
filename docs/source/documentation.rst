@@ -7,7 +7,6 @@ The modularity of the implementation makes it easy to add any additional modules
 qMRLab is a fork from the initial project `qMTLab <https://github.com/neuropoly/qMTLab>`_.
 For a quick **introduction** to qMTLab functionnalities, see the `qMTLab presentation e-poster <https://github.com/neuropoly/qMRLab/blob/master/docs/qMTLab-Presentation.ppsx>`_ or alternatively you can view it on `YouTube <https://youtu.be/WG0tVe-SFww>`_.
 
-
 Features
 ===============================================================================
 Data simulator
@@ -96,6 +95,14 @@ and run the following command::
 substituting `'Tag'` for one of the following test tags.
 
 Current Test tags: 'Unit', 'Integration', 'Demo', 'SPGR', 'bSSFP', 'SIRFSE'.
+
+Usage Guidelines
+================================================================================
+.. toctree::
+   :maxdepth: 2
+
+   gui_usage
+
 
 Citation
 ===============================================================================
