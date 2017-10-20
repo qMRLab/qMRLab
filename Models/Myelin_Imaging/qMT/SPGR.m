@@ -77,11 +77,28 @@ classdef SPGR
 %       * Bandwidth      : Bandwidth of the gaussian MT pulse (applicable 
 %                          to gaussian, gausshann and sincgauss MT pulses).
 %       * Fermi 
-%         transition (a) : 'a' parameter (related to the transition width) 
+%         transition (a) : slope 'a' (related to the transition width) 
 %                           of the Fermi pulse (applicable to fermi MT 
-%                           pulse).
+%                           pulse). 
+%                           Assuming pulse duration at 60 dB (from the Bernstein handbook)
+%                           and t0 = 10a,
+%                           slope = Tmt/33.81;         
 %       * # of MT pulses : Number of pulses used to achieve steady-state
 %                          before a readout is made.
+%   Fitting constraints
+%       * Use R1map to  : By checking this box, you tell the fitting 
+%         constrain R1f   algorithm to check for an observed R1map and use
+%                         its value to constrain R1f. Checking this box 
+%                         will automatically set the R1f fix box to true             
+%                         in the Fit parameters table.  
+%       * Fix R1r = R1f : By checking this box, you tell the fitting
+%                         algorithm to fix R1r equal to R1f. Checking this 
+%                         box will automatically set the R1r fix box to 
+%                         true in the Fit parameters table.
+%       * Fix R1f*T2f   : By checking this box, you tell the fitting
+%                         algorithm to compute T2f from R1f value. R1f*T2f
+%                         value is set in the next box.
+%       * R1f*T2f =     : Value of R1f*T2f (no units)
 %
 %   Global
 %       * Model         : Model you want to use for fitting. 
@@ -97,15 +114,6 @@ classdef SPGR
 %                         - Gaussian
 %                         - Lorentzian
 %                         - SuperLorentzian
-%       * Use R1map to  : By checking this box, you tell the fitting 
-%         constrain R1f   algorithm to check for an observed R1map and use
-%                         its value to constrain R1f. Checking this box 
-%                         will automatically set the R1f fix box to true             
-%                         in the Fit parameters table.  
-%       * Fix R1r = R1f : By checking this box, you tell the fitting
-%                         algorithm to fix R1r equal to R1f. Checking this 
-%                         box will automatically set the R1r fix box to 
-%                         true in the Fit parameters table.
 %       * Read pulse    : Flip angle of the excitation pulse.
 %         alpha          
 %       * Compute       : By checking this box, you compute a new SfTable
@@ -122,10 +130,10 @@ classdef SPGR
         voxelwise = 1; % voxel by voxel fitting?
         
         % fitting options
-        st           = [ 0.16    10     1        1       0.03     1.3e-05 ]; % starting point
-        lb           = [ 0        0     0.05     0.05    0.003    3e-6    ]; % lower bound
-        ub           = [ 0.5    500     5        5       0.5      5.0e-05 ]; % upper bound
-        fx           = [ 0        0     1        1       0        0       ]; % fix parameters
+        st           = [ 0.16     30     1        1       0.03     1.3e-05 ]; % starting point
+        lb           = [ 0         0     0.05     0.05    0.003    3e-6    ]; % lower bound
+        ub           = [ 0.5     100     5        5       0.5      5.0e-05 ]; % upper bound
+        fx           = [ 0         0     1        1       0        0       ]; % fix parameters
         
         % Protocol
         % You can define a default protocol here.
@@ -142,14 +150,17 @@ classdef SPGR
         % Model options
         buttons = {'PANEL','MT_Pulse', 5,...
             'Shape',{'gausshann','gaussian','hard','sinc','sinchann','sincgauss','fermi'},...
-            'Sinc TBW',nan,...
+            'Sinc TBW',4,...
             'Bandwidth',200,...
-            'Fermi transition (a)',nan,...
-            '# of MT pulses',100,...
+            'Fermi transition (a)',0.0102/33.81,...
+            '# of MT pulses',600,...
             'Model',{'SledPikeRP','SledPikeCW','Yarnykh','Ramani'},...
             'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'},...
+            'PANEL','fitting constraints',4,...
             'Use R1map to constrain R1f',true,...
             'Fix R1r = R1f',false,...
+            'Fix R1f*T2f',false,...
+            'R1f*T2f =',0.055,...
             'Read pulse alpha',7,...
             'Compute SfTable','pushbutton'};
         options = struct(); % structure filled by the buttons. Leave empty in the code
@@ -175,7 +186,7 @@ classdef SPGR
                                           obj.Prot.TimingTable.Mat(3)+...
                                           obj.Prot.TimingTable.Mat(4); 
             % Fix R1f if the option is chosen
-            if obj.options.UseR1maptoconstrainR1f
+            if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
         end
@@ -243,7 +254,8 @@ classdef SPGR
                     Sim.Opt.SScheck     = 1;
                     Sim.Opt.SStol       = 1e-4;
                     Protocol.Npulse = Protocol.MTpulse.Npulse;
-                    mz = SPGR_sim(Sim, Protocol, 1);
+                    if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
+                    mz = SPGR_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
                     SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
                     mz = SimCurveResults.curve;
@@ -331,15 +343,17 @@ classdef SPGR
                 if isfield(data,'B1map'), FitOpt.B1 = data.B1map; end
                 if isfield(data,'B0map'), FitOpt.B0 = data.B0map; end
             end
-            FitOpt.R1map = obj.options.UseR1maptoconstrainR1f;
+            FitOpt.R1map = obj.options.fittingconstraints_UseR1maptoconstrainR1f;
             FitOpt.fx = obj.fx;
             FitOpt.st = obj.st;
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
             FitOpt.names     = obj.xnames;
             FitOpt.lineshape = obj.options.Lineshape;
-            FitOpt.R1reqR1f  = obj.options.FixR1rR1f;
+            FitOpt.R1reqR1f  = obj.options.fittingconstraints_FixR1rR1f;
             FitOpt.model     = obj.options.Model;
+            FitOpt.FixR1fT2f = obj.options.fittingconstraints_FixR1fT2f;
+            FitOpt.FixR1fT2fValue = obj.options.fittingconstraints_R1fT2f;
         end
         
     end

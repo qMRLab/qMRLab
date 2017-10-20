@@ -6,6 +6,7 @@ str = strrep(str,'-','');
 str = strrep(str,'(','');
 str = strrep(str,')','');
 str = strrep(str,'/','');
+str = strrep(str,'*','');
 
 
 

@@ -53,6 +53,12 @@ switch FitOpt.model
         FitOpt.WB = computeWB(w1cw, Offsets, Fit.T2r, FitOpt.lineshape);
         xData = [Offsets, w1cw];
         func = @SPGR_R_fun;    
+        % if R1f*T2f is fixed, precompute WF
+        if (FitOpt.FixR1fT2f)
+            FitOpt.WF = (w1cw ./ 2/pi./Offsets).^2 / FitOpt.FixR1fT2fValue;
+        else
+            FitOpt.WF = [];
+        end
 end
 
 Mcurve = func(xFit, xData, Prot, FitOpt);
