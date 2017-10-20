@@ -41,7 +41,7 @@ classdef MWF
     %
     %-----------------------------------------------------------------------------------------------------
     % Written by: Ian Gagnon, 2017
-    % Reference: FILL
+    % Reference: MacKay, A., Whittall, K., Adler, J., Li, D., Paty, D., Graeb, D., 1994. In vivo visualization of myelin water in brain by magnetic resonance. Magn. Reson. Med. 31, 673?677.
     %-----------------------------------------------------------------------------------------------------
     
     properties

@@ -31,6 +31,7 @@ if nargin && ischar(varargin{1})
 end
 
 if nargout
+    varargin{end+1}='wait';
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
@@ -40,6 +41,7 @@ end
 
 % --- Executes just before qMRLab is made visible.
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
+if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 if ~isfield(handles,'opened') % qMRI already opened?
     handles.opened = 1;
     clc;
@@ -54,7 +56,6 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.FitDataSlice = [];
     handles.dcm_obj = [];
     MethodList = {}; SetAppData(MethodList);
-    handles.output = hObject;
     guidata(hObject, handles);
         
     
@@ -89,7 +90,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
     SetAppData(FileBrowserList);
     
     load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    
+else
+    Method = class(GetAppData('Model'));
 end
 % LOAD INPUT
 if ~isempty(varargin)
@@ -115,26 +117,44 @@ set(handles.MethodSelection, 'Value', i);
 
 
 MethodMenu(hObject, eventdata, handles, Method);
-
+if wait
+uiwait(hObject)
+end
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
-varargout{1} = handles.output;
-wh=findall(0,'tag','TMWWaitbar');
-delete(wh);
+if nargout
+    varargout{1} = GetAppData('Model');
+    AppData = getappdata(0);
+    Fields = fieldnames(AppData);
+    for k=1:length(Fields)
+        rmappdata(0, Fields{k});
+    end
+end
+
 
 % Executes when user attempts to close qMRLab.
 function qMRLab_CloseRequestFcn(hObject, eventdata, handles)
+if isequal(get(hObject, 'waitstatus'), 'waiting')
+    % The GUI is still in UIWAIT, us UIRESUME
+    uiresume(hObject);
+else
+    AppData = getappdata(0);
+    Fields = fieldnames(AppData);
+    for k=1:length(Fields)
+        rmappdata(0, Fields{k});
+    end
+end
+% The GUI is no longer waiting, just close it
+delete(hObject);
 h = findobj('Tag','OptionsGUI');
 delete(findobj('Tag','Simu'))
 delete(h);
-delete(hObject);
+wh=findall(0,'tag','TMWWaitbar');
+delete(wh);
+
+
 % cd(handles.root);
-AppData = getappdata(0);
-Fields = fieldnames(AppData);
-for k=1:length(Fields)
-    rmappdata(0, Fields{k});
-end
 
 function MethodSelection_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
@@ -560,15 +580,15 @@ text(0.77,0.94,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Col
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
 % Get data
-data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model'))); MRIinput = fieldnames(data); MRIinput(strcmp(MRIinput,'hdr'))=[];
-[Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
+data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
+Model = GetAppData('Model');
 
 % Get selected voxel
-S = size(data.(MRIinput{1}));
+S = size(data.(Model.MRIinputs{1}));
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
-    helpdlg(['Specify a ' MRIinput{1} ' file in the filebrowser'])
+    helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
 else
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
@@ -576,9 +596,9 @@ else
     z = str2double(get(handles.SliceValue,'String'));
     index = sub2ind(S,x,y,z);
     
-    for ii=1:length(MRIinput)
-        if ~isempty(data.(MRIinput{ii}))
-            data.(MRIinput{ii}) = squeeze(data.(MRIinput{ii})(x,y,z,:));
+    for ii=1:length(Model.MRIinputs)
+        if ~isempty(data.(Model.MRIinputs{ii}))
+            data.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(x,y,z,:));
         end
     end
     if isfield(data,'Mask'), data.Mask = []; end
