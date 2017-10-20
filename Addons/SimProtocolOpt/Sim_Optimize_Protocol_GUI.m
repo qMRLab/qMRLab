@@ -71,12 +71,22 @@ varargout{1} = handles.output;
 % --- Executes on button press in Save.
 function Save_Callback(hObject, eventdata, handles)
 if isfield(handles,'ProtOpt')
-    Method = class(handles.Model);
-    [FileName,PathName] = uiputfile([Method '_ProtocolOptim.mat']);
-    if PathName == 0, return; end
     Model = handles.Model;
-    Model.Prot.(Model.MRIinputs{1}).Mat = handles.ProtOpt;
-    save(fullfile(PathName,FileName),'Model')
+    Method = class(Model);
+    [FileName,PathName] = uiputfile([Method '_ProtocolOptim.txt']);
+    if PathName == 0, return; end
+    fid = fopen(fullfile(PathName,FileName),'w');
+    Model.Prot.(Model.MRIinputs{1}).Format{1}=['# ' Model.Prot.(Model.MRIinputs{1}).Format{1}];
+    fprintf(fid, '%-15s ',Model.Prot.(Model.MRIinputs{1}).Format{:});
+    for i_line=1:size(handles.ProtOpt,1)
+        fprintf(fid, '\n');
+        fprintf(fid, '%-15.2g ',handles.ProtOpt(i_line,:));
+    end
+    fclose(fid);
+    
+   % save(fullfile(PathName,FileName),'Model')
+else
+    helpdlg('launch the simulation first: click on update button')
 end
 
 % --- Executes on button press in SimOptProtUpdate.
