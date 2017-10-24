@@ -6,10 +6,3 @@ ____________________________________
 	:maxdepth: 2
 
 	IR_batch
-
-Description
-____________________________________
-
-.. automodule:: Models.T1_Mapping
-
-.. autoclass:: InversionRecovery

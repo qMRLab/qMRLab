@@ -48,11 +48,11 @@ The *Single Voxel Curve* panel is a simple interface to simulate MR data from a 
 
 Sensitivity Analysis
 _______________________
-The *Sensitivity Analysis* simulation allows you to systematically vary one MR parameter, over a defined range and number of points, while keeping the others fixed. For each simulated data point, noise is added with a given SNR, and the fit is run multiple times while adding Gaussian noise. This allows you to evaluate the variance of the fit at each point. When the simulation is done, a plot shows any variable input parameters as the independent variable, as well as the mean values and variance of any fitted parameters. Refer to section 4.2 for more information.
+The *Sensitivity Analysis* simulation allows you to systematically vary one MR parameter, over a defined range and number of points, while keeping the others fixed. For each simulated data point, noise is added with a given SNR, and the fit is run multiple times while adding Gaussian noise. This allows you to evaluate the variance of the fit at each point. When the simulation is done, a plot shows any variable input parameters as the independent variable, as well as the mean values and variance of any fitted parameters. Refer to section :ref:`4.2.	Sensitivity Analysis` for more information.
 
 Multi Voxel Distribution
 ___________________________
-The *Multi Voxel Distribution* is a tool to simulate any number of voxels, where any parameters combination are allowed to be varied simultaneously. You can choose how many voxels to simulate and which parameters are to be normally distributed, with its mean value and variance. The results can be displayed in a number of ways such as distribution histograms, scatter plots of input vs fitted parameters, error histograms, etc. Refer to 4.3 for more information.
+The *Multi Voxel Distribution* is a tool to simulate any number of voxels, where any parameters combination are allowed to be varied simultaneously. You can choose how many voxels to simulate and which parameters are to be normally distributed, with its mean value and variance. The results can be displayed in a number of ways such as distribution histograms, scatter plots of input vs fitted parameters, error histograms, etc. Refer to section :ref:`4.3. Multi Voxel Distribution` for more information.
 
 2.2 Main Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,20 +60,20 @@ The *Main* panel is where the simulation or fit results are displayed. The view 
 
 2.3 Options Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
-This is where you can set up all the parameters that are related to the simulation, the fitting and the protocol. The *Options* panel is displayed in a separate window than the *Menu* panel or *Main* panel. This is because each qMR acquisition method has its own particular options, and this window needs to be changed correspondingly. It can also be closed at any time, if it is not currently needed, to provide for a simpler interface. The *Options* panel consists of three sub-panels: ‘Protocol’, ‘Fitting’, and ‘Options’. At the bottom of all these sub-panels you will find buttons to **Reset** the changes you made, **Save** the current settings as a .mat file, **Load** a .mat file of settings, or go back to the **Default** settings. See section 5 for more information
+This is where you can set up all the parameters that are related to the simulation, the fitting and the protocol. The *Options* panel is displayed in a separate window than the *Menu* panel or *Main* panel. This is because each qMR acquisition method has its own particular options, and this window needs to be changed correspondingly. It can also be closed at any time, if it is not currently needed, to provide for a simpler interface. The *Options* panel consists of three sub-panels: ‘Protocol’, ‘Fitting’, and ‘Options’. At the bottom of all these sub-panels you will find buttons to **Reset** the changes you made, **Save** the current settings as a .mat file, **Load** a .mat file of settings, or go back to the **Default** settings. Refer to section :ref:`5. Options Panel` for more information.
 
 2.3.1	Protocol
 +++++++++++++++++++
-Here you define the acquisition protocol that you wish to use for simulation, or in the case of data fitting, the protocol you used to acquire the data. See section 5.1 for more information.
+Here you define the acquisition protocol that you wish to use for simulation, or in the case of data fitting, the protocol you used to acquire the data. See :ref:`5.1 Protocol` for more information.
 
 2.3.2	Fitting
 +++++++++++++++++++
-This is where you set up your fitting options. The fit parameters table lists all the variables that are available for fitting in the current method, a tick box to select which variables are to be held fixed, a starting value and lower/upper bounds. Depending on the method, additional options may be available. See section 5.2 for more information.
+This is where you set up your fitting options. The fit parameters table lists all the variables that are available for fitting in the current method, a tick box to select which variables are to be held fixed, a starting value and lower/upper bounds. Depending on the method, additional options may be available. See :ref:`5.2.	Fitting` for more information.
 
 
 2.3.3 Options
 +++++++++++++++++++
-This is where you set up all the options related to the simulations. Depending on the qMR method, different sets of options are available (e.g. the fitting procedure, assumptions of the model, etc). More info in section 5.3.
+This is where you set up all the options related to the simulations. Depending on the qMR method, different sets of options are available (e.g. the fitting procedure, assumptions of the model, etc). More info in :ref:`5.3. Options`.
 
 
 3.	Data Fitting
@@ -117,8 +117,8 @@ This is useful when you want to preview the fit of a single voxel (note this opt
 
    Example of viewing option, in this case R1map used for qMT SPGR
 
-5.	Define or load the appropriate protocol in the *Options* panel (see section 5.1 for details).
-6.	Define your fitting options in the Options panel (see section 5.2 for details).
+5.	Define or load the appropriate protocol in the *Options* panel (see :ref:`5.1 Protocol` for details).
+6.	Define your fitting options in the Options panel (see :ref:`5.2.	Fitting` for details).
 7.  You can preview the fitted curve for a selected voxel by using the **View Data Fit** button. Make sure a dataset is loaded by clikcing **View** beside the data file field
 8.  Click **Select** button in the 'Cursor' section to activate voxel selection mode, select a voxel to preview and click **View Data Fit**. You can now see the fitted curve and the parameters computed for that voxel.
 
@@ -133,7 +133,7 @@ Follow steps 1-6 above, then
 
 7.	In the *Menu* panel, click on **Fit data** to start the fitting process.
 8.	Once the fitting is done, a temporary file will be saved in the ‘FitResults’ subfolder of the current working directory. You can save the current fit results elsewhere by clicking **Save Results** in the ‘qMR data fit’ section of the *Menu* panel.
-9.	Use the controls in the ‘Fit Results’ section to visualize the results (see section 3.3 for details).
+9.	Use the controls in the ‘Fit Results’ section to visualize the results (ssee :ref:`3.3	Viewing the fit results` for details).
 
 3.3	Viewing the fit results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -238,24 +238,9 @@ Each qMR acquisition method has its own particular options for simulation, proto
 
 5.1 Protocol
 ~~~~~~~~~~~~~~~~
-The ‘Protocol’ panel is where you define all options relating to the acquisition sequence. These options are specific for each method. For all methods, you will find (at the top of the protocol panel) input text fields corresponding to the independent variables. You can also load a previously saved text (.txt) file with the required options and format by using the **Load** button. Press the **Help** button in this panel to see the the format expected by each of the models or by checking examples in::
+The ‘Protocol’ panel is where you define all options relating to the acquisition sequence. These options are specific for each method. For all methods, you will find (at the top of the protocol panel) input text fields corresponding to the independent variables. You can also load a previously saved text (.txt) file with the required options and format by using the **Load** button. Press the **Help** button in this panel to see the format expected by each of the models or by checking example protocol files in::
 
     qMRILab/Data/{ModelName}_Demo/*.txt
-
-Example: SPGR qMT
-The independent variables for this method are the MT pulse power (angles) and offset frequencies. From top to bottom, the protocol panel elements are:
-
-*	*Angles*: Input text field used to define the MT pulses angles.
-*	*Offsets*: Input text field used to define the offset frequencies.
-*	*Set sequence*: Click this button to fill the sequence table by evaluating the expressions entered in the fields above. The protocol that is used for simulation or data fitting is as it is *defined in the sequence table*. Input text fields at the top of the protocol panel (above the ‘Set sequence’ button) are there only to give a practical way of quickly filling in the sequence table, without having to enter each point values individually.
-*	*Sequence table*: This table contains the Angles and Offsets values that will be used, in the order they will be used.
-*	*Add point*: Add an empty row below the selected point. If no point in the sequence table is selected, an empty row is added after the last point.
-*	*Remove point*: Remove the selected point. If no point in the sequence table is selected the last point of the sequence is removed.
-*	*Move up*: Move the selected point up in the sequence table.
-*	*Move down*: Move the selected point down in the sequence table.
-*	*Tmt*: Duration of the MT pulses.
-*	*Ts*: Free precession delay between the MT and excitation pulses.
-*	*Tp*: Duration of the excitation pulse.
 
 
 5.2.	Fitting
@@ -268,22 +253,4 @@ The 'Options' panel is where you specify the properties of the model and the fit
 
 6.	Tutorial
 -----------------------
-Quantitative Magnetization Transfer Imaging using bSSSP
-
-6.1 	Define a new bSSFP protocol
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Suppose you have a bSSFP acquisition protocol that varies alpha from 10° to 45° by a step of 5° with a fixed Trf (free precession time) of 0.3ms followed by 10 variable Trf logarithmically spaced from 0.1ms to 10ms with a fixed alpha of 35° and an additional last point with alpha = 35° and Trf = 25ms. Your sequence uses a fix TR-Trf value of 3ms, and 400 gaussian pulses, with an α/2 – TR/2 prepulse.
-
--	Enter “10:5:45” (without quotes) in the ‘Vary alpha’ input text field.
--	Enter “3e-4” (without quotes) in the ‘Fixed Trf’ input text field.
--	Enter “logspace(-4,-2,10)” (without quotes) in the ‘Vary Trf’ input text field.
--	Enter “35” (without quotes) in the ‘Fixed alpha’ input text field.
--	Click on ‘Set sequence’. The sequence table is automatically filled with.
--	Click on ‘Add Point’ to add an empty row as the last point in the sequence table.
--	Edit the values in this last row to “35” and “0.025” in the alpha and Trf columns respectively.
--	Select the ‘Fix TR-Trf’ radio button and enter 0.003 in the text box below.
--	Select ‘gaussian’ in the Pulse shape menu.
--	Enter 400 in the ‘# of RF pulses’ box.
--	Check the alpha/2 – TR/2 checkbox.
--	You can now save this protocol for later use by clicking on the ‘Save’ button.
--	If you want this to be your default protocol, save it as ‘DefaultProt.mat’, replacing the existing file in the /bSSFP/Parameters folder. This protocol will now be loaded by default each time you launch qMTLab, or when you click on ‘Default’ in the Protocol panel.
+Video to come soon...

@@ -48,7 +48,7 @@ for root, dirs, files in os.walk("."):
         #If there is a ".html" file begin transcription script
         if name.endswith("html"):
 
-            #Save the path of the ".html" file 
+            #Save the path of the ".html" file
             filepath = os.path.join(root, name)
 
             #Remove the "." at the begining if there is one
@@ -116,7 +116,7 @@ for root, dirs, files in os.walk("."):
             os.chdir("../../Data")
 
         elif name.endswith(".png"):
-            #Save the path of the ".png" file 
+            #Save the path of the ".png" file
             filepath = os.path.join(root, name)
 
             #Remove the "." at the begining if there is one
