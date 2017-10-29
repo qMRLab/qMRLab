@@ -240,7 +240,7 @@ Each qMR acquisition method has its own particular options for simulation, proto
 ~~~~~~~~~~~~~~~~
 The ‘Protocol’ panel is where you define all options relating to the acquisition sequence. These options are specific for each method. For all methods, you will find (at the top of the protocol panel) input text fields corresponding to the independent variables. You can also load a previously saved text (.txt) file with the required options and format by using the **Load** button. Press the **Help** button in this panel to see the format expected by each of the models or by checking example protocol files in::
 
-    qMRILab/Data/{ModelName}_Demo/*.txt
+    qMRLab/Data/{ModelName}_Demo/*.txt
 
 
 5.2.	Fitting
