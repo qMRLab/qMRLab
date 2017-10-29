@@ -1,8 +1,12 @@
 T1 Mapping
 ======================================
-
+Inversion Recovery
+--------------------------------------
 .. toctree::
-   :maxdepth: 3
+	:maxdepth: 1
 
-   inversionrecovery
-   vfa_t1
+	IR_batch
+   	vfa_t1
+VFA_T1
+-------------------------------------
+

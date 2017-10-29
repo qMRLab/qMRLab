@@ -43,7 +43,7 @@ classdef CHARMED
 %     'Burcaw 2015'     XXX
 %     'Ning MRM 2016'   XXX
 %
-% Example of command line usage (also see <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>):
+% Example of command line usage (see also <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>):
 %   Model = CHARMED;  % Create class from model
 %   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
 %   data = struct;  % Create data structure

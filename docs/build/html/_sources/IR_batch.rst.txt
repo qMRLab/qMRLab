@@ -1,5 +1,5 @@
-IR_batch_example
-================
+Inversion Recovery
+==================
 
 .. raw:: html
 

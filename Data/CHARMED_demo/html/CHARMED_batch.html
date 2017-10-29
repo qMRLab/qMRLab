@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>CHARMED_batch</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-19"><meta name="DC.source" content="CHARMED_batch.m"><style type="text/css">
+      --><title>CHARMED_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-26"><meta name="DC.source" content="CHARMED_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">DESCRIPTION</a></li><li><a href="#2">I- LOAD MODEL</a></li><li><a href="#3">II - Perform Simulations</a></li><li><a href="#4">III - MRI Data Fitting</a></li><li><a href="#5">V- SAVE</a></li><li><a href="#6">Check the results</a></li></ul></div><h2>DESCRIPTION<a name="1"></a></h2><p>Batch to process CHARMED data without qMRLab GUI (graphical user interface) Run this script line by line</p><pre class="codeinput">help <span class="string">CHARMED</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">DESCRIPTION</a></li><li><a href="#2">I- LOAD MODEL</a></li><li><a href="#3">II - Perform Simulations</a></li><li><a href="#4">III - MRI Data Fitting</a></li><li><a href="#5">V- SAVE</a></li><li><a href="#6">Check the results</a></li></ul></div><h2 id="1">DESCRIPTION</h2><p>Batch to process CHARMED data without qMRLab GUI (graphical user interface) Run this script line by line</p><pre class="codeinput">help <span class="string">CHARMED</span>
 
 <span class="comment">%**************************************************************************</span>
 </pre><pre class="codeoutput"> CHARMED: Composite Hindered and Restricted Model for Diffusion
@@ -113,7 +113,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
       'Burcaw 2015'     XXX
       'Ning MRM 2016'   XXX
  
-  Example of command line usage (also see &lt;a href="matlab: showdemo CHARMED_batch"&gt;showdemo CHARMED_batch&lt;/a&gt;):
+  Example of command line usage (see also &lt;a href="matlab: showdemo CHARMED_batch"&gt;showdemo CHARMED_batch&lt;/a&gt;):
     Model = CHARMED;  % Create class from model
     Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
     data = struct;  % Create data structure
@@ -136,7 +136,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
        doc CHARMED
 
 
-</pre><h2>I- LOAD MODEL<a name="2"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><h2 id="2">I- LOAD MODEL</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">%Make sure user is in the correct directory</span>
 [pathstr,fname,ext]=fileparts(which(<span class="string">'CHARMED_batch.m'</span>));
 cd (pathstr);
@@ -154,12 +154,12 @@ Model.Prot.DiffusionData.Mat = txt2mat(<span class="string">'Protocol.txt'</span
 </pre><pre class="codeoutput">**************
 * Protocol.txt
 * read mode: auto
-* 826 data lines analysed
+* 815 data lines analysed
 * 3 header line(s)
 * 7 data column(s)
 * 0 string replacement(s)
 **************
-</pre><h2>II - Perform Simulations<a name="3"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><h2 id="3">II - Perform Simulations</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 
 <span class="comment">% Generate MR Signal using analytical equation</span>
 opt.SNR = 50;
@@ -176,25 +176,27 @@ Model.Sim_Single_Voxel_Curve(x,opt)
 </pre><pre class="codeoutput">
 ans = 
 
+  struct with fields:
+
                fr: 0.5341
-               Dh: 0.7787
-    diameter_mean: 6.0978
+               Dh: 0.7640
+    diameter_mean: 6.0890
              fcsf: 0
                lc: 0
              Dcsf: 3
            Dintra: 1.4000
-          S0_TE62: 0.9241
-          S0_TE57: 0.9475
-          S0_TE52: 0.9715
-          S0_TE47: 0.9961
-          S0_TE46: 1.0018
-          S0_TE36: 1.0532
+          S0_TE62: 0.9212
+          S0_TE57: 0.9446
+          S0_TE52: 0.9685
+          S0_TE47: 0.9930
+          S0_TE46: 0.9986
+          S0_TE36: 1.0498
                T2: 200.0000
                fh: 0.4659
-          residue: -6.8486e+03
-       SigmaNoise: 0.0182
+          residue: -6.7414e+03
+       SigmaNoise: 0.0181
 
-</pre><img vspace="5" hspace="5" src="CHARMED_batch_01.png" alt=""> <h2>III - MRI Data Fitting<a name="4"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><img vspace="5" hspace="5" src="CHARMED_batch_01.png" alt=""> <h2 id="4">III - MRI Data Fitting</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% load data</span>
 data = struct;
 data.DiffusionData = load_nii_data(<span class="string">'DiffusionData.nii.gz'</span>);
@@ -214,30 +216,34 @@ delete(<span class="string">'FitTempResults.mat'</span>);
 </pre><pre class="codeoutput">
 FitResults = 
 
-               fr: 0.1552
-               Dh: 0.8622
-    diameter_mean: 5.3092
+  struct with fields:
+
+               fr: 0.1876
+               Dh: 0.8677
+    diameter_mean: 5.4284
              fcsf: 0
                lc: 0
              Dcsf: 3
            Dintra: 1.4000
-          S0_TE62: 1.2235e+05
-          S0_TE57: 1.2646e+05
-          S0_TE52: 1.3070e+05
-          S0_TE47: 1.3509e+05
-          S0_TE46: 1.3611e+05
-          S0_TE36: 1.4540e+05
-               T2: 151.4642
-               fh: 0.8448
-          residue: 1.7057e+05
+          S0_TE62: 1.1768e+05
+          S0_TE57: 1.2348e+05
+          S0_TE52: 1.2958e+05
+          S0_TE47: 1.3597e+05
+          S0_TE46: 1.3747e+05
+          S0_TE36: 1.5137e+05
+               T2: 103.8152
+               fh: 0.8124
+          residue: 1.5329e+05
        SigmaNoise: 431.5808
 
-</pre><img vspace="5" hspace="5" src="CHARMED_batch_02.png" alt=""> <h2>V- SAVE<a name="5"></a></h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+Warning: File 'FitTempResults.mat' not found. 
+Warning: File 'FitTempResults.mat' not found. 
+</pre><img vspace="5" hspace="5" src="CHARMED_batch_02.png" alt=""> <h2 id="5">V- SAVE</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% .MAT file : FitResultsSave_mat(FitResults,folder);</span>
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 <span class="comment">% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');</span>
 <span class="comment">%save('CHARMEDParameters.mat','Model');</span>
-</pre><h2>Check the results<a name="6"></a></h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+</pre><h2 id="6">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% DESCRIPTION
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
