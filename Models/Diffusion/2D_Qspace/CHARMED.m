@@ -43,7 +43,7 @@ classdef CHARMED
 %     'Burcaw 2015'     XXX
 %     'Ning MRM 2016'   XXX
 %
-% Example of command line usage (also see <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>):
+% Example of command line usage (see also <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>):
 %   Model = CHARMED;  % Create class from model
 %   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
 %   data = struct;  % Create data structure
@@ -175,7 +175,7 @@ classdef CHARMED
             end
             %% OUTPUTS
             % S0
-            S0vals = unique([S0 Prot(:,7)],'rows');
+            S0vals = unique([S0 round(Prot(:,7))],'rows');
             for ii = 1:size(S0vals,1)
                 xopt(end+1) = S0vals(ii,1);
                 obj.xnames{end+1} = ['S0_TE' num2str(round(S0vals(ii,2)))];

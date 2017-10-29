@@ -66,15 +66,24 @@ for root, dirs, files in os.walk("."):
             #Set the name of the file
             base = os.path.splitext(os.path.basename(filepath))[0]
             modelIndex = base.find("_batch")
-            models.append(base[:modelIndex])
+            model = base[:modelIndex]
+            if model == "IR":
+            	model = "InversionRecovery"
+            models.append(model)
 
             #Create a ".rst" file and transcript
             with io.open(base +".rst", "wb") as f:
                 #body = xml.etree.ElementTree.tostring(tree[0][1])
                 t = base+"_example"
-                f.write(t.encode())
+                #Write the good title
+                titleCount = base.find("_batch")
+                title = base[:titleCount]
+                if title == "IR":
+                	title = "Inversion Recovery"
+
+                f.write(title.encode())
                 f.write(b"\n")
-                f.write(b"=" * len(t))
+                f.write(b"=" * len(title))
                 f.write(b"\n")
                 f.write(b"\n")
                 f.write(b".. raw:: html\n")
@@ -89,26 +98,39 @@ for root, dirs, files in os.walk("."):
 
                         #If the line contains a ".png" sub-string (indicating a path to an image)
                         index = 0
-
+                        count = 0
                         #The while loop help to find every png if there are mutliple ones in the same line
                         while index !=(-1):
-                            if line.find(".png", index)!=(-1):
+                        	#Remove links in the html file
+                        	#Check if there's a link in the help header
+                        	linkIndex = line.find("&lt;a href")
+                        	if linkIndex != (-1):
+                        		#If it's for the command line, replace it by the batch example path
+                        		if line.find("command line usage")!= (-1):
+                        			absolutePath = os.path.abspath(filepath)
+                        			line = line[:linkIndex]+"qMRLab\\Data\\"+os.path.dirname(os.path.dirname(filepath))+"\\"+model+"_batch.m):\n"
+                        		#If it's for the command line, replace it by qMRusage
+                        		elif line.find("qMRusage") != (-1):
+                        			line = line[:linkIndex] + "qMRusage(" + model + ")"
 
-                                #Save the index of the image path (after the pervious occurrences of the path)
-                                a = line.find("src", index)
-                                b = line.find("png", index)
+                        	#Change the png paths in the file
+                        	if line.find(".png", index) != (-1):
+                        		#Save the index of the image path (after the pervious occurrences of the path)
+                        		a = line.find("src", index)
+                        		b = line.find("png", index)
 
-                                #Save the index at where we have to search for the next png
-                                index = b+3+len("_static")
+                        		#Save the index at where we have to search for the next png
+                        		index = b+3+len("_static")
 
-                                #Save the initial path and the "_images" directory in the new path
-                                initialstr = line[a+5:b+3]
-                                replacement = os.path.join("_static/",initialstr)
+                        		#Save the initial path and the "_images" directory in the new path
+                        		initialstr = line[a+5:b+3]
+                        		replacement = os.path.join("_static/",initialstr)
 
-                                #Replace sub-string with the new path
-                                line = line.replace(initialstr, replacement)
-                            else:
-                                index = (-1)
+                        		#Replace sub-string with the new path
+                        		line = line.replace(initialstr, replacement)
+                        	else:
+                        		index = (-1)
+
                         f.write(line)
 
 
@@ -129,29 +151,131 @@ for root, dirs, files in os.walk("."):
             #Copy the ".png" file to the new location
             shutil.copy(fn, os.path.join(initialpath,"../source/_static"))
 
+#Return to the initial documentation directory
 os.chdir(initialpath)
-#for element in models:
-#    for file in os.walk("."):
-#        for name in files:
-#            if name.find(element) and not(name.find("batch")):
-#                with io.open(element +"temp.rst", "wb") as fd:
-#                    with io.open(element+".rst", "rb") as fw:
-#                        i = -1
-#                        for line in fw:
-#                            if line.find("USAGE") != (-1):
-#                                i=2
-#                            elif i == 0 and line.find("toctree") == (-1):
-#                                fd.write(".. toctree::\n")
-#                                fd.write("\t:maxdepth: 1")
-#                                fd.write(element+"_batch")
-#                            if i > -1:
-#                                i=i-1
-#                            fd.write(line)
-#    with io.open(element+".rst", "wb") as f:
-#        with io.open(element +"temp.rst", "rb") as fd:
-#            for line in fd:
-#                f.write(line)
-#	os.remove(element +"temp.rst")
+
+#Loops in the elements (models) to add them to their toctrees
+for element in models:
+
+	#create a directory t=list to save the models category list
+    directories = []
+    nbdir = -1
+
+    #Loop in the model directory to find the correct document related to the model
+    for root, dirs, files in os.walk("../../Models"):
+        for name in files:
+
+        	#if the model is found
+            if name.find(element) != (-1):
+            	file = os.path.join(root,name)
+            	currentDir = ""
+
+            	#Save the directories in order in the list to have the category list (and the caracterization)
+            	while (currentDir != "Models"):
+            		file = os.path.split(file)[0]
+            		currentDir = os.path.split(file)[1]
+
+            		#Some changes to known models that are not named like their model
+            		if currentDir != "Models" and currentDir != "qMT":
+            			directories.append(currentDir)
+            		elif currentDir == "qMT":
+            			directories.append("Quantitative Magnetization Transfer")
+            		#if file.endswith("/") or file.endswith("\\"):
+            			#file = file[:(file.len()-1)]
+            		nbdir = nbdir + 1
+
+    #Open a temporary file to transfer the toctree
+    with io.open(element +"temp.rst", "wb") as fd:
+
+    	#Change some things for known models having issues
+        if directories[nbdir - 1] == "Myelin_Imaging":
+        	directories[nbdir - 1] = "myelin"
+
+        #If you find the class for your model in .rst file
+        if directories[nbdir - 1] != "UnderDevelopment":
+
+        	#Open the file
+        	with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
+
+        		#Declare counting and validation variables
+        	    nbTitle = nbdir - 1
+        	    i = -1
+        	    found = False
+        	    count = -1
+        	    included = False
+
+        	    #Loop accross every line of the .rst file with the toctree
+        	    for line in fw:
+
+        	    	#If you find the model and not the batch_example (as a title)
+        	        if line.find(element) != (-1) and line.find("_batch") == (-1):
+        	        	#Set the counter to 2 to pass 2 lines
+        	        	i = 2
+        	        	found = True
+
+        	        #When the two lines are passed, write the toctree (with modification for known models having issues)
+        	        if i == 0:
+        	        	fd.write(b".. toctree::\n")
+        	        	fd.write(b"\t:maxdepth: 1\n")
+        	        	fd.write(b"\n")
+        	        	if element == "InversionRecovery":
+        	        		fd.write("\tIR_batch")
+        	        	else:
+        	        		fd.write("\t" + element+"_batch")
+        	        	count = 2
+        	        	included = True
+
+        	        #Decrement counting
+        	        i = i - 1
+
+        	        #Rewrite all the lines in the temporary file (without any toctree and maxdepth already there
+        	        #removing duplicates)
+        	        if (line.find("toctree") == (-1) and line.find("maxdepth") == (-1)) or found == False:
+        	        	count = count - 1
+        	        	fd.write(line)
+        	        	#Remove the found validation to enable other models to be written in the same document
+        	        	if count == 0:
+        	        		found = False
+
+        	    #If the model is not in his document, write it
+        	    if not included:
+        	    	if element != "InversionRecovery":
+        	    		fd.write(b"\n")
+        	    		fd.write(element)
+        	    		fd.write("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        	    		fd.write(b".. toctree::\n")
+        	    		fd.write(b"\t:maxdepth: 1\n")
+        	    		fd.write(b"\n")
+        	    		fd.write("\t" + element+"_batch")
+        	    		fd.write(b"\n\n")
+
+    #Open the temporary file in reading mode
+    with io.open(element +"temp.rst", "r") as fd:
+    	#Open the original file in write mode
+    	with io.open(directories[nbdir - 1]+".rst", "w") as fw:
+    		#Create a list of the lines seen
+    		line_seen = []
+    		#For every line in the temp file, check if it was already seen (remove duplicates)
+    		for line in fd:
+    			duplicate = False
+    			#Put the duplicate tag
+    			for seen in line_seen:
+    				if line == seen:
+    					duplicate = True
+    			#If it is a duplicate and a batch file (no mistakes of getting rid of important lines)
+    			#Check only for batch_example files
+    			if duplicate == True and line.find("batch") != (-1):
+    				#Don't do anything
+    				dummy=0
+    			#If not a duplicate, write the line in the original file
+    			else:
+    				fw.write(line)
+    				line_seen.append(line)
+    #close the files
+    fd.close()
+    fw.close()
+    #Remove the temp file
+    os.remove(element +"temp.rst")
 
 
 
@@ -271,7 +395,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'qMRlabdoc'
+htmlhelp_basename = 'qMRLabdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -298,7 +422,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'qMRlab.tex', u'qMRLab Documentation',
+    (master_doc, 'qMRLab.tex', u'qMRLab Documentation',
      u'Ilana Leppert', 'manual'),
 ]
 
@@ -308,7 +432,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'qmrlab', u'qMRLab Documentation',
+    (master_doc, 'qmrLab', u'qMRLab Documentation',
      [author], 1)
 ]
 

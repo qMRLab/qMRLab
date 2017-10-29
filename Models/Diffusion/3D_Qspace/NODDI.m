@@ -92,11 +92,13 @@ classdef NODDI
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             model      = MakeModel(obj.options.modelname);
             Pindex     =~ ismember(model.paramsStr,{'b0','theta','phi'});
+
             if isempty(obj.xnames) || ~isequal(obj.xnames,model.paramsStr)
                 ModelChanged=true;
             else
                 ModelChanged=false;
             end
+            
             obj.xnames = model.paramsStr;
             grid       = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
             scale      = GetScalingFactors(obj.options.modelname);

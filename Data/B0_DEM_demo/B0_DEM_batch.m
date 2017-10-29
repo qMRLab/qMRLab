@@ -1,3 +1,5 @@
+%% DESCRIPTION
+help B0_DEM
 % Batch to generate B0map with Dual Echo Method (DEM) without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017

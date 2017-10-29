@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>MTSAT_batch_example &mdash; qMRlab 0.1 documentation</title>
+  <title>MTSAT &mdash; qMRLab 0.1 documentation</title>
   
 
   
@@ -35,9 +35,9 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="qMRlab 0.1 documentation" href="index.html"/>
+    <link rel="top" title="qMRLab 0.1 documentation" href="index.html"/>
         <link rel="up" title="Myelin Imaging" href="myelin.html"/>
-        <link rel="next" title="MWF_batch_example" href="MWF_batch.html"/>
+        <link rel="next" title="MWF" href="MWF_batch.html"/>
         <link rel="prev" title="Myelin Imaging" href="myelin.html"/> 
 
   
@@ -57,7 +57,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> qMRlab
+            <a href="index.html" class="icon icon-home"> qMRLab
           
 
           
@@ -99,8 +99,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="fieldmaps.html">Field Maps</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b0-dem-dual-echo-method">B0_DEM (Dual-echo method)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b1-dam-dual-angle-method">B1_DAM (Dual-angle method)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b0-dem">B0_DEM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b1-dam">B1_DAM</a></li>
 </ul>
 </li>
 <li class="toctree-l3 current"><a class="reference internal" href="myelin.html">Myelin Imaging</a><ul class="current">
@@ -114,8 +114,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="inversionrecovery.html">Inversion Recovery</a></li>
-<li class="toctree-l4"><a class="reference internal" href="vfa_t1.html">Variable Flip Angle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t1_mapping.html#inversion-recovery">Inversion Recovery</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t1_mapping.html#vfa-t1">VFA_T1</a></li>
 </ul>
 </li>
 </ul>
@@ -186,7 +186,7 @@
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">qMRlab</a>
+          <a href="index.html">qMRLab</a>
         
       </nav>
 
@@ -220,7 +220,7 @@
         
           <li><a href="myelin.html">Myelin Imaging</a> &raquo;</li>
         
-      <li>MTSAT_batch_example</li>
+      <li>MTSAT</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -239,8 +239,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="mtsat-batch-example">
-<h1>MTSAT_batch_example<a class="headerlink" href="#mtsat-batch-example" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="mtsat">
+<h1>MTSAT<a class="headerlink" href="#mtsat" title="Permalink to this headline">¶</a></h1>
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head>
@@ -248,7 +248,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>MTSAT_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="MTSAT_batch.m"><style type="text/css">
+      --><title>MTSAT_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-19"><meta name="DC.source" content="MTSAT_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -308,8 +308,60 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">I- LOAD DATASET</a></li><li><a href="#3">II - MRI Data Fitting</a></li><li><a href="#4">III- SAVE</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process MT_SAT</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">DESCRIPTION</a></li><li><a href="#2">I- LOAD DATASET</a></li><li><a href="#3">II - MRI Data Fitting</a></li><li><a href="#4">III- SAVE</a></li><li><a href="#5">Check the results</a></li></ul></div><h2 id="1">DESCRIPTION</h2><pre class="codeinput">help <span class="string">MTSAT</span>
+
+<span class="comment">% Batch to process MT_SAT</span>
 <span class="comment">% Run this script line by line</span>
+</pre><pre class="codeoutput"> -----------------------------------------------------------------------------------------------------
+  MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1
+           MTsat is a semi-quantitative method. MTsat values depend on
+           protocol parameters.
+ -----------------------------------------------------------------------------------------------------
+ -------------%
+  ASSUMPTIONS %
+ -------------%
+  (1) FILL
+  (2)
+  (3)
+  (4)
+
+ -----------------------------------------------------------------------------------------------------
+ --------%
+  INPUTS %
+ --------%
+    MTw : MT-weighted
+    T1w : T1-weighted
+    PDw : PD-weighted
+
+ -----------------------------------------------------------------------------------------------------
+ ---------%
+  OUTPUTS %
+ ---------%
+     MTSAT
+
+ -----------------------------------------------------------------------------------------------------
+ ----------%
+  PROTOCOL %
+ ----------%
+    One T1-weighted
+    One MT-weighted
+    One PD-weighted
+
+ -----------------------------------------------------------------------------------------------------
+ ---------%
+  OPTIONS %
+ ---------%
+    None
+
+ -----------------------------------------------------------------------------------------------------
+  Written by: Pascale Beliveau (pascale.beliveau@polymtl.ca)
+  Reference: Helms, G., Dathe, H., Kallenberg, K., Dechent, P., 2008. High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magn. Reson. Med. 60, 1396?1407.
+ -----------------------------------------------------------------------------------------------------
+
+    Reference page in Doc Center
+       doc MTSAT
+
+
 </pre><h2 id="2">I- LOAD DATASET</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 [pathstr,fname,ext]=fileparts(which(<span class="string">'MTSAT_batch.m'</span>));
 cd (pathstr);
@@ -350,6 +402,9 @@ save(<span class="string">'CHARMEDParameters.mat'</span>,<span class="string">'M
 </pre><pre class="codeoutput">Warning: Directory already exists.
 </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
+%% DESCRIPTION
+help MTSAT
+
 % Batch to process MT_SAT
 % Run this script line by line
 
@@ -405,7 +460,7 @@ save('CHARMEDParameters.mat','Model');
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="MWF_batch.html" class="btn btn-neutral float-right" title="MWF_batch_example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="MWF_batch.html" class="btn btn-neutral float-right" title="MWF" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="myelin.html" class="btn btn-neutral" title="Myelin Imaging" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

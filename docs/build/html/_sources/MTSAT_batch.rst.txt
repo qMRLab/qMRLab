@@ -1,5 +1,5 @@
-MTSAT_batch_example
-===================
+MTSAT
+=====
 
 .. raw:: html
 
@@ -12,7 +12,7 @@ MTSAT_batch_example
       <!--
    This HTML was auto-generated from MATLAB code.
    To make changes, update the MATLAB code and republish this document.
-         --><title>MTSAT_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-12"><meta name="DC.source" content="MTSAT_batch.m"><style type="text/css">
+         --><title>MTSAT_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-19"><meta name="DC.source" content="MTSAT_batch.m"><style type="text/css">
    html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
    
    html { min-height:100%; margin-bottom:1px; }
@@ -72,8 +72,60 @@ MTSAT_batch_example
    
    
    
-     </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">I- LOAD DATASET</a></li><li><a href="#3">II - MRI Data Fitting</a></li><li><a href="#4">III- SAVE</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process MT_SAT</span>
+     </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">DESCRIPTION</a></li><li><a href="#2">I- LOAD DATASET</a></li><li><a href="#3">II - MRI Data Fitting</a></li><li><a href="#4">III- SAVE</a></li><li><a href="#5">Check the results</a></li></ul></div><h2 id="1">DESCRIPTION</h2><pre class="codeinput">help <span class="string">MTSAT</span>
+   
+   <span class="comment">% Batch to process MT_SAT</span>
    <span class="comment">% Run this script line by line</span>
+   </pre><pre class="codeoutput"> -----------------------------------------------------------------------------------------------------
+     MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1 
+              MTsat is a semi-quantitative method. MTsat values depend on
+              protocol parameters.
+    -----------------------------------------------------------------------------------------------------
+    -------------%
+     ASSUMPTIONS %
+    -------------% 
+     (1) FILL
+     (2) 
+     (3) 
+     (4) 
+    
+    -----------------------------------------------------------------------------------------------------
+    --------%
+     INPUTS %
+    --------%
+       MTw : MT-weighted
+       T1w : T1-weighted
+       PDw : PD-weighted
+    
+    -----------------------------------------------------------------------------------------------------
+    ---------%
+     OUTPUTS %
+    ---------%
+    	MTSAT
+          
+    -----------------------------------------------------------------------------------------------------
+    ----------%
+     PROTOCOL %
+    ----------%
+       One T1-weighted
+       One MT-weighted
+       One PD-weighted
+    
+    -----------------------------------------------------------------------------------------------------
+    ---------%
+     OPTIONS %
+    ---------%
+       None
+    
+    -----------------------------------------------------------------------------------------------------
+     Written by: Pascale Beliveau (pascale.beliveau@polymtl.ca)
+     Reference: Helms, G., Dathe, H., Kallenberg, K., Dechent, P., 2008. High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magn. Reson. Med. 60, 1396?1407.
+    -----------------------------------------------------------------------------------------------------
+   
+       Reference page in Doc Center
+          doc MTSAT
+   
+   
    </pre><h2 id="2">I- LOAD DATASET</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    [pathstr,fname,ext]=fileparts(which(<span class="string">'MTSAT_batch.m'</span>));
    cd (pathstr);
@@ -114,6 +166,9 @@ MTSAT_batch_example
    </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
    ##### SOURCE BEGIN #####
+   %% DESCRIPTION
+   help MTSAT
+   
    % Batch to process MT_SAT
    % Run this script line by line
    

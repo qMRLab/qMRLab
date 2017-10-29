@@ -2,6 +2,9 @@
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
+%% DESCRIPTION
+help MTV
+
 %% Load dataset
 
 [pathstr,fname,ext]=fileparts(which('MTV_batch.m'));

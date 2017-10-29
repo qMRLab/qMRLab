@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>SPGR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-18"><meta name="DC.source" content="SPGR_batch.m"><style type="text/css">
+      --><title>SPGR_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-29"><meta name="DC.source" content="SPGR_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,37 +66,149 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Load dataset</a></li><li><a href="#3">Check data and fitting (Optional)</a></li><li><a href="#4">Create Quantitative Maps</a></li><li><a href="#5">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process SPGR data without qMRLab GUI (graphical user interface)</span>
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">DESCRIPTION</a></li><li><a href="#3">Load dataset</a></li><li><a href="#4">Check data and fitting (Optional)</a></li><li><a href="#5">Create Quantitative Maps</a></li><li><a href="#6">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process SPGR data without qMRLab GUI (graphical user interface)</span>
 <span class="comment">% Run this script line by line</span>
 <span class="comment">% Written by: Ian Gagnon, 2017</span>
-</pre><h2 id="2">Load dataset</h2><pre class="codeinput">warning(<span class="string">'off'</span>)
+</pre><h2 id="2">DESCRIPTION</h2><pre class="codeinput">warning(<span class="string">'off'</span>, <span class="string">'all'</span>)
+help <span class="string">SPGR</span>
+</pre><pre class="codeoutput"> -----------------------------------------------------------------------------------------------------
+  SPGR :  qMT using Spoiled Gradient Echo (or FLASH)
+ -----------------------------------------------------------------------------------------------------
+ -------------%
+  ASSUMPTIONS %
+ -------------% 
+  (1) FILL
+  (2) 
+  (3) 
+  (4) 
+ -----------------------------------------------------------------------------------------------------
+ --------%
+  INPUTS %
+ --------%
+    1) MTdata : Magnetization Transfert data
+    2) R1map  : 1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
+    3) B1map  : B1 field map (OPTIONAL)
+    4) B0map  : B0 field map (OPTIONAL)
+    5) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
+ 
+ -----------------------------------------------------------------------------------------------------
+ ---------%
+  OUTPUTS %
+ ---------%
+    Fitting Parameters
+        * F   : Ratio of number of restricted pool to free pool, defined 
+                as F = M0r/M0f = kf/kr.
+        * kr  : Exchange rate from the free to the restricted pool 
+                (note that kf and kr are related to one another via the 
+                definition of F. Changing the value of kf will change kr 
+                accordingly, and vice versa).
+        * R1f : Longitudinal relaxation rate of the free pool 
+                (R1f = 1/T1f).
+        * R1r : Longitudinal relaxation rate of the restricted pool 
+                (R1r = 1/T1r).
+        * T2f : Tranverse relaxation time of the free pool (T2f = 1/R2f).
+        * T2r : Tranverse relaxation time of the restricted pool (T2r = 1/R2r).
+ 
+    Additional Outputs
+        * kf     : Exchange rate from the restricted to the free pool.
+        * resnorm: Fitting residual.
+ 
+ -----------------------------------------------------------------------------------------------------
+ ----------%
+  PROTOCOL %
+ ----------%
+    1) MTdata
+        * Angle  : MT pulses angles (degree)
+        * Offset : Offset frequencies (Hz)
+ 
+    2) TimingTable
+        * Tmt : Duration of the MT pulses (s)
+        * Ts  : Free precession delay between the MT and excitation pulses (s)
+        * Tp  : Duration of the excitation pulse (s)
+        * Tr  : Free precession delay after tje excitation pulse, before 
+                the next MT pulse (s)
+        * TR  : Repetition time of the whole sequence (TR = Tmt + Ts + Tp + Tr)
+ 
+ -----------------------------------------------------------------------------------------------------
+ ---------%
+  OPTIONS %
+ ---------%
+    MT Pulse
+        * Shape          : Shape of the MT pulse.
+                           Available shapes are:
+                           - hard
+                           - gaussian
+                           - gausshann (gaussian pulse with Hanning window)
+                           - sinc
+                           - sinchann (sinc pulse with Hanning window)
+                           - singauss (sinc pulse with gaussian window)
+                           - fermi
+        * Sinc TBW       : Time-bandwidth product for the sinc MT pulses 
+                           (applicable to sinc, sincgauss, sinchann MT 
+                           pulses).
+        * Bandwidth      : Bandwidth of the gaussian MT pulse (applicable 
+                           to gaussian, gausshann and sincgauss MT pulses).
+        * Fermi 
+          transition (a) : slope 'a' (related to the transition width) 
+                            of the Fermi pulse (applicable to fermi MT 
+                            pulse). 
+                            Assuming pulse duration at 60 dB (from the Bernstein handbook)
+                            and t0 = 10a,
+                            slope = Tmt/33.81;         
+        * # of MT pulses : Number of pulses used to achieve steady-state
+                           before a readout is made.
+    Fitting constraints
+        * Use R1map to  : By checking this box, you tell the fitting 
+          constrain R1f   algorithm to check for an observed R1map and use
+                          its value to constrain R1f. Checking this box 
+                          will automatically set the R1f fix box to true             
+                          in the Fit parameters table.  
+        * Fix R1r = R1f : By checking this box, you tell the fitting
+                          algorithm to fix R1r equal to R1f. Checking this 
+                          box will automatically set the R1r fix box to 
+                          true in the Fit parameters table.
+        * Fix R1f*T2f   : By checking this box, you tell the fitting
+                          algorithm to compute T2f from R1f value. R1f*T2f
+                          value is set in the next box.
+        * R1f*T2f =     : Value of R1f*T2f (no units)
+ 
+    Global
+        * Model         : Model you want to use for fitting. 
+                          Available models are: 
+                          - SledPikeRP (Sled &amp; Pike rectangular pulse), 
+                          - SledPikeCW (Sled &amp; Pike continuous wave), 
+                          - Yarkykh (Yarnykh &amp; Yuan)
+                          - Ramani
+                          Note: Sled &amp; Pike models will show different  
+                                options than Yarnykh or Ramani.
+        * Lineshape     : The absorption lineshape of the restricted pool. 
+                          Available lineshapes are:
+                          - Gaussian
+                          - Lorentzian
+                          - SuperLorentzian
+        * Read pulse    : Flip angle of the excitation pulse.
+          alpha          
+        * Compute       : By checking this box, you compute a new SfTable
+          SfTable           
+ 
+ -----------------------------------------------------------------------------------------------------
+  Written by: Ian Gagnon, 2017
+  Reference: Sled, J.G., Pike, G.B., 2000. Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. J. Magn. Reson. 145, 24?36.
+ -----------------------------------------------------------------------------------------------------
+
+    Reference page in Doc Center
+       doc SPGR
+
+
+</pre><h2 id="3">Load dataset</h2><pre class="codeinput"><span class="comment">%warning('off')</span>
 [pathstr,fname,ext]=fileparts(which(<span class="string">'SPGR_batch.m'</span>));
 cd (pathstr);
 
 <span class="comment">% Load your parameters to create your Model</span>
 <span class="comment">% load('MODELPamameters.mat');</span>
 <span class="comment">%load('SPGRParameters.mat');</span>
-Model = SPGR
-</pre><pre class="codeoutput">
-Model = 
-
-  SPGR with properties:
-
-                           MRIinputs: {1&times;5 cell}
-                              xnames: {'F'  'kr'  'R1f'  'R1r'  'T2f'  'T2r'}
-                           voxelwise: 1
-                                  st: [0.1600 30 1 1 0.0300 1.3000e-05]
-                                  lb: [0 0 0.0500 0.0500 0.0030 3.0000e-06]
-                                  ub: [0.5000 100 5 5 0.5000 5.0000e-05]
-                                  fx: [0 0 1 1 0 0]
-                                Prot: [1&times;1 struct]
-                         ProtSfTable: [1&times;1 struct]
-                             buttons: {1&times;32 cell}
-                             options: [1&times;1 struct]
-      Sim_Single_Voxel_Curve_buttons: {1&times;6 cell}
-    Sim_Sensitivity_Analysis_buttons: {'# of run'  [5]}
-
-</pre><h2 id="3">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+Model = SPGR;
+</pre><h2 id="4">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- GENERATE FILE STRUCT</span>
 <span class="comment">%**************************************************************************</span>
 <span class="comment">% Create a struct "file" that contains the NAME of all data's FILES</span>
@@ -111,7 +223,7 @@ file.Mask = <span class="string">'Mask.mat'</span>;
 <span class="comment">% II- CHECK DATA AND FITTING</span>
 <span class="comment">%**************************************************************************</span>
 qMRLab(Model,file);
-</pre><img vspace="5" hspace="5" src="SPGR_batch_01.png" alt=""> <img vspace="5" hspace="5" src="SPGR_batch_02.png" alt=""> <img vspace="5" hspace="5" src="SPGR_batch_03.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><img vspace="5" hspace="5" src="SPGR_batch_01.png" alt=""> <img vspace="5" hspace="5" src="SPGR_batch_02.png" alt=""> <img vspace="5" hspace="5" src="SPGR_batch_03.png" alt=""> <h2 id="5">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- LOAD PROTOCOL</span>
 <span class="comment">%**************************************************************************</span>
 
@@ -179,25 +291,25 @@ Model.plotmodel(FitResultsVox,dataVox)
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 FitResultsSave_nii(FitResults);
 save(<span class="string">'SPGRParameters.mat'</span>,<span class="string">'Model'</span>);
-</pre><pre class="codeoutput">MATLAB has experienced a low-level graphics error, and may not have drawn correctly.
-Read about what you can do to prevent this issue at &lt;a href="matlab:opengl('problems')"&gt;Resolving Low-Level Graphics Issues&lt;/a&gt; then restart MATLAB.
-To share details of this issue with MathWorks technical support,
-please include &lt;a href="file:C:\Users\gab_b\AppData\Local\Temp\jogl.ex.15676"&gt;this file&lt;/a&gt; with your service request.
-</pre><img vspace="5" hspace="5" src="SPGR_batch_04.png" alt=""> <h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+</pre><img vspace="5" hspace="5" src="SPGR_batch_04.png" alt=""> <h2 id="6">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 % Batch to process SPGR data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
+%% DESCRIPTION
+warning('off', 'all')
+help SPGR
+
 %% Load dataset
-warning('off')
+%warning('off')
 [pathstr,fname,ext]=fileparts(which('SPGR_batch.m'));
 cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 %load('SPGRParameters.mat');
-Model = SPGR
+Model = SPGR;
 
 %% Check data and fitting (Optional)
 

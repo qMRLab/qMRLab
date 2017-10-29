@@ -1,5 +1,8 @@
 warning('off','all');
 
+%% DESCRIPTION
+help MWF
+
 % Batch to process MWF data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017

@@ -2,15 +2,19 @@
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
+%% DESCRIPTION
+warning('off', 'all')
+help SPGR
+
 %% Load dataset
-warning('off')
+%warning('off')
 [pathstr,fname,ext]=fileparts(which('SPGR_batch.m'));
 cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 %load('SPGRParameters.mat');
-Model = SPGR
+Model = SPGR;
 
 %% Check data and fitting (Optional)
 
