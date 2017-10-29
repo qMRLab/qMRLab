@@ -195,7 +195,7 @@ for element in models:
         if directories[nbdir - 1] != "UnderDevelopment":
 
         	#Open the file
-        	with io.open(directories[nbdir - 1]+".rst", "rb") as fw:
+        	with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
 
         		#Declare counting and validation variables
         	    nbTitle = nbdir - 1
