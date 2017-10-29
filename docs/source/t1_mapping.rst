@@ -9,4 +9,7 @@ Inversion Recovery
    	vfa_t1
 VFA_T1
 -------------------------------------
-
+.. toctree::
+	:maxdepth: 1
+	
+   	vfa_t1
