@@ -27,7 +27,7 @@ Methods available
    fieldmaps
    myelin
    noise
-   T1_mapping
+   t1_mapping
 
 Getting started
 ===============================================================================
