@@ -137,7 +137,7 @@ Follow steps 1-6 above, then
 
 3.3	Viewing the fit results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Once you have finished fitting your qMR data, or when you load previously saved fit results by clicking **Load Results** in the ‘qMT data fit’ section of the *Menu* panel, the maps will be displayed in the ‘Fit Results’ section. Use controls on the left side of the figure to navigate the maps:
+Once you have finished fitting your qMR data, or when you load previously saved fit results by clicking **Load Results** in the ‘qMR data fit’ section of the *Menu* panel, the maps will be displayed in the ‘Fit Results’ section. Use controls on the left side of the figure to navigate the maps:
 
 *	*Source*: select the parameter map to display
 *	*View*: select the side from which to view the data (available only on 3D maps)
