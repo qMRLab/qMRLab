@@ -190,7 +190,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'qMRlab'
+project = u'qMRLab'
 copyright = u'2017, NeuroPoly'
 author = u'NeuroPoly'
 
@@ -298,7 +298,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'qMRlab.tex', u'qMRlab Documentation',
+    (master_doc, 'qMRlab.tex', u'qMRLab Documentation',
      u'Ilana Leppert', 'manual'),
 ]
 
@@ -308,7 +308,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'qmrlab', u'qMRlab Documentation',
+    (master_doc, 'qmrlab', u'qMRLab Documentation',
      [author], 1)
 ]
 
@@ -319,7 +319,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'qMRlab', u'qMRlab Documentation',
-     author, 'qMRlab', 'One line description of project.',
+    (master_doc, 'qMRLab', u'qMRLab Documentation',
+     author, 'qMRLab', 'One line description of project.',
      'Miscellaneous'),
 ]
