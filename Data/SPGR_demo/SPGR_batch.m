@@ -3,6 +3,7 @@
 % Written by: Ian Gagnon, 2017
 
 %% DESCRIPTION
+warning('off', 'all')
 help SPGR
 
 %% Load dataset

@@ -6,7 +6,7 @@ Inversion Recovery
 	:maxdepth: 1
 
 	IR_batch
-   	vfa_t1
+
 VFA_T1
 -------------------------------------
 .. toctree::
