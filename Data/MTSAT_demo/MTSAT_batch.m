@@ -9,7 +9,7 @@ help MTSAT
 [pathstr,fname,ext]=fileparts(which('MTSAT_batch.m'));
 cd (pathstr);
 
-% Create Model object 
+% Create Model object
 Model = MTSAT;
 % Define Protocol
 disp(Model.Prot.PD.Format)
@@ -38,7 +38,7 @@ delete('FitTempResults.mat');
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'MTw.nii.gz');
-save('CHARMEDParameters.mat','Model');
+save('MTSATParameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab
