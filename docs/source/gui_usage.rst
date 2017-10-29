@@ -91,7 +91,7 @@ Currently supported file types are .mat and .nii files. Your files should respec
 
    Example of list of inputs for qMT SPGR experiment
 
-*	Each model will expect a different format of inputs, but in general, for single slice (2D) imaging, the main data is a 3D array with size [nx, ny, ndata], where nx/ny is the number of voxels in the x/y direction, and ndata is the number of data points for each voxel. For volume imaging (3D), data is a 4D array with size [nx, ny, nz, ndata], where nx/ny/ndata are a above, and nz is the number of voxels (or slices) in the z direction (e.g. in this example *MTdata* would have several datapoints per voxel).
+*	Each model will expect a different format of inputs, but in general, for single slice (2D) imaging, the main data is a 3D array with size [nx, ny, ndata], where nx/ny is the number of voxels in the x/y direction, and ndata is the number of data points for each voxel. For volume imaging (3D), data is a 4D array with size [nx, ny, nz, ndata], where nx/ny/ndata are as above, and nz is the number of voxels (or slices) in the z direction (e.g. in this example *MTdata* would have several datapoints per voxel).
 *	Other files (e.g. in this example *R1map / B1map / B0map / Mask*) are formatted as [nx, ny, nz].
 
 For a more detailed description of the format required for each input, type this in the maltab window::
