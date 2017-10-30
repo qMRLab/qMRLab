@@ -1,6 +1,6 @@
 classdef MTSAT
 % MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1
-
+%
 % Assumptions:
 %   MTsat is a semi-quantitative method. MTsat values depend on protocol parameters.
 %
