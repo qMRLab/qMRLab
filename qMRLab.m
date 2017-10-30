@@ -495,6 +495,9 @@ ylim('auto');
 % SLICE
 function SliceValue_Callback(hObject, eventdata, handles)
 Slice = str2double(get(hObject,'String'));
+Slice = min(get(handles.SliceSlider,'Max'),Slice);
+Slice = max(1,Slice);
+set(hObject,'String',num2str(Slice));
 set(handles.SliceSlider,'Value',Slice);
 View =  get(handles.ViewPop,'Value');
 handles.FitDataSlice(View) = Slice;
@@ -509,6 +512,21 @@ set(handles.SliceValue, 'String', Slice);
 View =  get(handles.ViewPop,'Value');
 handles.FitDataSlice(View) = Slice;
 guidata(gcbf,handles);
+RefreshPlot(handles);
+
+function TimeValue_Callback(hObject, eventdata, handles)
+Time = str2double(get(hObject,'String'));
+Time = min(get(handles.TimeSlider,'Max'),Time);
+Time = max(1,Time);
+set(hObject,'String',num2str(Time));
+set(handles.TimeSlider,'Value',Time);
+RefreshPlot(handles);
+
+function TimeSlider_Callback(hObject, eventdata, handles)
+Time = get(hObject,'Value');
+Time = max(1,round(Time));
+set(handles.TimeSlider, 'Value', Time);
+set(handles.TimeValue, 'String', Time);
 RefreshPlot(handles);
 
 % OPEN FIG
@@ -866,5 +884,13 @@ function pushbutton169_Callback(hObject, eventdata, handles)
 function pushbutton168_Callback(hObject, eventdata, handles)
 function pushbutton167_Callback(hObject, eventdata, handles)
 function pushbutton166_Callback(hObject, eventdata, handles)
-
+function TimeValue_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function TimeSlider_CreateFcn(hObject, eventdata, handles)
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
 %----------------------------------------- END ------------------------------------------%
+
