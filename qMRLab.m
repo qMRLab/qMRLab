@@ -3,7 +3,7 @@ function varargout = qMRLab(varargin)
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Franï¿½is Cabana, 2016
 %
 % -- MTSAT functionality: P. Beliveau, 2017
 % -- File Browser changes: P. Beliveau 2017
@@ -217,6 +217,14 @@ for i=1:length(FileBrowserList)
 end
 FileBrowserList(MethodNum).Visible('on');
 
+% enable/disable viewdatafit
+if Model.voxelwise
+set(handles.ViewDataFit,'Enable','on')
+set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
+else
+set(handles.ViewDataFit,'Enable','off')
+set(handles.ViewDataFit,'TooltipString','No voxel-wise fitting for this qMR Method (Volume based method)')
+end
 guidata(hObject, handles);
 
 function SimfunGUI(functionName)
@@ -893,4 +901,3 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 %----------------------------------------- END ------------------------------------------%
-
