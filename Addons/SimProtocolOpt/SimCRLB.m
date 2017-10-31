@@ -1,4 +1,4 @@
-function [F,xnames,CRLB]=SimCRLB(obj,Prot,xvalues,sigma,vars)
+function [F,xnames,CRLB, Fall]=SimCRLB(obj,Prot,xvalues,sigma,vars)
 % [F,xnames,CRLB]=SimCRLB(obj,Prot,xvalues,sigma)
 % https://en.wikipedia.org/wiki/Cramer-Rao_bound
 % Based on: Alexander, D.C., 2008. A general framework for experiment design in diffusion MRI and its application in measuring direct tissue-microstructure features. Magn. Reson. Med. 60, 439?448.
@@ -17,5 +17,6 @@ for ix=1:size(xvalues,1)
     F(ix,:) = diag(CRLB)'./xvalues(ix).^2;
     
 end
+Fall = F(:);
 F = mean(F(:));
 xnames=obj.xnames(variables);
