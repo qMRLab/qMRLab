@@ -70,7 +70,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.ModelDir = [qMRLabDir filesep 'Models'];
     guidata(hObject, handles);
     addModelMenu(hObject, eventdata, handles);
-
+    
     % Fill FileBrowser with buttons
     MethodList = getappdata(0, 'MethodList');
     MethodList = strrep(MethodList, '.m', '');
@@ -86,7 +86,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
         FileBrowserList(iMethod).Visible('off');
         
     end
-
+    
+    
     SetAppData(FileBrowserList);
     
     load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
@@ -120,6 +121,9 @@ MethodMenu(hObject, eventdata, handles, Method);
 if wait
 uiwait(hObject)
 end
+
+
+
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
