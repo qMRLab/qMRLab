@@ -1,10 +1,26 @@
 function qMRusage(ModelObj,mstr)
+% QMRUSAGE usage and example for qMR objects methods
+%   qMRusage(obj) display the usage of all methods available for Model 'obj' 
+%
+%   qMRusage(obj,MethodName) display only usage of the method MethodName (e.g. fit)
+%   
+%   Example
+%     Model = MWF;
+%     qMRusage(Model)
+%     qMRusage(Model,'equation')
+% 
+if nargin<1, help qMRusage, return; end
 if nargin<2, mstr=methods(ModelObj); disp(['<strong>Methods available in ModelObj=' class(ModelObj) ':</strong>']); end
 if ischar(mstr), mstr = {mstr}; end
+try st = ModelObj.st;
+catch, try st = (ModelObj.ub + ModelObj.lb)/2; end
+end
+
 for im=1:length(mstr)
     mess = {};
     switch mstr{im}
         case 'equation'
+
             mess = {'Compute MR signal',...
                 'USAGE:',...
                 '  Smodel = ModelObj.equation(x)',...
@@ -15,7 +31,7 @@ for im=1:length(mstr)
                ['      x = struct;']};
             for ix=1:length(ModelObj.xnames)
                 mess = {mess{:},...
-               ['      x.' ModelObj.xnames{ix} ' = ' num2str(ModelObj.st(ix)) ';']};
+               ['      x.' ModelObj.xnames{ix} ' = ' num2str(st(ix)) ';']};
             end
             mess = {mess{:},...
                 '      ModelObj.equation(x)'};
@@ -59,7 +75,7 @@ for im=1:length(mstr)
                 ['      x = struct;']};
             for ix=1:length(ModelObj.xnames)
                 mess = {mess{:},...
-                ['      x.' ModelObj.xnames{ix} ' = ' num2str(ModelObj.st(ix)) ';']};
+                ['      x.' ModelObj.xnames{ix} ' = ' num2str(st(ix)) ';']};
             end
             mess = {mess{:},...
                 '      ModelObj.plotmodel(x)'};
@@ -73,6 +89,7 @@ for im=1:length(mstr)
             catch
                 isfieldopt = false;
             end
+
             mess = {'Simulates Single Voxel curves:',...
                 '   (1) use equation to generate synthetic MRI data',...
                 '   (2) add rician noise',...
@@ -89,7 +106,7 @@ for im=1:length(mstr)
                  '      x = struct;'};
             for ix=1:length(ModelObj.xnames)
                 mess = {mess{:},...
-                ['      x.' ModelObj.xnames{ix} ' = ' num2str(ModelObj.st(ix)) ';']};
+                ['      x.' ModelObj.xnames{ix} ' = ' num2str(st(ix)) ';']};
             end
             if isfieldopt
                 mess = {mess{:},...
@@ -127,7 +144,7 @@ for im=1:length(mstr)
                  'EXAMPLE:',...
                 ['      ModelObj = ' class(ModelObj)],...
                 ['      %              ' sprintf('%-14s',ModelObj.xnames{:})],...
-                ['      OptTable.st = [' num2str(ModelObj.st,'%-14.2g') ']; % nominal values'],...
+                ['      OptTable.st = [' num2str(st,'%-14.2g') ']; % nominal values'],...
                 ['      OptTable.fx = [' num2str([false true(1,length(ModelObj.xnames)-1)],'%-14.0g') ']; %vary ' ModelObj.xnames{1} '...'],...
                 ['      OptTable.lb = [' num2str(ModelObj.lb,'%-14.2g') ']; %...from ' num2str(ModelObj.lb(1))],...
                 ['      OptTable.ub = [' num2str(ModelObj.ub,'%-14.2g') ']; %...to ' num2str(ModelObj.ub(1))],...
