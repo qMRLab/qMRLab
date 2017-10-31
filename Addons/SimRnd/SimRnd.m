@@ -16,10 +16,16 @@ for ii = 1:n
         x(ix) = RndParam.(Model.xnames{ix})(ii);
     end
     Fit = Model.Sim_Single_Voxel_Curve(x,Opt,0);
-    fields = fieldnames(Fit);
+    
+    if ii==1 % initialize structure at first Sim
+        fields = fieldnames(Fit);
+        for vox = 1:length(fields)
+            SimRndResults.(fields{vox}) = nan(n,1);
+        end
+    end
     
     for jj = 1:length(fields)
-        SimRndResults.(fields{jj})(ii) = Fit.(fields{jj});
+        SimRndResults.(fields{jj})(ii) = Fit.(fields{jj})(1);
     end
         
     % Update waitbar
