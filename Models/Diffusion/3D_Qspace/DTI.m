@@ -55,8 +55,8 @@ classdef DTI
         
         % fitting options
         st           = [ 2      0.7     0.7]; % starting point
-%         lb           = [ 0       0       0 ]; % lower bound
-%         ub           = [ 1       5       5 ]; % upper bound
+        lb           = [ 0       0       0 ]; % lower bound
+        ub           = [ 5       5       5 ]; % upper bound
         fx           = [ 0       0        0]; % fix parameters
         
         % Protocol
@@ -230,6 +230,10 @@ classdef DTI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);            
         end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimVaryGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
         
     end
 end

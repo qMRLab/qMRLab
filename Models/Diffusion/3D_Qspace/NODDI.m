@@ -238,5 +238,10 @@ classdef NODDI
             
         end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimVaryGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
     end
 end
