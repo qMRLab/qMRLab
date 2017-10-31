@@ -3,7 +3,7 @@ function varargout = qMRLab(varargin)
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Franï¿½is Cabana, 2016
 %
 % -- MTSAT functionality: P. Beliveau, 2017
 % -- File Browser changes: P. Beliveau 2017
@@ -241,6 +241,14 @@ for i=1:length(FileBrowserList)
 end
 FileBrowserList(MethodNum).Visible('on');
 
+% enable/disable viewdatafit
+if Model.voxelwise
+set(handles.ViewDataFit,'Enable','on')
+set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
+else
+set(handles.ViewDataFit,'Enable','off')
+set(handles.ViewDataFit,'TooltipString','No voxel-wise fitting for this qMR Method (Volume based method)')
+end
 guidata(hObject, handles);
 
 function SimfunGUI(functionName)
@@ -519,6 +527,9 @@ ylim('auto');
 % SLICE
 function SliceValue_Callback(hObject, eventdata, handles)
 Slice = str2double(get(hObject,'String'));
+Slice = min(get(handles.SliceSlider,'Max'),Slice);
+Slice = max(1,Slice);
+set(hObject,'String',num2str(Slice));
 set(handles.SliceSlider,'Value',Slice);
 View =  get(handles.ViewPop,'Value');
 handles.FitDataSlice(View) = Slice;
@@ -533,6 +544,21 @@ set(handles.SliceValue, 'String', Slice);
 View =  get(handles.ViewPop,'Value');
 handles.FitDataSlice(View) = Slice;
 guidata(gcbf,handles);
+RefreshPlot(handles);
+
+function TimeValue_Callback(hObject, eventdata, handles)
+Time = str2double(get(hObject,'String'));
+Time = min(get(handles.TimeSlider,'Max'),Time);
+Time = max(1,Time);
+set(hObject,'String',num2str(Time));
+set(handles.TimeSlider,'Value',Time);
+RefreshPlot(handles);
+
+function TimeSlider_Callback(hObject, eventdata, handles)
+Time = get(hObject,'Value');
+Time = max(1,round(Time));
+set(handles.TimeSlider, 'Value', Time);
+set(handles.TimeValue, 'String', Time);
 RefreshPlot(handles);
 
 % OPEN FIG
@@ -890,5 +916,12 @@ function pushbutton169_Callback(hObject, eventdata, handles)
 function pushbutton168_Callback(hObject, eventdata, handles)
 function pushbutton167_Callback(hObject, eventdata, handles)
 function pushbutton166_Callback(hObject, eventdata, handles)
-
+function TimeValue_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function TimeSlider_CreateFcn(hObject, eventdata, handles)
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
 %----------------------------------------- END ------------------------------------------%
