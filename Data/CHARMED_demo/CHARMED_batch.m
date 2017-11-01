@@ -8,6 +8,7 @@ quickdemo = true; % skip long processing?
 % Create Model object 
 Model = CHARMED;
 % Load Diffusion Protocol
+% TODO: Explain how Protocol.txt should be created
 Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');
 
 %**************************************************************************

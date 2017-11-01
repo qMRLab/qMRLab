@@ -1,5 +1,6 @@
 
 function GetPlotRange(handles)
+if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
 values=Current(:); values(isinf(values))=[]; values(isnan(values))=[]; 
 
