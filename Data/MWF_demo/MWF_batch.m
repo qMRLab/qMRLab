@@ -62,6 +62,7 @@ data.Mask     = double(Mask);
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
+% All voxels
 FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 delete('FitTempResults.mat');
 
