@@ -646,6 +646,7 @@ function Viewer_Callback(hObject, eventdata, handles)
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 file = fullfile(handles.root,strcat(Source,'.nii'));
+if isempty(handles.CurrentData), return; end
 Data = handles.CurrentData;
 nii = make_nii(Data.(Source));
 save_nii(nii,file);
@@ -680,6 +681,7 @@ handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
 function RefreshPlot(handles)
+if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
 xl = xlim;
 yl = ylim;
