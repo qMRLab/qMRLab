@@ -15,7 +15,7 @@ function varargout = Sim_Optimize_Protocol_GUI(varargin)
 
 % Edit the above text to modify the response to help Sim_SimOptProt
 
-% Last Modified by GUIDE v2.5 01-Nov-2017 15:38:22
+% Last Modified by GUIDE v2.5 01-Nov-2017 17:48:03
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -88,7 +88,13 @@ if isfield(handles,'ProtOpt')
     [FileName,PathName] = uiputfile([Method '_ProtocolOptim.txt']);
     if PathName == 0, return; end
     fid = fopen(fullfile(PathName,FileName),'w');
+    if iscell(Model.Prot.(Model.MRIinputs{1}).Format)
     Model.Prot.(Model.MRIinputs{1}).Format{1}=['# ' Model.Prot.(Model.MRIinputs{1}).Format{1}];
+    else
+        format = Model.Prot.(Model.MRIinputs{1}).Format;
+        Model.Prot.(Model.MRIinputs{1}).Format = cell(1,1);
+        Model.Prot.(Model.MRIinputs{1}).Format{1}=['# ' format];
+    end
     fprintf(fid, '%-15s ',Model.Prot.(Model.MRIinputs{1}).Format{:});
     for i_line=1:size(handles.ProtOpt,1)
         fprintf(fid, '\n');
@@ -111,13 +117,16 @@ if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
 end
 ParamOpt = get(handles.ParamTable,'Data');
 Opt = button_handle2opts(handles.options);
-axes(handles.uipanel12);
+if isgraphics(handles.SimCurveAxe)
+    axes(handles.SimCurveAxe);
+end
 xvalues=cell2mat(ParamOpt);
 handles.ProtOpt = handles.Model.Sim_Optimize_Protocol(xvalues, Opt);
 guidata(hObject, handles);
 
 Model = handles.Model;
 Model.Prot.(Model.MRIinputs{1}).Mat = handles.ProtOpt;
+Model = Model.UpdateFields();
 if ismethod(Model,'plotProt')
 Model.plotProt;
 else
