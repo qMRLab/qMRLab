@@ -1,9 +1,21 @@
 function varargout = Sim_Optimize_Protocol_GUI(varargin)
-% Sim_SimOptProt MATLAB code for Sim_SimOptProt.fig
+% Protocol design for qMR: Optimize the stability of fitting parameters
+% toward gaussian noise.
+%
+% Usage:
+%   Click on update button to run the simulation
+%   When Optimization is finished, Single Voxel Curve Simulation is
+%     automatically performed using the optimized protocol. 
+%   Save the protocol in text file using save button
+%     
+% Description:
+% Use the Cramer-Rao Lower bound for objective function: <a href="matlab: web('https://en.wikipedia.org/wiki/Cramer-Rao_bound')">Wikipedia</a>
+% Based on: Alexander, D.C., 2008. A general framework for experiment design in diffusion MRI and its application in measuring direct tissue-microstructure features. Magn. Reson. Med. 60, 439?448.
+
 
 % Edit the above text to modify the response to help Sim_SimOptProt
 
-% Last Modified by GUIDE v2.5 06-Oct-2017 17:47:23
+% Last Modified by GUIDE v2.5 01-Nov-2017 15:38:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -109,7 +121,8 @@ Model.Prot.(Model.MRIinputs{1}).Mat = handles.ProtOpt;
 if ismethod(Model,'plotProt')
 Model.plotProt;
 else
-    Model.plotmodel(xvalues(1,:));
+    Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons);
+    Model.Sim_Single_Voxel_Curve(xvalues(1,:),Opt,1);
 end
 set(findobj('Name','SimOptProt'),'pointer', 'arrow'); drawnow;
 
@@ -130,3 +143,8 @@ for k=1:nargin; rmappdata(0, varargin{k}); end
 
 % --- Executes when entered data in editable cell(s) in ParamTable.
 function ParamTable_CellEditCallback(hObject, eventdata, handles)
+
+
+% --------------------------------------------------------------------
+function helpbutton_ClickedCallback(hObject, eventdata, handles)
+doc Sim_Optimize_Protocol_GUI
