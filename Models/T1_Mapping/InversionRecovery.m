@@ -23,7 +23,8 @@ classdef InversionRecovery
 %                              S=|a + b*exp(-TI/T1)|
 %
 % Protocol:
-%   TI      Array containing a list of inversion times [ms]
+%		1 .txt files or 1 .mat file :
+%   	TI      Array [1 column] containing a list of inversion times [ms]
 %
 % Author: Ilana Leppert, 2017
 %
@@ -71,7 +72,7 @@ classdef InversionRecovery
         % -------------IR EQUATION-------------------------------------------------------------------------
         function Smodel = equation(obj, x)
             % Generates an IR signal based on input parameters
-            
+
 
             if ~isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
