@@ -1,65 +1,51 @@
 classdef NODDI
-%-----------------------------------------------------------------------------------------------------
-% NODDI :  Neurite Orientation Dispersion and Density Imaging
+% NODDI:   Neurite Orientation Dispersion and Density Imaging
 %          Three-compartment model for fitting multi-shell DWI
+%<a href="matlab: figure, imshow NODDI.png ;">Pulse Sequence Diagram</a>
 %           
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
+% ASSUMPTIONS:
 % (1) neuronal fibers (axons) are impermeable sticks (Dperp = 0)
 % (2) Presence of orientation dispersion of the fibers (Watson distribution). Note that NODDI is more robust to
-% crossing fibers that DTI  (Campbell, NIMG 2017)
-% and isotropic diffusion coefficient (parameters di and diso)
-%
-% Intra-cellular Model:
-% (3) Fixed diffusion coefficient (parameter di)
-%
-% Extra-cellular Model:
-% (4) Tortuosity model. Parallel diffusivity is equal to
-% intra-diffusivity.Perpendicular diffusivity is proportional to fiber
-% density
+%     crossing fibers that DTI  (Campbell, NIMG 2017)
+%     and isotropic diffusion coefficient (parameters di and diso)
+% (3) Intra-cellular Model: Fixed diffusion coefficient (parameter di)
+% (4) Extra-cellular Model:Tortuosity model. Parallel diffusivity is equal to
+%                          intra-diffusivity.Perpendicular diffusivity is proportional to fiber
+%                          density
 % (5) No time dependence of the diffusion
 %
+% Inputs:
+%   DiffusionData       4D diffusion weighted dataset
 %
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   DiffusionData: 4D diffusion weighted dataset
+% Outputs:
+%   di                  Diffusion coefficient in the restricted compartment.
+%   ficvf               Fraction of water in the restricted compartment.
+%   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
+%   kappa               Orientation dispersion index                               
+%   b0                  Signal at b=0
+%   theta               angle of the fibers
+%   phi                 angle of the fibers
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%       * di            : Diffusion coefficient in the restricted compartment.
-%       * ficvf         : Fraction of water in the restricted compartment.
-%       * diso (fixed)  : diffusion coefficient of the isotropic compartment (CSF)
-%       * kappa         : Orientation dispersion index                               
-%       * b0            : Signal at b=0
-%       * theta         : angle of the fibers
-%       * phi           : angle of the fibers
+% Protocol:
+%   Multi-shell diffusion-weighted acquisition
+%       at least 2 non-zeros bvalues
+%       at least 5 b=0 (used to compute noise standard deviation
 %
-%      
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
-%   Multi-shell diffusion-weighted acquisition : 
-%       - at least 2 non-zeros bvalues)
-%       - at least 5 b=0 (used to compute noise standard deviation)
+% Options:
+%   Model               Model part of NODDI. 
+%                         Available models are:
+%                           -WatsonSHStickTortIsoVIsoDot_B0 is a four model compartment used for ex-vivo datasets
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
-%   Model Name: Model part of NODDI. WatsonSHStickTortIsoVIsoDot_B0 is a
-%   four model compartment used for ex-vivo datasets
+% Example of command line usage (see also <a href="matlab: showdemo NODDI_batch">showdemo NODDI_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(NODDI);">qMRusage(NODDI)</a>
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Tanguy Duval
-% Reference: Zhang, H., Schneider, T., Wheeler-Kingshott, C.A., Alexander, D.C., 2012. NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage 61, 1000?1016.
-%-----------------------------------------------------------------------------------------------------    
+% Author: Tanguy Duval
+%
+% References:
+%   Please cite the following if you use this module:
+%     Zhang, H., Schneider, T., Wheeler-Kingshott, C.A., Alexander, D.C., 2012. NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage 61, 1000?1016.
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
     properties
         MRIinputs = {'DiffusionData','Mask'};

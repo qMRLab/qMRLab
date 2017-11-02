@@ -1,8 +1,9 @@
 classdef InversionRecovery
 %InversionRecovery: Compute a T1 map using Inversion Recovery data
+%<a href="matlab: figure, imshow IR.png ;">Pulse Sequence Diagram</a>
 %
 % Assumptions:
-% 	Gold standard for T1 mapping
+% (1)Gold standard for T1 mapping
 %
 % Inputs:
 %   IRData      Inversion Recovery data (4D)
@@ -15,15 +16,19 @@ classdef InversionRecovery
 %   idx         index of last polarity restored datapoint (only used for magnitude data)
 %   res         Fitting residual
 %
-% Options:
-%   method: Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
-%           'complex'   : RD-NLS (Reduced-Dimension Non-Linear Least Squares)
-%                              S=a + b*exp(-TI/T1)
-%           'magnitude' : RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
-%                              S=|a + b*exp(-TI/T1)|
-%
 % Protocol:
-%   TI      Array containing a list of inversion times [ms]
+%   TI          Array containing a list of inversion times [ms]
+%
+% Options:
+%   Method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
+%     'complex'         RD-NLS (Reduced-Dimension Non-Linear Least Squares)
+%                         S=a + b*exp(-TI/T1)
+%      'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
+%                         S=|a + b*exp(-TI/T1)|
+%
+%
+% Example of command line usage (see also <a href="matlab: showdemo IR_batch">showdemo IR_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(InversionRecovery);">qMRusage(InversionRecovery)</a>
 %
 % Author: Ilana Leppert, 2017
 %
@@ -33,7 +38,6 @@ classdef InversionRecovery
 %   In addition to citing the package:
 %       Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 %
-%----------------------------------------------------------------------
 	properties
         MRIinputs = {'IRData','Mask'}; % input data required
         xnames = {'T1','rb','ra'}; % name of the fitted parameters

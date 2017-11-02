@@ -2,8 +2,11 @@ classdef SPGR
 %SPGR:  qMT using Spoiled Gradient Echo (or FLASH)
 %<a href="matlab: figure, imshow qMT_SPGR.png ;">Pulse Sequence Diagram</a>
 %
-% Assumptions:
-%   FILL 
+% ASSUMPTIONS:
+% (1)FILL 
+% (2)
+% (3) 
+% (4)
 %
 % Inputs:
 %   MTdata              Magnetization Transfert data
@@ -97,9 +100,8 @@ classdef SPGR
 %   Read pulse alpha       Flip angle of the excitation pulse.
 %   Compute SfTable        By checking this box, you compute a new SfTable  
 %
-% Command line usage:
-%   <a href="matlab: qMRusage(SPGR);">qMRusage(SPGR)</a>
-%   <a href="matlab: showdemo SPGR_batch">showdemo SPGR_batch</a>
+% Example of command line usage (see also <a href="matlab: showdemo SPGR_batch">showdemo SPGR_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(SPGR);">qMRusage(SPGR)</a>
 %
 % Author: Ian Gagnon, 2017
 %

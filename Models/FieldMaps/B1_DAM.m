@@ -1,43 +1,36 @@
 classdef B1_DAM
-%-----------------------------------------------------------------------------------------------------
-% B1_DAM map :  Double-Angle Method for B1+ mapping
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
+% B1_DAM map:  Double-Angle Method for B1+ mapping
+%<a href="matlab: figure, imshow B1_DAM.png ;">Pulse Sequence Diagram</a>
+%
+% ASSUMPTIONS:
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   1) SF60  : SPGR data at a flip angle of 60 degree
-%   2) SF120 : SPGR data at a flip angle of 120 degree
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%	* B1map : Excitation (B1+) field map
+% Inputs:
+%   SF60            SPGR data at a flip angle of 60 degree
+%   SF120           SPGR data at a flip angle of 120 degree
 %
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
+% Outputs:
+%	B1map           Excitation (B1+) field map
+%
+% Protocol:
 %	NONE
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
+% Options
 %   NONE
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Ian Gagnon, 2017
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
+% Example of command line usage (see also <a href="matlab: showdemo B1_DAM_batch">showdemo B1_DAM_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(B1_DAM);">qMRusage(B1_DAM)</a>
+%
+% Author: Ian Gagnon, 2017
+%
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
     properties
         MRIinputs = {'SF60','SF120'};

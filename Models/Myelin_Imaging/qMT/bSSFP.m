@@ -1,101 +1,90 @@
 classdef bSSFP
-%-----------------------------------------------------------------------------------------------------
-% bSSFP : qMT using Balanced Steady State Free Precession acquisition
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
+% bSSFP: qMT using Balanced Steady State Free Precession acquisition
+%<a href="matlab: figure, imshow qMT_bSSFP.png ;">Pulse Sequence Diagram</a>
+%
+% ASSUMPTIONS:
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
 %
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   1) MTdata : Magnetization Transfert data
-%   2) R1map  : 1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
-%   3) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
+% Inputs:
+%   MTdata             Magnetization Transfert data
+%   (R1map)            1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
+%   (Mask)             Binary mask to accelerate the fitting (OPTIONAL)
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%   Fitting Parameters
-%       * F   : Ratio of number of restricted pool to free pool, defined 
-%               as F = M0r/M0f = kf/kr.
-%       * kr  : Exchange rate from the free to the restricted pool 
-%               (note that kf and kr are related to one another via the 
-%               definition of F. Changing the value of kf will change kr 
-%               accordingly, and vice versa).
-%       * R1f : Longitudinal relaxation rate of the free pool 
-%               (R1f = 1/T1f).
-%       * R1r : Longitudinal relaxation rate of the restricted pool 
-%               (R1r = 1/T1r).
-%       * T2f : Tranverse relaxation time of the free pool (T2f = 1/R2f).
-%       * M0f : Equilibrium value of the free pool longitudinal 
-%               magnetization.
+% Outputs:
+%   F                  Ratio of number of restricted pool to free pool, defined 
+%                        as F = M0r/M0f = kf/kr.
+%   kr                 Exchange rate from the free to the restricted pool 
+%                        (note that kf and kr are related to one another via the 
+%                        definition of F. Changing the value of kf will change kr 
+%                        accordingly, and vice versa).
+%   R1f                Longitudinal relaxation rate of the free pool 
+%                        (R1f = 1/T1f).
+%   R1r                Longitudinal relaxation rate of the restricted pool 
+%                        (R1r = 1/T1r).
+%   T2f                Tranverse relaxation time of the free pool (T2f = 1/R2f).
+%   M0f                Equilibrium value of the free pool longitudinal 
+%                        magnetization.
+%   (M0r)              Equilibrium value of the restricted pool longitudinal 
+%                        magnetization.
+%   (kf)               Exchange rate from the restricted to the free pool.
+%   (resnorm)          Fitting residual.
 %
-%   Additional Outputs
-%       * M0r    : Equilibrium value of the restricted pool longitudinal 
-%                  magnetization.
-%       * kf     : Exchange rate from the restricted to the free pool.
-%       * resnorm: Fitting residual.
-%
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
+% Protocol:
 %   MTdata
-%       * Alpha : Flip angle of the RF pulses (degree)
-%       * Trf   : Duration of the RF pulses (s)
+%     Alpha            Flip angle of the RF pulses (degree)
+%     Trf              Duration of the RF pulses (s)
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
+% Options:
 %   RF Pulse
-%       * Shape          : Shape of the RF pulses.
-%                          Available shapes are:
-%                          - hard
-%                          - gaussian
-%                          - gausshann (gaussian pulse with Hanning window)
-%                          - sinc
-%                          - sinchann (sinc pulse with Hanning window)
-%                          - singauss (sinc pulse with gaussian window)
-%                          - fermi
-%       * # of RF pulses : Number of RF pulses applied before readout.
+%     Shape                 Shape of the RF pulses.
+%                               Available shapes are:
+%                               - hard
+%                               - gaussian
+%                               - gausshann (gaussian pulse with Hanning window)
+%                               - sinc
+%                               - sinchann (sinc pulse with Hanning window)
+%                               - singauss (sinc pulse with gaussian window)
+%                               - fermi
+%     # of RF pulses        Number of RF pulses applied before readout.
 %
 %   Protocol Timing
-%       * Fix TR        : Select this option and enter a value in the text 
-%                         box below to set a fixed repetition time.
-%       * Fix TR - Trf  : Select this option and enter a value in the text 
-%                         box below to set a fixed free precession time
-%                         (TR - Trf).
-%       * Prepulse      : Perform an Alpha/2 - TR/2 prepulse before each 
-%                         series of RF pulses.
+%     Fix TR                Select this option and enter a value in the text 
+%                               box below to set a fixed repetition time.
+%     Fix TR - Trf          Select this option and enter a value in the text 
+%                               box below to set a fixed free precession time
+%                               (TR - Trf).
+%     Prepulse              Perform an Alpha/2 - TR/2 prepulse before each 
+%                               series of RF pulses.
 %
 %   R1
-%       * Use R1map to  : By checking this box, you tell the fitting 
-%         constrain R1f   algorithm to check for an observed R1map and use
-%                         its value to constrain R1f. Checking this box 
-%                         will automatically set the R1f fix box to true in            
-%                         the Fit parameters table.                
-%       * Fix R1r = R1f : By checking this box, you tell the fitting
-%                         algorithm to fix R1r equal to R1f. Checking this 
-%                         box will automatically set the R1r fix box to 
-%                         true in the Fit parameters table.
+%     Use R1map to          By checking this box, you tell the fitting 
+%     constrain R1f          algorithm to check for an observed R1map and use
+%                            its value to constrain R1f. Checking this box 
+%                            will automatically set the R1f fix box to true in            
+%                            the Fit parameters table.                
+%     Fix R1r = R1f         By checking this box, you tell the fitting
+%                            algorithm to fix R1r equal to R1f. Checking this 
+%                            box will automatically set the R1r fix box to 
+%                            true in the Fit parameters table.
 %
 %   Global
-%       * G(0)          : The assumed value of the absorption lineshape of
-%                         the restricted pool.
+%     G(0)                  The assumed value of the absorption lineshape of
+%                            the restricted pool.
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Ian Gagnon, 2017
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
-    
+% Example of command line usage (see also <a href="matlab: showdemo bSSFP_batch">showdemo bSSFP_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(bSSFP);">qMRusage(bSSFP)</a>
+%
+% Author: Ian Gagnon, 2017
+
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+     
     properties
         MRIinputs = {'MTdata','R1map','Mask'}; % input data required
         xnames = {'F','kr','R1f','R1r','T2f','M0f'}; % name of the fitted parameters
