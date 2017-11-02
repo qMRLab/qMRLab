@@ -1,6 +1,9 @@
 function qMRusage(obj,mstr)
 if nargin<2, mstr=methods(obj); disp(['<strong>Methods available in obj=' class(obj) ':</strong>']); end
-if ischar(mstr), mstr = {mstr}; end
+if ischar(mstr)
+    mlist = methods(obj);
+    mstr = mlist(~cellfun(@isempty,regexp(mlist,mstr))); 
+end
 for im=1:length(mstr)
     mess = {};
     switch mstr{im}
