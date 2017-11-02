@@ -1,26 +1,32 @@
 classdef CustomExample % Name your Model
-    % ----------------------------------------------------------------------------------------------------
-    % CustomExample :  Describe the method here
-    % ----------------------------------------------------------------------------------------------------
-    % Assumptions :
-    % (1) 
-    % (2) 
-    % ----------------------------------------------------------------------------------------------------
-    %
-    %  Fitted Parameters:
-    %    * Param1 :    
-    %    * Param2 :    
-    %
-    %  Non-Fitted Parameters:
-    %    * residue : Fitting residue.
-    %
-    %
-    % Options:
-    %   Q-space regularization : Smooth q-space data per shell prior fitting
-    % ----------------------------------------------------------------------------------------------------
-    % Written by: 
-    % Reference: 
-    % ----------------------------------------------------------------------------------------------------
+% CustomExample :  Describe the method here
+%<a href="matlab: figure, imshow CustomExample.png ;">Pulse Sequence Diagram</a>
+%
+% Assumptions:
+% (1)FILL
+% (2) 
+%
+% Fitted Parameters:
+%    Param1    
+%    Param2    
+%
+% Non-Fitted Parameters:
+%    residue                    Fitting residue.
+%
+% Options:
+%   Q-space regularization      
+%       Smooth q-space data per shell prior fitting
+%
+% Example of command line usage (see also <a href="matlab: showdemo Custom_batch">showdemo Custom_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(Custom);">qMRusage(Custom)</a>
+%
+% Author: 
+%
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
     properties
         MRIinputs = {'Data4D','Mask'}; % used in the data panel 

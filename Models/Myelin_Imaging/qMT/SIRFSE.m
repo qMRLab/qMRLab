@@ -1,102 +1,91 @@
 classdef SIRFSE
-%-----------------------------------------------------------------------------------------------------
-% SIRFSE :  qMT using Inversion Recovery Fast Spin Echo acquisition
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
+% SIRFSE:  qMT using Inversion Recovery Fast Spin Echo acquisition
+%<a href="matlab: figure, imshow qMT_SIRFSE.png ;">Pulse Sequence Diagram</a>
+%
+% ASSUMPTIONS: 
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
 %
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   1) MTdata : Magnetization Transfert data
-%   2) R1map  : 1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
-%   3) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
+% Inputs:
+%   MTdata              Magnetization Transfert data
+%   (R1map)             1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
+%   (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%   Fitting Parameters
-%       * F   : Ratio of number of restricted pool to free pool, defined 
-%               as F = M0r/M0f = kf/kr.
-%       * kr  : Exchange rate from the free to the restricted pool 
-%               (note that kf and kr are related to one another via the 
-%               definition of F. Changing the value of kf will change kr 
-%               accordingly, and vice versa).
-%       * R1f : Longitudinal relaxation rate of the free pool 
-%               (R1f = 1/T1f).
-%       * R1r : Longitudinal relaxation rate of the restricted pool 
-%               (R1r = 1/T1r).
-%       * Sf  : Instantaneous fraction of magnetization after vs. before 
-%               the pulse in the free pool. Starting point is computed using Block
-%               simulation.
-%       * Sr  : Instantaneous fraction of magnetization after vs. before 
-%               the pulse in the restricted pool. Starting point is computed using block
-%               simulation.
-%       * M0f : Equilibrium value of the free pool longitudinal 
-%               magnetization.
+% Outputs:
+%   F                   Ratio of number of restricted pool to free pool, defined 
+%                         as F = M0r/M0f = kf/kr.
+%   kr                  Exchange rate from the free to the restricted pool 
+%                         (note that kf and kr are related to one another via the 
+%                         definition of F. Changing the value of kf will change kr 
+%                         accordingly, and vice versa).
+%   R1f                 Longitudinal relaxation rate of the free pool 
+%                         (R1f = 1/T1f).
+%   R1r                 Longitudinal relaxation rate of the restricted pool 
+%                         (R1r = 1/T1r).
+%   Sf                  Instantaneous fraction of magnetization after vs. before 
+%                         the pulse in the free pool. Starting point is computed using Block
+%                         simulation.
+%   Sr                  Instantaneous fraction of magnetization after vs. before 
+%                         the pulse in the restricted pool. Starting point is computed using block
+%                         simulation.
+%   M0f                 Equilibrium value of the free pool longitudinal 
+%                         magnetization.
+%   (M0r)               Equilibrium value of the restricted pool longitudinal 
+%                         magnetization. Computed using M0f = M0r * F. 
+%   (kf)                Exchange rate from the restricted to the free pool. 
+%                         Computed using kf = kr * F.
+%   (resnorm)           Fitting residual.
 %
-%   Additional Outputs
-%       * M0r    : Equilibrium value of the restricted pool longitudinal 
-%                  magnetization. Computed using M0f = M0r * F. 
-%       * kf     : Exchange rate from the restricted to the free pool. 
-%                  Computed using kf = kr * F.
-%       * resnorm: Fitting residual.
+% Protocol:
+%   MTdata
+%     Ti                Inversion times (s)
+%     Td                Delay times (s)   
 %
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
-%   1) MTdata
-%       * Ti : Inversion times (s)
-%       * Td : Delay times (s)   
+%   FSEsequence
+%     Trf               Duration of the pulses in the FSE sequence (s)
+%     Tr                Delay between the pulses in the FSE sequnece (s)
+%     Npulse            Number of refocusing pulses in the FSE sequence
 %
-%   2) FSEsequence
-%       * Trf    : Duration of the pulses in the FSE sequence (s)
-%       * Tr     : Delay between the pulses in the FSE sequnece (s)
-%       * Npulse : Number of refocusing pulses in the FSE sequence
-%
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
+% Options:
 %   Inversion Pulse
-%       * Shape    : Shape of the inversion pulse.
-%                    Available shapes are:
-%                    - hard
-%                    - gaussian
-%                    - gausshann (gaussian pulse with Hanning window)
-%                    - sinc
-%                    - sinchann (sinc pulse with Hanning window)
-%                    - singauss (sinc pulse with gaussian window)
-%                    - fermi
-%       * Duration : Duration of the inversion pulse (s)
+%     Shape             Shape of the inversion pulse.
+%                          Available shapes are:
+%                          - hard
+%                          - gaussian
+%                          - gausshann (gaussian pulse with Hanning window)
+%                          - sinc
+%                          - sinchann (sinc pulse with Hanning window)
+%                          - singauss (sinc pulse with gaussian window)
+%                          - fermi
+%     Duration          Duration of the inversion pulse (s)
 %
 %   Fitting
-%       * Use R1map to  : By checking this box, you tell the fitting 
-%         constrain R1f   algorithm to check for an observed R1map and use
+%     Use R1map to      By checking this box, you tell the fitting 
+%     constrain R1f       algorithm to check for an observed R1map and use
 %                         its value to constrain R1f. Checking this box 
 %                         will automatically set the R1f fix box to true in            
 %                         the Fit parameters table.                
-%       * Fix R1r = R1f : By checking this box, you tell the fitting
+%     Fix R1r = R1f     By checking this box, you tell the fitting
 %                         algorithm to fix R1r equal to R1f. Checking this 
 %                         box will automatically set the R1r fix box to 
 %                         true in the Fit parameters table.
 %
 %   Sr Calculation
-%       * Lineshape: The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
-%       * T2r: Transverse relaxation time of the restricted pool (T2r = 1/R2r)
+%     Lineshape         The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
+%     T2r               Transverse relaxation time of the restricted pool (T2r = 1/R2r)
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Ian Gagnon, 2017
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
+% Example of command line usage (see also <a href="matlab: showdemo SIRFSE_batch">showdemo SIRFSE_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(SIRFSE);">qMRusage(SIRFSE)</a>
+%
+% Author: Ian Gagnon, 2017
+
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
     properties
         MRIinputs = {'MTdata','R1map','Mask'}; % input data required
