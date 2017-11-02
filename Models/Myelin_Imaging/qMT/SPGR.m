@@ -192,7 +192,7 @@ classdef SPGR
         end
         
         function obj = Precompute(obj)
-            if isempty(fieldnames(obj.ProtSfTable))
+            if isempty(obj.ProtSfTable)
                 obj.ProtSfTable = CacheSf(GetProt(obj));
             else
                 obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
