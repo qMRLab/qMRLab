@@ -2,11 +2,8 @@ classdef SPGR
 %SPGR:  qMT using Spoiled Gradient Echo (or FLASH)
 %<a href="matlab: figure, imshow qMT_SPGR.png ;">Pulse Sequence Diagram</a>
 %
-% ASSUMPTIONS:
-% (1)FILL 
-% (2)
-% (3) 
-% (4)
+% Assumptions:
+%   FILL
 %
 % Inputs:
 %   MTdata              Magnetization Transfert data
@@ -16,22 +13,22 @@ classdef SPGR
 %   (Mask)              Binary mask to accelerate the fitting
 %
 % Outputs:
-%   F                   Ratio of number of restricted pool to free pool, defined 
+%   F                   Ratio of number of restricted pool to free pool, defined
 %                         as F = M0r/M0f = kf/kr.
-%   kr                  Exchange rate from the free to the restricted pool 
-%                         (note that kf and kr are related to one another via the 
-%                         definition of F. Changing the value of kf will change kr 
+%   kr                  Exchange rate from the free to the restricted pool
+%                         (note that kf and kr are related to one another via the
+%                         definition of F. Changing the value of kf will change kr
 %                         accordingly, and vice versa).
-%   R1f                 Longitudinal relaxation rate of the free pool 
+%   R1f                 Longitudinal relaxation rate of the free pool
 %                         (R1f = 1/T1f).
-%	R1r                 Longitudinal relaxation rate of the restricted pool 
+%	R1r                 Longitudinal relaxation rate of the restricted pool
 %                         (R1r = 1/T1r).
 %	T2f                 Tranverse relaxation time of the free pool (T2f = 1/R2f).
 %   T2r                 Tranverse relaxation time of the restricted pool (T2r = 1/R2r).
 %	(kf)                Exchange rate from the restricted to the free pool.
 %   (resnorm)           Fitting residual.
 %
-% Protocol: 
+% Protocol:
 %   MTdata
 %     Angle             MT pulses angles (degree)
 %     Offset            Offset frequencies (Hz)
@@ -40,7 +37,7 @@ classdef SPGR
 %     Tmt               Duration of the MT pulses (s)
 %     Ts                Free precession delay between the MT and excitation pulses (s)
 %     Tp                Duration of the excitation pulse (s)
-%     Tr                Free precession delay after tje excitation pulse, before 
+%     Tr                Free precession delay after tje excitation pulse, before
 %                         the next MT pulse (s)
 %     TR                Repetition time of the whole sequence (TR = Tmt + Ts + Tp + Tr)
 %
@@ -56,72 +53,73 @@ classdef SPGR
 %                              - sinchann (sinc pulse with Hanning window)
 %                              - singauss (sinc pulse with gaussian window)
 %                              - fermi
-%     Sinc TBW              Time-bandwidth product for the sinc MT pulses 
-%                              (applicable to sinc, sincgauss, sinchann MT 
+%     Sinc TBW              Time-bandwidth product for the sinc MT pulses
+%                              (applicable to sinc, sincgauss, sinchann MT
 %                              pulses).
-%     Bandwidth             Bandwidth of the gaussian MT pulse (applicable 
+%     Bandwidth             Bandwidth of the gaussian MT pulse (applicable
 %                              to gaussian, gausshann and sincgauss MT pulses).
-%     Fermi transition (a)  slope 'a' (related to the transition width) 
-%                              of the Fermi pulse (applicable to fermi MT 
-%                              pulse). 
+%     Fermi transition (a)  slope 'a' (related to the transition width)
+%                              of the Fermi pulse (applicable to fermi MT
+%                              pulse).
 %                              Assuming pulse duration at 60 dB (from the Bernstein handbook)
 %                              and t0 = 10a,
-%                              slope = Tmt/33.81;         
+%                              slope = Tmt/33.81;
 %     # of MT pulses        Number of pulses used to achieve steady-state
 %                             before a readout is made.
 %   Fitting constraints
-%     Use R1map to         By checking this box, you tell the fitting 
+%     Use R1map to         By checking this box, you tell the fitting
 %     constrain R1f          algorithm to check for an observed R1map and use
-%                            its value to constrain R1f. Checking this box 
-%                            will automatically set the R1f fix box to true             
-%                            in the Fit parameters table.  
+%                            its value to constrain R1f. Checking this box
+%                            will automatically set the R1f fix box to true
+%                            in the Fit parameters table.
 %     Fix R1r = R1f        By checking this box, you tell the fitting
-%                            algorithm to fix R1r equal to R1f. Checking this 
-%                            box will automatically set the R1r fix box to 
+%                            algorithm to fix R1r equal to R1f. Checking this
+%                            box will automatically set the R1r fix box to
 %                            true in the Fit parameters table.
 %     Fix R1f*T2f          By checking this box, you tell the fitting
 %                            algorithm to compute T2f from R1f value. R1f*T2f
 %                            value is set in the next box.
 %     R1f*T2f =            Value of R1f*T2f (no units)
 %
-%   Model                  Model you want to use for fitting. 
-%                             Available models are: 
-%                             - SledPikeRP (Sled & Pike rectangular pulse), 
-%                             - SledPikeCW (Sled & Pike continuous wave), 
+%   Model                  Model you want to use for fitting.
+%                             Available models are:
+%                             - SledPikeRP (Sled & Pike rectangular pulse),
+%                             - SledPikeCW (Sled & Pike continuous wave),
 %                             - Yarkykh (Yarnykh & Yuan)
 %                             - Ramani
-%                             Note: Sled & Pike models will show different  
+%                             Note: Sled & Pike models will show different
 %                               options than Yarnykh or Ramani.
-%	Lineshape              The absorption lineshape of the restricted pool. 
+%	Lineshape              The absorption lineshape of the restricted pool.
 %                             Available lineshapes are:
 %                             - Gaussian
 %                             - Lorentzian
 %                             - SuperLorentzian
 %   Read pulse alpha       Flip angle of the excitation pulse.
-%   Compute SfTable        By checking this box, you compute a new SfTable  
+%   Compute SfTable        By checking this box, you compute a new SfTable
 %
-% Example of command line usage (see also <a href="matlab: showdemo SPGR_batch">showdemo SPGR_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(SPGR);">qMRusage(SPGR)</a>
+% Command line usage:
+%   <a href="matlab: qMRusage(SPGR);">qMRusage(SPGR)</a>
+%   <a href="matlab: showdemo SPGR_batch">showdemo SPGR_batch</a>
 %
 % Author: Ian Gagnon, 2017
 %
 % References:
 %   Please cite the following if you use this module:
-%     FILL
+%     Sled, J.G., Pike, G.B., 2000. Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. J. Magn. Reson. 145, 24?36.
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-    
+
     properties
         MRIinputs = {'MTdata','R1map','B1map','B0map','Mask'}; % input data required
         xnames = {'F','kr','R1f','R1r','T2f','T2r'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
-        
+
         % fitting options
         st           = [ 0.16     30     1        1       0.03     1.3e-05 ]; % starting point
         lb           = [ 0         0     0.05     0.05    0.003    3e-6    ]; % lower bound
         ub           = [ 0.5     100     5        5       0.5      5.0e-05 ]; % upper bound
         fx           = [ 0         0     1        1       0        0       ]; % fix parameters
-        
+
         % Protocol
         % You can define a default protocol here.
         Prot = struct('MTdata',...
@@ -131,9 +129,9 @@ classdef SPGR
             'TimingTable',...
             struct('Format',{{'Tmt (s)'; 'Ts (s)'; 'Tp (s)'; 'Tr (s)'; 'TR (s)'}},...
             'Mat',[0.0102; 0.0030; 0.0018; 0.0100; 0.0250]));
-        
+
         ProtSfTable = load('DefaultSFTable.mat'); % SfTable declaration
-        
+
         % Model options
         buttons = {'PANEL','MT_Pulse', 5,...
             'Shape',{'gausshann','gaussian','hard','sinc','sinchann','sincgauss','fermi'},...
@@ -151,18 +149,18 @@ classdef SPGR
             'Read pulse alpha',7,...
             'Compute SfTable','pushbutton'};
         options = struct(); % structure filled by the buttons. Leave empty in the code
-        
+
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
-    
+
     methods
         function obj = SPGR
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
-        
+
         function obj = UpdateFields(obj)
             if obj.options.ComputeSfTable
                 obj.ProtSfTable = CacheSf(GetProt(obj));
@@ -171,28 +169,28 @@ classdef SPGR
             obj.Prot.TimingTable.Mat(5) = obj.Prot.TimingTable.Mat(1)+...
                                           obj.Prot.TimingTable.Mat(2)+...
                                           obj.Prot.TimingTable.Mat(3)+...
-                                          obj.Prot.TimingTable.Mat(4); 
+                                          obj.Prot.TimingTable.Mat(4);
             % Fix R1f if the option is chosen
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
         end
-        
+
         function obj = Precompute(obj)
             if isempty(fieldnames(obj.ProtSfTable))
                 obj.ProtSfTable = CacheSf(GetProt(obj));
             else
                 obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
-            end         
+            end
         end
-        
+
         function FitResults = fit(obj,data)
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');  
+                warning('No MToff. MTData cannot be normalized.');
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
@@ -202,10 +200,10 @@ classdef SPGR
             % fit data
             FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
         end
-        
+
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
-            if ~exist('display','var'), display = 1; end      
+            if ~exist('display','var'), display = 1; end
             Smodel = equation(obj, x, Opt);
             data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
             FitResults = fit(obj,data);
@@ -215,7 +213,7 @@ classdef SPGR
                 drawnow;
             end
         end
-        
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
@@ -225,7 +223,7 @@ classdef SPGR
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
-        
+
         function mz = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x = struct2mat(x,obj.xnames);
@@ -249,19 +247,19 @@ classdef SPGR
                     mz = SimCurveResults.curve;
             end
         end
-        
-        
+
+
         function plotmodel(obj, x, data)
             if nargin<2, x = obj.st; data.MTdata = []; end
             if isnumeric(x)
-                x=mat2struct(x,obj.xnames); 
+                x=mat2struct(x,obj.xnames);
             end
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');               
+                warning('No MToff. MTData cannot be normalized.');
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
@@ -275,12 +273,12 @@ classdef SPGR
                 x.F,x.R1f,x.R1r,x.T2f,x.T2r),...
                 'FontSize',10);
         end
-        
+
         function plotProt(obj)
             Prot = GetProt(obj);
             subplot(2,1,1)
             plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
-            ylabel('Angle (°)')
+            ylabel('Angle (ï¿½)')
             xlabel('offset (Hz)')
             subplot(2,1,2)
             title('MTpulse')
@@ -292,26 +290,26 @@ classdef SPGR
             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
             ViewPulse(Pulse,'b1');
         end
-        
+
         function Prot = GetProt(obj)
             Prot.Angles        = obj.Prot.MTdata.Mat(:,1);
             Prot.Offsets       = obj.Prot.MTdata.Mat(:,2);
             Prot.Alpha         = obj.options.Readpulsealpha;
             Prot.MTpulse.shape = obj.options.MT_Pulse_Shape;
-            switch  obj.options.MT_Pulse_Shape    
+            switch  obj.options.MT_Pulse_Shape
                 case {'sinc','sinchann'}
-                    Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;    
+                    Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;
                 case {'gausshann','gaussian'}
                     Prot.MTpulse.opt.bw = obj.options.MT_Pulse_Bandwidth;
                 case 'sincgauss'
                     Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;
                     Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_Bandwidth;
-                case 'fermi'                    
+                case 'fermi'
                     Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
                 otherwise
                     Prot.MTpulse.opt = [];
             end
-           	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;             
+           	Prot.MTpulse.Npulse = obj.options.MT_Pulse_NofMTpulses;
             Prot.Tm = obj.Prot.TimingTable.Mat(1);
             Prot.Ts = obj.Prot.TimingTable.Mat(2);
             Prot.Tp = obj.Prot.TimingTable.Mat(3);
@@ -324,7 +322,7 @@ classdef SPGR
                 if ~isempty(Sf), Prot.Sf=Sf; end
             end
         end
-        
+
         function FitOpt = GetFitOpt(obj,data)
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
@@ -343,6 +341,6 @@ classdef SPGR
             FitOpt.FixR1fT2f = obj.options.fittingconstraints_FixR1fT2f;
             FitOpt.FixR1fT2fValue = obj.options.fittingconstraints_R1fT2f;
         end
-        
+
     end
 end
