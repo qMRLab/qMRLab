@@ -166,7 +166,7 @@ for element in models:
         for name in files:
 
         	#if the model is found
-            if name.find(element) != (-1):
+            if name.find(element+".m") != (-1):
             	file = os.path.join(root,name)
             	currentDir = ""
 
@@ -180,8 +180,8 @@ for element in models:
             			directories.append(currentDir)
             		elif currentDir == "qMT":
             			directories.append("Quantitative Magnetization Transfer")
-            		#if file.endswith("/") or file.endswith("\\"):
-            			#file = file[:(file.len()-1)]
+            		if file.endswith("/") or file.endswith("\\"):
+            			file = file[:(file.len()-1)]
             		nbdir = nbdir + 1
 
     #Open a temporary file to transfer the toctree

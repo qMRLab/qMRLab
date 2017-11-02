@@ -1,52 +1,42 @@
 classdef DTI
-%-----------------------------------------------------------------------------------------------------
 % DTI :  FILL
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
+%<a href="matlab: figure, imshow DTI.png ;">Pulse Sequence Diagram</a>
+%
+% ASSUMPTIONS:
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
 %
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
+% Inputs:
 %   FILL 
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
+% Outputs:
 %	FILL
 %      
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
+% Protocol:
 %   FILL
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
+% Options:
 %   FILL
 %
-%---------%
-% METHODS %
-%---------%
-%  plotmodel - Plot the diffusion-weighted signal as a function of Gparallel
-%               EXAMPLE:
-%               A = DTI;
-%               L1 = 1; L2 = 1; L3 = 3; % um2/ms
-%               A.plotmodel([L1 L2 L3]);
-%  doThat - Description of doThat
-%-----------------------------------------------------------------------------------------------------
-% Written by: FILL
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
+% Methods:
+%   plotmodel        Plot the diffusion-weighted signal as a function of Gparallel
+%                       EXAMPLE:
+%                       A = DTI;
+%                       L1 = 1; L2 = 1; L3 = 3; % um2/ms
+%                       A.plotmodel([L1 L2 L3]);
+%   doThat           Description of doThat
+%
+% Example of command line usage (see also <a href="matlab: showdemo DTI_batch">showdemo DTI_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(DTI);">qMRusage(DTI)</a>
+%
+% Author: FILL
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'};
@@ -55,8 +45,8 @@ classdef DTI
         
         % fitting options
         st           = [ 2      0.7     0.7]; % starting point
-%         lb           = [ 0       0       0 ]; % lower bound
-%         ub           = [ 1       5       5 ]; % upper bound
+        lb           = [ 0       0       0 ]; % lower bound
+        ub           = [ 5       5       5 ]; % upper bound
         fx           = [ 0       0        0]; % fix parameters
         
         % Protocol

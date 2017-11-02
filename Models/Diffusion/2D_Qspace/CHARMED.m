@@ -1,5 +1,7 @@
 classdef CHARMED
 %CHARMED: Composite Hindered and Restricted Model for Diffusion
+%<a href="matlab: figure, imshow CHARMED.png ;">Pulse Sequence Diagram</a>
+%
 %
 % Assumptions:
 %   Diffusion gradients are applied perpendicularly to the neuronal fibers.
@@ -29,19 +31,19 @@ classdef CHARMED
 %   (residue)           Fitting residuals
 %
 % Options:
-%   Rician noise bias   Used if no SigmaNoise map is provided.
-%     'Compute Sigma per voxel'  Sigma is estimated by computing the STD across repeated scans.
-%     'fix sigma'       Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
-%   Display Type:
-%     'q-value'         abscissa for plots: q = gamma.delta.G (µm-1)
-%     'b-value'         abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
+%   Rician noise bias               Used if no SigmaNoise map is provided.
+%     'Compute Sigma per voxel'     Sigma is estimated by computing the STD across repeated scans.
+%     'fix sigma'                   Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
+%   Display Type
+%     'q-value'                     abscissa for plots: q = gamma.delta.G (µm-1)
+%     'b-value'                     abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
 %   S0 normalization
-%     'Use b=0'         Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
-%     'Single T2 compartment'  In case of variable TE acquisition:
-%                              fit single T2 using data acquired at b<1000s/mm2 (assuming Gaussian diffusion))
-%   Time-dependent models:
-%     'Burcaw 2015'     XXX
-%     'Ning MRM 2016'   XXX
+%     'Use b=0'                     Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
+%     'Single T2 compartment'       In case of variable TE acquisition:
+%                                   fit single T2 using data acquired at b<1000s/mm2 (assuming Gaussian diffusion))
+%   Time-dependent models
+%     'Burcaw 2015'                 XXX
+%     'Ning MRM 2016'               XXX
 %
 % Example of command line usage (see also <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>):
 %   Model = CHARMED;  % Create class from model

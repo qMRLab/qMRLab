@@ -1,43 +1,36 @@
 classdef B0_DEM
-%-----------------------------------------------------------------------------------------------------
 % B0_DEM map :  Dual Echo Method for B0 mapping
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
+%<a href="matlab: figure, imshow B0_DEM.png ;">Pulse Sequence Diagram</a>
+%
+% ASSUMPTIONS:
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   1) Phase : 
-%   2) Magn  : 
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%	* B0map : B0 field map
+% Inputs:
+%   Phase               FILL 
+%   Magn                FILL
 %
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
-%	* deltaTE : 
+% Outputs:
+%	B0map               B0 field map
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
-%   * Magn thresh lb : 
+% Protocol:
+%	deltaTE             
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Ian Gagnon, 2017
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
+% Options:
+%   Magn thresh lb
+%
+% Example of command line usage (see also <a href="matlab: showdemo B0_DEM_batch">showdemo B0_DEM_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(B0_DEM);">qMRusage(B0_DEM)</a>
+%
+% Author: Ian Gagnon, 2017
+%
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
     properties
         MRIinputs = {'Phase','Magn'};
