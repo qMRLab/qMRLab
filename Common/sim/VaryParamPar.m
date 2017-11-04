@@ -34,7 +34,7 @@ end
 
 % Create waitbar
 h = waitbar(0, sprintf('Data 0/%0.0f',length(x)), 'Name', sprintf('Simulating %s sensitivity data', Vary),...
-            'CreateCancelBtn', 'setappdata(gcbf,''canceling'',1)');
+            'CreateCancelBtn', 'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
 setappdata(h,'canceling',0);
 setappdata(0,'Cancel',0);
 

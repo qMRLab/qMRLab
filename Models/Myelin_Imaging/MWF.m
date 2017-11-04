@@ -56,7 +56,7 @@ classdef MWF
         
         % Protocol
         % You can define a default protocol here.
-        Prot  = struct('Echo',struct('Format',{{'Time (ms)'}},...
+        Prot  = struct('MET2data',struct('Format',{{'Echo Time (ms)'}},...
             'Mat', [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
             180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320]));
         
@@ -88,7 +88,7 @@ classdef MWF
             if nargin < 3, Opt.T2Spectrumvariance_Myelin = 5; Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20; end
             x.MWF = x.MWF/100;
             % EchoTimes, T2 and DecayMatrix
-            EchoTimes   = obj.Prot.Echo.Mat;
+            EchoTimes   = obj.Prot.MET2data.Mat;
             T2          = getT2(obj,EchoTimes);
             DecayMatrix = getDecayMatrix(EchoTimes,T2.vals);
             % MF (Myelin Fraction) and IEF (Intra/Extracellular Fraction)
@@ -109,18 +109,18 @@ classdef MWF
 
         function [FitResults,Spectrum] = fit(obj,data)
             % EchoTimes, T2 and DecayMatrix
-            EchoTimes   = obj.Prot.Echo.Mat;
+            EchoTimes   = obj.Prot.MET2data.Mat;
             T2          = getT2(obj,EchoTimes);
             DecayMatrix = getDecayMatrix(EchoTimes,T2.vals);
             % Options
             Opt.RelaxationType   = obj.options.RelaxationType;
             Opt.Sigma            = obj.options.Sigma;
-            Opt.lower_cutoff_MW  = 1.5*obj.Prot.Echo.Mat(1); % 1.5 * FirstEcho
+            Opt.lower_cutoff_MW  = 1.5*obj.Prot.MET2data.Mat(1); % 1.5 * FirstEcho
             Opt.upper_cutoff_MW  = obj.options.Cutoffms;
             Opt.upper_cutoff_IEW = obj.ub(3);
             % Fitting
             if isempty(data.Mask), data.Mask = 1; end
-            [FitResults,Spectrum] = multi_comp_fit_v2(reshape(data.MET2data,[1 1 1 length(obj.Prot.Echo.Mat)]), EchoTimes, DecayMatrix, T2, Opt, 'tissue', data.Mask);
+            [FitResults,Spectrum] = multi_comp_fit_v2(reshape(data.MET2data,[1 1 1 length(obj.Prot.MET2data.Mat)]), EchoTimes, DecayMatrix, T2, Opt, 'tissue', data.Mask);
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
@@ -135,7 +135,7 @@ classdef MWF
             if display
                 plotmodel(obj, [], data);
                 subplot(2,1,1)
-                EchoTimes   = obj.Prot.Echo.Mat;
+                EchoTimes   = obj.Prot.MET2data.Mat;
                 T2          = getT2(obj,EchoTimes);
                 hold on
                 plot(T2.vals,Spectrum,'b');
@@ -159,7 +159,7 @@ classdef MWF
         function plotmodel(obj, x, data, PlotSpectrum)
             if nargin<2, x = mean([obj.lb(:),obj.ub(:)],2); end
             if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
-            EchoTimes   = obj.Prot.Echo.Mat;
+            EchoTimes   = obj.Prot.MET2data.Mat;
             T2          = getT2(obj,EchoTimes);
             if exist('data','var')
                 [~,Spectrum] = fit(obj,data);
