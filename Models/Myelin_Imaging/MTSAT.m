@@ -10,21 +10,21 @@ classdef MTSAT
 %   PDw     3D PD-weighted data
 %
 % Outputs:
-%	  MTSAT   MT saturation map, T1-corrected
+%   MTSAT   MT saturation map, T1-corrected
 %
 % Options:
 %
 % Protocol:
-%   3 .txt files or 1 .mat file :
-%     MT    [FA  TR  Offset] %flip angle [deg], TR [s], Offset Frequency [Hz]
+%   3 vectors
+%     MT    [FA  TR  Offset] %acquisition flip angle [deg], TR [s], Offset Frequency [Hz]
 %     T1    [FA  TR]  %flip angle [deg], TR [s]
 %     PD    [FA  TR]  %flip angle [deg], TR [s]
 %
 % Example of command line usage (see also <a href="matlab: showdemo MTSAT_batch">showdemo MTSAT_batch</a>):
 %   Model = MTSAT;  % Create class from model
-%   Model.Prot.MT.Mat = txt2mat('MT.txt');  % Load protocol
-%   Model.Prot.T1.Mat = txt2mat('T1.txt');
-%   Model.Prot.PD.Mat = txt2mat('PD.txt');
+%   Model.Prot.PD.Mat = [6  28e-3]; % FA, TR
+%   Model.Prot.MT.Mat = [6  28e-3 1000]; % FA, TR, Offset
+%   Model.Prot.T1.Mat = [20 18e-3]; % FA, TR
 %   data = struct;  % Create data structure
 %   data.MTw = load_nii_data('MTw.nii.gz');
 %   data.T1w = load_nii_data('T1w.nii.gz');
