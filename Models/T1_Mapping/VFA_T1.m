@@ -2,10 +2,8 @@ classdef VFA_T1
 % Compute a T1 map using Variable Flip Angle
 %<a href="matlab: figure, imshow qMT_SPGR.png ;">Pulse Sequence Diagram</a>
 %
-% ASSUMPTIONS:
-% (1)FILL
-% (2)
-%
+% Assumptions:
+% 
 % Inputs:
 %   SPGR            spoiled Gradient echo data, 4D volume with different flip angles
 %   B1map           excitation (B1+) fieldmap. Used to correct flip angles.
@@ -15,14 +13,23 @@ classdef VFA_T1
 %   M0              Equilibrium magnetization
 %
 % Protocol:
-%	FA              list of flip angles (degrees)
-%	TR              Repetition time of the whole sequence (s)
+%   Array [nbFA x 2]:
+%       [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
 %
-% Options
+% Options:
 %   None
 %
 % Example of command line usage (see also <a href="matlab: showdemo VFA_T1_batch">showdemo VFA_T1_batch</a>):
+%   Model = VFA_T1;  % Create class from model 
+%   Model.Prot.SPGR.Mat=[4 0.025; 10 0.025; 20 0.025]; %Protocol: 3 different FAs
+%   data = struct;  % Create data structure 
+%   data.SPGR = load_nii_data('SPGR.nii.gz');
+%   data.B1map = load_nii_data('B1map.nii.gz');
+%   FitResults = FitData(data,Model); %fit data
+%   FitResultsSave_mat(FitResults);
+%
 %   For more examples: <a href="matlab: qMRusage(VFA_T1);">qMRusage(VFA_T1)</a>
+%
 % 
 % Author: Ian Gagnon, 2017
 %
