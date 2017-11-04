@@ -52,3 +52,6 @@ FitResults*
 FitTempResults*
 SimResults*
 MTSAT/interface.jpg
+
+# Files created by the documentation
+build/
