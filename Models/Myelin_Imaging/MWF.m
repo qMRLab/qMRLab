@@ -21,8 +21,8 @@ classdef MWF
 %       'T2*'      For a GRE sequence
 %
 % Protocol:
-%   1 .txt files or 1 .mat file :
-%     TE    [TE1 TE2 ...] % list of echo times [ms]
+%   Vector [1 x nbTEs]:
+%     [TE1 TE2 ...]     list of echo times [ms]
 %
 % Example of command line usage (see also <a href="matlab: showdemo MWF_batch">showdemo MWF_batch</a>):
 %   Model = MWF;  % Create class from model 
