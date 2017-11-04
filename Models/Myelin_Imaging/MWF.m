@@ -1,5 +1,4 @@
 classdef MWF
-<<<<<<< HEAD
 % MWF :  Myelin Water Fraction from Multi-Exponential T2w data
 %
 % Assumptions:
@@ -48,48 +47,6 @@ classdef MWF
 %     Stikov N. (2016), Quantitative magnetization transfer imaging made
 %     easy with qMTLab: Software for data simulation, analysis, and
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-
-=======
-% MWF:  Myelin Water Fraction
-%<a href="matlab: figure, imshow MWF.png ;">Pulse Sequence Diagram</a>
-%
-% ASSUMPTIONS:
-% (1) FILL
-% (2)
-% (3)
-% (4)
-%
-% Inputs:
-%   MET2data            Multi-Exponential T2 data
-%   (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
-%
-% Outputs
-%	MWF                 Myelin Water Fraction
-%	T2MW                Spin relaxation time for Myelin Water (MW)
-%   T2IEW               Spin relaxation time for Intra/Extracellular Water (IEW)
-%
-% Protocol:
-%	First               Time of the first echo (s)
-%	Spacing             Time interval between each echo (s)
-%
-% Options
-%   Cutoff              Time cutoff (s)
-%   Sigma               Noise standard deviation. Currently not corrected for
-%                       rician bias...
-%
-% Command line usage:
-%   <a href="matlab: qMRusage(MWF);">qMRusage(MWF)</a>
-%   <a href="matlab: showdemo MWF_batch">showdemo MWF_batch</a>
-%
-% Author: Ian Gagnon, 2017
-%
-% Reference: 
-%   Please cite the following if you use this module:
-%      MacKay, A., Whittall, K., Adler, J., Li, D., Paty, D., Graeb, D., 1994. In vivo visualization of myelin water in brain by magnetic resonance. Magn. Reson. Med. 31, 673?677.
-%   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-    
->>>>>>> gab
     properties
         MRIinputs = {'MET2data','Mask'};
         xnames = {'MWF','T2MW','T2IEW'};
