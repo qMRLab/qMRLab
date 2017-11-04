@@ -17,6 +17,7 @@ classdef InversionRecovery
 %   res         Fitting residual
 %
 % Protocol:
+%   Veco
 %   TI          Array containing a list of inversion times [ms]
 %
 % Options:
