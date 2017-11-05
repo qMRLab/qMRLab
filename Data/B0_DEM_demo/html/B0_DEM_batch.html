@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>B0_DEM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-26"><meta name="DC.source" content="B0_DEM_batch.m"><style type="text/css">
+      --><title>B0_DEM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-11-04"><meta name="DC.source" content="B0_DEM_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -70,45 +70,42 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="comment">% Batch to generate B0map with Dual Echo Method (DEM) without qMRLab GUI (graphical user interface)</span>
 <span class="comment">% Run this script line by line</span>
 <span class="comment">% Written by: Ian Gagnon, 2017</span>
-</pre><pre class="codeoutput"> -----------------------------------------------------------------------------------------------------
-  B0_DEM map :  Dual Echo Method for B0 mapping
- -----------------------------------------------------------------------------------------------------
- -------------%
-  ASSUMPTIONS %
- -------------% 
-  (1) FILL
-  (2) 
-  (3) 
-  (4) 
- -----------------------------------------------------------------------------------------------------
- --------%
-  INPUTS %
- --------%
-    1) Phase : 
-    2) Magn  : 
+</pre><pre class="codeoutput">  B0_DEM map :  Dual Echo Method for B0 mapping
+ &lt;a href="matlab: figure, imshow B0_DEM.png ;"&gt;Pulse Sequence Diagram&lt;/a&gt;
  
- -----------------------------------------------------------------------------------------------------
- ---------%
-  OUTPUTS %
- ---------%
- 	* B0map : B0 field map
+  Assumptions:
+    Compute B0 map based on 2 phase images with different TEs
  
- -----------------------------------------------------------------------------------------------------
- ----------%
-  PROTOCOL %
- ----------%
- 	* deltaTE : 
+  Inputs:
+    Phase       4D phase image, 2 different TEs in time dimension
+    Magn        3D magnitude image
  
- -----------------------------------------------------------------------------------------------------
- ---------%
-  OPTIONS %
- ---------%
-    * Magn thresh lb : 
+  Outputs:
+ 	B0map       B0 field map [Hz]
  
- -----------------------------------------------------------------------------------------------------
-  Written by: Ian Gagnon, 2017
-  Reference: FILL
- -----------------------------------------------------------------------------------------------------
+  Protocol:
+ 	deltaTE     Difference in TE between 2 images [ms]            
+ 
+  Options:
+    Magn thresh lb  Lower bound to threshold the magnitude image for use as a mask
+ 
+  Example of command line usage (see also &lt;a href="matlab: showdemo B0_DEM_batch"&gt;showdemo B0_DEM_batch&lt;/a&gt;):
+    Model = B0_DEM;  % Create class from model 
+    Model.Prot.Time.Mat = 1.92e-3; % deltaTE [s]
+    data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
+    data.Magn  = double(load_nii_data('Magn.nii.gz'));
+    FitResults       = FitData(data,Model);
+    FitResultsSave_nii(FitResults,'Phase.nii.gz'); %save nii file using Phase.nii.gz as template
+     
+    For more examples: &lt;a href="matlab: qMRusage(B0_DEM);"&gt;qMRusage(B0_DEM)&lt;/a&gt;
+ 
+  Author: Ian Gagnon, 2017
+ 
+  References:
+    Please cite the following if you use this module:
+      FILL
+    In addition to citing the package:
+      Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
     Reference page in Doc Center
        doc B0_DEM

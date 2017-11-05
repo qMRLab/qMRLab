@@ -2,26 +2,30 @@ classdef B0_DEM
 % B0_DEM map :  Dual Echo Method for B0 mapping
 %<a href="matlab: figure, imshow B0_DEM.png ;">Pulse Sequence Diagram</a>
 %
-% ASSUMPTIONS:
-% (1) FILL
-% (2) 
-% (3) 
-% (4) 
+% Assumptions:
+%   Compute B0 map based on 2 phase images with different TEs
 %
 % Inputs:
-%   Phase               FILL 
-%   Magn                FILL
+%   Phase       4D phase image, 2 different TEs in time dimension
+%   Magn        3D magnitude image
 %
 % Outputs:
-%	B0map               B0 field map
+%	B0map       B0 field map [Hz]
 %
 % Protocol:
-%	deltaTE             
+%	deltaTE     Difference in TE between 2 images [ms]            
 %
 % Options:
-%   Magn thresh lb
+%   Magn thresh lb  Lower bound to threshold the magnitude image for use as a mask
 %
 % Example of command line usage (see also <a href="matlab: showdemo B0_DEM_batch">showdemo B0_DEM_batch</a>):
+%   Model = B0_DEM;  % Create class from model 
+%   Model.Prot.Time.Mat = 1.92e-3; % deltaTE [s]
+%   data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
+%   data.Magn  = double(load_nii_data('Magn.nii.gz'));
+%   FitResults       = FitData(data,Model);
+%   FitResultsSave_nii(FitResults,'Phase.nii.gz'); %save nii file using Phase.nii.gz as template
+%    
 %   For more examples: <a href="matlab: qMRusage(B0_DEM);">qMRusage(B0_DEM)</a>
 %
 % Author: Ian Gagnon, 2017
