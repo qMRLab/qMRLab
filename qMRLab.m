@@ -89,7 +89,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
     SetAppData(FileBrowserList);
     
     load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    
+else
+    Method = class(getappdata(0,'Model'));
 end
 % LOAD INPUT
 if ~isempty(varargin)
