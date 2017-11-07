@@ -105,13 +105,20 @@ if Model.voxelwise % process voxelwise
         end
     end
     
-    % delete waitbar
-    if (~isempty(h));  delete(h); end
     
 else % process entire volume
+    if exist('wait','var') && (wait)
+        h = msgbox('Fitting data... please wait');
+        set(h,'WindowStyle','modal')
+        set(h,'pointer', 'watch'); drawnow;
+    end
+
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
 end
+% delete waitbar
+if (~isempty(h));  delete(h); end
+
 Fit.Time = toc;
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
