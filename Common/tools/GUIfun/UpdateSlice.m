@@ -1,5 +1,5 @@
 function UpdateSlice(handles)
-% UpdateSlice
+% UpdateSlice: set slice slider maximal value
 
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-François Cabana, 2016
@@ -38,3 +38,12 @@ else
     set(handles.SliceSlider, 'Value', 1);
     set(handles.SliceSlider, 'SliderStep', [0 0]);
 end
+
+% Set Time (Vol #) slider max value
+if length(dim)<4, dim(4)=1; end 
+set(handles.TimeSlider,  'Max',dim(4));
+set(handles.TimeSlider,  'SliderStep',[1, 1] / dim(4));
+% if new Data has fewer volumes,set to maximal volume #
+TimeBounded = min(dim(4),str2double(get(handles.TimeValue,'String')));
+set(handles.TimeValue,'String',TimeBounded)
+set(handles.TimeSlider,'Value',TimeBounded)
