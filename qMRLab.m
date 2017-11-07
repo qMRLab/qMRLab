@@ -16,7 +16,9 @@ function varargout = qMRLab(varargin)
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
 qMRLabDir = fileparts(which(mfilename()));
-addpath(genpath(qMRLabDir));
+if ~exist('moxunit_util_platform_is_octave','file')
+    addpath(genpath(qMRLabDir));
+end
 if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
