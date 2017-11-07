@@ -89,7 +89,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
     SetAppData(FileBrowserList);
     
     load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    
+else
+    Method = class(getappdata(0,'Model'));
 end
 % LOAD INPUT
 if ~isempty(varargin)
@@ -299,13 +300,6 @@ data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
 data = data.(Method);
-
-if strcmp(Method,'SPGR') && (strcmp(Model.options.Model,'SledPikeCW') || strcmp(Model.options.Model,'SledPikeRP'))
-    if isempty(fieldnames(Model.ProtSfTable))
-        errordlg('An SfTable needs to be computed for this protocol prior to fitting. Please use the option panel to do so.','Missing SfTable');
-        return;
-    end
-end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
