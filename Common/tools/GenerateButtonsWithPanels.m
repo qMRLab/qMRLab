@@ -184,7 +184,14 @@ for i = 1:N
         handle.(tag) = uicontrol('Style','popupmenu',...
             'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(i) Width Height],'String',opts{2*i},'Value',val);
     elseif isnumeric(opts{2*i}) && length(opts{2*i})>1
-             handle.(tag) = uitable(PanelHandle,'Data',opts{2*i},'Units','normalized','Position',[0.45 y(i) Width Height]);
+         uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
+            'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(i) Width Height]);
+             handle.(tag) = uitable(PanelHandle,'Data',opts{2*i},'Units','normalized','Position',[0.45 y(i) Width Height*1.1]);
+             set(handle.(tag),'ColumnEditable',true(1,size(opts{2*i},2)));
+             if size(opts{2*i},1)<5, set(handle.(tag),'RowName',''); end
+             widthpx = getpixelposition(PanelHandle)*Width; widthpx = floor(widthpx(3))-2;
+             if size(opts{2*i},2)<5, set(handle.(tag),'ColumnName',''); set(handle.(tag),'ColumnWidth',repmat({widthpx/size(opts{2*i},2)},[1 size(opts{2*i},2)])); end
+                 
     elseif strcmp(opts{2*i},'pushbutton')         
             handle.(tag) = uicontrol('Style','togglebutton','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
             'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(i) 0.9 Height],...
