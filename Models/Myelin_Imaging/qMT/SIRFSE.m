@@ -192,7 +192,7 @@ classdef SIRFSE
             FitResults.Sf = - FitResults.Sf;
         end
         
-        function plotmodel(obj, x, data)
+        function plotModel(obj, x, data)
             if nargin<2, x = obj.st; end
             if nargin<3, data.MTdata = []; end
             if isnumeric(x)
@@ -219,7 +219,7 @@ classdef SIRFSE
             data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
             end
         end
         

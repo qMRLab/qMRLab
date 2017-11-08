@@ -133,7 +133,7 @@ classdef MWF
             data.Mask = 1;
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, [], data);
+                plotModel(obj, [], data);
                 subplot(2,1,1)
                 EchoTimes   = obj.Prot.MET2data.Mat;
                 T2          = getT2(obj,EchoTimes);
@@ -156,7 +156,7 @@ classdef MWF
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
         
-        function plotmodel(obj, x, data, PlotSpectrum)
+        function plotModel(obj, x, data, PlotSpectrum)
             if nargin<2, x = mean([obj.lb(:),obj.ub(:)],2); end
             if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
             EchoTimes   = obj.Prot.MET2data.Mat;

@@ -6,11 +6,11 @@ end
 initTestSuite;
 
 function test_plotmodel
-disp('testing plotmodel...')
+disp('testing plotModel...')
 MethodList = list_models;
 for im = 1:length(MethodList)
     Model = str2func(MethodList{im}); Model = Model();
     if ~Model.voxelwise, continue; end
     disp([class(Model) '...'])
-	Model.plotmodel;
+	Model.plotModel;
 end

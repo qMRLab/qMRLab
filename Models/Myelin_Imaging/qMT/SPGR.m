@@ -248,7 +248,7 @@ classdef SPGR
             FitResults = fit(obj,data);
             delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
                 drawnow;
             end
         end
@@ -300,7 +300,7 @@ classdef SPGR
         end
         
         
-        function plotmodel(obj, x, data)
+        function plotModel(obj, x, data)
             if nargin<2, x = obj.st; data.MTdata = []; end
             if isnumeric(x)
                 x=mat2struct(x,obj.xnames); 

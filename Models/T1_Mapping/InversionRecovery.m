@@ -108,7 +108,7 @@ classdef InversionRecovery
                 FitResults.idx = idx;
             end
         end
-        function plotmodel(obj, FitResults, data)
+        function plotModel(obj, FitResults, data)
             % Plots the fit
             %
             % :param FitResults: [struct] Fitting parameters
@@ -160,7 +160,7 @@ classdef InversionRecovery
             end
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
             end
         end
         

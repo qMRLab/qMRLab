@@ -45,7 +45,7 @@ data.Mask=load_nii_data('Mask.nii.gz');
 voxel = [32 29];
 datavox.DiffusionData = squeeze(data.DiffusionData(voxel(1),voxel(2),:,:));
 FitResults = Model.fit(datavox)
-Model.plotmodel(FitResults,datavox)
+Model.plotModel(FitResults,datavox)
 
 % fit all voxels (coffee break)
 if ~quickdemo
