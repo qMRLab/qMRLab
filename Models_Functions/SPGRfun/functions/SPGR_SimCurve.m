@@ -31,9 +31,6 @@ end
 AngleCurve  =  unique(Prot.Angles);
 if ~same
     [Prot.Angles, Prot.Offsets] = SPGR_GetSeq(AngleCurve,OffsetCurve);
-    if isfield(Prot,'w1cw')
-        Prot = rmfield(Prot,{'w1cw','w1rms','w1rp','Tau'});
-    end
 end
 [Angles, Offsets, w1cw, w1rms, w1rp, Tau] = SPGR_prepare( Prot );
 Prot.Tau = Tau(1);
