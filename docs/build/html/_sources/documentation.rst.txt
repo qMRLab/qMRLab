@@ -25,7 +25,7 @@ Methods available
 
    diffusion
    fieldmaps
-   myelin
+   myelin_imaging
    noise
    t1_mapping
 

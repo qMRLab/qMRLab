@@ -93,19 +93,21 @@
 <li class="toctree-l2"><a class="reference internal" href="#data-fitting-and-visualization">Data fitting and visualization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#methods-available">Methods available</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="diffusion.html">Diffusion</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="diffusion.html#d-q-space">2D Q-Space</a></li>
-<li class="toctree-l4"><a class="reference internal" href="diffusion.html#id1">3D Q-Space</a></li>
+<li class="toctree-l4"><a class="reference internal" href="diffusion.html#d-qspace">2D Qspace</a></li>
+<li class="toctree-l4"><a class="reference internal" href="diffusion.html#id1">3D Qspace</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="fieldmaps.html">Field Maps</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b0-dem">B0_DEM</a></li>
 <li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b1-dam">B1_DAM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fieldmaps.html#b0-dem">B0_DEM</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="myelin.html">Myelin Imaging</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="myelin.html#mtsat">MTSAT</a></li>
-<li class="toctree-l4"><a class="reference internal" href="myelin.html#mwf">MWF</a></li>
-<li class="toctree-l4"><a class="reference internal" href="myelin.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="myelin_imaging.html">Myelin Imaging</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="myelin_imaging.html#mtsat">MTSAT</a></li>
+<li class="toctree-l4"><a class="reference internal" href="myelin_imaging.html#mwf">MWF</a></li>
+<li class="toctree-l4"><a class="reference internal" href="myelin_imaging.html#bssfp">bSSFP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="myelin_imaging.html#sirfse">SIRFSE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="myelin_imaging.html#spgr">SPGR</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="noise.html">Noise</a><ul>
@@ -114,7 +116,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="t1_mapping.html">T1 Mapping</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="t1_mapping.html#inversion-recovery">Inversion Recovery</a></li>
-<li class="toctree-l4"><a class="reference internal" href="t1_mapping.html#vfa-t1">VFA_T1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="t1_mapping.html#variable-flip-angle">Variable Flip Angle</a></li>
 </ul>
 </li>
 </ul>
@@ -257,41 +259,48 @@ For a quick <strong>introduction</strong> to qMTLab functionnalities, see the <a
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="diffusion.html">Diffusion</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="diffusion.html#d-q-space">2D Q-Space</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="diffusion.html#d-qspace">2D Qspace</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="diffusion.html#charmed">CHARMED</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="diffusion.html#id1">3D Q-Space</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="diffusion.html#dti">DTI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diffusion.html#id1">3D Qspace</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="diffusion.html#noddi">NODDI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="diffusion.html#dti">DTI</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="fieldmaps.html">Field Maps</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="fieldmaps.html#b0-dem">B0_DEM</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="B0_DEM_batch.html">B0_DEM</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="fieldmaps.html#b1-dam">B1_DAM</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="B1_DAM_batch.html">B1_DAM</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="fieldmaps.html#b0-dem">B0_DEM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="B0_DEM_batch.html">B0_DEM</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="myelin.html">Myelin Imaging</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="myelin.html#mtsat">MTSAT</a><ul>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="myelin_imaging.html">Myelin Imaging</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myelin_imaging.html#mtsat">MTSAT</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="MTSAT_batch.html">MTSAT</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="myelin.html#mwf">MWF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="myelin_imaging.html#mwf">MWF</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="MWF_batch.html">MWF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="myelin_imaging.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="myelin.html#quantitative-magnetization-transfer">Quantitative Magnetization Transfer</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="myelin.html#sirfse">SIRFSE</a></li>
-<li class="toctree-l3"><a class="reference internal" href="myelin.html#spgr">SPGR</a></li>
-<li class="toctree-l3"><a class="reference internal" href="myelin.html#bssfp">bSSFP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myelin_imaging.html#bssfp">bSSFP</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bSSFP_batch.html">bSSFP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="myelin_imaging.html#sirfse">SIRFSE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SIRFSE_batch.html">SIRFSE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="myelin_imaging.html#spgr">SPGR</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="SPGR_batch.html">SPGR</a></li>
 </ul>
 </li>
 </ul>
@@ -305,8 +314,7 @@ For a quick <strong>introduction</strong> to qMTLab functionnalities, see the <a
 <li class="toctree-l3"><a class="reference internal" href="IR_batch.html">Inversion Recovery</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="t1_mapping.html#vfa-t1">VFA_T1</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="vfa_t1.html">Variable Flip Angle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t1_mapping.html#variable-flip-angle">Variable Flip Angle</a><ul class="simple">
 </ul>
 </li>
 </ul>
