@@ -8,6 +8,13 @@ function varargout = Sim_Optimize_Protocol_GUI(varargin)
 %     automatically performed using the optimized protocol. 
 %   Save the protocol in text file using save button
 %     
+% Options:
+%   # of volumes                Number of volumes in the optimized protocol
+%   Population                  Population size
+%   # of migration              Number of iteration before the optimizer
+%                                stops. Note that you can stop the
+%                                iterations during the optimization.
+%
 % Description:
 % Use the Cramer-Rao Lower bound for objective function: <a href="matlab: web('https://en.wikipedia.org/wiki/Cramer-Rao_bound')">Wikipedia</a>
 % Based on: Alexander, D.C., 2008. A general framework for experiment design in diffusion MRI and its application in measuring direct tissue-microstructure features. Magn. Reson. Med. 60, 439?448.
