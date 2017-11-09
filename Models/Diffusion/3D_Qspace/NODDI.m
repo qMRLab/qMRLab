@@ -180,7 +180,7 @@ classdef NODDI
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),xnames,1);
         end
         
-        function plotmodel(obj, x, data)
+        function plotModel(obj, x, data)
             if nargin<2, x=obj.st; end
             [Smodel, fibredir] = obj.equation(x);
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
@@ -224,7 +224,7 @@ classdef NODDI
             data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
                 hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
                 h = scd_display_qspacedata3D(Smodel,Prot,fibredir,'o','none');
@@ -238,5 +238,10 @@ classdef NODDI
             
         end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimVaryGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
     end
 end

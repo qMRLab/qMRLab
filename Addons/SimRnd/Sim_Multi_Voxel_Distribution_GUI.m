@@ -49,8 +49,11 @@ if ~isfield(handles,'opened')
     set(handles.SimRndPlotY,'String','Voxels count')
     
     % Options
-    opts = {'SNR',50,'# of voxels',100};
-    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); end
+    opts = {'# of voxels',100};
+    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons'), opts = cat(2,opts,handles.Model.Sim_Single_Voxel_Curve_buttons); 
+    else
+        opts = cat(2,opts,{'SNR',50});
+    end
     handles.options = GenerateButtons(opts,handles.OptionsPanel,.15);
 
     handles.opened = 1;

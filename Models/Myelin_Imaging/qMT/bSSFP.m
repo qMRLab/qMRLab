@@ -178,7 +178,7 @@ classdef bSSFP
             FitResults = bSSFP_fit(data.MTdata,Protocol,FitOpt);
         end
         
-        function plotmodel(obj, x, data)
+        function plotModel(obj, x, data)
             if nargin<2, x = obj.st; data.MTdata = []; end
             if isnumeric(x)
                 x=mat2struct(x,obj.xnames);
@@ -221,7 +221,7 @@ classdef bSSFP
             data.MTdata = addNoise(Smodel, Opt.SNR, 'magnitude');
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
             end
         end
 

@@ -37,11 +37,11 @@ classdef DTI
 %---------%
 % METHODS %
 %---------%
-%  plotmodel - Plot the diffusion-weighted signal as a function of Gparallel
+%  plotModel - Plot the diffusion-weighted signal as a function of Gparallel
 %               EXAMPLE:
 %               A = DTI;
 %               L1 = 1; L2 = 1; L3 = 3; % um2/ms
-%               A.plotmodel([L1 L2 L3]);
+%               A.plotModel([L1 L2 L3]);
 %  doThat - Description of doThat
 %-----------------------------------------------------------------------------------------------------
 % Written by: FILL
@@ -55,8 +55,8 @@ classdef DTI
         
         % fitting options
         st           = [ 2      0.7     0.7]; % starting point
-%         lb           = [ 0       0       0 ]; % lower bound
-%         ub           = [ 1       5       5 ]; % upper bound
+        lb           = [ 0       0       0 ]; % lower bound
+        ub           = [ 5       5       5 ]; % upper bound
         fx           = [ 0       0        0]; % fix parameters
         
         % Protocol
@@ -158,12 +158,12 @@ classdef DTI
 
         end
         
-        function plotmodel(obj, FitResults, data)
-            % plotmodel(obj, FitResults, data)
+        function plotModel(obj, FitResults, data)
+            % plotModel(obj, FitResults, data)
             % EXAMPLE: 
             %   A = DTI;
             %   L1 = 1; L2 = 1; L3 = 3;
-            %   A.plotmodel([L1 L2 L3]);
+            %   A.plotModel([L1 L2 L3]);
             
             if nargin<2, FitResults=obj.st; end
 
@@ -217,7 +217,7 @@ classdef DTI
             fiberdirection = V(:,I);
             
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
                 hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
                 h = scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'o','none');
@@ -230,6 +230,10 @@ classdef DTI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);            
         end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimVaryGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
         
     end
 end
