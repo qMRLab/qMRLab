@@ -3,7 +3,7 @@ classdef (TestTags = {'SPGR', 'Unit'}) CacheSf_Test < matlab.unittest.TestCase
     properties
         protocolFileLocation = 'savedprotocols/demo_SPGR_Protocol_For_CacheSf_Test.mat';
         Prot;
-        expectedFields = {'angles', 'offsets', 'T2f', 'values', 'PulseShape', 'PulseTrf', 'PulseOpt'}';
+        expectedFields = {'values','angles', 'offsets', 'T2f', 'PulseShape', 'PulseTrf', 'PulseOpt'}';
     end
     
     methods (TestClassSetup)
