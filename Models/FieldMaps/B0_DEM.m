@@ -32,9 +32,17 @@ classdef B0_DEM
 %
 % References:
 %   Please cite the following if you use this module:
-%     FILL
+%     Maier, F., Fuentes, D., Weinberg, J.S., Hazle, J.D., Stafford, R.J.,
+%     2015. Robust phase unwrapping for MR temperature imaging using a
+%     magnitude-sorted list, multi-clustering algorithm. Magn. Reson. Med.
+%     73, 1662?1668. Schofield, M.A., Zhu, Y., 2003. Fast phase unwrapping
+%     algorithm for interferometric applications. Opt. Lett. 28, 1194?1196
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
+%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
+%     Stikov N. (2016), Quantitative magnetization transfer imaging made
+%     easy with qMTLab: Software for data simulation, analysis, and
+%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
     properties
         MRIinputs = {'Phase','Magn'};
