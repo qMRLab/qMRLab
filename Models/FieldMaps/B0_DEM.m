@@ -20,7 +20,7 @@ classdef B0_DEM
 %
 % Example of command line usage (see also <a href="matlab: showdemo B0_DEM_batch">showdemo B0_DEM_batch</a>):
 %   Model = B0_DEM;  % Create class from model 
-%   Model.Prot.Time.Mat = 1.92e-3; % deltaTE [s]
+%   Model.Prot.TimingTable.Mat = 1.92e-3; % deltaTE [s]
 %   data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
 %   data.Magn  = double(load_nii_data('Magn.nii.gz'));
 %   FitResults       = FitData(data,Model);
@@ -44,7 +44,7 @@ classdef B0_DEM
         
         % Protocol
         % You can define a default protocol here.
-        Prot = struct('Time',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
+        Prot = struct('TimingTable',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
         
         % Model options
         buttons = {'Magn thresh lb',0};
@@ -76,7 +76,7 @@ classdef B0_DEM
 %             B0 = load_untouch_nii('tmp/Ph_uw.nii.gz');
 %             rmdir('tmp','s')
 %             B0.img = unwrap(B0.img,[],4);
-%             FitResult.B0map = (B0.img(:,:,:,2) - B0.img(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);
+%             FitResult.B0map = (B0.img(:,:,:,2) - B0.img(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
             
             
             % 2D or 3D data ?
@@ -93,7 +93,7 @@ classdef B0_DEM
                 for it = 1:size(Magn,4)
                     Phase_uw(:,:,:,it) = sunwrap(Complex(:,:,:,it));
                 end
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.Time.Mat*2*pi); 
+                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi); 
                      
             % MATLAB "laplacianUnwrap" for 3D data
             else
@@ -101,7 +101,7 @@ classdef B0_DEM
                     msgbox('Enter a Lower Bound relative to the Magn','Create a Mask');
                 end
                 Phase_uw = laplacianUnwrap(Phase, magn>.05);
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);                 
+                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);                 
             end
             
             
