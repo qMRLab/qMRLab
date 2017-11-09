@@ -38,8 +38,8 @@ handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
 handles.caller = [];            % Handle to caller GUI
-if (~isempty(varargin) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
-    handles.caller = varargin{1};
+if (length(varargin)>1 && ~isempty(varargin{2}) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
+    handles.caller = varargin{2};
     CurrentPos = get(gcf, 'Position');
     CallerPos = get(handles.caller, 'Position');
     NewPos = [CallerPos(1)+CallerPos(3), CallerPos(2)+CallerPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
@@ -48,7 +48,7 @@ end
 handles.opened = 1;
 
 % Load model parameters
-Model = varargin{2};
+Model = varargin{1};
 setappdata(0,'Model',Model);
 Nparam = length(Model.xnames);
 
@@ -174,7 +174,7 @@ setappdata(0,'Model',Model);
 % FitOptTable CellEdit
 function FitOptTable_CellEditCallback(hObject, eventdata, handles)
 Model = SetOpt(handles);
-OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(handles.output, [], handles, Model, handles.caller)
 
 function FitOptTable_CreateFcn(hObject, eventdata, handles)
 
@@ -189,7 +189,7 @@ defaultModel = modelfun();
 Model.Prot = defaultModel.Prot;
 setappdata(0,'Model',Model);
 set(handles.ProtFileName,'String','Protocol Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
 [FileName,PathName] = uigetfile({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},'Load Protocol Matrix');
@@ -214,7 +214,7 @@ if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end
 setappdata(0,'Model',Model);
-OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(handles.output, [], handles, Model, handles.caller)
 
 
 
@@ -224,7 +224,7 @@ OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
 
 function ModelOptions_Callback(handles)
 Model = SetOpt(handles);
-OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(handles.output, [], handles, Model, handles.caller)
 
 % --- Executes on button press in Helpbutton.
 function Helpbutton_Callback(hObject, eventdata, handles)
@@ -238,7 +238,7 @@ Model = modelfun();
 Model.Prot = oldModel.Prot;
 setappdata(0,'Model',Model);
 set(handles.ParametersFileName,'String','Parameters Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller, Model)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 % --- Executes on button press in Load.
 function Load_Callback(hObject, eventdata, handles)
@@ -252,7 +252,7 @@ if ~isa(Model,class(oldModel))
 end
 setappdata(0,'Model',Model)
 set(handles.ParametersFileName,'String',FileName);
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 % --- Executes on button press in Save.
 function Save_Callback(hObject, eventdata, handles)
