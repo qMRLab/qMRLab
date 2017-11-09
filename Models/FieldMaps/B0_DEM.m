@@ -12,7 +12,7 @@ classdef B0_DEM
 %	B0map       B0 field map [Hz]
 %
 % Protocol:
-%   TimingTable
+%   Time
 %       deltaTE     Difference in TE between 2 images [ms]            
 %
 % Options:
