@@ -1,3 +1,4 @@
+warning('off','all');
 %% DESCRIPTION
 help B1_DAM
 % Batch to generate B1map with Double-Angle Method (DAM) without qMRLab GUI (graphical user interface)

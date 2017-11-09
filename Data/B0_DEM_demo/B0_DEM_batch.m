@@ -1,3 +1,4 @@
+warning('off','all');
 %% DESCRIPTION
 help B0_DEM
 % Batch to generate B0map with Dual Echo Method (DEM) without qMRLab GUI (graphical user interface)
@@ -21,11 +22,6 @@ Model = B0_DEM;
 file = struct;
 file.Phase = 'Phase.nii.gz';
 file.Magn = 'Magn.nii.gz';
-
-%**************************************************************************
-% II- CHECK DATA AND FITTING
-%**************************************************************************
-qMRLab(Model,file);
 
 
 %% Create Quantitative Maps
@@ -67,3 +63,6 @@ FitResultsSave_nii(FitResults,'Phase.nii.gz');
 
 %% Check the results
 % Load them in qMRLab
+qMRLab(Model,file) %view the model parameters and input
+imagesc(FitResults.B0map, [-50 50]) %view output map
+colorbar
