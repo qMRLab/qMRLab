@@ -263,41 +263,40 @@ classdef SPGR
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
         
-        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
-            % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
-            % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
-            % Optimize Inversion times
-            nV         = Opt.Nofvolumes;
-            popSize    = Opt.Populationsize;
-            migrations = Opt.Nofmigrations;
-            
-            sigma  = .05;
-            Anglemax = 700;
-            Offsetmax = 20000;
-                    % Angle Offset
-            planes = [ 1   0   0               % Angle              > 0
-                       -1  0  Anglemax         % Anglemax  -  Angle > 0
-                       0   1  -100             % Offset    -    100 > 0
-                       0  -1  Offsetmax];      % Offsetmax - Offset > 0
-            
-            LSP = meshgrid_polyhedron(planes);
-            GenerateRandFunction = @() LSP(randi(size(LSP,1),nV,1),:);
-            CheckProtInBoundFunc = @(Prot) checkInBoundsAndUptade(Prot,LSP,planes);
-            CurrentProt = obj.Prot.MTdata.Mat;
-            obj.Prot.MTdata.Mat = LSP;
-            obj.ProtSfTable = load('LargeSFTable.mat'); % SfTable declaration
-            obj.options.checkSf = false; % do not check Sf
-            % TODO: Precompute SPGR_Prepare outputs on LSP... currently too slow
-            % Optimize Protocol
-            [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,Prot,xvalues,sigma)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, CurrentProt);
-            
-            % Generate Rest
-            schemeLEADER = retVal.schemeLEADER;
-            schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
-            
-            fprintf('SOMA HAS FINISHED \n')
-            
-        end
+%         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
+%             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+%             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
+%             nV         = Opt.Nofvolumes;
+%             popSize    = Opt.Populationsize;
+%             migrations = Opt.Nofmigrations;
+%             
+%             sigma  = .05;
+%             Anglemax = 700;
+%             Offsetmax = 20000;
+%                     % Angle Offset
+%             planes = [ 1   0   0               % Angle              > 0
+%                        -1  0  Anglemax         % Anglemax  -  Angle > 0
+%                        0   1  -100             % Offset    -    100 > 0
+%                        0  -1  Offsetmax];      % Offsetmax - Offset > 0
+%             
+%             LSP = meshgrid_polyhedron(planes);
+%             GenerateRandFunction = @() LSP(randi(size(LSP,1),nV,1),:);
+%             CheckProtInBoundFunc = @(Prot) checkInBoundsAndUptade(Prot,LSP,planes);
+%             CurrentProt = obj.Prot.MTdata.Mat;
+%             obj.Prot.MTdata.Mat = LSP;
+%             obj.ProtSfTable = load('LargeSFTable.mat'); % SfTable declaration
+%             obj.options.checkSf = false; % do not check Sf
+%             % TODO: Precompute SPGR_Prepare outputs on LSP... currently too slow
+%             % Optimize Protocol
+%             [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,Prot,xvalues,sigma)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, CurrentProt);
+%             
+%             % Generate Rest
+%             schemeLEADER = retVal.schemeLEADER;
+%             schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
+%             
+%             fprintf('SOMA HAS FINISHED \n')
+%             
+%         end
         
         
         function plotModel(obj, x, data)
