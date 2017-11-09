@@ -1,6 +1,5 @@
 classdef B0_DEM
 % B0_DEM map :  Dual Echo Method for B0 mapping
-%<a href="matlab: figure, imshow B0_DEM.png ;">Pulse Sequence Diagram</a>
 %
 % Assumptions:
 %   Compute B0 map based on 2 phase images with different TEs
@@ -13,7 +12,8 @@ classdef B0_DEM
 %	B0map       B0 field map [Hz]
 %
 % Protocol:
-%	deltaTE     Difference in TE between 2 images [ms]            
+%   TimingTable
+%       deltaTE     Difference in TE between 2 images [ms]            
 %
 % Options:
 %   Magn thresh lb  Lower bound to threshold the magnitude image for use as a mask
