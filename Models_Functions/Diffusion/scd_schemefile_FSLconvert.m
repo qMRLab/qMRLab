@@ -1,4 +1,4 @@
-function scd_schemefile_FSLconvert(bvalfile, bvecfile, Gmax, T180, schemefile)
+function scheme = scd_schemefile_FSLconvert(bvalfile, bvecfile, Gmax, schemefile)
 %
 % scd_schemefile_FSLconvert(bvalfile, bvecfile, Gmax, T180, schemefile)
 % scd_schemefile_FSLconvert('bvals.txt', 'bvecs.txt', 80, 18, 'scheme.txt')
@@ -10,11 +10,6 @@ function scd_schemefile_FSLconvert(bvalfile, bvecfile, Gmax, T180, schemefile)
 %   bvalfile: FSL bval text file (output of dcm2nii or dicm2nii)
 %   bvecfile: FSL bvec text file (output of dcm2nii or dicm2nii)
 %   Gmax: maximal gradient strength of the MRI system used in mT/m. example: Gmax=80.
-%   T180: duration of the refocusing pulse + gradient rising time. In ms.
-%         example:
-%         T180 = 5ms + Gmax/Slewrate
-%         T180 = 5ms + (80 mT/m) / (100 mT/m/ms)
-%         T180 = 5.8;
 %   schemefile: name of the output scheme file (e.g. scheme.txt)
 %
 % Inspired from FSL2Protocol.m from NODDI toolbox (Original author: Gary Hui Zhang)
@@ -38,10 +33,13 @@ end
 % maximum b-value in the s/mm^2 unit
 maxB = max(bval);
 
-% Fill scheme
+% Fill scheme. 
+% Note that this is an approximation. Delta and delta are mostly a function of the readout
+% time. 
 scheme(:,1:3)=bvecs;
 % set smalldel and delta and G
 GAMMA = 2.675987E8;
+T180 = 18; % duration of the refocusing pulse + gradient rising time. In ms.
 tmp = roots([2/3 T180 0 -maxB*10^6/(GAMMA^2*(Gmax*1e-3)^2)*1e9]);
 tmp = tmp(tmp>0); tmp = round(min(tmp)*10)/10;
 
@@ -50,4 +48,6 @@ scheme(:,5) = tmp + T180; % DELTA
 scheme(:,4) = sqrt(bval/maxB)*Gmax*1e-6;
 scheme(:,7) = 2*tmp + T180 + 20; % Approximate value assuming readout time of 20ms. TE is not used in models with single TE.
 
-scd_schemefile_write(scheme,schemefile);
+if exist('schemefile','var')
+    scd_schemefile_write(scheme,schemefile);
+end
