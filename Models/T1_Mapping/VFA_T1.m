@@ -35,9 +35,16 @@ classdef VFA_T1
 %
 % References:
 %   Please cite the following if you use this module:
-%     FILL
+%     Fram, E.K., Herfkens, R.J., Johnson, G.A., Glover, G.H., Karis, J.P.,
+%     Shimakawa, A., Perkins, T.G., Pelc, N.J., 1987. Rapid calculation of
+%     T1 using variable flip angle gradient refocused imaging. Magn. Reson.
+%     Imaging 5, 201?208
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
+%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
+%     Stikov N. (2016), Quantitative magnetization transfer imaging made
+%     easy with qMTLab: Software for data simulation, analysis, and
+%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 
     properties
