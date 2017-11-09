@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>B1_DAM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-19"><meta name="DC.source" content="B1_DAM_batch.m"><style type="text/css">
+      --><title>B1_DAM_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-11-09"><meta name="DC.source" content="B1_DAM_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -70,45 +70,45 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 <span class="comment">% Batch to generate B1map with Double-Angle Method (DAM) without qMRLab GUI (graphical user interface)</span>
 <span class="comment">% Run this script line by line</span>
 <span class="comment">% Written by: Ian Gagnon, 2017</span>
-</pre><pre class="codeoutput"> -----------------------------------------------------------------------------------------------------
-  B1_DAM map :  Double-Angle Method for B1+ mapping
- -----------------------------------------------------------------------------------------------------
- -------------%
-  ASSUMPTIONS %
- -------------% 
-  (1) FILL
-  (2) 
-  (3) 
-  (4) 
- -----------------------------------------------------------------------------------------------------
- --------%
-  INPUTS %
- --------%
-    1) SF60  : SPGR data at a flip angle of 60 degree
-    2) SF120 : SPGR data at a flip angle of 120 degree
+</pre><pre class="codeoutput">  B1_DAM map:  Double-Angle Method for B1+ mapping
  
- -----------------------------------------------------------------------------------------------------
- ---------%
-  OUTPUTS %
- ---------%
- 	* B1map : Excitation (B1+) field map
+  Assumptions:
+    Compute a B1map using 2 SPGR images with 2 different flip angles (60, 120deg)
  
- -----------------------------------------------------------------------------------------------------
- ----------%
-  PROTOCOL %
- ----------%
+  Inputs:
+    SF60            SPGR data at a flip angle of 60 degree
+    SF120           SPGR data at a flip angle of 120 degree
+ 
+  Outputs:
+ 	B1map           Excitation (B1+) field map
+ 
+  Protocol:
  	NONE
  
- -----------------------------------------------------------------------------------------------------
- ---------%
-  OPTIONS %
- ---------%
+  Options
     NONE
  
- -----------------------------------------------------------------------------------------------------
-  Written by: Ian Gagnon, 2017
-  Reference: FILL
- -----------------------------------------------------------------------------------------------------
+  Example of command line usage (see also &lt;a href="matlab: showdemo B1_DAM_batch"&gt;showdemo B1_DAM_batch&lt;/a&gt;):
+    Model = B1_DEM;% Create class from model 
+    data.SF60 = double(load_nii_data('SF60.nii.gz')); %load data
+    data.SF120  = double(load_nii_data('SF120.nii.gz'));
+    FitResults       = FitData(data,Model); % fit data
+    FitResultsSave_nii(FitResults,'SF60.nii.gz'); %save nii file using SF60.nii.gz as template
+ 
+    For more examples: &lt;a href="matlab: qMRusage(B1_DAM);"&gt;qMRusage(B1_DAM)&lt;/a&gt;
+ 
+  Author: Ian Gagnon, 2017
+ 
+  References:
+    Please cite the following if you use this module:
+      Insko, E.K., Bolinger, L., 1993. Mapping of the Radiofrequency Field.
+      J. Magn. Reson. A 103, 82?85.
+    In addition to citing the package:
+      Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
+      Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
+      Stikov N. (2016), Quantitative magnetization transfer imaging made
+      easy with qMTLab: Software for data simulation, analysis, and
+      visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
     Reference page in Doc Center
        doc B1_DAM
@@ -132,8 +132,8 @@ file.SF120 = <span class="string">'SF120.nii.gz'</span>;
 <span class="comment">%**************************************************************************</span>
 <span class="comment">% II- CHECK DATA AND FITTING</span>
 <span class="comment">%**************************************************************************</span>
-qMRLab(Model,file);
-</pre><img vspace="5" hspace="5" src="B1_DAM_batch_01.png" alt=""> <img vspace="5" hspace="5" src="B1_DAM_batch_02.png" alt=""> <h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+<span class="comment">%qMRLab(Model,file);</span>
+</pre><h2 id="4">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% I- LOAD EXPERIMENTAL DATA</span>
 <span class="comment">%**************************************************************************</span>
 <span class="comment">% Create a struct "data" that contains all the data</span>
@@ -155,7 +155,8 @@ FitResults       = FitData(data,Model,1); <span class="comment">% 3rd argument p
 <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
 FitResultsSave_nii(FitResults,<span class="string">'SF60.nii.gz'</span>);
 <span class="comment">%save('Parameters.mat','Model');</span>
-</pre><pre class="codeoutput">Warning: Directory already exists. 
+</pre><pre class="codeoutput">Warning: File 'FitTempResults.mat' not found. 
+Warning: Directory already exists. 
 </pre><h2 id="5">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% DESCRIPTION
@@ -186,7 +187,7 @@ file.SF120 = 'SF120.nii.gz';
 %**************************************************************************
 % II- CHECK DATA AND FITTING
 %**************************************************************************
-qMRLab(Model,file);
+%qMRLab(Model,file);
 
 
 %% Create Quantitative Maps
