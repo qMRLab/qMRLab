@@ -7,7 +7,7 @@ classdef SPGR
 %
 % Inputs:
 %   MTdata              Magnetization Transfert data
-%   (R1map)             1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
+%   (R1map)             1/T1map (VFA RECOMMENDED Boudreau 2017 MRM)
 %   (B1map)             B1 field map, used for flip angle correction (=1 if not provided)
 %   (B0map)             B0 field map, used for offset correction (=0Hz if not provided)
 %   (Mask)              Binary mask to accelerate the fitting
