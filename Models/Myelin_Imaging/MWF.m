@@ -20,7 +20,7 @@ classdef MWF
 %       'T2*'      For a GRE sequence
 %
 % Protocol:
-%   Vector [1 x nbTEs]:
+%   MET2data            Vector [nbTEs x 1]:
 %     [TE1 TE2 ...]     list of echo times [ms]
 %
 % Example of command line usage (see also <a href="matlab: showdemo MWF_batch">showdemo MWF_batch</a>):
@@ -59,7 +59,7 @@ classdef MWF
 
         % Protocol
         % You can define a default protocol here.
-        Prot  = struct('Echo',struct('Format',{{'Time (ms)'}},...
+        Prot  = struct('Echo',struct('Format',{{'Echo Times (ms)'}},...
             'Mat', [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
             180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320]));
 

@@ -29,11 +29,11 @@ classdef SPGR
 %   (resnorm)           Fitting residual.
 %
 % Protocol:
-%   MTdata
+%   MTdata              Array [Nb of volumes x 2]
 %     Angle             MT pulses angles (degree)
 %     Offset            Offset frequencies (Hz)
 %
-%   TimingTable
+%   TimingTable         Vector [5x1]
 %     Tmt               Duration of the MT pulses (s)
 %     Ts                Free precession delay between the MT and excitation pulses (s)
 %     Tp                Duration of the excitation pulse (s)

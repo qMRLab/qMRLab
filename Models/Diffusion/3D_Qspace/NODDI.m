@@ -4,15 +4,19 @@ classdef NODDI
 %<a href="matlab: figure, imshow NODDI.png ;">Pulse Sequence Diagram</a>
 %           
 % ASSUMPTIONS:
-% (1) neuronal fibers (axons) are impermeable sticks (Dperp = 0)
-% (2) Presence of orientation dispersion of the fibers (Watson distribution). Note that NODDI is more robust to
-%     crossing fibers that DTI  (Campbell, NIMG 2017)
-%     and isotropic diffusion coefficient (parameters di and diso)
-% (3) Intra-cellular Model: Fixed diffusion coefficient (parameter di)
-% (4) Extra-cellular Model:Tortuosity model. Parallel diffusivity is equal to
-%                          intra-diffusivity.Perpendicular diffusivity is proportional to fiber
-%                          density
-% (5) No time dependence of the diffusion
+%   Neuronal fibers model:
+%     geometry                          sticks (Dperp = 0)
+%     Orientation dispersion            YES (Watson distribution). Note that NODDI is more robust to
+%                                                                   crossing fibers that DTI  (Campbell, NIMG 2017)
+%
+%     Permeability                      NO
+%   Diffusion properties:
+%     intra-axonal                      totally restricted
+%       diffusion coefficient (Dr)      fixed by default.
+%     extra-axonal                      Tortuosity model. Parallel diffusivity is equal to
+%                                         intra-diffusivity.Perpendicular diffusivity is 
+%                                         proportional to fiber density
+%       diffusion coefficient (Dh)      Constant
 %
 % Inputs:
 %   DiffusionData       4D diffusion weighted dataset
@@ -28,8 +32,17 @@ classdef NODDI
 %
 % Protocol:
 %   Multi-shell diffusion-weighted acquisition
-%       at least 2 non-zeros bvalues
-%       at least 5 b=0 (used to compute noise standard deviation
+%    at least 2 non-zeros bvalues
+%    at least 5 b=0 (used to compute noise standard deviation
+%
+%   DiffusionData       Array [NbVol x 7]
+%     Gx                Diffusion Gradient x
+%     Gy                Diffusion Gradient y
+%     Gz                Diffusion Gradient z
+%     |G| (T/m)         Diffusion gradient magnitude
+%     Delta (s)         Diffusion separation
+%     delta (s)         Diffusion duration
+%     TE (s)            Echo time
 %
 % Options:
 %   Model               Model part of NODDI. 
