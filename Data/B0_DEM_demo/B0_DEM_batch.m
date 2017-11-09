@@ -32,7 +32,7 @@ file.Magn = 'Magn.nii.gz';
 
 % Echo (time in millisec)
 TE2 = 1.92e-3;
-Model.Prot.Time.Mat = TE2;
+Model.Prot.TimingTable.Mat = TE2;
 
 % Update the model
 Model = Model.UpdateFields;

@@ -5,11 +5,20 @@ classdef CHARMED
 %
 % Assumptions:
 %   Diffusion gradients are applied perpendicularly to the neuronal fibers.
-%   Neuronal fibers are parallel (orientational dispersion is negligible).
-%   The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
-%     should have little impact if the average propagator is larger than
-%     axonal diameter (sqrt(2*Dr*Delta)>8µm).
-%   Permeability of the neuronal fibers is negligible.
+%   Neuronal fibers model:
+%     geometry                          cylinders
+%     Orientation dispersion            NO
+%     Permeability                      NO
+%   Diffusion properties:
+%     intra-axonal                      restricted in cylinder with Gaussian
+%                                        Phase approximation
+%      diffusion coefficient (Dr)       fixed by default. this assumption should have 
+%                                                          little impact if the average 
+%                                                          propagator is larger than
+%                                                          axonal diameter (sqrt(2*Dr*Delta)>8µm).
+%     extra-axonal                      Gaussian
+%      diffusion coefficient (Dh)       Constant by default. Time dependence (lc) 
+%                                                             can be added
 %
 % Inputs:
 %   DiffusionData       4D DWI
@@ -29,6 +38,19 @@ classdef CHARMED
 %                         Use option "Time-Dependent Models" to get different interpretations.
 %   (fh)                Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf
 %   (residue)           Fitting residuals
+%
+% Protocol:
+%   Various bvalues
+%   diffusion gradient direction perpendicular to the fibers
+%
+%   DiffusionData       Array [NbVol x 7]
+%     Gx                Diffusion Gradient x
+%     Gy                Diffusion Gradient y
+%     Gz                Diffusion Gradient z
+%     |G| (T/m)         Diffusion gradient magnitude
+%     Delta (s)         Diffusion separation
+%     delta (s)         Diffusion duration
+%     TE (s)            Echo time
 %
 % Options:
 %   Rician noise bias               Used if no SigmaNoise map is provided.
