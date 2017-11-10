@@ -34,7 +34,7 @@ if kappa < 1e-5
     end
 else
 	sk = sqrt(kappa);
-	dawsonf = 0.5*exp(-kappa)*sqrt(pi)*erfi(sk);
+	dawsonf = 0.5*exp(-kappa)*sqrt(pi)*NODDI_erfi(sk);
 	factor = sk/dawsonf;
 	dw(1) = (-dParMdPerp+2*dPerp*kappa+dParMdPerp*factor)/(2*kappa);
 	dw(2) = (dParMdPerp+2*(dPar+dPerp)*kappa-dParMdPerp*factor)/(4*kappa);
