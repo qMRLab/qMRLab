@@ -56,15 +56,13 @@ end
 
 tic
 
-disp('Loop over voxels:       ')
 fprintf('%i of voxels to fit\n', numOfVoxels-current_index+1);
 
 % start the parallel fitting
 for i=current_index:numOfVoxels
     
-%     fprintf('Fitting voxel %i\n', i);
-    fprintf('%i%% done...\n', round(i/(numOfVoxels-current_index+1)));
-
+    fprintf('Fitting voxel %i\n', i);
+    
     % get the MR signals for the voxel i
     voxel = roi(i,:)';
     
@@ -87,8 +85,7 @@ for i=current_index:numOfVoxels
     
 end
 
-elapsed_time = toc;
-fprintf('%d minutes and %f seconds\n',floor(elapsed_time/60),rem(elapsed_time,60));
+toc
 
 % save the fitted parameters
 if model.noOfStages == 2

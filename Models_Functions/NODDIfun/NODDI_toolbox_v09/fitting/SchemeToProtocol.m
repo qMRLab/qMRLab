@@ -1,4 +1,4 @@
-function protocol = SchemeToProtocol2(schemefile)
+function protocol = SchemeToProtocol(schemefile)
 %
 % Reads a Camino Version 1 schemefile into a protocol object
 %
@@ -8,10 +8,16 @@ function protocol = SchemeToProtocol2(schemefile)
 %         Gary Hui Zhang     (gary.zhang@ucl.ac.uk)
 %
 
+fid = fopen(schemefile, 'r', 'b');
+
 % Read in the header (assumes one line)
+%A = fscanf(fid, '%c', 10);
+A = fgetl(fid);
 
 % Read in the data
-A = txt2mat(schemefile)'; 
+A = fscanf(fid, '%f', [7, inf]);
+
+fclose(fid);
 
 % Create the protocol
 protocol.pulseseq = 'PGSE';

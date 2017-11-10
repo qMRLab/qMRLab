@@ -63,8 +63,7 @@ end
 
 % load bvec
 bvec = load(bvecfile);
-if size(bvec,2)>3, bvec=bvec'; end
-protocol.grad_dirs = bvec;
+protocol.grad_dirs = bvec';
 
 % make the gradient directions for b=0's [1 0 0]
 for i=1:length(protocol.b0_Indices)
