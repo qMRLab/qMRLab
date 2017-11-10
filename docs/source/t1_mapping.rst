@@ -12,6 +12,7 @@ IR_label
 
 	IR_batch
 
+
 Variable Flip Angle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 VFA_label

@@ -1,4 +1,13 @@
 #Models to implement in the documentation
+#Model syntax:
+#File name (without extension)
+#	Title
+#	Description
+#
+#Mdictionary syntax:
+#File or directory name (without extension)
+#	Title
+#	Description
 
 Models list:
 CHARMED
