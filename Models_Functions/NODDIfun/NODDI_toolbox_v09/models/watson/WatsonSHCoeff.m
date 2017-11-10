@@ -56,7 +56,7 @@ k5 = k4.*k;
 k6 = k5.*k;
 k7 = k6.*k;
 
-erfik = erfi(sk);
+erfik = NODDI_erfi(sk);
 ierfik = 1./erfik;
 ek = exp(k(exact));
 dawsonk = 0.5*sqrt(pi)*erfik./ek;

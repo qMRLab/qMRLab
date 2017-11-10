@@ -40,11 +40,12 @@ else
 end
 
 % initiate the parallel environment if necessary
-if	matlabpool('size')==0
+pool = gcp('nocreate');
+if	isempty(pool)
     if (nargin < 5)
-        matlabpool
+        pool = parpool('local');
     else
-        matlabpool('open', poolsize);
+        pool = parpool('local', poolsize);
     end
 end
 
@@ -125,5 +126,5 @@ else
 end
 
 % close the parallel pool
-matlabpool close
+delete pool;
 
