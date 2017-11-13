@@ -49,7 +49,7 @@ SimResult = table(struct2mat(x,Model.xnames)',struct2mat(FitResults,Model.xnames
 %**************************************************************************
 % load data
 data = struct;
-data.DiffusionData = load_nii_data('DWI.nii.gz');
+data.DiffusionData = load_nii_data('DifffusionData.nii.gz');
 
 % plot fit in one voxel
 voxel = [74 45 28];
