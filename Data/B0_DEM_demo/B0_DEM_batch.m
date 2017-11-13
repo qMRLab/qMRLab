@@ -2,11 +2,14 @@
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
-%% Load dataset
+%**************************************************************************
+%% I- LOAD MODEL
+%**************************************************************************
 
-% Load your parameters to create your Model
-Model = B0_DEM;
-
+% create your Model
+%  Model = B0_DEM;
+% Alternatively, load your parameters
+   Model = load('qMRLab_B0_DEMObj.mat');
 %% Check data and fitting (Optional)
 
 %**************************************************************************
@@ -19,16 +22,15 @@ file.Phase = 'Phase.nii.gz';
 file.Magn = 'Magn.nii.gz';
 
 %**************************************************************************
-% II- CHECK DATA AND FITTING
+% II- CHECK DATA 
 %**************************************************************************
-qMRLab(Model,file);
+%qMRLab(Model,file);
 
 
-%% Create Quantitative Maps
-
 %**************************************************************************
-% I- LOAD PROTOCOL
+%% II- Create Quantitative Maps
 %**************************************************************************
+% 1. LOAD PROTOCOL
 
 % Echo (time in millisec)
 TE2 = 1.92e-3;
@@ -38,7 +40,7 @@ Model.Prot.Time.Mat = TE2;
 Model = Model.UpdateFields;
 
 %**************************************************************************
-% II- LOAD EXPERIMENTAL DATA
+% 2. LOAD EXPERIMENTAL DATA
 %**************************************************************************
 % Create a struct "data" that contains all the data
 % .MAT file : load('DATA_FILE');
@@ -54,12 +56,18 @@ FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 
 %**************************************************************************
-% IV- SAVE
+% IV- View Results
+%**************************************************************************
+imagesc3D(FitResults.B0map,[-100 100]); colormap jet; colorbar
+
+%**************************************************************************
+% V- SAVE
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'Phase.nii.gz');
-%save('Parameters.mat','Model');
+% 
+% qMRsaveModel(Model, 'qMRLab_B0_DEMObj.mat'); % save the model object 
 
 %% Check the results
 % Load them in qMRLab
