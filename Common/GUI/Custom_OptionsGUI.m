@@ -245,7 +245,7 @@ OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller, Model)
 function Load_Callback(hObject, eventdata, handles)
 [FileName,PathName] = uigetfile('*.mat');
 if PathName == 0, return; end
-load(fullfile(PathName,FileName));
+Model = qMRloadModel(fullfile(PathName,FileName));
 oldModel = getappdata(0,'Model');
 if ~isa(Model,class(oldModel))
     errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
@@ -258,9 +258,6 @@ OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
 % --- Executes on button press in Save.
 function Save_Callback(hObject, eventdata, handles)
 Model = getappdata(0,'Model');
-[file,path] = uiputfile(['qMRILab_' class(Model) 'Parameters.mat'],'Save file name');
-if file
-save(fullfile(path,file),'Model')
-end
+qMRsaveModel(Model);
 
 
