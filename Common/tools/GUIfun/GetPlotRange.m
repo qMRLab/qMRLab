@@ -39,4 +39,4 @@ set(handles.MinValue,  'String', Min);
 set(handles.MaxValue,  'String', Max);
 set(handles.MinSlider, 'Value',  Min);
 set(handles.MaxSlider, 'Value',  Max);
-guidata(gcbf, handles);
+guidata(findobj('Name','qMRLab'), handles);
