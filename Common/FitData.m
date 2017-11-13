@@ -68,7 +68,9 @@ if Model.voxelwise % process voxelwise
     end
     l = length(Voxels);
     
-
+    % Travis?
+    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
+    
     %############################# FITTING LOOP ###############################
     % Create waitbar
     h=[];
@@ -120,6 +122,10 @@ if Model.voxelwise % process voxelwise
         %-- save temp file every 20 voxels
         if(mod(ii,20) == 0)
             save('FitTempResults.mat', '-struct','Fit');
+        end
+        
+        if ISTRAVIS && ii>2
+            break;
         end
     end
     
