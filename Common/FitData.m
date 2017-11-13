@@ -139,5 +139,5 @@ end
 Fit.Time = toc;
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
-
+Fit.Version = qMRLabVer;
 end

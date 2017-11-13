@@ -10,7 +10,7 @@ if nargin<1
 filename = fullfile(path,file);
 end
 
-if file
+if filename
     load(filename,'Model','version')
     if ~exist('Model','var'), warning('not a Model object file');  Model = []; return; end
     if ~exist('version','var'), warning('No variable name "version". Might not be retrocompatible. Save Models using qMRsaveModel to prevent this error.');  return; end
