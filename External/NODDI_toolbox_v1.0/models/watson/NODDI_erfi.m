@@ -1,4 +1,4 @@
-function ans=NODDI_erfi(x)
+function res=NODDI_erfi(x)
 % %erfi(x). The Imaginary error function, as it is defined in Mathematica
 % %erfi(z)==erf(iz)/i (z could be complex) using 
 % %the incomplete gamma function in matlab: gammainc
@@ -15,7 +15,13 @@ function ans=NODDI_erfi(x)
 % z=x+i*y;
 % figure(1), clf;contourf(x,y,log(erfi(z)))
 % axis equal;axis off
-xc=5.7;%cut for asymptotic approximation (when x is real)
-ans=~isreal(x).*(-(sqrt(-x.^2)./(x+isreal(x))).*gammainc(-x.^2,1/2))+...
-    isreal(x).*real(-sqrt(-1).*sign(x).*((x<xc).*gammainc(-x.^2,1/2))+...
-    (x>=xc).*exp(x.^2)./x/sqrt(pi));
+
+% MATLAB only:
+% xc=5.7;%cut for asymptotic approximation (when x is real)
+% res=~isreal(x).*(-(sqrt(-x.^2)./(x+isreal(x))).*gammainc(-x.^2,1/2))+...
+%     isreal(x).*real(-sqrt(-1).*sign(x).*((x<xc).*gammainc(-x.^2,1/2))+...
+%     (x>=xc).*exp(x.^2)./x/sqrt(pi));
+
+% FASTER AND COMPATIBLE WITH BOTH MATLAB AND OCTAVE:
+res = Faddeeva_erfi(x);
+
