@@ -33,7 +33,10 @@ classdef NODDI
 % OUTPUTS %
 %---------%
 %       * di            : Diffusion coefficient in the restricted compartment.
-%       * ficvf         : Fraction of water in the restricted compartment.
+%       * ficvf         : Fraction of restricted water in the non-iso compartment.
+%       * fiso          : Fraction of water in the isotropic compartment (e.g. CSF/Veins)
+%       * fr            : Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
+%                          fr = ficvf*(1-fiso)
 %       * diso (fixed)  : diffusion coefficient of the isotropic compartment (CSF)
 %       * kappa         : Orientation dispersion index                               
 %       * b0            : Signal at b=0
@@ -172,6 +175,10 @@ classdef NODDI
             xopt = mlps;
             % Outputs
             xnames = model.paramsStr;
+            if sum(strcmp(obj.xnames,'ficvf')) && sum(strcmp(obj.xnames,'fiso'))
+                xnames{end+1} = 'fr';
+                xopt(end+1)   = xopt(strcmp(obj.xnames,'ficvf'))*(1-xopt(strcmp(obj.xnames,'fiso')));
+            end
             xnames{end+1} = 'ODI';
             xopt(end+1)   = atan2(1, xopt(strcmp(obj.xnames,'kappa'))*10)*2/pi;
             xnames{end+1} = 'ObjectiveFun';
