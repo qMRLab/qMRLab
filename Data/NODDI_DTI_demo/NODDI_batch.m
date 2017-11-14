@@ -11,7 +11,7 @@ cd (pathstr);
 %**************************************************************************
 % Create Model object 
 Model = NODDI;
-
+Custom_OptionsGUI(Model)
 %**************************************************************************
 %% II- LOAD Diffusion Protocol
 %**************************************************************************
@@ -28,41 +28,50 @@ Model.Prot.DiffusionData.Mat = txt2mat('scheme.txt');
 %**************************************************************************
 
 % Generate MR Signal using analytical equation
-opt.SNR = 50;
-x.fr = .5;
-x.Dh = .7; % um2/ms
-x.diameter_mean = 6; % um
-x.fcsf = 0;
-x.lc=0;
-x.Dcsf=3;
-x.Dintra = 1.4;
-Model.Sim_Single_Voxel_Curve(x,opt)
+x = struct;
+x.ficvf = 0.5;
+x.di = 1.7;
+x.kappa = 0.5;
+x.fiso = 0;
+x.diso = 3;
+x.b0 = 1;
+x.theta = 0.2;
+x.phi = 0;
+Opt.SNR = 50;
+figure
+FitResults = Model.Sim_Single_Voxel_Curve(x,Opt);
+
+% compare FitResults and input x
+SimResult = table(struct2mat(x,Model.xnames)',struct2mat(FitResults,Model.xnames)','RowNames',Model.xnames,'VariableNames',{'input_x','FitResults'})
 
 %**************************************************************************
 %% III - MRI Data Fitting
 %**************************************************************************
 % load data
 data = struct;
-data.DiffusionData = load_nii_data('DiffusionData.nii.gz');
+data.DiffusionData = load_nii_data('DifffusionData.nii.gz');
 
 % plot fit in one voxel
-voxel = [32 29];
-datavox.DiffusionData = squeeze(data.DiffusionData(voxel(1),voxel(2),:,:));
+voxel = [74 45 28];
+datavox = extractvoxel(data,voxel);
 FitResults = Model.fit(datavox)
-Model.plotmodel(FitResults,datavox)
+Model.plotModel(FitResults,datavox)
 
 % all voxels
 data.Mask=load_nii_data('Mask.nii.gz');
 FitResults = FitData(data,Model,1);
-delete('FitTempResults.mat');
 
 %**************************************************************************
-%% V- SAVE
+%% V- SAVE MAPS
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
-%save('CHARMEDParameters.mat','Model');
+FitResultsSave_nii(FitResults,'DifffusionData.nii.gz');
+
+%**************************************************************************
+%% V- SAVE MODEL (options + protocol) FOR DISTRIBUTION
+%**************************************************************************
+%save('NODDIParameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab

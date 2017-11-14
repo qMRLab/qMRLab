@@ -127,10 +127,7 @@ classdef NODDI
         end
         
         function [Smodel, fibredir] = equation(obj, x)
-            if isstruct(x) % if x is a structure, convert to vector
-                if isfield(x,'ODI'), x = rmfield(x,'ODI'); end
-                x = struct2cell(x); x=[x{:}];
-            end
+            x = struct2mat(x,obj.xnames); % if x is a structure, convert to vector
             
             model = MakeModel(obj.options.modelname);
             if length(x)<length(model.GD.fixedvals)-2, x(end+1) = 1; end % b0
@@ -151,7 +148,7 @@ classdef NODDI
             end
             constants.roots_cyl = BesselJ_RootsCyl(30);
             
-            Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocol(obj.Prot.DiffusionData.Mat), fibredir, constants);
+            Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocolmat(obj.Prot.DiffusionData.Mat), fibredir, constants);
             
         end
         
@@ -168,15 +165,17 @@ classdef NODDI
             model.GS.fixedvals = obj.st./scale;
             model.GD.fixedvals = obj.st./scale;
             
-            protocol = SchemeToProtocol(obj.Prot.DiffusionData.Mat);
+            protocol = SchemeToProtocolmat(obj.Prot.DiffusionData.Mat);
             
             % fit
-            [xopt] = ThreeStageFittingVoxel(double(max(eps,data.DiffusionData)), protocol, model);
-
+            [gsps, fobj_gs, mlps, fobj_ml, error_code] = ThreeStageFittingVoxel(max(eps,double(data.DiffusionData)), protocol, model);
+            xopt = mlps;
             % Outputs
             xnames = model.paramsStr;
             xnames{end+1} = 'ODI';
-            xopt(end+1) = atan(xopt(find(strcmp(obj.xnames,'kappa')))*10)*2/pi;
+            xopt(end+1)   = atan2(1, xopt(strcmp(obj.xnames,'kappa'))*10)*2/pi;
+            xnames{end+1} = 'ObjectiveFun';
+            xopt(end+1)   = fobj_ml;
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),xnames,1);
         end
         
