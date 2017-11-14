@@ -119,6 +119,10 @@ function nii = load_nii(filename, img_idx, dim5_idx, dim6_idx, dim7_idx, ...
 
    v = version;
 
+   if moxunit_util_platform_is_octave
+       confirm_recursive_rmdir(0); % for octave
+   end
+
    %  Check file extension. If .gz, unpack it into temp folder
    %
    if length(filename) > 2 & strcmp(filename(end-2:end), '.gz')
@@ -193,7 +197,7 @@ function nii = load_nii(filename, img_idx, dim5_idx, dim6_idx, dim7_idx, ...
       %  fix fileprefix so it doesn't point to temp location
       %
       nii.fileprefix = gzFileName(1:end-7);
-      rmdir(tmpDir);
+      rmdir(tmpDir,'s');
    end
 
    return					% load_nii

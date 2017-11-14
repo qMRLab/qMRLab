@@ -89,16 +89,16 @@ function save_nii(nii, fileprefix, old_RGB)
 
    %  Note: fileprefix is actually the filename you want to save
    %   
-   if findstr('.nii',fileprefix) && strcmp(fileprefix(end-3:end), '.nii')
+   if ~isempty(strfind('.nii',fileprefix)) && strcmp(fileprefix(end-3:end), '.nii')
       filetype = 2;
       fileprefix(end-3:end)='';
    end
    
-   if findstr('.hdr',fileprefix) && strcmp(fileprefix(end-3:end), '.hdr')
+   if ~isempty(strfind('.hdr',fileprefix)) && strcmp(fileprefix(end-3:end), '.hdr')
       fileprefix(end-3:end)='';
    end
    
-   if findstr('.img',fileprefix) && strcmp(fileprefix(end-3:end), '.img')
+   if ~isempty(strfind('.img',fileprefix)) && strcmp(fileprefix(end-3:end), '.img')
       fileprefix(end-3:end)='';
    end
 
