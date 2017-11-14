@@ -48,12 +48,8 @@ Model.Prot.TimingTable.Mat = [ Tmt ; Ts ; Tp ; Tr ; TR ];
 
 % *** To change other option, go directly in qMRLab ***
 
-% Update the model and 
+% Update the model (also updates the SfTable)
 Model = Model.UpdateFields;
-
-% Compute SfTable if necessary
-Prot = Model.GetProt;
-Model.ProtSfTable = CacheSf(Prot);
 
 %**************************************************************************
 % II- LOAD EXPERIMENTAL DATA
