@@ -20,7 +20,7 @@ for im = 1:length(BatchList)
     disp('===============================================================')
     tmpDir = tempname;
     mkdir(tmpDir);
-    copyfile(pathmodels{im}(1:end-1),tmpDir)
+    copyfile(fullfile(pathmodels{im}(1:end-1),'*'),tmpDir)
     cd(tmpDir)
     eval(BatchList{im})
     if moxunit_util_platform_is_octave
