@@ -166,6 +166,10 @@ function nii = load_nii(filename, img_idx, dim5_idx, dim6_idx, dim7_idx, ...
          tmpDir = tempname;
          mkdir(tmpDir);
          gzFileName = filename;
+         disp('filename')
+         disp(filename)
+         disp('tmpDir')
+         disp(tmpDir)
          copyfile(filename,tmpDir)
          [pathtmp, nametmp, exttmp] = fileparts(filename);
          filename = gunzip(fullfile(tmpDir,[nametmp,exttmp]));
