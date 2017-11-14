@@ -41,9 +41,9 @@ classdef VFA_T1
     %-----------------------------------------------------------------------------------------------------
 
     properties
-        MRIinputs = {'SPGR','B1map'};
-        xnames = {};
-        voxelwise = 0;
+        MRIinputs = {'SPGR','B1map','Mask'};
+        xnames = {'M0','T1'};
+        voxelwise = 1;
         
         % Protocol
         Prot  = struct('SPGR',struct('Format',{{'Flip Angle' 'TR'}},...
@@ -61,12 +61,47 @@ classdef VFA_T1
             obj.options = button2opts(obj.buttons);
         end
         
+        function FitResult = equation(obj,x)
+        end
+        
         function FitResult = fit(obj,data)           
             % T1 and M0
             flipAngles = (obj.Prot.SPGR.Mat(:,1))';
-            TR = obj.Prot.SPGR.Mat(1,2);
-            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.SPGR(:,:,:,:)), flipAngles(1:length(flipAngles)), TR, data.B1map);
+            TR = obj.Prot.SPGR.Mat(:,2);
+            if ~isfield(data,'B1map'), data.B1map=1; end
+            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.SPGR), flipAngles, TR(1), data.B1map);
        
+        end
+        
+        function plotmodel(obj,x,data)
+            x = mat2struct(x,obj.xnames);
+            if isempty(data.B1map), data.B1map=1; end
+            disp(x)
+            flipAngles = (obj.Prot.SPGR.Mat(:,1))';
+            TR = (obj.Prot.SPGR.Mat(1,2))';
+            ydata = data.SPGR./sin(flipAngles/180*pi*data.B1map)';
+            xdata = data.SPGR./tan(flipAngles/180*pi*data.B1map)';
+            plot(xdata,ydata,'xb');
+            hold on
+            a = exp(-TR/x.T1);
+            b = x.M0*(1-a);
+            mval = min(xdata);
+            Mval = max(xdata);
+            plot([mval Mval],b+a*[mval Mval],'-r');
+            hold off
+
+%             h = plot( fitresult, xData, yData,'+');
+%             set(h,'MarkerSize',30)
+%             legend( h, 'y vs. x', 'untitled fit 1', 'Location', 'NorthEast' );
+%             p11 = predint(fitresult,x,0.95,'observation','off');
+%             hold on
+%             plot(x,p11,'m--'); drawnow;
+%             hold off
+%             % Label axes
+%             xlabel( 'x' );
+%             ylabel( 'y' );
+%             grid on
+%             saveas(gcf,['temp.jpg']);
         end
         
     end
