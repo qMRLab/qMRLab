@@ -268,7 +268,7 @@ eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', panel));
 function OpenOptionsPanel_Callback(hObject, eventdata, handles)
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
-Custom_OptionsGUI(gcf,Model);
+Custom_OptionsGUI(Model, gcf);
 
 
 % UPDATE OPTIONS
