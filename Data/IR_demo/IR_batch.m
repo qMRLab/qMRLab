@@ -40,13 +40,13 @@ SimVaryPlot(SimVaryResults,'T1','T1')
 disp(Model.MRIinputs)
 % load data
 data = struct;
-data.IRData = load_nii_data('IRdata.nii.gz');
+data.IRData = load_nii_data('IRData.nii.gz');
 
 % plot fit in one voxel
 voxel = [70 60 20];
 datavox.IRData = squeeze(data.IRData(voxel(1),voxel(2),voxel(3),:));
 FitResults = Model.fit(datavox);
-Model.plotmodel(FitResults,datavox)
+Model.plotModel(FitResults,datavox)
 
 % all voxels (slice 23 only to go faster)
 Mask=load_nii_data('Mask.nii.gz');
@@ -61,7 +61,7 @@ delete('FitTempResults.mat');
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'IRdata.nii.gz'); % use header from 'IRdata.nii.gz'
+FitResultsSave_nii(FitResults,'IRData.nii.gz'); % use header from 'IRData.nii.gz'
 save('IRParameters.mat','Model');
 
 %% Check the results

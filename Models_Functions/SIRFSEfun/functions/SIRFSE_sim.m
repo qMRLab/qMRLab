@@ -22,7 +22,7 @@ end
 
 if (wait)
     h = waitbar(0,'','Name','Simulating data','CreateCancelBtn',...
-        'setappdata(gcbf,''canceling'',1)');
+        'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
     setappdata(h,'canceling',0)
     setappdata(0,'Cancel',0);
 end

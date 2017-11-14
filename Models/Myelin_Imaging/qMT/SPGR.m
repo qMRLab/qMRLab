@@ -168,6 +168,7 @@ classdef SPGR
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
+        Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
     
     methods
@@ -192,11 +193,34 @@ classdef SPGR
         end
         
         function obj = Precompute(obj)
-            if isempty(fieldnames(obj.ProtSfTable))
+            if isempty(obj.ProtSfTable)
                 obj.ProtSfTable = CacheSf(GetProt(obj));
             else
                 obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
-            end         
+            end     
+        end
+        
+        function mz = equation(obj, x, Opt)
+            if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
+            x = x+eps;
+            for ix = 1:length(x)
+                Sim.Param.(obj.xnames{ix}) = x(ix);
+            end
+            Protocol = GetProt(obj);
+            switch Opt.Method
+                case 'Block equation'
+                    Sim.Param.lineshape = obj.options.Lineshape;
+                    Sim.Param.M0f       = 1;
+                    Sim.Opt.Reset       = Opt.ResetMz;
+                    Sim.Opt.SScheck     = 1;
+                    Sim.Opt.SStol       = 1e-4;
+                    Protocol.Npulse = Protocol.MTpulse.Npulse;
+                    if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
+                    mz = SPGR_sim(Sim, Protocol, ISDISPLAY);
+                case 'Analytical equation'
+                    SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
+                    mz = SimCurveResults.curve;
+            end
         end
         
         function FitResults = fit(obj,data)
@@ -224,7 +248,7 @@ classdef SPGR
             FitResults = fit(obj,data);
             delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
                 drawnow;
             end
         end
@@ -233,37 +257,49 @@ classdef SPGR
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
         end
-
+        
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
         
-        function mz = equation(obj, x, Opt)
-            if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
-            x = x+eps;
-            for ix = 1:length(x)
-                Sim.Param.(obj.xnames{ix}) = x(ix);
-            end
-            Protocol = GetProt(obj);
-            switch Opt.Method
-                case 'Block equation'
-                    Sim.Param.lineshape = obj.options.Lineshape;
-                    Sim.Param.M0f       = 1;
-                    Sim.Opt.Reset       = Opt.ResetMz;
-                    Sim.Opt.SScheck     = 1;
-                    Sim.Opt.SStol       = 1e-4;
-                    Protocol.Npulse = Protocol.MTpulse.Npulse;
-                    if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
-                    mz = SPGR_sim(Sim, Protocol, ISDISPLAY);
-                case 'Analytical equation'
-                    SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
-                    mz = SimCurveResults.curve;
-            end
-        end
+%         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
+%             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+%             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
+%             nV         = Opt.Nofvolumes;
+%             popSize    = Opt.Populationsize;
+%             migrations = Opt.Nofmigrations;
+%             
+%             sigma  = .05;
+%             Anglemax = 700;
+%             Offsetmax = 20000;
+%                     % Angle Offset
+%             planes = [ 1   0   0               % Angle              > 0
+%                        -1  0  Anglemax         % Anglemax  -  Angle > 0
+%                        0   1  -100             % Offset    -    100 > 0
+%                        0  -1  Offsetmax];      % Offsetmax - Offset > 0
+%             
+%             LSP = meshgrid_polyhedron(planes);
+%             GenerateRandFunction = @() LSP(randi(size(LSP,1),nV,1),:);
+%             CheckProtInBoundFunc = @(Prot) checkInBoundsAndUptade(Prot,LSP,planes);
+%             CurrentProt = obj.Prot.MTdata.Mat;
+%             obj.Prot.MTdata.Mat = LSP;
+%             obj.ProtSfTable = load('LargeSFTable.mat'); % SfTable declaration
+%             obj.options.checkSf = false; % do not check Sf
+%             % TODO: Precompute SPGR_Prepare outputs on LSP... currently too slow
+%             % Optimize Protocol
+%             [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,Prot,xvalues,sigma)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, CurrentProt);
+%             
+%             % Generate Rest
+%             schemeLEADER = retVal.schemeLEADER;
+%             schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
+%             
+%             fprintf('SOMA HAS FINISHED \n')
+%             
+%         end
         
         
-        function plotmodel(obj, x, data)
+        function plotModel(obj, x, data)
             if nargin<2, x = obj.st; data.MTdata = []; end
             if isnumeric(x)
                 x=mat2struct(x,obj.xnames); 

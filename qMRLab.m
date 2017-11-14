@@ -3,7 +3,7 @@ function varargout = qMRLab(varargin)
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Franï¿½is Cabana, 2016
 %
 % -- MTSAT functionality: P. Beliveau, 2017
 % -- File Browser changes: P. Beliveau 2017
@@ -89,7 +89,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
     SetAppData(FileBrowserList);
     
     load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    
+else
+    Method = class(getappdata(0,'Model'));
 end
 % LOAD INPUT
 if ~isempty(varargin)
@@ -217,6 +218,14 @@ for i=1:length(FileBrowserList)
 end
 FileBrowserList(MethodNum).Visible('on');
 
+% enable/disable viewdatafit
+if Model.voxelwise
+set(handles.ViewDataFit,'Enable','on')
+set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
+else
+set(handles.ViewDataFit,'Enable','off')
+set(handles.ViewDataFit,'TooltipString','No voxel-wise fitting for this qMR Method (Volume based method)')
+end
 guidata(hObject, handles);
 
 function SimfunGUI(functionName)
@@ -291,13 +300,6 @@ data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
 data = data.(Method);
-
-if strcmp(Method,'SPGR') && (strcmp(Model.options.Model,'SledPikeCW') || strcmp(Model.options.Model,'SledPikeRP'))
-    if isempty(fieldnames(Model.ProtSfTable))
-        errordlg('An SfTable needs to be computed for this protocol prior to fitting. Please use the option panel to do so.','Missing SfTable');
-        return;
-    end
-end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
@@ -495,6 +497,9 @@ ylim('auto');
 % SLICE
 function SliceValue_Callback(hObject, eventdata, handles)
 Slice = str2double(get(hObject,'String'));
+Slice = min(get(handles.SliceSlider,'Max'),Slice);
+Slice = max(1,Slice);
+set(hObject,'String',num2str(Slice));
 set(handles.SliceSlider,'Value',Slice);
 View =  get(handles.ViewPop,'Value');
 handles.FitDataSlice(View) = Slice;
@@ -509,6 +514,21 @@ set(handles.SliceValue, 'String', Slice);
 View =  get(handles.ViewPop,'Value');
 handles.FitDataSlice(View) = Slice;
 guidata(gcbf,handles);
+RefreshPlot(handles);
+
+function TimeValue_Callback(hObject, eventdata, handles)
+Time = str2double(get(hObject,'String'));
+Time = min(get(handles.TimeSlider,'Max'),Time);
+Time = max(1,Time);
+set(hObject,'String',num2str(Time));
+set(handles.TimeSlider,'Value',Time);
+RefreshPlot(handles);
+
+function TimeSlider_Callback(hObject, eventdata, handles)
+Time = get(hObject,'Value');
+Time = max(1,round(Time));
+set(handles.TimeSlider, 'Value', Time);
+set(handles.TimeValue, 'String', Time);
 RefreshPlot(handles);
 
 % OPEN FIG
@@ -606,9 +626,9 @@ else
     % Do the fitting
     Model = getappdata(0,'Model');
     if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
-    if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
+    if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
     Fit = Model.fit(data) % Display fitting results in command window
-    Model.plotmodel(Fit,data);
+    Model.plotModel(Fit,data);
     
     % update legend
     legend('Location','NorthEast')
@@ -620,6 +640,7 @@ function Viewer_Callback(hObject, eventdata, handles)
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 file = fullfile(handles.root,strcat(Source,'.nii'));
+if isempty(handles.CurrentData), return; end
 Data = handles.CurrentData;
 nii = make_nii(Data.(Source));
 save_nii(nii,file);
@@ -654,6 +675,7 @@ handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
 function RefreshPlot(handles)
+if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
 xl = xlim;
 yl = ylim;
@@ -866,5 +888,12 @@ function pushbutton169_Callback(hObject, eventdata, handles)
 function pushbutton168_Callback(hObject, eventdata, handles)
 function pushbutton167_Callback(hObject, eventdata, handles)
 function pushbutton166_Callback(hObject, eventdata, handles)
-
+function TimeValue_CreateFcn(hObject, eventdata, handles)
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+function TimeSlider_CreateFcn(hObject, eventdata, handles)
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
 %----------------------------------------- END ------------------------------------------%

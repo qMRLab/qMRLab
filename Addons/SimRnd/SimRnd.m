@@ -3,13 +3,10 @@ function SimRndResults = SimRnd(Model, RndParam, Opt)
 
 fields = fieldnames(RndParam);
 n = length(RndParam.(fields{1})); % number of voxels
-for ii = 1:length(fields)
-    SimRndResults.(fields{ii}) = zeros(n,1);
-end
 
 % Create waitbar
 h = waitbar(0, sprintf('Data 0/%0.0f',n), 'Name', 'Simulating data',...
-    'CreateCancelBtn', 'setappdata(gcbf,''canceling'',1)');
+    'CreateCancelBtn', 'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
 setappdata(h,'canceling',0)
 setappdata(0,'Cancel',0);
 
@@ -19,10 +16,16 @@ for ii = 1:n
         x(ix) = RndParam.(Model.xnames{ix})(ii);
     end
     Fit = Model.Sim_Single_Voxel_Curve(x,Opt,0);
-    fields = fieldnames(Fit);
+    
+    if ii==1 % initialize structure at first Sim
+        fields = fieldnames(Fit);
+        for vox = 1:length(fields)
+            SimRndResults.(fields{vox}) = nan(n,1);
+        end
+    end
     
     for jj = 1:length(fields)
-        SimRndResults.(fields{jj})(ii) = Fit.(fields{jj});
+        SimRndResults.(fields{jj})(ii) = Fit.(fields{jj})(1);
     end
         
     % Update waitbar
