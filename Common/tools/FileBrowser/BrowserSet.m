@@ -191,7 +191,6 @@ classdef BrowserSet
             
             Data.fields = {obj.NameID{1,1}};
             handles.CurrentData = Data;
-            guidata(src,handles);
             DrawPlot(handles);
         end
         
