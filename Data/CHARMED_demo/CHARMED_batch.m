@@ -2,7 +2,6 @@
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 help CHARMED
-
 %**************************************************************************
 %% I- LOAD MODEL
 %**************************************************************************
@@ -12,18 +11,17 @@ cd (pathstr);
 
 % Create Model object 
 Model = CHARMED;
-Model.options.S0normalization = 'Single T2 compartment';
 % Load Diffusion Protocol
 % TODO: Explain how Protocol.txt should be created
 Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');
-% Launch Fitting procedure
-% save Results in NIFTI
 
 %**************************************************************************
 %% II - Perform Simulations
 %**************************************************************************
+% See info/usage of Sim_Single_Voxel_Curve
+qMRusage(Model,'Sim_Single_Voxel_Curve')
 
-% Generate MR Signal using analytical equation
+% Let's try Sim_Single_Voxel_Curve
 opt.SNR = 50;
 x.fr = .5;
 x.Dh = .7; % um2/ms
@@ -32,7 +30,12 @@ x.fcsf = 0;
 x.lc=0;
 x.Dcsf=3;
 x.Dintra = 1.4;
-Model.Sim_Single_Voxel_Curve(x,opt)
+FitResults = Model.Sim_Single_Voxel_Curve(x,opt);
+% compare FitResults and input x
+SimResult = table(struct2mat(x,Model.xnames)',struct2mat(FitResults,Model.xnames)','RowNames',Model.xnames,'VariableNames',{'input_x','FitResults'})
+
+% to try other Simulations methods, type:
+% qMRusage(Model,'Sim_*')
 
 %**************************************************************************
 %% III - MRI Data Fitting
@@ -40,25 +43,22 @@ Model.Sim_Single_Voxel_Curve(x,opt)
 % load data
 data = struct;
 data.DiffusionData = load_nii_data('DiffusionData.nii.gz');
+data.Mask=load_nii_data('Mask.nii.gz');
 
 % plot fit in one voxel
 voxel = [32 29];
 datavox.DiffusionData = squeeze(data.DiffusionData(voxel(1),voxel(2),:,:));
 FitResults = Model.fit(datavox)
-Model.plotmodel(FitResults,datavox)
+Model.plotModel(FitResults,datavox)
 
-% all voxels
-data.Mask=load_nii_data('Mask.nii.gz');
+% fit all voxels (coffee break)
 FitResults = FitData(data,Model,1);
-delete('FitTempResults.mat');
-
-%**************************************************************************
-%% V- SAVE
-%**************************************************************************
+% save maps
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 % FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
 %save('CHARMEDParameters.mat','Model');
+FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
 
 %% Check the results
 % Load them in qMRLab

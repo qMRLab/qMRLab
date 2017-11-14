@@ -56,12 +56,8 @@ Model.Prot.TimingTable.Mat = [ Tmt ; Ts ; Tp ; Tr ; TR ];
 
 % *** To change other option, go directly in qMRLab ***
 
-% Update the model and 
+% Update the model (also updates the SfTable)
 Model = Model.UpdateFields;
-
-% Compute SfTable if necessary
-Prot = Model.GetProt;
-Model.ProtSfTable = CacheSf(Prot);
 
 %**************************************************************************
 % II- LOAD EXPERIMENTAL DATA
@@ -96,7 +92,7 @@ figure
 voxel           = [34, 46, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
-Model.plotmodel(FitResultsVox,dataVox)
+Model.plotModel(FitResultsVox,dataVox)
 
 %**************************************************************************
 % V- SAVE

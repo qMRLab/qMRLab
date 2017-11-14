@@ -16,7 +16,7 @@ classdef B0_DEM
 %       deltaTE     Difference in TE between 2 images [ms]            
 %
 % Options:
-%   Magn thresh lb  Lower bound to threshold the magnitude image for use as a mask
+%   Magn thresh     relative threshold for the magnitude (phase is undefined in the background
 %
 % Example of command line usage (see also <a href="matlab: showdemo B0_DEM_batch">showdemo B0_DEM_batch</a>):
 %   Model = B0_DEM;  % Create class from model 
@@ -55,7 +55,7 @@ classdef B0_DEM
         Prot = struct('TimingTable',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
         
         % Model options
-        buttons = {'Magn thresh lb',0};
+        buttons = {'Magn thresh',.05};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
@@ -67,9 +67,8 @@ classdef B0_DEM
         end
         
         function obj = UpdateFields(obj)
-            if obj.options.Magnthreshlb == 0
-                obj.options.Magnthreshlb = '';
-            end
+            obj.options.Magnthresh = max(obj.options.Magnthresh,0);
+            obj.options.Magnthresh = min(obj.options.Magnthresh,1);
         end
         
         function FitResult = fit(obj,data)
@@ -105,10 +104,7 @@ classdef B0_DEM
                      
             % MATLAB "laplacianUnwrap" for 3D data
             else
-                if isempty(obj.options.Magnthreshlb)
-                    msgbox('Enter a Lower Bound relative to the Magn','Create a Mask');
-                end
-                Phase_uw = laplacianUnwrap(Phase, magn>.05);
+                Phase_uw = laplacianUnwrap(Phase, magn>obj.options.Magnthresh);
                 FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);                 
             end
             

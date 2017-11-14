@@ -79,7 +79,7 @@ figure
 voxel           = [50, 60, 1];
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
-Model.plotmodel(FitResultsVox,dataVox)
+Model.plotModel(FitResultsVox,dataVox)
 
 %**************************************************************************
 % V- SAVE

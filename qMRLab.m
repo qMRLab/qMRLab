@@ -124,6 +124,12 @@ end
 
 
 
+% View first file
+if length(varargin)>1
+    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj.ViewBtn_callback(butobj,[],[],handles)
+end
+
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
@@ -167,9 +173,16 @@ MethodMenu(hObject,eventdata,handles,Method);
 function addModelMenu(hObject, eventdata, handles)
 % Display all the options in the popupmenu
 [MethodList, pathmodels] = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
+pathmodels = cellfun(@(x) strrep(x,[handles.ModelDir filesep],''), pathmodels,'UniformOutput',false);
 SetAppData(MethodList)
-for iM=1:length(MethodList), MethodList{iM} = [strrep(pathmodels{iM},[handles.ModelDir filesep],'') MethodList{iM}]; end
-set(handles.MethodSelection,'String',MethodList);
+maxlength = max(cellfun(@length,MethodList))+4;
+maxlengthpath = max(cellfun(@length,pathmodels))+2;
+for iM=1:length(MethodList), MethodListfull{iM} = sprintf(['%-' num2str(maxlength) 's%-' num2str(maxlengthpath) 's'],MethodList{iM},['(' strrep(pathmodels{iM},[handles.ModelDir filesep],'') ')']); end
+set(handles.MethodSelection,'String',MethodListfull);
+set(handles.MethodSelection,'FontName','FixedWidth')
+set(handles.MethodSelection,'FontWeight','bold')
+set(handles.MethodSelection,'FontSize',15)
+
 
 
 %###########################################################################################
@@ -323,13 +336,6 @@ data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
 data = data.(Method);
-
-if strcmp(Method,'SPGR') && (strcmp(Model.options.Model,'SledPikeCW') || strcmp(Model.options.Model,'SledPikeRP'))
-    if isempty(fieldnames(Model.ProtSfTable))
-        errordlg('An SfTable needs to be computed for this protocol prior to fitting. Please use the option panel to do so.','Missing SfTable');
-        return;
-    end
-end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
@@ -656,9 +662,9 @@ else
     % Do the fitting
     Model = getappdata(0,'Model');
     if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
-    if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
+    if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
     Fit = Model.fit(data) % Display fitting results in command window
-    Model.plotmodel(Fit,data);
+    Model.plotModel(Fit,data);
     
     % update legend
     legend('Location','NorthEast')
@@ -670,6 +676,7 @@ function Viewer_Callback(hObject, eventdata, handles)
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 file = fullfile(handles.root,strcat(Source,'.nii'));
+if isempty(handles.CurrentData), return; end
 Data = handles.CurrentData;
 nii = make_nii(Data.(Source));
 save_nii(nii,file);
@@ -704,6 +711,7 @@ handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
 function RefreshPlot(handles)
+if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
 xl = xlim;
 yl = ylim;

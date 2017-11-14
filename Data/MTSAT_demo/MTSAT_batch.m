@@ -3,11 +3,11 @@ help MTSAT
 
 % Batch to process MT_SAT
 % Run this script line by line
+[pathstr,fname,ext]=fileparts(which('MTSAT_batch.m'));
+cd (pathstr);
 
 %% I- LOAD DATASET
 %**************************************************************************
-[pathstr,fname,ext]=fileparts(which('MTSAT_batch.m'));
-cd (pathstr);
 
 % Create Model object
 Model = MTSAT;
@@ -38,7 +38,7 @@ delete('FitTempResults.mat');
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'MTw.nii.gz');
-save('MTSATParameters.mat','Model');
+qMRsaveModel(Model,'MTsat.qMRLab.mat'); % by convention use extension .qMRLab.mat
 
 %% Check the results
 % Load them in qMRLab

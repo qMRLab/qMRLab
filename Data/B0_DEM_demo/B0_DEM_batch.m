@@ -1,21 +1,24 @@
-warning('off','all');
 %% DESCRIPTION
 help B0_DEM
 % Batch to generate B0map with Dual Echo Method (DEM) without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
-
-%% Load dataset
+% Move the the dataset folder
 [pathstr,fname,ext]=fileparts(which('B0_DEM_batch.m'));
 cd (pathstr);
 
-% Load your parameters to create your Model
-Model = B0_DEM;
+%**************************************************************************
+%% I- LOAD MODEL and DATA
+%**************************************************************************
 
+% create your Model
+%  Model = B0_DEM;
+% Alternatively, load your parameters
+   Model = qMRloadModel('qMRLab_B0_DEMObj.mat');
 %% Check data and fitting (Optional)
 
 %**************************************************************************
-% I- GENERATE FILE STRUCT
+% A- GENERATE FILE STRUCT
 %**************************************************************************
 % Create a struct "file" that contains the NAME of all data's FILES
 % file.DATA = 'DATA_FILE';
@@ -23,13 +26,16 @@ file = struct;
 file.Phase = 'Phase.nii.gz';
 file.Magn = 'Magn.nii.gz';
 
-
-%% Create Quantitative Maps
+%**************************************************************************
+% B- CHECK DATA 
+%**************************************************************************
+%qMRLab(Model,file);
 
 %**************************************************************************
-% I- LOAD PROTOCOL
+%% II- Create Quantitative Maps
 %**************************************************************************
-
+% 1. LOAD PROTOCOL
+%**************************************************************************
 % Echo (time in millisec)
 TE2 = 1.92e-3;
 Model.Prot.TimingTable.Mat = TE2;
@@ -38,7 +44,7 @@ Model.Prot.TimingTable.Mat = TE2;
 Model = Model.UpdateFields;
 
 %**************************************************************************
-% II- LOAD EXPERIMENTAL DATA
+% 2. LOAD EXPERIMENTAL DATA
 %**************************************************************************
 % Create a struct "data" that contains all the data
 % .MAT file : load('DATA_FILE');
@@ -48,21 +54,20 @@ data.Phase = double(load_nii_data('Phase.nii.gz'));
 data.Magn  = double(load_nii_data('Magn.nii.gz'));
 
 %**************************************************************************
-% III- FIT DATASET
+% 3.- FIT DATASET
 %**************************************************************************
 FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 
 %**************************************************************************
-% IV- SAVE
+%% IV- Check the Results
+%**************************************************************************
+imagesc3D(FitResults.B0map,[-100 100]); colormap jet; axis off; colorbar
+
+%**************************************************************************
+%% V- SAVE
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'Phase.nii.gz');
-%save('Parameters.mat','Model');
-
-%% Check the results
-% Load them in qMRLab
-qMRLab(Model,file) %view the model parameters and input
-imagesc(FitResults.B0map, [-50 50]) %view output map
-colorbar
+% qMRsaveModel(Model, 'B0_DEM.qMRLab.mat'); % save the model object 
