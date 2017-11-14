@@ -14,5 +14,3 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
-*.nii.gz filter=lfs diff=lfs merge=lfs -text
-*.nii filter=lfs diff=lfs merge=lfs -text
