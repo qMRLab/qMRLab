@@ -10,11 +10,11 @@
 %
 function save_nii_ext(ext, fid)
 
-   if ~exist('ext','var') | ~exist('fid','var')
+   if ~exist('ext','var') || ~exist('fid','var')
       error('Usage: save_nii_ext(ext, fid)');
    end
 
-   if ~isfield(ext,'extension') | ~isfield(ext,'section') | ~isfield(ext,'num_ext')
+   if ~isfield(ext,'extension') || ~isfield(ext,'section') || ~isfield(ext,'num_ext')
       error('Wrong header extension');
    end
 
