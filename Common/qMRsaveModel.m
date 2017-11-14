@@ -4,7 +4,7 @@ function qMRsaveModel(Model, filename)
 %                                        choose filename
 %   qMRsaveModel(Model, filename)
 if nargin<2
-[file,path] = uiputfile(['qMRLab_' class(Model) 'Obj.mat'],'Save file name');
+[file,path] = uiputfile([class(Model) '.qMRLab.mat'],'Save file name');
 filename = fullfile(path,file);
 end
 

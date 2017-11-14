@@ -6,13 +6,14 @@ function Model = qMRloadModel(filename)
 %                                        choose filename
 %   qMRloadModel(filename)
 if nargin<1
-[file,path] = uigetfile({'qMRLab_*Obj.mat;*.mat'},'Load file name');
+[file,path] = uigetfile({'*.qMRLab.mat'},'Load file name');
 filename = fullfile(path,file);
 end
 
 if filename
-    load(filename,'Model','version')
+    version = [];
+    load(filename)
     if ~exist('Model','var'), warning('not a Model object file');  Model = []; return; end
-    if ~exist('version','var'), warning('No variable name "version". Might not be retrocompatible. Save Models using qMRsaveModel to prevent this error.');  return; end
+    if isempty(version), warning('No variable name "version". Might not be retrocompatible. Save Models using qMRsaveModel to prevent this error.');  return; end;
     Model = qMRpatch(Model,version);
 end

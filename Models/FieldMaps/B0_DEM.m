@@ -62,8 +62,8 @@ classdef B0_DEM
         end
         
         function obj = UpdateFields(obj)
-            obj.options.Magnthreshlb = max(obj.options.Magnthreshlb,0);
-            obj.options.Magnthreshlb = min(obj.options.Magnthreshlb,1);
+            obj.options.Magnthresh = max(obj.options.Magnthresh,0);
+            obj.options.Magnthresh = min(obj.options.Magnthresh,1);
         end
         
         function FitResult = fit(obj,data)
@@ -99,7 +99,7 @@ classdef B0_DEM
                      
             % MATLAB "laplacianUnwrap" for 3D data
             else
-                Phase_uw = laplacianUnwrap(Phase, magn>obj.options.Magnthreshlb);
+                Phase_uw = laplacianUnwrap(Phase, magn>obj.options.Magnthresh);
                 FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);                 
             end
             
