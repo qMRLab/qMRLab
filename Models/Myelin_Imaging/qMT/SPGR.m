@@ -225,30 +225,7 @@ classdef SPGR
             % fit data
             FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
         end
-
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
-            % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
-            if ~exist('display','var'), display = 1; end
-            Smodel = equation(obj, x, Opt);
-            data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
-            FitResults = fit(obj,data);
-            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
-            if display
-                plotModel(obj, FitResults, data);
-                drawnow;
-            end
-        end
-
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
-            % SimVaryGUI
-            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
-        end
         
-        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
-            % SimRndGUI
-            SimRndResults = SimRnd(obj, RndParam, Opt);
-        end
-
         function plotModel(obj, x, data)
             if nargin<2, x = obj.st; data.MTdata = []; end
             if isnumeric(x)
@@ -274,7 +251,29 @@ classdef SPGR
                 'FontSize',10);
         end
 
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
+            if ~exist('display','var'), display = 1; end
+            Smodel = equation(obj, x, Opt);
+            data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
+            FitResults = fit(obj,data);
+            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
+            if display
+                plotModel(obj, FitResults, data);
+                drawnow;
+            end
+        end
+
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+        end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
 %         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
 %             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
 %             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
@@ -309,7 +308,7 @@ classdef SPGR
 %             fprintf('SOMA HAS FINISHED \n')
 %             
 %         end
-        
+
         function plotProt(obj)
             Prot = GetProt(obj);
             subplot(2,1,1)

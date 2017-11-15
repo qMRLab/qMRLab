@@ -11,9 +11,11 @@ function qMRusage(ModelObj,mstr)
 % 
 if nargin<1, help qMRusage, return; end
 if nargin<2, mstr=methods(ModelObj); disp(['<strong>Methods available in ModelObj=' class(ModelObj) ':</strong>']); end
-if ischar(mstr)
-    mlist = methods(obj);
+if ischar(mstr) && ~moxunit_util_platform_is_octave
+    mlist = methods(ModelObj);
     mstr = mlist(~cellfun(@isempty,regexp(mlist,mstr))); 
+else
+    mstr = {mstr};
 end
 try st = ModelObj.st;
 catch, try st = (ModelObj.ub + ModelObj.lb)/2; end
