@@ -14,7 +14,7 @@ if nargin<2, mstr=methods(ModelObj); disp(['<strong>Methods available in ModelOb
 if ischar(mstr) && ~moxunit_util_platform_is_octave
     mlist = methods(ModelObj);
     mstr = mlist(~cellfun(@isempty,regexp(mlist,mstr))); 
-else
+elseif moxunit_util_platform_is_octave
     mstr = {mstr};
 end
 try st = ModelObj.st;
