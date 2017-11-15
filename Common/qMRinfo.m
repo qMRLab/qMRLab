@@ -1,6 +1,7 @@
-function qMRinfo(varargin)
+function varargout = qMRinfo(varargin)
 if ~moxunit_util_platform_is_octave
-    help(varargin{:})
+    [varargout{1:nargout}] = help(varargin{:});
 else
-    disp('Sorry, not implemented for Octave yet. Please contribute on github.com/neuropoly/qMRLab')
+    varargout{1} = 'Sorry, not implemented for Octave yet. Please contribute on github.com/neuropoly/qMRLab';
+	disp(varargout{1})
 end

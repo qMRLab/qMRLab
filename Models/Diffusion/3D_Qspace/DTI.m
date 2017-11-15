@@ -1,4 +1,5 @@
 classdef DTI
+%DTI: Diffusion Tensor Imaging
 % Methods:
 %   plotmodel        Plot the diffusion-weighted signal as a function of Gparallel
 %                       EXAMPLE:
