@@ -113,14 +113,14 @@ for ii=1:length(ff)
     end
 end
 
-% % CRLB
-% SNR = str2double(get(handles.options.SNR,'String'));
-% F = SimCRLB(handles.Model,handles.Model.Prot.DiffusionData.Mat,x,1/SNR);
-% 
-% for ii=1:sum(~handles.Model.fx)
-%     ll=find(~handles.Model.fx);
-%     xtable{ll(ii),5}=F(ii)*100;
-% end
+% CRLB
+SNR = str2double(get(handles.options.SNR,'String'));
+[~,~,~,F] = SimCRLB(handles.Model,handles.Model.Prot.(handles.Model.MRIinputs{1}).Mat,x,1/SNR);
+
+for ii=1:sum(~handles.Model.fx)
+    ll=find(~handles.Model.fx);
+    xtable{ll(ii),5}=F(ii)*100;
+end
 set(handles.ParamTable,'Data',xtable);
 set(findobj('Name','Single Voxel Curve'),'pointer', 'arrow'); drawnow;
 

@@ -203,8 +203,8 @@ classdef CHARMED
         end
         
         % -------------PLOT EQUATION-------------------------------------------------------------------------
-        function plotmodel(obj, x, data)
-            % u.plotmodel(u.st)
+        function plotModel(obj, x, data)
+            % u.plotModel(u.st)
             if nargin<2, x=obj.st; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
             if ~isempty(x)
@@ -263,7 +263,7 @@ classdef CHARMED
             data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
                 hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
                 h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');

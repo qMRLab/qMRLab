@@ -56,7 +56,7 @@ if Model.voxelwise % process voxelwise
     h=[];
     if exist('wait','var') && (wait)
         h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
-            'setappdata(gcbf,''canceling'',1)');
+            'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
         setappdata(h,'canceling',0)
     end
     

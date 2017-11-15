@@ -1,9 +1,28 @@
 function varargout = Sim_Optimize_Protocol_GUI(varargin)
-% Sim_SimOptProt MATLAB code for Sim_SimOptProt.fig
+% Protocol design for qMR: Optimize the stability of fitting parameters
+% toward gaussian noise.
+%
+% Usage:
+%   Click on update button to run the simulation
+%   When Optimization is finished, Single Voxel Curve Simulation is
+%     automatically performed using the optimized protocol. 
+%   Save the protocol in text file using save button
+%     
+% Options:
+%   # of volumes                Number of volumes in the optimized protocol
+%   Population                  Population size
+%   # of migration              Number of iteration before the optimizer
+%                                stops. Note that you can stop the
+%                                iterations during the optimization.
+%
+% Description:
+% Use the Cramer-Rao Lower bound for objective function: <a href="matlab: web('https://en.wikipedia.org/wiki/Cramer-Rao_bound')">Wikipedia</a>
+% Based on: Alexander, D.C., 2008. A general framework for experiment design in diffusion MRI and its application in measuring direct tissue-microstructure features. Magn. Reson. Med. 60, 439?448.
+
 
 % Edit the above text to modify the response to help Sim_SimOptProt
 
-% Last Modified by GUIDE v2.5 06-Oct-2017 17:47:23
+% Last Modified by GUIDE v2.5 01-Nov-2017 17:48:03
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,12 +90,28 @@ varargout{1} = handles.output;
 % --- Executes on button press in Save.
 function Save_Callback(hObject, eventdata, handles)
 if isfield(handles,'ProtOpt')
-    Method = class(handles.Model);
-    [FileName,PathName] = uiputfile([Method '_ProtocolOptim.mat']);
-    if PathName == 0, return; end
     Model = handles.Model;
-    Model.Prot.(Model.MRIinputs{1}).Mat = handles.ProtOpt;
-    save(fullfile(PathName,FileName),'Model')
+    Method = class(Model);
+    [FileName,PathName] = uiputfile([Method '_ProtocolOptim.txt']);
+    if PathName == 0, return; end
+    fid = fopen(fullfile(PathName,FileName),'w');
+    if iscell(Model.Prot.(Model.MRIinputs{1}).Format)
+    Model.Prot.(Model.MRIinputs{1}).Format{1}=['# ' Model.Prot.(Model.MRIinputs{1}).Format{1}];
+    else
+        format = Model.Prot.(Model.MRIinputs{1}).Format;
+        Model.Prot.(Model.MRIinputs{1}).Format = cell(1,1);
+        Model.Prot.(Model.MRIinputs{1}).Format{1}=['# ' format];
+    end
+    fprintf(fid, '%-15s ',Model.Prot.(Model.MRIinputs{1}).Format{:});
+    for i_line=1:size(handles.ProtOpt,1)
+        fprintf(fid, '\n');
+        fprintf(fid, '%-15.2g ',handles.ProtOpt(i_line,:));
+    end
+    fclose(fid);
+    
+   % save(fullfile(PathName,FileName),'Model')
+else
+    helpdlg('launch the simulation first: click on update button')
 end
 
 % --- Executes on button press in SimOptProtUpdate.
@@ -89,17 +124,21 @@ if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
 end
 ParamOpt = get(handles.ParamTable,'Data');
 Opt = button_handle2opts(handles.options);
-axes(handles.uipanel12);
+if isgraphics(handles.SimCurveAxe)
+    axes(handles.SimCurveAxe);
+end
 xvalues=cell2mat(ParamOpt);
 handles.ProtOpt = handles.Model.Sim_Optimize_Protocol(xvalues, Opt);
 guidata(hObject, handles);
 
 Model = handles.Model;
 Model.Prot.(Model.MRIinputs{1}).Mat = handles.ProtOpt;
+Model = Model.UpdateFields();
 if ismethod(Model,'plotProt')
 Model.plotProt;
 else
-    Model.plotmodel(xvalues(1,:));
+    Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons);
+    Model.Sim_Single_Voxel_Curve(xvalues(1,:),Opt,1);
 end
 set(findobj('Name','SimOptProt'),'pointer', 'arrow'); drawnow;
 
@@ -120,3 +159,8 @@ for k=1:nargin; rmappdata(0, varargin{k}); end
 
 % --- Executes when entered data in editable cell(s) in ParamTable.
 function ParamTable_CellEditCallback(hObject, eventdata, handles)
+
+
+% --------------------------------------------------------------------
+function helpbutton_ClickedCallback(hObject, eventdata, handles)
+doc Sim_Optimize_Protocol_GUI
