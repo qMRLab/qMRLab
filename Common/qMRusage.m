@@ -83,7 +83,7 @@ for im=1:length(mstr)
                 ['      x.' ModelObj.xnames{ix} ' = ' num2str(st(ix)) ';']};
             end
             mess = {mess{:},...
-                '      ModelObj.plotmodel(x)'};
+                '      ModelObj.plotModel(x)'};
             
         case 'Sim_Single_Voxel_Curve'
             Opt.SNR=50;
