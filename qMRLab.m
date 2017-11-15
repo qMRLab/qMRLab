@@ -89,7 +89,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
     SetAppData(FileBrowserList);
     
     load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
-    
+else
+    Method = class(getappdata(0,'Model'));
 end
 % LOAD INPUT
 if ~isempty(varargin)
@@ -299,13 +300,6 @@ data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
 data = data.(Method);
-
-if strcmp(Method,'SPGR') && (strcmp(Model.options.Model,'SledPikeCW') || strcmp(Model.options.Model,'SledPikeRP'))
-    if isempty(fieldnames(Model.ProtSfTable))
-        errordlg('An SfTable needs to be computed for this protocol prior to fitting. Please use the option panel to do so.','Missing SfTable');
-        return;
-    end
-end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
@@ -632,9 +626,9 @@ else
     % Do the fitting
     Model = getappdata(0,'Model');
     if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
-    if ~ismethod(Model,'plotmodel'), warndlg('No plotting methods in this model'); return; end
+    if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
     Fit = Model.fit(data) % Display fitting results in command window
-    Model.plotmodel(Fit,data);
+    Model.plotModel(Fit,data);
     
     % update legend
     legend('Location','NorthEast')
@@ -646,6 +640,7 @@ function Viewer_Callback(hObject, eventdata, handles)
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 file = fullfile(handles.root,strcat(Source,'.nii'));
+if isempty(handles.CurrentData), return; end
 Data = handles.CurrentData;
 nii = make_nii(Data.(Source));
 save_nii(nii,file);
@@ -680,6 +675,7 @@ handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
 function RefreshPlot(handles)
+if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
 xl = xlim;
 yl = ylim;

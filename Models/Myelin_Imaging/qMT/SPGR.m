@@ -153,6 +153,7 @@ classdef SPGR
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
+        Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
     
     methods
@@ -177,51 +178,11 @@ classdef SPGR
         end
         
         function obj = Precompute(obj)
-            if isempty(fieldnames(obj.ProtSfTable))
+            if isempty(obj.ProtSfTable)
                 obj.ProtSfTable = CacheSf(GetProt(obj));
             else
                 obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
-            end         
-        end
-        
-        function FitResults = fit(obj,data)
-            Protocol = GetProt(obj);
-            FitOpt   = GetFitOpt(obj,data);
-            % normalize data
-            NoMT = Protocol.Angles<1;
-            if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');  
-            else
-                data.MTdata = data.MTdata/median(data.MTdata(NoMT));
-                data.MTdata = data.MTdata(~NoMT);
-                Protocol.Angles  = Protocol.Angles(~NoMT);
-                Protocol.Offsets = Protocol.Offsets(~NoMT);
-            end
-            % fit data
-            FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
-        end
-        
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
-            % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
-            if ~exist('display','var'), display = 1; end      
-            Smodel = equation(obj, x, Opt);
-            data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
-            FitResults = fit(obj,data);
-            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
-            if display
-                plotmodel(obj, FitResults, data);
-                drawnow;
-            end
-        end
-        
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
-            % SimVaryGUI
-            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
-        end
-
-        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
-            % SimRndGUI
-            SimRndResults = SimRnd(obj, RndParam, Opt);
+            end     
         end
         
         function mz = equation(obj, x, Opt)
@@ -248,18 +209,34 @@ classdef SPGR
             end
         end
         
+        function FitResults = fit(obj,data)
+            Protocol = GetProt(obj);
+            FitOpt   = GetFitOpt(obj,data);
+            % normalize data
+            NoMT = Protocol.Angles<1;
+            if ~any(NoMT)
+                warning('No MToff. MTData cannot be normalized.');  
+            else
+                data.MTdata = data.MTdata/median(data.MTdata(NoMT));
+                data.MTdata = data.MTdata(~NoMT);
+                Protocol.Angles  = Protocol.Angles(~NoMT);
+                Protocol.Offsets = Protocol.Offsets(~NoMT);
+            end
+            % fit data
+            FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
+        end
         
-        function plotmodel(obj, x, data)
+        function plotModel(obj, x, data)
             if nargin<2, x = obj.st; data.MTdata = []; end
             if isnumeric(x)
-                x=mat2struct(x,obj.xnames); 
+                x=mat2struct(x,obj.xnames);
             end
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');               
+                warning('No MToff. MTData cannot be normalized.');
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
@@ -273,7 +250,66 @@ classdef SPGR
                 x.F,x.R1f,x.R1r,x.T2f,x.T2r),...
                 'FontSize',10);
         end
+
+        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
+            if ~exist('display','var'), display = 1; end      
+            Smodel = equation(obj, x, Opt);
+            data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
+            FitResults = fit(obj,data);
+            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
+            if display
+                plotModel(obj, FitResults, data);
+                drawnow;
+            end
+        end
         
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+        end
+        
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+        
+
+%         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
+%             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+%             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
+%             nV         = Opt.Nofvolumes;
+%             popSize    = Opt.Populationsize;
+%             migrations = Opt.Nofmigrations;
+%             
+%             sigma  = .05;
+%             Anglemax = 700;
+%             Offsetmax = 20000;
+%                     % Angle Offset
+%             planes = [ 1   0   0               % Angle              > 0
+%                        -1  0  Anglemax         % Anglemax  -  Angle > 0
+%                        0   1  -100             % Offset    -    100 > 0
+%                        0  -1  Offsetmax];      % Offsetmax - Offset > 0
+%             
+%             LSP = meshgrid_polyhedron(planes);
+%             GenerateRandFunction = @() LSP(randi(size(LSP,1),nV,1),:);
+%             CheckProtInBoundFunc = @(Prot) checkInBoundsAndUptade(Prot,LSP,planes);
+%             CurrentProt = obj.Prot.MTdata.Mat;
+%             obj.Prot.MTdata.Mat = LSP;
+%             obj.ProtSfTable = load('LargeSFTable.mat'); % SfTable declaration
+%             obj.options.checkSf = false; % do not check Sf
+%             % TODO: Precompute SPGR_Prepare outputs on LSP... currently too slow
+%             % Optimize Protocol
+%             [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,Prot,xvalues,sigma)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, CurrentProt);
+%             
+%             % Generate Rest
+%             schemeLEADER = retVal.schemeLEADER;
+%             schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
+%             
+%             fprintf('SOMA HAS FINISHED \n')
+%             
+%         end
+                
         function plotProt(obj)
             Prot = GetProt(obj);
             subplot(2,1,1)

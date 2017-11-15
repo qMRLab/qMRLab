@@ -136,6 +136,8 @@ classdef SIRFSE
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'T2f (Used in Block equation)',0.040};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
+        Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100};
+
     end
     
     methods
@@ -188,7 +190,7 @@ classdef SIRFSE
             FitResults.Sf = - FitResults.Sf;
         end
         
-        function plotmodel(obj, x, data)
+        function plotModel(obj, x, data)
             if nargin<2, x = obj.st; end
             if nargin<3, data.MTdata = []; end
             x=mat2struct(x,obj.xnames);
@@ -215,7 +217,7 @@ classdef SIRFSE
             data.R1map = x(strcmp(obj.xnames,'R1f')); % set R1map to R1f
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
             end
         end
         
@@ -246,10 +248,14 @@ classdef SIRFSE
 %         
 
 
-        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
             % Optimize Inversion times
+            nV         = Opt.Nofvolumes;
+            popSize    = Opt.Populationsize;
+            migrations = Opt.Nofmigrations;
+
             sigma  = .05;
             TImax = 15;
             GenerateRandFunction = @() rand(nV,1)*TImax+1e-3; % do not sort TI values... or you might fall in a local minima
@@ -260,7 +266,7 @@ classdef SIRFSE
             
             % Generate Rest
             schemeLEADER = retVal.schemeLEADER;
-            schemeLEADER = [schemeLEADER ones(size(Prot,1),1)*td];
+            schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
             
             fprintf('SOMA HAS FINISHED \n')
             

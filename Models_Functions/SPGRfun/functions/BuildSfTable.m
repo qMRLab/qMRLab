@@ -26,7 +26,7 @@ if exist('compute','var') && compute==0, Sf=[]; return; end
 
 % Create waitbar
 h = waitbar(0,'','Name','Computing Sf table','CreateCancelBtn',...
-    'setappdata(gcbf,''canceling'',1)');
+    'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
 setappdata(h,'canceling',0)
 stop = 0;
 ww = 1;
