@@ -18,7 +18,15 @@ for im = 1:length(BatchList)
     disp('===============================================================')
     disp(['Testing: ' BatchList{im} '...'])
     disp('===============================================================')
+    tmpDir = tempname;
+    mkdir(tmpDir);
+    copyfile(fullfile(pathmodels{im}(1:end-1),'*'),tmpDir)
+    cd(tmpDir)
     eval(BatchList{im})
+    if moxunit_util_platform_is_octave
+        confirm_recursive_rmdir(0); % for octave
+    end
+    rmdir(tmpDir,'s')
     disp ..ok
 end
 cd(curdir)

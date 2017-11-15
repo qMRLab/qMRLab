@@ -12,9 +12,9 @@ cd (pathstr);
 %**************************************************************************
 
 % create your Model
-%  Model = B0_DEM;
+  Model = B0_DEM;
 % Alternatively, load your parameters
-   Model = qMRloadModel('qMRLab_B0_DEMObj.mat');
+%  Model = qMRloadModel('qMRLab_B0_DEMObj.mat');
 %% Check data and fitting (Optional)
 
 %**************************************************************************

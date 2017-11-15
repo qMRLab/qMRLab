@@ -5,6 +5,7 @@ if moxunit_util_platform_is_octave
     installlist = {'struct','optim','io','statistics'};
     for ii=1:length(installlist)
         try
+            disp(['loading ' installlist{ii}])
             pkg('load',installlist{ii})
         catch
             errorcount = 1;
