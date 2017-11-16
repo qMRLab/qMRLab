@@ -234,7 +234,7 @@ for element in models:
             search = element.fileName
             if search == "IR":
             	search = "InversionRecovery"
-            if name.find(search+".m") != (-1):
+            if name.find(search+".m") != (-1) and name.find("~") == (-1):
             	file = os.path.join(root,name)
             	currentDir = ""
 
@@ -255,6 +255,14 @@ for element in models:
 
         	#Open the file
         	included = False
+        	try:
+        		with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
+        			pass
+        	except IOError:
+        		with io.open(directories[nbdir - 1].lower()+".rst", "w") as fw:
+        			pass
+        		fw.close()
+
         	with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
         		for line in fw:
         			if line.find(element.title) != (-1) and line.find("_batch") == (-1):
@@ -272,6 +280,7 @@ for element in models:
         	    i = -1
         	    found = False
         	    count = -1
+        	    k = -1
 
         	    if not included:
         	    	written = False
@@ -341,12 +350,10 @@ for element in models:
         	    	#Loop accross every line of the .rst file with the toctree
         	    	for line in fw:
         	    	#If you find the model and not the batch_example (as a title)
-        	        	if line.find(element.title) != (-1) and line.find("_batch") == (-1):
+        	        	if line.find(element.title) != (-1) and line.find("_batch") == (-1) and line.find("label") == (-1):
         	        		#Set the counter to 2 to pass 2 lines
-        	        		if element.fileName == "B0_DEM" or element.fileName == "B1_DAM":
-        	        			i=2
-        	        		else:
-        	        			i = 4
+        	        		i = 4
+        	        		k = 2
         	        		found = True
 
         	        	#When the two lines are passed, write the toctree (with modification for known models having issues)
@@ -357,8 +364,11 @@ for element in models:
         	        		fd.write("\t" + element.fileName+"_batch")
         	        		count = 2
 
+        	        	if k == 0:
+        	        		line = element.label + "\n"
         	        	#Decrement counting
         	        	i = i - 1
+        	        	k = k - 1
 
         	        	#Rewrite all the lines in the temporary file (without any toctree and maxdepth already there
         	        	#removing duplicates)
@@ -372,7 +382,7 @@ for element in models:
     #Open the temporary file in reading mode
     with io.open(element.fileName +"temp.rst", "r") as fd:
     	#Open the original file in write mode
-    	with io.open(toOpen+".rst", "w") as fw:
+    	with io.open(toOpen.lower()+".rst", "w") as fw:
     		#Create a list of the lines seen
     		line_seen = []
     		#For every line in the temp file, check if it was already seen (remove duplicates)

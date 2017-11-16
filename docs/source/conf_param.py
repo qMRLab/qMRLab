@@ -1,9 +1,18 @@
 #Models to implement in the documentation
+#Model syntax:
+#File name (without extension)
+#	Title
+#	Description
+#
+#Mdictionary syntax:
+#File or directory name (without extension)
+#	Title
+#	Description
 
 Models list:
 CHARMED
 	CHARMED
-	CHARME_label
+	Composite Hindered and Restricted Model for Diffusion
 
 B0_DEM
 	B0_DEM
@@ -15,7 +24,7 @@ B1_DAM
 
 IR
 	Inversion Recovery
-	IR_label
+	IR_lab
 
 MTSAT
 	MTSAT
