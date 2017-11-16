@@ -257,10 +257,10 @@ for element in models:
         	included = False
         	try:
         		with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
-        			print('YES')
+        			pass
         	except IOError:
         		with io.open(directories[nbdir - 1].lower()+".rst", "w") as fw:
-        			print('NO')
+        			pass
         		fw.close()
 
         	with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
