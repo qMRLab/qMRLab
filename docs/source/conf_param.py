@@ -12,7 +12,7 @@
 Models list:
 CHARMED
 	CHARMED
-	CHARME_label
+	Composite Hindered and Restricted Model for Diffusion
 
 B0_DEM
 	B0_DEM
