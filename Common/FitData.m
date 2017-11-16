@@ -80,12 +80,14 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
     
+    if (isempty(h)), j_progress('Fitting voxel ',l); end
     for ii = 1:l
         vox = Voxels(ii);
         
         % Update waitbar
         if (isempty(h))
-            fprintf('Fitting voxel %d/%d\r',ii,l);
+            j_progress(ii)
+%            fprintf('Fitting voxel %d/%d\r',ii,l);
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
             waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
@@ -136,6 +138,7 @@ else % process entire volume
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
 end
+j_progress('...done')
 Fit.Time = toc;
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
