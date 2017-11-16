@@ -1,20 +1,20 @@
-% Batch to process SPGR data without qMRLab GUI (graphical user interface)
+% Batch to process qMT_SPGR data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
 %% DESCRIPTION
 warning('off', 'all')
-help SPGR
+help qMT_SPGR
 
 %% Load dataset
 %warning('off')
-[pathstr,fname,ext]=fileparts(which('SPGR_batch.m'));
+[pathstr,fname,ext]=fileparts(which('qMT_SPGR_batch.m'));
 cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 %load('SPGRParameters.mat');
-Model = SPGR;
+Model = qMT_SPGR;
 
 %% Check data and fitting (Optional)
 

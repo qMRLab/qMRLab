@@ -1,17 +1,17 @@
-% Batch to process SIRFSE data without qMRLab GUI (graphical user interface)
+% Batch to process qMT_SIRFSE data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
 %% DESCRIPTION
-help SIRFSE
+help qMT_SIRFSE
 
 %% Load dataset
-[pathstr,fname,ext]=fileparts(which('SIRFSE_batch.m'));
+[pathstr,fname,ext]=fileparts(which('qMT_SIRFSE_batch.m'));
 cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-Model = SIRFSE
+Model = qMT_SIRFSE
 
 %% Check data and fitting (Optinal)
 

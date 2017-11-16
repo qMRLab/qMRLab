@@ -1,18 +1,18 @@
 %% DESCRIPTION
-help bSSFP
+help qMT_bSSFP
 
 % Batch to process bSSFP_modulaire data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
-[pathstr,fname,ext]=fileparts(which('bSSFP_batch.m'));
+[pathstr,fname,ext]=fileparts(which('qMT_bSSFP_batch.m'));
 cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 %load('bSSFPParameters.mat');
-Model = bSSFP
+Model = qMT_bSSFP
 
 %% Check data and fitting (Optional)
 
