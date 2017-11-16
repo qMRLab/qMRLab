@@ -24,7 +24,7 @@ B1_DAM
 
 IR
 	Inversion Recovery
-	IR_label
+	IR_lab
 
 MTSAT
 	MTSAT
