@@ -1,5 +1,5 @@
-classdef bSSFP
-% bSSFP : qMT using Balanced Steady State Free Precession acquisition
+classdef qMT_bSSFP
+% qMT_bSSFP : qMT using Balanced Steady State Free Precession acquisition
 %-----------------------------------------------------------------------------------------------------
 %-------------%
 % ASSUMPTIONS %
@@ -133,7 +133,7 @@ classdef bSSFP
     end
     
     methods
-        function obj = bSSFP
+        function obj = qMT_bSSFP
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
