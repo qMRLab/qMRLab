@@ -234,7 +234,7 @@ for element in models:
             search = element.fileName
             if search == "IR":
             	search = "InversionRecovery"
-            if name.find(search+".m") != (-1):
+            if name.find(search+".m") != (-1) and name.find("~") == (-1):
             	file = os.path.join(root,name)
             	currentDir = ""
 
@@ -255,6 +255,14 @@ for element in models:
 
         	#Open the file
         	included = False
+        	try:
+        		with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
+        			print('YES')
+        	except IOError:
+        		with io.open(directories[nbdir - 1].lower()+".rst", "w") as fw:
+        			print('NO')
+        		fw.close()
+
         	with io.open(directories[nbdir - 1].lower()+".rst", "rb") as fw:
         		for line in fw:
         			if line.find(element.title) != (-1) and line.find("_batch") == (-1):
