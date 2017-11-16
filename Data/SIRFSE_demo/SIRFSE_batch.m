@@ -68,7 +68,7 @@ data.Mask   = double(load_nii_data('Mask.nii.gz'));
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
-FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
+FitResults       = FitData(data,Model,0); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 delete('FitTempResults.mat');
 
@@ -76,9 +76,9 @@ delete('FitTempResults.mat');
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
 figure
-voxel           = [50, 60, 1];
-FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
-dataVox         = extractvoxel(data,voxel);
+voxel          = [50, 60, 1];
+dataVox        = extractvoxel(data,voxel);
+FitResultsVox  = Model.fit(dataVox);
 Model.plotModel(FitResultsVox,dataVox)
 
 %**************************************************************************
