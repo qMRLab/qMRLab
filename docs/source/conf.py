@@ -382,7 +382,7 @@ for element in models:
     #Open the temporary file in reading mode
     with io.open(element.fileName +"temp.rst", "r") as fd:
     	#Open the original file in write mode
-    	with io.open(toOpen+".rst", "w") as fw:
+    	with io.open(toOpen.lower()+".rst", "w") as fw:
     		#Create a list of the lines seen
     		line_seen = []
     		#For every line in the temp file, check if it was already seen (remove duplicates)
