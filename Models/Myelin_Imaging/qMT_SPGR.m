@@ -1,5 +1,5 @@
-classdef SPGR
-%SPGR:  qMT using Spoiled Gradient Echo (or FLASH)
+classdef qMT_SPGR
+%qMT_SPGR:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)
 %<a href="matlab: figure, imshow qMT_SPGR.png ;">Pulse Sequence Diagram</a>
 %
 % Assumptions:
@@ -98,8 +98,8 @@ classdef SPGR
 %   Compute SfTable        By checking this box, you compute a new SfTable
 %
 % Command line usage:
-%   <a href="matlab: qMRusage(SPGR);">qMRusage(SPGR)</a>
-%   <a href="matlab: showdemo SPGR_batch">showdemo SPGR_batch</a>
+%   <a href="matlab: qMRusage(qMT_SPGR);">qMRusage(qMT_SPGR)</a>
+%   <a href="matlab: showdemo qMT_SPGR_batch">showdemo qMT_SPGR_batch</a>
 %
 % Author: Ian Gagnon, 2017
 %
@@ -157,7 +157,7 @@ classdef SPGR
     end
 
     methods
-        function obj = SPGR
+        function obj = qMT_SPGR
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

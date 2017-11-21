@@ -1,5 +1,5 @@
-classdef SIRFSE
-% SIRFSE:  qMT using Inversion Recovery Fast Spin Echo acquisition
+classdef qMT_SIRFSE
+% qMT_SIRFSE:  qMT using Inversion Recovery Fast Spin Echo acquisition
 %<a href="matlab: figure, imshow qMT_SIRFSE.png ;">Pulse Sequence Diagram</a>
 %
 % ASSUMPTIONS: 
@@ -76,8 +76,8 @@ classdef SIRFSE
 %     Lineshape         The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
 %     T2r               Transverse relaxation time of the restricted pool (T2r = 1/R2r)
 %
-% Example of command line usage (see also <a href="matlab: showdemo SIRFSE_batch">showdemo SIRFSE_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(SIRFSE);">qMRusage(SIRFSE)</a>
+% Example of command line usage (see also <a href="matlab: showdemo qMT_SIRFSE_batch">showdemo qMT_SIRFSE_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(qMT_SIRFSE);">qMRusage(qMT_SIRFSE)</a>
 %
 % Author: Ian Gagnon, 2017
 
@@ -130,7 +130,7 @@ classdef SIRFSE
     end
     
     methods
-        function obj = SIRFSE
+        function obj = qMT_SIRFSE
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
@@ -175,7 +175,7 @@ classdef SIRFSE
         function FitResults = fit(obj,data)            
             Protocol = GetProt(obj);       
             FitOpt = GetFitOpt(obj,data);
-            FitResults = SIRFSE_fit(data.MTdata/max(data.MTdata),Protocol,FitOpt);
+            FitResults = SIRFSE_fit(data.MTdata/max(eps,max(data.MTdata)),Protocol,FitOpt);
             FitResults.M0f = FitResults.M0f*max(data.MTdata);
             FitResults.Sf = - FitResults.Sf;
         end

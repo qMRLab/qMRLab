@@ -1,17 +1,17 @@
-% Batch to process SIRFSE data without qMRLab GUI (graphical user interface)
+% Batch to process qMT_SIRFSE data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
 %% DESCRIPTION
-help SIRFSE
+help qMT_SIRFSE
 
 %% Load dataset
-[pathstr,fname,ext]=fileparts(which('SIRFSE_batch.m'));
+[pathstr,fname,ext]=fileparts(which('qMT_SIRFSE_batch.m'));
 cd (pathstr);
 
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
-Model = SIRFSE
+Model = qMT_SIRFSE
 
 %% Check data and fitting (Optinal)
 
@@ -68,7 +68,7 @@ data.Mask   = double(load_nii_data('Mask.nii.gz'));
 %**************************************************************************
 % III- FIT DATASET
 %**************************************************************************
-FitResults       = FitData(data,Model,1); % 3rd argument plots a waitbar
+FitResults       = FitData(data,Model,0); % 3rd argument plots a waitbar
 FitResults.Model = Model;
 delete('FitTempResults.mat');
 
@@ -76,9 +76,9 @@ delete('FitTempResults.mat');
 % IV- CHECK FITTING RESULT IN A VOXEL
 %**************************************************************************
 figure
-voxel           = [50, 60, 1];
-FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
-dataVox         = extractvoxel(data,voxel);
+voxel          = [50, 60, 1];
+dataVox        = extractvoxel(data,voxel);
+FitResultsVox  = Model.fit(dataVox);
 Model.plotModel(FitResultsVox,dataVox)
 
 %**************************************************************************

@@ -18,14 +18,71 @@ The data fitting provides a simple interface to import real-world qMR data, fit 
 Methods available
 -------------------------------------------------------------------------------
 
+diffusion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
 
-   diffusion
-   fieldmaps
-   myelin_imaging
-   noise
-   t1_mapping
+   CHARMED_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   NODDI_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   DTI_batch
+
+fieldmaps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+   :maxdepth: 1
+
+   B0_DEM_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   B1_DAM_batch
+
+Myelin or macromolecular imaging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 1
+
+   bSSFP_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   SIRFSE_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   SPGR_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   MTSAT_batch
+
+noise
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   NoiseLevel :  Noise histogram fitting within a noise mask
+
+T1 mapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+   :maxdepth: 1
+
+   IR_batch
+
+   VFA: 
+
 
 Getting started
 ===============================================================================

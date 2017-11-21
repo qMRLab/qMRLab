@@ -5,12 +5,13 @@ T1_Mapping_label
 
 Inversion Recovery
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-IR_label
+IR_lab
 
 .. toctree::
 	:maxdepth: 1
 
 	IR_batch
+
 
 Variable Flip Angle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
