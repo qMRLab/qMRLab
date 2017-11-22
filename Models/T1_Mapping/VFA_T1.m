@@ -53,7 +53,7 @@ classdef VFA_T1
         voxelwise = 0;
         
         % Protocol
-        Prot  = struct('SPGR',struct('Format',{{'Flip Angle' 'TR'}},...
+        Prot  = struct('SPGR',struct('Format',{{'FlipAngle' 'TR'}},...
                                          'Mat', [4 0.025; 10 0.025; 20 0.025])); % You can define a default protocol here.
         
         % Model options
