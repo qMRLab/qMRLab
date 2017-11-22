@@ -5,7 +5,7 @@ classdef VFA_T1
 % Assumptions:
 % 
 % Inputs:
-%   SPGR            spoiled Gradient echo data, 4D volume with different flip angles
+%   SPGR            spoiled Gradient echo data, 4D volume with different flip angles in time dimension
 %   B1map           excitation (B1+) fieldmap. Used to correct flip angles.
 %
 % Outputs:

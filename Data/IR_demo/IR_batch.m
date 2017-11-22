@@ -1,4 +1,3 @@
-warning('off','all');
 %% DESCRIPTION
 help InversionRecovery
 % Batch to process Inversion Recovery data without qMRLab GUI (graphical user interface)
