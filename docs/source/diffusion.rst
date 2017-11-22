@@ -10,16 +10,19 @@ Diffusion_label
 
 CHARMED
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-CHARME_label
+Composite Hindered and Restricted Model for Diffusion
 
 .. toctree::
 	:maxdepth: 1
 
-	CHARMED_batch
+	CHARMED_batch	CHARMED
 
-
+Composite Hindered and Restricted Model for Diffusion
 3D Qspace
-----------------------------------------------------------
+.. toctree::
+	:maxdepth: 1
+
+	CHARMED_batch----------------------------------------------------------
 3D_Qspace_label
 
 

@@ -1,5 +1,5 @@
-SIRFSE
-======
+qMT_SIRFSE: *MT using Inversion Recovery Fast Spin Echo acquisition*
+================================================================================
 
 .. raw:: html
 

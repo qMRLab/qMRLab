@@ -1,25 +1,5 @@
 classdef DTI
-% DTI :  FILL
-%<a href="matlab: figure, imshow DTI.png ;">Pulse Sequence Diagram</a>
-%
-% ASSUMPTIONS:
-% (1) FILL
-% (2) 
-% (3) 
-% (4) 
-%
-% Inputs:
-%   FILL 
-%
-% Outputs:
-%	FILL
-%      
-% Protocol:
-%   FILL
-%
-% Options:
-%   FILL
-%
+%DTI: Diffusion Tensor Imaging
 % Methods:
 %   plotmodel        Plot the diffusion-weighted signal as a function of Gparallel
 %                       EXAMPLE:
@@ -52,7 +32,7 @@ classdef DTI
         % Protocol
         Prot = struct('DiffusionData',...
                     struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
-                            'Mat',txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'NODDI_DTI_demo', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
+                            'Mat', txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt')))); % You can define a default protocol here.
         
         % Model options
         buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
@@ -148,12 +128,12 @@ classdef DTI
 
         end
         
-        function plotmodel(obj, FitResults, data)
-            % plotmodel(obj, FitResults, data)
+        function plotModel(obj, FitResults, data)
+            % plotModel(obj, FitResults, data)
             % EXAMPLE: 
             %   A = DTI;
             %   L1 = 1; L2 = 1; L3 = 3;
-            %   A.plotmodel([L1 L2 L3]);
+            %   A.plotModel([L1 L2 L3]);
             
             if nargin<2, FitResults=obj.st; end
 
@@ -207,7 +187,7 @@ classdef DTI
             fiberdirection = V(:,I);
             
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
                 hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
                 h = scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'o','none');
@@ -220,6 +200,10 @@ classdef DTI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);            
         end
         
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimVaryGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
         
     end
 end

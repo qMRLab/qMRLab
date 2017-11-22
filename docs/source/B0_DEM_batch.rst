@@ -1,5 +1,5 @@
-B0_DEM
-======
+B0_DEM *Dual Echo Method for B0 mapping*
+================================================
 
 .. raw:: html
 

@@ -13,7 +13,6 @@ B0_DEM_label
 	B0_DEM_batch
 
 
-
 B1_DAM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 B1_DAM_label
@@ -22,5 +21,4 @@ B1_DAM_label
 	:maxdepth: 1
 
 	B1_DAM_batch
-
 

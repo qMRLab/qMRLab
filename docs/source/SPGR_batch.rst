@@ -1,5 +1,5 @@
-SPGR
-====
+qMT_SPGR: *quantitative Magnetization Transfer (qMT) using Spoiled Gradient Echo (or FLASH)* 
+====================================================================================================
 
 .. raw:: html
 

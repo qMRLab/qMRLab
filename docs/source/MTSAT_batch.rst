@@ -1,5 +1,5 @@
-MTSAT
-=====
+MTSAT: *Correction of Magnetization transfer for RF inhomogeneities and T1*
+=====================================================================================
 
 .. raw:: html
 

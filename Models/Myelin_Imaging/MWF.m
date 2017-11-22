@@ -1,5 +1,4 @@
 classdef MWF
-<<<<<<< HEAD
 % MWF :  Myelin Water Fraction from Multi-Exponential T2w data
 %
 % Assumptions:
@@ -49,47 +48,6 @@ classdef MWF
 %     easy with qMTLab: Software for data simulation, analysis, and
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
-=======
-% MWF:  Myelin Water Fraction
-%<a href="matlab: figure, imshow MWF.png ;">Pulse Sequence Diagram</a>
-%
-% ASSUMPTIONS:
-% (1) FILL
-% (2)
-% (3)
-% (4)
-%
-% Inputs:
-%   MET2data            Multi-Exponential T2 data
-%   (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
-%
-% Outputs
-%	MWF                 Myelin Water Fraction
-%	T2MW                Spin relaxation time for Myelin Water (MW)
-%   T2IEW               Spin relaxation time for Intra/Extracellular Water (IEW)
-%
-% Protocol:
-%	First               Time of the first echo (s)
-%	Spacing             Time interval between each echo (s)
-%
-% Options
-%   Cutoff              Time cutoff (s)
-%   Sigma               Noise standard deviation. Currently not corrected for
-%                       rician bias...
-%
-% Command line usage:
-%   <a href="matlab: qMRusage(MWF);">qMRusage(MWF)</a>
-%   <a href="matlab: showdemo MWF_batch">showdemo MWF_batch</a>
-%
-% Author: Ian Gagnon, 2017
-%
-% Reference:
-%   Please cite the following if you use this module:
-%      MacKay, A., Whittall, K., Adler, J., Li, D., Paty, D., Graeb, D., 1994. In vivo visualization of myelin water in brain by magnetic resonance. Magn. Reson. Med. 31, 673?677.
-%   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-
->>>>>>> gab
     properties
         MRIinputs = {'MET2data','Mask'};
         xnames = {'MWF','T2MW','T2IEW'};
@@ -102,7 +60,7 @@ classdef MWF
 
         % Protocol
         % You can define a default protocol here.
-        Prot  = struct('Echo',struct('Format',{{'Time (ms)'}},...
+        Prot  = struct('MET2data',struct('Format',{{'Echo Time (ms)'}},...
             'Mat', [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
             180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320]));
 
@@ -134,7 +92,7 @@ classdef MWF
             if nargin < 3, Opt.T2Spectrumvariance_Myelin = 5; Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20; end
             x.MWF = x.MWF/100;
             % EchoTimes, T2 and DecayMatrix
-            EchoTimes   = obj.Prot.Echo.Mat;
+            EchoTimes   = obj.Prot.MET2data.Mat;
             T2          = getT2(obj,EchoTimes);
             DecayMatrix = getDecayMatrix(EchoTimes,T2.vals);
             % MF (Myelin Fraction) and IEF (Intra/Extracellular Fraction)
@@ -155,18 +113,18 @@ classdef MWF
 
         function [FitResults,Spectrum] = fit(obj,data)
             % EchoTimes, T2 and DecayMatrix
-            EchoTimes   = obj.Prot.Echo.Mat;
+            EchoTimes   = obj.Prot.MET2data.Mat;
             T2          = getT2(obj,EchoTimes);
             DecayMatrix = getDecayMatrix(EchoTimes,T2.vals);
             % Options
             Opt.RelaxationType   = obj.options.RelaxationType;
             Opt.Sigma            = obj.options.Sigma;
-            Opt.lower_cutoff_MW  = 1.5*obj.Prot.Echo.Mat(1); % 1.5 * FirstEcho
+            Opt.lower_cutoff_MW  = 1.5*obj.Prot.MET2data.Mat(1); % 1.5 * FirstEcho
             Opt.upper_cutoff_MW  = obj.options.Cutoffms;
             Opt.upper_cutoff_IEW = obj.ub(3);
             % Fitting
             if isempty(data.Mask), data.Mask = 1; end
-            [FitResults,Spectrum] = multi_comp_fit_v2(reshape(data.MET2data,[1 1 1 length(obj.Prot.Echo.Mat)]), EchoTimes, DecayMatrix, T2, Opt, 'tissue', data.Mask);
+            [FitResults,Spectrum] = multi_comp_fit_v2(reshape(data.MET2data,[1 1 1 length(obj.Prot.MET2data.Mat)]), EchoTimes, DecayMatrix, T2, Opt, 'tissue', data.Mask);
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
@@ -179,9 +137,9 @@ classdef MWF
             data.Mask = 1;
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, [], data);
+                plotModel(obj, [], data);
                 subplot(2,1,1)
-                EchoTimes   = obj.Prot.Echo.Mat;
+                EchoTimes   = obj.Prot.MET2data.Mat;
                 T2          = getT2(obj,EchoTimes);
                 hold on
                 plot(T2.vals,Spectrum,'b');
@@ -202,10 +160,10 @@ classdef MWF
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
-        function plotmodel(obj, x, data, PlotSpectrum)
+        function plotModel(obj, x, data, PlotSpectrum)
             if nargin<2, x = mean([obj.lb(:),obj.ub(:)],2); end
             if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
-            EchoTimes   = obj.Prot.Echo.Mat;
+            EchoTimes   = obj.Prot.MET2data.Mat;
             T2          = getT2(obj,EchoTimes);
             if exist('data','var')
                 [~,Spectrum] = fit(obj,data);

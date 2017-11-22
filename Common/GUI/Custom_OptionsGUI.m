@@ -38,17 +38,19 @@ handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
 handles.caller = [];            % Handle to caller GUI
+
 if (length(varargin)>1 && ~isempty(varargin{2}) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
     handles.caller = varargin{2};
-    CurrentPos = get(gcf, 'Position');
+    CurrentPos = get(hObject, 'Position');
     CallerPos = get(handles.caller, 'Position');
     NewPos = [CallerPos(1)+CallerPos(3), CallerPos(2)+CallerPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
-    set(gcf, 'Position', NewPos);
+    set(hObject, 'Position', NewPos);
 end
 handles.opened = 1;
 
+% POPULATE FITTING PANEL
 % Load model parameters
-Model = varargin{1};
+Model = varargin{1}; 
 setappdata(0,'Model',Model);
 Nparam = length(Model.xnames);
 
@@ -65,6 +67,7 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     set(handles.FitOptTable,'Data',FitOptTable)
 end
 
+% POPULATE OPTIONS PANEL
 if ~isempty(Model.buttons)
     
     % Generate Buttons
@@ -87,7 +90,7 @@ if ~isempty(Model.buttons)
     SetOpt(handles);
 end
 
-% Load Protocol
+% POPULATE PROTOCOL PANEL
 if ~isempty(Model.Prot)
     fields = fieldnames(Model.Prot); fields = fields(end:-1:1);
     N = length(fields);
@@ -192,7 +195,7 @@ set(handles.ProtFileName,'String','Protocol Filename');
 OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
-[FileName,PathName] = uigetfile({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},'Load Protocol Matrix');
+[FileName,PathName] = uigetfile({'*.mat;*.xls;*.xlsx;*.txt;*.scheme'},'Load Protocol Matrix');
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
@@ -244,7 +247,7 @@ OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 function Load_Callback(hObject, eventdata, handles)
 [FileName,PathName] = uigetfile('*.mat');
 if PathName == 0, return; end
-load(fullfile(PathName,FileName));
+Model = qMRloadModel(fullfile(PathName,FileName));
 oldModel = getappdata(0,'Model');
 if ~isa(Model,class(oldModel))
     errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
@@ -257,7 +260,6 @@ OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 % --- Executes on button press in Save.
 function Save_Callback(hObject, eventdata, handles)
 Model = getappdata(0,'Model');
-[file,path] = uiputfile(['qMRILab_' class(Model) 'Parameters.mat'],'Save file name');
-save(fullfile(path,file),'Model')
+qMRsaveModel(Model);
 
 
