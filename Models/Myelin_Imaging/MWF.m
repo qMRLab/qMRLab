@@ -47,6 +47,11 @@ classdef MWF
 %     Stikov N. (2016), Quantitative magnetization transfer imaging made
 %     easy with qMTLab: Software for data simulation, analysis, and
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
+
     properties
         MRIinputs = {'MET2data','Mask'};
         xnames = {'MWF','T2MW','T2IEW'};
@@ -73,6 +78,12 @@ classdef MWF
 
     end
 
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
+    
+    
+    
     methods
 
         function obj = MWF

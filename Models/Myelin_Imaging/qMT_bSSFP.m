@@ -94,7 +94,11 @@ classdef qMT_bSSFP
 % Written by: Ian Gagnon, 2017
 % Reference: FILL
 %-----------------------------------------------------------------------------------------------------
-    
+
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
+
     properties
         MRIinputs = {'MTdata','R1map','Mask'}; % input data required
         xnames = {'F','kr','R1f','R1r','T2f','M0f'}; % name of the fitted parameters
@@ -131,6 +135,10 @@ classdef qMT_bSSFP
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         function obj = qMT_bSSFP
