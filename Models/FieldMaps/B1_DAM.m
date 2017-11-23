@@ -1,5 +1,5 @@
 classdef B1_DAM
-% B1_DAM map:  Double-Angle Method for B1+ mapping
+%B1_DAM map:  Double-Angle Method for B1+ mapping
 %
 % Assumptions:
 %   Compute a B1map using 2 SPGR images with 2 different flip angles (60, 120deg)

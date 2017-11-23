@@ -1,3 +1,6 @@
+%Place in the right folder to run
+cdmfile('B1_DAM_batch.m');
+
 warning('off','all');
 %% DESCRIPTION
 help B1_DAM
@@ -6,9 +9,6 @@ help B1_DAM
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
-[pathstr,fname,ext]=fileparts(which('B1_DAM_batch.m'));
-cd (pathstr);
-
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 load('B1_DAMParameters.mat');

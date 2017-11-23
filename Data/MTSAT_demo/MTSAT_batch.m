@@ -1,10 +1,11 @@
+%Place in the right folder to run
+cdmfile('MTSAT_batch.m');
+
 %% DESCRIPTION
 help MTSAT
 
 % Batch to process MT_SAT
 % Run this script line by line
-[pathstr,fname,ext]=fileparts(which('MTSAT_batch.m'));
-cd (pathstr);
 
 %% I- LOAD DATASET
 %**************************************************************************

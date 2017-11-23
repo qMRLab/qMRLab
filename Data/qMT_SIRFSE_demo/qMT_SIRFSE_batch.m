@@ -1,3 +1,6 @@
+%Place in the right folder to run
+cdmfile('qMT_SIRFSE_batch.m');
+
 % Batch to process qMT_SIRFSE data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
@@ -6,9 +9,6 @@
 help qMT_SIRFSE
 
 %% Load dataset
-[pathstr,fname,ext]=fileparts(which('qMT_SIRFSE_batch.m'));
-cd (pathstr);
-
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 Model = qMT_SIRFSE

@@ -1,3 +1,6 @@
+%Place in the right folder to run
+cdmfile('qMT_bSSFP_batch.m');
+
 %% DESCRIPTION
 help qMT_bSSFP
 
@@ -6,9 +9,6 @@ help qMT_bSSFP
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
-[pathstr,fname,ext]=fileparts(which('qMT_bSSFP_batch.m'));
-cd (pathstr);
-
 % Load your parameters to create your Model
 % load('MODELPamameters.mat');
 %load('bSSFPParameters.mat');

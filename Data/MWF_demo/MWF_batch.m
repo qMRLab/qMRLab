@@ -1,3 +1,6 @@
+%Place in the right folder to run
+cdmfile('MWF_batch.m');
+
 warning('off','all');
 
 %% DESCRIPTION
@@ -8,9 +11,6 @@ help MWF
 % Written by: Ian Gagnon, 2017
 
 %% Load dataset
-[pathstr,fname,ext]=fileparts(which('MWF_batch.m'));
-cd (pathstr);
-
 % Load your parameters to create your Model
 % load('MWFPamameters.mat');
 Model = MWF;

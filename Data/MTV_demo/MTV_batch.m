@@ -1,3 +1,6 @@
+%Place in the right folder to run
+cdmfile('MTV_batch.m');
+
 % Batch to process MTV data without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
@@ -6,10 +9,6 @@
 help MTV
 
 %% Load dataset
-
-[pathstr,fname,ext]=fileparts(which('MTV_batch.m'));
-cd (pathstr);
-
 % Load your parameters to create your Model
 Model = qMRloadModel('MTV.qMRLab.mat');
 % Alternatively, create an object

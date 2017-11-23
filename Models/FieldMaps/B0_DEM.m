@@ -1,5 +1,5 @@
 classdef B0_DEM
-% B0_DEM map :  Dual Echo Method for B0 mapping
+%B0_DEM map :  Dual Echo Method for B0 mapping
 %
 % Assumptions:
 %   Compute B0 map based on 2 phase images with different TEs

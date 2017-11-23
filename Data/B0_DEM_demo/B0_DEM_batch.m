@@ -1,16 +1,15 @@
+%Place in the right folder to run
+cdmfile('B0_DEM_batch.m');
+
 %% DESCRIPTION
 help B0_DEM
 % Batch to generate B0map with Dual Echo Method (DEM) without qMRLab GUI (graphical user interface)
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
-% Move the the dataset folder
-[pathstr,fname,ext]=fileparts(which('B0_DEM_batch.m'));
-cd (pathstr);
 
 %**************************************************************************
 %% I- LOAD MODEL and DATA
 %**************************************************************************
-
 % create your Model
   Model = B0_DEM;
 % Alternatively, load your parameters

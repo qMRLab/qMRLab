@@ -18,71 +18,77 @@ The data fitting provides a simple interface to import real-world qMR data, fit 
 Methods available
 -------------------------------------------------------------------------------
 
-diffusion
+Diffusion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
-   :maxdepth: 1
+	:maxdepth: 1
 
-   CHARMED_batch
+	CHARMED_batch
 
-.. toctree::
-   :maxdepth: 1
-   
-   NODDI_batch
+DTI: Diffusion Tensor Imaging
 
-.. toctree::
-   :maxdepth: 1
-   
-   DTI_batch
+NODDI: Neurite Orientation Dispersion and Density Imaging
 
-fieldmaps
+FieldMaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
-   :maxdepth: 1
+	:maxdepth: 1
 
-   B0_DEM_batch
-
-.. toctree::
-   :maxdepth: 1
-   
-   B1_DAM_batch
-
-Myelin or macromolecular imaging
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	B0_DEM_batch
 
 .. toctree::
-   :maxdepth: 1
+	:maxdepth: 1
 
-   bSSFP_batch
+	B1_DAM_batch
 
-.. toctree::
-   :maxdepth: 1
-   
-   SIRFSE_batch
-
-.. toctree::
-   :maxdepth: 1
-   
-   SPGR_batch
-
-.. toctree::
-   :maxdepth: 1
-   
-   MTSAT_batch
-
-noise
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   NoiseLevel :  Noise histogram fitting within a noise mask
-
-T1 mapping
+Myelin_Imaging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
-   :maxdepth: 1
+	:maxdepth: 1
 
-   IR_batch
+	MTSAT_batch
 
-   VFA: 
+.. toctree::
+	:maxdepth: 1
 
+	MWF_batch
+
+.. toctree::
+	:maxdepth: 1
+
+	qMT_bSSFP_batch
+
+.. toctree::
+	:maxdepth: 1
+
+	qMT_SIRFSE_batch
+
+.. toctree::
+	:maxdepth: 1
+
+	qMT_SPGR_batch
+
+Noise
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NoiseLevel :  Noise histogram fitting within a noise mask
+
+T1_Mapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+	:maxdepth: 1
+
+	InversionRecovery_batch
+
+VFA_T1: Compute a T1 map using Variable Flip Angle
+
+UnderDevelopment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CustomExample :  Describe the method here
+
+.. toctree::
+	:maxdepth: 1
+
+	MTV_batch
 
 Getting started
 ===============================================================================

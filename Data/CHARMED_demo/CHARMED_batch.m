@@ -1,3 +1,6 @@
+%Place in the right folder to run
+cdmfile('CHARMED_batch.m');
+
 %% DESCRIPTION
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
@@ -5,9 +8,6 @@ help CHARMED
 %**************************************************************************
 %% I- LOAD MODEL
 %**************************************************************************
-%Make sure user is in the correct directory
-[pathstr,fname,ext]=fileparts(which('CHARMED_batch.m'));
-cd (pathstr);
 
 % Create Model object 
 Model = CHARMED;
