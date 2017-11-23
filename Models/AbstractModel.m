@@ -2,8 +2,8 @@ classdef (Abstract) AbstractModel
 % AbstractModel:  Properties/Methods shared between all models.
 %
 %   *Methods*
-%   save: save model to a file as an object variable.
-%   load: load model from a file as an object variable.
+%   save: save model object properties to a file as an struct.
+%   load: load model properties from a struct-file into the object.
 %
 
 properties
@@ -17,8 +17,17 @@ methods
     end
     
     function saveObj(obj, fileName)
-        try
-            save(fileName, 'obj', '-mat');
+        try            
+            objectProperties = properties(obj);
+            
+            %Loop through all object properties
+            for propIndex = 1:length(objectProperties)
+                
+                % Assign object property value to identically named struct field.
+                objStruct.(objectProperties{propIndex}) = obj.(objectProperties{propIndex});
+            end
+
+            save(fileName, '-struct', 'objStruct');
         catch ME
             error(ME.identifier, ME.message)
         end
@@ -26,8 +35,28 @@ methods
     
     function loadObj(obj, fileName)
         try
-            tmp = load(fileName, '-mat');
-            obj = tmp.obj;
+            loadedStruct = load(fileName);
+            
+            % Check version
+            try
+                currentVersion = obj.version;
+                fileVersion = loadedStruct.version;
+                
+                assert(isequal(currentVersion, fileVersion), 'AbstractModel:VersionMismatch', 'Warning, loaded file is from a different qMRLab version. Abort.')
+            catch ME
+                error(ME.identifier, ME.message)
+            end
+            
+            
+            objectProperties = properties(obj);
+
+            %Loop through all object properties
+            for propIndex = 1:length(objectProperties)
+                
+                % Assign object property value to identically named struct field.
+                obj.(objectProperties{propIndex}) = loadedStruct.(objectProperties{propIndex});
+            end
+            
         catch ME
         	error(ME.identifier, ME.message)
         end
