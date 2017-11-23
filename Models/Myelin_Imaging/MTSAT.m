@@ -1,4 +1,4 @@
-classdef MTSAT
+classdef MTSAT < AbstractModel
 % MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1
 %
 % Assumptions:

@@ -1,4 +1,4 @@
-classdef qMT_bSSFP
+classdef qMT_bSSFP < AbstractModel
 % qMT_bSSFP : qMT using Balanced Steady State Free Precession acquisition
 %-----------------------------------------------------------------------------------------------------
 %-------------%

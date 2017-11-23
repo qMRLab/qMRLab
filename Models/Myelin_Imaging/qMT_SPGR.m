@@ -1,4 +1,4 @@
-classdef qMT_SPGR
+classdef qMT_SPGR < AbstractModel
 %qMT_SPGR:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)
 %<a href="matlab: figure, imshow qMT_SPGR.png ;">Pulse Sequence Diagram</a>
 %

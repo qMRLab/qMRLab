@@ -1,4 +1,4 @@
-classdef InversionRecovery
+classdef InversionRecovery < AbstractModel
 %InversionRecovery: Compute a T1 map using Inversion Recovery data
 %<a href="matlab: figure, imshow IR.png ;">Pulse Sequence Diagram</a>
 %

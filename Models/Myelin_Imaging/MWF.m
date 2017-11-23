@@ -1,4 +1,4 @@
-classdef MWF
+classdef MWF < AbstractModel
 % MWF :  Myelin Water Fraction from Multi-Exponential T2w data
 %
 % Assumptions:

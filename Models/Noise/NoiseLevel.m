@@ -1,4 +1,4 @@
-classdef NoiseLevel
+classdef NoiseLevel < AbstractModel
 % NoiseLevel :  Noise histogram fitting within a noise mask
 
 % ASSUMPTIONS:

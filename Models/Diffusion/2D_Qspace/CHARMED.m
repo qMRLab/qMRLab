@@ -1,4 +1,4 @@
-classdef CHARMED
+classdef CHARMED < AbstractModel
 %CHARMED: Composite Hindered and Restricted Model for Diffusion
 %<a href="matlab: figure, imshow CHARMED.png ;">Pulse Sequence Diagram</a>
 %

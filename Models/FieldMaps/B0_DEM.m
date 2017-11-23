@@ -1,4 +1,4 @@
-classdef B0_DEM
+classdef B0_DEM < AbstractModel
 % B0_DEM map :  Dual Echo Method for B0 mapping
 %
 % Assumptions:

@@ -1,4 +1,4 @@
-classdef VFA_T1
+classdef VFA_T1 < AbstractModel
 % VFA_T1: Compute a T1 map using Variable Flip Angle
 %<a href="matlab: figure, imshow qMT_SPGR.png ;">Pulse Sequence Diagram</a>
 %
