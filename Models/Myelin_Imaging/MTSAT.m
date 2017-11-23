@@ -42,6 +42,9 @@ classdef MTSAT
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
 
     properties
         MRIinputs = {'MTw','T1w', 'PDw', 'Mask'};
@@ -49,17 +52,21 @@ classdef MTSAT
         voxelwise = 0;
 
         % Protocol
-        Prot = struct('MT',struct('Format',{{'Flip Angle' 'TR (s)' 'Offset (Hz)'}},...
+        Prot = struct('MT',struct('Format',{{'FlipAngle' 'TR (s)' 'Offset (Hz)'}},...
                                    'Mat',  [6 0.028 1000]),...
-                      'T1',struct('Format',{{'Flip Angle' 'TR'}},...
+                      'T1',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [20 0.018]),...
-                      'PD',struct('Format',{{'Flip Angle' 'TR'}},...
+                      'PD',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [6 0.028]));
         % Model options
         buttons = {};
         options= struct();
 
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
 
     methods
         function obj = MTSAT

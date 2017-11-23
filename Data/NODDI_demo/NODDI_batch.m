@@ -1,7 +1,7 @@
 %% DESCRIPTION
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
-help NODDI
+qMRinfo('NODDI'); % Display help 
 %Make sure user is in the correct directory
 [pathstr,fname,ext]=fileparts(which('NODDI_batch.m'));
 cd (pathstr);
