@@ -29,11 +29,8 @@ Model = NoiseLevel; % Create model object
 %		|- Octave is not GUI compatible. 
 % -------------------------------------------------------------------------
 
-if not(moxunit_util_platform_is_octave) % ---> If MATLAB
 Custom_OptionsGUI(Model);
 Model = getappdata(0,'Model');
-end
-
 
 
 %% STEP |LOAD PROTOCOL ----------------------------------------------------

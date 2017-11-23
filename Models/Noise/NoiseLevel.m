@@ -61,6 +61,8 @@ end
             if any(strcmp('NoiseMask',fieldnames(data)))
                 dat = reshape2D(data.Data4D,4)';
                 dat = dat(logical(data.NoiseMask(:)),:);
+            else
+                dat = data.Data4D;
             end
             
             [N, eta, sigma_g] = scd_noise_fit_histo(dat,'fig',obj.options.figure,'distrib',obj.options.NoiseDistribution);
