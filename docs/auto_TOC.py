@@ -7,6 +7,8 @@ import xml.etree.ElementTree
 import io
 import copy
 import embed_html
+
+sys.path.append("embed_html.py")
 sys.path.insert(0, os.path.abspath('../..'))
 
 class Model(object):
@@ -21,7 +23,7 @@ class Model(object):
 category_list = []
 models = []
 
-for root, dirs, files in os.walk('../Models'):
+for root, dirs, files in os.walk('../../Models'):
 	#Check the models that are there
 	for name in files:
 		name_pos = name.find(".m")
@@ -51,14 +53,14 @@ for root, dirs, files in os.walk('../Models'):
 
 		cdemo = False
 		#Check for a .m file in demo
-		for root_s, dirs_s, files_s in os.walk('../Data'):
+		for root_s, dirs_s, files_s in os.walk('../../Data'):
 			for name_s in files_s:
 				name_pos = name_s.find("_batch")
 				if name_s.endswith(".html") and cfile == name_s[:name_pos]:
 					cdemo = True
 					dst = './source/'+ cfile +'_batch.rst'
 					src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
-					#embed_html.py(dst,src,cname)#################################################################
+					os.system("embed_html.py "+dst+" "+src+" "+cname)
 				elif name_s.endswith(".png"):
 					#Save the path of the ".png" file 
 					fn = os.path.join(root_s, name_s)
@@ -71,12 +73,11 @@ for root, dirs, files in os.walk('../Models'):
 			ccat,
 			cdemo)
 		models.append(model_add)
-with io.open("./source/documentation.rst", "r") as fr:
-	with io.open("./source/documentationTemp.rst", "w") as fw:
+with io.open("../source/documentation.rst", "r") as fr:
+	with io.open("../source/documentationTemp.rst", "w") as fw:
 		in_Models = False
 		i = -1
 		for line in fr:
-			print(i)
 			if line == "Methods available\n":
 				i = 1
 				in_Models = True
@@ -104,10 +105,10 @@ with io.open("./source/documentation.rst", "r") as fr:
 				fw.write(line)
 fr.close()
 fw.close()
-with io.open("./source/documentationTemp.rst", "r") as fr:
-	with io.open("./source/documentation.rst", "w") as fw:
+with io.open("../source/documentationTemp.rst", "r") as fr:
+	with io.open("../source/documentation.rst", "w") as fw:
 		for line in fr:
 			fw.write(line)
 fr.close()
 fw.close()
-os.remove("./source/documentationTemp.rst")
+os.remove("../source/documentationTemp.rst")

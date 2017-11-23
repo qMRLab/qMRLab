@@ -22,8 +22,8 @@ import shutil
 import xml.etree.ElementTree
 import io
 import copy
-sys.path.insert(0, os.path.abspath('../..'))
-
+import auto_TOC
+sys.path.insert(0, os.path.abspath('../'))
 
 
 # -- General configuration ------------------------------------------------

@@ -58,7 +58,6 @@ if __name__ == "__main__":
 	title = sys.argv[3]
 
 	with io.open(dst, "wb") as fo:
-		print('YES')
 		fo.write(title.encode())
 		fo.write(b"\n")
 		fo.write(b"=" * len(title))

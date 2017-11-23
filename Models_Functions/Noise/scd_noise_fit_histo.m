@@ -13,9 +13,18 @@ addOptional(p,'fig',1,@isnumeric);
 addOptional(p,'plotfit',0,@isnumeric);
 addOptional(p,'distrib','Non-central Chi',@(x) any(validatestring(x,{'Non-central Chi','Rician'})));
 
-parse(p,data,varargin{:});
-
-in=p.Results;
+if logical(exist('OCTAVE_VERSION', 'builtin'))
+    in.fig = varargin{2};
+    in.distrib = varargin{4};
+    in.nbins = max(15,sqrt(length(data)));
+    in.maxval = prctile(data,99);
+    in.maxy = 0;
+    in.color = [0 0 1];
+    in.plotfit = 0;
+else
+    parse(p,data,varargin{:});
+    in=p.Results;
+end
 
 %% PREPARE DATA
 data(data==0)=[];
@@ -30,9 +39,9 @@ end
 xout(n==0)=[]; n(n==0)=[];  n(xout==0)=0;
 n=n/trapz(xout,n);
 
-[xData, yData] = prepareCurveData( xout, n );
-maxnoise=cumtrapz(xData,yData);
-maxnoise=xData(find(maxnoise>0.999,1,'first'));
+xout = xout(:); n = n(:);
+maxnoise=cumtrapz(xout,n);
+maxnoise=xout(find(maxnoise>0.999,1,'first'));
 data(data>maxnoise)=[];
 
 if isinteger(data)
@@ -47,12 +56,12 @@ n=n/trapz(xout,n);
 n(xout<0)=[];
 xout(xout<0)=[];
 
-[xData, yData] = prepareCurveData( xout, n );
+xout = xout(:); n = n(:);
 xi=0:max(xout)/in.nbins:max(xout);
-yi = interp1(xData,yData,xi);
+yi = interp1(xout,n,xi);
 yi(isnan(yi))=0;
 yi=yi/trapz(xi,yi);
-xi=xData; yi=yData;
+xi=xout; yi=n;
 
 
 %% Fit: 'non-central chi'.

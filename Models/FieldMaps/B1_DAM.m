@@ -39,6 +39,10 @@ classdef B1_DAM
 %     easy with qMTLab: Software for data simulation, analysis, and
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
+
     properties
         MRIinputs = {'SF60','SF120'};
         xnames = {};
@@ -54,6 +58,10 @@ classdef B1_DAM
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         function obj = B1_DAM

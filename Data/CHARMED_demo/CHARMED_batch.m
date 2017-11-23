@@ -4,7 +4,7 @@ cdmfile('CHARMED_batch.m');
 %% DESCRIPTION
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
-help CHARMED
+qMRinfo('CHARMED'); % Display help 
 %**************************************************************************
 %% I- LOAD MODEL
 %**************************************************************************
