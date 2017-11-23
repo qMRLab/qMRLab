@@ -33,7 +33,10 @@ classdef NODDI
 % OUTPUTS %
 %---------%
 %       * di            : Diffusion coefficient in the restricted compartment.
-%       * ficvf         : Fraction of water in the restricted compartment.
+%       * ficvf         : Fraction of restricted water in the non-iso compartment.
+%       * fiso          : Fraction of water in the isotropic compartment (e.g. CSF/Veins)
+%       * fr            : Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
+%                          fr = ficvf*(1-fiso)
 %       * diso (fixed)  : diffusion coefficient of the isotropic compartment (CSF)
 %       * kappa         : Orientation dispersion index                               
 %       * b0            : Signal at b=0
@@ -74,7 +77,7 @@ classdef NODDI
         
         % Protocol
         Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
-                                      	     'Mat',   txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'NODDI_DTI_demo', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
+                                      	     'Mat',   txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
         buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};
@@ -127,10 +130,7 @@ classdef NODDI
         end
         
         function [Smodel, fibredir] = equation(obj, x)
-            if isstruct(x) % if x is a structure, convert to vector
-                if isfield(x,'ODI'), x = rmfield(x,'ODI'); end
-                x = struct2cell(x); x=[x{:}];
-            end
+            x = struct2mat(x,obj.xnames); % if x is a structure, convert to vector
             
             model = MakeModel(obj.options.modelname);
             if length(x)<length(model.GD.fixedvals)-2, x(end+1) = 1; end % b0
@@ -151,7 +151,7 @@ classdef NODDI
             end
             constants.roots_cyl = BesselJ_RootsCyl(30);
             
-            Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocol(obj.Prot.DiffusionData.Mat), fibredir, constants);
+            Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocolmat(obj.Prot.DiffusionData.Mat), fibredir, constants);
             
         end
         
@@ -168,15 +168,21 @@ classdef NODDI
             model.GS.fixedvals = obj.st./scale;
             model.GD.fixedvals = obj.st./scale;
             
-            protocol = SchemeToProtocol(obj.Prot.DiffusionData.Mat);
+            protocol = SchemeToProtocolmat(obj.Prot.DiffusionData.Mat);
             
             % fit
-            [xopt] = ThreeStageFittingVoxel(double(max(eps,data.DiffusionData)), protocol, model);
-
+            [gsps, fobj_gs, mlps, fobj_ml, error_code] = ThreeStageFittingVoxel(max(eps,double(data.DiffusionData)), protocol, model);
+            xopt = mlps;
             % Outputs
             xnames = model.paramsStr;
+            if sum(strcmp(obj.xnames,'ficvf')) && sum(strcmp(obj.xnames,'fiso'))
+                xnames{end+1} = 'fr';
+                xopt(end+1)   = xopt(strcmp(obj.xnames,'ficvf'))*(1-xopt(strcmp(obj.xnames,'fiso')));
+            end
             xnames{end+1} = 'ODI';
-            xopt(end+1) = atan(xopt(find(strcmp(obj.xnames,'kappa')))*10)*2/pi;
+            xopt(end+1)   = atan2(1, xopt(strcmp(obj.xnames,'kappa'))*10)*2/pi;
+            xnames{end+1} = 'ObjectiveFun';
+            xopt(end+1)   = fobj_ml;
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),xnames,1);
         end
         

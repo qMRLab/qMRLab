@@ -4,7 +4,7 @@
 
 function save_nii_hdr(hdr, fid)
    
-   if ~exist('hdr','var') | ~exist('fid','var')
+   if ~exist('hdr','var') || ~exist('fid','var')
       error('Usage: save_nii_hdr(hdr, fid)');
    end
    
@@ -12,7 +12,7 @@ function save_nii_hdr(hdr, fid)
       error('hdr.hk.sizeof_hdr must be 348.');
    end
    
-   if hdr.hist.qform_code == 0 & hdr.hist.sform_code == 0
+   if hdr.hist.qform_code == 0 && hdr.hist.sform_code == 0
       hdr.hist.sform_code = 1;
       hdr.hist.srow_x(1) = hdr.dime.pixdim(2);
       hdr.hist.srow_x(2) = 0;

@@ -117,8 +117,7 @@ classdef BrowserSet
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
                 elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
-                    nii = load_untouch_nii(obj.FullFile);
-                    tmp = nii.img;
+                    tmp = load_nii_data(obj.FullFile);
                 elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif');
                     TiffInfo = imfinfo(obj.FullFile);
                     NbIm = numel(TiffInfo);
@@ -192,7 +191,6 @@ classdef BrowserSet
             
             Data.fields = {obj.NameID{1,1}};
             handles.CurrentData = Data;
-            guidata(src,handles);
             DrawPlot(handles);
         end
         
