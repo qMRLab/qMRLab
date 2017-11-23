@@ -1,4 +1,4 @@
-function qMRusage(ModelObj,mstr)
+function example = qMRusage(ModelObj,mstr)
 % QMRUSAGE usage and example for qMR objects methods
 %   qMRusage(obj) display the usage of all methods available for Model 'obj' 
 %
@@ -182,4 +182,9 @@ for im=1:length(mstr)
         end
         disp(' ')
     end
+end
+
+if nargin
+    example = mess((find(~cellfun(@isempty,strfind(mess,'EXAMPLE:')))+1):end);
+    example = cell2str_v3(example,sprintf('\n'));
 end
