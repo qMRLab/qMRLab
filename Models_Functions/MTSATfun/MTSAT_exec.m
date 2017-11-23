@@ -38,7 +38,7 @@ if ~isempty(data.Mask)
     if mask_voxels ~= data_voxels
         error(sprintf('\nError in multi_comp_fit_v2: Mask file dimensions do not match data image file.\n')); 
     end
-    MTsat = MTsat .* data.Mask;
+    MTsat = MTsat .* data.Mask;  
 end
 
 end
