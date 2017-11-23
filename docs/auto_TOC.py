@@ -58,7 +58,7 @@ for root, dirs, files in os.walk('../Models'):
 					cdemo = True
 					dst = './source/'+ cfile +'_batch.rst'
 					src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
-					MyHTMLParser(dst,src,cname)#################################################################
+					#embed_html.py(dst,src,cname)#################################################################
 				elif name_s.endswith(".png"):
 					#Save the path of the ".png" file 
 					fn = os.path.join(root_s, name_s)
@@ -71,14 +71,14 @@ for root, dirs, files in os.walk('../Models'):
 			ccat,
 			cdemo)
 		models.append(model_add)
-
 with io.open("./source/documentation.rst", "r") as fr:
 	with io.open("./source/documentationTemp.rst", "w") as fw:
 		in_Models = False
 		i = -1
 		for line in fr:
+			print(i)
 			if line == "Methods available\n":
-				i = 3
+				i = 1
 				in_Models = True
 				fw.write(line)
 				fw.write(u'-------------------------------------------------------------------------------\n')

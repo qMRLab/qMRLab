@@ -20,10 +20,7 @@ Methods available
 
 Diffusion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
-
-	CHARMED_batch
+CHARMED: Composite Hindered and Restricted Model for Diffusion
 
 DTI: Diffusion Tensor Imaging
 
