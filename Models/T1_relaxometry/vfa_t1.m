@@ -1,6 +1,5 @@
-classdef VFA_T1
-% VFA_T1: Compute a T1 map using Variable Flip Angle
-%<a href="matlab: figure, imshow qMT_SPGR.png ;">Pulse Sequence Diagram</a>
+classdef vfa_t1
+% vfa_t1: Compute a T1 map using Variable Flip Angle
 %
 % Assumptions:
 % 
@@ -20,7 +19,7 @@ classdef VFA_T1
 %   None
 %
 % Example of command line usage (see also <a href="matlab: showdemo VFA_T1_batch">showdemo VFA_T1_batch</a>):
-%   Model = VFA_T1;  % Create class from model 
+%   Model = vfa_t1;  % Create class from model 
 %   Model.Prot.SPGR.Mat=[4 0.025; 10 0.025; 20 0.025]; %Protocol: 3 different FAs
 %   data = struct;  % Create data structure 
 %   data.SPGR = load_nii_data('SPGR.nii.gz');
@@ -28,7 +27,7 @@ classdef VFA_T1
 %   FitResults = FitData(data,Model); %fit data
 %   FitResultsSave_mat(FitResults);
 %
-%   For more examples: <a href="matlab: qMRusage(VFA_T1);">qMRusage(VFA_T1)</a>
+%   For more examples: <a href="matlab: qMRusage(vfa_t1);">qMRusage(vfa_t1)</a>
 %
 % 
 % Author: Ian Gagnon, 2017
@@ -71,7 +70,7 @@ end
     
     methods
         
-        function obj = VFA_T1()
+        function obj = vfa_t1()
             obj.options = button2opts(obj.buttons);
         end
         
