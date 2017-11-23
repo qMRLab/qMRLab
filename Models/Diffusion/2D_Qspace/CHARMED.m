@@ -88,6 +88,7 @@ classdef CHARMED
 
 properties (Hidden=true)
 % Hidden proprties goes here.    
+    url_example_data = 'https://osf.io/u8n56/';
 end 
 
     properties
