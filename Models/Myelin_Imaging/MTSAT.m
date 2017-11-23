@@ -10,21 +10,21 @@ classdef MTSAT
 %   PDw     3D PD-weighted data
 %
 % Outputs:
-%   MTSAT   MT saturation map, T1-corrected
+%	  MTSAT   MT saturation map, T1-corrected
 %
 % Options:
 %
 % Protocol:
-%   3 vectors
-%     MT    [FA  TR  Offset] %acquisition flip angle [deg], TR [s], Offset Frequency [Hz]
+%   3 .txt files or 1 .mat file :
+%     MT    [FA  TR  Offset] %flip angle [deg], TR [s], Offset Frequency [Hz]
 %     T1    [FA  TR]  %flip angle [deg], TR [s]
 %     PD    [FA  TR]  %flip angle [deg], TR [s]
 %
 % Example of command line usage (see also <a href="matlab: showdemo MTSAT_batch">showdemo MTSAT_batch</a>):
 %   Model = MTSAT;  % Create class from model
-%   Model.Prot.PD.Mat = [6  28e-3]; % FA, TR
-%   Model.Prot.MT.Mat = [6  28e-3 1000]; % FA, TR, Offset
-%   Model.Prot.T1.Mat = [20 18e-3]; % FA, TR
+%   Model.Prot.MT.Mat = txt2mat('MT.txt');  % Load protocol
+%   Model.Prot.T1.Mat = txt2mat('T1.txt');
+%   Model.Prot.PD.Mat = txt2mat('PD.txt');
 %   data = struct;  % Create data structure
 %   data.MTw = load_nii_data('MTw.nii.gz');
 %   data.T1w = load_nii_data('T1w.nii.gz');
@@ -42,6 +42,9 @@ classdef MTSAT
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
 
     properties
         MRIinputs = {'MTw','T1w', 'PDw', 'Mask'};
@@ -49,17 +52,21 @@ classdef MTSAT
         voxelwise = 0;
 
         % Protocol
-        Prot = struct('MT',struct('Format',{{'Flip Angle' 'TR (s)' 'Offset (Hz)'}},...
+        Prot = struct('MT',struct('Format',{{'FlipAngle' 'TR (s)' 'Offset (Hz)'}},...
                                    'Mat',  [6 0.028 1000]),...
-                      'T1',struct('Format',{{'Flip Angle' 'TR'}},...
+                      'T1',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [20 0.018]),...
-                      'PD',struct('Format',{{'Flip Angle' 'TR'}},...
+                      'PD',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [6 0.028]));
         % Model options
         buttons = {};
         options= struct();
 
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
 
     methods
         function obj = MTSAT

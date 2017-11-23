@@ -87,6 +87,10 @@ classdef qMT_SIRFSE
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
+
     properties
         MRIinputs = {'MTdata','R1map','Mask'}; % input data required
         xnames = {'F','kr','R1f','R1r','Sf','Sr','M0f'}; % name of the fitted parameters
@@ -94,7 +98,7 @@ classdef qMT_SIRFSE
         
         % fitting options
         st           = [ 0.1    30      1        1     -0.9     0.6564    1  ]; % starting point
-        lb           = [ 0       0      0.05     0.05   -1       0         0 ]; % lower bound
+        lb           = [ 0.0001       0.0001      0.05     0.05   -1       0.0001         0.0001]; % lower bound
         ub           = [ 1     100     10       10       0       1         2 ]; % upper bound
         fx           = [ 0       0      0        1       0       1         0 ]; % fix parameters
         
@@ -128,6 +132,10 @@ classdef qMT_SIRFSE
         Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100};
 
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         function obj = qMT_SIRFSE

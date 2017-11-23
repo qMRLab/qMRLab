@@ -1,3 +1,10 @@
+% This function is to provide Octave compatibility for help text.
+% Octave accepts a different convention for help documentation. 
+% Until we find a through solution for Octave help, we will skip this for
+% Octave. 
+
+% This is the reason why this function will be used instead of 'help' 
+
 function varargout = qMRinfo(varargin)
 % Display Model headers (MR protocol, model detail, fitting parameters, options)
 % Example:

@@ -4,7 +4,7 @@ classdef MWF
 % Assumptions:
 %
 % Inputs:
-%   MET2data    Multi-Exponential T2 data 
+%   MET2data    Multi-Exponential T2 data
 %   (Mask)        Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
@@ -16,17 +16,17 @@ classdef MWF
 %   Cutoff          Cutoff time [ms]
 %   Sigma           Noise standard deviation. Currently not corrected for rician bias
 %   Relaxation Type
-%        'T2'       For a SE sequence 
+%        'T2'       For a SE sequence
 %       'T2*'      For a GRE sequence
 %
 % Protocol:
-%   MET2data            Vector [nbTEs x 1]:
-%     [TE1 TE2 ...]     list of echo times [ms]
+%   1 .txt files or 1 .mat file :
+%     TE    [TE1 TE2 ...] % list of echo times [ms]
 %
 % Example of command line usage (see also <a href="matlab: showdemo MWF_batch">showdemo MWF_batch</a>):
-%   Model = MWF;  % Create class from model 
+%   Model = MWF;  % Create class from model
 %   Model.Prot.Echo.Mat=[10:10:320];
-%   data = struct;  % Create data structure 
+%   data = struct;  % Create data structure
 %   data.MET2data ='MET2data.mat';  % Load data
 %   data.Mask = 'Mask.mat';
 %   FitResults = FitData(data,Model); %fit data
@@ -47,19 +47,24 @@ classdef MWF
 %     Stikov N. (2016), Quantitative magnetization transfer imaging made
 %     easy with qMTLab: Software for data simulation, analysis, and
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
+
     properties
         MRIinputs = {'MET2data','Mask'};
         xnames = {'MWF','T2MW','T2IEW'};
         voxelwise = 1;
 
         % Parameters options
-        lb           = [   0     0     40 ]; % lower bound
+        lb           = [   0.0001     0.0001     40 ]; % lower bound
         ub           = [ 100    40    200 ]; % upper bound. T2_IEW<200ms. Kolind et al. doi: 10.1002/mrm.21966.
         fx           = [   0     0      0 ]; % fix parameters
 
         % Protocol
         % You can define a default protocol here.
-        Prot  = struct('MET2data',struct('Format',{{'Echo Time (ms)'}},...
+        Prot  = struct('MET2data',struct('Format',{{'EchoTime (ms)'}},...
             'Mat', [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
             180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320]));
 
@@ -73,6 +78,12 @@ classdef MWF
 
     end
 
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
+    
+    
+    
     methods
 
         function obj = MWF
