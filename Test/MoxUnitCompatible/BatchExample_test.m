@@ -22,7 +22,7 @@ for im = 1:length(BatchList)
     mkdir(tmpDir);
     copyfile(fullfile(pathmodels{im}(1:end-1),'*'),tmpDir)
     cd(tmpDir)
-    if not(strcmp(BatchList{im},'NoiseLevel_batch')) && not(strcmp(BatchList{im},'CHARMED_batch')) && not(strcmp(BatchList{im},'NODDI_batch'))
+    if not(strcmp(BatchList{im},'NoiseLevel_batch')) && not(strcmp(BatchList{im},'CHARMED_batch')) && not(strcmp(BatchList{im},'NODDI_batch')) && not(strcmp(BatchList{im},'MTV_batch'))
     eval(BatchList{im})
     end
     if moxunit_util_platform_is_octave
