@@ -1,88 +1,102 @@
 classdef MWF
-    %-----------------------------------------------------------------------------------------------------
-    % MWF :  Myelin Water Fraction
-    %-----------------------------------------------------------------------------------------------------
-    %-------------%
-    % ASSUMPTIONS %
-    %-------------%
-    % (1) FILL
-    % (2)
-    % (3)
-    % (4)
-    %-----------------------------------------------------------------------------------------------------
-    %--------%
-    % INPUTS %
-    %--------%
-    %   1) MET2data : Multi-Exponential T2 data
-    %   2) Mask     : Binary mask to accelerate the fitting (OPTIONAL)
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OUTPUTS %
-    %---------%
-    %	* MWF   : Myelin Water Fraction
-    %	* T2MW  : Spin relaxation time for Myelin Water (MW)
-    %   * T2IEW : Spin relaxation time for Intra/Extracellular Water (IEW)
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %----------%
-    % PROTOCOL %
-    %----------%
-    %	* First   : Time of the first echo (s)
-    %	* Spacing : Time interval between each echo (s)
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OPTIONS %
-    %---------%
-    %   * Cutoff : Time cutoff (s)
-    %   * Sigma  : Noise standard deviation. Currently not corrected for
-    %              rician bias...
-    %
-    %-----------------------------------------------------------------------------------------------------
-    % Written by: Ian Gagnon, 2017
-    % Reference: FILL
-    %-----------------------------------------------------------------------------------------------------
-    
+% MWF :  Myelin Water Fraction from Multi-Exponential T2w data
+%
+% Assumptions:
+%
+% Inputs:
+%   MET2data    Multi-Exponential T2 data
+%   (Mask)        Binary mask to accelerate the fitting (OPTIONAL)
+%
+% Outputs:
+%   MWF       Myelin Wanter Fraction
+%   T2MW      Spin relaxation time for Myelin Water (MW) [ms]
+%   T2IEW     Spin relaxation time for Intra/Extracellular Water (IEW) [ms]
+%
+% Options:
+%   Cutoff          Cutoff time [ms]
+%   Sigma           Noise standard deviation. Currently not corrected for rician bias
+%   Relaxation Type
+%        'T2'       For a SE sequence
+%       'T2*'      For a GRE sequence
+%
+% Protocol:
+%   1 .txt files or 1 .mat file :
+%     TE    [TE1 TE2 ...] % list of echo times [ms]
+%
+% Example of command line usage (see also <a href="matlab: showdemo MWF_batch">showdemo MWF_batch</a>):
+%   Model = MWF;  % Create class from model
+%   Model.Prot.Echo.Mat=[10:10:320];
+%   data = struct;  % Create data structure
+%   data.MET2data ='MET2data.mat';  % Load data
+%   data.Mask = 'Mask.mat';
+%   FitResults = FitData(data,Model); %fit data
+%   FitResultsSave_mat(FitResults);
+%
+%       For more examples: <a href="matlab: qMRusage(MWF);">qMRusage(MWF)</a>
+%
+% Author: Ian Gagnon, 2017
+%
+% References:
+%   Please cite the following if you use this module:
+%     MacKay, A., Whittall, K., Adler, J., Li, D., Paty, D., Graeb, D.,
+%     1994. In vivo visualization of myelin water in brain by magnetic
+%     resonance. Magn. Reson. Med. 31, 673?677.
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
+%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
+%     Stikov N. (2016), Quantitative magnetization transfer imaging made
+%     easy with qMTLab: Software for data simulation, analysis, and
+%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
+
     properties
         MRIinputs = {'MET2data','Mask'};
         xnames = {'MWF','T2MW','T2IEW'};
         voxelwise = 1;
-        
+
         % Parameters options
-        lb           = [   0     0     40 ]; % lower bound
+        lb           = [   0.0001     0.0001     40 ]; % lower bound
         ub           = [ 100    40    200 ]; % upper bound. T2_IEW<200ms. Kolind et al. doi: 10.1002/mrm.21966.
         fx           = [   0     0      0 ]; % fix parameters
-        
+
         % Protocol
         % You can define a default protocol here.
-        Prot  = struct('MET2data',struct('Format',{{'Echo Time (ms)'}},...
+        Prot  = struct('MET2data',struct('Format',{{'EchoTime (ms)'}},...
             'Mat', [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
             180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320]));
-        
+
         % Model options
         buttons = {'Cutoff (ms)',40, 'Sigma', 20, 'Relaxation Type' {'T2', 'T2star'}};
         options = struct(); % structure filled by the buttons. Leave empty in the code
-        
+
         % Simulation Options
         Sim_Single_Voxel_Curve_buttons = {'SNR',200,'PANEL','T2 Spectrum variance',2,'Myelin',5,'IE (Intra/Extracellular Water)',20};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
-        
+
     end
+
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
+    
+    
     
     methods
-        
+
         function obj = MWF
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
-        
+
         function obj = UpdateFields(obj)
             % Update the Cutoff value in the fitting parameters
             obj.ub(2) = obj.options.Cutoffms;
-            obj.lb(3) = obj.options.Cutoffms;            
+            obj.lb(3) = obj.options.Cutoffms;
         end
-        
+
         function [Smodel, Spectrum] = equation(obj,x,Opt)
             if isnumeric(x), xbu = x; x=struct; x.MWF = xbu(1); x.T2MW = xbu(2); x.T2IEW = xbu(3); end
             if nargin < 3, Opt.T2Spectrumvariance_Myelin = 5; Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20; end
@@ -122,7 +136,7 @@ classdef MWF
             if isempty(data.Mask), data.Mask = 1; end
             [FitResults,Spectrum] = multi_comp_fit_v2(reshape(data.MET2data,[1 1 1 length(obj.Prot.MET2data.Mat)]), EchoTimes, DecayMatrix, T2, Opt, 'tissue', data.Mask);
         end
-        
+
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
@@ -145,17 +159,17 @@ classdef MWF
                 hold off
             end
         end
-        
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
         end
-        
+
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
-        
+
         function plotModel(obj, x, data, PlotSpectrum)
             if nargin<2, x = mean([obj.lb(:),obj.ub(:)],2); end
             if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
@@ -168,7 +182,7 @@ classdef MWF
             else
                 [Smodel, Spectrum] = equation(obj,x);
             end
-            
+
             if PlotSpectrum
                 % Figure with SPECTRUM
                 %----------------------- subplot 1 -----------------------%
@@ -190,7 +204,7 @@ classdef MWF
                 legend({'Simulated data','Fitted curve'},'Location','best','FontSize',12);
                 end
                 xlabel('EchoTimes (ms)');
-                ylabel('MET2 ()'); 
+                ylabel('MET2 ()');
                 %---------------------------------------------------------%
             else
                 % Figure without SPECTRUM
@@ -208,6 +222,6 @@ classdef MWF
                 ylabel('MET2 ()');
                 %---------------------------------------------------------%
             end
-        end        
+        end
     end
 end

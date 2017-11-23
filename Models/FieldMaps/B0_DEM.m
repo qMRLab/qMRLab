@@ -1,43 +1,51 @@
 classdef B0_DEM
-%-----------------------------------------------------------------------------------------------------
 % B0_DEM map :  Dual Echo Method for B0 mapping
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
-% (1) FILL
-% (2) 
-% (3) 
-% (4) 
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   1) Phase : 
-%   2) Magn  : 
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%	* B0map : B0 field map
+% Assumptions:
+%   Compute B0 map based on 2 phase images with different TEs
 %
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
-%	* deltaTE : 
+% Inputs:
+%   Phase       4D phase image, 2 different TEs in time dimension
+%   Magn        3D magnitude image
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
-%   * Magn thresh lb : 
+% Outputs:
+%	B0map       B0 field map [Hz]
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Ian Gagnon, 2017
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
+% Protocol:
+%   TimingTable
+%       deltaTE     Difference in TE between 2 images [ms]            
+%
+% Options:
+%   Magn thresh     relative threshold for the magnitude (phase is undefined in the background
+%
+% Example of command line usage (see also <a href="matlab: showdemo B0_DEM_batch">showdemo B0_DEM_batch</a>):
+%   Model = B0_DEM;  % Create class from model 
+%   Model.Prot.TimingTable.Mat = 1.92e-3; % deltaTE [s]
+%   data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
+%   data.Magn  = double(load_nii_data('Magn.nii.gz'));
+%   FitResults       = FitData(data,Model);
+%   FitResultsSave_nii(FitResults,'Phase.nii.gz'); %save nii file using Phase.nii.gz as template
+%    
+%   For more examples: <a href="matlab: qMRusage(B0_DEM);">qMRusage(B0_DEM)</a>
+%
+% Author: Ian Gagnon, 2017
+%
+% References:
+%   Please cite the following if you use this module:
+%     Maier, F., Fuentes, D., Weinberg, J.S., Hazle, J.D., Stafford, R.J.,
+%     2015. Robust phase unwrapping for MR temperature imaging using a
+%     magnitude-sorted list, multi-clustering algorithm. Magn. Reson. Med.
+%     73, 1662?1668. Schofield, M.A., Zhu, Y., 2003. Fast phase unwrapping
+%     algorithm for interferometric applications. Opt. Lett. 28, 1194?1196
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
+%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
+%     Stikov N. (2016), Quantitative magnetization transfer imaging made
+%     easy with qMTLab: Software for data simulation, analysis, and
+%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
 
     properties
         MRIinputs = {'Phase','Magn'};
@@ -47,13 +55,17 @@ classdef B0_DEM
         
         % Protocol
         % You can define a default protocol here.
-        Prot = struct('Time',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
+        Prot = struct('TimingTable',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
         
         % Model options
-        buttons = {'Magn thresh lb',0};
+        buttons = {'Magn thresh',.05};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         function obj = B0_DEM
@@ -62,9 +74,8 @@ classdef B0_DEM
         end
         
         function obj = UpdateFields(obj)
-            if obj.options.Magnthreshlb == 0
-                obj.options.Magnthreshlb = '';
-            end
+            obj.options.Magnthresh = max(obj.options.Magnthresh,0);
+            obj.options.Magnthresh = min(obj.options.Magnthresh,1);
         end
         
         function FitResult = fit(obj,data)
@@ -79,7 +90,7 @@ classdef B0_DEM
 %             B0 = load_untouch_nii('tmp/Ph_uw.nii.gz');
 %             rmdir('tmp','s')
 %             B0.img = unwrap(B0.img,[],4);
-%             FitResult.B0map = (B0.img(:,:,:,2) - B0.img(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);
+%             FitResult.B0map = (B0.img(:,:,:,2) - B0.img(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
             
             
             % 2D or 3D data ?
@@ -96,15 +107,12 @@ classdef B0_DEM
                 for it = 1:size(Magn,4)
                     Phase_uw(:,:,:,it) = sunwrap(Complex(:,:,:,it));
                 end
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.Time.Mat*2*pi); 
+                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi); 
                      
             % MATLAB "laplacianUnwrap" for 3D data
             else
-                if isempty(obj.options.Magnthreshlb)
-                    msgbox('Enter a Lower Bound relative to the Magn','Create a Mask');
-                end
-                Phase_uw = laplacianUnwrap(Phase, magn>.05);
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.Time.Mat*2*pi);                 
+                Phase_uw = laplacianUnwrap(Phase, magn>obj.options.Magnthresh);
+                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);                 
             end
             
             

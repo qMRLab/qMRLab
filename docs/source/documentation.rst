@@ -1,15 +1,12 @@
-qMRlab Introduction
+qMRLab Introduction
 ===============================================================================
 qMRLab is an open-source software for quantitative MR image analysis. The main goal
 is to provide the community with an intuitive tool for data fitting, plotting, simulation and protocol optimization for a myriad of different quantitative models.
 The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!
 
 qMRLab is a fork from the initial project `qMTLab <https://github.com/neuropoly/qMTLab>`_.
-For a quick **introduction** to qMTLab functionnalities, see the `qMTLab presentation e-poster <https://github.com/neuropoly/qMRLab/blob/master/Documentation/qMTLab-Presentation.ppsx>`_ or alternatively you can view it on `YouTube <https://youtu.be/WG0tVe-SFww>`_.
+For a quick **introduction** to qMTLab functionnalities, see the `qMTLab presentation e-poster <https://github.com/neuropoly/qMRLab/blob/master/docs/qMTLab-Presentation.ppsx>`_ or alternatively you can view it on `YouTube <https://youtu.be/WG0tVe-SFww>`_.
 
-
-Features
-===============================================================================
 Data simulator
 -------------------------------------------------------------------------------
 The simulation interface allows end users to easily simulate qMR data and evaluate how well these models perform under known parameters input, determine the most appropriate acquisition protocol and evaluate how fitting constraints impact the results.
@@ -19,16 +16,73 @@ Data fitting and visualization
 The data fitting provides a simple interface to import real-world qMR data, fit them using the selected fitting procedure, and visualize the resulting parameter maps. More advanced users could also use the command line tools used in the background by the GUI to include data fitting in their analysis scripts.
 
 Methods available
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+diffusion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+   :maxdepth: 1
+
+   CHARMED_batch
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   
+   NODDI_batch
 
-   diffusion
-   fieldmaps
-   myelin
-   noise
-   t1_mapping
+.. toctree::
+   :maxdepth: 1
+   
+   DTI_batch
+
+fieldmaps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+   :maxdepth: 1
+
+   B0_DEM_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   B1_DAM_batch
+
+Myelin or macromolecular imaging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 1
+
+   bSSFP_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   SIRFSE_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   SPGR_batch
+
+.. toctree::
+   :maxdepth: 1
+   
+   MTSAT_batch
+
+noise
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   NoiseLevel :  Noise histogram fitting within a noise mask
+
+T1 mapping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+   :maxdepth: 1
+
+   IR_batch
+
+   VFA: 
+
 
 Getting started
 ===============================================================================
@@ -59,7 +113,7 @@ If you have git available on a command-line interface (e.g. Terminal on Mac OSX,
 Zip Download Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The latest stable version of qMRLab can be downloaded freely `master <https://github.com/neuropoly/qMRLab/tarball/master>`_.
+The latest stable version of qMRLab can be downloaded freely `here <https://github.com/neuropoly/qMRLab/tarball/master>`_.
 
 * Extract the downloaded file to the directory you want to install qMRLab.
 
@@ -96,6 +150,14 @@ and run the following command::
 substituting `'Tag'` for one of the following test tags.
 
 Current Test tags: 'Unit', 'Integration', 'Demo', 'SPGR', 'bSSFP', 'SIRFSE'.
+
+Usage Guidelines
+================================================================================
+.. toctree::
+   :maxdepth: 2
+
+   gui_usage
+
 
 Citation
 ===============================================================================

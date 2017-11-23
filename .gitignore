@@ -42,17 +42,19 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-SPGR/FitResults/FitTempResults.mat
-SPGR/FitTempResults.mat
-SPGR/SimResults/SimCurveTempResults.mat
+
+# qMRLab results
 *.asv
-bSSFP/SimResults/SimCurveTempResults.mat
 Demo.mat
-SIRFSE/SimResults/SimCurveTempResults.mat
-SIRFSE/SimResults/SimRndTempResults.mat
 SPGR/Parameters/NewProtocol.mat
-SIRFSE/SimResults/SimRndTempResults.mat
-SIRFSE/SimResults/SimCurveTempResults.mat
-SIRFSE/SimResults/SimRndTempResults.mat
 Data/SPGR_demo/flipdata.m
+FitResults*
+FitTempResults*
+SimResults*
 MTSAT/interface.jpg
+
+# Files created by the documentation
+docs/build/*
+External/Faddeeva_MATLAB/Faddeeva.o
+External/Faddeeva_MATLAB/Faddeeva_erfi.mex
+External/Faddeeva_MATLAB/Faddeeva_erfi_mex.o

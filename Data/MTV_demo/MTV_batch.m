@@ -2,12 +2,18 @@
 % Run this script line by line
 % Written by: Ian Gagnon, 2017
 
+%% DESCRIPTION
+help MTV
+
 %% Load dataset
 
-% Load your parameters to create your Model
-% load('MODELPamameters.mat');
-load('MTVParameters.mat');
+[pathstr,fname,ext]=fileparts(which('MTV_batch.m'));
+cd (pathstr);
 
+% Load your parameters to create your Model
+Model = qMRloadModel('MTV.qMRLab.mat');
+% Alternatively, create an object
+% Model = MTV;
 %% Check data and fitting (Optional)
 
 %**************************************************************************
@@ -23,7 +29,7 @@ file.CSFMask = 'CSFMask.mat';
 %**************************************************************************
 % II- CHECK DATA AND FITTING
 %**************************************************************************
-qMRLab(Model,file);
+%qMRLab(Model,file);
 
 
 %% Create Quantitative Maps
@@ -66,8 +72,8 @@ FitResults.Model = Model;
 %**************************************************************************
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_mat(FitResults);
-save('Parameters.mat','Model');
+FitResultsSave_nii(FitResults);
+qMRsaveModel(Model,'qMRLab_MTVObj.mat');
 
 %% Check the results
 % Load them in qMRLab

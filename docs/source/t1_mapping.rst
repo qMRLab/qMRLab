@@ -1,8 +1,24 @@
 T1 Mapping
-======================================
+==========================================================
+T1_Mapping_label
+
+
+Inversion Recovery
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IR_lab
 
 .. toctree::
-   :maxdepth: 2
+	:maxdepth: 1
 
-   inversionrecovery
-   vfa_t1
+	IR_batch
+
+
+Variable Flip Angle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+VFA_label
+
+.. toctree::
+	:maxdepth: 1
+
+	VFA_T1_batch
+

@@ -1,52 +1,26 @@
 classdef DTI
-%-----------------------------------------------------------------------------------------------------
-% DTI :  FILL
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
-% (1) FILL
-% (2) 
-% (3) 
-% (4) 
+%DTI: Diffusion Tensor Imaging
+% Methods:
+%   plotmodel        Plot the diffusion-weighted signal as a function of Gparallel
+%                       EXAMPLE:
+%                       A = DTI;
+%                       L1 = 1; L2 = 1; L3 = 3; % um2/ms
+%                       A.plotmodel([L1 L2 L3]);
+%   doThat           Description of doThat
 %
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   FILL 
+% Example of command line usage (see also <a href="matlab: showdemo DTI_batch">showdemo DTI_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(DTI);">qMRusage(DTI)</a>
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%	FILL
-%      
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
-%   FILL
-%
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
-%   FILL
-%
-%---------%
-% METHODS %
-%---------%
-%  plotModel - Plot the diffusion-weighted signal as a function of Gparallel
-%               EXAMPLE:
-%               A = DTI;
-%               L1 = 1; L2 = 1; L3 = 3; % um2/ms
-%               A.plotModel([L1 L2 L3]);
-%  doThat - Description of doThat
-%-----------------------------------------------------------------------------------------------------
-% Written by: FILL
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
+% Author: FILL
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
 
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'};
@@ -62,7 +36,7 @@ classdef DTI
         % Protocol
         Prot = struct('DiffusionData',...
                     struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
-                            'Mat',txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'NODDI_DTI_demo', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
+                            'Mat', txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt')))); % You can define a default protocol here.
         
         % Model options
         buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
@@ -70,6 +44,10 @@ classdef DTI
         options = struct();
         
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         function obj = DTI

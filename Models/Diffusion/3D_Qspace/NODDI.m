@@ -1,66 +1,72 @@
 classdef NODDI
-%-----------------------------------------------------------------------------------------------------
-% NODDI :  Neurite Orientation Dispersion and Density Imaging
+% NODDI:   Neurite Orientation Dispersion and Density Imaging
 %          Three-compartment model for fitting multi-shell DWI
+%<a href="matlab: figure, imshow NODDI.png ;">Pulse Sequence Diagram</a>
 %           
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
-% (1) neuronal fibers (axons) are impermeable sticks (Dperp = 0)
-% (2) Presence of orientation dispersion of the fibers (Watson distribution). Note that NODDI is more robust to
-% crossing fibers that DTI  (Campbell, NIMG 2017)
-% and isotropic diffusion coefficient (parameters di and diso)
+% ASSUMPTIONS:
+%   Neuronal fibers model:
+%     geometry                          sticks (Dperp = 0)
+%     Orientation dispersion            YES (Watson distribution). Note that NODDI is more robust to
+%                                                                   crossing fibers that DTI  (Campbell, NIMG 2017)
 %
-% Intra-cellular Model:
-% (3) Fixed diffusion coefficient (parameter di)
+%     Permeability                      NO
+%   Diffusion properties:
+%     intra-axonal                      totally restricted
+%       diffusion coefficient (Dr)      fixed by default.
+%     extra-axonal                      Tortuosity model. Parallel diffusivity is equal to
+%                                         intra-diffusivity.Perpendicular diffusivity is 
+%                                         proportional to fiber density
+%       diffusion coefficient (Dh)      Constant
 %
-% Extra-cellular Model:
-% (4) Tortuosity model. Parallel diffusivity is equal to
-% intra-diffusivity.Perpendicular diffusivity is proportional to fiber
-% density
-% (5) No time dependence of the diffusion
+% Inputs:
+%   DiffusionData       4D diffusion weighted dataset
 %
+% Outputs:
+%   di                  Diffusion coefficient in the restricted compartment.
+%   ficvf               Fraction of water in the restricted compartment.
+%   fiso                Fraction of water in the isotropic compartment (e.g. CSF/Veins)
+%   fr                  Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
+%                        fr = ficvf*(1-fiso)
+%   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
+%   kappa               Orientation dispersion index                               
+%   b0                  Signal at b=0
+%   theta               angle of the fibers
+%   phi                 angle of the fibers
 %
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   DiffusionData: 4D diffusion weighted dataset
+% Protocol:
+%   Multi-shell diffusion-weighted acquisition
+%    at least 2 non-zeros bvalues
+%    at least 5 b=0 (used to compute noise standard deviation
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%       * di            : Diffusion coefficient in the restricted compartment.
-%       * ficvf         : Fraction of water in the restricted compartment.
-%       * diso (fixed)  : diffusion coefficient of the isotropic compartment (CSF)
-%       * kappa         : Orientation dispersion index                               
-%       * b0            : Signal at b=0
-%       * theta         : angle of the fibers
-%       * phi           : angle of the fibers
+%   DiffusionData       Array [NbVol x 7]
+%     Gx                Diffusion Gradient x
+%     Gy                Diffusion Gradient y
+%     Gz                Diffusion Gradient z
+%     |G| (T/m)         Diffusion gradient magnitude
+%     Delta (s)         Diffusion separation
+%     delta (s)         Diffusion duration
+%     TE (s)            Echo time
 %
-%      
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
-%   Multi-shell diffusion-weighted acquisition : 
-%       - at least 2 non-zeros bvalues)
-%       - at least 5 b=0 (used to compute noise standard deviation)
+% Options:
+%   Model               Model part of NODDI. 
+%                         Available models are:
+%                           -WatsonSHStickTortIsoVIsoDot_B0 is a four model compartment used for ex-vivo datasets
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
-%   Model Name: Model part of NODDI. WatsonSHStickTortIsoVIsoDot_B0 is a
-%   four model compartment used for ex-vivo datasets
+% Example of command line usage (see also <a href="matlab: showdemo NODDI_batch">showdemo NODDI_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(NODDI);">qMRusage(NODDI)</a>
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Tanguy Duval
-% Reference: Zhang, H., Schneider, T., Wheeler-Kingshott, C.A., Alexander, D.C., 2012. NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage 61, 1000?1016.
-%-----------------------------------------------------------------------------------------------------    
-    
+% Author: Tanguy Duval
+%
+% References:
+%   Please cite the following if you use this module:
+%     Zhang, H., Schneider, T., Wheeler-Kingshott, C.A., Alexander, D.C., 2012. NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage 61, 1000?1016.
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
+
     properties
         MRIinputs = {'DiffusionData','Mask'};
         xnames = { };
@@ -74,13 +80,17 @@ classdef NODDI
         
         % Protocol
         Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
-                                      	     'Mat',   txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'NODDI_DTI_demo', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
+                                      	     'Mat',   txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
         buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};
         options= struct();
         
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         function obj = NODDI
@@ -92,11 +102,13 @@ classdef NODDI
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             model      = MakeModel(obj.options.modelname);
             Pindex     =~ ismember(model.paramsStr,{'b0','theta','phi'});
+
             if isempty(obj.xnames) || ~isequal(obj.xnames,model.paramsStr)
                 ModelChanged=true;
             else
                 ModelChanged=false;
             end
+            
             obj.xnames = model.paramsStr;
             grid       = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
             scale      = GetScalingFactors(obj.options.modelname);
@@ -127,10 +139,7 @@ classdef NODDI
         end
         
         function [Smodel, fibredir] = equation(obj, x)
-            if isstruct(x) % if x is a structure, convert to vector
-                if isfield(x,'ODI'), x = rmfield(x,'ODI'); end
-                x = struct2cell(x); x=[x{:}];
-            end
+            x = struct2mat(x,obj.xnames); % if x is a structure, convert to vector
             
             model = MakeModel(obj.options.modelname);
             if length(x)<length(model.GD.fixedvals)-2, x(end+1) = 1; end % b0
@@ -151,7 +160,7 @@ classdef NODDI
             end
             constants.roots_cyl = BesselJ_RootsCyl(30);
             
-            Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocol(obj.Prot.DiffusionData.Mat), fibredir, constants);
+            Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocolmat(obj.Prot.DiffusionData.Mat), fibredir, constants);
             
         end
         
@@ -168,15 +177,21 @@ classdef NODDI
             model.GS.fixedvals = obj.st./scale;
             model.GD.fixedvals = obj.st./scale;
             
-            protocol = SchemeToProtocol(obj.Prot.DiffusionData.Mat);
+            protocol = SchemeToProtocolmat(obj.Prot.DiffusionData.Mat);
             
             % fit
-            [xopt] = ThreeStageFittingVoxel(double(max(eps,data.DiffusionData)), protocol, model);
-
+            [gsps, fobj_gs, mlps, fobj_ml, error_code] = ThreeStageFittingVoxel(max(eps,double(data.DiffusionData)), protocol, model);
+            xopt = mlps;
             % Outputs
             xnames = model.paramsStr;
+            if sum(strcmp(obj.xnames,'ficvf')) && sum(strcmp(obj.xnames,'fiso'))
+                xnames{end+1} = 'fr';
+                xopt(end+1)   = xopt(strcmp(obj.xnames,'ficvf'))*(1-xopt(strcmp(obj.xnames,'fiso')));
+            end
             xnames{end+1} = 'ODI';
-            xopt(end+1) = atan(xopt(find(strcmp(obj.xnames,'kappa')))*10)*2/pi;
+            xopt(end+1)   = atan2(1, xopt(strcmp(obj.xnames,'kappa'))*10)*2/pi;
+            xnames{end+1} = 'ObjectiveFun';
+            xopt(end+1)   = fobj_ml;
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),xnames,1);
         end
         

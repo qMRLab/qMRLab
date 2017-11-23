@@ -1,49 +1,46 @@
 classdef MTV
-%-----------------------------------------------------------------------------------------------------
 % MTV :  Macromolecular Tissue Volume
-%-----------------------------------------------------------------------------------------------------
-%-------------%
-% ASSUMPTIONS %
-%-------------% 
+%<a href="matlab: figure, imshow MTV.png ;">Pulse Sequence Diagram</a>
+%
+% ASSUMPTIONS: 
 % (1) FILL
 % (2) 
 % (3) 
 % (4) 
-%-----------------------------------------------------------------------------------------------------
-%--------%
-% INPUTS %
-%--------%
-%   1) SPGR    : Spoiled Gradient Echo data
-%   2) B1map   : Excitation (B1+) field map. Used to correct flip angle
-%   3) CSFMask : CerebroSpinal Fluid Mask. Used for proton density
-%                normalization (assuming ProtonCSF = 1)
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OUTPUTS %
-%---------%
-%	* T1       : Longitudinal relaxation time
-%	* CoilGain : Reception profile of the antenna (B1- map)
-%	* PD       : Proton Density
-%	* MTV      : Macromolecular Tissue Volume
+% Inputs:
+%   SPGR                Spoiled Gradient Echo data
+%   (B1map)             Excitation (B1+) field map. Used to correct flip angle
+%   (CSFMask)           CerebroSpinal Fluid Mask. Used for proton density
+%                           normalization (assuming ProtonCSF = 1)
 %
-%-----------------------------------------------------------------------------------------------------
-%----------%
-% PROTOCOL %
-%----------%
-%	* Flip Angle (degree)
-%	* TR : Repetition time of the whole sequence (s)
+% Outputs:
+%	T1                  Longitudinal relaxation time
+%	CoilGain            Reception profile of the antenna (B1- map)
+%	PD                  Proton Density
+%	MTV                 Macromolecular Tissue Volume
 %
-%-----------------------------------------------------------------------------------------------------
-%---------%
-% OPTIONS %
-%---------%
+% Protocol:
+%	Flip Angle(degree)
+%       TR              Repetition time of the whole sequence (s)
+%
+% Options:
 %   NONE
 %
-%-----------------------------------------------------------------------------------------------------
-% Written by: Ian Gagnon, 2017
-% Reference: FILL
-%-----------------------------------------------------------------------------------------------------
+% Example of command line usage (see also <a href="matlab: showdemo MTV_batch">showdemo MTV_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(MTV);">qMRusage(MTV)</a>
+%
+% Author: Ian Gagnon, 2017
+%
+% References:
+%   Please cite the following if you use this module:
+%     FILL
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
 
     properties
         MRIinputs = {'SPGR','B1map','CSFMask'};
@@ -61,6 +58,10 @@ classdef MTV
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         

@@ -17,6 +17,7 @@ else
         plot([Xmin Xmax],[SimVaryResults.(Xaxis).(Yaxis).GroundTruth SimVaryResults.(Xaxis).(Yaxis).GroundTruth], 'k-','DisplayName','GroundTruth');
     end
 end
+set(gca,'FontUnit','normalized')
 errorbar(X, Y, E, 'bo','DisplayName','Mean +/- Std');
 
 xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');

@@ -1,9 +1,13 @@
+%% DESCRIPTION
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
-quickdemo = true; % skip long processing?
+qMRinfo('CHARMED'); % Display help 
 %**************************************************************************
 %% I- LOAD MODEL
 %**************************************************************************
+%Make sure user is in the correct directory
+[pathstr,fname,ext]=fileparts(which('CHARMED_batch.m'));
+cd (pathstr);
 
 % Create Model object 
 Model = CHARMED;
@@ -48,13 +52,13 @@ FitResults = Model.fit(datavox)
 Model.plotModel(FitResults,datavox)
 
 % fit all voxels (coffee break)
-if ~quickdemo
 FitResults = FitData(data,Model,1);
 % save maps
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
+% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
+%save('CHARMEDParameters.mat','Model');
 FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');
-end
 
 %% Check the results
 % Load them in qMRLab
