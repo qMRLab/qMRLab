@@ -19,15 +19,17 @@ Model.Prot.IRData.Mat = txt2mat('TI.txt');
 %Sim_Sensitivity_Analysis_GUI(Model);
 
 % Alternatively use command line:
-help SimVary
-runs = 50; % Run simulation with additive noise 50 times
+Opt.Nofrun = 50; % Run simulation with additive noise 50 times
+Opt. SNR   = 50;
+
 %             'T1'    'rb'    'ra'
 OptTable.fx = [false   true   true];  % Vary T1...
 OptTable.lb = [100     nan      nan]; % ...between 100..
 OptTable.ub = [2000    nan      nan]; % and 2000ms
 OptTable.st = [nan    -1000     500]; % Define nominal values for rb and ra
 
-SimVaryResults = SimVary(Model, runs,OptTable);
+% SimVaryGUI
+SimVaryResults = Sim_Sensitivity_Analysis(Model, OptTable, Opt);
 figure
 SimVaryPlot(SimVaryResults,'T1','T1')
 % %             'T1'    'rb'    'ra'
