@@ -1,4 +1,4 @@
-classdef AbstractModel
+classdef (Abstract) AbstractModel
 % AbstractModel:  Properties/Methods shared between all models.
 %
 
