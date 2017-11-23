@@ -1,5 +1,5 @@
-classdef B0_DEM
-% B0_DEM map :  Dual Echo Method for B0 mapping
+classdef b0_dem
+% b0_dem map :  Dual Echo Method for B0 mapping
 %
 % Assumptions:
 %   Compute B0 map based on 2 phase images with different TEs
@@ -19,14 +19,14 @@ classdef B0_DEM
 %   Magn thresh     relative threshold for the magnitude (phase is undefined in the background
 %
 % Example of command line usage (see also <a href="matlab: showdemo B0_DEM_batch">showdemo B0_DEM_batch</a>):
-%   Model = B0_DEM;  % Create class from model 
+%   Model = b0_dem;  % Create class from model 
 %   Model.Prot.TimingTable.Mat = 1.92e-3; % deltaTE [s]
 %   data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
 %   data.Magn  = double(load_nii_data('Magn.nii.gz'));
 %   FitResults       = FitData(data,Model);
 %   FitResultsSave_nii(FitResults,'Phase.nii.gz'); %save nii file using Phase.nii.gz as template
 %    
-%   For more examples: <a href="matlab: qMRusage(B0_DEM);">qMRusage(B0_DEM)</a>
+%   For more examples: <a href="matlab: qMRusage(b0_dem);">qMRusage(b0_dem)</a>
 %
 % Author: Ian Gagnon, 2017
 %
@@ -68,7 +68,7 @@ methods (Hidden=true)
 end
     
     methods
-        function obj = B0_DEM
+        function obj = b0_dem
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

@@ -1,5 +1,5 @@
-classdef InversionRecovery
-%InversionRecovery: Compute a T1 map using Inversion Recovery data
+classdef inversion_recovery
+%inversion_recovery: Compute a T1 map using Inversion Recovery data
 %<a href="matlab: figure, imshow IR.png ;">Pulse Sequence Diagram</a>
 %
 % Assumptions:
@@ -74,7 +74,7 @@ end
     
     methods
         % -------------CONSTRUCTOR-------------------------------------------------------------------------
-        function  obj = InversionRecovery()
+        function  obj = inversion_recovery()
             obj.options = button2opts(obj.buttons);
         end
         

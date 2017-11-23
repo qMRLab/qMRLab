@@ -1,6 +1,6 @@
-classdef MTV
-% MTV :  Macromolecular Tissue Volume
-%<a href="matlab: figure, imshow MTV.png ;">Pulse Sequence Diagram</a>
+classdef mtv
+% mtv :  Macromolecular Tissue Volume
+%<a href="matlab: figure, imshow mtv.png ;">Pulse Sequence Diagram</a>
 %
 % ASSUMPTIONS: 
 % (1) FILL
@@ -27,8 +27,8 @@ classdef MTV
 % Options:
 %   NONE
 %
-% Example of command line usage (see also <a href="matlab: showdemo MTV_batch">showdemo MTV_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(MTV);">qMRusage(MTV)</a>
+% Example of command line usage (see also <a href="matlab: showdemo mtv_batch">showdemo mtv_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(mtv);">qMRusage(mtv)</a>
 %
 % Author: Ian Gagnon, 2017
 %
@@ -65,7 +65,7 @@ end
     
     methods
         
-        function obj = MTV
+        function obj = mtv
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

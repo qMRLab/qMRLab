@@ -1,5 +1,5 @@
-classdef DTI
-%DTI: Diffusion Tensor Imaging
+classdef dti
+%dti: Diffusion Tensor Imaging
 % Methods:
 %   plotmodel        Plot the diffusion-weighted signal as a function of Gparallel
 %                       EXAMPLE:
@@ -8,8 +8,8 @@ classdef DTI
 %                       A.plotmodel([L1 L2 L3]);
 %   doThat           Description of doThat
 %
-% Example of command line usage (see also <a href="matlab: showdemo DTI_batch">showdemo DTI_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(DTI);">qMRusage(DTI)</a>
+% Example of command line usage (see also <a href="matlab: showdemo dti_batch">showdemo dti_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(dti);">qMRusage(dti)</a>
 %
 % Author: FILL
 % References:
@@ -50,7 +50,7 @@ methods (Hidden=true)
 end
     
     methods
-        function obj = DTI
+        function obj = dti
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

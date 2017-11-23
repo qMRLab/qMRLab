@@ -1,5 +1,5 @@
-classdef MWF
-% MWF :  Myelin Water Fraction from Multi-Exponential T2w data
+classdef mwf
+% mwf :  Myelin Water Fraction from Multi-Exponential T2w data
 %
 % Assumptions:
 %
@@ -32,7 +32,7 @@ classdef MWF
 %   FitResults = FitData(data,Model); %fit data
 %   FitResultsSave_mat(FitResults);
 %
-%       For more examples: <a href="matlab: qMRusage(MWF);">qMRusage(MWF)</a>
+%       For more examples: <a href="matlab: qMRusage(mwf);">qMRusage(mwf)</a>
 %
 % Author: Ian Gagnon, 2017
 %
@@ -86,7 +86,7 @@ end
     
     methods
 
-        function obj = MWF
+        function obj = mwf
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

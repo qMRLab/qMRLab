@@ -1,5 +1,5 @@
-classdef B1_DAM
-% B1_DAM map:  Double-Angle Method for B1+ mapping
+classdef b1_dam
+% b1_dam map:  Double-Angle Method for B1+ mapping
 %
 % Assumptions:
 %   Compute a B1map using 2 SPGR images with 2 different flip angles (60, 120deg)
@@ -18,13 +18,13 @@ classdef B1_DAM
 %   NONE
 %
 % Example of command line usage (see also <a href="matlab: showdemo B1_DAM_batch">showdemo B1_DAM_batch</a>):
-%   Model = B1_DEM;% Create class from model 
+%   Model = b1_dam;% Create class from model 
 %   data.SF60 = double(load_nii_data('SF60.nii.gz')); %load data
 %   data.SF120  = double(load_nii_data('SF120.nii.gz'));
 %   FitResults       = FitData(data,Model); % fit data
 %   FitResultsSave_nii(FitResults,'SF60.nii.gz'); %save nii file using SF60.nii.gz as template
 %
-%   For more examples: <a href="matlab: qMRusage(B1_DAM);">qMRusage(B1_DAM)</a>
+%   For more examples: <a href="matlab: qMRusage(b1_dam);">qMRusage(b1_dam)</a>
 %
 % Author: Ian Gagnon, 2017
 %
@@ -64,7 +64,7 @@ methods (Hidden=true)
 end
     
     methods
-        function obj = B1_DAM
+        function obj = b1_dam
             obj.options = button2opts(obj.buttons);
         end
         

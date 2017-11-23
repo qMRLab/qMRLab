@@ -1,4 +1,4 @@
-classdef MTSAT
+classdef mt_sat
 % MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1
 %
 % Assumptions:
@@ -69,13 +69,13 @@ methods (Hidden=true)
 end
 
     methods
-        function obj = MTSAT
+        function obj = mt_sat
             obj.options = button2opts(obj.buttons);
         end
 
         function FitResult = fit(obj,data)
             MTparams = obj.Prot.MT.Mat;
-
+% % 
             PDparams = obj.Prot.PD.Mat;
 
             T1params = obj.Prot.T1.Mat;
