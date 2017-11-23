@@ -7,9 +7,15 @@ classdef (Abstract) AbstractModel
 %
 
 properties
+    version
 end
 
 methods
+    % Constructor
+    function obj = AbstractModel()
+        obj.version = qMRLabVer();
+    end
+    
     function saveObj(obj, fileName)
         try
             save(fileName, 'obj', '-mat');

@@ -38,7 +38,11 @@ classdef (TestTags = {'Unit'}) AbstractModel_Test < matlab.unittest.TestCase
             
             %% Test
             assertEqual(testCase, originalObject, loadedObject);
-        end     
+        end
+        
+        function test_initialized_object_has_correct_version_val(testCase)
+            assertEqual(testCase, testCase.modelObject.version, qMRLabVer);
+        end
     end
     
 end
