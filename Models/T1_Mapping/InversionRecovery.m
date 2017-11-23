@@ -51,7 +51,7 @@ end
         
         % fitting options
         st           = [  600    -1000      500 ]; % starting point
-        lb           = [    0   -10000        0 ]; % lower bound
+        lb           = [    0.0001   -10000        0.0001 ]; % lower bound
         ub           = [ 5000        0    10000 ]; % upper bound
         fx           = [    0        0        0 ]; % fix parameters
         

@@ -119,7 +119,7 @@ end
 
         % fitting options
         st           = [ 0.16     30     1        1       0.03     1.3e-05 ]; % starting point
-        lb           = [ 0         0     0.05     0.05    0.003    3e-6    ]; % lower bound
+        lb           = [ 0.0001         0.0001     0.05     0.05    0.003    3e-6    ]; % lower bound
         ub           = [ 0.5     100     5        5       0.5      5.0e-05 ]; % upper bound
         fx           = [ 0         0     1        1       0        0       ]; % fix parameters
 

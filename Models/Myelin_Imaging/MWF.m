@@ -58,7 +58,7 @@ end
         voxelwise = 1;
 
         % Parameters options
-        lb           = [   0     0     40 ]; % lower bound
+        lb           = [   0.0001     0.0001     40 ]; % lower bound
         ub           = [ 100    40    200 ]; % upper bound. T2_IEW<200ms. Kolind et al. doi: 10.1002/mrm.21966.
         fx           = [   0     0      0 ]; % fix parameters
 
