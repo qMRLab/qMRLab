@@ -46,6 +46,9 @@ classdef VFA_T1
 %     easy with qMTLab: Software for data simulation, analysis, and
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
+properties (Hidden=true)
+% Hidden proprties goes here.    
+end
 
     properties
         MRIinputs = {'SPGR','B1map'};
@@ -53,7 +56,7 @@ classdef VFA_T1
         voxelwise = 0;
         
         % Protocol
-        Prot  = struct('SPGR',struct('Format',{{'Flip Angle' 'TR'}},...
+        Prot  = struct('SPGR',struct('Format',{{'FlipAngle' 'TR'}},...
                                          'Mat', [4 0.025; 10 0.025; 20 0.025])); % You can define a default protocol here.
         
         % Model options
@@ -61,6 +64,10 @@ classdef VFA_T1
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
     end
+    
+methods (Hidden=true)
+% Hidden methods goes here.    
+end
     
     methods
         
