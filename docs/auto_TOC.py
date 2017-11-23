@@ -23,7 +23,7 @@ class Model(object):
 category_list = []
 models = []
 
-for root, dirs, files in os.walk('../../Models'):
+for root, dirs, files in os.walk('../Models'):
 	#Check the models that are there
 	for name in files:
 		name_pos = name.find(".m")
@@ -53,7 +53,7 @@ for root, dirs, files in os.walk('../../Models'):
 
 		cdemo = False
 		#Check for a .m file in demo
-		for root_s, dirs_s, files_s in os.walk('../../Data'):
+		for root_s, dirs_s, files_s in os.walk('../Data'):
 			for name_s in files_s:
 				name_pos = name_s.find("_batch")
 				if name_s.endswith(".html") and cfile == name_s[:name_pos]:
@@ -73,8 +73,8 @@ for root, dirs, files in os.walk('../../Models'):
 			ccat,
 			cdemo)
 		models.append(model_add)
-with io.open("../source/documentation.rst", "r") as fr:
-	with io.open("../source/documentationTemp.rst", "w") as fw:
+with io.open("./source/documentation.rst", "r") as fr:
+	with io.open("./source/documentationTemp.rst", "w") as fw:
 		in_Models = False
 		i = -1
 		for line in fr:
@@ -105,10 +105,10 @@ with io.open("../source/documentation.rst", "r") as fr:
 				fw.write(line)
 fr.close()
 fw.close()
-with io.open("../source/documentationTemp.rst", "r") as fr:
-	with io.open("../source/documentation.rst", "w") as fw:
+with io.open("./source/documentationTemp.rst", "r") as fr:
+	with io.open("./source/documentation.rst", "w") as fw:
 		for line in fr:
 			fw.write(line)
 fr.close()
 fw.close()
-os.remove("../source/documentationTemp.rst")
+os.remove("./source/documentationTemp.rst")

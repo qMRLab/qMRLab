@@ -1,20 +1,10 @@
-# Minimal makefile for Sphinx documentation
-#
+help: generated_rsts
+	python auto_TOC.py
+	python -msphinx source build
 
-# You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = qMRLab
-SOURCEDIR     = source
-BUILDDIR      = build
+generated_rsts: source/CHARMED_batch.rst
 
-# Put it first so that "make" without argument is like "make help".
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+source/CHARMED_batch.rst: ../Data/CHARMED_demo/html/CHARMED_batch.html embed_html.py auto_TOC.py
+	python embed_html.py $@ $< "CHARMED *Composite Hindered and Restricted Model for Diffusion*"
 
-.PHONY: help Makefile
-
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+.PHONY: help Makefile generated_rsts

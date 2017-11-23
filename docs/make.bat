@@ -1,3 +1,5 @@
+python auto_TOC.py
+
 @ECHO OFF
 
 pushd %~dp0
