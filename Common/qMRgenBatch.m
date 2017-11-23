@@ -291,7 +291,8 @@ if flg
         if strcmp(format,'nifti')
             curDat = double(load_nii_data([dir sep readList{i}]));
             eq{n} = ['% ' readList{i} ' contains ' '[' num2str(size(curDat)) '] data.'];
-            eq{n+1} = ['data.' req{i} '=' 'double(load_nii_data(' '''' dir sep readList{i} '''' '));'];
+            rd = readList{i};
+            eq{n+1} = ['data.' rd(1:end-7) '=' 'double(load_nii_data(' '''' dir sep readList{i} '''' '));'];
             n = n+2;
         elseif strcmp(format,'mat')
             load([dir sep readList{i}]);
