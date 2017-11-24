@@ -50,13 +50,13 @@ properties (Hidden=true)
 end
 
     properties
-        MRIinputs = {'SPGR','B1map'};
+        MRIinputs = {'VFAData','B1map'};
         xnames = {};
         voxelwise = 0;
         
         % Protocol
         Prot  = struct('SPGR',struct('Format',{{'FlipAngle' 'TR'}},...
-                                         'Mat', [4 0.025; 10 0.025; 20 0.025])); % You can define a default protocol here.
+                                         'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
         
         % Model options
         buttons = {};
@@ -78,7 +78,7 @@ end
             % T1 and M0
             flipAngles = (obj.Prot.SPGR.Mat(:,1))';
             TR = obj.Prot.SPGR.Mat(1,2);
-            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.SPGR(:,:,:,:)), flipAngles(1:length(flipAngles)), TR, data.B1map);
+            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData(:,:,:,:)), flipAngles(1:length(flipAngles)), TR, data.B1map);
        
         end
         
