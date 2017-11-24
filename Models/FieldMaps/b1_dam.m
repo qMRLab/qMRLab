@@ -17,7 +17,7 @@ classdef b1_dam
 % Options
 %   NONE
 %
-% Example of command line usage (see also <a href="matlab: showdemo B1_DAM_batch">showdemo B1_DAM_batch</a>):
+% Example of command line usage (see also <a href="matlab: showdemo b1_dam_batch">showdemo b1_dam_batch</a>):
 %   Model = b1_dam;% Create class from model 
 %   data.SF60 = double(load_nii_data('SF60.nii.gz')); %load data
 %   data.SF120  = double(load_nii_data('SF120.nii.gz'));

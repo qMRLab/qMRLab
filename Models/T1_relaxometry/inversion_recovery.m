@@ -1,6 +1,5 @@
 classdef inversion_recovery
 %inversion_recovery: Compute a T1 map using Inversion Recovery data
-%<a href="matlab: figure, imshow IR.png ;">Pulse Sequence Diagram</a>
 %
 % Assumptions:
 % (1)Gold standard for T1 mapping

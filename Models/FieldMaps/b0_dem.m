@@ -18,7 +18,7 @@ classdef b0_dem
 % Options:
 %   Magn thresh     relative threshold for the magnitude (phase is undefined in the background
 %
-% Example of command line usage (see also <a href="matlab: showdemo B0_DEM_batch">showdemo B0_DEM_batch</a>):
+% Example of command line usage (see also <a href="matlab: showdemo b0_dem_batch">showdemo b0_dem_batch</a>):
 %   Model = b0_dem;  % Create class from model 
 %   Model.Prot.TimingTable.Mat = 1.92e-3; % deltaTE [s]
 %   data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE

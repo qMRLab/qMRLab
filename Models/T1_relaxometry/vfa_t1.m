@@ -18,7 +18,7 @@ classdef vfa_t1
 % Options:
 %   None
 %
-% Example of command line usage (see also <a href="matlab: showdemo VFA_T1_batch">showdemo VFA_T1_batch</a>):
+% Example of command line usage (see also <a href="matlab: showdemo vfa_t1_batch">showdemo vfa_t1_batch</a>):
 %   Model = vfa_t1;  % Create class from model 
 %   Model.Prot.SPGR.Mat=[4 0.025; 10 0.025; 20 0.025]; %Protocol: 3 different FAs
 %   data = struct;  % Create data structure 
