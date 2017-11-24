@@ -130,6 +130,12 @@ if length(varargin)>1
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
+% View first file
+if length(varargin)>1
+    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj.ViewBtn_callback(butobj,[],[],handles)
+end
+
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
