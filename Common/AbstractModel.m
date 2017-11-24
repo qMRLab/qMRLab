@@ -18,7 +18,7 @@ methods
     
     function saveObj(obj, fileName)
         try            
-            objectProperties = properties(obj);
+            objectProperties = fieldnames(obj);
             
             %Loop through all object properties
             for propIndex = 1:length(objectProperties)
@@ -48,7 +48,7 @@ methods
             end
             
             
-            objectProperties = properties(obj);
+            objectProperties = fieldnames(obj);
 
             %Loop through all object properties
             for propIndex = 1:length(objectProperties)
