@@ -1,8 +1,18 @@
+<<<<<<< HEAD
+%Place in the right folder to run
+cdmfile('MTSAT_batch.m');
+
+%% DESCRIPTION
+help MTSAT
+
+% Batch to process MT_SAT
+% Run this script line by line
+=======
 % Command Line Interface (CLI) is well-suited for automatization 
 % purposes and Octave. 
 
 % Please execute this m-file section by section to get familiar with batch
-% processing for vfa_t1 on CLI.
+% processing for mt_sat on CLI.
 
 % This m-file has been automatically generated. 
 
@@ -12,15 +22,16 @@
 %% AUXILIARY SECTION - (OPTIONAL) -----------------------------------------
 % -------------------------------------------------------------------------
 
-qMRinfo('vfa_t1'); % Display help 
-[pathstr,fname,ext]=fileparts(which('vfa_t1_batch.m'));
+qMRinfo('mt_sat'); % Display help 
+[pathstr,fname,ext]=fileparts(which('mt_sat_batch.m'));
 cd (pathstr);
+>>>>>>> 2ee6d2dbaf24f87e1f346d1412f3361c6f9206e2
 
 %% STEP|CREATE MODEL OBJECT -----------------------------------------------
 %  (1) |- This section is a one-liner.
 % -------------------------------------------------------------------------
 
-Model = vfa_t1; % Create model object
+Model = mt_sat; % Create model object
 
 %% STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------
 %  (2)	|- This section will pop-up the options GUI. (MATLAB Only)
@@ -35,38 +46,51 @@ end
 
 
 %% STEP |LOAD PROTOCOL ----------------------------------------------------
-%  (3)	|- Respective command lines appear if required by vfa_t1. 
+%  (3)	|- Respective command lines appear if required by mt_sat. 
 % -------------------------------------------------------------------------
 
-% vfa_t1 object needs 1 protocol field(s) to be assigned:
+% mt_sat object needs 3 protocol field(s) to be assigned:
  
 
-% SPGR
+% MT
+% T1
+% PD
 % --------------
-% FlipAngle is a vector of [2X1]
-FlipAngle = [3.0000; 20.0000];
-% TR is a vector of [2X1]
-TR = [0.0150; 0.0150];
-Model.Prot.SPGR.Mat = [ FlipAngle TR];
+FlipAngle = 6;
+TR  = 0.028;
+Offset  = 1000;
+Model.Prot.MT.Mat = [ FlipAngle TR  Offset ];
+% -----------------------------------------
+FlipAngle = 20;
+TR = 0.018;
+Model.Prot.T1.Mat = [ FlipAngle TR];
+% -----------------------------------------
+FlipAngle = 6;
+TR = 0.028;
+Model.Prot.PD.Mat = [ FlipAngle TR];
 % -----------------------------------------
 
 
 
 %% STEP |LOAD EXPERIMENTAL DATA -------------------------------------------
-%  (4)	|- Respective command lines appear if required by vfa_t1. 
+%  (4)	|- Respective command lines appear if required by mt_sat. 
 % -------------------------------------------------------------------------
-% vfa_t1 object needs 2 data input(s) to be assigned:
+% mt_sat object needs 4 data input(s) to be assigned:
  
 
-% VFAData
-% B1map
+% MTw
+% T1w
+% PDw
+% Mask
 % --------------
 
 data = struct();
-% B1map.nii.gz contains [128  128] data.
-data.B1map=double(load_nii_data('B1map.nii.gz'));
-% VFAData.nii.gz contains [128  128    1    2] data.
-data.VFAData=double(load_nii_data('VFAData.nii.gz'));
+% MTw.nii.gz contains [128  128   96] data.
+data.MTw=double(load_nii_data('MTw.nii.gz'));
+% PDw.nii.gz contains [128  128   96] data.
+data.PDw=double(load_nii_data('PDw.nii.gz'));
+% T1w.nii.gz contains [128  128   96] data.
+data.T1w=double(load_nii_data('T1w.nii.gz'));
  
 
 %% STEP |FIT DATASET ------------------------------------------------------
@@ -111,11 +135,11 @@ imagesc(outputIm); colorbar(); title(FitResults.fields{1});
 
 if moxunit_util_platform_is_octave % ---> If Octave 
 
-save -mat7-binary 'vfa_t1_FitResultsOctave.mat' 'FitResults';
+save -mat7-binary 'mt_sat_FitResultsOctave.mat' 'FitResults';
 
 else % ---> If MATLAB 
 
-qMRsaveModel(Model,'vfa_t1.qMRLab.mat'); 
+qMRsaveModel(Model,'mt_sat.qMRLab.mat'); 
 
 end
 

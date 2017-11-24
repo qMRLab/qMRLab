@@ -2,7 +2,7 @@
 % purposes and Octave. 
 
 % Please execute this m-file section by section to get familiar with batch
-% processing for vfa_t1 on CLI.
+% processing for noise_level on CLI.
 
 % This m-file has been automatically generated. 
 
@@ -12,15 +12,15 @@
 %% AUXILIARY SECTION - (OPTIONAL) -----------------------------------------
 % -------------------------------------------------------------------------
 
-qMRinfo('vfa_t1'); % Display help 
-[pathstr,fname,ext]=fileparts(which('vfa_t1_batch.m'));
+qMRinfo('noise_level'); % Display help 
+[pathstr,fname,ext]=fileparts(which('noise_level_batch.m'));
 cd (pathstr);
 
 %% STEP|CREATE MODEL OBJECT -----------------------------------------------
 %  (1) |- This section is a one-liner.
 % -------------------------------------------------------------------------
 
-Model = vfa_t1; % Create model object
+Model = noise_level; % Create model object
 
 %% STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------
 %  (2)	|- This section will pop-up the options GUI. (MATLAB Only)
@@ -35,38 +35,31 @@ end
 
 
 %% STEP |LOAD PROTOCOL ----------------------------------------------------
-%  (3)	|- Respective command lines appear if required by vfa_t1. 
+%  (3)	|- Respective command lines appear if required by noise_level. 
 % -------------------------------------------------------------------------
 
-% vfa_t1 object needs 1 protocol field(s) to be assigned:
+% noise_level object needs 0 protocol field(s) to be assigned:
  
 
-% SPGR
 % --------------
-% FlipAngle is a vector of [2X1]
-FlipAngle = [3.0000; 20.0000];
-% TR is a vector of [2X1]
-TR = [0.0150; 0.0150];
-Model.Prot.SPGR.Mat = [ FlipAngle TR];
-% -----------------------------------------
 
 
 
 %% STEP |LOAD EXPERIMENTAL DATA -------------------------------------------
-%  (4)	|- Respective command lines appear if required by vfa_t1. 
+%  (4)	|- Respective command lines appear if required by noise_level. 
 % -------------------------------------------------------------------------
-% vfa_t1 object needs 2 data input(s) to be assigned:
+% noise_level object needs 2 data input(s) to be assigned:
  
 
-% VFAData
-% B1map
+% Data4D
+% NoiseMask
 % --------------
 
 data = struct();
-% B1map.nii.gz contains [128  128] data.
-data.B1map=double(load_nii_data('B1map.nii.gz'));
-% VFAData.nii.gz contains [128  128    1    2] data.
-data.VFAData=double(load_nii_data('VFAData.nii.gz'));
+% Data4D.nii.gz contains [70   70    4  197] data.
+data.Data4D=double(load_nii_data('Data4D.nii.gz'));
+% NoiseMask.nii.gz contains [70  70   4] data.
+data.NoiseMask=double(load_nii_data('NoiseMask.nii.gz'));
  
 
 %% STEP |FIT DATASET ------------------------------------------------------
@@ -111,11 +104,11 @@ imagesc(outputIm); colorbar(); title(FitResults.fields{1});
 
 if moxunit_util_platform_is_octave % ---> If Octave 
 
-save -mat7-binary 'vfa_t1_FitResultsOctave.mat' 'FitResults';
+save -mat7-binary 'noise_level_FitResultsOctave.mat' 'FitResults';
 
 else % ---> If MATLAB 
 
-qMRsaveModel(Model,'vfa_t1.qMRLab.mat'); 
+qMRsaveModel(Model,'noise_level.qMRLab.mat'); 
 
 end
 
