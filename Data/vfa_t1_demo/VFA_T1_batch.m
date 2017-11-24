@@ -2,7 +2,7 @@
 % purposes and Octave. 
 
 % Please execute this m-file section by section to get familiar with batch
-% processing for VFA_T1 on CLI.
+% processing for vfa_t1 on CLI.
 
 % This m-file has been automatically generated. 
 
@@ -12,15 +12,15 @@
 %% AUXILIARY SECTION - (OPTIONAL) -----------------------------------------
 % -------------------------------------------------------------------------
 
-qMRinfo('VFA_T1'); % Display help 
-[pathstr,fname,ext]=fileparts(which('VFA_T1_batch.m'));
+qMRinfo('vfa_t1'); % Display help 
+[pathstr,fname,ext]=fileparts(which('vfa_t1_batch.m'));
 cd (pathstr);
 
 %% STEP|CREATE MODEL OBJECT -----------------------------------------------
 %  (1) |- This section is a one-liner.
 % -------------------------------------------------------------------------
 
-Model = VFA_T1; % Create model object
+Model = vfa_t1; % Create model object
 
 %% STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------
 %  (2)	|- This section will pop-up the options GUI. (MATLAB Only)
@@ -35,10 +35,10 @@ end
 
 
 %% STEP |LOAD PROTOCOL ----------------------------------------------------
-%  (3)	|- Respective command lines appear if required by VFA_T1. 
+%  (3)	|- Respective command lines appear if required by vfa_t1. 
 % -------------------------------------------------------------------------
 
-% VFA_T1 object needs 1 protocol field(s) to be assigned:
+% vfa_t1 object needs 1 protocol field(s) to be assigned:
  
 
 % SPGR
@@ -53,9 +53,9 @@ Model.Prot.SPGR.Mat = [ FlipAngle TR];
 
 
 %% STEP |LOAD EXPERIMENTAL DATA -------------------------------------------
-%  (4)	|- Respective command lines appear if required by VFA_T1. 
+%  (4)	|- Respective command lines appear if required by vfa_t1. 
 % -------------------------------------------------------------------------
-% VFA_T1 object needs 2 data input(s) to be assigned:
+% vfa_t1 object needs 2 data input(s) to be assigned:
  
 
 % VFAData
@@ -95,7 +95,7 @@ voxel           = [row, col, 1]; % Please adapt 3rd index if 3D.
 figure();
 FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
 dataVox         = extractvoxel(data,voxel);
-Model.plotModel(FitResultsVox,dataVox);
+Model.plotModel(FitResultsVox,dataVox)
 %}
 
 % Show output map ---> 
@@ -111,11 +111,11 @@ imagesc(outputIm); colorbar(); title(FitResults.fields{1});
 
 if moxunit_util_platform_is_octave % ---> If Octave 
 
-save -mat7-binary 'VFA_T1_FitResultsOctave.mat' 'FitResults';
+save -mat7-binary 'vfa_t1_FitResultsOctave.mat' 'FitResults';
 
 else % ---> If MATLAB 
 
-qMRsaveModel(Model,'VFA_T1.qMRLab.mat'); 
+qMRsaveModel(Model,'vfa_t1.qMRLab.mat'); 
 
 end
 
