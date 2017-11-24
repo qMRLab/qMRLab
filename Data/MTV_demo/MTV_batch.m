@@ -10,7 +10,7 @@ help MTV
 
 %% Load dataset
 % Load your parameters to create your Model
-Model = qMRloadModel('MTV.qMRLab.mat');
+Model = MTV;
 % Alternatively, create an object
 % Model = MTV;
 %% Check data and fitting (Optional)
@@ -72,7 +72,7 @@ FitResults.Model = Model;
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults);
-qMRsaveModel(Model,'qMRLab_MTVObj.mat');
+save('MTVObj.qMRLab.mat','Model');
 
 %% Check the results
 % Load them in qMRLab

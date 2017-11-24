@@ -1,40 +1,127 @@
-warning('off','all');
-%% DESCRIPTION
-help VFA_T1
-% Batch to process Variable Flip Angle data without qMRLab GUI (graphical user interface)
-% Run this script line by line
+% Command Line Interface (CLI) is well-suited for automatization 
+% purposes and Octave. 
 
-%**************************************************************************
-%% I- LOAD DATASET
-%**************************************************************************
+% Please execute this m-file section by section to get familiar with batch
+% processing for VFA_T1 on CLI.
+
+% This m-file has been automatically generated. 
+
+% Written by: Agah Karakuzu, 2017
+% =========================================================================
+
+%% AUXILIARY SECTION - (OPTIONAL) -----------------------------------------
+% -------------------------------------------------------------------------
+
+qMRinfo('VFA_T1'); % Display help 
 [pathstr,fname,ext]=fileparts(which('VFA_T1_batch.m'));
 cd (pathstr);
 
-% Create Model object
-Model = VFA_T1;
-% Load VFA Protocol  
-%   Array [nbFA x 2]: [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
-Model.Prot.SPGR.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
+%% STEP|CREATE MODEL OBJECT -----------------------------------------------
+%  (1) |- This section is a one-liner.
+% -------------------------------------------------------------------------
 
-%**************************************************************************
-%% II - MRI Data Fitting
-%**************************************************************************
-% data required:
-disp(Model.MRIinputs)
-% load data
-data = struct;
-data.SPGR = load_nii_data('VFA_2FA.nii.gz');
-data.B1map = load_nii_data('B1.nii.gz');
+Model = VFA_T1; % Create model object
 
-FitResults = FitData(data,Model); %fit data
-%   FitResultsSave_mat(FitResults);
+%% STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------
+%  (2)	|- This section will pop-up the options GUI. (MATLAB Only)
+%		|- Octave is not GUI compatible. 
+% -------------------------------------------------------------------------
 
-%**************************************************************************
-%% IV- SAVE
-%**************************************************************************
-% .MAT file : FitResultsSave_mat(FitResults,folder);
-% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
-FitResultsSave_nii(FitResults,'VFA_2FA.nii.gz'); % use header from SPGR.nii.gz
+if not(moxunit_util_platform_is_octave) % ---> If MATLAB
+Custom_OptionsGUI(Model);
+Model = getappdata(0,'Model');
+end
 
-%% Check the results
-% Load them in qMRLab
+
+
+%% STEP |LOAD PROTOCOL ----------------------------------------------------
+%  (3)	|- Respective command lines appear if required by VFA_T1. 
+% -------------------------------------------------------------------------
+
+% VFA_T1 object needs 1 protocol field(s) to be assigned:
+ 
+
+% SPGR
+% --------------
+% FlipAngle is a vector of [2X1]
+FlipAngle = [3.0000; 20.0000];
+% TR is a vector of [2X1]
+TR = [0.0150; 0.0150];
+Model.Prot.SPGR.Mat = [ FlipAngle TR];
+% -----------------------------------------
+
+
+
+%% STEP |LOAD EXPERIMENTAL DATA -------------------------------------------
+%  (4)	|- Respective command lines appear if required by VFA_T1. 
+% -------------------------------------------------------------------------
+% VFA_T1 object needs 2 data input(s) to be assigned:
+ 
+
+% VFAData
+% B1map
+% --------------
+
+data = struct();
+% B1map.nii.gz contains [128  128] data.
+data.B1map=double(load_nii_data('B1map.nii.gz'));
+% VFAData.nii.gz contains [128  128    1    2] data.
+data.VFAData=double(load_nii_data('VFAData.nii.gz'));
+ 
+
+%% STEP |FIT DATASET ------------------------------------------------------
+%  (5)  |- This section will fit data. 
+% -------------------------------------------------------------------------
+
+FitResults = FitData(data,Model,0);
+
+FitResults.Model = Model; % qMRLab output.
+
+%% STEP |CHECK FITTING RESULT IN A VOXEL - (OPTIONAL) ---------------------
+%   (6)	|- To observe outputs, please execute this section.
+% -------------------------------------------------------------------------
+
+% Read output  ---> 
+%{
+outputIm = FitResults.(FitResults.fields{1});
+row = round(size(outputIm,1)/2);
+col = round(size(outputIm,2)/2);
+voxel           = [row, col, 1]; % Please adapt 3rd index if 3D. 
+%}
+
+% Show plot  ---> 
+% Warning: This part may not be available for all models.
+%{
+figure();
+FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
+dataVox         = extractvoxel(data,voxel);
+Model.plotModel(FitResultsVox,dataVox);
+%}
+
+% Show output map ---> 
+%{ 
+figure();
+imagesc(outputIm); colorbar(); title(FitResults.fields{1});
+%}
+
+
+%% STEP |SAVE -------------------------------------------------------------
+%  	(7) |- Save your outputs. 
+% -------------------------------------------------------------------------
+
+if moxunit_util_platform_is_octave % ---> If Octave 
+
+save -mat7-binary 'VFA_T1_FitResultsOctave.mat' 'FitResults';
+
+else % ---> If MATLAB 
+
+qMRsaveModel(Model,'VFA_T1.qMRLab.mat'); 
+
+end
+
+% You can save outputs in Nifti format using FitResultSave_nii function:
+% Plase see qMRinfo('FitResultsSave_nii')
+
+
+
+
