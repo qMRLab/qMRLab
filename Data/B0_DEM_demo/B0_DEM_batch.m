@@ -9,7 +9,7 @@
 % create your Model
   Model = B0_DEM;
 % Alternatively, load your parameters
-%  Model = qMRloadModel('qMRLab_B0_DEMObj.mat');
+%  load('qMRLab_B0_DEMObj.mat');
 %% Check data and fitting (Optional)
 
 %**************************************************************************
@@ -67,4 +67,4 @@ imagesc3D(FitResults.B0map,[-100 100]); colormap jet; axis off; colorbar
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'Phase.nii.gz');
 % 
-% qMRsaveModel(Model, 'qMRLab_B0_DEMObj.mat'); % save the model object 
+% save('qMRLab_B0_DEMObj.mat','Model'); % save the model object 
