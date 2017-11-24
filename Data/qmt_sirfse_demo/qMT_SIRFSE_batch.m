@@ -2,7 +2,7 @@
 % purposes and Octave. 
 
 % Please execute this m-file section by section to get familiar with batch
-% processing for qmt_spgr on CLI.
+% processing for qmt_sirfse on CLI.
 
 % This m-file has been automatically generated. 
 
@@ -12,15 +12,15 @@
 %% AUXILIARY SECTION - (OPTIONAL) -----------------------------------------
 % -------------------------------------------------------------------------
 
-qMRinfo('qmt_spgr'); % Display help 
-[pathstr,fname,ext]=fileparts(which('qmt_spgr_batch.m'));
+qMRinfo('qmt_sirfse'); % Display help 
+[pathstr,fname,ext]=fileparts(which('qmt_sirfse_batch.m'));
 cd (pathstr);
 
 %% STEP|CREATE MODEL OBJECT -----------------------------------------------
 %  (1) |- This section is a one-liner.
 % -------------------------------------------------------------------------
 
-Model = qmt_spgr; % Create model object
+Model = qmt_sirfse; % Create model object
 
 %% STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------
 %  (2)	|- This section will pop-up the options GUI. (MATLAB Only)
@@ -35,61 +35,46 @@ end
 
 
 %% STEP |LOAD PROTOCOL ----------------------------------------------------
-%  (3)	|- Respective command lines appear if required by qmt_spgr. 
+%  (3)	|- Respective command lines appear if required by qmt_sirfse. 
 % -------------------------------------------------------------------------
 
-% qmt_spgr object needs 2 protocol field(s) to be assigned:
+% qmt_sirfse object needs 2 protocol field(s) to be assigned:
  
 
 % MTdata
-% TimingTable
+% FSEsequence
 % --------------
-% Angle is a vector of [10X1]
-Angle = [142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000];
-% Offset is a vector of [10X1]
-Offset = [443.0000; 443.0000; 1088.0000; 1088.0000; 2732.0000; 2732.0000; 6862.0000; 6862.0000; 17235.0000; 17235.0000];
-Model.Prot.MTdata.Mat = [ Angle Offset];
+% Ti is a vector of [25X1]
+Ti = [0.0030; 0.0037; 0.0047; 0.0058; 0.0072; 0.0090; 0.0112; 0.0139; 0.0173; 0.0216; 0.0269; 0.0335; 0.0417; 0.0519; 0.0646; 0.0805; 0.1002; 0.1248; 0.1554; 0.1935; 0.2409; 0.3000; 1.0000; 2.0000; 10.0000];
+% Td is a vector of [25X1]
+Td = [3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000; 3.5000];
+Model.Prot.MTdata.Mat = [ Ti Td];
 % -----------------------------------------
-Tmt  = 0.0102;
-Ts  = 0.003;
-Tp  = 0.0018;
+Trf  = 0.001;
 Tr  = 0.01;
-TR  = 0.025;
-Model.Prot.TimingTable.Mat = [ Tmt  Ts  Tp  Tr  TR ];
+Npulse = 16;
+Model.Prot.FSEsequence.Mat = [ Trf  Tr  Npulse];
 % -----------------------------------------
 
 
 
 %% STEP |LOAD EXPERIMENTAL DATA -------------------------------------------
-%  (4)	|- Respective command lines appear if required by qmt_spgr. 
+%  (4)	|- Respective command lines appear if required by qmt_sirfse. 
 % -------------------------------------------------------------------------
-% qmt_spgr object needs 5 data input(s) to be assigned:
+% qmt_sirfse object needs 3 data input(s) to be assigned:
  
 
 % MTdata
 % R1map
-% B1map
-% B0map
 % Mask
 % --------------
 
 data = struct();
+% MTdata.nii.gz contains [128  128    1   25] data.
+data.MTdata=double(load_nii_data('MTdata.nii.gz'));
+% Mask.nii.gz contains [128  128] data.
+data.Mask=double(load_nii_data('Mask.nii.gz'));
  
-% B0map.mat contains [88  128] data.
- load('B0map.mat');
-% B1map.mat contains [88  128] data.
- load('B1map.mat');
-% MTdata.mat contains [88  128    1   10] data.
- load('MTdata.mat');
-% Mask.mat contains [88  128] data.
- load('Mask.mat');
-% R1map.mat contains [88  128] data.
- load('R1map.mat');
- data.MTdata= double(MTdata);
- data.R1map= double(R1map);
- data.B1map= double(B1map);
- data.B0map= double(B0map);
- data.Mask= double(Mask);
 
 %% STEP |FIT DATASET ------------------------------------------------------
 %  (5)  |- This section will fit data. 
@@ -133,11 +118,11 @@ imagesc(outputIm); colorbar(); title(FitResults.fields{1});
 
 if moxunit_util_platform_is_octave % ---> If Octave 
 
-save -mat7-binary 'qmt_spgr_FitResultsOctave.mat' 'FitResults';
+save -mat7-binary 'qmt_sirfse_FitResultsOctave.mat' 'FitResults';
 
 else % ---> If MATLAB 
 
-qMRsaveModel(Model,'qmt_spgr.qMRLab.mat'); 
+qMRsaveModel(Model,'qmt_sirfse.qMRLab.mat'); 
 
 end
 

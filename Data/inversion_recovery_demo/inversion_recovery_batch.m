@@ -2,7 +2,7 @@
 % purposes and Octave. 
 
 % Please execute this m-file section by section to get familiar with batch
-% processing for qmt_spgr on CLI.
+% processing for inversion_recovery on CLI.
 
 % This m-file has been automatically generated. 
 
@@ -12,15 +12,15 @@
 %% AUXILIARY SECTION - (OPTIONAL) -----------------------------------------
 % -------------------------------------------------------------------------
 
-qMRinfo('qmt_spgr'); % Display help 
-[pathstr,fname,ext]=fileparts(which('qmt_spgr_batch.m'));
+qMRinfo('inversion_recovery'); % Display help 
+[pathstr,fname,ext]=fileparts(which('inversion_recovery_batch.m'));
 cd (pathstr);
 
 %% STEP|CREATE MODEL OBJECT -----------------------------------------------
 %  (1) |- This section is a one-liner.
 % -------------------------------------------------------------------------
 
-Model = qmt_spgr; % Create model object
+Model = inversion_recovery; % Create model object
 
 %% STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------
 %  (2)	|- This section will pop-up the options GUI. (MATLAB Only)
@@ -35,61 +35,37 @@ end
 
 
 %% STEP |LOAD PROTOCOL ----------------------------------------------------
-%  (3)	|- Respective command lines appear if required by qmt_spgr. 
+%  (3)	|- Respective command lines appear if required by inversion_recovery. 
 % -------------------------------------------------------------------------
 
-% qmt_spgr object needs 2 protocol field(s) to be assigned:
+% inversion_recovery object needs 1 protocol field(s) to be assigned:
  
 
-% MTdata
-% TimingTable
+% IRData
 % --------------
-% Angle is a vector of [10X1]
-Angle = [142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000];
-% Offset is a vector of [10X1]
-Offset = [443.0000; 443.0000; 1088.0000; 1088.0000; 2732.0000; 2732.0000; 6862.0000; 6862.0000; 17235.0000; 17235.0000];
-Model.Prot.MTdata.Mat = [ Angle Offset];
-% -----------------------------------------
-Tmt  = 0.0102;
-Ts  = 0.003;
-Tp  = 0.0018;
-Tr  = 0.01;
-TR  = 0.025;
-Model.Prot.TimingTable.Mat = [ Tmt  Ts  Tp  Tr  TR ];
+% TI(ms) is a vector of [9X1]
+TI = [350.0000; 500.0000; 650.0000; 800.0000; 950.0000; 1100.0000; 1250.0000; 1400.0000; 1700.0000];
+Model.Prot.IRData.Mat = [ TI];
 % -----------------------------------------
 
 
 
 %% STEP |LOAD EXPERIMENTAL DATA -------------------------------------------
-%  (4)	|- Respective command lines appear if required by qmt_spgr. 
+%  (4)	|- Respective command lines appear if required by inversion_recovery. 
 % -------------------------------------------------------------------------
-% qmt_spgr object needs 5 data input(s) to be assigned:
+% inversion_recovery object needs 2 data input(s) to be assigned:
  
 
-% MTdata
-% R1map
-% B1map
-% B0map
+% IRData
 % Mask
 % --------------
 
 data = struct();
+% IRData.nii.gz contains [128  128   45    9] data.
+data.IRData=double(load_nii_data('IRData.nii.gz'));
+% Mask.nii.gz contains [128  128   45] data.
+data.Mask=double(load_nii_data('Mask.nii.gz'));
  
-% B0map.mat contains [88  128] data.
- load('B0map.mat');
-% B1map.mat contains [88  128] data.
- load('B1map.mat');
-% MTdata.mat contains [88  128    1   10] data.
- load('MTdata.mat');
-% Mask.mat contains [88  128] data.
- load('Mask.mat');
-% R1map.mat contains [88  128] data.
- load('R1map.mat');
- data.MTdata= double(MTdata);
- data.R1map= double(R1map);
- data.B1map= double(B1map);
- data.B0map= double(B0map);
- data.Mask= double(Mask);
 
 %% STEP |FIT DATASET ------------------------------------------------------
 %  (5)  |- This section will fit data. 
@@ -133,11 +109,11 @@ imagesc(outputIm); colorbar(); title(FitResults.fields{1});
 
 if moxunit_util_platform_is_octave % ---> If Octave 
 
-save -mat7-binary 'qmt_spgr_FitResultsOctave.mat' 'FitResults';
+save -mat7-binary 'inversion_recovery_FitResultsOctave.mat' 'FitResults';
 
 else % ---> If MATLAB 
 
-qMRsaveModel(Model,'qmt_spgr.qMRLab.mat'); 
+qMRsaveModel(Model,'inversion_recovery.qMRLab.mat'); 
 
 end
 

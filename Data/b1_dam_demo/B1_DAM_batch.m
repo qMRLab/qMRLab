@@ -2,7 +2,7 @@
 % purposes and Octave. 
 
 % Please execute this m-file section by section to get familiar with batch
-% processing for qmt_spgr on CLI.
+% processing for b1_dam on CLI.
 
 % This m-file has been automatically generated. 
 
@@ -12,15 +12,15 @@
 %% AUXILIARY SECTION - (OPTIONAL) -----------------------------------------
 % -------------------------------------------------------------------------
 
-qMRinfo('qmt_spgr'); % Display help 
-[pathstr,fname,ext]=fileparts(which('qmt_spgr_batch.m'));
+qMRinfo('b1_dam'); % Display help 
+[pathstr,fname,ext]=fileparts(which('b1_dam_batch.m'));
 cd (pathstr);
 
 %% STEP|CREATE MODEL OBJECT -----------------------------------------------
 %  (1) |- This section is a one-liner.
 % -------------------------------------------------------------------------
 
-Model = qmt_spgr; % Create model object
+Model = b1_dam; % Create model object
 
 %% STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------
 %  (2)	|- This section will pop-up the options GUI. (MATLAB Only)
@@ -35,61 +35,30 @@ end
 
 
 %% STEP |LOAD PROTOCOL ----------------------------------------------------
-%  (3)	|- Respective command lines appear if required by qmt_spgr. 
+%  (3)	|- Respective command lines appear if required by b1_dam. 
 % -------------------------------------------------------------------------
 
-% qmt_spgr object needs 2 protocol field(s) to be assigned:
+% This object does not have protocol attributes.
  
-
-% MTdata
-% TimingTable
-% --------------
-% Angle is a vector of [10X1]
-Angle = [142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000];
-% Offset is a vector of [10X1]
-Offset = [443.0000; 443.0000; 1088.0000; 1088.0000; 2732.0000; 2732.0000; 6862.0000; 6862.0000; 17235.0000; 17235.0000];
-Model.Prot.MTdata.Mat = [ Angle Offset];
-% -----------------------------------------
-Tmt  = 0.0102;
-Ts  = 0.003;
-Tp  = 0.0018;
-Tr  = 0.01;
-TR  = 0.025;
-Model.Prot.TimingTable.Mat = [ Tmt  Ts  Tp  Tr  TR ];
-% -----------------------------------------
 
 
 
 %% STEP |LOAD EXPERIMENTAL DATA -------------------------------------------
-%  (4)	|- Respective command lines appear if required by qmt_spgr. 
+%  (4)	|- Respective command lines appear if required by b1_dam. 
 % -------------------------------------------------------------------------
-% qmt_spgr object needs 5 data input(s) to be assigned:
+% b1_dam object needs 2 data input(s) to be assigned:
  
 
-% MTdata
-% R1map
-% B1map
-% B0map
-% Mask
+% SF60
+% SF120
 % --------------
 
 data = struct();
+% SF120.nii.gz contains [64  64] data.
+data.SF120=double(load_nii_data('SF120.nii.gz'));
+% SF60.nii.gz contains [64  64] data.
+data.SF60=double(load_nii_data('SF60.nii.gz'));
  
-% B0map.mat contains [88  128] data.
- load('B0map.mat');
-% B1map.mat contains [88  128] data.
- load('B1map.mat');
-% MTdata.mat contains [88  128    1   10] data.
- load('MTdata.mat');
-% Mask.mat contains [88  128] data.
- load('Mask.mat');
-% R1map.mat contains [88  128] data.
- load('R1map.mat');
- data.MTdata= double(MTdata);
- data.R1map= double(R1map);
- data.B1map= double(B1map);
- data.B0map= double(B0map);
- data.Mask= double(Mask);
 
 %% STEP |FIT DATASET ------------------------------------------------------
 %  (5)  |- This section will fit data. 
@@ -133,11 +102,11 @@ imagesc(outputIm); colorbar(); title(FitResults.fields{1});
 
 if moxunit_util_platform_is_octave % ---> If Octave 
 
-save -mat7-binary 'qmt_spgr_FitResultsOctave.mat' 'FitResults';
+save -mat7-binary 'b1_dam_FitResultsOctave.mat' 'FitResults';
 
 else % ---> If MATLAB 
 
-qMRsaveModel(Model,'qmt_spgr.qMRLab.mat'); 
+qMRsaveModel(Model,'b1_dam.qMRLab.mat'); 
 
 end
 
