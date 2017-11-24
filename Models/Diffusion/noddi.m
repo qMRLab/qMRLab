@@ -1,7 +1,7 @@
-classdef NODDI
-% NODDI:   Neurite Orientation Dispersion and Density Imaging
+classdef noddi
+% noddi:   Neurite Orientation Dispersion and Density Imaging
 %          Three-compartment model for fitting multi-shell DWI
-%<a href="matlab: figure, imshow NODDI.png ;">Pulse Sequence Diagram</a>
+%<a href="matlab: figure, imshow noddi.png ;">Pulse Sequence Diagram</a>
 %           
 % ASSUMPTIONS:
 %   Neuronal fibers model:
@@ -52,8 +52,8 @@ classdef NODDI
 %                         Available models are:
 %                           -WatsonSHStickTortIsoVIsoDot_B0 is a four model compartment used for ex-vivo datasets
 %
-% Example of command line usage (see also <a href="matlab: showdemo NODDI_batch">showdemo NODDI_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(NODDI);">qMRusage(NODDI)</a>
+% Example of command line usage (see also <a href="matlab: showdemo noddi_batch">showdemo noddi_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(noddi);">qMRusage(noddi)</a>
 %
 % Author: Tanguy Duval
 %
@@ -93,7 +93,7 @@ methods (Hidden=true)
 end
     
     methods
-        function obj = NODDI
+        function obj = noddi
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

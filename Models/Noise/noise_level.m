@@ -1,5 +1,5 @@
-classdef NoiseLevel
-% NoiseLevel :  Noise histogram fitting within a noise mask
+classdef noise_level
+% noise_level :  Noise histogram fitting within a noise mask
 
 % ASSUMPTIONS:
 %   (1)Uniform noise distribution. Outputs are scalar : all voxels have
@@ -49,7 +49,7 @@ end
 
     methods
         
-        function obj = NoiseLevel
+        function obj = noise_level
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

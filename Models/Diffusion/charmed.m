@@ -1,6 +1,6 @@
-classdef CHARMED
-%CHARMED: Composite Hindered and Restricted Model for Diffusion
-%<a href="matlab: figure, imshow CHARMED.png ;">Pulse Sequence Diagram</a>
+classdef charmed
+%charmed: Composite Hindered and Restricted Model for Diffusion
+%<a href="matlab: figure, imshow charmed.png ;">Pulse Sequence Diagram</a>
 %
 %
 % Assumptions:
@@ -67,8 +67,8 @@ classdef CHARMED
 %     'Burcaw 2015'                 XXX
 %     'Ning MRM 2016'               XXX
 %
-% Example of command line usage (see also <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>):
-%   Model = CHARMED;  % Create class from model
+% Example of command line usage (see also <a href="matlab: showdemo charmed_batch">showdemo charmed_batch</a>):
+%   Model = charmed;  % Create class from model
 %   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
 %   data = struct;  % Create data structure
 %   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
@@ -125,7 +125,7 @@ end
     
     methods
         % -------------CONSTRUCTOR-------------------------------------------------------------------------
-        function obj = CHARMED
+        function obj = charmed
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end

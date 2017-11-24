@@ -1,5 +1,5 @@
-classdef qMT_SIRFSE
-% qMT_SIRFSE:  qMT using Inversion Recovery Fast Spin Echo acquisition
+classdef qmt_sirfse
+% qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
 %<a href="matlab: figure, imshow qMT_SIRFSE.png ;">Pulse Sequence Diagram</a>
 %
 % ASSUMPTIONS: 
@@ -76,8 +76,8 @@ classdef qMT_SIRFSE
 %     Lineshape         The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
 %     T2r               Transverse relaxation time of the restricted pool (T2r = 1/R2r)
 %
-% Example of command line usage (see also <a href="matlab: showdemo qMT_SIRFSE_batch">showdemo qMT_SIRFSE_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(qMT_SIRFSE);">qMRusage(qMT_SIRFSE)</a>
+% Example of command line usage (see also <a href="matlab: showdemo qmt_sirfse_batch">showdemo qmt_sirfse_batch</a>):
+%   For more examples: <a href="matlab: qMRusage(qmt_sirfse);">qMRusage(qmt_sirfse)</a>
 %
 % Author: Ian Gagnon, 2017
 
@@ -138,7 +138,7 @@ methods (Hidden=true)
 end
     
     methods
-        function obj = qMT_SIRFSE
+        function obj = qmt_sirfse
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
