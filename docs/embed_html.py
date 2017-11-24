@@ -56,6 +56,7 @@ if __name__ == "__main__":
 	src = sys.argv[2]
 	srcdir = os.path.dirname(src)
 	title = sys.argv[3]
+	print(title)
 
 	with io.open(dst, "wb") as fo:
 		fo.write(title.encode())
@@ -111,4 +112,3 @@ if __name__ == "__main__":
 
 			for line in sbuf.getvalue().splitlines():
 				fo.write(("   %s\n" % line).encode("utf-8"))
-

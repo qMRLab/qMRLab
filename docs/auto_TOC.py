@@ -50,17 +50,17 @@ for root, dirs, files in os.walk('../Models'):
 				if line.startswith("%"):
 					cname = line[1:].lstrip()
 					found = True
-
 		cdemo = False
 		#Check for a .m file in demo
 		for root_s, dirs_s, files_s in os.walk('../Data'):
 			for name_s in files_s:
 				name_pos = name_s.find("_batch")
-				if name_s.endswith(".html") and cfile == name_s[:name_pos]:
+				if name_s.endswith(".html") and cfile.lower() == name_s[:name_pos].lower():
 					cdemo = True
 					dst = './source/'+ cfile +'_batch.rst'
 					src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
-					os.system("embed_html.py "+dst+" "+src+" "+cname)
+					print(cname)
+					os.system("embed_html.py "+dst+" "+src+" \""+cname+"\"")
 				elif name_s.endswith(".png"):
 					#Save the path of the ".png" file 
 					fn = os.path.join(root_s, name_s)

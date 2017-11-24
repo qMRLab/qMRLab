@@ -23,9 +23,9 @@ Diffusion
 .. toctree::
 	:maxdepth: 1
 
-	CHARMED_batch
+	charmed_batch
 
-DTI: Diffusion Tensor Imaging
+dti: Diffusion Tensor Imaging
 
 NODDI: Neurite Orientation Dispersion and Density Imaging
 
@@ -34,52 +34,54 @@ FieldMaps
 .. toctree::
 	:maxdepth: 1
 
-	B0_DEM_batch
+	b0_dem_batch
 
 .. toctree::
 	:maxdepth: 1
 
-	B1_DAM_batch
+	b1_dam_batch
 
-Myelin_Imaging
+Magnetization_transfer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
 	:maxdepth: 1
 
-	MTSAT_batch
+	mt_sat_batch
 
 .. toctree::
 	:maxdepth: 1
 
-	MWF_batch
+	qmt_bssfp_batch
 
 .. toctree::
 	:maxdepth: 1
 
-	qMT_bSSFP_batch
+	qmt_sirfse_batch
 
 .. toctree::
 	:maxdepth: 1
 
-	qMT_SIRFSE_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	qMT_SPGR_batch
+	qmt_spgr_batch
 
 Noise
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NoiseLevel :  Noise histogram fitting within a noise mask
+noise_level :  Noise histogram fitting within a noise mask
 
-T1_Mapping
+T1_relaxometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
 	:maxdepth: 1
 
-	InversionRecovery_batch
+	inversion_recovery_batch
 
-VFA_T1: Compute a T1 map using Variable Flip Angle
+vfa_t1: Compute a T1 map using Variable Flip Angle
+
+T2_relaxometry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+	:maxdepth: 1
+
+	mwf_batch
 
 UnderDevelopment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,7 +90,7 @@ CustomExample :  Describe the method here
 .. toctree::
 	:maxdepth: 1
 
-	MTV_batch
+	mtv_batch
 
 Getting started
 ===============================================================================

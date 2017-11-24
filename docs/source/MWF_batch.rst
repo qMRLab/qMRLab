@@ -1,5 +1,5 @@
-MWF
-===
+mwf :  Myelin Water Fraction from Multi-Exponential T2w data
+============================================================
 
 .. raw:: html
 

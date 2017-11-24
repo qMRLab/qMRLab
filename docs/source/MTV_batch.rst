@@ -1,5 +1,5 @@
-MTV
-===
+mtv :  Macromolecular Tissue Volume
+===================================
 
 .. raw:: html
 

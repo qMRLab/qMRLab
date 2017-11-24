@@ -1,5 +1,5 @@
-InversionRecovery:
-==================
+inversion_recovery: Compute a T1 map using Inversion Recovery data
+==================================================================
 
 .. raw:: html
 

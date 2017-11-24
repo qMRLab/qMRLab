@@ -1,5 +1,5 @@
-qMT_bSSFP
-=========
+qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
+=======================================================================
 
 .. raw:: html
 
