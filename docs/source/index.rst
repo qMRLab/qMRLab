@@ -9,6 +9,10 @@ Welcome to qMRLab's documentation!
    :scale: 60 %
    :align: center
 
+Welcom to the user documentation for qMRLab, a quantitative MR image analysis open-source software. 
+The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!
+
+You can either read the Getting started section or search for the desired section.
 
 .. toctree::
    :maxdepth: 6
