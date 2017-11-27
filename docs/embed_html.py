@@ -11,8 +11,11 @@ else:
 
 class MyHTMLParser(HTMLParser):
 	"""
-	Matlab HTML parser that extracts the useful HTML payload,
+	Ad-hoc Matlab HTML parser that extracts the useful HTML payload,
 	insertable in an existing HTML document.
+
+	It looks like everything in the first <div> is desired.
+	The image content is copied to the destination directory.
 	"""
 	def __init__(self, out, dstdir, srcdir):
 		HTMLParser.__init__(self)
@@ -58,27 +61,22 @@ if __name__ == "__main__":
 	title = sys.argv[3]
 
 	with io.open(dst, "wb") as fo:
+
 		fo.write(title.encode())
 		fo.write(b"\n")
 		fo.write(b"=" * len(title))
 		fo.write(b"\n")
 		fo.write(b"\n")
 		fo.write(b".. raw:: html\n")
-		fo.write(b"\tpre {")
-		fo.write(b"\t\twhite-space: pre-wrap;       /* css-3 */\n")
-		fo.write(b"\t\twhite-space: -moz-pre-wrap;  /* Mozilla, since 1999 */\n")
-		fo.write(b"\t\twhite-space: -pre-wrap;      /* Opera 4-6 */\n")
-		fo.write(b"\t\twhite-space: -o-pre-wrap;    /* Opera 7 */\n")
-		fo.write(b"\t\tword-wrap: break-word;       /* Internet Explorer 5.5+ */\n")
-		fo.write(b"\t\t)}\n")
 		fo.write(b"\n   \n")
 
 		with io.open(src, "rb") as fi:
 			data = fi.read().decode("utf-8")
 
 			# This is taken from the Matlab HTML stylesheet, but scoped
-			sbuf = io.StringIO(u"""<style type="text/css">
-.content { font-size:1.2em; line-height:140%; padding: 20px; }
+			sbuf = io.StringIO()
+			sbuf.write(u"""<style type="text/css">
+.content { font-size:1.0em; line-height:140%; padding: 20px; }
 .content p { padding:0px; margin:0px 0px 20px; }
 .content img { padding:0px; margin:0px 0px 20px; border:none; }
 .content p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
@@ -92,9 +90,8 @@ if __name__ == "__main__":
 .content ol li ol li { list-style-type:lower-alpha; }
 .content ol li ul { padding-top:7px; }
 .content ol li ul li { list-style:square; }
-.content pre{white-space: pre-wrap;}
-.content pre, code { font-size:12px; }
-.content tt { font-size: 1.2em; }
+.content pre, code { font-size:11px; }
+.content tt { font-size: 1.0em; }
 .content pre { margin:0px 0px 20px; }
 .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
 .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
@@ -119,3 +116,5 @@ if __name__ == "__main__":
 
 			for line in sbuf.getvalue().splitlines():
 				fo.write(("   %s\n" % line).encode("utf-8"))
+
+		fo.close()

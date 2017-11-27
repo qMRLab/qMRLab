@@ -25,9 +25,9 @@ Diffusion
 
 	charmed_batch
 
-dti: Diffusion Tensor Imaging
+* dti: Diffusion Tensor Imaging
 
-NODDI: Neurite Orientation Dispersion and Density Imaging
+* NODDI: Neurite Orientation Dispersion and Density Imaging
 
 FieldMaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,7 +65,7 @@ Magnetization_transfer
 
 Noise
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-noise_level :  Noise histogram fitting within a noise mask
+*  noise_level :  Noise histogram fitting within a noise mask
 
 T1_relaxometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +74,7 @@ T1_relaxometry
 
 	inversion_recovery_batch
 
-vfa_t1: Compute a T1 map using Variable Flip Angle
+*  vfa_t1: Compute a T1 map using Variable Flip Angle
 
 T2_relaxometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,7 +85,7 @@ T2_relaxometry
 
 UnderDevelopment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-CustomExample :  Describe the method here
+*  Name your Model
 
 .. toctree::
 	:maxdepth: 1

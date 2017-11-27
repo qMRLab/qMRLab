@@ -30,73 +30,79 @@ models = []
 for root, dirs, files in os.walk('../Models'):
 	#Check the models that are there
 	for name in files:
-		#Get the file name
-		name_pos = name.find(".m")
-		cfile = name[:name_pos]
+		if name.endswith('.m'):
+			#Get the file name
+			name_pos = name.find(".m")
+			cfile = name[:name_pos]
 
-		#Get the file category (in wich folder it's located)
-		#Get the index to split the folder path
-		root_pos = root.find("Models")
-		skip_pos = len("Models")
-		end_pos = root.find("\\", root_pos + skip_pos+1)
-		#Get the category if the folder is the last element in the path
-		if end_pos == -1:
-			ccat = root[root_pos + skip_pos + 1:]
-		#Get the category if the folder is the not the last element in the path
-		else:
-			ccat = root[root_pos + skip_pos + 1:root.find("\\", root_pos + skip_pos+1)]
-		used = False
+			#Get the file category (in wich folder it's located)
+			#Get the index to split the folder path
+			root_pos = root.find("Models")
+			skip_pos = len("Models")
+			end_pos = root.find("\\", root_pos + skip_pos+1)
+			#Get the category if the folder is the last element in the path
+			if end_pos == -1:
+				ccat = root[root_pos + skip_pos + 1:]
+			#Get the category if the folder is the not the last element in the path
+			else:
+				ccat = root[root_pos + skip_pos + 1:root.find("\\", root_pos + skip_pos+1)]
+			used = False
 
-		#Build a category list to build the toctree later on
-		for cat in category_list:
-			if cat == ccat:
-				used = True
-		if not used:
-			category_list.append(ccat)
+			#Build a category list to build the toctree later on
+			for cat in category_list:
+				if cat == ccat:
+					used = True
+			if not used:
+				category_list.append(ccat)
 
-		#Get the complete name 
-		cname = ""
-		#Open the model matlab file
-		with io.open(os.path.join(root,name), 'r') as fr:
-			found = False
-			#Go throught the file until the name is found
-			while not found:
-				line = fr.readline()
-				#Get the name from the first line of the header
-				if line.startswith("%"):
-					cname = line[1:].lstrip()
+			#Get the complete name 
+			cname = ""
+			#Open the model matlab file
+			with io.open(os.path.join(root,name), 'rb') as fr:
+				found = False
+				#Go throught the file until the name is found
+				while not found:
+					text = fr.read()
+					line_lst = text.split('\n')
+					cname = [l for l in line_lst if '%' in l][0].split('%')[1]
+					#Get the name from the first line of the header
+					# if line_lst.startswith("%"):
+					# 	cname = line_lst[1:].lstrip()
 					found = True
 
-		#Get the information if there is a demo folder with the batch_example
-		cdemo = False
-		#Check for a .m file in demo
-		for root_s, dirs_s, files_s in os.walk('../Data'):
-			for name_s in files_s:
-				#Remove the _batch part in the file name
-				name_pos = name_s.find("_batch")
-				#Check if the file name ends with html and if it's the same model
-				if name_s.endswith(".html") and cfile.lower() == name_s[:name_pos].lower():
-					#There is a demo folder
-					cdemo = True
-					#Set the destination and the source location for the .rst fils
-					dst = './source/'+ cfile +'_batch.rst'
-					src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
-					#Copy the html file into a rst file in the correct location
-					#os.system("python embed_html.py "+dst+" "+src+" \""+cname+"\"")
-				#Copy the png files
-				elif name_s.endswith(".png"):
-					#Save the path of the ".png" file 
-					fn = os.path.join(root_s, name_s)
-					#Copy the ".png" file to the new location
-					shutil.copy(fn, "./source/_static")
+			#Get the information if there is a demo folder with the batch_example
+			cdemo = False
+			#Check for a .m file in demo
+			for root_s, dirs_s, files_s in os.walk('../Data'):
+				for name_s in files_s:
+					#Remove the _batch part in the file name
+					name_pos = name_s.find("_batch")
+					#Check if the file name ends with html and if it's the same model
+					if name_s.endswith(".html") and cfile.lower() == name_s[:name_pos].lower():
+						#There is a demo folder
+						cdemo = True
+						#Set the destination and the source location for the .rst fils
+						print cfile 
+						print cname 
+						dst = './source/'+ cfile +'_batch.rst'
+						src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
+						#Copy the html file into a rst file in the correct location
+						print dst
+						os.system("python embed_html.py "+dst+" "+src+" \""+cname+"\"")
+					#Copy the png files
+					elif name_s.endswith(".png"):
+						#Save the path of the ".png" file 
+						fn = os.path.join(root_s, name_s)
+						#Copy the ".png" file to the new location
+						shutil.copy(fn, "./source/_static")
 
-		#Add the model to the list
-		model_add = Model(
-			cfile,
-			cname,
-			ccat,
-			cdemo)
-		models.append(model_add)
+			#Add the model to the list
+			model_add = Model(
+				cfile,
+				cname,
+				ccat,
+				cdemo)
+			models.append(model_add)
 
 #Open a dummy documentation file and the documentation file to write the totree
 with io.open("./source/documentation.rst", "r") as fr:
@@ -127,12 +133,12 @@ with io.open("./source/documentation.rst", "r") as fr:
 							fw.write(u".. toctree::\n")
 							fw.write(u"\t:maxdepth: 1\n")
 							fw.write(u"\n")
-							fw.write(u"\t" + element._file + u"_batch\n")
+							fw.write(u"\t" + element._file.decode('utf8') + u"_batch\n")
 							fw.write(u"\n")
 						#If there is no demo, add a description without link
 						elif element._category == cat and not element._demo:
-							fw.write(element._name)
-							fw.write(u"\n")
+							fw.write('* '+element._name.decode('utf8'))
+							fw.write(u"\n\n")
 			i = i - 1
 			#Write every line exept the old toctree
 			if not in_Models:
