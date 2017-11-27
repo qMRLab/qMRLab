@@ -143,5 +143,7 @@ Fit.Time = toc;
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
 Fit.Version = qMRLabVer;
-delete FitTempResults.mat
+if exist(fullfile('.','FitTempResults.mat'),'file')
+    delete FitTempResults.mat
+end
 end
