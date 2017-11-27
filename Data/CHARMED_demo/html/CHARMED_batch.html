@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>CHARMED_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-11-24"><meta name="DC.source" content="CHARMED_batch.m"><style type="text/css">
+      --><title>CHARMED_batch</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-11-25"><meta name="DC.source" content="CHARMED_batch.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -37,12 +37,13 @@ ol li ul { padding-top:7px; }
 ol li ul li { list-style:square; }
 
 .content { font-size:1.2em; line-height:140%; padding: 20px; }
+pre{white-space: pre-wrap;}
 
 pre, code { font-size:12px; }
 tt { font-size: 1.2em; }
 pre { margin:0px 0px 20px; }
-pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
-pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7;}
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c;}
 pre.error { color:red; }
 
 @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
@@ -164,20 +165,19 @@ cdmfile(<span class="string">'CHARMED_batch.m'</span>);
 </pre><h2 id="3">I- LOAD MODEL</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 
 <span class="comment">% Create Model object</span>
-Model = charmed;
+Model = CHARMED;
 <span class="comment">% Load Diffusion Protocol</span>
 <span class="comment">% TODO: Explain how Protocol.txt should be created</span>
 Model.Prot.DiffusionData.Mat = txt2mat(<span class="string">'Protocol.txt'</span>);
 
 <span class="comment">%**************************************************************************</span>
-</pre><pre class="codeoutput">**************
-* Protocol.txt
-* read mode: auto
-* 815 data lines analysed
-* 3 header line(s)
-* 7 data column(s)
-* 0 string replacement(s)
-**************
+</pre><pre class="codeoutput error">Cannot find an exact (case-sensitive) match for 'CHARMED'
+
+The closest match is: charmed in C:\Users\gab_b\Desktop\NeuroPoly\qMRLab\Models\Diffusion\charmed.m
+
+
+Error in CHARMED_batch (line 13)
+Model = CHARMED;
 </pre><h2 id="4">II - Perform Simulations</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% See info/usage of Sim_Single_Voxel_Curve</span>
 qMRusage(Model,<span class="string">'Sim_Single_Voxel_Curve'</span>)
@@ -199,72 +199,7 @@ SimResult = table(struct2mat(x,Model.xnames)',struct2mat(FitResults,Model.xnames
 <span class="comment">% qMRusage(Model,'Sim_*')</span>
 
 <span class="comment">%**************************************************************************</span>
-</pre><pre class="codeoutput">&lt;strong&gt;Sim_Single_Voxel_Curve&lt;/strong&gt;
-   Simulates Single Voxel curves:
-      (1) use equation to generate synthetic MRI data
-      (2) add rician noise
-      (3) fit and plot curve
-   USAGE:
-     FitResults = ModelObj.Sim_Single_Voxel_Curve(x)
-     FitResults = ModelObj.Sim_Single_Voxel_Curve(x, Opt,display)
-   INPUT:
-     x: [struct] OR [vector] containing fit results: 'fr', 'Dh', 'diameter_mean', 'fcsf', 'lc', 'Dcsf', 'Dintra'
-     display: [binary] 1=display, 0=nodisplay
-     Opt:  &lt;a href="matlab:helpPopup struct" style="font-weight:bold"&gt;struct&lt;/a&gt; with fields:
-
-    SNR: 50
-
-
-   EXAMPLE:
-         ModelObj = charmed
-         x = struct;
-         x.fr = 0.5;
-         x.Dh = 0.7;
-         x.diameter_mean = 6;
-         x.fcsf = 0;
-         x.lc = 0;
-         x.Dcsf = 3;
-         x.Dintra = 1.4;
-         % Get all possible options
-         Opt = button2opts(ModelObj.Sim_Single_Voxel_Curve_buttons,1);
-         % run simulation using options `Opt(1)`
-         ModelObj.Sim_Single_Voxel_Curve(x,Opt(1))
- 
-
-ans =
-
-    '
-           ModelObj = charmed
-           x = struct;
-           x.fr = 0.5;
-           x.Dh = 0.7;
-           x.diameter_mean = 6;
-           x.fcsf = 0;
-           x.lc = 0;
-           x.Dcsf = 3;
-           x.Dintra = 1.4;
-           % Get all possible options
-           Opt = button2opts(ModelObj.Sim_Single_Voxel_Curve_buttons,1);
-           % run simulation using options `Opt(1)`
-           ModelObj.Sim_Single_Voxel_Curve(x,Opt(1))'
-
-
-SimResult =
-
-  7&times;2 table
-
-                     input_x    FitResults
-                     _______    __________
-
-    fr               0.5        0.50276   
-    Dh               0.7        0.72865   
-    diameter_mean      6         6.0027   
-    fcsf               0              0   
-    lc                 0              0   
-    Dcsf               3              3   
-    Dintra           1.4            1.4   
-
-</pre><img vspace="5" hspace="5" src="CHARMED_batch_01.png" alt=""> <h2 id="5">III - MRI Data Fitting</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+</pre><h2 id="5">III - MRI Data Fitting</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
 <span class="comment">% load data</span>
 data = struct;
 data.DiffusionData = load_nii_data(<span class="string">'DiffusionData.nii.gz'</span>);
@@ -284,31 +219,7 @@ FitResults = FitData(data,Model,1);
 <span class="comment">% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');</span>
 <span class="comment">%save('CHARMEDParameters.mat','Model');</span>
 FitResultsSave_nii(FitResults,<span class="string">'DiffusionData.nii.gz'</span>);
-</pre><pre class="codeoutput">
-FitResults = 
-
-  struct with fields:
-
-               fr: 0.1594
-               Dh: 0.8886
-    diameter_mean: 5.3655
-             fcsf: 0
-               lc: 0
-             Dcsf: 3
-           Dintra: 1.4000
-          S0_TE62: 1.2139e+05
-          S0_TE57: 1.2525e+05
-          S0_TE52: 1.3174e+05
-          S0_TE47: 1.3278e+05
-          S0_TE46: 1.3871e+05
-          S0_TE36: 1.4916e+05
-               fh: 0.8406
-          residue: 1.5655e+05
-       SigmaNoise: 431.5808
-
-...done   0%
-Warning: Directory already exists. 
-</pre><img vspace="5" hspace="5" src="CHARMED_batch_02.png" alt=""> <h2 id="6">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+</pre><h2 id="6">Check the results</h2><p>Load them in qMRLab</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %Place in the right folder to run
 cdmfile('CHARMED_batch.m');
@@ -322,7 +233,7 @@ qMRinfo('CHARMED'); % Display help
 %**************************************************************************
 
 % Create Model object 
-Model = charmed;
+Model = CHARMED;
 % Load Diffusion Protocol
 % TODO: Explain how Protocol.txt should be created
 Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');

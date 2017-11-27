@@ -2,6 +2,12 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
 ==================================================================
 
 .. raw:: html
+	pre {		white-space: pre-wrap;       /* css-3 */
+		white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+		white-space: -pre-wrap;      /* Opera 4-6 */
+		white-space: -o-pre-wrap;    /* Opera 7 */
+		word-wrap: break-word;       /* Internet Explorer 5.5+ */
+		)}
 
    
    <div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#1">DESCRIPTION</a></li><li ><a href="#2">I- LOAD DATASET</a></li><li ><a href="#3">II - Perform Simulations</a></li><li ><a href="#4">III - MRI Data Fitting</a></li><li ><a href="#5">IV- SAVE</a></li><li ><a href="#6">Check the results</a></li></ul></div><h2 id="1">DESCRIPTION</h2><pre class="codeinput">help <span class="string">InversionRecovery</span>

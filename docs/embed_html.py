@@ -56,7 +56,6 @@ if __name__ == "__main__":
 	src = sys.argv[2]
 	srcdir = os.path.dirname(src)
 	title = sys.argv[3]
-	print(title)
 
 	with io.open(dst, "wb") as fo:
 		fo.write(title.encode())
@@ -65,6 +64,13 @@ if __name__ == "__main__":
 		fo.write(b"\n")
 		fo.write(b"\n")
 		fo.write(b".. raw:: html\n")
+		fo.write(b"\tpre {")
+		fo.write(b"\t\twhite-space: pre-wrap;       /* css-3 */\n")
+		fo.write(b"\t\twhite-space: -moz-pre-wrap;  /* Mozilla, since 1999 */\n")
+		fo.write(b"\t\twhite-space: -pre-wrap;      /* Opera 4-6 */\n")
+		fo.write(b"\t\twhite-space: -o-pre-wrap;    /* Opera 7 */\n")
+		fo.write(b"\t\tword-wrap: break-word;       /* Internet Explorer 5.5+ */\n")
+		fo.write(b"\t\t)}\n")
 		fo.write(b"\n   \n")
 
 		with io.open(src, "rb") as fi:
@@ -86,6 +92,7 @@ if __name__ == "__main__":
 .content ol li ol li { list-style-type:lower-alpha; }
 .content ol li ul { padding-top:7px; }
 .content ol li ul li { list-style:square; }
+.content pre{white-space: pre-wrap;}
 .content pre, code { font-size:12px; }
 .content tt { font-size: 1.2em; }
 .content pre { margin:0px 0px 20px; }

@@ -2,6 +2,12 @@ B0_DEM map :  Dual Echo Method for B0 mapping
 =============================================
 
 .. raw:: html
+	pre {		white-space: pre-wrap;       /* css-3 */
+		white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+		white-space: -pre-wrap;      /* Opera 4-6 */
+		white-space: -o-pre-wrap;    /* Opera 7 */
+		word-wrap: break-word;       /* Internet Explorer 5.5+ */
+		)}
 
    
    <div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#3">DESCRIPTION</a></li><li ><a href="#4">I- LOAD MODEL and DATA</a></li><li ><a href="#5">Check data and fitting (Optional)</a></li><li ><a href="#6">II- Create Quantitative Maps</a></li><li ><a href="#7">IV- Check the Results</a></li><li ><a href="#8">V- SAVE</a></li><li ><a href="#9">AUXILIARY SECTION - (OPTIONAL) -----------------------------------------</a></li><li ><a href="#10">STEP|CREATE MODEL OBJECT -----------------------------------------------</a></li><li ><a href="#11">STEP |CHECK DATA AND FITTING - (OPTIONAL) ------------------------------</a></li><li ><a href="#12">STEP |LOAD PROTOCOL ----------------------------------------------------</a></li><li ><a href="#13">STEP |LOAD EXPERIMENTAL DATA -------------------------------------------</a></li><li ><a href="#14">STEP |FIT DATASET ------------------------------------------------------</a></li><li ><a href="#15">STEP |CHECK FITTING RESULT IN A VOXEL - (OPTIONAL) ---------------------</a></li><li ><a href="#16">STEP |SAVE -------------------------------------------------------------</a></li></ul></div><pre class="codeinput"> HEAD

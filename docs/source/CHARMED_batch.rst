@@ -2,6 +2,12 @@ charmed: Composite Hindered and Restricted Model for Diffusion
 ==============================================================
 
 .. raw:: html
+	pre {		white-space: pre-wrap;       /* css-3 */
+		white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+		white-space: -pre-wrap;      /* Opera 4-6 */
+		white-space: -o-pre-wrap;    /* Opera 7 */
+		word-wrap: break-word;       /* Internet Explorer 5.5+ */
+		)}
 
    
    <div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">DESCRIPTION</a></li><li ><a href="#3">I- LOAD MODEL</a></li><li ><a href="#4">II - Perform Simulations</a></li><li ><a href="#5">III - MRI Data Fitting</a></li><li ><a href="#6">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">%Place in the right folder to run</span>
@@ -102,20 +108,19 @@ charmed: Composite Hindered and Restricted Model for Diffusion
    </pre><h2 id="3">I- LOAD MODEL</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    
    <span class="comment">% Create Model object</span>
-   Model = charmed;
+   Model = CHARMED;
    <span class="comment">% Load Diffusion Protocol</span>
    <span class="comment">% TODO: Explain how Protocol.txt should be created</span>
    Model.Prot.DiffusionData.Mat = txt2mat(<span class="string">'Protocol.txt'</span>);
    
    <span class="comment">%**************************************************************************</span>
-   </pre><pre class="codeoutput">**************
-   * Protocol.txt
-   * read mode: auto
-   * 815 data lines analysed
-   * 3 header line(s)
-   * 7 data column(s)
-   * 0 string replacement(s)
-   **************
+   </pre><pre class="codeoutput error">Cannot find an exact (case-sensitive) match for 'CHARMED'
+   
+   The closest match is: charmed in C:\Users\gab_b\Desktop\NeuroPoly\qMRLab\Models\Diffusion\charmed.m
+   
+   
+   Error in CHARMED_batch (line 13)
+   Model = CHARMED;
    </pre><h2 id="4">II - Perform Simulations</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% See info/usage of Sim_Single_Voxel_Curve</span>
    qMRusage(Model,<span class="string">'Sim_Single_Voxel_Curve'</span>)
@@ -137,72 +142,7 @@ charmed: Composite Hindered and Restricted Model for Diffusion
    <span class="comment">% qMRusage(Model,'Sim_*')</span>
    
    <span class="comment">%**************************************************************************</span>
-   </pre><pre class="codeoutput">strongSim_Single_Voxel_Curve/strong
-      Simulates Single Voxel curves:
-         (1) use equation to generate synthetic MRI data
-         (2) add rician noise
-         (3) fit and plot curve
-      USAGE:
-        FitResults = ModelObj.Sim_Single_Voxel_Curve(x)
-        FitResults = ModelObj.Sim_Single_Voxel_Curve(x, Opt,display)
-      INPUT:
-        x: [struct] OR [vector] containing fit results: 'fr', 'Dh', 'diameter_mean', 'fcsf', 'lc', 'Dcsf', 'Dintra'
-        display: [binary] 1=display, 0=nodisplay
-        Opt:  a href="matlab:helpPopup struct" style="font-weight:bold"struct/a with fields:
-   
-       SNR: 50
-   
-   
-      EXAMPLE:
-            ModelObj = charmed
-            x = struct;
-            x.fr = 0.5;
-            x.Dh = 0.7;
-            x.diameter_mean = 6;
-            x.fcsf = 0;
-            x.lc = 0;
-            x.Dcsf = 3;
-            x.Dintra = 1.4;
-            % Get all possible options
-            Opt = button2opts(ModelObj.Sim_Single_Voxel_Curve_buttons,1);
-            % run simulation using options `Opt(1)`
-            ModelObj.Sim_Single_Voxel_Curve(x,Opt(1))
-    
-   
-   ans =
-   
-       '
-              ModelObj = charmed
-              x = struct;
-              x.fr = 0.5;
-              x.Dh = 0.7;
-              x.diameter_mean = 6;
-              x.fcsf = 0;
-              x.lc = 0;
-              x.Dcsf = 3;
-              x.Dintra = 1.4;
-              % Get all possible options
-              Opt = button2opts(ModelObj.Sim_Single_Voxel_Curve_buttons,1);
-              % run simulation using options `Opt(1)`
-              ModelObj.Sim_Single_Voxel_Curve(x,Opt(1))'
-   
-   
-   SimResult =
-   
-     72 table
-   
-                        input_x    FitResults
-                        _______    __________
-   
-       fr               0.5        0.50276   
-       Dh               0.7        0.72865   
-       diameter_mean      6         6.0027   
-       fcsf               0              0   
-       lc                 0              0   
-       Dcsf               3              3   
-       Dintra           1.4            1.4   
-   
-   </pre><img src="_static/CHARMED_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="5">III - MRI Data Fitting</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+   </pre><h2 id="5">III - MRI Data Fitting</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
    <span class="comment">% load data</span>
    data = struct;
    data.DiffusionData = load_nii_data(<span class="string">'DiffusionData.nii.gz'</span>);
@@ -222,28 +162,4 @@ charmed: Composite Hindered and Restricted Model for Diffusion
    <span class="comment">% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');</span>
    <span class="comment">%save('CHARMEDParameters.mat','Model');</span>
    FitResultsSave_nii(FitResults,<span class="string">'DiffusionData.nii.gz'</span>);
-   </pre><pre class="codeoutput">
-   FitResults = 
-   
-     struct with fields:
-   
-                  fr: 0.1594
-                  Dh: 0.8886
-       diameter_mean: 5.3655
-                fcsf: 0
-                  lc: 0
-                Dcsf: 3
-              Dintra: 1.4000
-             S0_TE62: 1.2139e+05
-             S0_TE57: 1.2525e+05
-             S0_TE52: 1.3174e+05
-             S0_TE47: 1.3278e+05
-             S0_TE46: 1.3871e+05
-             S0_TE36: 1.4916e+05
-                  fh: 0.8406
-             residue: 1.5655e+05
-          SigmaNoise: 431.5808
-   
-   ...done   0%
-   Warning: Directory already exists. 
-   </pre><img src="_static/CHARMED_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="6">Check the results</h2><p >Load them in qMRLab</p><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017a</a><br ></p></div>
+   </pre><h2 id="6">Check the results</h2><p >Load them in qMRLab</p><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017a</a><br ></p></div>
