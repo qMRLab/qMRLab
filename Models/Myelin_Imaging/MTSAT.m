@@ -38,13 +38,14 @@ classdef MTSAT
 %   MT-w data
 %       * Flip angle
 %       * TR (s)
-%       * Alpha (optional): B1 correction parameter; default value = 0.00
 %   T1-w data
 %       * Flip angle
 %       * TR (s)
 %   PD-w data
 %       * Flip angle
 %       * TR (s)
+%   B1 map (optional)
+%       * Alpha (optional): B1 correction parameter; default value = 0.00
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Pascale Beliveau (pascale.beliveau@polymtl.ca)
