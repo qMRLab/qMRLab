@@ -28,7 +28,7 @@ initialpath = os.getcwd()
 
 os.chdir('..')
 print(os.getcwd())
-execfile('auto_TOC.py')
+os.system("python auto_TOC.py")
 os.chdir(initialpath)
 
 # -- General configuration ------------------------------------------------
