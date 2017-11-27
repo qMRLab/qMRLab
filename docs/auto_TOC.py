@@ -65,10 +65,9 @@ for root, dirs, files in os.walk('../Models'):
 					text = fr.read()
 					line_lst = text.split('\n')
 					cname = [l for l in line_lst if '%' in l][0].split('%')[1]
-					#Get the name from the first line of the header
-					# if line_lst.startswith("%"):
-					# 	cname = line_lst[1:].lstrip()
+					cname = cname.strip()
 					found = True
+					print cname
 
 			#Get the information if there is a demo folder with the batch_example
 			cdemo = False
@@ -82,12 +81,9 @@ for root, dirs, files in os.walk('../Models'):
 						#There is a demo folder
 						cdemo = True
 						#Set the destination and the source location for the .rst fils
-						print cfile 
-						print cname 
 						dst = './source/'+ cfile +'_batch.rst'
 						src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
 						#Copy the html file into a rst file in the correct location
-						print dst
 						os.system("python embed_html.py "+dst+" "+src+" \""+cname+"\"")
 					#Copy the png files
 					elif name_s.endswith(".png"):
