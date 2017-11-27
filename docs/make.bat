@@ -1,4 +1,4 @@
-python auto_TOC.py
+
 
 @ECHO OFF
 

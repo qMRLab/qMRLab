@@ -24,6 +24,13 @@ import io
 import copy
 sys.path.insert(0, os.path.abspath('../'))
 
+initialpath = os.getcwd()
+
+os.chdir('..')
+print(os.getcwd())
+execfile('auto_TOC.py')
+os.chdir(initialpath)
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
