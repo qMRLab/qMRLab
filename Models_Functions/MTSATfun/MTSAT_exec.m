@@ -34,7 +34,23 @@ MTsat(Inds) = 100 * (TR_MT*(alpha_MT*(A./MTw_data(Inds)) - ones(size(MTw_data(In
 
 % Apply B1 correction to result
 if (Alpha_B1)
-    MTsat = (1 - Alpha_B1)./(1 - Alpha_B1 * data.B1map);
+    if ndims(MTsat) == ndims(data.B1map) 
+        if ndims(MTsat) == 2 
+            data_voxels = size(MTsat,1)*size(MTsat,2);
+            mask_voxels = size(data.B1map,1)*size(data.B1map,2);
+            if mask_voxels ~= data_voxels
+                error(sprintf('\nError in MTSAT_exec.m Mask dimension different from volume dimension.\n')); 
+            end
+        elseif ndims(MTsat) == 3 
+            data_voxels = size(MTsat,1)*size(MTsat,2)*size(MTsat,3);
+            mask_voxels = size(data.B1map,1)*size(data.B1map,2)*size(data.B1map,3);
+            if mask_voxels ~= data_voxels
+                error(sprintf('\nError in MTSAT_exec.m B1 map dimension different from volume dimension.\n')); 
+            end
+        end
+    else error(sprintf('\nError in MTSAT_exec.m B1 map dimension different from volume dimension.\n'));
+    end
+    MTsat = MTsat .* (1 - Alpha_B1)./(1 - Alpha_B1 * data.B1map);
 end
 
 % Mask
