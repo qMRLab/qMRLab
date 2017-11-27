@@ -12,8 +12,8 @@ classdef vfa_t1
 %   M0              Equilibrium magnetization
 %
 % Protocol:
-%   Array [nbFA x 2]:
-%       [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
+%   SPGR        Array [nbFA x 2]:
+%     [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
 %
 % Options:
 %   None
