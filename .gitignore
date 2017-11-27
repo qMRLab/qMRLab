@@ -58,3 +58,5 @@ docs/build/*
 External/Faddeeva_MATLAB/Faddeeva.o
 External/Faddeeva_MATLAB/Faddeeva_erfi.mex
 External/Faddeeva_MATLAB/Faddeeva_erfi_mex.o
+*_batch.rst
+docs/.idea
