@@ -50,7 +50,7 @@ properties (Hidden=true)
 end
 
     properties
-        MRIinputs = {'VFAData','B1map'};
+        MRIinputs = {'VFAData','B1map','Mask'};
         xnames = {'M0','T1'};
         voxelwise = 1;
         
@@ -75,6 +75,7 @@ end
         end
         
         function FitResult = equation(obj,x)
+            % Generates an VFA signal based on input parameters
         end
         
        function FitResult = fit(obj,data)           
@@ -87,35 +88,23 @@ end
         end
         
         function plotModel(obj,x,data)
+
             x = mat2struct(x,obj.xnames);
             if isempty(data.B1map), data.B1map=1; end
             disp(x)
             flipAngles = (obj.Prot.SPGR.Mat(:,1))';
             TR = (obj.Prot.SPGR.Mat(1,2))';
-            
-            % compute model
-            Smodel = equation(obj, x);
-            
-            % plot the data
-            plot(obj.Prot.SPGR.Mat,data,'.','MarkerSize',15)
+            ydata = data.VFAData./sin(flipAngles/180*pi*data.B1map)';
+            xdata = data.VFAData./tan(flipAngles/180*pi*data.B1map)';
+            plot(xdata,ydata,'xb');
             hold on
-            plot(obj.Prot.SPGR.Mat,Smodel,'Linewidth',3) %plot the fit
-            hold off
-%             ydata = data.VFAData./sin(flipAngles/180*pi*data.B1map)';
-%             xdata = data.VFAData./tan(flipAngles/180*pi*data.B1map)';
-%             plot(xdata,ydata,'xb');
-%             hold on
-%             a = exp(-TR/x.T1);
-%             b = x.M0*(1-a);
-%             mval = min(xdata);
-%             Mval = max(xdata);
-%             plot([mval Mval],b+a*[mval Mval],'-r');
-%             hold off
-            xlabel('Inversion Time [ms]','FontSize',15);
-            ylabel('Signal','FontSize',15);
+            a = exp(-TR/x.T1);
+            b = x.M0*(1-a);
+            mval = min(xdata);
+            Mval = max(xdata);
+            plot([mval Mval],b+a*[mval Mval],'-r');
             legend('data', 'fit')
-            legend('show','Location','Best')
-            set(gca,'FontSize',15)
+            hold off
 
 %             h = plot( fitresult, xData, yData,'+');
 %             set(h,'MarkerSize',30)
