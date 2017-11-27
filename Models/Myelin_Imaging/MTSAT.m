@@ -7,10 +7,6 @@ classdef MTSAT
 %-------------%
 % ASSUMPTIONS %
 %-------------% 
-% (1) FILL
-% (2) 
-% (3) 
-% (4) 
 %
 %-----------------------------------------------------------------------------------------------------
 %--------%
@@ -19,12 +15,13 @@ classdef MTSAT
 %   MTw : MT-weighted
 %   T1w : T1-weighted
 %   PDw : PD-weighted
+%   B1 map: optional 
 %
 %-----------------------------------------------------------------------------------------------------
 %---------%
 % OUTPUTS %
 %---------%
-%	MTSAT
+%	MT saturation map
 %      
 %-----------------------------------------------------------------------------------------------------
 %----------%
@@ -38,14 +35,23 @@ classdef MTSAT
 %---------%
 % OPTIONS %
 %---------%
-%   None
+%   MT-w data
+%       * Flip angle
+%       * TR (s)
+%       * Alpha (optional): B1 correction parameter; default value = 0.00
+%   T1-w data
+%       * Flip angle
+%       * TR (s)
+%   PD-w data
+%       * Flip angle
+%       * TR (s)
 %
 %-----------------------------------------------------------------------------------------------------
 % Written by: Pascale Beliveau (pascale.beliveau@polymtl.ca)
 % Reference: Helms, G., Dathe, H., Kallenberg, K., Dechent, P., 2008. High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magn. Reson. Med. 60, 1396?1407.
 %-----------------------------------------------------------------------------------------------------
     properties
-        MRIinputs = {'MTw','T1w', 'PDw', 'Mask'};
+        MRIinputs = {'MTw','T1w', 'PDw', 'B1map', 'Mask'};
         xnames = {};
         voxelwise = 0;
         
@@ -55,7 +61,9 @@ classdef MTSAT
                       'T1',struct('Format',{{'Flip Angle' 'TR'}},...
                                    'Mat',  [20 0.018]),...
                       'PD',struct('Format',{{'Flip Angle' 'TR'}},...
-                                   'Mat',  [6 0.028]));        
+                                   'Mat',  [6 0.028]), ...
+                      'B1', struct('Format',{{'Alpha'}},...
+                                   'Mat', [0.00]));        
         % Model options
         buttons = {};
         options= struct();
@@ -74,7 +82,9 @@ classdef MTSAT
             
             T1params = obj.Prot.T1.Mat;
             
-            FitResult.MTSAT = MTSAT_exec(data, MTparams, PDparams, T1params);
+            B1params = obj.Prot.B1.Mat;
+            
+            FitResult.MTSAT = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
         end
         
     end
