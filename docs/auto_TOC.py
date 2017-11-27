@@ -82,8 +82,7 @@ for root, dirs, files in os.walk('../Models'):
 					dst = './source/'+ cfile +'_batch.rst'
 					src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
 					#Copy the html file into a rst file in the correct location
-					#os.system("embed_html.py "+dst+" "+src+" \""+cname+"\"")
-					execfile('embed_html.py')
+					os.system("python embed_html.py "+dst+" "+src+" \""+cname+"\"")
 				#Copy the png files
 				elif name_s.endswith(".png"):
 					#Save the path of the ".png" file 
