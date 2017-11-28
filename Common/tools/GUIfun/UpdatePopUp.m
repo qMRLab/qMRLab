@@ -8,7 +8,7 @@ handles.FitDataDim = size(Data.(fields{1})); if length(handles.FitDataDim)<3, ha
 dim = handles.FitDataDim;
 if dim(3)>1
         set(handles.ViewPop,'String',{'Axial','Coronal','Sagittal'});
-        handles.FitDataSlice = floor(handles.FitDataSize/2);
+        handles.FitDataSlice = max(1,floor(handles.FitDataSize/2));
 else
         set(handles.ViewPop,'String','Axial');
         handles.FitDataSlice = 1;

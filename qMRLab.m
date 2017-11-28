@@ -607,11 +607,14 @@ else
     x = info_dcm.Position(1);
     y = 1+ S(2) - info_dcm.Position(2);
     z = str2double(get(handles.SliceValue,'String'));
-    index = sub2ind(S,x,y,z);
+    View =  get(handles.ViewPop,'Value');
+    vox = [x,y,z];
+    if View==3, vox = vox([3 1 2]); end % sagittal
+    if View==2, vox = vox([2 3 1]); end % corronal    
     
     for ii=1:length(MRIinput)
         if ~isempty(data.(MRIinput{ii}))
-            data.(MRIinput{ii}) = squeeze(data.(MRIinput{ii})(x,y,z,:));
+            data.(MRIinput{ii}) = squeeze(data.(MRIinput{ii})(vox(1),vox(2),vox(3),:));
         end
     end
     if isfield(data,'Mask'), data.Mask = []; end
