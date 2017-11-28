@@ -136,6 +136,8 @@ classdef SIRFSE
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'T2f (Used in Block equation)',0.040};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
+        Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100};
+
     end
     
     methods
@@ -155,9 +157,7 @@ classdef SIRFSE
         
         function mz = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
-            for ix = 1:length(x)
-                Sim.Param.(obj.xnames{ix}) = x(ix);
-            end
+            Sim.Param = mat2struct(x,obj.xnames);
             Protocol = GetProt(obj);
             if strcmp(Opt.Method,'Block equation assuming M=0 after Tr (full recovery) (slow)')
                 Sim.Opt.method = 'FastSim';
@@ -190,11 +190,10 @@ classdef SIRFSE
             FitResults.Sf = - FitResults.Sf;
         end
         
-        function plotmodel(obj, x, data)
-            if nargin<2, x = obj.st; data.MTdata = []; end
-            if isnumeric(x)
-                x=mat2struct(x,obj.xnames);
-            end
+        function plotModel(obj, x, data)
+            if nargin<2, x = obj.st; end
+            if nargin<3, data.MTdata = []; end
+            x=mat2struct(x,obj.xnames);
 
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
@@ -212,11 +211,13 @@ classdef SIRFSE
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
+            x = struct2mat(x,obj.xnames);
             Smodel = equation(obj, x+eps, Opt);
             data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
+            data.R1map = x(strcmp(obj.xnames,'R1f')); % set R1map to R1f
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
             end
         end
         
@@ -247,10 +248,14 @@ classdef SIRFSE
 %         
 
 
-        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
             % Optimize Inversion times
+            nV         = Opt.Nofvolumes;
+            popSize    = Opt.Populationsize;
+            migrations = Opt.Nofmigrations;
+
             sigma  = .05;
             TImax = 15;
             GenerateRandFunction = @() rand(nV,1)*TImax+1e-3; % do not sort TI values... or you might fall in a local minima
@@ -261,7 +266,7 @@ classdef SIRFSE
             
             % Generate Rest
             schemeLEADER = retVal.schemeLEADER;
-            schemeLEADER = [schemeLEADER ones(size(Prot,1),1)*td];
+            schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
             
             fprintf('SOMA HAS FINISHED \n')
             

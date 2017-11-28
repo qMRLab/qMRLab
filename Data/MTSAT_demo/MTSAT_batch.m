@@ -33,7 +33,7 @@ delete('FitTempResults.mat');
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'MTw.nii.gz');
-save('CHARMEDParameters.mat','Model');
+%save('MTsat.qMRLab.mat','Model'); % by convention use extension .qMRLab.mat
 
 %% Check the results
 % Load them in qMRLab

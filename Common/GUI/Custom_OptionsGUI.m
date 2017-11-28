@@ -38,17 +38,20 @@ handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
 handles.caller = [];            % Handle to caller GUI
-if (~isempty(varargin) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
-    handles.caller = varargin{1};
-    CurrentPos = get(gcf, 'Position');
+
+if (length(varargin)>1 && ~isempty(varargin{2}) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
+    handles.caller = varargin{2};
+    CurrentPos = get(hObject, 'Position');
     CallerPos = get(handles.caller, 'Position');
     NewPos = [CallerPos(1)+CallerPos(3), CallerPos(2)+CallerPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
-    set(gcf, 'Position', NewPos);
+    set(hObject, 'Position', NewPos);
 end
 handles.opened = 1;
 
+% POPULATE FITTING PANEL
 % Load model parameters
-Model = varargin{2};
+Model = varargin{1}; 
+% Allow to open Option_GUI only:
 setappdata(0,'Model',Model);
 Nparam = length(Model.xnames);
 
@@ -65,6 +68,7 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     set(handles.FitOptTable,'Data',FitOptTable)
 end
 
+% POPULATE OPTIONS PANEL
 if ~isempty(Model.buttons)
     
     % Generate Buttons
@@ -87,7 +91,7 @@ if ~isempty(Model.buttons)
     SetOpt(handles);
 end
 
-% Load Protocol
+% POPULATE PROTOCOL PANEL
 if ~isempty(Model.Prot)
     fields = fieldnames(Model.Prot); fields = fields(end:-1:1);
     N = length(fields);
@@ -174,7 +178,7 @@ setappdata(0,'Model',Model);
 % FitOptTable CellEdit
 function FitOptTable_CellEditCallback(hObject, eventdata, handles)
 Model = SetOpt(handles);
-OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(handles.output, [], handles, Model, handles.caller)
 
 function FitOptTable_CreateFcn(hObject, eventdata, handles)
 
@@ -189,10 +193,10 @@ defaultModel = modelfun();
 Model.Prot = defaultModel.Prot;
 setappdata(0,'Model',Model);
 set(handles.ProtFileName,'String','Protocol Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
-[FileName,PathName] = uigetfile({'*.mat';'*.xls;*.xlsx';'*.txt;*.scheme'},'Load Protocol Matrix');
+[FileName,PathName] = uigetfile({'*.mat;*.xls;*.xlsx;*.txt;*.scheme'},'Load Protocol Matrix');
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
@@ -214,7 +218,7 @@ if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end
 setappdata(0,'Model',Model);
-OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(handles.output, [], handles, Model, handles.caller)
 
 
 
@@ -224,7 +228,7 @@ OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
 
 function ModelOptions_Callback(handles)
 Model = SetOpt(handles);
-OptionsGUI_OpeningFcn(handles.output, [], handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(handles.output, [], handles, Model, handles.caller)
 
 % --- Executes on button press in Helpbutton.
 function Helpbutton_Callback(hObject, eventdata, handles)
@@ -238,13 +242,13 @@ Model = modelfun();
 Model.Prot = oldModel.Prot;
 setappdata(0,'Model',Model);
 set(handles.ParametersFileName,'String','Parameters Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller, Model)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 % --- Executes on button press in Load.
 function Load_Callback(hObject, eventdata, handles)
 [FileName,PathName] = uigetfile('*.mat');
 if PathName == 0, return; end
-load(fullfile(PathName,FileName));
+Model = load(fullfile(PathName,FileName));
 oldModel = getappdata(0,'Model');
 if ~isa(Model,class(oldModel))
     errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
@@ -252,12 +256,13 @@ if ~isa(Model,class(oldModel))
 end
 setappdata(0,'Model',Model)
 set(handles.ParametersFileName,'String',FileName);
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, handles.caller,Model)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 % --- Executes on button press in Save.
 function Save_Callback(hObject, eventdata, handles)
 Model = getappdata(0,'Model');
 [file,path] = uiputfile(['qMRILab_' class(Model) 'Parameters.mat'],'Save file name');
-save(fullfile(path,file),'Model')
-
+if file
+    save(fullfile(path,file),'Model')
+end
 

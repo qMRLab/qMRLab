@@ -85,9 +85,9 @@ classdef CustomExample % Name your Model
         end
         
         
-        function plotmodel(obj, FitResults, data)
+        function plotModel(obj, FitResults, data)
             %  Plot the Model and Data.
-            if nargin<2, qMRusage(obj,'plotmodel'), FitResults=obj.st; end
+            if nargin<2, qMRusage(obj,'plotModel'), FitResults=obj.st; end
 
             Smodel = equation(obj, FitResults);
             Tvec = obj.Prot.Data4D.Mat(:,1:2); 
@@ -108,7 +108,7 @@ classdef CustomExample % Name your Model
             data.Data4D = random('rician',Smodel,sigma);
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
             end
         end
 

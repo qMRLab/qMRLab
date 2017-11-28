@@ -79,8 +79,8 @@ end
 %  dataset should be scaled as: y = scl_slope * x + scl_inter
 %  I bring it here because hdr will be modified by change_hdr.
 %
-if nii.hdr.dime.scl_slope ~= 0 & ...
-        ismember(nii.hdr.dime.datatype, [2,4,8,16,64,256,512,768]) & ...
+if nii.hdr.dime.scl_slope ~= 0 && ...
+        ismember(nii.hdr.dime.datatype, [2,4,8,16,64,256,512,768]) && ...
         (nii.hdr.dime.scl_slope ~= 1 | nii.hdr.dime.scl_inter ~= 0)
     
     nii.img = ...
@@ -111,7 +111,7 @@ end
 %  If datatype is a complex type, then the scaling is to be applied
 %  to both the real and imaginary parts.
 %
-if nii.hdr.dime.scl_slope ~= 0 & ...
+if nii.hdr.dime.scl_slope ~= 0 && ...
         ismember(nii.hdr.dime.datatype, [32,1792])
     
     nii.img = ...
@@ -132,7 +132,7 @@ end
 
 %  There is no need for this program to transform Analyze data
 %
-if nii.filetype == 0 & exist([nii.fileprefix '.mat'],'file')
+if nii.filetype == 0 && exist([nii.fileprefix '.mat'],'file')
     load([nii.fileprefix '.mat']);	% old SPM affine matrix
     R=M(1:3,1:3);
     T=M(1:3,4);
@@ -208,7 +208,7 @@ if ~isequal(orient, [1 2 3])
     flip_orient = flip_orient(rot_orient);
     
     for i = 1:3
-        if flip_orient(i) & ~isequal(tmp(i), 0)
+        if flip_orient(i) && ~isequal(tmp(i), 0)
             tmp(i) = new_dim(i) - tmp(i) + 1;
         end
     end

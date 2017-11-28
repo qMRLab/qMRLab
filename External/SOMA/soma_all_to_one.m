@@ -6,6 +6,8 @@
 
 function [retVal] = soma_all_to_one(optimizedFunction, GenerateRandSchemeFunc, CheckSchemeInBoundFunc, migrations, popSize, nV, ProtRef)
 
+hfig=gca;
+
 %%
 % optimization parameter (recommanded values : step = 0.11; pathLength =3; prt = 0.1; minDiv = 0;)
 opt.step       = 0.11;
@@ -36,9 +38,15 @@ j_progress('...done')
 globalErrorHistory = zeros(migrations,1);
 
 %%
+% Create Wait Bar
+h = waitbar(0, sprintf('Migration 0/%0.0f',migrations), 'Name', 'Optimizing CRLB',...
+            'CreateCancelBtn','if ~strcmp(get(gcbf,''Name''),''Canceling...''), set(gcbf,''Name'',''Canceling...''), setappdata(gcbf,''canceling'',1), else, delete(gcbf); end');
+setappdata(h,'canceling',0);
 j_progress('MIGRATIONS IN PROCESS...\n')
 
+% Migrate
 for mig = 1:migrations
+
     j_progress((mig-1)/migrations)
     % migrate individuals to the leader (except leader to himself, of course)
     Leader = population(:,:,indexOfLeader);
@@ -55,14 +63,22 @@ for mig = 1:migrations
     schemeLEADER = population(:,:,indexOfLeader);
     
     LEADER_hist(:,:,mig)=schemeLEADER;
-    plot(linspace(1,mig,mig), globalErrorHistory(1:mig),'-*')
-    hold on ; plot([1 mig],[RefCost RefCost],'--r')
-    hold off
-    xlabel('migrations') ; ylabel('CRLB') ; title('optimization history : SOMA All to One CRLB')
+    plot(hfig,linspace(1,mig,mig), globalErrorHistory(1:mig),'-*')
+    hold(hfig,'on') ; plot(hfig,[1 mig],[RefCost RefCost],'--r')
+    hold(hfig,'off');
+    xlabel(hfig,'migrations') ; ylabel(hfig,'CRLB') ; title(hfig,'optimization history : SOMA All to One CRLB')
+    legend(hfig,{'Optimized Protocol','Original Protocol'})
     drawnow
     
-    
+    if ishandle(h)
+        waitbar((mig-1)/migrations,h,sprintf('Migration %0.0f/%0.0f',mig-1,migrations));
+        if getappdata(h,'canceling')
+            break
+        end
+    end
 end
+delete(h)       % DELETE the waitbar; don't try to CLOSE it.
+
 
 % return values:
 retVal.schemeLEADER = schemeLEADER;

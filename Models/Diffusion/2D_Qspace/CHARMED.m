@@ -1,66 +1,59 @@
 classdef CHARMED
-    %-----------------------------------------------------------------------------------------------------
-    % CHARMED :  Composite Hindered and Restricted Model for Diffusion
-    %-----------------------------------------------------------------------------------------------------
-    %-------------%
-    % ASSUMPTIONS %
-    %-------------%
-    % (1) Diffusion gradients are applied perpendicularly to the neuronal fibers.
-    % (2) Neuronal fibers are parallel (orientational dispersion is negligible).
-    % (3) The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
-    %     should have little impact if the average propagator is larger than
-    %     axonal diameter (sqrt(2*Dr*Delta)>8µm).
-    % (4) Permeability of the neuronal fibers is negligible.
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %--------%
-    % INPUTS %
-    %--------%
-    %   1) DiffusionData : 4D DWI
-    %   2) SigmaNoise    : map of the standard deviation of the noise per
-    %                      voxel
-    %   2) Mask          : Binary mask to accelerate the fitting (OPTIONAL)
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OUTPUTS %
-    %---------%
-    %   Fitting Parameters
-    %       * fr            : Fraction of water in the restricted compartment.
-    %       * Dh            : Apparent diffusion coefficient of the hindered compartment.
-    %       * axon diameter : Mean axonal diameter
-    %         index           (weighted by the axonal area --> biased toward the larger axons)
-    %                          fixed to 0 --> stick model (recommended if Gmax < 300mT/m).
-    %
-    %       * fcsf          : Fraction of water in the CSF compartment. (fixed to 0 by default)
-    %       * lc            : Length of coherence. If > 0, this parameter models the time dependence
-    %                         of the hindered diffusion coefficient Dh.
-    %                         Els Fieremans et al. Neuroimage 2016.
-    %                         Interpretation is not perfectly known.
-    %                         Use option "Time-Dependent Models" to get different interpretations.
-    %
-    %   Additional Outputs
-    %       * fr = 1 - fh - fcsf : fraction of water in the restricted compartment (intra-axonal)
-    %       * residue            : Fitting residue.
-    %
-    %-----------------------------------------------------------------------------------------------------
-    %---------%
-    % OPTIONS %
-    %---------%
-    %   Rician noise bias: Standard deviation of the noise, assuming Rician.
-    %                      If no SigmaNoise maps are provided, two methods:
-    %       * Compute Sigma per voxel: Sigma is estimated by computing the
-    %                                  STD across repeated scans.
-    %       * fix sigma: Use scd_noise_std_estimation to measure noise level
-    %                        
-    %   S0 normalization :
-    %     * 'Use b=0': Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
-    %     * 'Single T2 compartment': in case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
-    %-----------------------------------------------------------------------------------------------------
-    % Written by: Tanguy Duval, 2016
-    % Reference: Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted
-    % model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
-    %-----------------------------------------------------------------------------------------------------
+%CHARMED: Composite Hindered and Restricted Model for Diffusion
+%
+% Assumptions:
+%   Diffusion gradients are applied perpendicularly to the neuronal fibers.
+%   Neuronal fibers are parallel (orientational dispersion is negligible).
+%   The intra-axonal diffusion coefficient (Dr) is fixed. this assumption
+%     should have little impact if the average propagator is larger than
+%     axonal diameter (sqrt(2*Dr*Delta)>8µm).
+%   Permeability of the neuronal fibers is negligible.
+%
+% Inputs:
+%   DiffusionData       4D DWI
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel
+%   (Mask)              Binary mask to accelerate the fitting
+%
+% Outputs:
+%   fr                  Fraction of water in the restricted compartment.
+%   Dh                  Apparent diffusion coefficient of the hindered compartment.
+%   diameter_mean       Mean axonal diameter weighted by the axonal area --> biased toward the larger axons
+%                         fixed to 0 --> stick model (recommended if Gmax < 300mT/m).
+%   fcsf                Fraction of water in the CSF compartment. (fixed to 0 by default)
+%   lc                  Length of coherence. If > 0, this parameter models the time dependence
+%                         of the hindered diffusion coefficient Dh.
+%                         Els Fieremans et al. Neuroimage 2016.
+%                         Interpretation is not perfectly known.
+%                         Use option "Time-Dependent Models" to get different interpretations.
+%   (fh)                Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf
+%   (residue)           Fitting residuals
+%
+% Options:
+%   Rician noise bias   Used if no SigmaNoise map is provided.
+%     'Compute Sigma per voxel'  Sigma is estimated by computing the STD across repeated scans.
+%     'fix sigma'       Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
+%   Display Type:
+%     'q-value'         abscissa for plots: q = gamma.delta.G (µm-1)
+%     'b-value'         abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
+%   S0 normalization
+%     'Use b=0'         Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
+%     'Single T2 compartment'  In case of variable TE acquisition:
+%                              fit single T2 using data acquired at b<1000s/mm2 (assuming Gaussian diffusion))
+%   Time-dependent models:
+%     'Burcaw 2015'     XXX
+%     'Ning MRM 2016'   XXX
+%
+% Command line usage:
+%   <a href="matlab: qMRusage(CHARMED);">qMRusage(CHARMED)</a>
+%   <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>
+%
+% Author: Tanguy Duval, 2016
+%
+% References:
+%   Please cite the following if you use this module:
+%     Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+%   In addition to citing the package:
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'}; % input data required
@@ -81,13 +74,13 @@ classdef CHARMED
         
         % Model options
         buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
-            'Compute Sigma per voxel',true,...
             'Display Type',{'q-value','b-value'},...
             'S0 normalization',{'Use b=0','Single T2 compartment'},...
             'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         Sim_Single_Voxel_Curve_buttons = {'SNR',50};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
+        Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100,'Gmax',80*1e-3};
     end
     
     methods
@@ -193,7 +186,7 @@ classdef CHARMED
             xopt(end+1) = residue;
             obj.xnames{end+1} = 'residue';
             % Noise Level
-            if obj.options.ComputeSigmapervoxel
+            if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 xopt(end+1) = SigmaNoise;
                 obj.xnames{end+1} = 'SigmaNoise';
             end
@@ -205,8 +198,8 @@ classdef CHARMED
         end
         
         % -------------PLOT EQUATION-------------------------------------------------------------------------
-        function plotmodel(obj, x, data)
-            % u.plotmodel(u.st)
+        function plotModel(obj, x, data)
+            % u.plotModel(u.st)
             if nargin<2, x=obj.st; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
             if ~isempty(x)
@@ -265,7 +258,7 @@ classdef CHARMED
             data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             if display
-                plotmodel(obj, FitResults, data);
+                plotModel(obj, FitResults, data);
                 hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
                 h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
@@ -283,14 +276,17 @@ classdef CHARMED
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
         
-        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
+        function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
+            nV         = Opt.Nofvolumes;
+            popSize    = Opt.Populationsize;
+            migrations = Opt.Nofmigrations;
+            Gmax = Opt.Gmax;
             TEmax    = 120*1e-3;
             Treadout = 35*1e-3;
             T180     = 10*1e-3;
             deltamin = 3*1e-3;
-            Gmax     = 80*1e-3;
             % |G| Delta delta
             planes = [ 0  -1  -1  TEmax     % TE-delta-DELTA>0
                 0   1  -1  0         % Delta-delta>0
@@ -312,7 +308,7 @@ classdef CHARMED
             
             %% Generate Rest
             schemeLEADER = retVal.schemeLEADER;
-            schemeLEADER = [zeros(nV,2) ones(nV,1) schemeLEADER];
+            schemeLEADER = [ones(nV,1) zeros(nV,2) schemeLEADER];
             
             % keep 5 different delta / DELTA and sort different acquisition
             schemeLEADER=discrete_delta_Delta(schemeLEADER,5);

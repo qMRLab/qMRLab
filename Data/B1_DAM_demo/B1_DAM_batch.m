@@ -22,7 +22,7 @@ file.SF120 = 'SF120.nii.gz';
 %**************************************************************************
 % II- CHECK DATA AND FITTING
 %**************************************************************************
-qMRLab(Model,file);
+%qMRLab(Model,file);
 
 
 %% Create Quantitative Maps

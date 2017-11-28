@@ -1,5 +1,6 @@
 
 function GetPlotRange(handles)
+if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
 values=Current(:); values(isinf(values))=[]; values(isnan(values))=[]; 
 
@@ -38,4 +39,4 @@ set(handles.MinValue,  'String', Min);
 set(handles.MaxValue,  'String', Max);
 set(handles.MinSlider, 'Value',  Min);
 set(handles.MaxSlider, 'Value',  Max);
-guidata(gcbf, handles);
+guidata(findobj('Name','qMRLab'), handles);
