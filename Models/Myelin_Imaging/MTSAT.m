@@ -14,8 +14,8 @@ classdef MTSAT
 %	  MTSAT         MT saturation map, T1-corrected
 %
 % Options:
-%     B1 factor     Correction factor for the transmit RF
-%                    Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
+%     B1 correction factor     Correction factor for the transmit RF
+%                               Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
 %
 % Protocol:
 %     MT    [FA  TR  Offset]  flip angle [deg], TR [s], Offset Frequency [Hz]
@@ -58,7 +58,7 @@ classdef MTSAT
                       'PD',struct('Format',{{'Flip Angle' 'TR'}},...
                                    'Mat',  [6 0.028]));
         % Model options
-        buttons = {'B1 factor', 0.4};
+        buttons = {'B1 correction factor', 0.4};
         options= struct();
 
     end
@@ -75,7 +75,7 @@ classdef MTSAT
 
             T1params = obj.Prot.T1.Mat;
             
-            B1params = obj.Prot.B1.Mat;
+            B1params = obj.options.B1correctionfactor;
             
             FitResult.MTSAT = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
 
