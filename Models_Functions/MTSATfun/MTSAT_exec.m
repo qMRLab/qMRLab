@@ -50,6 +50,7 @@ if (Alpha_B1)
         end
     else error(sprintf('\nError in MTSAT_exec.m B1 map dimension different from volume dimension.\n'));
     end
+% Weiskopf, N., Suckling, J., Williams, G., Correia, M.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
     MTsat = MTsat .* (1 - Alpha_B1)./(1 - Alpha_B1 * data.B1map);
 end
 
