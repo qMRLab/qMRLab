@@ -1,10 +1,15 @@
+%% DESCRIPTION
+help MTSAT
+
 % Batch to process MT_SAT
 % Run this script line by line
 
 %% I- LOAD DATASET
 %**************************************************************************
+[pathstr,fname,ext]=fileparts(which('MTSAT_batch.m'));
+cd (pathstr);
 
-% Create Model object 
+% Create Model object
 Model = MTSAT;
 % Define Protocol
 disp(Model.Prot.PD.Format)
@@ -33,7 +38,7 @@ delete('FitTempResults.mat');
 % .MAT file : FitResultsSave_mat(FitResults,folder);
 % .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);
 FitResultsSave_nii(FitResults,'MTw.nii.gz');
-%save('MTsat.qMRLab.mat','Model'); % by convention use extension .qMRLab.mat
+save('MTSATParameters.mat','Model');
 
 %% Check the results
 % Load them in qMRLab
