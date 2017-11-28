@@ -5,6 +5,7 @@ if moxunit_util_platform_is_octave
     installlist = {'struct','optim','io','statistics'};
     for ii=1:length(installlist)
         try
+            disp(['loading ' installlist{ii}])
             pkg('load',installlist{ii})
         catch
             errorcount = 1;
@@ -25,10 +26,14 @@ if moxunit_util_platform_is_octave
 end
 
 try
-    erfi(.8);
+    NODDI_erfi(.8);
 catch
     cur = pwd;
     cd(fullfile(fileparts(mfilename('fullpath')),'External','Faddeeva_MATLAB'))
-    Faddeeva_build
+    try
+        Faddeeva_build
+    catch
+        error('Cannot compile External/Faddeeva_MATLAB, a function used by NODDI. Plz install a compiler and run Faddeeva_build. Alternatively, edit NODDI_erfi.')
+    end
     cd(cur)
 end

@@ -14,4 +14,4 @@ else
         handles.FitDataSlice = 1;
 end
 UpdateSlice(handles)
-guidata(gcbf, handles);
+guidata(findobj('Name','qMRLab'), handles);

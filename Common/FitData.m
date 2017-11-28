@@ -1,19 +1,27 @@
-function Fit = FitData(data, Model, wait )
+function Fit = FitData(data, Model, wait , Fittmp)
 
 % ----------------------------------------------------------------------------------------------------
-% Fit = FitData( data, Model, wait )
+% Fit = FitData( data, Model, wait, FitTempResults_filename )
 % Takes 2D or 3D MTdata and returns fitted parameters maps
 % ----------------------------------------------------------------------------------------------------
-% data = struct with fields 'MTdata', and optionnaly 'Mask','R1map','B1map','B0map'
-% Output : Fit structure with fitted parameters
+% Inputs
+%     data                       [struct] with fields Model.MRIinputs. Contains MRI data. 
+%                                          data fields are array of size [x,y,z,(nT or 1)],
+%                                          where x = image height, y = image width,
+%                                          z = image depth and nT is the number of 
+%                                          data points for each voxel
+%     Model                      [class]  Model object
+%     wait                       [binary] display a wait bar?
+%     FitTempResults_filename    [string] filename of a temporary fitting file
 %
-% MTdata is an array of size [x,y,z,nT], where x = image height, y = image
-% width, z = image depth and Nt is the number of data points for each voxel
+% Output
+%     Fit                        [struct] with fitted parameters
+%
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-François Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
-
+%
 % Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
 % Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
 % Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
@@ -42,14 +50,26 @@ if Model.voxelwise % process voxelwise
         end
     end
     
+    % Load FitTempResults
+    if exist('Fittmp','var')
+        Fit = load(Fittmp);
+        computed = Fit.computed(:);
+        fields = Fit.fields;
+    else
+        computed = false(nV,1);
+    end
+
+    
     % Find voxels that are not empty
     if isfield(data,'Mask') && (~isempty(data.Mask))
-        Voxels = find(all(data.Mask,2));
+        Voxels = find(all(data.Mask & ~computed,2));
     else
-        Voxels = (1:nV)';
+        Voxels = find(~computed)';
     end
     l = length(Voxels);
     
+    % Travis?
+    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
     
     %############################# FITTING LOOP ###############################
     % Create waitbar
@@ -81,7 +101,7 @@ if Model.voxelwise % process voxelwise
         if isempty(tempFit), Fit=[]; return; end
         
         % initialize the outputs
-        if ii==1 
+        if ii==1 && ~exist('Fittmp','var')
             fields =  fieldnames(tempFit)';
             
             for ff = 1:length(fields)
@@ -97,11 +117,15 @@ if Model.voxelwise % process voxelwise
             Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
         end
         
-        Fit.computed(ii) = 1;
+        Fit.computed(vox) = 1;
         
         %-- save temp file every 20 voxels
         if(mod(ii,20) == 0)
             save('FitTempResults.mat', '-struct','Fit');
+        end
+        
+        if ISTRAVIS && ii>2
+            break;
         end
     end
     
@@ -115,5 +139,5 @@ end
 Fit.Time = toc;
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
-
+Fit.Version = qMRLabVer;
 end
