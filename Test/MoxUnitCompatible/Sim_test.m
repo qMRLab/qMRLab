@@ -5,6 +5,9 @@ catch % no problem; early Matlab versions can use initTestSuite fine
 end
 initTestSuite;
 
+function TestSetup
+setenv('ISDISPLAY','0') % go faster! Fit only 2 voxels in FitData.m
+
 function test_Sim
 disp('testing Simulation Single Voxel Curve...')
 MethodList = list_models;
@@ -31,3 +34,6 @@ for im = 1:length(MethodList)
     end
     disp ..ok
 end
+
+function TestTeardown
+setenv('ISDISPLAY','') % go faster! Fit only 2 voxels in FitData.m

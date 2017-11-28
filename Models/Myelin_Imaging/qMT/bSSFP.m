@@ -150,6 +150,7 @@ classdef bSSFP
         
         function mxy = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
+            x=struct2mat(x,obj.xnames);
             x = x+eps;
             for ix = 1:length(x)
                 Sim.Param.(obj.xnames{ix}) = x(ix);
@@ -179,10 +180,9 @@ classdef bSSFP
         end
         
         function plotModel(obj, x, data)
-            if nargin<2, x = obj.st; data.MTdata = []; end
-            if isnumeric(x)
-                x=mat2struct(x,obj.xnames);
-            end
+            if nargin<2, x = obj.st; end
+            if nargin<3, data.MTdata = []; end
+            x=mat2struct(x,obj.xnames);
 
             Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);

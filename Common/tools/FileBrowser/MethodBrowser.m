@@ -120,7 +120,7 @@ classdef MethodBrowser
                 if ~~strfind(fileList{i}, 'Protocol')
                     ProtLoad(fullfile(Path,fileList{i}));
                     Model = getappdata(0,'Model');
-                    Custom_OptionsGUI(gcf,Model);
+                    Custom_OptionsGUI(Model, gcf);
                 end
             end
             

@@ -11,7 +11,7 @@ classdef CHARMED
 %
 % Inputs:
 %   DiffusionData       4D DWI
-%   SigmaNoise          map of the standard deviation of the noise per voxel
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel
 %   (Mask)              Binary mask to accelerate the fitting
 %
 % Outputs:
@@ -29,27 +29,23 @@ classdef CHARMED
 %   (residue)           Fitting residuals
 %
 % Options:
-%   Rician noise bias   Use if no SigmaNoise map is provided.
+%   Rician noise bias   Used if no SigmaNoise map is provided.
 %     'Compute Sigma per voxel'  Sigma is estimated by computing the STD across repeated scans.
 %     'fix sigma'       Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
 %   Display Type:
-%     'q-value'         XXX
-%     'b-value'         XXX
+%     'q-value'         abscissa for plots: q = gamma.delta.G (µm-1)
+%     'b-value'         abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
 %   S0 normalization
 %     'Use b=0'         Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
-%     'Single T2 compartment'  In case of variable TE acquisition. fit T2 assuming Gaussian diffusion for data acquired at b<1000s/mm2
+%     'Single T2 compartment'  In case of variable TE acquisition:
+%                              fit single T2 using data acquired at b<1000s/mm2 (assuming Gaussian diffusion))
 %   Time-dependent models:
 %     'Burcaw 2015'     XXX
 %     'Ning MRM 2016'   XXX
 %
-% Example of command line usage (also see CHARMED_batch.m):
-%   Model = CHARMED;  % Create class from model
-%   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
-%   data = struct;  % Create data structure
-%   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
-%   data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
-%   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
-%   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');  % Save in local folder: FitResults/
+% Command line usage:
+%   <a href="matlab: qMRusage(CHARMED);">qMRusage(CHARMED)</a>
+%   <a href="matlab: showdemo CHARMED_batch">showdemo CHARMED_batch</a>
 %
 % Author: Tanguy Duval, 2016
 %
@@ -78,7 +74,6 @@ classdef CHARMED
         
         % Model options
         buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
-            'Compute Sigma per voxel',true,...
             'Display Type',{'q-value','b-value'},...
             'S0 normalization',{'Use b=0','Single T2 compartment'},...
             'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
@@ -191,7 +186,7 @@ classdef CHARMED
             xopt(end+1) = residue;
             obj.xnames{end+1} = 'residue';
             % Noise Level
-            if obj.options.ComputeSigmapervoxel
+            if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 xopt(end+1) = SigmaNoise;
                 obj.xnames{end+1} = 'SigmaNoise';
             end
