@@ -1,17 +1,10 @@
-%Place in the right folder to run
-cdmfile('NODDI_batch.m');
-
 %% DESCRIPTION
 % Batch to process CHARMED data without qMRLab GUI (graphical user interface)
 % Run this script line by line
-<<<<<<< HEAD:Data/NODDI_DTI_demo/NODDI_batch.m
-help NODDI
-=======
 qMRinfo('NODDI'); % Display help 
 %Make sure user is in the correct directory
 [pathstr,fname,ext]=fileparts(which('NODDI_batch.m'));
 cd (pathstr);
->>>>>>> 2ee6d2dbaf24f87e1f346d1412f3361c6f9206e2:Data/NODDI_demo/NODDI_batch.m
 
 %**************************************************************************
 %% I- Create Model object
