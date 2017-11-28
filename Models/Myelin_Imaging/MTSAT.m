@@ -12,9 +12,11 @@ classdef MTSAT
 %
 % Outputs:
 %	  MTSAT         MT saturation map, T1-corrected
+%     T1            T1 map (s)            
 %
 % Options:
-%     B1 correction factor     Correction factor for the transmit RF
+%     B1 correction factor     Correction factor (empirical) for the transmit RF. Only
+%                               corrects MTSAT, not T1. 
 %                               Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
 %
 % Protocol:
@@ -77,8 +79,8 @@ classdef MTSAT
             
             B1params = obj.options.B1correctionfactor;
             
-            FitResult.MTSAT = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
-
+            [FitResult.MTSAT, R1] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
+            FitResult.T1 = 1./R1;
         end
 
     end
