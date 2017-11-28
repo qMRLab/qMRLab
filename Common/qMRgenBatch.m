@@ -1,7 +1,7 @@
 % This function generates a batch example script.
 
 % Input: Model (qMRLab object)
-% Template: genBatch.qmr 
+% Template: genBatch.qmr
 
 % Written by: Agah Karakuzu, 2017
 
@@ -28,7 +28,7 @@ varNames.jokerModel = '*-modelName-*';
 varNames.jokerDemoDir = '*-demoDir-*';
 varNames.modelName = class(Model);
 
-% Define jokers and get class info ====================== END 
+% Define jokers and get class info ====================== END
 
 
 
@@ -43,34 +43,34 @@ demoDir = [qMRroot sep 'Data' sep varNames.modelName '_demo'];
 
 % Generate model specific commands ====================== START
 
-protStr = Model.Prot; % Get model prot here 
-protFlag = isempty(protStr); % 
+protStr = Model.Prot; % Get model prot here
+protFlag = isempty(protStr); %
 
 % Depending on the model, there might be multiple field (other than format)
 
 
-if ~protFlag % If prot is not emty 
-
-explainTexts.protExplain = cell2Explain(fieldnames(protStr),varNames.modelName,'protocol field(s)');
-
-commandTexts.protCommands = prop2CLI(protStr); 
-
-else % If prot is empty 
-
-explainTexts.protExplain = {'% This object does not have protocol attributes.'};
-commandTexts.protCommands = {' '}; % Set empty
+if ~protFlag % If prot is not emty
+    
+    explainTexts.protExplain = cell2Explain(fieldnames(protStr),varNames.modelName,'protocol field(s)');
+    
+    commandTexts.protCommands = prop2CLI(protStr);
+    
+else % If prot is empty
+    
+    explainTexts.protExplain = {'% This object does not have protocol attributes.'};
+    commandTexts.protCommands = {' '}; % Set empty
 end
 
 if ismember('MRIinputs',attrList)
-%F Generate data explanation here 
-explainTexts.dataExplain = cell2Explain(Model.MRIinputs,varNames.modelName,'data input(s)');
-% Generate data code here 
-commandTexts.dataCommands = data2CLI(Model,demoDir,sep);
-
-
-else % Unlikely yet .. 
-explainTexts.dataExplain = {'% This object does not need input data.'}; 
-commandTexts.dataCommands = {' '}; % Set empty
+    %F Generate data explanation here
+    explainTexts.dataExplain = cell2Explain(Model.MRIinputs,varNames.modelName,'data input(s)');
+    % Generate data code here
+    commandTexts.dataCommands = data2CLI(Model,demoDir,sep);
+    
+    
+else % Unlikely yet ..
+    explainTexts.dataExplain = {'% This object does not need input data.'};
+    commandTexts.dataCommands = {' '}; % Set empty
 end
 
 
@@ -80,15 +80,15 @@ end
 
 % Replace jokers ====================== START
 
-% Read template line by line into cell array 
+% Read template line by line into cell array
 fid = fopen('genBatch.qmr');
 allScript = textscan(fid,'%s','Delimiter','\n');
-allScript = allScript{1}; % This is a cell aray that contains template 
+allScript = allScript{1}; % This is a cell aray that contains template
 
 
 % Recursively update newScript.
 % Indexed structure arrays can be generated to reduce this section into a
-% loop. 
+% loop.
 
 newScript = replaceJoker(varNames.jokerModel,varNames.modelName,allScript,1); % Model Name
 
@@ -100,7 +100,7 @@ newScript = replaceJoker(commandTexts.jokerProt,commandTexts.protCommands,newScr
 
 newScript = replaceJoker(explainTexts.jokerData,explainTexts.dataExplain,newScript,2); % Data Exp
 
-newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScript,2); % Data Code 
+newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScript,2); % Data Code
 
 % Replace jokers ====================== END
 
@@ -110,7 +110,7 @@ newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScr
 writeName = [varNames.modelName '_batch.m'];
 h = msgbox(['Please select a destination to save ' writeName],'qMRLab');
 waitfor(h);
-cd(uigetdir()); % Save batch example to this dir 
+cd(uigetdir()); % Save batch example to this dir
 
 fileID = fopen(writeName,'w');
 formatSpec = '%s\n';
@@ -122,7 +122,7 @@ end
 
 % Save batch example to a desired directory ====================== END
 
-   
+
 
 end
 
@@ -135,7 +135,7 @@ exp1 = sprintf(fs1,length(str));
 explain(1) = {exp1};
 
 for i = 1:length(str)
-explain(i+1) = {['% ' str{i}]};
+    explain(i+1) = {['% ' str{i}]};
 end
 
 explain(length(str)+2) = {'% --------------'};
@@ -144,82 +144,82 @@ end
 
 function propCommands = prop2CLI(protStr)
 
-fNames = fieldnames(protStr); % These are the structs with Mat and Format 
+fNames = fieldnames(protStr); % These are the structs with Mat and Format
 
 newCommand = {};
 for i=1:length(fNames)
-   
+    
     curStr = getfield(protStr,fNames{i});
     
-    % Double check if Mat and Format is there 
+    % Double check if Mat and Format is there
     curStrfNames = fieldnames(curStr);
     flag = ismember(curStrfNames,{'Mat','Format'});
     if not(and(flag(1),flag(2)))
         error('Mat or Format is missing'); % Must be terminated otherwise
     end
     
-
+    
     szM = size(curStr.Mat);
     len = length(curStr.Mat);
     idx = find(max(szM));
     
     if min(szM) == 1 && (length(curStr.Mat) == length(curStr.Format))
-       
         
-        if not(iscell(curStr.Format))  
-          curStr.Format = {curStr.Format};
+        
+        if not(iscell(curStr.Format))
+            curStr.Format = {curStr.Format};
         end
-          
+        
         for j = 1:length(curStr.Format)
-          
-          
-          
-          cmmnd = {[remParant(curStr.Format{j}) ' = ' num2str(curStr.Mat(j)) ';']}  ;
-          newCommand = [newCommand cmmnd];
+            
+            
+            
+            cmmnd = {[remParant(curStr.Format{j}) ' = ' num2str(curStr.Mat(j)) ';']}  ;
+            newCommand = [newCommand cmmnd];
             
         end
         
     else
         
-        if not(iscell(curStr.Format))  
-          curStr.Format = {curStr.Format};
+        if not(iscell(curStr.Format))
+            curStr.Format = {curStr.Format};
         end
-          
+        
         
         for j = 1:length(curStr.Format)
-        cont = repmat('%.4f; ',[1 len-1]);
-        cont = [cont '%.4f'];
-        if idx == 1
-        part = sprintf(cont,curStr.Mat(:,j));
-        cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
-        expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' num2str(max(szM)) 'X' '1' ']' ];
-        newCommand = [newCommand expln];
-        newCommand = [newCommand cmmnd];
-        else
-        part = sprintf(cont,curStr.Mat(j,:));
-        cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
-        expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' '1' 'X' num2str(max(szM)) ']' ];
-        newCommand = [newCommand expln];
-        newCommand = [newCommand cmmnd];
-        end
-        
-        
+            cont = repmat('%.4f; ',[1 len-1]);
+            cont = [cont '%.4f'];
+            if idx == 1
+                part = sprintf(cont,curStr.Mat(:,j));
+                cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
+                expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' num2str(max(szM)) 'X' '1' ']' ];
+                newCommand = [newCommand expln];
+                newCommand = [newCommand cmmnd];
+            else
+                part = sprintf(cont,curStr.Mat(j,:));
+                cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
+                expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' '1' 'X' num2str(max(szM)) ']' ];
+                newCommand = [newCommand expln];
+                newCommand = [newCommand cmmnd];
+            end
+            
+            
         end
         
         
     end
     
-    % Assign vector with/without transpose. 
+    % Assign vector with/without transpose.
     frm = [];
     for j =1:length(curStr.Format);
-    frm = [frm ' ' remParant(curStr.Format{j})];
+        frm = [frm ' ' remParant(curStr.Format{j})];
     end
-  
+    
     assgn=['Model.Prot.' fNames{i} '.Mat' ' = [' frm '];'];
     
     newCommand = [newCommand assgn];
     newCommand = [newCommand '% -----------------------------------------'];
-  
+    
     
 end
 
@@ -230,10 +230,10 @@ end
 
 function dataCommands = data2CLI(Model,demoDir,sep)
 
-reqData = Model.MRIinputs; % This is a cell 
+reqData = Model.MRIinputs; % This is a cell
 
 % @MODIFY
-% Please add more file types if neccesary. 
+% Please add more file types if neccesary.
 % Here I assume that required files are either mat or nii.gz
 
 fooMat = cellfun(@(x)[x '.mat'],reqData,'UniformOutput',false);
@@ -250,33 +250,33 @@ dataCommands = juxtaposeCommands(niiCommand,matCommand);
 
 
 % To make operations free from dynamic navigation, commands will address
-% directories. 
+% directories.
 
-end 
+end
 
 function dirFiles = dir2Cell(anyDir,format)
 
 % Get the list of all files in a specific format in anyDir.
-% Output will be a cell array. 
+% Output will be a cell array.
 
 str = dir( fullfile(anyDir,format));
 dirFiles = cell(1,length(str));
 for i=1:length(str)
-dirFiles{i} = getfield(str,{i,1},'name');
+    dirFiles{i} = getfield(str,{i,1},'name');
 end
 
 end
 
 function datCommand = getDataAssign(input,foo,req,format,dir,sep)
 
-% Subfunction of dataCommands. 
+% Subfunction of dataCommands.
 
-% input: List of files with format format. 
+% input: List of files with format format.
 % foo: Pseudo array of MRIinputs with the extension to be tested.
 % req: Required file names (MRIinputs)
-% format: This format will be tested 
+% format: This format will be tested
 % dir: Operation directory
-% sep: / or \ depending on OS. 
+% sep: / or \ depending on OS.
 
 [boolIdx,~] = ismember(input,foo);
 flg = ismember(1,boolIdx);
@@ -324,15 +324,15 @@ end
 
 function snowBall = juxtaposeCommands(varargin)
 
-% input: Flexible. You can pass multiple cells to concantenete them. 
+% input: Flexible. You can pass multiple cells to concantenete them.
 % output: Concanteneted cell array.
 
 k = +nargin;
-snowBall = []; % Conditional 
+snowBall = []; % Conditional
 for i=1:k
-   if ~isempty(varargin{i}) 
-   snowBall = [snowBall varargin{i}];    
-   end
+    if ~isempty(varargin{i})
+        snowBall = [snowBall varargin{i}];
+    end
 end
 
 end
@@ -381,7 +381,7 @@ end
 
 function [sep,rootDir] = getUserPath()
 
-% Return user-specific qMRLab directory path. 
+% Return user-specific qMRLab directory path.
 
 usrPath = path;
 loc = strfind(usrPath,'qMRLab');
@@ -389,16 +389,16 @@ idx = loc(2);
 curStr = [];
 
 while ~strcmp(curStr,':');
-curStr = usrPath(idx);
-idx = idx - 1;
+    curStr = usrPath(idx);
+    idx = idx - 1;
 end
 
 rootDir = usrPath(idx+2:loc(2)+5);
 
 if isunix
-sep = '/';
+    sep = '/';
 else
-sep = '\';
+    sep = '\';
 end
 
 end
@@ -408,12 +408,9 @@ function out = remParant(in)
 loc = strfind(in,'(');
 
 if not(isempty(loc))
-out= in(1:loc-1);
+    out= in(1:loc-1);
 else
     out = in;
 end
 
 end
-
-
-

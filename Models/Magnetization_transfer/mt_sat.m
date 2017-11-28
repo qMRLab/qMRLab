@@ -1,5 +1,5 @@
 classdef mt_sat
-% MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1
+% mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
 %
 % Assumptions:
 %   MTsat is a semi-quantitative method. MTsat values depend on protocol parameters.
@@ -20,8 +20,8 @@ classdef mt_sat
 %     T1    [FA  TR]  %flip angle [deg], TR [s]
 %     PD    [FA  TR]  %flip angle [deg], TR [s]
 %
-% Example of command line usage (see also <a href="matlab: showdemo MTSAT_batch">showdemo MTSAT_batch</a>):
-%   Model = MTSAT;  % Create class from model
+% Example of command line usage (see also <a href="matlab: showdemo mt_sat_batch">showdemo mt_sat_batch</a>):
+%   Model = mt_sat;  % Create class from model
 %   Model.Prot.MT.Mat = txt2mat('MT.txt');  % Load protocol
 %   Model.Prot.T1.Mat = txt2mat('T1.txt');
 %   Model.Prot.PD.Mat = txt2mat('PD.txt');
@@ -32,7 +32,7 @@ classdef mt_sat
 %   FitResults = FitData(data,Model); %fit data
 %   FitResultsSave_nii(FitResults,'MTw.nii.gz'); % Save in local folder: FitResults/
 %
-%   For more examples: <a href="matlab: qMRusage(MTSAT);">qMRusage(MTSAT)</a>
+%   For more examples: <a href="matlab: qMRusage(mt_sat);">qMRusage(mt_sat)</a>
 %
 % Author: Pascale Beliveau (pascale.beliveau@polymtl.ca)
 %

@@ -1,6 +1,6 @@
 classdef qmt_sirfse
 % qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
-%<a href="matlab: figure, imshow qMT_SIRFSE.png ;">Pulse Sequence Diagram</a>
+%<a href="matlab: figure, imshow qmt_sirfse.png ;">Pulse Sequence Diagram</a>
 %
 % ASSUMPTIONS: 
 % (1) FILL

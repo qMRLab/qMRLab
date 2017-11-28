@@ -76,7 +76,7 @@ classdef charmed
 %   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
 %   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');  % Save in local folder: FitResults/
 %          
-%   For more examples: <a href="matlab: qMRusage(CHARMED);">qMRusage(CHARMED)</a>
+%   For more examples: <a href="matlab: qMRusage(charmed);">qMRusage(charmed)</a>
 %
 % Author: Tanguy Duval, 2016
 %
@@ -88,6 +88,7 @@ classdef charmed
 
 properties (Hidden=true)
 % Hidden proprties goes here.    
+    url_example_data = 'https://osf.io/u8n56/';
 end 
 
     properties
@@ -104,7 +105,7 @@ end
         % Protocol
         Prot = struct('DiffusionData',...
             struct('Format',{{'Gx' 'Gy'  'Gz'   '|G| (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}},...
-            'Mat',  txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'CHARMED_demo', 'Protocol.txt'),'InfoLevel',0))...
+            'Mat',  txt2mat(fullfile(fileparts(which('qMRLab.m')),'Data', 'charmed_demo', 'Protocol.txt'),'InfoLevel',0))...
             ); % You can define a default protocol here.
         
         % Model options

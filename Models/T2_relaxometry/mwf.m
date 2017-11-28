@@ -23,8 +23,8 @@ classdef mwf
 %   1 .txt files or 1 .mat file :
 %     TE    [TE1 TE2 ...] % list of echo times [ms]
 %
-% Example of command line usage (see also <a href="matlab: showdemo MWF_batch">showdemo MWF_batch</a>):
-%   Model = MWF;  % Create class from model
+% Example of command line usage (see also <a href="matlab: showdemo mwf_batch">showdemo mwf_batch</a>):
+%   Model = mwf;  % Create class from model
 %   Model.Prot.Echo.Mat=[10:10:320];
 %   data = struct;  % Create data structure
 %   data.MET2data ='MET2data.mat';  % Load data
@@ -49,7 +49,8 @@ classdef mwf
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-% Hidden proprties goes here.    
+% Hidden proprties goes here. 
+    url_example_data = 'https://osf.io/bes6f/';
 end
 
     properties

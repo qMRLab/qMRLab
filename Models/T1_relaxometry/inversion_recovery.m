@@ -1,9 +1,9 @@
 classdef inversion_recovery
 %inversion_recovery: Compute a T1 map using Inversion Recovery data
-%<a href="matlab: figure, imshow IR.png ;">Pulse Sequence Diagram</a>
 %
 % Assumptions:
-% (1)Gold standard for T1 mapping
+% (1) Gold standard for T1 mapping
+% (2) Infinite TR
 %
 % Inputs:
 %   IRData      Inversion Recovery data (4D)
@@ -16,9 +16,10 @@ classdef inversion_recovery
 %   idx         index of last polarity restored datapoint (only used for magnitude data)
 %   res         Fitting residual
 %
+%
 % Protocol:
-%   Veco
-%   TI          Array containing a list of inversion times [ms]
+%	IRData  Array [NbTIsx1]
+%   	TI       inversion times [ms]
 %
 % Options:
 %   Method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
@@ -26,10 +27,6 @@ classdef inversion_recovery
 %                         S=a + b*exp(-TI/T1)
 %      'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
 %                         S=|a + b*exp(-TI/T1)|
-%
-% Protocol:
-%		1 .txt files or 1 .mat file :
-%   	TI      Array [1 column] containing a list of inversion times [ms]
 %
 % Author: Ilana Leppert, 2017
 %
