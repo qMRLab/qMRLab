@@ -1,8 +1,8 @@
 % This function generates a batch example script.
-
+%
 % Input: Model (qMRLab object)
 % Template: genBatch.qmr
-
+%
 % Written by: Agah Karakuzu, 2017
 
 function qMRgenBatch(Model)
@@ -53,7 +53,7 @@ if ~protFlag % If prot is not emty
     
     explainTexts.protExplain = cell2Explain(fieldnames(protStr),varNames.modelName,'protocol field(s)');
     
-    commandTexts.protCommands = prop2CLI(protStr);
+    commandTexts.protCommands = prot2CLI(protStr);
     
 else % If prot is empty
     
@@ -142,7 +142,7 @@ explain(length(str)+2) = {'% --------------'};
 
 end
 
-function propCommands = prop2CLI(protStr)
+function protCommands = prot2CLI(protStr)
 
 fNames = fieldnames(protStr); % These are the structs with Mat and Format
 
@@ -224,7 +224,7 @@ for i=1:length(fNames)
 end
 
 
-propCommands = newCommand;
+protCommands = newCommand;
 
 end
 
