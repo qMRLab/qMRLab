@@ -26,10 +26,6 @@ sys.path.insert(0, os.path.abspath('../'))
 
 initialpath = os.getcwd()
 
-os.chdir('..')
-print(os.getcwd())
-os.system("python auto_TOC.py")
-os.chdir(initialpath)
 
 # -- General configuration ------------------------------------------------
 
