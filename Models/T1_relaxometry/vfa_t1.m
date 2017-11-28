@@ -81,9 +81,11 @@ end
        function FitResult = fit(obj,data)           
             % T1 and M0
             flipAngles = (obj.Prot.SPGR.Mat(:,1))';
+
             TR = obj.Prot.SPGR.Mat(:,2);
             if ~isfield(data,'B1map'), data.B1map=1; end
             [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+
        
         end
         
