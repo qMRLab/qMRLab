@@ -22,8 +22,9 @@ import shutil
 import xml.etree.ElementTree
 import io
 import copy
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../'))
 
+initialpath = os.getcwd()
 
 
 # -- General configuration ------------------------------------------------
