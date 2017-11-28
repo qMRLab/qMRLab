@@ -48,7 +48,7 @@ end
         voxelwise = 0;
         
         % Protocol
-        Prot  = struct('MTV',struct('Format',{{'FlipAngle' 'TR'}},...
+        Prot  = struct('MTV',struct('Format',{{'Flip Angle' 'TR'}},...
                                      'Mat', [4 0.025; 10 0.025; 20 0.025])); % You can define a default protocol here.
         
         % Model options
