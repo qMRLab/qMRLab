@@ -11,7 +11,7 @@ classdef MTSAT
 %   PDw     3D PD-weighted data. Spoiled Gradient Echo (or FLASH)
 %
 % Outputs:
-%	  MTSAT         MT saturation map, T1-corrected
+%	  MTSAT         MT saturation map (%), T1-corrected
 %     T1            T1 map (s)            
 %
 % Options:
