@@ -1,10 +1,5 @@
-<<<<<<< HEAD:Models/FieldMaps/B0_DEM.m
-classdef B0_DEM
-%B0_DEM map :  Dual Echo Method for B0 mapping
-=======
 classdef b0_dem
 % b0_dem map :  Dual Echo Method for B0 mapping
->>>>>>> 4429dc669997c933346a530414c9a07122ecca8e:Models/FieldMaps/b0_dem.m
 %
 % Assumptions:
 %   Compute B0 map based on 2 phase images with different TEs

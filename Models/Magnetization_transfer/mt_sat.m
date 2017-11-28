@@ -1,10 +1,5 @@
-<<<<<<< HEAD:Models/Myelin_Imaging/MTSAT.m
-classdef MTSAT
-%MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1
-=======
 classdef mt_sat
 % mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
->>>>>>> 4429dc669997c933346a530414c9a07122ecca8e:Models/Magnetization_transfer/mt_sat.m
 %
 % Assumptions:
 %   MTsat is a semi-quantitative method. MTsat values depend on protocol parameters.

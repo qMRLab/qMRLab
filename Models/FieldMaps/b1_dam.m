@@ -1,10 +1,5 @@
-<<<<<<< HEAD:Models/FieldMaps/B1_DAM.m
-classdef B1_DAM
-%B1_DAM map:  Double-Angle Method for B1+ mapping
-=======
 classdef b1_dam
 % b1_dam map:  Double-Angle Method for B1+ mapping
->>>>>>> 4429dc669997c933346a530414c9a07122ecca8e:Models/FieldMaps/b1_dam.m
 %
 % Assumptions:
 %   Compute a B1map using 2 SPGR images with 2 different flip angles (60, 120deg)

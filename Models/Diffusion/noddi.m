@@ -1,10 +1,5 @@
-<<<<<<< HEAD:Models/Diffusion/3D_Qspace/NODDI.m
-classdef NODDI
-%NODDI: Neurite Orientation Dispersion and Density Imaging
-=======
 classdef noddi
 % noddi:   Neurite Orientation Dispersion and Density Imaging
->>>>>>> 4429dc669997c933346a530414c9a07122ecca8e:Models/Diffusion/noddi.m
 %          Three-compartment model for fitting multi-shell DWI
 %<a href="matlab: figure, imshow noddi.png ;">Pulse Sequence Diagram</a>
 %           
