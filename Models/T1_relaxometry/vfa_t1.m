@@ -4,25 +4,25 @@ classdef vfa_t1
 % Assumptions:
 % 
 % Inputs:
-%   SPGR            spoiled Gradient echo data, 4D volume with different flip angles in time dimension
-%   B1map           excitation (B1+) fieldmap. Used to correct flip angles.
+%   VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
+%   (B1map)           excitation (B1+) fieldmap. Used to correct flip angles. [optional]
 %
 % Outputs:
 %   T1              Longitudinal relaxation time
 %   M0              Equilibrium magnetization
 %
 % Protocol:
-%   Array [nbFA x 2]:
-%       [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
+%   SPGR        Array [nbFA x 2]:
+%     [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
 %
 % Options:
 %   None
 %
 % Example of command line usage (see also <a href="matlab: showdemo vfa_t1_batch">showdemo vfa_t1_batch</a>):
 %   Model = vfa_t1;  % Create class from model 
-%   Model.Prot.SPGR.Mat=[4 0.025; 10 0.025; 20 0.025]; %Protocol: 3 different FAs
+%   Model.Prot.SPGR.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
 %   data = struct;  % Create data structure 
-%   data.SPGR = load_nii_data('SPGR.nii.gz');
+%   data.VFAData = load_nii_data('VFAData.nii.gz');
 %   data.B1map = load_nii_data('B1map.nii.gz');
 %   FitResults = FitData(data,Model); %fit data
 %   FitResultsSave_mat(FitResults);
@@ -50,9 +50,9 @@ properties (Hidden=true)
 end
 
     properties
-        MRIinputs = {'VFAData','B1map'};
-        xnames = {};
-        voxelwise = 0;
+        MRIinputs = {'VFAData','B1map','Mask'};
+        xnames = {'M0','T1'};
+        voxelwise = 1;
         
         % Protocol
         Prot  = struct('SPGR',struct('Format',{{'FlipAngle' 'TR'}},...
@@ -74,12 +74,50 @@ end
             obj.options = button2opts(obj.buttons);
         end
         
-        function FitResult = fit(obj,data)           
+        function FitResult = equation(obj,x)
+            % Generates an VFA signal based on input parameters
+        end
+        
+       function FitResult = fit(obj,data)           
             % T1 and M0
             flipAngles = (obj.Prot.SPGR.Mat(:,1))';
-            TR = obj.Prot.SPGR.Mat(1,2);
-            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData(:,:,:,:)), flipAngles(1:length(flipAngles)), TR, data.B1map);
+            TR = obj.Prot.SPGR.Mat(:,2);
+            if ~isfield(data,'B1map'), data.B1map=1; end
+            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
        
+        end
+        
+        function plotModel(obj,x,data)
+
+            x = mat2struct(x,obj.xnames);
+            if isempty(data.B1map), data.B1map=1; end
+            disp(x)
+            flipAngles = (obj.Prot.SPGR.Mat(:,1))';
+            TR = (obj.Prot.SPGR.Mat(1,2))';
+            ydata = data.VFAData./sin(flipAngles/180*pi*data.B1map)';
+            xdata = data.VFAData./tan(flipAngles/180*pi*data.B1map)';
+            plot(xdata,ydata,'xb');
+            hold on
+            a = exp(-TR/x.T1);
+            b = x.M0*(1-a);
+            mval = min(xdata);
+            Mval = max(xdata);
+            plot([mval Mval],b+a*[mval Mval],'-r');
+            legend('data', 'fit')
+            hold off
+
+%             h = plot( fitresult, xData, yData,'+');
+%             set(h,'MarkerSize',30)
+%             legend( h, 'y vs. x', 'untitled fit 1', 'Location', 'NorthEast' );
+%             p11 = predint(fitresult,x,0.95,'observation','off');
+%             hold on
+%             plot(x,p11,'m--'); drawnow;
+%             hold off
+%             % Label axes
+%             xlabel( 'x' );
+%             ylabel( 'y' );
+%             grid on
+%             saveas(gcf,['temp.jpg']);
         end
         
     end
