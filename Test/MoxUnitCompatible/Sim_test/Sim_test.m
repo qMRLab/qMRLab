@@ -13,6 +13,11 @@ disp('testing Simulation Single Voxel Curve...')
 MethodList = list_models;
 for im = 1:length(MethodList)
     Model = str2func(MethodList{im}); Model = Model();
+    if ~exist([MethodList{im} '.qmrlab.mat'],'file')
+        Model.saveObj([MethodList{im} '.qmrlab.mat']);
+    else
+        Model = Model.loadObj([MethodList{im} '.qmrlab.mat']);
+    end
     if ~Model.voxelwise, continue; end
     disp(class(Model))
     try Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1); end
