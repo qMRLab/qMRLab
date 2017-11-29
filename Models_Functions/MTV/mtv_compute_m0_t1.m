@@ -43,9 +43,9 @@ T1 = zeros([dims(1:end-1)]);
 M0 = zeros([dims(1:end-1)]);
 
 warning('off');
-sprintf('%s\n\n\n','loop over voxels...')
+%sprintf('%s\n\n\n','loop over voxels...')
 for vox=1:dims(1)*dims(2)*dims(3)
-    disp([sprintf('\b\b\b\b\b%3i',floor(vox/(dims(1)*dims(2)*dims(3))*100)) '%'])
+    %disp([sprintf('\b\b\b\b\b%3i',floor(vox/(dims(1)*dims(2)*dims(3))*100)) '%'])
     if roi(vox) && b1Map(vox)~=0
 
     kk=floor((vox-1)/(dims(1)*dims(2))); jj=floor((vox-kk*dims(1)*dims(2)-1)/(dims(1))); ii=vox-kk*dims(1)*dims(2)-jj*dims(1);
@@ -92,7 +92,7 @@ if ~fixT1
 %    T1(:,:,:,2)=T12;
 %     M0(:,:,:,2)=M02;
 end
-display('...done')
+%display('...done')
 
 
 function [fitresult, gof] = LinearFit(x, y, verbose)
