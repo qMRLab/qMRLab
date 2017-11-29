@@ -62,7 +62,7 @@ end
         st           = [2000 0.7]; % starting point
         lb           = [0   0.00001]; % lower bound
         ub           = [6000   5]; % upper bound
-        fx           = [    0        0        0 ]; % fix parameters
+        fx           = [0     0]; % fix parameters
                                      
         % Model options
         buttons = {};
@@ -86,9 +86,9 @@ end
 
             % Equation: S=M0sin(a)*(1-E)/(1-E)cos(a); E=exp(-TR/T1)
             flipAngles = (obj.Prot.SPGR.Mat(:,1))';
-            TR = obj.Prot.SPGR.Mat(:,2);
+            TR = obj.Prot.SPGR.Mat(1,2);
             E = exp(-TR/x.T1);
-            Smodel = x.M0*sin(flipAngles/180*pi)*(1-E)/(1-E*cos(flipAngles/180*pi));
+            Smodel = x.M0*sin(flipAngles/180*pi)*(1-E)./(1-E*cos(flipAngles/180*pi));
             
         end
         
@@ -107,19 +107,42 @@ end
             x = mat2struct(x,obj.xnames);
             if isempty(data.B1map), data.B1map=1; end
             disp(x)
-            flipAngles = (obj.Prot.SPGR.Mat(:,1))';
-            TR = (obj.Prot.SPGR.Mat(1,2))';
+            flipAngles = obj.Prot.SPGR.Mat(:,1)';
+            TR = obj.Prot.SPGR.Mat(1,2)';
+            
+            % Plot data and fitted signal
+            subplot(2,1,1)
+            plot(flipAngles,data.VFAData,'.','MarkerSize',16)
+            E = exp(-TR/x.T1);
+            Smodel = x.M0*sin(flipAngles/180*pi*data.B1map)*(1-E)./(1-E*cos(flipAngles/180*pi*data.B1map));
+            hold on
+            plot(flipAngles,Smodel,'x','MarkerSize',16)
+            hold off
+            title('Data points','FontSize',14);
+            xlabel('Flip Angle [deg]','FontSize',12);
+            ylabel('Signal','FontSize',12);
+            legend('data', 'fitted','Location','best')
+            set(gca,'FontSize',12)
+            
+            % Plot linear fit
+            subplot(2,1,2)
             ydata = data.VFAData./sin(flipAngles/180*pi*data.B1map)';
             xdata = data.VFAData./tan(flipAngles/180*pi*data.B1map)';
-            plot(xdata,ydata,'xb');
+            plot(xdata,ydata,'xb','MarkerSize',16)
             hold on
-            a = exp(-TR/x.T1);
-            b = x.M0*(1-a);
+            slope = exp(-TR/x.T1);
+            intercept = x.M0*(1-slope);
             mval = min(xdata);
             Mval = max(xdata);
-            plot([mval Mval],b+a*[mval Mval],'-r');
-            legend('data', 'fit')
+            plot([mval Mval],intercept+slope*[mval Mval],'-r');
             hold off
+            title('Linear Fit','FontSize',14);
+            xlabel('[au]','FontSize',12);
+            ylabel('[au]','FontSize',12);
+            legend('linearized data', 'linear fit','Location','best')
+            %txt=strcat('T1=',num2str(x.T1),'s M0=',num2str(x.M0));
+            %text(mval*1.1,max(ydata)*0.8,txt)
+            set(gca,'FontSize',12)
 
 %             h = plot( fitresult, xData, yData,'+');
 %             set(h,'MarkerSize',30)
