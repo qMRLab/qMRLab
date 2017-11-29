@@ -8,12 +8,14 @@ classdef (Abstract) AbstractModel
     
     properties
         version
+        ModelName
     end
     
     methods
         % Constructor
         function obj = AbstractModel()
             obj.version = qMRLabVer();
+            obj.ModelName = class(obj);
         end
         
         function saveObj(obj, suffix)
