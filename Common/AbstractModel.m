@@ -51,7 +51,7 @@ classdef (Abstract) AbstractModel
         end
     end
     
-    methods(Access = private)
+    methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             objectProperties = fieldnames(obj);
             
