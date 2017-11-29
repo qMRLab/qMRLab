@@ -26,6 +26,9 @@ if nargin && ischar(varargin{1})
 end
 
 if nargout
+    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS'))
+        varargin{end+1}='wait';
+    end
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
@@ -35,6 +38,9 @@ end
 
 % --- Executes just before Custom_OptionsGUI is made visible.
 function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+% WAIT IF OUTPUTS
+if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+
 handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
@@ -114,13 +120,26 @@ if ismethod(Model,'plotProt')
 end
 guidata(hObject, handles);
 
+if wait
+uiwait(hObject)
+end
+
 
     
 
 
     
 function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles) 
-%varargout{1} = handles.output;
+if nargout
+    varargout{1} = getappdata(0,'Model');
+    rmappdata(0,'Model');
+end
+
+function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)
+if isequal(get(hObject, 'waitstatus'), 'waiting')
+    % The GUI is still in UIWAIT, us UIRESUME
+    uiresume(hObject);
+end
 
 % #########################################################################
 %                           SIMULATION PANEL
