@@ -8,7 +8,7 @@ classdef vfa_t1
 %   (B1map)           excitation (B1+) fieldmap. Used to correct flip angles. [optional]
 %
 % Outputs:
-%   T1              Longitudinal relaxation time
+%   T1              Longitudinal relaxation time [s]
 %   M0              Equilibrium magnetization
 %
 % Protocol:
@@ -58,6 +58,12 @@ end
         Prot  = struct('SPGR',struct('Format',{{'FlipAngle' 'TR'}},...
                                          'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
         
+        % fitting options
+        st           = [2000 0.7]; % starting point
+        lb           = [0   0.00001]; % lower bound
+        ub           = [6000   5]; % upper bound
+        fx           = [    0        0        0 ]; % fix parameters
+                                     
         % Model options
         buttons = {};
         options= struct(); % structure filled by the buttons. Leave empty in the code
@@ -74,8 +80,16 @@ end
             obj.options = button2opts(obj.buttons);
         end
         
-        function FitResult = equation(obj,x)
-            % Generates an VFA signal based on input parameters
+        function Smodel = equation(obj,x)
+            % Generates a VFA signal based on input parameters
+            x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
+
+            % Equation: S=M0sin(a)*(1-E)/(1-E)cos(a); E=exp(-TR/T1)
+            flipAngles = (obj.Prot.SPGR.Mat(:,1))';
+            TR = obj.Prot.SPGR.Mat(:,2);
+            E = exp(-TR/x.T1);
+            Smodel = x.M0*sin(flipAngles/180*pi)*(1-E)/(1-E*cos(flipAngles/180*pi));
+            
         end
         
        function FitResult = fit(obj,data)           
@@ -88,7 +102,8 @@ end
         end
         
         function plotModel(obj,x,data)
-
+            if nargin<2 || isempty(x), x = obj.st; end
+            
             x = mat2struct(x,obj.xnames);
             if isempty(data.B1map), data.B1map=1; end
             disp(x)
@@ -119,6 +134,6 @@ end
 %             grid on
 %             saveas(gcf,['temp.jpg']);
         end
-        
+
     end
 end
