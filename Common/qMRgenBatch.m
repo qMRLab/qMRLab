@@ -34,10 +34,8 @@ varNames.modelName = class(Model);
 
 % Directory definition ====================== START
 
-[sep,qMRroot] = getUserPath();
-demoDir = [qMRroot sep 'Data' sep varNames.modelName '_demo'];
-
-
+demoDir = downloadData(Model);
+[sep,~] = getUserPath();
 % Directory definition ====================== END
 
 
@@ -108,9 +106,8 @@ newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScr
 % Save batch example to a desired directory ====================== START
 
 writeName = [varNames.modelName '_batch.m'];
-h = msgbox(['Please select a destination to save ' writeName],'qMRLab');
-waitfor(h);
-cd(uigetdir()); % Save batch example to this dir
+cd(demoDir);
+cd ..
 
 fileID = fopen(writeName,'w');
 formatSpec = '%s\n';
