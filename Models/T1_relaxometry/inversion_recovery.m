@@ -38,7 +38,8 @@ classdef inversion_recovery
 %
 
 properties (Hidden=true)
-% Hidden proprties goes here.    
+    onlineData_url = 'https://osf.io/cmg9z/download/';
+    onlineData_filename = 'inversion_recovery.zip';
 end
 
 	properties

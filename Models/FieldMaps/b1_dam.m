@@ -40,7 +40,8 @@ classdef b1_dam
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-% Hidden proprties goes here.    
+    onlineData_url = 'https://osf.io/8ypzw/download/';
+    onlineData_filename = 'b1_dam.zip';
 end
 
     properties

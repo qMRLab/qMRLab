@@ -49,8 +49,8 @@ classdef mwf
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-% Hidden proprties goes here. 
-    url_example_data = 'https://osf.io/bes6f/';
+    onlineData_url = 'https://osf.io/bes6f/download/';
+    onlineData_filename = 'mwf.zip';
 end
 
     properties
