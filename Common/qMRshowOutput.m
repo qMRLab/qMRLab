@@ -1,5 +1,5 @@
 
-function qMRshowOutput(FitResults)
+function qMRshowOutput(FitResults,data)
 
 outputIm = FitResults.(FitResults.fields{1});
 figure();

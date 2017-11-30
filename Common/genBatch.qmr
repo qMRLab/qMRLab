@@ -64,7 +64,7 @@ FitResults.Model = Model; % qMRLab output.
 %			|- If available, a graph will be displayed to show fitting in a voxel.
 % -------------------------------------------------------------------------
 
-qMRshowOutput(FitResults);
+qMRshowOutput(FitResults,data);
 
 %% IV- SAVE MAPS AND OBJECT
 
