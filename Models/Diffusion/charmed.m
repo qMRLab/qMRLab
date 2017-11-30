@@ -15,7 +15,7 @@ classdef charmed < AbstractModel
 %      diffusion coefficient (Dr)       fixed by default. this assumption should have 
 %                                                          little impact if the average 
 %                                                          propagator is larger than
-%                                                          axonal diameter (sqrt(2*Dr*Delta)>8µm).
+%                                                          axonal diameter (sqrt(2*Dr*Delta)>8?m).
 %     extra-axonal                      Gaussian
 %      diffusion coefficient (Dh)       Constant by default. Time dependence (lc) 
 %                                                             can be added
@@ -57,7 +57,7 @@ classdef charmed < AbstractModel
 %     'Compute Sigma per voxel'     Sigma is estimated by computing the STD across repeated scans.
 %     'fix sigma'                   Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
 %   Display Type
-%     'q-value'                     abscissa for plots: q = gamma.delta.G (µm-1)
+%     'q-value'                     abscissa for plots: q = gamma.delta.G (?m-1)
 %     'b-value'                     abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
 %   S0 normalization
 %     'Use b=0'                     Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
@@ -360,6 +360,13 @@ end
             end
             fprintf('SOMA HAS FINISHED \n')
             
+        end
+    end
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            obj.Prot.DiffusionData.Format{5}='Gnorm (T/m)'; % old: '|G| (T/m)'
         end
     end
 end
