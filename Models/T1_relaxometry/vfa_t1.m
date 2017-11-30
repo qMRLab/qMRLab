@@ -141,8 +141,9 @@ end
             end
             slope = exp(-TR/x.T1);
             intercept = x.M0*(1-slope);
-            mval = min(xdata);
-            Mval = max(xdata);
+            X=Smodel./tan(flipAngles/180*pi*B1map);
+            mval = min(X);
+            Mval = max(X);
             plot([mval Mval],intercept+slope*[mval Mval],'-r');
             hold off
             title('Linear Fit','FontSize',14);
