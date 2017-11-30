@@ -19,18 +19,14 @@ for im = 1:length(MethodList)
    newProps = objProps2struct(newModel);
 
    % TEST MISMATCH OF PROPERTIES:
-   [~,LoadedModelextra,NewModelextra] = comp_struct(savedProps,newProps,3,0,inf);
-   
-   % CONVERT MISMATCH 2 STRING (TEXT MESSAGES)
-   newMsg = evalc('NewModelextra');
-   loadMsg = evalc('LoadedModelextra');
+   MSG=evalc('[~,LoadedModelextra,NewModelextra] = comp_struct(savedProps,newProps,3,0,inf);');
    
    % REPORT MISMATCH
    if ~isempty(LoadedModelextra)
-       error(['Missing field in ' MethodList{im} ' : ' newMsg loadMsg]); 
+       error(['Missing field in ' MethodList{im} ' : ' MSG]); 
    end
    if ~isempty(NewModelextra)
-       error(['Constructed object has an unregistered property in ' MethodList{im} ' : ' newMsg loadMsg]);
+       error(['Constructed object has an unregistered property in ' MethodList{im} ' : ' MSG]);
    end
     
 end
