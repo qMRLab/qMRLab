@@ -41,7 +41,6 @@ classdef b1_dam < AbstractModel
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/8ypzw/download/';
-    onlineData_filename = 'b1_dam.zip';
 end
 
     properties

@@ -112,7 +112,7 @@ classdef qmt_spgr < AbstractModel
 
  properties (Hidden=true)
     onlineData_url = 'https://osf.io/pzqyn/download/';
-    onlineData_filename = 'qmt_spgr.zip';
+    
 end
     properties
         MRIinputs = {'MTdata','R1map','B1map','B0map','Mask'}; % input data required

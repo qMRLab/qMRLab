@@ -44,7 +44,6 @@ classdef mt_sat < AbstractModel
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/c5wdb/download/';
-    onlineData_filename = 'mt_sat.zip'; 
 end
 
     properties

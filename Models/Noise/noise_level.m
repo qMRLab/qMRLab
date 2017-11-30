@@ -26,7 +26,6 @@ classdef noise_level < AbstractModel
     
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/ve3xy/download/';
-    onlineData_filename = 'noise_level.zip';
 end
 
     properties

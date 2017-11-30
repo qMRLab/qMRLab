@@ -88,7 +88,7 @@ Model.saveObj('*-modelName-*_Demo.qMRLab.mat');
 % -------------------------------------------------------------------------
 %%       B- Sensitivity Analysis 
 %           |-    Simulates sensitivity to fitted parameters:
-%                  (1) vary fitting parameters from lower (lb) to upper (ub) bound in 10 steps
+%                  (1) vary fitting parameters from lower (lb) to upper (ub) bound.
 %                  (2) run Sim_Single_Voxel_Curve Nofruns times
 %                  (3) Compute mean and std across runs
 % -------------------------------------------------------------------------
