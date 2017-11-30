@@ -1,8 +1,9 @@
-function dataPath = downloadData(Model)
-
+function dataPath = downloadData(Model,path)
+if ~exist('path','var') && isempty(path)
 h = msgbox('Please select a destination to create example folder.','qMRLab');
 waitfor(h);
 path = uigetdir(); % Save batch example to this dir
+end
 cd(path);
 
 ModelName = class(Model); % Update this with ModelName later.
