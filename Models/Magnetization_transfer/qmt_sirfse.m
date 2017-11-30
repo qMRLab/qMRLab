@@ -1,4 +1,4 @@
-classdef qmt_sirfse
+classdef qmt_sirfse < AbstractModel
 % qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
 %<a href="matlab: figure, imshow qmt_sirfse.png ;">Pulse Sequence Diagram</a>
 %

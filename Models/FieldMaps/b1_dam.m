@@ -1,4 +1,4 @@
-classdef b1_dam
+classdef b1_dam < AbstractModel
 % b1_dam map:  Double-Angle Method for B1+ mapping
 %
 % Assumptions:

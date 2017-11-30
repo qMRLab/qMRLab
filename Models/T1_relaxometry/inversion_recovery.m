@@ -1,4 +1,5 @@
-classdef inversion_recovery
+
+classdef inversion_recovery < AbstractModel
 %inversion_recovery: Compute a T1 map using Inversion Recovery data
 %
 % Assumptions:

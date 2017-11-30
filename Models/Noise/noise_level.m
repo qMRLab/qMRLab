@@ -1,6 +1,5 @@
-classdef noise_level
+classdef noise_level < AbstractModel
 % noise_level :  Noise histogram fitting within a noise mask
-
 % ASSUMPTIONS:
 %   (1)Uniform noise distribution. Outputs are scalar : all voxels have
 %       the same value

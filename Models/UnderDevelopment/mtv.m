@@ -1,4 +1,4 @@
-classdef mtv
+classdef mtv < AbstractModel
 % mtv :  Macromolecular Tissue Volume
 %<a href="matlab: figure, imshow mtv.png ;">Pulse Sequence Diagram</a>
 %
