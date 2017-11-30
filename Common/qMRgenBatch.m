@@ -38,8 +38,13 @@ simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
 
 % Directory definition ====================== START
-if ~exist('path','var'), path=[]; end
+if ~exist('path','var')
+demoDir = downloadData(Model,[]);
+else
 demoDir = downloadData(Model,path);
+end
+
+
 [sep,~] = getUserPath();
 % Directory definition ====================== END
 

@@ -68,7 +68,7 @@ qMRshowOutput(FitResults);
 
 %% IV- SAVE MAPS AND OBJECT
 
-Model.saveObj('*-modelName-*_Demo.qMRLab.mat');
+Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 
 % You can save outputs in Nifti format using FitResultSave_nii function:
 % Plase see qMRinfo('FitResultsSave_nii')

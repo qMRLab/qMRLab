@@ -1,5 +1,5 @@
 function dataPath = downloadData(Model,path)
-if ~exist('path','var') && isempty(path)
+if ~exist('path','var') || isempty(path)
 h = msgbox('Please select a destination to create example folder.','qMRLab');
 waitfor(h);
 path = uigetdir(); % Save batch example to this dir
