@@ -4,7 +4,7 @@ mkdir Data
 cd Data
 %% Generate Batch examples
 Modellist = list_models';
-for iModel = 1:1%length(Modellist)
+for iModel = 1:length(Modellist)
     eval(['Model = ' Modellist{iModel}]);
     qMRgenBatch(Model,pwd)
     
