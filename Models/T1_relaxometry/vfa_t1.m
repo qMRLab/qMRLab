@@ -99,22 +99,28 @@ end
             if ~isfield(data,'B1map'), data.B1map=1; end
             [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
        
-        end
-        
-        function plotModel(obj,x,data)
-            if nargin<2 || isempty(x), x = obj.st; end
-            
-            x = mat2struct(x,obj.xnames);
-            if isempty(data.B1map), data.B1map=1; end
-            disp(x)
-            flipAngles = obj.Prot.SPGR.Mat(:,1)';
-            TR = obj.Prot.SPGR.Mat(1,2)';
-            
-            % Plot data and fitted signal
-            subplot(2,1,1)
-            plot(flipAngles,data.VFAData,'.','MarkerSize',16)
+       end
+       
+       function plotModel(obj,x,data)
+           if nargin<2 || isempty(x), x = obj.st; end
+           x = mat2struct(x,obj.xnames);
+           disp(x)
+           flipAngles = obj.Prot.SPGR.Mat(:,1)';
+           TR = obj.Prot.SPGR.Mat(1,2)';
+           subplot(2,1,1)
+           if exist('data','var')   
+               if ~isempty(data.B1map)
+                   B1map=data.B1map;
+               else
+                   B1map=1;
+               end
+                % Plot data and fitted signal
+                plot(flipAngles,data.VFAData,'.','MarkerSize',16)
+            else
+                B1map=1;
+            end
             E = exp(-TR/x.T1);
-            Smodel = x.M0*sin(flipAngles/180*pi*data.B1map)*(1-E)./(1-E*cos(flipAngles/180*pi*data.B1map));
+            Smodel = x.M0*sin(flipAngles/180*pi*B1map)*(1-E)./(1-E*cos(flipAngles/180*pi*B1map));
             hold on
             plot(flipAngles,Smodel,'x','MarkerSize',16)
             hold off
@@ -123,13 +129,16 @@ end
             ylabel('Signal','FontSize',12);
             legend('data', 'fitted','Location','best')
             set(gca,'FontSize',12)
+
             
             % Plot linear fit
             subplot(2,1,2)
-            ydata = data.VFAData./sin(flipAngles/180*pi*data.B1map)';
-            xdata = data.VFAData./tan(flipAngles/180*pi*data.B1map)';
-            plot(xdata,ydata,'xb','MarkerSize',16)
-            hold on
+            if exist('data','var')
+                ydata = data.VFAData./sin(flipAngles/180*pi*B1map)';
+                xdata = data.VFAData./tan(flipAngles/180*pi*B1map)';
+                plot(xdata,ydata,'xb','MarkerSize',16)
+                hold on
+            end
             slope = exp(-TR/x.T1);
             intercept = x.M0*(1-slope);
             mval = min(xdata);
@@ -141,7 +150,6 @@ end
             ylabel('[au]','FontSize',12);
             legend('linearized data', 'linear fit','Location','best')
             %txt=strcat('T1=',num2str(x.T1),'s M0=',num2str(x.M0));
-            %text(mval*1.1,max(ydata)*0.8,txt)
             set(gca,'FontSize',12)
 
 %             h = plot( fitresult, xData, yData,'+');
