@@ -13,10 +13,11 @@ disp('testing Simulation Single Voxel Curve...')
 MethodList = list_models;
 for im = 1:length(MethodList)
     Model = str2func(MethodList{im}); Model = Model();
-    if ~exist([MethodList{im} '.qmrlab.mat'],'file')
-        Model.saveObj([MethodList{im} '.qmrlab.mat']);
+    savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[MethodList{im} '.qmrlab.mat']);
+    if ~exist(savedModel_fname,'file')
+        Model.saveObj(savedModel_fname);
     else
-        Model = Model.loadObj([MethodList{im} '.qmrlab.mat']);
+        Model = Model.loadObj(savedModel_fname);
     end
     if ~Model.voxelwise, continue; end
     disp(class(Model))
