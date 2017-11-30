@@ -5,20 +5,24 @@ classdef mt_sat < AbstractModel
 %   MTsat is a semi-quantitative method. MTsat values depend on protocol parameters.
 %
 % Inputs:
-%   MTw     3D MT-weighted data
-%   T1w     3D T1-weighted data
-%   PDw     3D PD-weighted data
+%   MTw     3D MT-weighted data. Spoiled Gradient Echo (or FLASH) with MT
+%            pulse
+%   T1w     3D T1-weighted data. Spoiled Gradient Echo (or FLASH)
+%   PDw     3D PD-weighted data. Spoiled Gradient Echo (or FLASH)
 %
 % Outputs:
-%	  MTSAT   MT saturation map, T1-corrected
+%	  MTSAT         MT saturation map (%), T1-corrected
+%     T1            T1 map (s)            
 %
 % Options:
+%     B1 correction factor     Correction factor (empirical) for the transmit RF. Only
+%                               corrects MTSAT, not T1. 
+%                               Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
 %
 % Protocol:
-%   3 .txt files or 1 .mat file :
-%     MT    [FA  TR  Offset] %flip angle [deg], TR [s], Offset Frequency [Hz]
-%     T1    [FA  TR]  %flip angle [deg], TR [s]
-%     PD    [FA  TR]  %flip angle [deg], TR [s]
+%     MT    [FA  TR  Offset]  flip angle [deg], TR [s], Offset Frequency [Hz]
+%     T1    [FA  TR]          flip angle [deg], TR [s]
+%     PD    [FA  TR]          flip angle [deg], TR [s]
 %
 % Example of command line usage (see also <a href="matlab: showdemo mt_sat_batch">showdemo mt_sat_batch</a>):
 %   Model = mt_sat;  % Create class from model
@@ -42,31 +46,28 @@ classdef mt_sat < AbstractModel
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
-properties (Hidden=true)
-    onlineData_url = 'https://osf.io/c5wdb/download/';
-end
+
+    properties (Hidden=true)
+        onlineData_url = 'https://osf.io/c5wdb/download/';
+    end
 
     properties
-        MRIinputs = {'MTw','T1w', 'PDw', 'Mask'};
+        MRIinputs = {'MTw','T1w', 'PDw', 'B1map', 'Mask'};
         xnames = {};
         voxelwise = 0;
 
         % Protocol
-        Prot = struct('MT',struct('Format',{{'FlipAngle' 'TR (s)' 'Offset (Hz)'}},...
-                                   'Mat',  [6 0.028 1000]),...
-                      'T1',struct('Format',{{'FlipAngle' 'TR'}},...
+        Prot = struct('MT',struct('Format',{{'Flip Angle' 'TR (s)'}},...
+                                   'Mat',  [6 0.028]),...
+                      'T1',struct('Format',{{'Flip Angle' 'TR'}},...
                                    'Mat',  [20 0.018]),...
-                      'PD',struct('Format',{{'FlipAngle' 'TR'}},...
+                      'PD',struct('Format',{{'Flip Angle' 'TR'}},...
                                    'Mat',  [6 0.028]));
         % Model options
-        buttons = {};
+        buttons = {'B1 correction factor', 0.4};
         options= struct();
 
     end
-    
-methods (Hidden=true)
-% Hidden methods goes here.    
-end
 
     methods
         function obj = mt_sat
@@ -75,12 +76,15 @@ end
 
         function FitResult = fit(obj,data)
             MTparams = obj.Prot.MT.Mat;
-% % 
+
             PDparams = obj.Prot.PD.Mat;
 
             T1params = obj.Prot.T1.Mat;
-
-            FitResult.MTSAT = MTSAT_exec(data, MTparams, PDparams, T1params);
+            
+            B1params = obj.options.B1correctionfactor;
+            
+            [FitResult.MTSAT, R1] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
+            FitResult.T1 = 1./R1;
         end
 
     end
