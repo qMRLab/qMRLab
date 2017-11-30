@@ -28,24 +28,20 @@ end
 
 unzip(filename);
 
-if isunix
-    sep = '/';
-else
-    sep = '\';
-end
 
-oldname = [path sep [Model.ModelName '_demo'] sep filename(1:end-4)];
+
+oldname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4)];
 if (exist(oldname,'dir')~=0)
-    newname = [path sep [Model.ModelName '_demo'] sep filename(1:end-4) '_data'];
+    newname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4) '_data'];
     movefile(oldname,newname);
     dataPath = newname;
 else
-    dirFiles = dir([path sep Model.ModelName '_demo']);
+    dirFiles = dir([path filesep Model.ModelName '_demo']);
     dirFiles=dirFiles(~ismember({dirFiles.name},{'.','..'}));
     mkdir([filename(1:end-4) '_data']);
-    newname = [path sep [Model.ModelName '_demo'] sep filename(1:end-4) '_data'];
+    newname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4) '_data'];
     for i =1:length(dirFiles)
-        movefile(dirFiles(i).name,[newname sep dirFiles(i).name]);
+        movefile(dirFiles(i).name,[newname filesep dirFiles(i).name]);
         dataPath = newname;
     end
 end
