@@ -1,4 +1,4 @@
-classdef mt_sat
+classdef mt_sat < AbstractModel
 % mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
 %
 % Assumptions:

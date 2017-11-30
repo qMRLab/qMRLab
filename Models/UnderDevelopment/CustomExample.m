@@ -1,4 +1,4 @@
-classdef CustomExample % Name your Model
+classdef CustomExample < AbstractModel % Name your Model
 % CustomExample :  Describe the method here
 %<a href="matlab: figure, imshow CustomExample.png ;">Pulse Sequence Diagram</a>
 %

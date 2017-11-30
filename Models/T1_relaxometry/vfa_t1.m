@@ -1,4 +1,4 @@
-classdef vfa_t1
+classdef vfa_t1 < AbstractModel
 % vfa_t1: Compute a T1 map using Variable Flip Angle
 %
 % Assumptions:

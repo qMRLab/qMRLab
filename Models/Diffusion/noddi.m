@@ -1,4 +1,4 @@
-classdef noddi
+classdef noddi < AbstractModel
 % noddi:   Neurite Orientation Dispersion and Density Imaging
 %          Three-compartment model for fitting multi-shell DWI
 %<a href="matlab: figure, imshow noddi.png ;">Pulse Sequence Diagram</a>
