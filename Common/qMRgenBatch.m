@@ -45,7 +45,7 @@ demoDir = downloadData(Model,path);
 end
 
 
-[sep,~] = getUserPath();
+sep = filesep;
 % Directory definition ====================== END
 
 
@@ -406,29 +406,7 @@ end
 
 end
 
-function [sep,rootDir] = getUserPath()
 
-% Return user-specific qMRLab directory path.
-
-usrPath = path;
-loc = strfind(usrPath,'qMRLab');
-idx = loc(2);
-curStr = [];
-
-while ~strcmp(curStr,':');
-    curStr = usrPath(idx);
-    idx = idx - 1;
-end
-
-rootDir = usrPath(idx+2:loc(2)+5);
-
-if isunix
-    sep = '/';
-else
-    sep = '\';
-end
-
-end
 
 function out = remParant(in)
 
