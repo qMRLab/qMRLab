@@ -18,8 +18,6 @@ save_load_creates_identical_original_object(testCase)
 
 initialized_object_has_correct_version_val(testCase)
 
-load_fails_for_bad_version(testCase)
-
 save_load_retains_same_version(testCase)
 
 close all
@@ -49,26 +47,8 @@ assertEqual(originalObject, loadedObject, 'Some Properties Mismatch');
 function initialized_object_has_correct_version_val(testCase)
 assertEqual(testCase.modelObject.version, qMRLabVer);
 
-function load_fails_for_bad_version(testCase) %Temporary before being handled
-% Bad first argument parent type
-testError.identifier='No Error';
 
-testObject = testCase.modelObject;
-testObject.saveObj(testCase.tempFileName);
-
-% Change version to bad one.
-testObject.version = [0 0 0];
-
-try
-    testObject.loadObj(testCase.tempFileName);
-catch ME
-    testError = ME;
-end
-
-assertEqual(testError.identifier, 'AbstractModel:VersionMismatch');
-
-
-function save_load_retains_same_version(testCase) %Temporary before being handled
+function save_load_retains_same_version(testCase) 
 %% Prep
 %
 
