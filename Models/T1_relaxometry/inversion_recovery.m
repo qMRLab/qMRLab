@@ -135,8 +135,7 @@ end
             hold off
             xlabel('Inversion Time [ms]','FontSize',15);
             ylabel('Signal','FontSize',15);
-            legend('data', 'polarity restored', 'fit')
-            legend('show','Location','Best')
+            legend('data', 'polarity restored', 'fit','Location','best')
             set(gca,'FontSize',15)
         end
         
