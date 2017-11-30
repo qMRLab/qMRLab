@@ -79,7 +79,6 @@ classdef qmt_bssfp < AbstractModel
 %
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/r64tk/download/';
-    onlineData_filename = 'qmt_bssfp.zip';  
 end
 
     properties

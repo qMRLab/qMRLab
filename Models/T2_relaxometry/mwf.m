@@ -50,7 +50,7 @@ classdef mwf < AbstractModel
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/bes6f/download/';
-    onlineData_filename = 'mwf.zip';
+    
 end
 
     properties

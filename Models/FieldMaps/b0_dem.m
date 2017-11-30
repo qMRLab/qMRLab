@@ -45,7 +45,6 @@ classdef b0_dem < AbstractModel
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/zkefh/download/';
-    onlineData_filename = 'b0_dem.zip';
 end
 
     properties

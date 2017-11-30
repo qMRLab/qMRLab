@@ -96,7 +96,7 @@ Getting started
 ===============================================================================
 Dependencies
 ------------------------------------------------------------------------------
-* MATLAB_R2013a or later (octave compatibility currently being implemented)
+* MATLAB_R2014b or later (octave compatibility currently being implemented)
 
 Installing qMRlab
 --------------------------------------------------------------------------------

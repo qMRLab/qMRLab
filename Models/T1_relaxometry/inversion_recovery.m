@@ -40,7 +40,6 @@ classdef inversion_recovery < AbstractModel
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/cmg9z/download/';
-    onlineData_filename = 'inversion_recovery.zip';
 end
 
 	properties
