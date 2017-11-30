@@ -1,46 +1,37 @@
+function test_suite=loadModel_Test
+try % assignment of 'localfunctions' is necessary in Matlab >= 2016
+    test_functions=localfunctions();
+catch % no problem; early Matlab versions can use initTestSuite fine
+end
+initTestSuite;
+
 
 function load_test
 
-[pathstr,~,~]=fileparts(which('load_test.m'));
-cd (pathstr);
 MethodList = list_models;
 
-for i = 1:length(MethodList)
-    
-   savedModel = load([MethodList{i} '.qmrlab.mat']);
-   eval(['newModel = ' savedModel.ModelName ';']);
+for im = 1:length(MethodList)
+   savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[MethodList{im} '.qmrlab.mat']);
+   savedProps = load(savedModel_fname);
+   eval(['newModel = ' savedProps.ModelName ';']);
   
-   newProps = properties(newModel);
-  
+   newProps = objProps2struct(newModel);
+
    % Saved method is a struct with properties only.
    
-   savedProps = fieldnames(savedModel);
+   [~,LoadedModelextra,NewModelextra] = comp_struct(savedProps,newProps,3,0,inf);
+%    idx1 = ismember(newProps,savedProps);
+%    idx2 = ismember(savedProps,newProps);
    
-   idx1 = ismember(newProps,savedProps);
-   idx2 = ismember(savedProps,newProps);
-   
-   
-   if not(all(idx2)) && length(idx2)>length(idx1) % This means that newProps is missing something
-   loc = find(idx2 == 0);
-   error(['Missing field in ' MethodList{i} ' : ' savedProps{loc}]);       
+   newMsg = evalc('NewModelextra');
+   loadMsg = evalc('LoadedModelextra');
+   if ~isempty(LoadedModelextra)
+       error(['Missing field in ' MethodList{im} ' : ' newMsg loadMsg]); 
    end
-   
-   if not(all(idx1)) && length(idx2)<length(idx1) % This means that there is something new.
-   loc = find(idx1 == 0);
-   error(['Constructed object has an unregistered property in ' MethodList{i} ' : ' newProps{loc}]);       
+   if ~isempty(NewModelextra)
+       error(['Constructed object has an unregistered property in ' MethodList{im} ' : ' newMsg loadMsg]);
    end
-   
-   if not(all(idx1)) && length(savedProps) == length(newProps) % More complicated. Mistmatch. 
-   loc = find(idx1 == 0);
-   error(['There is mismatch in ' MethodList{i} ' : ' newProps{loc}]);   
-   end
-   
     
 end
 
 disp('Success: All fields are consistent.');
-
-
-
-
-end
