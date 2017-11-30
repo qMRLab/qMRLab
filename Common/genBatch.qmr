@@ -74,7 +74,7 @@ Model.saveObj('*-modelName-*_Demo.qMRLab.mat');
 % Plase see qMRinfo('FitResultsSave_nii')
 
 %% V- SIMULATIONS
-
+%     |- This section can be executed to run simulations for '*-modelName-*.
 % -------------------------------------------------------------------------
 %%       A- Single Voxel Curve 
 %           |- Simulates Single Voxel curves:
@@ -83,8 +83,7 @@ Model.saveObj('*-modelName-*_Demo.qMRLab.mat');
 %                (3) fit and plot curve
 % -------------------------------------------------------------------------
 
-
-% '*-Single Voxel Curve-*'
+% *-SingleVoxelCurve-*
 
 % -------------------------------------------------------------------------
 %%       B- Sensitivity Analysis 
@@ -94,6 +93,5 @@ Model.saveObj('*-modelName-*_Demo.qMRLab.mat');
 %                  (3) Compute mean and std across runs
 % -------------------------------------------------------------------------
 
-
-% '*-Sensitivity Analysis-*'
+% *-SensitivityAnalysis-*
 

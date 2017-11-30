@@ -28,6 +28,11 @@ varNames.jokerModel = '*-modelName-*';
 varNames.jokerDemoDir = '*-demoDir-*';
 varNames.modelName = class(Model);
 
+simNames = struct();
+simNames.jokerSVC = '*-SingleVoxelCurve-*';
+simNames.jokerSVC = '*-SingleVoxelCurve-*';
+
+
 % Define jokers and get class info ====================== END
 
 
