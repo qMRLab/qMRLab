@@ -12,7 +12,7 @@ classdef vfa_t1
 %   M0              Equilibrium magnetization
 %
 % Protocol:
-%   Array [nbFA x 2]:
+%   VFAData Array [nbFA x 2]:
 %       [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
 %
 % Options:
@@ -20,7 +20,7 @@ classdef vfa_t1
 %
 % Example of command line usage (see also <a href="matlab: showdemo vfa_t1_batch">showdemo vfa_t1_batch</a>):
 %   Model = vfa_t1;  % Create class from model 
-%   Model.Prot.SPGR.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
+%   Model.Prot.VFAData.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
 %   data = struct;  % Create data structure 
 %   data.VFAData = load_nii_data('VFAData.nii.gz');
 %   data.B1map = load_nii_data('B1map.nii.gz');
@@ -55,7 +55,7 @@ end
         voxelwise = 1;
         
         % Protocol
-        Prot  = struct('SPGR',struct('Format',{{'FlipAngle' 'TR'}},...
+        Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...
                                          'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
         
         % fitting options
@@ -68,6 +68,9 @@ end
         buttons = {};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
+        % Simulation Options
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50};
+        Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
     
 methods (Hidden=true)
@@ -85,8 +88,8 @@ end
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
 
             % Equation: S=M0sin(a)*(1-E)/(1-E)cos(a); E=exp(-TR/T1)
-            flipAngles = (obj.Prot.SPGR.Mat(:,1))';
-            TR = obj.Prot.SPGR.Mat(1,2);
+            flipAngles = (obj.Prot.VFAData.Mat(:,1))';
+            TR = obj.Prot.VFAData.Mat(1,2);
             E = exp(-TR/x.T1);
             Smodel = x.M0*sin(flipAngles/180*pi)*(1-E)./(1-E*cos(flipAngles/180*pi));
             
@@ -94,8 +97,8 @@ end
         
        function FitResult = fit(obj,data)           
             % T1 and M0
-            flipAngles = (obj.Prot.SPGR.Mat(:,1))';
-            TR = obj.Prot.SPGR.Mat(:,2);
+            flipAngles = (obj.Prot.VFAData.Mat(:,1))';
+            TR = obj.Prot.VFAData.Mat(:,2);
             if ~isfield(data,'B1map'), data.B1map=1; end
             [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
        
@@ -105,8 +108,8 @@ end
            if nargin<2 || isempty(x), x = obj.st; end
            x = mat2struct(x,obj.xnames);
            disp(x)
-           flipAngles = obj.Prot.SPGR.Mat(:,1)';
-           TR = obj.Prot.SPGR.Mat(1,2)';
+           flipAngles = obj.Prot.VFAData.Mat(:,1)';
+           TR = obj.Prot.VFAData.Mat(1,2)';
            subplot(2,1,1)
            if exist('data','var')   
                if ~isempty(data.B1map)
@@ -165,7 +168,26 @@ end
 %             ylabel( 'y' );
 %             grid on
 %             saveas(gcf,['temp.jpg']);
-        end
+       end
+       function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+           % Simulates Single Voxel
+           %
+           % :param x: [struct] fit parameters
+           % :param Opt.SNR: [struct] signal to noise ratio to use
+           % :param display: 1=display, 0=nodisplay
+           % :returns: [struct] FitResults
+           
+           if ~exist('display','var'), display = 1; end
+           Smodel = equation(obj, x);
+           sigma = max(abs(Smodel))/Opt.SNR;
+           data.VFAData = ricernd(Smodel,sigma)';
+           data.B1map = 1;
+
+           FitResults = fit(obj,data);
+           if display
+               plotModel(obj, FitResults, data);
+           end
+       end
 
     end
 end
