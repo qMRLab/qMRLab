@@ -5,7 +5,7 @@
 %
 % Written by: Agah Karakuzu, 2017
 
-function qMRgenBatch(Model)
+function qMRgenBatch(Model,path)
 
 % Main function
 
@@ -38,8 +38,8 @@ simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
 
 % Directory definition ====================== START
-
-demoDir = downloadData(Model);
+if ~exist('path','var'), path=[]; end
+demoDir = downloadData(Model,path);
 [sep,~] = getUserPath();
 % Directory definition ====================== END
 
