@@ -13,7 +13,8 @@ MethodList = list_models;
 for im = 1:length(MethodList)
    % LOAD
    savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[MethodList{im} '.qmrlab.mat']);
-   savedProps = load(savedModel_fname);
+   savedModel = qMRloadObj(savedModel_fname);
+   savedProps = objProps2struct(savedModel);
    % CREATE NEW OBJECT
    eval(['newModel = ' savedProps.ModelName ';']);
    newProps = objProps2struct(newModel);
