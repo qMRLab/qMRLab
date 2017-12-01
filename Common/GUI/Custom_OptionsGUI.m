@@ -13,7 +13,7 @@ function varargout = Custom_OptionsGUI(varargin)
 
 
 % Begin initialization code - DO NOT EDIT
-if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
+if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); if nargout, varargout{1} = varargin{1}; end; return; end
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
