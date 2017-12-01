@@ -1,3 +1,4 @@
+% This m-file has been automatically generated. 
 % Command Line Interface (CLI) is well-suited for automatization 
 % purposes and Octave. 
 %
@@ -5,7 +6,7 @@
 % processing for *-modelName-* on CLI.
 %
 % Demo files are downloaded into *-modelName-*_data folder. 
-% This m-file has been automatically generated. 
+% 
 %
 % Written by: Agah Karakuzu, 2017
 % =========================================================================
@@ -28,7 +29,12 @@ Model = *-modelName-*;
 %           |- Octave is not GUI compatible. Modify Model.options directly.
 % -------------------------------------------------------------------------
 
-Model = Custom_OptionsGUI(Model);
+if moxunit_util_platform_is_octave
+   disp('GUI is not available in Octave');
+   more off; % Provides a better command window output in Octave.
+else
+   Model = Custom_OptionsGUI(Model); % You need to close GUI to move on. 
+end
 
 % -------------------------------------------------------------------------
 %%      C- LOAD PROTOCOL
@@ -64,11 +70,11 @@ FitResults.Model = Model; % qMRLab output.
 %			|- If available, a graph will be displayed to show fitting in a voxel.
 % -------------------------------------------------------------------------
 
-qMRshowOutput(FitResults);
+qMRshowOutput(FitResults,data,Model);
 
 %% IV- SAVE MAPS AND OBJECT
 
-Model.saveObj('*-modelName-*_Demo.qMRLab.mat');
+Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 
 % You can save outputs in Nifti format using FitResultSave_nii function:
 % Plase see qMRinfo('FitResultsSave_nii')
@@ -88,7 +94,7 @@ Model.saveObj('*-modelName-*_Demo.qMRLab.mat');
 % -------------------------------------------------------------------------
 %%       B- Sensitivity Analysis 
 %           |-    Simulates sensitivity to fitted parameters:
-%                  (1) vary fitting parameters from lower (lb) to upper (ub) bound in 10 steps
+%                  (1) vary fitting parameters from lower (lb) to upper (ub) bound.
 %                  (2) run Sim_Single_Voxel_Curve Nofruns times
 %                  (3) Compute mean and std across runs
 % -------------------------------------------------------------------------

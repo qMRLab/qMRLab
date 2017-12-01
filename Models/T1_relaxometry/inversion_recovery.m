@@ -40,7 +40,6 @@ classdef inversion_recovery < AbstractModel
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/cmg9z/download/';
-    onlineData_filename = 'inversion_recovery.zip';
 end
 
 	properties
@@ -136,8 +135,7 @@ end
             hold off
             xlabel('Inversion Time [ms]','FontSize',15);
             ylabel('Signal','FontSize',15);
-            legend('data', 'polarity restored', 'fit')
-            legend('show','Location','Best')
+            legend('data', 'polarity restored', 'fit','Location','best')
             set(gca,'FontSize',15)
         end
         

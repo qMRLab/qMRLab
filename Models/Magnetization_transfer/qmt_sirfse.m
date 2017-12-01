@@ -89,7 +89,7 @@ classdef qmt_sirfse < AbstractModel
     
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/fk2nd/download/';
-    onlineData_filename = 'qmt_sirfse.zip'; 
+    
 end
 
     properties

@@ -42,7 +42,7 @@ classdef noddi < AbstractModel
 %     Gx                Diffusion Gradient x
 %     Gy                Diffusion Gradient y
 %     Gz                Diffusion Gradient z
-%     |G| (T/m)         Diffusion gradient magnitude
+%     Gnorm (T/m)         Diffusion gradient magnitude
 %     Delta (s)         Diffusion separation
 %     delta (s)         Diffusion duration
 %     TE (s)            Echo time
@@ -80,7 +80,7 @@ end
         fx           = [ ]; % fix parameters
         
         % Protocol
-        Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
+        Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
                                       	     'Mat',   txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
@@ -260,4 +260,12 @@ end
         end
 
     end
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            obj.Prot.DiffusionData.Format{5}='Gnorm (T/m)'; % old: '|G| (T/m)'
+        end
+    end
+
 end

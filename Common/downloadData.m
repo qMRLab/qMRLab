@@ -1,20 +1,21 @@
 function dataPath = downloadData(Model,path)
-if ~exist('path','var') && isempty(path)
+if ~exist('path','var') || isempty(path)
 h = msgbox('Please select a destination to create example folder.','qMRLab');
 waitfor(h);
 path = uigetdir(); % Save batch example to this dir
 end
 cd(path);
 
-ModelName = class(Model); % Update this with ModelName later.
 
-mkdir([ModelName '_demo']);
-cd([ModelName '_demo']);
+mkdir([Model.ModelName '_demo']);
+cd([Model.ModelName '_demo']);
+if not(moxunit_util_platform_is_octave)
 commandwindow;
+end
 disp('Please wait. Downloading data...');
 
 url = Model.onlineData_url;
-filename = Model.onlineData_filename;
+filename = [Model.ModelName '.zip'];
 try
     if moxunit_util_platform_is_octave
         urlwrite(url,filename);
@@ -27,26 +28,22 @@ catch
     error('Data cannot be downloaded.');
 end
 
-unzip(Model.onlineData_filename);
+unzip(filename);
 
-if isunix
-    sep = '/';
-else
-    sep = '\';
-end
 
-oldname = [path sep [ModelName '_demo'] sep filename(1:end-4)];
+
+oldname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4)];
 if (exist(oldname,'dir')~=0)
-    newname = [path sep [ModelName '_demo'] sep filename(1:end-4) '_data'];
+    newname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4) '_data'];
     movefile(oldname,newname);
     dataPath = newname;
 else
-    dirFiles = dir([path sep ModelName '_demo']);
+    dirFiles = dir([path filesep Model.ModelName '_demo']);
     dirFiles=dirFiles(~ismember({dirFiles.name},{'.','..'}));
     mkdir([filename(1:end-4) '_data']);
-    newname = [path sep [ModelName '_demo'] sep filename(1:end-4) '_data'];
+    newname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4) '_data'];
     for i =1:length(dirFiles)
-        movefile(dirFiles(i).name,[newname sep dirFiles(i).name]);
+        movefile(dirFiles(i).name,[newname filesep dirFiles(i).name]);
         dataPath = newname;
     end
 end

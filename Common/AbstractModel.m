@@ -25,6 +25,13 @@ classdef (Abstract) AbstractModel
                 objStruct = objProps2struct(obj);
                 
                 save([strrep(strrep(suffix,'.qmrlab.mat',''),'.mat','') '.qmrlab.mat'], '-struct', 'objStruct');
+                
+                if moxunit_util_platform_is_octave
+          
+                 save('-mat7-binary', [strrep(strrep(suffix,'.qmrlab.mat',''),'.mat','') '.qmrlab.mat'], '-struct' ,'objStruct');
+                end
+                
+                
             catch ME
                 error(ME.identifier, ME.message)
             end

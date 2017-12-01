@@ -18,8 +18,10 @@ classdef dti < AbstractModel
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
+
 properties (Hidden=true)
-% Hidden proprties goes here.    
+    onlineData_url = 'https://osf.io/4s6rf/download/';
+    onlineData_filename = 'noddi.zip';
 end
 
     properties
@@ -35,7 +37,7 @@ end
         
         % Protocol
         Prot = struct('DiffusionData',...
-                    struct('Format',{{'Gx' 'Gy'  'Gz'   '|G|'  'Delta'  'delta'  'TE'}},...
+                    struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
                             'Mat', txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt')))); % You can define a default protocol here.
         
         % Model options
@@ -214,4 +216,12 @@ end
         end
         
     end
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            obj.Prot.DiffusionData.Format{5}='Gnorm (T/m)'; % old: '|G| (T/m)'
+        end
+    end
+
 end

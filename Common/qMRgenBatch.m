@@ -11,8 +11,11 @@ function qMRgenBatch(Model,path)
 
 % Define jokers and get class info ====================== START
 
-
-attrList   = properties(Model);
+if moxunit_util_platform_is_octave
+    attrList   = fieldnames(Model);
+else
+    attrList   = properties(Model);
+end
 
 explainTexts = struct();
 explainTexts.jokerProt = '*-protExplain-*';
@@ -28,9 +31,9 @@ varNames.jokerModel = '*-modelName-*';
 varNames.jokerDemoDir = '*-demoDir-*';
 varNames.modelName = class(Model);
 
-simNames = struct();
-simNames.jokerSVC = '*-SingleVoxelCurve-*';
-simNames.jokerSVC = '*-SingleVoxelCurve-*';
+simTexts = struct();
+simTexts.jokerSVC = '*-SingleVoxelCurve-*';
+simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
 
 % Define jokers and get class info ====================== END
@@ -38,9 +41,14 @@ simNames.jokerSVC = '*-SingleVoxelCurve-*';
 
 
 % Directory definition ====================== START
-if ~exist('path','var'), path=[]; end
+if ~exist('path','var')
+demoDir = downloadData(Model,[]);
+else
 demoDir = downloadData(Model,path);
-[sep,~] = getUserPath();
+end
+
+
+sep = filesep;
 % Directory definition ====================== END
 
 
@@ -77,6 +85,15 @@ else % Unlikely yet ..
 end
 
 
+if Model.voxelwise
+    svc = qMRusage(Model,'Single_Voxel_Curve');
+    simTexts.SVCcommands = qMRUsage2CLI(svc);
+    sa = qMRusage(Model,'Sensitivity_Analysis');
+    simTexts.SAcommands = qMRUsage2CLI(sa);
+else
+    simTexts.SVCcommands = {'% Not available for the current model.'};
+    simTexts.SAcommands = {'% Not available for the current model.'};
+end
 
 % Generate model specific commands ====================== END
 
@@ -105,6 +122,10 @@ newScript = replaceJoker(explainTexts.jokerData,explainTexts.dataExplain,newScri
 
 newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScript,2); % Data Code
 
+newScript = replaceJoker(simTexts.jokerSVC,simTexts.SVCcommands,newScript,2); % Sim 1
+
+newScript = replaceJoker(simTexts.jokerSA,simTexts.SAcommands,newScript,2); % Sim 2
+
 % Replace jokers ====================== END
 
 
@@ -124,7 +145,12 @@ end
 
 % Save batch example to a desired directory ====================== END
 
-
+clc;
+curDir = pwd;
+disp('------------------------------');
+disp(['SAVED: ' writeName]);
+disp(['Demo is ready at: ' curDir]);
+disp('------------------------------');
 
 end
 
@@ -227,6 +253,8 @@ end
 
 
 protCommands = newCommand;
+
+
 
 end
 
@@ -381,29 +409,7 @@ end
 
 end
 
-function [sep,rootDir] = getUserPath()
 
-% Return user-specific qMRLab directory path.
-
-usrPath = path;
-loc = strfind(usrPath,'qMRLab');
-idx = loc(2);
-curStr = [];
-
-while ~strcmp(curStr,':');
-    curStr = usrPath(idx);
-    idx = idx - 1;
-end
-
-rootDir = usrPath(idx+2:loc(2)+5);
-
-if isunix
-    sep = '/';
-else
-    sep = '\';
-end
-
-end
 
 function out = remParant(in)
 
@@ -415,4 +421,11 @@ else
     out = in;
 end
 
+end
+
+function Cnew = qMRUsage2CLI(inStr)
+C = strsplit(inStr,'\n');
+C = C';
+Cnew = C(~cellfun(@isempty, C));
+Cnew = Cnew(2:end);
 end
