@@ -29,7 +29,12 @@ Model = *-modelName-*;
 %           |- Octave is not GUI compatible. Modify Model.options directly.
 % -------------------------------------------------------------------------
 
-Model = Custom_OptionsGUI(Model);
+if moxunit_util_platform_is_octave
+   disp('GUI is not available in Octave');
+   more off; % Provides a better command window output in Octave.
+else
+   Model = Custom_OptionsGUI(Model); % You need to close GUI to move on. 
+end
 
 % -------------------------------------------------------------------------
 %%      C- LOAD PROTOCOL

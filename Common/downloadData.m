@@ -9,7 +9,9 @@ cd(path);
 
 mkdir([Model.ModelName '_demo']);
 cd([Model.ModelName '_demo']);
+if not(moxunit_util_platform_is_octave)
 commandwindow;
+end
 disp('Please wait. Downloading data...');
 
 url = Model.onlineData_url;

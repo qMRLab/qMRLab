@@ -11,8 +11,11 @@ function qMRgenBatch(Model,path)
 
 % Define jokers and get class info ====================== START
 
-
-attrList   = properties(Model);
+if moxunit_util_platform_is_octave
+    attrList   = fieldnames(Model);
+else
+    attrList   = properties(Model);
+end
 
 explainTexts = struct();
 explainTexts.jokerProt = '*-protExplain-*';
