@@ -14,7 +14,7 @@ Welcome to qMRLab, a software for quantitative MR image analysis. You can either
 .. raw:: html
 
     <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe width="700" height="394" src="https://www.youtube-nocookie.com/embed/WG0tVe-SFww?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+        <iframe width="700" height="394" src="https://www.youtube.com/embed/A-ExA_vE6_U?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
     </div>
 
 .. toctree::
