@@ -1,5 +1,5 @@
 
-function qMRshowOutput(FitResults,data)
+function qMRshowOutput(FitResults,data,Model)
 
 outputIm = FitResults.(FitResults.fields{1});
 figure();
@@ -9,10 +9,10 @@ figure();
   sz = size(outputIm);
   szz = round(sz(3)/2);
   imagesc(imrotate(outputIm(:,:,szz),90)); colormap('jet');  title(FitResults.fields{1});
-    caxis([prctile(outputIm(:),25) prctile(outputIm(:),75)]); colorbar();
+    caxis([prctile(outputIm(:),10) prctile(outputIm(:),90)]); colorbar();
  else 
     imagesc(imrotate(outputIm,90)); colormap('jet');  title(FitResults.fields{1});
-    caxis([prctile(outputIm(:),15) prctile(outputIm(:),85)]); colorbar();
+    caxis([prctile(outputIm(:),10) prctile(outputIm(:),90)]); colorbar();
 
  end
 
