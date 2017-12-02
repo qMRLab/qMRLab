@@ -33,7 +33,7 @@ classdef (Abstract) AbstractModel
                 
                 
             catch ME
-                error(ME.identifier, ME.message)
+                error(ME.identifier, [class(obj) ':' ME.message])
             end
         end
         
@@ -45,15 +45,15 @@ classdef (Abstract) AbstractModel
                 obj = qMRpatch(obj,loadedStruct,loadedStruct.version);
                 
             catch ME
-                error(ME.identifier, ME.message)
+                error(ME.identifier, [class(obj) ':' ME.message])
             end
         end
     end
     
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
-            objectProperties = fieldnames(obj);
-            
+            objStruct = objProps2struct(obj);
+            objectProperties = fieldnames(objStruct);
             %Loop through all object properties
             for propIndex = 1:length(objectProperties)
                 
