@@ -7,8 +7,7 @@ classdef (TestTags = {'Unit'}) AbstractModel_Test < matlab.unittest.TestCase
     
     methods (TestClassSetup)
          function initParPool(testCase)
-           B0_DEM_batch;
-           testCase.modelObject = Model;
+           testCase.modelObject = b0_dem;
         end
     end
     

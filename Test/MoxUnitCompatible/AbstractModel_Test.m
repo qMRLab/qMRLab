@@ -7,8 +7,8 @@ initTestSuite;
 
 
 function test_main
-B0_DEM_batch;
-testCase.modelObject = Model;
+testCase.modelObject = qmt_spgr;
+testCase.modelObject.st(1) = 0; % do a arbitrary modification
 testCase.tempFileName = 'tmp.qMRLab.mat';
 if exist(testCase.tempFileName, 'file') == 2
     delete(testCase.tempFileName)

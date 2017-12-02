@@ -35,6 +35,7 @@ catch
         disp('Compile Faddeeva...')
         Faddeeva_build
         disp('                ...ok')
+        cd(cur)
     catch
         cd(cur)
         error('Cannot compile External/Faddeeva_MATLAB, a function used by NODDI. Plz install a compiler and run Faddeeva_build. Alternatively, edit NODDI_erfi.')
