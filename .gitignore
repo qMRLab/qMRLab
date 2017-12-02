@@ -56,8 +56,6 @@ MTSAT/interface.jpg
 # Files created by the documentation
 docs/build/*
 External/Faddeeva_MATLAB/Faddeeva.o
-External/Faddeeva_MATLAB/Faddeeva_erfi.mex
-External/Faddeeva_MATLAB/Faddeeva_erfi_mex.o
 docs/.idea
 *.pyc
 Data

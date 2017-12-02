@@ -28,12 +28,13 @@ end
 try
     NODDI_erfi(.8);
 catch
+    % Compile Faddeeva
     cur = pwd;
     cd(fullfile(fileparts(mfilename('fullpath')),'External','Faddeeva_MATLAB'))
     try
         Faddeeva_build
     catch
+        cd(cur)
         error('Cannot compile External/Faddeeva_MATLAB, a function used by NODDI. Plz install a compiler and run Faddeeva_build. Alternatively, edit NODDI_erfi.')
     end
-    cd(cur)
 end
