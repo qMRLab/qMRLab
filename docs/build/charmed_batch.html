@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>charmed: Composite Hindered and Restricted Model for Diffusion &mdash; qMRLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="qMRLab 0.1 documentation" href="index.html"/>
+        <link rel="up" title="qMRLab Introduction" href="documentation.html"/>
+        <link rel="next" title="B0_DEM map : Dual Echo Method for B0 mapping" href="b0_dem_batch.html"/>
+        <link rel="prev" title="qMRLab Introduction" href="documentation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> qMRLab
+          
+
+          
+            
+            <img src="_static/qMR_logo.png" class="logo" />
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="documentation.html">qMRLab Introduction</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="documentation.html#diffusion">Diffusion</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">charmed: Composite Hindered and Restricted Model for Diffusion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#fieldmaps">FieldMaps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="b0_dem_batch.html">B0_DEM map :  Dual Echo Method for B0 mapping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="b1_dam_batch.html">B1_DAM map:  Double-Angle Method for B1+ mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#magnetization-transfer">Magnetization_transfer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mt_sat_batch.html">MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_bssfp_batch.html">qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_sirfse_batch.html">qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_spgr_batch.html">qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#noise">Noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#t1-relaxometry">T1_relaxometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="inversion_recovery_batch.html">inversion_recovery: Compute a T1 map using Inversion Recovery data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#t2-relaxometry">T2_relaxometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mwf_batch.html">mwf :  Myelin Water Fraction from Multi-Exponential T2w data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#underdevelopment">UnderDevelopment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mtv_batch.html">mtv :  Macromolecular Tissue Volume</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#installing-qmrlab">Installing qMRlab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#zip-download-instructions">Zip Download Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#command-line-instructions">Command-Line Instructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#usage-guidelines">Usage Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui_usage.html">Graphical User Interface Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#startup">1. Startup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#interface">2. Interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#menu-panel">2.1 Menu Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#main-panel">2.2 Main Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#options-panel">2.3 Options Panel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#data-fitting">3.      Data Fitting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#data-format">3.1     Data format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#fitting-procedure">3.2     Fitting Procedure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#viewing-the-fit-results">3.3     Viewing the fit results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#simulation">4.      Simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id1">4.1.    Single Voxel Curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id2">4.2.    Sensitivity Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id3">4.3. Multi Voxel Distribution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#id4">5. Options Panel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id5">5.1 Protocol</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id6">5.2.    Fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id7">5.3. Options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#tutorial">6.      Tutorial</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qMRLab</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="documentation.html">qMRLab Introduction</a> &raquo;</li>
+        
+      <li>charmed: Composite Hindered and Restricted Model for Diffusion</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/charmed_batch.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="charmed-composite-hindered-and-restricted-model-for-diffusion">
+<h1>charmed: Composite Hindered and Restricted Model for Diffusion<a class="headerlink" href="#charmed-composite-hindered-and-restricted-model-for-diffusion" title="Permalink to this headline">¶</a></h1>
+<style type="text/css">
+.content { font-size:1.0em; line-height:140%; padding: 20px; }
+.content p { padding:0px; margin:0px 0px 20px; }
+.content img { padding:0px; margin:0px 0px 20px; border:none; }
+.content p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+.content ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+.content ul li { padding:0px; margin:0px 0px 7px 0px; }
+.content ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+.content ul li ol li { list-style:decimal; }
+.content ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+.content ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+.content ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+.content ol li ol li { list-style-type:lower-alpha; }
+.content ol li ul { padding-top:7px; }
+.content ol li ul li { list-style:square; }
+.content pre, code { font-size:11px; }
+.content tt { font-size: 1.0em; }
+.content pre { margin:0px 0px 20px; }
+.content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+.content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+.content pre.error { color:red; }
+.content @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+.content span.keyword { color:#0000FF }
+.content span.comment { color:#228B22 }
+.content span.string { color:#A020F0 }
+.content span.untermstring { color:#B20000 }
+.content span.syscmd { color:#B28C00 }
+.content .footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.content .footer p { margin:0px; }
+.content .footer a { color:#878787; }
+.content .footer a:hover { color:#878787; text-decoration:underline; }
+.content .footer a:visited { color:#878787; }
+.content table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+.content table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+</style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">DESCRIPTION</a></li><li ><a href="#3">I- LOAD MODEL</a></li><li ><a href="#4">II - Perform Simulations</a></li><li ><a href="#5">III - MRI Data Fitting</a></li><li ><a href="#6">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">%Place in the right folder to run</span>
+cdmfile(<span class="string">'CHARMED_batch.m'</span>);
+</pre><h2 id="2">DESCRIPTION</h2><p >Batch to process CHARMED data without qMRLab GUI (graphical user interface) Run this script line by line</p><pre class="codeinput">qMRinfo(<span class="string">'CHARMED'</span>); <span class="comment">% Display help</span>
+<span class="comment">%**************************************************************************</span>
+</pre><pre class="codeoutput"> charmed: Composite Hindered and Restricted Model for Diffusion
+ a href="matlab: figure, imshow charmed.png ;"Pulse Sequence Diagram/a
+
+
+  Assumptions:
+    Diffusion gradients are applied perpendicularly to the neuronal fibers.
+    Neuronal fibers model:
+      geometry                          cylinders
+      Orientation dispersion            NO
+      Permeability                      NO
+    Diffusion properties:
+      intra-axonal                      restricted in cylinder with Gaussian
+                                         Phase approximation
+       diffusion coefficient (Dr)       fixed by default. this assumption should have
+                                                           little impact if the average
+                                                           propagator is larger than
+                                                           axonal diameter (sqrt(2*Dr*Delta)8m).
+      extra-axonal                      Gaussian
+       diffusion coefficient (Dh)       Constant by default. Time dependence (lc)
+                                                              can be added
+
+  Inputs:
+    DiffusionData       4D DWI
+    (SigmaNoise)        map of the standard deviation of the noise per voxel
+    (Mask)              Binary mask to accelerate the fitting
+
+  Outputs:
+    fr                  Fraction of water in the restricted compartment.
+    Dh                  Apparent diffusion coefficient of the hindered compartment.
+    diameter_mean       Mean axonal diameter weighted by the axonal area -- biased toward the larger axons
+                          fixed to 0 -- stick model (recommended if Gmax  300mT/m).
+    fcsf                Fraction of water in the CSF compartment. (fixed to 0 by default)
+    lc                  Length of coherence. If  0, this parameter models the time dependence
+                          of the hindered diffusion coefficient Dh.
+                          Els Fieremans et al. Neuroimage 2016.
+                          Interpretation is not perfectly known.
+                          Use option "Time-Dependent Models" to get different interpretations.
+    (fh)                Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf
+    (residue)           Fitting residuals
+
+  Protocol:
+    Various bvalues
+    diffusion gradient direction perpendicular to the fibers
+
+    DiffusionData       Array [NbVol x 7]
+      Gx                Diffusion Gradient x
+      Gy                Diffusion Gradient y
+      Gz                Diffusion Gradient z
+      |G| (T/m)         Diffusion gradient magnitude
+      Delta (s)         Diffusion separation
+      delta (s)         Diffusion duration
+      TE (s)            Echo time
+
+  Options:
+    Rician noise bias               Used if no SigmaNoise map is provided.
+      'Compute Sigma per voxel'     Sigma is estimated by computing the STD across repeated scans.
+      'fix sigma'                   Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
+    Display Type
+      'q-value'                     abscissa for plots: q = gamma.delta.G (m-1)
+      'b-value'                     abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
+    S0 normalization
+      'Use b=0'                     Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
+      'Single T2 compartment'       In case of variable TE acquisition:
+                                    fit single T2 using data acquired at b1000s/mm2 (assuming Gaussian diffusion))
+    Time-dependent models
+      'Burcaw 2015'                 XXX
+      'Ning MRM 2016'               XXX
+
+  Example of command line usage (see also a href="matlab: showdemo charmed_batch"showdemo charmed_batch/a):
+    Model = charmed;  % Create class from model
+    Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
+    data = struct;  % Create data structure
+    data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
+    data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
+    FitResults = FitData(data,Model,1);  % Fit each voxel within mask
+    FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');  % Save in local folder: FitResults/
+
+    For more examples: a href="matlab: qMRusage(charmed);"qMRusage(charmed)/a
+
+  Author: Tanguy Duval, 2016
+
+  References:
+    Please cite the following if you use this module:
+      Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
+    In addition to citing the package:
+      Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+
+    Reference page in Doc Center
+       doc charmed
+
+
+</pre><h2 id="3">I- LOAD MODEL</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+
+<span class="comment">% Create Model object</span>
+Model = CHARMED;
+<span class="comment">% Load Diffusion Protocol</span>
+<span class="comment">% TODO: Explain how Protocol.txt should be created</span>
+Model.Prot.DiffusionData.Mat = txt2mat(<span class="string">'Protocol.txt'</span>);
+
+<span class="comment">%**************************************************************************</span>
+</pre><pre class="codeoutput error">Cannot find an exact (case-sensitive) match for 'CHARMED'
+
+The closest match is: charmed in C:\Users\gab_b\Desktop\NeuroPoly\qMRLab\Models\Diffusion\charmed.m
+
+
+Error in CHARMED_batch (line 13)
+Model = CHARMED;
+</pre><h2 id="4">II - Perform Simulations</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+<span class="comment">% See info/usage of Sim_Single_Voxel_Curve</span>
+qMRusage(Model,<span class="string">'Sim_Single_Voxel_Curve'</span>)
+
+<span class="comment">% Let's try Sim_Single_Voxel_Curve</span>
+opt.SNR = 50;
+x.fr = .5;
+x.Dh = .7; <span class="comment">% um2/ms</span>
+x.diameter_mean = 6; <span class="comment">% um</span>
+x.fcsf = 0;
+x.lc=0;
+x.Dcsf=3;
+x.Dintra = 1.4;
+FitResults = Model.Sim_Single_Voxel_Curve(x,opt);
+<span class="comment">% compare FitResults and input x</span>
+SimResult = table(struct2mat(x,Model.xnames)',struct2mat(FitResults,Model.xnames)',<span class="string">'RowNames'</span>,Model.xnames,<span class="string">'VariableNames'</span>,{<span class="string">'input_x'</span>,<span class="string">'FitResults'</span>})
+
+<span class="comment">% to try other Simulations methods, type:</span>
+<span class="comment">% qMRusage(Model,'Sim_*')</span>
+
+<span class="comment">%**************************************************************************</span>
+</pre><h2 id="5">III - MRI Data Fitting</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
+<span class="comment">% load data</span>
+data = struct;
+data.DiffusionData = load_nii_data(<span class="string">'DiffusionData.nii.gz'</span>);
+data.Mask=load_nii_data(<span class="string">'Mask.nii.gz'</span>);
+
+<span class="comment">% plot fit in one voxel</span>
+voxel = [32 29];
+datavox.DiffusionData = squeeze(data.DiffusionData(voxel(1),voxel(2),:,:));
+FitResults = Model.fit(datavox)
+Model.plotModel(FitResults,datavox)
+
+<span class="comment">% fit all voxels (coffee break)</span>
+FitResults = FitData(data,Model,1);
+<span class="comment">% save maps</span>
+<span class="comment">% .MAT file : FitResultsSave_mat(FitResults,folder);</span>
+<span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
+<span class="comment">% FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');</span>
+<span class="comment">%save('CHARMEDParameters.mat','Model');</span>
+FitResultsSave_nii(FitResults,<span class="string">'DiffusionData.nii.gz'</span>);
+</pre><h2 id="6">Check the results</h2><p >Load them in qMRLab</p><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017a</a><br ></p></div></div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="b0_dem_batch.html" class="btn btn-neutral float-right" title="B0_DEM map : Dual Echo Method for B0 mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="documentation.html" class="btn btn-neutral" title="qMRLab Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, NeuroPoly.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
