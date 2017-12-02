@@ -32,7 +32,9 @@ catch
     cur = pwd;
     cd(fullfile(fileparts(mfilename('fullpath')),'External','Faddeeva_MATLAB'))
     try
+        disp('Compile Faddeeva...')
         Faddeeva_build
+        disp('                ...ok')
     catch
         cd(cur)
         error('Cannot compile External/Faddeeva_MATLAB, a function used by NODDI. Plz install a compiler and run Faddeeva_build. Alternatively, edit NODDI_erfi.')
