@@ -100,8 +100,17 @@ Dependencies
 
 Installing qMRlab
 --------------------------------------------------------------------------------
+Zip Download Instructions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After installation, we strongly recommend that you run all tests in this repository (see Test section below) to ensure correct installation and code compatibility with your operating system and MATLAB version.
+The latest stable version of qMRLab can be downloaded freely `here <https://github.com/neuropoly/qMRLab/tarball/master>`_.
+
+* Extract the downloaded file to the directory you want to install qMRLab.
+
+* Open MATLAB, got to the qMRLab folder and run `startup`.
+
+* To start a qMRLab session, run `qMRLab`.
+
 
 Command-Line Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,46 +127,6 @@ If you have git available on a command-line interface (e.g. Terminal on Mac OSX,
 
 * To start a qMRLab session, run `qMRLab`.
 
-Zip Download Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The latest stable version of qMRLab can be downloaded freely `here <https://github.com/neuropoly/qMRLab/tarball/master>`_.
-
-* Extract the downloaded file to the directory you want to install qMRLab.
-
-* Open MATLAB, got to the qMRLab folder and run `startup`.
-
-* To start a qMRLab session, run `qMRLab`.
-
-Tests
---------------------------------------------------------------------------------
-
-After installing the software, we suggest that the you evaluate all the test cases for the software.
-
-Run all tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To run all tests, from MATLAB (assuming you are already in the qMRLab directory), execute the following command::
-
-    result = runtests(pwd, 'Recursively', true)
-
-Any failed test should be resolved prior to starting a workflow. Users are invited to raise the issue on the GitHub
-repository `here <https://github.com/neuropoly/qMRLab/issues>`_.
-
-Run Test Suite
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-During development of new features or bug-fixing, it may be preferable to run a test suite relevant to a specific category.
-To do so, go to the 'test' folder::
-
-    cd Test/
-
-and run the following command::
-
-    result = runTestSuite('Tag')
-
-substituting `'Tag'` for one of the following test tags.
-
-Current Test tags: 'Unit', 'Integration', 'Demo', 'SPGR', 'bSSFP', 'SIRFSE'.
 
 Usage Guidelines
 ================================================================================
