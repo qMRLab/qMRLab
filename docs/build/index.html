@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to qMRLab’s documentation! &mdash; qMRLab 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="qMRLab 0.1 documentation" href="#"/>
+        <link rel="next" title="qMRLab Introduction" href="documentation.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> qMRLab
+          
+
+          
+            
+            <img src="_static/qMR_logo.png" class="logo" />
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">qMRLab Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#diffusion">Diffusion</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="charmed_batch.html">charmed: Composite Hindered and Restricted Model for Diffusion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#fieldmaps">FieldMaps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="b0_dem_batch.html">B0_DEM map :  Dual Echo Method for B0 mapping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="b1_dam_batch.html">B1_DAM map:  Double-Angle Method for B1+ mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#magnetization-transfer">Magnetization_transfer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mt_sat_batch.html">MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_bssfp_batch.html">qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_sirfse_batch.html">qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_spgr_batch.html">qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#noise">Noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#t1-relaxometry">T1_relaxometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="inversion_recovery_batch.html">inversion_recovery: Compute a T1 map using Inversion Recovery data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#t2-relaxometry">T2_relaxometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mwf_batch.html">mwf :  Myelin Water Fraction from Multi-Exponential T2w data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#underdevelopment">UnderDevelopment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mtv_batch.html">mtv :  Macromolecular Tissue Volume</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#installing-qmrlab">Installing qMRlab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#zip-download-instructions">Zip Download Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#command-line-instructions">Command-Line Instructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#usage-guidelines">Usage Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui_usage.html">Graphical User Interface Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#startup">1. Startup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#interface">2. Interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#menu-panel">2.1 Menu Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#main-panel">2.2 Main Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#options-panel">2.3 Options Panel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#data-fitting">3.      Data Fitting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#data-format">3.1     Data format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#fitting-procedure">3.2     Fitting Procedure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#viewing-the-fit-results">3.3     Viewing the fit results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#simulation">4.      Simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id1">4.1.    Single Voxel Curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id2">4.2.    Sensitivity Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id3">4.3. Multi Voxel Distribution</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#id4">5. Options Panel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id5">5.1 Protocol</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id6">5.2.    Fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id7">5.3. Options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#tutorial">6.      Tutorial</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">qMRLab</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to qMRLab’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-qmrlab-s-documentation">
+<h1>Welcome to qMRLab’s documentation!<a class="headerlink" href="#welcome-to-qmrlab-s-documentation" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/logo-neuropoly.png"><img alt="_images/logo-neuropoly.png" class="align-center" src="_images/logo-neuropoly.png" style="width: 120.0px; height: 120.0px;" /></a>
+<p>Welcome to qMRLab, a software for quantitative MR image analysis. You can either read the Getting started <a class="reference external" href="http://qmrlab.readthedocs.io/en/master/documentation.html#getting-started">http://qmrlab.readthedocs.io/en/master/documentation.html#getting-started</a> or search for the specific qMR section.</p>
+<div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+    <iframe width="700" height="394" src="https://www.youtube.com/embed/-yrbtCYDorI?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+</div><div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">qMRLab Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-simulator">Data simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#data-fitting-and-visualization">Data fitting and visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#methods-available">Methods available</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#diffusion">Diffusion</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="charmed_batch.html">charmed: Composite Hindered and Restricted Model for Diffusion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#fieldmaps">FieldMaps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="b0_dem_batch.html">B0_DEM map :  Dual Echo Method for B0 mapping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="b1_dam_batch.html">B1_DAM map:  Double-Angle Method for B1+ mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#magnetization-transfer">Magnetization_transfer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mt_sat_batch.html">MTSAT :  Correction of Magnetization transfer for RF inhomogeneities and T1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_bssfp_batch.html">qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_sirfse_batch.html">qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qmt_spgr_batch.html">qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#noise">Noise</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#t1-relaxometry">T1_relaxometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="inversion_recovery_batch.html">inversion_recovery: Compute a T1 map using Inversion Recovery data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#t2-relaxometry">T2_relaxometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mwf_batch.html">mwf :  Myelin Water Fraction from Multi-Exponential T2w data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#underdevelopment">UnderDevelopment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mtv_batch.html">mtv :  Macromolecular Tissue Volume</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#getting-started">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html#installing-qmrlab">Installing qMRlab</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#zip-download-instructions">Zip Download Instructions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="documentation.html#command-line-instructions">Command-Line Instructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#usage-guidelines">Usage Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gui_usage.html">Graphical User Interface Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#startup">1. Startup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#interface">2. Interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#menu-panel">2.1 Menu Panel</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#method">2.1.1 Method</a></li>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#qmr-data-fit">2.1.2 qMR Data Fit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#qmr-data-simulator">2.1.3 qMR Data Simulator</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="gui_usage.html#single-voxel-curve">Single Voxel Curve</a></li>
+<li class="toctree-l6"><a class="reference internal" href="gui_usage.html#sensitivity-analysis">Sensitivity Analysis</a></li>
+<li class="toctree-l6"><a class="reference internal" href="gui_usage.html#multi-voxel-distribution">Multi Voxel Distribution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#main-panel">2.2 Main Panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#options-panel">2.3 Options Panel</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#protocol">2.3.1   Protocol</a></li>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#fitting">2.3.2   Fitting</a></li>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#options">2.3.3 Options</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#data-fitting">3.      Data Fitting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#data-format">3.1     Data format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#fitting-procedure">3.2     Fitting Procedure</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#single-voxel">3.2.1 Single voxel</a></li>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#whole-dataset">3.2.2 Whole dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#viewing-the-fit-results">3.3     Viewing the fit results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#simulation">4.      Simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id1">4.1.    Single Voxel Curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id2">4.2.    Sensitivity Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id3">4.3. Multi Voxel Distribution</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="gui_usage.html#plot-types">Plot types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#id4">5. Options Panel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id5">5.1 Protocol</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id6">5.2.    Fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="gui_usage.html#id7">5.3. Options</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gui_usage.html#tutorial">6.      Tutorial</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html#citation">Citation</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="documentation.html" class="btn btn-neutral float-right" title="qMRLab Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, NeuroPoly.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

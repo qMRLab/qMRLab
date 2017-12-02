@@ -1,3 +1,5 @@
+
+
 @ECHO OFF
 
 pushd %~dp0
@@ -9,7 +11,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=source
 set BUILDDIR=build
-set SPHINXPROJ=qMRlab
+set SPHINXPROJ=qMRLab
 
 if "%1" == "" goto help
 
