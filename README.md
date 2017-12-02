@@ -7,7 +7,7 @@ qMRlab is a powerful, open source, scalable, easy to use and intuitive software 
 
 qMRLab is a fork from the initial project ['qMTLab'](https://github.com/neuropoly/qMTLab).  
 
-For **documentation**, visit the ['Documentation website'](http://qmrlab.readthedocs.io/en/doc/documentation.html)
+For **documentation**, visit the ['Documentation website'](http://qmrlab.readthedocs.io/)
 If you are a developer, visit the ['Wiki page'](https://github.com/neuropoly/qMRLab/wiki) 
 
 The simulation part allows end users to easily simulate qMRI data using analytical (or block) equations, evaluate how well these models perform under known parameters input, determine the most appropriate acquisition protocol and evaluate how fitting constraints impact the results. 
