@@ -85,7 +85,7 @@ else % Unlikely yet ..
 end
 
 
-if Model.voxelwise
+if Model.voxelwise && not(moxunit_util_platform_is_octave)
     svc = qMRusage(Model,'Single_Voxel_Curve');
     simTexts.SVCcommands = qMRUsage2CLI(svc);
     sa = qMRusage(Model,'Sensitivity_Analysis');
@@ -141,7 +141,7 @@ formatSpec = '%s\n';
 for row = 1:nrows
     fprintf(fileID,formatSpec,newScript{row,:});
 end
-
+fclose(fileID);
 
 % Save batch example to a desired directory ====================== END
 
@@ -213,6 +213,7 @@ for i=1:length(fNames)
             curStr.Format = {curStr.Format};
         end
         
+   
         
         for j = 1:length(curStr.Format)
             cont = repmat('%.4f; ',[1 len-1]);
@@ -236,14 +237,17 @@ for i=1:length(fNames)
         
         
     end
-    
-    % Assign vector with/without transpose.
-    frm = [];
-    for j =1:length(curStr.Format);
-        frm = [frm ' ' remParant(curStr.Format{j})];
-    end
-    
-    assgn=['Model.Prot.' fNames{i} '.Mat' ' = [' frm '];'];
+      
+        
+        % Assign vector with/without transpose.
+        frm = [];
+        for j =1:length(curStr.Format);
+            frm = [frm ' ' remParant(curStr.Format{j})];
+        end
+        
+        assgn=['Model.Prot.' fNames{i} '.Mat' ' = [' frm '];'];
+        
+
     
     newCommand = [newCommand assgn];
     newCommand = [newCommand '% -----------------------------------------'];
@@ -309,6 +313,7 @@ function datCommand = getDataAssign(input,foo,req,format,dir,sep)
 % sep: / or \ depending on OS.
 
 [boolIdx,~] = ismember(input,foo);
+
 flg = ismember(1,boolIdx);
 
 if flg
