@@ -20,8 +20,7 @@ classdef dti < AbstractModel
 
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/4s6rf/download/';
-    onlineData_filename = 'noddi.zip';
+    onlineData_url = 'https://osf.io/qh87b/download/';
 end
 
     properties

@@ -65,7 +65,6 @@ classdef noddi < AbstractModel
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/4s6rf/download/';
-    onlineData_filename = 'noddi.zip';
 end
 
     properties
