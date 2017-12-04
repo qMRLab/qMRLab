@@ -4,8 +4,13 @@ qMRLab is an open-source software for quantitative MR image analysis. The main g
 is to provide the community with an intuitive tool for data fitting, plotting, simulation and protocol optimization for a myriad of different quantitative models.
 The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!
 
-qMRLab is a fork from the initial project `qMTLab <https://github.com/neuropoly/qMTLab>`_.
-For a quick **introduction** to qMTLab functionnalities, see the `qMTLab presentation e-poster <https://github.com/neuropoly/qMRLab/blob/master/docs/qMTLab-Presentation.ppsx>`_ or alternatively you can view it on `YouTube <https://youtu.be/WG0tVe-SFww>`_.
+Here's a short video to get you acquainted with the package:
+
+.. raw:: html
+
+    <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="700" height="394" src="https://www.youtube.com/embed/-yrbtCYDorI?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </div>
 
 Data simulator
 -------------------------------------------------------------------------------
@@ -96,14 +101,14 @@ Getting started
 ===============================================================================
 Dependencies
 ------------------------------------------------------------------------------
-* MATLAB_R2014b or later (octave compatibility currently being implemented)
+* MATLAB_R2014b or later (or Octave 4.2.1 or later)
 
 Installing qMRlab
 --------------------------------------------------------------------------------
 Zip Download Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The latest stable version of qMRLab can be downloaded freely `here <https://github.com/neuropoly/qMRLab/tarball/master>`_.
+The latest stable version of qMRLab can be downloaded freely `here <https://github.com/neuropoly/qMRLab/archive/master.zip>`_.
 
 * Extract the downloaded file to the directory you want to install qMRLab.
 
