@@ -9,6 +9,7 @@ function TestSetup
 setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
 
 function test_batch
+curdir = pwd;
 tmpDir = tempname;
 mkdir(tmpDir);
 cd(tmpDir)
@@ -21,7 +22,6 @@ for iModel = 1:length(Modellist)
 
     eval(['Model = ' Modellist{iModel}]);
     qMRgenBatch(Model,pwd)
-    
     
     eval([Modellist{iModel} '_batch'])
     
