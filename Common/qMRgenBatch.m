@@ -35,6 +35,7 @@ simTexts = struct();
 simTexts.jokerSVC = '*-SingleVoxelCurve-*';
 simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
+saveJoker = '*-saveCommand-*';
 
 % Define jokers and get class info ====================== END
 
@@ -76,7 +77,7 @@ if ismember('MRIinputs',attrList)
     %F Generate data explanation here
     explainTexts.dataExplain = cell2Explain(Model.MRIinputs,varNames.modelName,'data input(s)');
     % Generate data code here
-    commandTexts.dataCommands = data2CLI(Model,demoDir,sep);
+    [type,commandTexts.dataCommands] = data2CLI(Model,demoDir,sep);
     
     
 else % Unlikely yet ..
@@ -84,6 +85,12 @@ else % Unlikely yet ..
     commandTexts.dataCommands = {' '}; % Set empty
 end
 
+
+if strcmp(type,'nii')
+    saveCommand = ['FitResultsSave_nii(FitResults,' ' '''  Model.ModelName '_data' filesep Model.MRIinputs{1} '.nii.gz''' ');'];
+elseif strcmp(type,'mat')
+    saveCommand = 'FitResultsSave_nii(FitResults);';
+end
 
 if Model.voxelwise && ~isempty(qMRusage(Model,'Single_Voxel_Curve')) && not(moxunit_util_platform_is_octave)
     svc = qMRusage(Model,'Single_Voxel_Curve');
@@ -113,6 +120,8 @@ allScript = allScript{1}; % This is a cell aray that contains template
 newScript = replaceJoker(varNames.jokerModel,varNames.modelName,allScript,1); % Model Name
 
 newScript = replaceJoker(varNames.jokerDemoDir,demoDir,newScript,1);
+
+newScript = replaceJoker(saveJoker,saveCommand,newScript,1);
 
 newScript = replaceJoker(explainTexts.jokerProt,explainTexts.protExplain,newScript,2); % Prot Exp
 
@@ -261,7 +270,7 @@ protCommands = newCommand;
 
 end
 
-function dataCommands = data2CLI(Model,demoDir,sep)
+function [type,dataCommands] = data2CLI(Model,demoDir,sep)
 
 reqData = Model.MRIinputs; % This is a cell
 
@@ -281,6 +290,11 @@ niiCommand = getDataAssign(niiFiles,fooNii,reqData,'nifti',demoDir,sep);
 
 dataCommands = juxtaposeCommands(niiCommand,matCommand);
 
+if ismember({' '},matCommand)
+type = 'nii';
+else
+type = 'mat';
+end
 
 % To make operations free from dynamic navigation, commands will address
 % directories.
@@ -328,6 +342,7 @@ if flg
             rd = readList{i};
             eq{n+1} = ['data.' rd(1:end-7) '=' 'double(load_nii_data(' '''' dir sep readList{i} '''' '));'];
             n = n+2;
+            
         elseif strcmp(format,'mat')
             load([dir sep readList{i}]);
             dt = readList{i};
@@ -337,6 +352,7 @@ if flg
             eq{n+1} = [ ' load(' '''' dir sep readList{i} '''' ');'];
             n = n+2;
             eq2{i} = [' data.' req{i} '= double(' req{i} ');'];
+            
         end
         
         
