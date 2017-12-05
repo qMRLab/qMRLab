@@ -11,11 +11,8 @@ function qMRgenBatch(Model,path)
 
 % Define jokers and get class info ====================== START
 
-if moxunit_util_platform_is_octave
-    attrList   = fieldnames(Model);
-else
-    attrList   = properties(Model);
-end
+attrList   = fieldnames(Model);
+
 
 explainTexts = struct();
 explainTexts.jokerProt = '*-protExplain-*';
@@ -85,10 +82,10 @@ else % Unlikely yet ..
 end
 
 
-if Model.voxelwise && ~isempty(qMRusage(Model,'Single_Voxel_Curve')) && not(moxunit_util_platform_is_octave)
-    svc = qMRusage(Model,'Single_Voxel_Curve');
+if Model.voxelwise && ~isempty(qMRusage(Model,'Sim_Single_Voxel_Curve'))
+    svc = qMRusage(Model,'Sim_Single_Voxel_Curve');
     simTexts.SVCcommands = qMRUsage2CLI(svc);
-    sa = qMRusage(Model,'Sensitivity_Analysis');
+    sa = qMRusage(Model,'Sim_Sensitivity_Analysis');
     simTexts.SAcommands = qMRUsage2CLI(sa);
 else
     simTexts.SVCcommands = {'% Not available for the current model.'};
@@ -144,7 +141,6 @@ fclose(fileID);
 
 % Save batch example to a desired directory ====================== END
 
-clc;
 curDir = pwd;
 disp('------------------------------');
 disp(['SAVED: ' writeName]);
