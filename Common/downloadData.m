@@ -24,7 +24,10 @@ filename = [Model.ModelName '.zip'];
 try
     if moxunit_util_platform_is_octave
         if isunix && ~isempty(getenv('ISTRAVIS')) && str2double(getenv('ISTRAVIS')) % issue #113 --> no outputs on TRAVIS
-             unix(['curl -o ' filename ' ' url])
+            cmd = ['curl -L -o ' filename ' ' url];
+            disp(cmd)
+             [STATUS,MESSAGE] = unix(cmd);
+             if STATUS, error(MESSAGE); end
         else
             [~, SUCCESS, MESSAGE] = urlwrite(url,filename);
             if ~SUCCESS, error(MESSAGE); end
