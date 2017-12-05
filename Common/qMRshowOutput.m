@@ -1,5 +1,6 @@
-
 function qMRshowOutput(FitResults,data,Model)
+% Show mid-slice fitting maps
+% Also show a fit in the center voxel
 
 outputIm = FitResults.(FitResults.fields{1});
 figure();
