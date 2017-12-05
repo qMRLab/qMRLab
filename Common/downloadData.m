@@ -12,7 +12,7 @@ cd([Model.ModelName '_demo']);
 if not(moxunit_util_platform_is_octave)
 commandwindow;
 end
-disp('Please wait. Downloading data...');
+disp('Please wait. Downloading data ...');
 try
     url = Model.onlineData_url;
 catch
@@ -31,7 +31,7 @@ try
         end
     else
         websave(filename,url);
-        disp('Data has been downloaded.');
+        disp('Data has been downloaded ...');
     end
     
 catch ME
