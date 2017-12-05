@@ -2,7 +2,7 @@ addpath(genpath(pwd))
 
 % install octave package
 if moxunit_util_platform_is_octave
-    installlist = {'struct','optim','io','statistics'};
+    installlist = {'struct','optim','io','statistics','image'};
     for ii=1:length(installlist)
         try
             disp(['loading ' installlist{ii}])
