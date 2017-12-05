@@ -24,7 +24,8 @@ filename = [Model.ModelName '.zip'];
 
 try
     if moxunit_util_platform_is_octave
-        urlwrite(url,filename);
+        [F, SUCCESS, MESSAGE] = urlwrite(url,filename);
+        if ~SUCCESS, error(MESSAGE); end
     else
         websave(filename,url);
         disp('Data has been downloaded.');
