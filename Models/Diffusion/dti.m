@@ -101,8 +101,10 @@ end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             % normalize with respect to b0
             S0 = scd_preproc_getS0(data.DiffusionData,Prot);
+            % Detect negative values
+            if min(data.DiffusionData)<0, warning('Negative values detected in DiffusionData. threshold to 0.'); data.DiffusionData = max(0,data.DiffusionData); end
             % fit
-            D=scd_model_dti(data.DiffusionData./S0,Prot);
+            D=scd_model_dti(max(eps,data.DiffusionData)./max(eps,S0),Prot);
             % RICIAN NOISE
             % use Rician noise and fix b=0
             % use Rician noise and fix b=0
