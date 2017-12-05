@@ -13,8 +13,13 @@ if not(moxunit_util_platform_is_octave)
 commandwindow;
 end
 disp('Please wait. Downloading data...');
-
-url = Model.onlineData_url;
+try
+    url = Model.onlineData_url;
+catch
+    warning(['No dataset for ' Model.ModelName])
+    dataPath = [Model.ModelName '_data'];
+    return
+end
 filename = [Model.ModelName '.zip'];
 try
     if moxunit_util_platform_is_octave

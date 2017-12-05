@@ -17,7 +17,7 @@ setenv('ISTRAVIS','1')
 Modellist = list_models';
 for iModel = 1:length(Modellist)
     disp('===============================================================')
-    disp(['Testing: ' Modellist{iModel} '...'])
+    disp(['Testing: ' Modellist{iModel} ' BATCH...'])
     disp('===============================================================')
 
     eval(['Model = ' Modellist{iModel}]);

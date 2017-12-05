@@ -85,7 +85,7 @@ else % Unlikely yet ..
 end
 
 
-if Model.voxelwise && not(moxunit_util_platform_is_octave)
+if Model.voxelwise && ~isempty(qMRusage(Model,'Single_Voxel_Curve')) && not(moxunit_util_platform_is_octave)
     svc = qMRusage(Model,'Single_Voxel_Curve');
     simTexts.SVCcommands = qMRUsage2CLI(svc);
     sa = qMRusage(Model,'Sensitivity_Analysis');
@@ -132,8 +132,7 @@ newScript = replaceJoker(simTexts.jokerSA,simTexts.SAcommands,newScript,2); % Si
 % Save batch example to a desired directory ====================== START
 
 writeName = [varNames.modelName '_batch.m'];
-cd(demoDir);
-cd ..
+
 
 fileID = fopen(writeName,'w');
 formatSpec = '%s\n';

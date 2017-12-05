@@ -9,6 +9,7 @@ function example = qMRusage(Model,mstr)
 %     qMRusage(Model)
 %     qMRusage(Model,'equation')
 % 
+if nargout, example = ''; end
 if nargin<1, help qMRusage, return; end
 if nargin<2, mstr=methods(Model); disp(['<strong>Methods available in Model=' class(Model) ':</strong>']); end
 if ischar(mstr) && ~moxunit_util_platform_is_octave
