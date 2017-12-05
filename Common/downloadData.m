@@ -21,6 +21,7 @@ catch
     return
 end
 filename = [Model.ModelName '.zip'];
+
 try
     if moxunit_util_platform_is_octave
         urlwrite(url,filename);
@@ -29,8 +30,8 @@ try
         disp('Data has been downloaded.');
     end
     
-catch
-    error('Data cannot be downloaded.');
+catch ME
+    error(ME.identifier, ['Data cannot be downloaded: ' ME.message]);
 end
 
 unzip(filename);
