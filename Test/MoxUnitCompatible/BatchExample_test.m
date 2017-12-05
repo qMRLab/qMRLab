@@ -20,10 +20,22 @@ for iModel = 1:length(Modellist)
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
     disp('===============================================================')
 
+    % Generate batch
     eval(['Model = ' Modellist{iModel}]);
     qMRgenBatch(Model,pwd)
     
-    eval([Modellist{iModel} '_batch'])
+    % Test if any dataset exist
+    isdata = true;
+    try 
+        Model.onlineData_url; 
+    catch
+        isdata = false
+    end
+    
+    % Run Batch
+    if isdata
+        eval([Modellist{iModel} '_batch'])
+    end
     
     cd ..
 end
