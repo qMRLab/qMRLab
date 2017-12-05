@@ -127,6 +127,9 @@ if Model.voxelwise % process voxelwise
         end
         
         if ISTRAVIS && ii>2
+            try
+                Fit = load('FitResults/FitResults.mat');
+            end
             break;
         end
     end
