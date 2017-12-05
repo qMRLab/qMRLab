@@ -21,12 +21,14 @@ catch
     return
 end
 filename = [Model.ModelName '.zip'];
-disp('before')
-dir
 try
     if moxunit_util_platform_is_octave
-        [F, SUCCESS, MESSAGE] = urlwrite(url,filename);
-        if ~SUCCESS, error(MESSAGE); end
+        if isunix && ~isempty(getenv('ISTRAVIS')) && str2double(getenv('ISTRAVIS')) % issue #113 --> no outputs on TRAVIS
+             unix(['curl -o ' filename ' ' url])
+        else
+            [~, SUCCESS, MESSAGE] = urlwrite(url,filename);
+            if ~SUCCESS, error(MESSAGE); end
+        end
     else
         websave(filename,url);
         disp('Data has been downloaded.');
@@ -35,8 +37,6 @@ try
 catch ME
     error(ME.identifier, ['Data cannot be downloaded: ' ME.message]);
 end
-disp('after')
-dir
 unzip(filename);
 
 
