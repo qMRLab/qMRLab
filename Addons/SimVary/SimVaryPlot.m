@@ -18,8 +18,8 @@ else
     end
 end
 set(gca,'FontUnit','normalized')
-errorbar(X, Y, E, 'bo','DisplayName','Mean +/- Std');
-
+he = errorbar(X, Y, E);
+set(he,'DisplayName','Mean +/- Std')
 xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
 ylabel(sprintf('Fitted %s', Yaxis), 'FontWeight', 'Bold');
 xlim([Xmin Xmax]);
