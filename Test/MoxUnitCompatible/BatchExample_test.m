@@ -13,7 +13,6 @@ curdir = pwd;
 tmpDir = tempname;
 mkdir(tmpDir);
 cd(tmpDir)
-setenv('ISTRAVIS','1')
 Modellist = list_models';
 for iModel = 1:length(Modellist)
     disp('===============================================================')
@@ -34,7 +33,9 @@ for iModel = 1:length(Modellist)
     
     % Run Batch
     if isdata
+        starttime = tic;
         eval([Modellist{iModel} '_batch'])
+        toc(starttime)
     end
     
     cd ..
@@ -42,7 +43,6 @@ for iModel = 1:length(Modellist)
     % clean testing dataset
     rmdir([Model.ModelName '_demo'],'s')
 end
-setenv('ISTRAVIS','')
 cd(curdir)
 rmdir(tmpDir,'s')
 
