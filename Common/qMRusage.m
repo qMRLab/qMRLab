@@ -131,7 +131,7 @@ for im=1:length(mstr)
             end
             mess = {mess{:},...
                 '      % run simulation using options `Opt(1)`',...
-                '      Model.Sim_Single_Voxel_Curve(x,Opt(1))'};
+                '      FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));'};
             
         case 'Sim_Sensitivity_Analysis'
             Opt.SNR=50;
@@ -173,8 +173,8 @@ for im=1:length(mstr)
             end
             mess = {mess{:},...
                 '      % run simulation using options `Opt(1)`',...
-                '      SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1))',...
-               ['      SimVaryPlot(SimResults, ''' Model.xnames{1} ''' ,''' Model.xnames{1} ''' )']};
+                '      SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));',...
+               ['      SimVaryPlot(SimResults, ''' Model.xnames{1} ''' ,''' Model.xnames{1} ''' );']};
     end
     if ~isempty(mess)
         disp(['<strong>' mstr{im} '</strong>'])
