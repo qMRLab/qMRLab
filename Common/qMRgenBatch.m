@@ -295,6 +295,7 @@ if not(isempty(matFiles))
      
     end
     matFiles = newMatFiles;
+    matFiles = matFiles(~cellfun('isempty',matFiles));
 elseif not(isempty(niiFiles))
     
     newNiiFiles = cell(length(niiFiles),1);
@@ -308,6 +309,7 @@ elseif not(isempty(niiFiles))
     end
     
     niiFiles = newNiiFiles;
+    niiFiles = niiFiles(~cellfun('isempty',niiFiles));
 end
 
 matCommand = getDataAssign(matFiles,fooMat,reqData,'mat',demoDir,sep);
