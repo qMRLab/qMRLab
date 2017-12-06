@@ -29,7 +29,7 @@ for iModel = 1:length(Modellist)
     try 
         Model.onlineData_url; 
     catch
-        isdata = false
+        isdata = false;
     end
     
     % Run Batch
@@ -38,6 +38,9 @@ for iModel = 1:length(Modellist)
     end
     
     cd ..
+    
+    % clean testing dataset
+    rmdir([Model.ModelName '_demo'],'s')
 end
 setenv('ISTRAVIS','')
 cd(curdir)
