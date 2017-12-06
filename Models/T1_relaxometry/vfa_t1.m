@@ -46,7 +46,7 @@ classdef vfa_t1 < AbstractModel
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-% Hidden proprties goes here.    
+ onlineData_url = 'https://osf.io/7wcvh/download/';  
 end
 
     properties

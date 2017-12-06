@@ -284,8 +284,36 @@ fooNii = cellfun(@(x)[x '.nii.gz'],reqData,'UniformOutput',false);
 matFiles = dir2Cell(demoDir,'*.mat');
 niiFiles = dir2Cell(demoDir,'*.nii.gz');
 
+if not(isempty(matFiles))
+    newMatFiles = cell(length(matFiles),1);
+    
+    for k = 1:length(Model.MRIinputs)
+     curIdx = strmatch(Model.MRIinputs{k},matFiles);
+     if not(isempty(curIdx))
+         newMatFiles(k) = matFiles(curIdx);
+     end
+     
+    end
+    matFiles = newMatFiles;
+elseif not(isempty(niiFiles))
+    
+    newNiiFiles = cell(length(niiFiles),1);
+    
+    for k = 1:length(Model.MRIinputs)
+     curIdx = strmatch(Model.MRIinputs{k},niiFiles);
+     if not(isempty(curIdx))
+         newNiiFiles(k) = niiFiles(curIdx);
+     end
+     
+    end
+    
+    niiFiles = newNiiFiles;
+end
+
 matCommand = getDataAssign(matFiles,fooMat,reqData,'mat',demoDir,sep);
 niiCommand = getDataAssign(niiFiles,fooNii,reqData,'nifti',demoDir,sep);
+
+
 
 dataCommands = juxtaposeCommands(niiCommand,matCommand);
 

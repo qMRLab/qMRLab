@@ -11,7 +11,7 @@ figure();
   szz = round(sz(3)/2);
   imagesc(imrotate(outputIm(:,:,szz),90)); colormap('jet');  title(FitResults.fields{1});
     climm = prctile(outputIm(:),10);
-    climM = prctile(outputIm(:),10);
+    climM = prctile(outputIm(:),90);
     caxis([climm max(climm*1.01,climM)]); colorbar();
  else 
     imagesc(imrotate(outputIm,90)); colormap('jet');  title(FitResults.fields{1});
