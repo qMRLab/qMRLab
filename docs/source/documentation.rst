@@ -132,6 +132,19 @@ If you have git available on a command-line interface (e.g. Terminal on Mac OSX,
 
 * To start a qMRLab session, run `qMRLab`.
 
+Tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After installing the software, we recommend you evaluate all the test cases for the software.
+
+To run all tests, from MATLAB or Octave (assuming you are already in the qMRLab directory), execute the following command.
+
+`cd Test/MoxUnitCompatible/`
+
+and run the following command:
+
+`moxunit_runtests -recursive`
+
 
 Usage Guidelines
 ================================================================================

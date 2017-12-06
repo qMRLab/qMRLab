@@ -9,7 +9,7 @@ Welcome to qMRLab's documentation!
    :scale: 60 %
    :align: center
 
-Welcome to qMRLab, a software for quantitative MR image analysis. You can either read the Getting started http://qmrlab.readthedocs.io/en/master/documentation.html#getting-started or search for the specific qMR section.
+Welcome to qMRLab, a software for quantitative MR image analysis. You can either read the :ref:`Getting started` section or search for the specific qMR section.
 
 .. raw:: html
 
