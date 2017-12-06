@@ -183,7 +183,7 @@ for im=1:length(mstr)
         end
         disp(' ')
     end
-    if nargin>1
+    if nargout
         example = mess((find(~cellfun(@isempty,strfind(mess,'EXAMPLE:')))+1):end);
         example = cell2str_v3(example,sprintf('\n'));
     end
