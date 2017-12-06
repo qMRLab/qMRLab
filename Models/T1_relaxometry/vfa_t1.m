@@ -189,6 +189,17 @@ end
                plotModel(obj, FitResults, data);
            end
        end
+       
+       function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+           % SimVaryGUI
+           SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+       end
+       
+       function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+           % SimVaryGUI
+           SimRndResults = SimRnd(obj, RndParam, Opt);
+       end
+
 
     end
 end
