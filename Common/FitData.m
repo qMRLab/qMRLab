@@ -28,7 +28,7 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
-tic;
+tStart = tic;
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
@@ -142,7 +142,7 @@ else % process entire volume
     Fit.fields = fieldnames(Fit);
 end
 j_progress('...done')
-Fit.Time = toc;
+Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
 Fit.Version = qMRLabVer;
