@@ -60,7 +60,10 @@ for pp=1:length(OptTable.fx)
                 waitbar(ii/length(Sens.x),h,sprintf('Data %0.0f/%0.0f',ii,length(Sens.x)));
             end
         end
-        delete(h)       % DELETE the waitbar; don't try to CLOSE it.
+        
+        if waitbarcreate
+            delete(h)       % DELETE the waitbar; don't try to CLOSE it.
+        end
         
         for ff=fieldnames(Sens.fit)'
             Sens.(ff{1}).mean = mean(Sens.fit.(ff{1}),2);
