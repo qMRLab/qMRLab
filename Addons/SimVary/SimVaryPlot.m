@@ -5,8 +5,11 @@ Xmax =  SimVaryResults.(Xaxis).x(end);
 Xmin = Xmin - (Xmax-Xmin)/50;
 Xmax = Xmax + (Xmax-Xmin)/50;
 X    =  SimVaryResults.(Xaxis).x;
-Y    =  SimVaryResults.(Xaxis).(Yaxis).mean;
-E    =  SimVaryResults.(Xaxis).(Yaxis).std;
+% Pad if canceled
+Y = nan(size(X));
+E = nan(size(X));
+Y(1:length(SimVaryResults.(Xaxis).(Yaxis).mean))    =  SimVaryResults.(Xaxis).(Yaxis).mean;
+E(1:length(SimVaryResults.(Xaxis).(Yaxis).std))    =  SimVaryResults.(Xaxis).(Yaxis).std;
 
 cla;
 hold on;
