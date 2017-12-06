@@ -21,26 +21,40 @@ catch
     return
 end
 filename = [Model.ModelName '.zip'];
-try
-    if moxunit_util_platform_is_octave
-        if isunix && ~isempty(getenv('ISTRAVIS')) && str2double(getenv('ISTRAVIS')) % issue #113 --> no outputs on TRAVIS
-            cmd = ['curl -L -o ' filename ' ' url];
-            disp(cmd)
-             [STATUS,MESSAGE] = unix(cmd);
-             if STATUS, error(MESSAGE); end
+
+% retry 3 times
+count = 0;
+err_count = 0;
+while count == err_count
+    try
+        % DOWNLOAD
+        if moxunit_util_platform_is_octave
+            if isunix && ~isempty(getenv('ISTRAVIS')) && str2double(getenv('ISTRAVIS')) % issue #113 --> no outputs on TRAVIS
+                cmd = ['curl -L -o ' filename ' ' url];
+                disp(cmd)
+                [STATUS,MESSAGE] = unix(cmd);
+                if STATUS, error(MESSAGE); end
+            else
+                [~, SUCCESS, MESSAGE] = urlwrite(url,filename);
+                if ~SUCCESS, error(MESSAGE); end
+            end
         else
-            [~, SUCCESS, MESSAGE] = urlwrite(url,filename);
-            if ~SUCCESS, error(MESSAGE); end
+            websave(filename,url);
+            disp('Data has been downloaded ...');
         end
-    else
-        websave(filename,url);
-        disp('Data has been downloaded ...');
+        
+        % UNZIP
+        unzip(filename);
+        err_count=0;
+    catch ME
+        err_count = err_count + 1;
+        if err_count>3
+            error(ME.identifier, ['Data cannot be downloaded: ' ME.message]);
+        end
     end
-    
-catch ME
-    error(ME.identifier, ['Data cannot be downloaded: ' ME.message]);
+    count = count + 1;
 end
-unzip(filename);
+
 
 
 
