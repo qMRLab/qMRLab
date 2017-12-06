@@ -15,12 +15,15 @@ function SimVaryResults = SimVary(obj, runs, OptTable, Opts)
 %        Opts.SNR
 %
 
+Nsteps = 10;
+
 if ~exist('OptTable','var') || isempty(OptTable), OptTable = obj; end % use fitting boundaries
 if ~exist('Opts','var') || isempty(Opts), Opts.SNR = 50; end
 if isempty(getenv('ISTRAVIS')) || str2double(getenv('ISTRAVIS'))==0
     waitbarcreate = true;
 else
     waitbarcreate = false;
+    Nsteps=3;
 end
 fx = [OptTable.fx];
 st = [OptTable.st];
@@ -29,7 +32,7 @@ ub = [OptTable.ub];
 
 for pp=1:length(OptTable.fx)
     if ~fx(pp)
-        Sens.x = linspace(lb(pp),ub(pp),10);
+        Sens.x = linspace(lb(pp),ub(pp),Nsteps);
         % Create waitbar
         if waitbarcreate
             h = waitbar(0, sprintf('Data 0/%0.0f',length(Sens.x)), 'Name', sprintf('Simulating %s sensitivity data', obj.xnames{pp}),...
