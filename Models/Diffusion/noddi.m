@@ -179,9 +179,18 @@ end
             
             protocol = SchemeToProtocolmat(obj.Prot.DiffusionData.Mat);
             
+            if moxunit_util_platform_is_octave
+                model.noOfStages=1;
+                warning('fmincon not implemented on OCTAVE. Skip Gradient descent (only Grid search will be performed).')
+            end
+            
             % fit
             [gsps, fobj_gs, mlps, fobj_ml, error_code] = ThreeStageFittingVoxel(max(eps,double(data.DiffusionData)), protocol, model);
-            xopt = mlps;
+            if moxunit_util_platform_is_octave
+                xopt = gsps; % fmincon not implemented on OCTAVE
+            else
+                xopt = mlps;
+            end
             % Outputs
             xnames = model.paramsStr;
             if sum(strcmp(obj.xnames,'ficvf')) && sum(strcmp(obj.xnames,'fiso'))
