@@ -39,8 +39,11 @@ classdef (Abstract) AbstractModel
         
         function obj = loadObj(obj, fileName)
             try
-                loadedStruct = load(fileName);
-                
+                if isstruct(fileName) % load a structure
+                    loadedStruct = fileName;
+                else % load from a file
+                    loadedStruct = load(fileName);
+                end
                 % parse structure to object
                 obj = qMRpatch(obj,loadedStruct,loadedStruct.version);
                 

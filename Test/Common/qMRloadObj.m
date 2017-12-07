@@ -1,4 +1,6 @@
 function Model = qMRloadObj(filename)
-S = load(filename);
+if ~isstruct(filename) % load directly structure
+    S = load(filename);
+end
 Model = str2func(S.ModelName); Model = Model();
-Model.loadObj(filename);
+Model = Model.loadObj(filename);
