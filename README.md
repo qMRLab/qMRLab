@@ -1,7 +1,10 @@
 # qMRLab (beta) [![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)
 
 Welcome to qMRLab, all your quantitative MRI needs under one umbrella! 
+
 ![qMRLab](qMRLab-intro.png)
+
+
 qMRLab is an open-source software for quantitative MR image analysis. The main goal
 is to provide the community with an intuitive tool for data fitting, plotting, simulation and protocol optimization for a myriad of different quantitative models.
 The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!
