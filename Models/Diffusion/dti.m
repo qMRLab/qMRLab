@@ -37,7 +37,7 @@ end
         % Protocol
         Prot = struct('DiffusionData',...
                     struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
-                            'Mat', txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt')))); % You can define a default protocol here.
+                            'Mat', txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
         buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
@@ -101,8 +101,10 @@ end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             % normalize with respect to b0
             S0 = scd_preproc_getS0(data.DiffusionData,Prot);
+            
             % Detect negative values
             if min(data.DiffusionData)<0, warning('Negative values detected in DiffusionData. threshold to 0.'); data.DiffusionData = max(0,data.DiffusionData); end
+
             % fit
             D=scd_model_dti(max(eps,data.DiffusionData)./max(eps,S0),Prot);
             % RICIAN NOISE
@@ -112,12 +114,11 @@ end
                 SigmaNoise = data.SigmaNoise(1);
             elseif strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data.DiffusionData);
-                if ~SigmaNoise, return; end
             else
                 SigmaNoise = obj.options.Riciannoisebias_value;
             end
             
-            if ~moxunit_util_platform_is_octave
+            if ~moxunit_util_platform_is_octave && SigmaNoise
                 [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
                 D(:)=xopt;
                 FitResults.residue = residue;
