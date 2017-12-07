@@ -11,8 +11,7 @@ E = nan(size(X));
 Y(1:length(SimVaryResults.(Xaxis).(Yaxis).mean))    =  SimVaryResults.(Xaxis).(Yaxis).mean;
 E(1:length(SimVaryResults.(Xaxis).(Yaxis).std))    =  SimVaryResults.(Xaxis).(Yaxis).std;
 
-cla;
-hold on;
+
 if (strcmp(Xaxis,Yaxis))
     plot([Xmin Xmax], [Xmin Xmax], 'k-');
 else
@@ -21,6 +20,7 @@ else
     end
 end
 set(gca,'FontUnit','normalized')
+hold on
 he = errorbar(X, Y, E);
 set(he,'DisplayName','Mean +/- Std')
 xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
