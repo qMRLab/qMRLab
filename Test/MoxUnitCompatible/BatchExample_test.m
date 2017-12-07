@@ -37,7 +37,7 @@ for iModel = 1:length(Modellist)
         eval([Modellist{iModel} '_batch'])
         toc(starttime)
     end
-    
+    close all
     cd ..
     
     % clean testing dataset
