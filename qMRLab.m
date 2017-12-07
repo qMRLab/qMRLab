@@ -639,7 +639,7 @@ else
     index = sub2ind(S,x,y,z);
     
     for ii=1:length(Model.MRIinputs)
-        if ~isempty(data.(Model.MRIinputs{ii}))
+        if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
             data.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(x,y,z,:));
         end
     end
