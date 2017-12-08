@@ -1,8 +1,10 @@
-% This function generates a batch example script.
+% This function generates a batch example script. based on template: genBatch.qmr
+% qMRgenBatch(Model,path)
+%   
+% Input
+%   Model (qMRLab object)
 %
-% Input: Model (qMRLab object)
-% Template: genBatch.qmr
-%
+% 
 % Written by: Agah Karakuzu, 2017
 
 function qMRgenBatch(Model,path)

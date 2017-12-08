@@ -25,7 +25,7 @@ list = sct_tools_ls('source/*_batch.rst',1,1);
 delete(list{:})
 
 % create new ones
-system('python auto_TOC.py')
+system('python auto_TOC.py'); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
 
 %% Build
 system('make')
