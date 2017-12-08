@@ -64,7 +64,7 @@ end
                 dat = data.Data4D;
             end
             
-            [N, eta, sigma_g] = scd_noise_fit_histo(dat,'fig',obj.options.figure,'distrib',obj.options.NoiseDistribution);
+            [N, eta, sigma_g] = scd_noise_fit_histo(dat,'fig',double(obj.options.figure),'distrib',obj.options.NoiseDistribution);
             init=ones(size(data.Data4D,1),size(data.Data4D,2),size(data.Data4D,3));
             FitResults.sigma_g = sigma_g*init;
             if strcmp(obj.options.NoiseDistribution,'Non-central Chi')
