@@ -367,6 +367,9 @@ SetAppData(FitResults);
 wh=findall(0,'tag','TMWWaitbar');
 delete(wh);
 
+% convert Model to struct
+FitResults.Model = objProps2struct(FitResults.Model);
+
 % Save fit results
 if(~isempty(FitResults.StudyID))
     filename = strcat(FitResults.StudyID,'.mat');
@@ -430,8 +433,8 @@ else
 end
 if isfield(FitResults,'FitOpt'), FitOpt =  FitResults.FitOpt; SetAppData(FitResults, Prot, FitOpt); Method = FitResults.Protocol.Method; end
 if isfield(FitResults,'Model')
-    Method = class(FitResults.Model);
-    Model = FitResults.Model;
+    Method = FitResults.Model.ModelName;
+    Model = qMRloadObj(FitResults.Model);
     SetAppData(FitResults,Model);
 end
 

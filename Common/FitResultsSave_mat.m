@@ -12,4 +12,7 @@ for i = 1:length(FitResults.fields)
     file = strcat(map,'.mat');
     save(fullfile(folder,file),'-struct','FitResults',map);
 end
+if isfield(FitResults,'Model')
+    FitResults.Model = objProps2struct(FitResults.Model);
+end
 save(fullfile(folder,'FitResults.mat'),'-struct','FitResults')
