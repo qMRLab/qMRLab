@@ -16,7 +16,6 @@
 qMRinfo('*-modelName-*'); % Display help 
 
 %% II- INITIALIZE MODEL OBJECT
-
 % -------------------------------------------------------------------------
 %%       A- CREATE MODEL OBJECT    
 % -------------------------------------------------------------------------
@@ -74,8 +73,7 @@ qMRshowOutput(FitResults,data,Model);
 Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 *-saveCommand-*
 
-% You can save outputs in Nifti format using FitResultSave_nii function:
-% Plase see qMRinfo('FitResultsSave_nii')
+% Tip: You can load FitResults.mat in qMRLab graphical user interface
 
 %% V- SIMULATIONS
 %     |- This section can be executed to run simulations for '*-modelName-*.
