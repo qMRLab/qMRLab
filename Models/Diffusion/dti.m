@@ -118,12 +118,13 @@ end
                 SigmaNoise = obj.options.Riciannoisebias_value;
             end
             
+            residue=0;
             if ~moxunit_util_platform_is_octave && SigmaNoise
                 [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
                 D(:)=xopt;
-                FitResults.residue = residue;
             end
-
+            FitResults.residue = residue;
+            
             % compute metrics
             [~,L] = eig(D); L = sort(diag(L),'descend');
             FitResults.L1 = L(1);
