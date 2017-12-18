@@ -1,5 +1,7 @@
 Graphical User Interface Usage
 ====================================
+This section describes the various features and funcitonality of the user interface.
+
 1. Startup
 ----------------------------------
 Launch matlab from the qMRLab folder. Then load the default setup by typing::
@@ -238,9 +240,18 @@ Each qMR acquisition method has its own particular options for simulation, proto
 
 5.1 Protocol
 ~~~~~~~~~~~~~~~~
-The ‘Protocol’ panel is where you define all options relating to the acquisition sequence. These options are specific for each method. For all methods, you will find (at the top of the protocol panel) input text fields corresponding to the independent variables. You can also load a previously saved text (.txt) file with the required options and format by using the **Load** button. Press the **Help** button in this panel to see the format expected by each of the models or by checking example protocol files in::
+The ‘Protocol’ panel is where you define all options relating to the acquisition sequence. These options are specific for each method. For all methods, you will find (at the top of the protocol panel) input text fields corresponding to the independent variables. You will need to load a previously saved text (.txt) file with the required options and format by using the **Load** button. Press the **Help** button in this panel to see the format expected by each of the models in the *Protocol* section
 
-    qMRLab/Data/{ModelName}_Demo/*.txt
+For example, the *vfa_t1* model is expecting
+
+*Protocol*
+    VFAData Array [nbFA x 2]:
+        [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
+
+Which means a text file where each row is a different flip angle, 1st column is the flip angle in degrees, 2nd is the TR in sec, e.g.::
+
+  3 0.015
+  20 0.015
 
 
 5.2.	Fitting
@@ -253,4 +264,10 @@ The 'Options' panel is where you specify the properties of the model and the fit
 
 6.	Tutorial
 -----------------------
-Video to come soon...
+See the video here:
+
+.. raw:: html
+
+    <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="700" height="394" src="https://www.youtube.com/embed/-yrbtCYDorI?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </div>
