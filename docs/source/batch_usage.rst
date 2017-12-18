@@ -4,7 +4,7 @@ Command-Line Usage
 General structure
 -----------------------
 The models are objects, each with a set of properties and generic functions.
-Before inter-acting with a model, it must first be instantiated, e.g. ::
+Before interacting with a model, it must first be instantiated, e.g. ::
 
 	model=charmed
 

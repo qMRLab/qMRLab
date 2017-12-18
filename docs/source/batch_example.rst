@@ -1,5 +1,7 @@
 Beginners example with batch
 ====================================
+This will guide you through the steps to create a script that can be used to process sample data. The generated example script scan then be used as a guideline to analyze your own data.
+
 1. Set-up
 ----------------------------------
 Launch matlab from the qMRLab folder. Then load the default setup by typing::
