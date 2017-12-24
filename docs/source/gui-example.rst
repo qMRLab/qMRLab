@@ -4,9 +4,14 @@ This will guide you step by step in processing a sample dataset with the user in
 
 1. Open matlab
 ----------------------------------
+
 2. Run startup
 ----------------------------------
-This will setup your path (note: you only need to do it once) ::
+Go to qMRLab installation folder (note: replace "PATH_QMRLAB" with the actual path) ::
+
+	cd PATH_QMRLAB
+
+Setup your path (note: you only need to do it once) ::
 
 	startup
 
