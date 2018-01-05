@@ -653,7 +653,11 @@ else
     
     Sim.Opt.AddNoise = 0;
     % Create axe
+    if ishandle(68), clf(68), end % If a data fit check has already been run,
+                                  % clear the previous data from the figure plot
+
     figure(68)
+
     set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
     haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
     
