@@ -658,7 +658,7 @@ else
 
     figure(68)
 
-    set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
+    set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
     haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
     
     if ~isempty(haxes)
