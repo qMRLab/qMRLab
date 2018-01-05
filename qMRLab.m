@@ -601,13 +601,16 @@ delete(h);
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
 Data =  getappdata(0,'Data');
+Model = class(GetAppData('Model')); % Get cur model name (string)
 Map = getimage(handles.FitDataAxe);
+
 % exclude the 0 from mask
-if isfield(Data,'Mask')    
-    if ~isempty(Data.Mask)
-        Map(~rot90(Data.Mask)) = 0;
+if isfield(Data.(Model),'Mask')
+    if ~isempty(Data.(Model).Mask)
+        Map(~rot90(Data.(Model).Mask)) = 0;
     end
 end
+
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 ii = find(Map);
