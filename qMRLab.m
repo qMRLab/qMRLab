@@ -587,7 +587,8 @@ RefreshPlot(handles);
 
 % SAVE FIG
 function SaveFig_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile('FitResults','NewFig.fig'));
+[FileName,PathName] = uiputfile(fullfile('.','NewFig.fig'));
+
 if PathName == 0, return; end
 xl = xlim;
 yl = ylim;
