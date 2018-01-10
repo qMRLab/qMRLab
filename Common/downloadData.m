@@ -69,8 +69,10 @@ else
     mkdir([filename(1:end-4) '_data']);
     newname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4) '_data'];
     for i =1:length(dirFiles)
+        if not(strcmp(dirFiles(i).name,'FitResults'))
         movefile(dirFiles(i).name,[newname filesep dirFiles(i).name]);
         dataPath = newname;
+        end
     end
 end
 
