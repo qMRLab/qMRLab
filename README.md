@@ -2,7 +2,7 @@
 
 Welcome to qMRLab, all your quantitative MRI needs under one umbrella! 
 
-![qMRLab](qMRLab-intro.png)
+<img src="qMRLab-intro.png" width="1000">
 
 
 qMRLab is an open-source software for quantitative MR image analysis. The main goal
