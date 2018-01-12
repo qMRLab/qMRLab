@@ -133,9 +133,9 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
    data = struct();
    
    <span class="comment">% MET2data.mat contains [64  64   1  32] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/MET2data.mat'</span>);
+    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/mwf_demo/mwf_data/MET2data.mat'</span>);
    <span class="comment">% Mask.mat contains [64  64] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/Mask.mat'</span>);
+    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/mwf_demo/mwf_data/Mask.mat'</span>);
     data.MET2data= double(MET2data);
     data.Mask= double(Mask);
    

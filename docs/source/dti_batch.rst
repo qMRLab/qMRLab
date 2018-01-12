@@ -115,9 +115,9 @@ dti: Diffusion Tensor Imaging
    
    data = struct();
    <span class="comment">% DiffusionData.nii.gz contains [74   87   50  109] data.</span>
-   data.DiffusionData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/dti_demo/dti_data/DiffusionData.nii.gz'</span>));
+   data.DiffusionData=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/dti_demo/dti_data/DiffusionData.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [74  87  50] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/dti_demo/dti_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/dti_demo/dti_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -167,4 +167,4 @@ dti: Diffusion Tensor Imaging
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
          SimVaryPlot(SimResults, <span class="string">'L1'</span> ,<span class="string">'L1'</span> );
-   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>
+   </pre><img src="_static/dti_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

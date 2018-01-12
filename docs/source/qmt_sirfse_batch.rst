@@ -174,9 +174,9 @@ qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
    
    data = struct();
    <span class="comment">% MTdata.nii.gz contains [128  128    1   25] data.</span>
-   data.MTdata=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_sirfse_demo/qmt_sirfse_data/MTdata.nii.gz'</span>));
+   data.MTdata=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_sirfse_demo/qmt_sirfse_data/MTdata.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [128  128] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_sirfse_demo/qmt_sirfse_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_sirfse_demo/qmt_sirfse_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>

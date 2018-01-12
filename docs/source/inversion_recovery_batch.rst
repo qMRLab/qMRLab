@@ -122,9 +122,9 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    data = struct();
    
    <span class="comment">% IRData.mat contains [128  128    1    9] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/IRData.mat'</span>);
+    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/IRData.mat'</span>);
    <span class="comment">% Mask.mat contains [128  128] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/Mask.mat'</span>);
+    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/Mask.mat'</span>);
     data.IRData= double(IRData);
     data.Mask= double(Mask);
    

@@ -104,7 +104,7 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><img src="_static/b1_dam_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">b1_dam.</span>
+   </pre><h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">b1_dam.</span>
    -------------------------------------------------------------------------
    </pre><pre class="codeinput"><span class="comment">% This object does not have protocol attributes.</span>
    </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by b1_dam.
@@ -115,9 +115,9 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    
    data = struct();
    <span class="comment">% SF60.nii.gz contains [64  64] data.</span>
-   data.SF60=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF60.nii.gz'</span>));
+   data.SF60=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/b1_dam_demo/b1_dam_data/SF60.nii.gz'</span>));
    <span class="comment">% SF120.nii.gz contains [64  64] data.</span>
-   data.SF120=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF120.nii.gz'</span>));
+   data.SF120=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/b1_dam_demo/b1_dam_data/SF120.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -132,7 +132,7 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/b1_dam_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'b1_dam_Demo.qmrlab.mat'</span>);
+   </pre><img src="_static/b1_dam_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'b1_dam_Demo.qmrlab.mat'</span>);
    FitResultsSave_nii(FitResults, <span class="string">'b1_dam_data/SF60.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>

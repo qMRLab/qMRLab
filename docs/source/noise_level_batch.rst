@@ -103,9 +103,9 @@ noise_level :  Noise histogram fitting within a noise mask
    
    data = struct();
    <span class="comment">% Data4D.nii.gz contains [70   70    4  197] data.</span>
-   data.Data4D=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noise_level_demo/noise_level_data/Data4D.nii.gz'</span>));
+   data.Data4D=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/noise_level_demo/noise_level_data/Data4D.nii.gz'</span>));
    <span class="comment">% NoiseMask.nii.gz contains [70  70   4] data.</span>
-   data.NoiseMask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noise_level_demo/noise_level_data/NoiseMask.nii.gz'</span>));
+   data.NoiseMask=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/noise_level_demo/noise_level_data/NoiseMask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
