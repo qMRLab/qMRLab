@@ -44,6 +44,9 @@ loadedObject.loadObj(testCase.tempFileName);
 %
 assertEqual(originalObject, loadedObject, 'Some Properties Mismatch');
 
+function TestTeardown
+delete tmp.qmrlab.mat
+
 function initialized_object_has_correct_version_val(testCase)
 assertEqual(testCase.modelObject.version, qMRLabVer);
 

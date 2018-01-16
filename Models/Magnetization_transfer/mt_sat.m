@@ -88,4 +88,20 @@ classdef mt_sat < AbstractModel
         end
 
     end
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % 2.0.6
+            if checkanteriorver(version,[2 0 6])
+                obj.MRIinputs = {'MTw'    'T1w'    'PDw'    'B1map'    'Mask'}; % add B1map
+                obj.Prot.MT.Format(3) = []; % remove offset
+                obj.Prot.MT.Mat(:,3)  = [];
+                % add B1factor
+                obj.buttons = {'B1 correction factor',   [0.4000]};
+                obj.options.B1correctionfactor=0.04;
+            end
+        end
+    end
+
 end
