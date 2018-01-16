@@ -17,9 +17,9 @@ Then open the GUI by typing::
 When you first launch qMRLab, you will be presented with a blank interface. The interface consists of three columns, or panels. On the left, you have the *Menu* panel, in the center you have the *Main panel*, and on the right, in a separate floating window, you have the *Options* panel.
 
 .. figure:: _static/gui_default.png
-   :scale: 50 %
+   :scale: 100 %
 
-   Default interface with 3 panels: Menu, Main and floating Options
+   Default interface with 3 panels: (1) Menu, (2) Main and (3) floating Options
 
 2.1 Menu Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,20 +29,18 @@ The *Menu panel* is where you can choose the task you want to perform. It is div
 ++++++++++++++++
 At the top, you will find a drop-down menu where you can choose the MR acquisition method that you want to be working with. An updated list of the available methods is here: :ref:`Methods available`
 
-Note that the *Options* panel will update to the appropriate window according to your selection.
+Note that the *Main* and *Options* panel will update to the appropriate window according to your selection.
 If you plan to be working mainly with a particular method, select it from the drop-down menu first, and the click on the **Set Default** button next to it. Next time you open qMRLab, your preferred method will be selected by default.
 
 Clicking on the **Open Options Panel** below the method drop-down menu will open the *Options* panel window and set its position on the right side of the *Main* panel. This is useful to bring back the *Options* panel window to the front if it’s hidden behind another window, to reset its position if you have resized the windows, or to reopen it in case you closed it.
 
 2.1.2 qMR Data Fit
 +++++++++++++++++++++++
-Clicking on the light gray **Fit qMT Data** button will change the *Main* panel to the *Fit qMR Data* view. This is where you can load your data files for fitting and for viewing the resulting parameters maps.
-
-Click the big **Fit Data** button only when you have selected your data files, set up your protocol and fitting options and are ready to begin the fitting process, which, depending on the size of your data and the method, can take from a few minutes to a couple of hours. The **Save Results** button will prompt you to save a .mat file with the results of your data fit. **Load Results** will load previously saved results and display them. Refer to this section :ref:`3.	Data Fitting` for more information.
+Click on the big **Fit Data** button only when you have selected your data files, set up your protocol and fitting options and are ready to begin the fitting process, which, depending on the size of your data and the method, can take from a few minutes to a couple of hours. The **Save Results** button will prompt you to save a .mat file with the results of your data fit. **Load Results** will load previously saved results and display them. Refer to this section :ref:`3.	Data Fitting` for more information.
 
 2.1.3 qMR Data Simulator
 ++++++++++++++++++++++++++++++++
-The three light gray buttons allows you to choose between three different data simulation mode: **Single Voxel Curve**, **Sensitivity Analysis** and **Multi Voxel Distribution**. Clicking on any one of these buttons will bring the corresponding interface to the *Main* panel. When any of these interfaces are active, clicking on the big dark gray **Simulate Data** button will launch the simulation using the current setting. The **Save Results** button will prompt you to save a .mat file with the current simulation results. **Load Results** will load previously saved simulation results and display them in the appropriate panel. Refer to this section :ref:`4.	Simulation` for more information.
+The buttons of this menu allow you to choose between different data simulation mode. All Methods that involve a data fitting procedure present at least the following simulations: **Single Voxel Curve**, **Sensitivity Analysis** and **Multi Voxel Distribution**. Clicking on any one of these buttons will bring the corresponding interface in a floating window. When any of these interfaces are opened, clicking on the **update** button will launch the simulation using the current options (defined in the *Options* panel). The **Save Results** button will prompt you to save a .mat file with the current simulation results. **Load Results** will load previously saved simulation results and display them in the appropriate panel. Refer to this section :ref:`4.	Simulation` for more information.
 
 Single Voxel Curve
 ______________________
@@ -58,7 +56,7 @@ The *Multi Voxel Distribution* is a tool to simulate any number of voxels, where
 
 2.2 Main Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
-The *Main* panel is where the simulation or fit results are displayed. The view for this panel changes correspondingly to the task selected in the *Menu* panel.
+The *Main* panel is where you can load your data files for fitting and for viewing the resulting parameters maps. This panel changes correspondingly to the Method selected in the *Menu* panel.
 
 2.3 Options Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,7 +68,7 @@ Here you define the acquisition protocol that you wish to use for simulation, or
 
 2.3.2	Fitting
 +++++++++++++++++++
-This is where you set up your fitting options. The fit parameters table lists all the variables that are available for fitting in the current method, a tick box to select which variables are to be held fixed, a starting value and lower/upper bounds. Depending on the method, additional options may be available. See :ref:`5.2.	Fitting` for more information.
+This is where you set up your fitting options. The fit parameters table lists all the variables that are available for fitting in the current method, a tick box to select which variables are to be held fixed, a starting value and lower/upper bounds. Note that some methods do not have fitting procedures, this table is empty in this case. Depending on the method, additional options may be available. See :ref:`5.2.	Fitting` for more information.
 
 
 2.3.3 Options
