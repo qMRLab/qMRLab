@@ -55,7 +55,7 @@ end
         voxelwise = 1;
         
         % Protocol
-        Prot  = struct('VFAData',struct('Format',{{'Flip Angle (deg)' 'TR (s)'}},...
+        Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR (s)'}},...
                                          'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
 
         % fitting options
