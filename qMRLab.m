@@ -587,7 +587,8 @@ RefreshPlot(handles);
 
 % SAVE FIG
 function SaveFig_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile('FitResults','NewFig.fig'));
+[FileName,PathName] = uiputfile(fullfile('.','NewFig.fig'));
+
 if PathName == 0, return; end
 xl = xlim;
 yl = ylim;
@@ -601,13 +602,16 @@ delete(h);
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
 Data =  getappdata(0,'Data');
+Model = class(GetAppData('Model')); % Get cur model name (string)
 Map = getimage(handles.FitDataAxe);
+
 % exclude the 0 from mask
-if isfield(Data,'Mask')    
-    if ~isempty(Data.Mask)
-        Map(~rot90(Data.Mask)) = 0;
+if isfield(Data.(Model),'Mask')
+    if ~isempty(Data.(Model).Mask)
+        Map(~rot90(Data.(Model).Mask)) = 0;
     end
 end
+
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 ii = find(Map);
@@ -650,8 +654,12 @@ else
     
     Sim.Opt.AddNoise = 0;
     % Create axe
+    if ishandle(68), clf(68), end % If a data fit check has already been run,
+                                  % clear the previous data from the figure plot
+
     figure(68)
-    set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
+
+    set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
     haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
     
     if ~isempty(haxes)

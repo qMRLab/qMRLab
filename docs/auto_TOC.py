@@ -101,8 +101,8 @@ for root, dirs, files in os.walk('../Models'):
 			models.append(model_add)
 
 #Open a dummy documentation file and the documentation file to write the totree
-with io.open("./source/documentation.rst", "r") as fr:
-	with io.open("./source/documentationTemp.rst", "w") as fw:
+with io.open("./source/methods.rst", "r") as fr:
+	with io.open("./source/methodsTemp.rst", "w") as fw:
 		in_Models = False
 		i = -1
 		#Go througth each line
@@ -145,12 +145,12 @@ fr.close()
 fw.close()
 
 #Open the previous files in reverse role and copy the new one in the old file
-with io.open("./source/documentationTemp.rst", "r") as fr:
-	with io.open("./source/documentation.rst", "w") as fw:
+with io.open("./source/methodsTemp.rst", "r") as fr:
+	with io.open("./source/methods.rst", "w") as fw:
 		for line in fr:
 			fw.write(line)
 
 #Close the files and remove the temporary file
 fr.close()
 fw.close()
-os.remove("./source/documentationTemp.rst")
+os.remove("./source/methodsTemp.rst")

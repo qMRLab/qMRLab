@@ -322,7 +322,7 @@ end
             Prot = GetProt(obj);
             subplot(2,1,1)
             plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
-            ylabel('Angle (�)')
+            ylabel('Angle')
             xlabel('offset (Hz)')
             subplot(2,1,2)
             title('MTpulse')

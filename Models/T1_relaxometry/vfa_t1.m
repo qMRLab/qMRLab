@@ -57,7 +57,7 @@ end
         % Protocol
         Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...
                                          'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
-        
+
         % fitting options
         st           = [2000 0.7]; % starting point
         lb           = [0   0.00001]; % lower bound
