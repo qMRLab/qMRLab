@@ -143,11 +143,11 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    
    data = struct();
    <span class="comment">% MTw.nii.gz contains [128  128   96] data.</span>
-   data.MTw=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/mt_sat_demo/mt_sat_data/MTw.nii.gz'</span>));
+   data.MTw=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mt_sat_demo/mt_sat_data/MTw.nii.gz'</span>));
    <span class="comment">% T1w.nii.gz contains [128  128   96] data.</span>
-   data.T1w=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/mt_sat_demo/mt_sat_data/T1w.nii.gz'</span>));
+   data.T1w=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mt_sat_demo/mt_sat_data/T1w.nii.gz'</span>));
    <span class="comment">% PDw.nii.gz contains [128  128   96] data.</span>
-   data.PDw=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/mt_sat_demo/mt_sat_data/PDw.nii.gz'</span>));
+   data.PDw=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mt_sat_demo/mt_sat_data/PDw.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -166,7 +166,6 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    FitResultsSave_nii(FitResults, <span class="string">'mt_sat_data/MTw.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'mt_sat.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data

@@ -165,11 +165,11 @@ qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
    
    data = struct();
    <span class="comment">% MTdata.nii.gz contains [128  128    1   16] data.</span>
-   data.MTdata=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/MTdata.nii.gz'</span>));
+   data.MTdata=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/MTdata.nii.gz'</span>));
    <span class="comment">% R1map.nii.gz contains [128  128] data.</span>
-   data.R1map=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/R1map.nii.gz'</span>));
+   data.R1map=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/R1map.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [128  128] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -189,7 +189,6 @@ qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
    FitResultsSave_nii(FitResults, <span class="string">'qmt_bssfp_data/MTdata.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'qmt_bssfp.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
@@ -205,6 +204,7 @@ qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
          <span class="comment">% Get all possible options</span>
          Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -221,5 +221,6 @@ qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
          Opt = button2opts([Model.Sim_Single_Voxel_Curve_buttons, Model.Sim_Sensitivity_Analysis_buttons],1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'F'</span> ,<span class="string">'F'</span> );
    </pre><img src="_static/qmt_bssfp_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

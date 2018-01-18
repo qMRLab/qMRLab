@@ -132,11 +132,11 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    
    data = struct();
    <span class="comment">% VFAData.nii.gz contains [128  128    1    2] data.</span>
-   data.VFAData=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/vfa_t1_demo/vfa_t1_data/VFAData.nii.gz'</span>));
+   data.VFAData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/VFAData.nii.gz'</span>));
    <span class="comment">% B1map.nii.gz contains [128  128] data.</span>
-   data.B1map=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/vfa_t1_demo/vfa_t1_data/B1map.nii.gz'</span>));
+   data.B1map=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/B1map.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [128  128] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/vfa_t1_demo/vfa_t1_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -156,7 +156,7 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
              T1: 0
          fields: {'M0'  'T1'}
        computed: [128128 double]
-           Time: 0.2603
+           Time: 0.0259
        Protocol: [11 struct]
           Model: [11 vfa_t1]
         Version: [2 0 7]
@@ -176,11 +176,12 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
          <span class="comment">% Get all possible options</span>
          Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">    M0: 2.0969e+03
-       T1: 0.7423
+   </pre><pre class="codeoutput">    M0: 1.9972e+03
+       T1: 0.6752
    
    </pre><img src="_static/vfa_t1_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
@@ -195,5 +196,6 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
           Opt.Nofrun = 5;
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'M0'</span> ,<span class="string">'M0'</span> );
    </pre><img src="_static/vfa_t1_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

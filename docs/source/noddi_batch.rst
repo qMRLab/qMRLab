@@ -159,9 +159,9 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
    
    data = struct();
    <span class="comment">% DiffusionData.nii.gz contains [74   87   50  109] data.</span>
-   data.DiffusionData=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/noddi_demo/noddi_data/DiffusionData.nii.gz'</span>));
+   data.DiffusionData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noddi_demo/noddi_data/DiffusionData.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [74  87  50] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/noddi_demo/noddi_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noddi_demo/noddi_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -181,7 +181,6 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
    FitResultsSave_nii(FitResults, <span class="string">'noddi_data/DiffusionData.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'noddi.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
@@ -198,6 +197,7 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
          x.phi = 0;
           Opt.SNR = 50;
          <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -214,5 +214,6 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
           Opt.Nofrun = 5;
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'ficvf'</span> ,<span class="string">'ficvf'</span> );
    </pre><img src="_static/noddi_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

@@ -115,9 +115,9 @@ dti: Diffusion Tensor Imaging
    
    data = struct();
    <span class="comment">% DiffusionData.nii.gz contains [74   87   50  109] data.</span>
-   data.DiffusionData=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/dti_demo/dti_data/DiffusionData.nii.gz'</span>));
+   data.DiffusionData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/dti_demo/dti_data/DiffusionData.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [74  87  50] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/dti_demo/dti_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/dti_demo/dti_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -128,7 +128,6 @@ dti: Diffusion Tensor Imaging
    
    <span class="comment">% -------------------------------------------------------------------------</span>
    </pre><pre class="codeoutput">Fitting voxel       3/164005
-   Warning: Negative values detected in DiffusionData. threshold to 0. 
    ...done   0%
    </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -138,7 +137,6 @@ dti: Diffusion Tensor Imaging
    FitResultsSave_nii(FitResults, <span class="string">'dti_data/DiffusionData.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'dti.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
@@ -150,6 +148,7 @@ dti: Diffusion Tensor Imaging
          x.L3 = 0.7;
           Opt.SNR = 50;
          <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -166,5 +165,6 @@ dti: Diffusion Tensor Imaging
           Opt.Nofrun = 5;
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'L1'</span> ,<span class="string">'L1'</span> );
    </pre><img src="_static/dti_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

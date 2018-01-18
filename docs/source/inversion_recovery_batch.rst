@@ -122,9 +122,9 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    data = struct();
    
    <span class="comment">% IRData.mat contains [128  128    1    9] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/IRData.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/IRData.mat'</span>);
    <span class="comment">% Mask.mat contains [128  128] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/Mask.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/Mask.mat'</span>);
     data.IRData= double(IRData);
     data.Mask= double(Mask);
    
@@ -145,7 +145,6 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    FitResultsSave_nii(FitResults);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'inversion_recovery.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
@@ -158,6 +157,7 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
          <span class="comment">% Get all possible options</span>
          Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -174,5 +174,6 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
           Opt.Nofrun = 5;
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'T1'</span> ,<span class="string">'T1'</span> );
    </pre><img src="_static/inversion_recovery_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

@@ -128,9 +128,9 @@ b0_dem map :  Dual Echo Method for B0 mapping
    
    data = struct();
    <span class="comment">% Phase.nii.gz contains [64  64   1   8] data.</span>
-   data.Phase=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/b0_dem_demo/b0_dem_data/Phase.nii.gz'</span>));
+   data.Phase=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b0_dem_demo/b0_dem_data/Phase.nii.gz'</span>));
    <span class="comment">% Magn.nii.gz contains [64  64   1   8] data.</span>
-   data.Magn=double(load_nii_data(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/b0_dem_demo/b0_dem_data/Magn.nii.gz'</span>));
+   data.Magn=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b0_dem_demo/b0_dem_data/Magn.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -149,7 +149,6 @@ b0_dem map :  Dual Echo Method for B0 mapping
    FitResultsSave_nii(FitResults, <span class="string">'b0_dem_data/Phase.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'b0_dem.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data

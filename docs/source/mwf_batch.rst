@@ -133,9 +133,9 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
    data = struct();
    
    <span class="comment">% MET2data.mat contains [64  64   1  32] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/mwf_demo/mwf_data/MET2data.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/MET2data.mat'</span>);
    <span class="comment">% Mask.mat contains [64  64] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/mwf_demo/mwf_data/Mask.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/Mask.mat'</span>);
     data.MET2data= double(MET2data);
     data.Mask= double(Mask);
    
@@ -168,6 +168,7 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
          <span class="comment">% Get all possible options</span>
          Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -184,5 +185,6 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
          Opt = button2opts([Model.Sim_Single_Voxel_Curve_buttons, Model.Sim_Sensitivity_Analysis_buttons],1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'MWF'</span> ,<span class="string">'MWF'</span> );
    </pre><img src="_static/mwf_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

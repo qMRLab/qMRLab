@@ -207,15 +207,15 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
    data = struct();
    
    <span class="comment">% MTdata.mat contains [88  128    1   10] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/MTdata.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/MTdata.mat'</span>);
    <span class="comment">% R1map.mat contains [88  128] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/R1map.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/R1map.mat'</span>);
    <span class="comment">% B1map.mat contains [88  128] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B1map.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B1map.mat'</span>);
    <span class="comment">% B0map.mat contains [88  128] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B0map.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B0map.mat'</span>);
    <span class="comment">% Mask.mat contains [88  128] data.</span>
-    load(<span class="string">'/data/mril/mril3/ilana/matlab/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/Mask.mat'</span>);
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/Mask.mat'</span>);
     data.MTdata= double(MTdata);
     data.R1map= double(R1map);
     data.B1map= double(B1map);
@@ -229,21 +229,16 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
    FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">Fitting voxel     1/4101
-   Warning: No MToff. MTData cannot be nor   2/4101
-   Warning: No MToff. MTData cannot be nor   3/4101
-   Warning: No MToff. MTData cannot be normalized. 
+   </pre><pre class="codeoutput">Fitting voxel     3/4101
    ...done   0%
    </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
-   </pre><pre class="codeoutput">Warning: No MToff. MTData cannot be normalized. 
    </pre><img src="_static/qmt_spgr_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/qmt_spgr_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'qmt_spgr_Demo.qmrlab.mat'</span>);
    FitResultsSave_nii(FitResults);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'qmt_spgr.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
@@ -259,11 +254,10 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
          <span class="comment">% Get all possible options</span>
          Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
    </pre><img src="_static/qmt_spgr_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
@@ -277,21 +271,6 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
          Opt = button2opts([Model.Sim_Single_Voxel_Curve_buttons, Model.Sim_Sensitivity_Analysis_buttons],1);
          <span class="comment">% run simulation using options `Opt(1)`</span>
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'F'</span> ,<span class="string">'F'</span> );
-   </pre><pre class="codeoutput">Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: No MToff. MTData cannot be normalized. 
-   Warning: Negative data ignored 
    </pre><img src="_static/qmt_spgr_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>
