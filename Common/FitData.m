@@ -18,7 +18,7 @@ function Fit = FitData(data, Model, wait , Fittmp)
 %     Fit                        [struct] with fitted parameters
 %
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Fran?ois Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 %
@@ -136,12 +136,13 @@ if Model.voxelwise % process voxelwise
     
     % delete waitbar
     if (~isempty(h));  delete(h); end
-    
+    j_progress('...done')
+
 else % process entire volume
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
+    disp('...done');
 end
-j_progress('...done')
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
