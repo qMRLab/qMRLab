@@ -631,44 +631,99 @@ Source = SourceFields{get(handles.SourcePop,'Value')};
 xlabel(Source);
 ylabel('Counts');
 
-% GUI objects
-h_text = uicontrol(f,'Style','text',...
+% Statistics (mean and standard deviation)
+Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
+h_stats=text(0.70,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
+
+% No. of bins GUI objects
+h_text_bin = uicontrol(f,'Style','text',...
                      'String', 'Number of bins:',...
                      'FontSize', 14,...
                      'Position',[5 20+300 140 34]);
-h_edit = uicontrol(f,'Style','edit',...
+h_edit_bin = uicontrol(f,'Style','edit',...
                      'String', defaultNumBins,...
                      'FontSize', 14,...
                      'Position',[135 25+300 34 34]);
-h_slider = uicontrol(f,'Style','slider',...
+h_slider_bin = uicontrol(f,'Style','slider',...
                        'Min',1,'Max',100,'Value',defaultNumBins,...
                        'SliderStep',[1/(100-1) 1/(100-1)],...
                        'Position',[185 26+300 0 30],...
-                       'Callback',{@sl_call,{h_hist h_edit}});
-h_edit.Callback = {@ed_call,{h_hist h_slider}};
+                       'Callback',{@sl_call,{h_hist h_edit_bin}});
+h_edit_bin.Callback = {@ed_call,{h_hist h_slider_bin}};
 
-% Statistics (mean and standard deviation)
-Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
-text(0.70,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
+% Min-Max GUI objects
+h_text_min = uicontrol(f,'Style','text',...
+                      'String', 'Min',...
+                      'FontSize', 14,...
+                      'Position',[0 20+200 140 34]);
+h_edit_min = uicontrol(f,'Style','edit',...
+                     'String', h_hist.BinLimits(1),...
+                     'FontSize', 14,...
+                     'Position', [35 20+180 70 34]);
+h_text_max = uicontrol(f,'Style','text',...
+                      'String', 'Max',...
+                      'FontSize', 14,...
+                      'Position',[135 20+200 34 34]);
+h_edit_max = uicontrol(f,'Style','edit',...
+                     'String', h_hist.BinLimits(2),...
+                     'FontSize', 14,...
+                     'Position', [116 20+180 70 34]);
+h_button_minmax = uicontrol(f,'Style','pushbutton',...
+                              'String', 'Recalculate',...
+                              'FontSize', 14,...
+                              'Position', [65 20+140 100 34],...
+                              'Callback',{@minmax_call,{h_hist h_edit_min h_edit_max data h_stats}});
 
 % Histogram GUI callbacks
 function [] = sl_call(varargin)
     % Callback for the slider.
-    [h_slider,h_cell] = varargin{[1,3]};
+    [h_slider_bin,h_cell] = varargin{[1,3]};
     h_hist = h_cell{1};
-    h_edit = h_cell{2};
+    h_edit_bin = h_cell{2};
 
-    h_hist.NumBins = round(h_slider.Value);
-    h_edit.String = h_slider.Value;
+    h_hist.NumBins = round(h_slider_bin.Value);
+    h_edit_bin.String = round(h_slider_bin.Value);
 
 function [] = ed_call(varargin)
     % Callback for the edit box.
-    [h_edit,h_cell] = varargin{[1,3]};
+    [h_edit_bin,h_cell] = varargin{[1,3]};
     h_hist = h_cell{1};
-    h_slider = h_cell{2};
+    h_slider_bin = h_cell{2};
 
-    h_hist.NumBins = round(str2double(h_edit.String));
-    h_slider.Value = str2double(h_edit.String);
+    h_hist.NumBins = round(str2double(h_edit_bin.String));
+    h_slider_bin.Value = round(str2double(h_edit_bin.String));
+
+function [] = minmax_call(varargin)
+    % Callback for the bin bounds recalculate box.
+    h_cell = varargin{3};
+    h_hist = h_cell{1};
+    h_min = h_cell{2};
+    h_max = h_cell{3};
+    data = h_cell{4};
+    h_stats = h_cell{5};
+
+    % Mask data out of range of min-max
+    minVal = str2double(h_min.String);
+    maxVal = str2double(h_max.String);
+    data(data>maxVal) = [];
+    data(data<minVal) = [];
+
+    h_hist.Data=data;
+
+    % Small hack to refresh histogram object/fig.
+    numBins = h_hist.NumBins;
+    if numBins == 100
+        h_hist.NumBins = numBins-1;
+        h_hist.NumBins = numBins;
+    else
+        h_hist.NumBins = numBins+1;
+        h_hist.NumBins = numBins;
+    end
+
+    % Update stats on fig
+    h_stats.String = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
+
+
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
