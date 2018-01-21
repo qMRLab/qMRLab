@@ -629,7 +629,7 @@ h_hist=histogram(data, defaultNumBins);
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 xlabel(Source);
-ylabel('Counts');
+h_ylabel = ylabel('Counts');
 
 % Statistics (mean and standard deviation)
 Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
@@ -674,9 +674,25 @@ h_button_minmax = uicontrol(f,'Style','pushbutton',...
                               'Position', [65 20+140 100 34],...
                               'Callback',{@minmax_call,{h_hist h_edit_min h_edit_max data h_stats}});
 
+% Normalization GUI objects
+h_text_min = uicontrol(f,'Style','text',...
+                      'String', 'Normalization mode',...
+                      'FontSize', 14,...
+                      'Position',[30 20+40 180 34]);
+h_popup_norm = uicontrol(f,'Style','popupmenu',...
+                           'String', {'Count',...
+                                      'Count density',...
+                                      'Cumulative count',...
+                                      'Probability',...
+                                      'PDF',...
+                                      'CDF'},...
+                           'FontSize', 14,...
+                           'Position', [30 20+20 180 34],...
+                           'Callback',{@norm_call,{h_hist h_ylabel}});
+
 % Histogram GUI callbacks
 function [] = sl_call(varargin)
-    % Callback for the slider.
+    % Callback for the histogram slider.
     [h_slider_bin,h_cell] = varargin{[1,3]};
     h_hist = h_cell{1};
     h_edit_bin = h_cell{2};
@@ -685,7 +701,7 @@ function [] = sl_call(varargin)
     h_edit_bin.String = round(h_slider_bin.Value);
 
 function [] = ed_call(varargin)
-    % Callback for the edit box.
+    % Callback for the histogram edit box.
     [h_edit_bin,h_cell] = varargin{[1,3]};
     h_hist = h_cell{1};
     h_slider_bin = h_cell{2};
@@ -694,7 +710,7 @@ function [] = ed_call(varargin)
     h_slider_bin.Value = round(str2double(h_edit_bin.String));
 
 function [] = minmax_call(varargin)
-    % Callback for the bin bounds recalculate box.
+    % Callback for the histogram bin bounds recalculate box.
     h_cell = varargin{3};
     h_hist = h_cell{1};
     h_min = h_cell{2};
@@ -723,7 +739,30 @@ function [] = minmax_call(varargin)
     % Update stats on fig
     h_stats.String = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
 
+function [] = norm_call(varargin)
+    % Callback for the histogram edit box.
+    [h_popup_norm,h_cell] = varargin{[1,3]};
+    h_hist = h_cell{1};
+    h_ylabel = h_cell{2};
 
+    menu_status = h_popup_norm.String{h_popup_norm.Value};
+
+    switch menu_status
+        case 'Count'
+            h_hist.Normalization = 'count';
+        case 'Count density'
+            h_hist.Normalization = 'countdensity';
+        case 'Cumulative count'
+            h_hist.Normalization = 'cumcount';
+        case 'Probability'
+            h_hist.Normalization = 'probability';
+        case 'PDF'
+            h_hist.Normalization = 'pdf';
+        case 'CDF'
+            h_hist.Normalization = 'cdf';
+    end
+
+    h_ylabel.String = menu_status;
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
