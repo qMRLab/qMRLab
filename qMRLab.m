@@ -635,9 +635,8 @@ end
 h_plot = subplot(1,2,2); % Use subplot to give space for GUI elements
 h_plot.OuterPosition = [0.3 0 0.7 1.0];
 
-defaultNumBins = 20;
-h_hist=histogram(data, defaultNumBins);
-
+h_hist=histogram(data);
+defaultNumBins = h_hist.NumBins;
 % Label axes
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
