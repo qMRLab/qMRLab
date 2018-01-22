@@ -619,6 +619,19 @@ data = reshape(Map(ii),1,nVox);
 % Plot figure
 f=figure('Position', [0 0 700 400], 'Resize', 'Off');
 
+% Matlab < R2014b
+MatlabVer = version;
+if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+hist(data, defaultNumBins); 
+% Label axes
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+xlabel(Source);
+ylabel('Counts');
+return;
+end
+
+% Matlab >= R2014b
 h_plot = subplot(1,2,2); % Use subplot to give space for GUI elements
 h_plot.OuterPosition = [0.3 0 0.7 1.0];
 
