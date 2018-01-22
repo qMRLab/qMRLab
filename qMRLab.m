@@ -761,8 +761,6 @@ function [] = norm_call(varargin)
     switch menu_status
         case 'Count'
             h_hist.Normalization = 'count';
-        case 'Count density'
-            h_hist.Normalization = 'countdensity';
         case 'Cumulative count'
             h_hist.Normalization = 'cumcount';
         case 'Probability'
