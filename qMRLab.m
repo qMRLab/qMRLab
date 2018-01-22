@@ -645,7 +645,7 @@ h_ylabel = ylabel('Counts');
 
 % Statistics (mean and standard deviation)
 Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
-h_stats=text(0.70,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
+h_stats=text(0.10,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
 
 % No. of bins GUI objects
 h_text_bin = uicontrol(f,'Style','text',...
