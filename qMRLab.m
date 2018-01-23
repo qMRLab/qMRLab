@@ -874,6 +874,24 @@ fig = gcf;
 handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
+set(handles.dcm_obj,'UpdateFcn',{@myupdatefcn,handles})
+
+function txt = myupdatefcn(empt,event_obj,handles)
+% Customizes text of data tips
+
+pos = get(event_obj,'Position');
+data = event_obj.Target.CData;
+
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+
+sliceNum = str2double(get(handles.SliceValue,'String'));
+
+txt = {['Source: ', Source],...
+       ['[X,Y]: ', '[', num2str(pos(1)), ',', num2str(pos(2)), ']'],...
+       ['Slice: ', num2str(sliceNum)],...
+	   ['Value: ', num2str(data(pos(2), pos(1)))]};
+
 function RefreshPlot(handles)
 if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
