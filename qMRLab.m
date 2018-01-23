@@ -605,26 +605,173 @@ Data =  getappdata(0,'Data');
 Model = class(GetAppData('Model')); % Get cur model name (string)
 Map = getimage(handles.FitDataAxe);
 
-% exclude the 0 from mask
+% Mask data
 if isfield(Data.(Model),'Mask')
     if ~isempty(Data.(Model).Mask)
         Map(~rot90(Data.(Model).Mask)) = 0;
     end
 end
 
-SourceFields = cellstr(get(handles.SourcePop,'String'));
-Source = SourceFields{get(handles.SourcePop,'Value')};
 ii = find(Map);
 nVox = length(ii);
 data = reshape(Map(ii),1,nVox);
-% figure
-figure
-hist(data,20);
+
+% Plot figure
+f=figure('Position', [0 0 700 400], 'Resize', 'Off');
+
+% Matlab < R2014b
+MatlabVer = version;
+if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+hist(data, defaultNumBins); 
+% Label axes
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
 xlabel(Source);
 ylabel('Counts');
-% statistics (mean and standard deviation)
+return;
+end
+
+% Matlab >= R2014b
+h_plot = subplot(1,2,2); % Use subplot to give space for GUI elements
+h_plot.OuterPosition = [0.3 0 0.7 1.0];
+
+h_hist=histogram(data);
+defaultNumBins = h_hist.NumBins;
+% Label axes
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+xlabel(Source);
+h_ylabel = ylabel('Counts');
+
+% Statistics (mean and standard deviation)
 Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
-text(0.77,0.94,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
+h_stats=text(0.10,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
+
+% No. of bins GUI objects
+h_text_bin = uicontrol(f,'Style','text',...
+                     'String', 'Number of bins:',...
+                     'FontSize', 14,...
+                     'Position',[5 20+300 140 34]);
+h_edit_bin = uicontrol(f,'Style','edit',...
+                     'String', defaultNumBins,...
+                     'FontSize', 14,...
+                     'Position',[135 25+300 34 34]);
+h_slider_bin = uicontrol(f,'Style','slider',...
+                       'Min',1,'Max',100,'Value',defaultNumBins,...
+                       'SliderStep',[1/(100-1) 1/(100-1)],...
+                       'Position',[185 26+300 0 30],...
+                       'Callback',{@sl_call,{h_hist h_edit_bin}});
+h_edit_bin.Callback = {@ed_call,{h_hist h_slider_bin}};
+
+% Min-Max GUI objects
+h_text_min = uicontrol(f,'Style','text',...
+                      'String', 'Min',...
+                      'FontSize', 14,...
+                      'Position',[0 20+200 140 34]);
+h_edit_min = uicontrol(f,'Style','edit',...
+                     'String', h_hist.BinLimits(1),...
+                     'FontSize', 14,...
+                     'Position', [35 20+180 70 34]);
+h_text_max = uicontrol(f,'Style','text',...
+                      'String', 'Max',...
+                      'FontSize', 14,...
+                      'Position',[135 20+200 34 34]);
+h_edit_max = uicontrol(f,'Style','edit',...
+                     'String', h_hist.BinLimits(2),...
+                     'FontSize', 14,...
+                     'Position', [116 20+180 70 34]);
+h_button_minmax = uicontrol(f,'Style','pushbutton',...
+                              'String', 'Recalculate',...
+                              'FontSize', 14,...
+                              'Position', [65 20+140 100 34],...
+                              'Callback',{@minmax_call,{h_hist h_edit_min h_edit_max data h_stats}});
+
+% Normalization GUI objects
+h_text_min = uicontrol(f,'Style','text',...
+                      'String', 'Normalization mode',...
+                      'FontSize', 14,...
+                      'Position',[30 20+40 180 34]);
+h_popup_norm = uicontrol(f,'Style','popupmenu',...
+                           'String', {'Count',...
+                                      'Cumulative count',...
+                                      'Probability',...
+                                      'PDF',...
+                                      'CDF'},...
+                           'FontSize', 14,...
+                           'Position', [30 20+20 180 34],...
+                           'Callback',{@norm_call,{h_hist h_ylabel}});
+
+% Histogram GUI callbacks
+function [] = sl_call(varargin)
+    % Callback for the histogram slider.
+    [h_slider_bin,h_cell] = varargin{[1,3]};
+    h_hist = h_cell{1};
+    h_edit_bin = h_cell{2};
+
+    h_hist.NumBins = round(h_slider_bin.Value);
+    h_edit_bin.String = round(h_slider_bin.Value);
+
+function [] = ed_call(varargin)
+    % Callback for the histogram edit box.
+    [h_edit_bin,h_cell] = varargin{[1,3]};
+    h_hist = h_cell{1};
+    h_slider_bin = h_cell{2};
+
+    h_hist.NumBins = round(str2double(h_edit_bin.String));
+    h_slider_bin.Value = round(str2double(h_edit_bin.String));
+
+function [] = minmax_call(varargin)
+    % Callback for the histogram bin bounds recalculate box.
+    h_cell = varargin{3};
+    h_hist = h_cell{1};
+    h_min = h_cell{2};
+    h_max = h_cell{3};
+    data = h_cell{4};
+    h_stats = h_cell{5};
+
+    % Mask data out of range of min-max
+    minVal = str2double(h_min.String);
+    maxVal = str2double(h_max.String);
+    data(data>maxVal) = [];
+    data(data<minVal) = [];
+
+    h_hist.Data=data;
+
+    % Small hack to refresh histogram object/fig.
+    numBins = h_hist.NumBins;
+    if numBins == 100
+        h_hist.NumBins = numBins-1;
+        h_hist.NumBins = numBins;
+    else
+        h_hist.NumBins = numBins+1;
+        h_hist.NumBins = numBins;
+    end
+
+    % Update stats on fig
+    h_stats.String = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
+
+function [] = norm_call(varargin)
+    % Callback for the histogram edit box.
+    [h_popup_norm,h_cell] = varargin{[1,3]};
+    h_hist = h_cell{1};
+    h_ylabel = h_cell{2};
+
+    menu_status = h_popup_norm.String{h_popup_norm.Value};
+
+    switch menu_status
+        case 'Count'
+            h_hist.Normalization = 'count';
+        case 'Cumulative count'
+            h_hist.Normalization = 'cumcount';
+        case 'Probability'
+            h_hist.Normalization = 'probability';
+        case 'PDF'
+            h_hist.Normalization = 'pdf';
+        case 'CDF'
+            h_hist.Normalization = 'cdf';
+    end
+
+    h_ylabel.String = menu_status;
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
