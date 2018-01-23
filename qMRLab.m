@@ -874,9 +874,9 @@ fig = gcf;
 handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
-set(handles.dcm_obj,'UpdateFcn',{@myupdatefcn,handles})
+set(handles.dcm_obj,'UpdateFcn',{@dataCursorUpdateFcn,handles})
 
-function txt = myupdatefcn(empt,event_obj,handles)
+function txt = dataCursorUpdateFcn(h_PointDataTip,event_obj,handles)
 % Customizes text of data tips
 
 pos = get(event_obj,'Position');
