@@ -9,7 +9,7 @@ Welcome to qMRLab's documentation!
    :scale: 60 %
    :align: center
 
-Welcome to qMRLab, a software for quantitative MR image analysis. You can either read the Getting started http://qmrlab.readthedocs.io/en/master/documentation.html#getting-started or search for the specific qMR section.
+Welcome to qMRLab, a software for quantitative MR image analysis. Please take a look at the following for an overview of what qMRLab can do for you:
 
 .. raw:: html
 
@@ -18,11 +18,31 @@ Welcome to qMRLab, a software for quantitative MR image analysis. You can either
     </div>
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 2
+   :caption: Introduction
 
-   documentation.rst
+   introduction.rst
+   methods.rst
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Installation
+
+   install.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Getting Started
+
+   gui-example.rst
+   batch_example.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: General Usage Guidelines
+
+   usage-guidelines.rst
 
 Indices and tables
 ==================

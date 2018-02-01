@@ -38,229 +38,239 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
    .content .footer a:visited { color:#878787; }
    .content table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
    .content table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
-   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">DESCRIPTION</a></li><li ><a href="#3">Load dataset</a></li><li ><a href="#4">Check data and fitting (Optional)</a></li><li ><a href="#5">Create Quantitative Maps</a></li><li ><a href="#6">Check the results</a></li></ul></div><pre class="codeinput"><span class="comment">% Batch to process SPGR data without qMRLab GUI (graphical user interface)</span>
-   <span class="comment">% Run this script line by line</span>
-   <span class="comment">% Written by: Ian Gagnon, 2017</span>
-   </pre><h2 id="2">DESCRIPTION</h2><pre class="codeinput">warning(<span class="string">'off'</span>, <span class="string">'all'</span>)
-   help <span class="string">SPGR</span>
-   </pre><pre class="codeoutput"> -----------------------------------------------------------------------------------------------------
-     SPGR :  qMT using Spoiled Gradient Echo (or FLASH)
-    -----------------------------------------------------------------------------------------------------
-    -------------%
-     ASSUMPTIONS %
-    -------------% 
-     (1) FILL
-     (2) 
-     (3) 
-     (4) 
-    -----------------------------------------------------------------------------------------------------
-    --------%
-     INPUTS %
-    --------%
-       1) MTdata : Magnetization Transfert data
-       2) R1map  : 1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
-       3) B1map  : B1 field map (OPTIONAL)
-       4) B0map  : B0 field map (OPTIONAL)
-       5) Mask   : Binary mask to accelerate the fitting (OPTIONAL)
+   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
+   <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
+   <span class="comment">% purposes and Octave.</span>
+   <span class="comment">%</span>
+   <span class="comment">% Please execute this m-file section by section to get familiar with batch</span>
+   <span class="comment">% processing for qmt_spgr on CLI.</span>
+   <span class="comment">%</span>
+   <span class="comment">% Demo files are downloaded into qmt_spgr_data folder.</span>
+   <span class="comment">%</span>
+   <span class="comment">%</span>
+   <span class="comment">% Written by: Agah Karakuzu, 2017</span>
+   <span class="comment">% =========================================================================</span>
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'qmt_spgr'</span>); <span class="comment">% Display help</span>
+   </pre><pre class="codeoutput"> qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)
+    a href="matlab: figure, imshow qmt_spgr.png ;"Pulse Sequence Diagram/a
     
-    -----------------------------------------------------------------------------------------------------
-    ---------%
-     OUTPUTS %
-    ---------%
-       Fitting Parameters
-           * F   : Ratio of number of restricted pool to free pool, defined 
-                   as F = M0r/M0f = kf/kr.
-           * kr  : Exchange rate from the free to the restricted pool 
-                   (note that kf and kr are related to one another via the 
-                   definition of F. Changing the value of kf will change kr 
-                   accordingly, and vice versa).
-           * R1f : Longitudinal relaxation rate of the free pool 
-                   (R1f = 1/T1f).
-           * R1r : Longitudinal relaxation rate of the restricted pool 
-                   (R1r = 1/T1r).
-           * T2f : Tranverse relaxation time of the free pool (T2f = 1/R2f).
-           * T2r : Tranverse relaxation time of the restricted pool (T2r = 1/R2r).
+     Assumptions:
+       FILL
     
-       Additional Outputs
-           * kf     : Exchange rate from the restricted to the free pool.
-           * resnorm: Fitting residual.
+     Inputs:
+       MTdata              Magnetization Transfert data
+       (R1map)             1/T1map (VFA RECOMMENDED Boudreau 2017 MRM)
+       (B1map)             B1 field map, used for flip angle correction (=1 if not provided)
+       (B0map)             B0 field map, used for offset correction (=0Hz if not provided)
+       (Mask)              Binary mask to accelerate the fitting
     
-    -----------------------------------------------------------------------------------------------------
-    ----------%
-     PROTOCOL %
-    ----------%
-       1) MTdata
-           * Angle  : MT pulses angles (degree)
-           * Offset : Offset frequencies (Hz)
+     Outputs:
+       F                   Ratio of number of restricted pool to free pool, defined
+                             as F = M0r/M0f = kf/kr.
+       kr                  Exchange rate from the free to the restricted pool
+                             (note that kf and kr are related to one another via the
+                             definition of F. Changing the value of kf will change kr
+                             accordingly, and vice versa).
+       R1f                 Longitudinal relaxation rate of the free pool
+                             (R1f = 1/T1f).
+    	R1r                 Longitudinal relaxation rate of the restricted pool
+                             (R1r = 1/T1r).
+    	T2f                 Tranverse relaxation time of the free pool (T2f = 1/R2f).
+       T2r                 Tranverse relaxation time of the restricted pool (T2r = 1/R2r).
+    	(kf)                Exchange rate from the restricted to the free pool.
+       (resnorm)           Fitting residual.
     
-       2) TimingTable
-           * Tmt : Duration of the MT pulses (s)
-           * Ts  : Free precession delay between the MT and excitation pulses (s)
-           * Tp  : Duration of the excitation pulse (s)
-           * Tr  : Free precession delay after tje excitation pulse, before 
-                   the next MT pulse (s)
-           * TR  : Repetition time of the whole sequence (TR = Tmt + Ts + Tp + Tr)
+     Protocol:
+       MTdata              Array [Nb of volumes x 2]
+         Angle             MT pulses angles (degree)
+         Offset            Offset frequencies (Hz)
     
-    -----------------------------------------------------------------------------------------------------
-    ---------%
-     OPTIONS %
-    ---------%
+       TimingTable         Vector [5x1]
+         Tmt               Duration of the MT pulses (s)
+         Ts                Free precession delay between the MT and excitation pulses (s)
+         Tp                Duration of the excitation pulse (s)
+         Tr                Free precession delay after tje excitation pulse, before
+                             the next MT pulse (s)
+         TR                Repetition time of the whole sequence (TR = Tmt + Ts + Tp + Tr)
+    
+    
+     Options:
        MT Pulse
-           * Shape          : Shape of the MT pulse.
-                              Available shapes are:
-                              - hard
-                              - gaussian
-                              - gausshann (gaussian pulse with Hanning window)
-                              - sinc
-                              - sinchann (sinc pulse with Hanning window)
-                              - singauss (sinc pulse with gaussian window)
-                              - fermi
-           * Sinc TBW       : Time-bandwidth product for the sinc MT pulses 
-                              (applicable to sinc, sincgauss, sinchann MT 
-                              pulses).
-           * Bandwidth      : Bandwidth of the gaussian MT pulse (applicable 
-                              to gaussian, gausshann and sincgauss MT pulses).
-           * Fermi 
-             transition (a) : slope 'a' (related to the transition width) 
-                               of the Fermi pulse (applicable to fermi MT 
-                               pulse). 
-                               Assuming pulse duration at 60 dB (from the Bernstein handbook)
-                               and t0 = 10a,
-                               slope = Tmt/33.81;         
-           * # of MT pulses : Number of pulses used to achieve steady-state
-                              before a readout is made.
+         Shape                 Shape of the MT pulse.
+                                  Available shapes are:
+                                  - hard
+                                  - gaussian
+                                  - gausshann (gaussian pulse with Hanning window)
+                                  - sinc
+                                  - sinchann (sinc pulse with Hanning window)
+                                  - singauss (sinc pulse with gaussian window)
+                                  - fermi
+         Sinc TBW              Time-bandwidth product for the sinc MT pulses
+                                  (applicable to sinc, sincgauss, sinchann MT
+                                  pulses).
+         Bandwidth             Bandwidth of the gaussian MT pulse (applicable
+                                  to gaussian, gausshann and sincgauss MT pulses).
+         Fermi transition (a)  slope 'a' (related to the transition width)
+                                  of the Fermi pulse (applicable to fermi MT
+                                  pulse).
+                                  Assuming pulse duration at 60 dB (from the Bernstein handbook)
+                                  and t0 = 10a,
+                                  slope = Tmt/33.81;
+         # of MT pulses        Number of pulses used to achieve steady-state
+                                 before a readout is made.
        Fitting constraints
-           * Use R1map to  : By checking this box, you tell the fitting 
-             constrain R1f   algorithm to check for an observed R1map and use
-                             its value to constrain R1f. Checking this box 
-                             will automatically set the R1f fix box to true             
-                             in the Fit parameters table.  
-           * Fix R1r = R1f : By checking this box, you tell the fitting
-                             algorithm to fix R1r equal to R1f. Checking this 
-                             box will automatically set the R1r fix box to 
-                             true in the Fit parameters table.
-           * Fix R1f*T2f   : By checking this box, you tell the fitting
-                             algorithm to compute T2f from R1f value. R1f*T2f
-                             value is set in the next box.
-           * R1f*T2f =     : Value of R1f*T2f (no units)
+         Use R1map to         By checking this box, you tell the fitting
+         constrain R1f          algorithm to check for an observed R1map and use
+                                its value to constrain R1f. Checking this box
+                                will automatically set the R1f fix box to true
+                                in the Fit parameters table.
+         Fix R1r = R1f        By checking this box, you tell the fitting
+                                algorithm to fix R1r equal to R1f. Checking this
+                                box will automatically set the R1r fix box to
+                                true in the Fit parameters table.
+         Fix R1f*T2f          By checking this box, you tell the fitting
+                                algorithm to compute T2f from R1f value. R1f*T2f
+                                value is set in the next box.
+         R1f*T2f =            Value of R1f*T2f (no units)
     
-       Global
-           * Model         : Model you want to use for fitting. 
-                             Available models are: 
-                             - SledPikeRP (Sled  Pike rectangular pulse), 
-                             - SledPikeCW (Sled  Pike continuous wave), 
-                             - Yarkykh (Yarnykh  Yuan)
-                             - Ramani
-                             Note: Sled  Pike models will show different  
+       Model                  Model you want to use for fitting.
+                                 Available models are:
+                                 - SledPikeRP (Sled  Pike rectangular pulse),
+                                 - SledPikeCW (Sled  Pike continuous wave),
+                                 - Yarkykh (Yarnykh  Yuan)
+                                 - Ramani
+                                 Note: Sled  Pike models will show different
                                    options than Yarnykh or Ramani.
-           * Lineshape     : The absorption lineshape of the restricted pool. 
-                             Available lineshapes are:
-                             - Gaussian
-                             - Lorentzian
-                             - SuperLorentzian
-           * Read pulse    : Flip angle of the excitation pulse.
-             alpha          
-           * Compute       : By checking this box, you compute a new SfTable
-             SfTable           
+    	Lineshape              The absorption lineshape of the restricted pool.
+                                 Available lineshapes are:
+                                 - Gaussian
+                                 - Lorentzian
+                                 - SuperLorentzian
+       Read pulse alpha       Flip angle of the excitation pulse.
+       Compute SfTable        By checking this box, you compute a new SfTable
     
-    -----------------------------------------------------------------------------------------------------
-     Written by: Ian Gagnon, 2017
-     Reference: Sled, J.G., Pike, G.B., 2000. Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. J. Magn. Reson. 145, 24?36.
-    -----------------------------------------------------------------------------------------------------
+     Command line usage:
+       a href="matlab: qMRusage(qmt_spgr);"qMRusage(qmt_spgr/a
+       a href="matlab: showdemo qmt_spgr_batch"showdemo qmt_spgr_batch/a
+    
+     Author: Ian Gagnon, 2017
+    
+     References:
+       Please cite the following if you use this module:
+         Sled, J.G., Pike, G.B., 2000. Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. J. Magn. Reson. 145, 24?36.
+       In addition to citing the package:
+         Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
    
        Reference page in Doc Center
-          doc SPGR
+          doc qmt_spgr
    
    
-   </pre><h2 id="3">Load dataset</h2><pre class="codeinput"><span class="comment">%warning('off')</span>
-   [pathstr,fname,ext]=fileparts(which(<span class="string">'SPGR_batch.m'</span>));
-   cd (pathstr);
+   </pre><h2 id="3">II- INITIALIZE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><h2 id="4">A- CREATE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><pre class="codeinput">Model = qmt_spgr;
    
-   <span class="comment">% Load your parameters to create your Model</span>
-   <span class="comment">% load('MODELPamameters.mat');</span>
-   <span class="comment">%load('SPGRParameters.mat');</span>
-   Model = SPGR;
-   </pre><h2 id="4">Check data and fitting (Optional)</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
-   <span class="comment">% I- GENERATE FILE STRUCT</span>
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% Create a struct "file" that contains the NAME of all data's FILES</span>
-   <span class="comment">% file.DATA = 'DATA_FILE';</span>
-   file.MTdata = <span class="string">'MTdata.mat'</span>;
-   file.R1map = <span class="string">'R1map.mat'</span>;
-   file.B1map = <span class="string">'B1map.mat'</span>;
-   file.B0map = <span class="string">'B0map.mat'</span>;
-   file.Mask = <span class="string">'Mask.mat'</span>;
+   <span class="comment">% -------------------------------------------------------------------------</span>
+   </pre><h2 id="5">B- MODIFY OPTIONS</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
+            |- Octave is not GUI compatible. Modify Model.options directly.
+   -------------------------------------------------------------------------</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
    
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% II- CHECK DATA AND FITTING</span>
-   <span class="comment">%**************************************************************************</span>
-   qMRLab(Model,file);
-   </pre><img src="_static/SPGR_batch_01.png" vspace="5" hspace="5" alt=""> <img src="_static/SPGR_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/SPGR_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="5">Create Quantitative Maps</h2><pre class="codeinput"><span class="comment">%**************************************************************************</span>
-   <span class="comment">% I- LOAD PROTOCOL</span>
-   <span class="comment">%**************************************************************************</span>
+   
+   <span class="comment">% -------------------------------------------------------------------------</span>
+   </pre><img src="_static/qmt_spgr_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">qmt_spgr.</span>
+   -------------------------------------------------------------------------
+   </pre><pre class="codeinput"><span class="comment">% qmt_spgr object needs 2 protocol field(s) to be assigned:</span>
+   
    
    <span class="comment">% MTdata</span>
-   Angles  = [ 142 ; 426 ; 142  ; 426  ; 142  ; 426  ; 142  ; 426  ; 142  ; 426   ];
-   Offsets = [ 443 ; 443 ; 1088 ; 1088 ; 2732 ; 2732 ; 6862 ; 6862 ; 17235; 17235 ];
-   Model.Prot.MTdata.Mat = [Angles,Offsets];
-   
-   <span class="comment">% Timing Table (time in sec)</span>
-   Tmt = 0.0102;
-   Ts  = 0.0030;
+   <span class="comment">% TimingTable</span>
+   <span class="comment">% --------------</span>
+   <span class="comment">% Angle is a vector of [10X1]</span>
+   Angle = [142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000];
+   <span class="comment">% Offset is a vector of [10X1]</span>
+   Offset = [443.0000; 443.0000; 1088.0000; 1088.0000; 2732.0000; 2732.0000; 6862.0000; 6862.0000; 17235.0000; 17235.0000];
+   Model.Prot.MTdata.Mat = [ Angle Offset];
+   <span class="comment">% -----------------------------------------</span>
+   Tmt  = 0.0102;
+   Ts  = 0.003;
    Tp  = 0.0018;
-   Tr  = 0.0100;
-   TR  = Tmt + Ts + Tp + Tr;
-   Model.Prot.TimingTable.Mat = [ Tmt ; Ts ; Tp ; Tr ; TR ];
+   Tr  = 0.01;
+   TR  = 0.025;
+   Model.Prot.TimingTable.Mat = [ Tmt  Ts  Tp  Tr  TR ];
+   <span class="comment">% -----------------------------------------</span>
+   </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by qmt_spgr.
+   -------------------------------------------------------------------------
+   qmt_spgr object needs 5 data input(s) to be assigned:</pre><pre class="codeinput"><span class="comment">% MTdata</span>
+   <span class="comment">% R1map</span>
+   <span class="comment">% B1map</span>
+   <span class="comment">% B0map</span>
+   <span class="comment">% Mask</span>
+   <span class="comment">% --------------</span>
    
-   <span class="comment">% *** To change other option, go directly in qMRLab ***</span>
+   data = struct();
    
-   <span class="comment">% Update the model and</span>
-   Model = Model.UpdateFields;
+   <span class="comment">% MTdata.mat contains [88  128    1   10] data.</span>
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/MTdata.mat'</span>);
+   <span class="comment">% R1map.mat contains [88  128] data.</span>
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/R1map.mat'</span>);
+   <span class="comment">% B1map.mat contains [88  128] data.</span>
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B1map.mat'</span>);
+   <span class="comment">% B0map.mat contains [88  128] data.</span>
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B0map.mat'</span>);
+   <span class="comment">% Mask.mat contains [88  128] data.</span>
+    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/Mask.mat'</span>);
+    data.MTdata= double(MTdata);
+    data.R1map= double(R1map);
+    data.B1map= double(B1map);
+    data.B0map= double(B0map);
+    data.Mask= double(Mask);
    
-   <span class="comment">% Compute SfTable if necessary</span>
-   Prot = Model.GetProt;
-   Model.ProtSfTable = CacheSf(Prot);
+   <span class="comment">% -------------------------------------------------------------------------</span>
+   </pre><h2 id="9">B- FIT DATASET</h2><pre >           |- This section will fit data.
+   -------------------------------------------------------------------------</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% II- LOAD EXPERIMENTAL DATA</span>
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% Create a struct "data" that contains all the data</span>
-   <span class="comment">% .MAT file : load('DATA_FILE');</span>
-   <span class="comment">%             data.DATA = double(DATA);</span>
-   <span class="comment">% .NII file : data.DATA = double(load_nii_data('DATA_FILE'));</span>
-   data = struct;
-   load(<span class="string">'MTdata.mat'</span>);
-   data.MTdata	= double(MTdata);
-   load(<span class="string">'R1map.mat'</span>);
-   data.R1map  = double(R1map);
-   load(<span class="string">'B1map.mat'</span>);
-   data.B1map  = double(B1map);
-   load(<span class="string">'B0map.mat'</span>);
-   data.B0map  = double(B0map);
-   load(<span class="string">'Mask.mat'</span>);
-   data.Mask   = double(Mask);
+   FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% III- FIT DATASET</span>
-   <span class="comment">%**************************************************************************</span>
-   FitResults       = FitData(data,Model,1); <span class="comment">% 3rd argument plots a waitbar</span>
-   FitResults.Model = Model;
-   delete(<span class="string">'FitTempResults.mat'</span>);
+   <span class="comment">% -------------------------------------------------------------------------</span>
+   </pre><pre class="codeoutput">Fitting voxel     3/4101
+   ...done   0%
+   </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
+   <span class="comment">% -------------------------------------------------------------------------</span>
    
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% IV- CHECK FITTING RESULT IN A VOXEL</span>
-   <span class="comment">%**************************************************************************</span>
-   figure
-   voxel           = [34, 46, 1];
-   FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
-   dataVox         = extractvoxel(data,voxel);
-   Model.plotmodel(FitResultsVox,dataVox)
-   
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% V- SAVE</span>
-   <span class="comment">%**************************************************************************</span>
-   <span class="comment">% .MAT file : FitResultsSave_mat(FitResults,folder);</span>
-   <span class="comment">% .NII file : FitResultsSave_nii(FitResults,fname_copyheader,folder);</span>
+   qMRshowOutput(FitResults,data,Model);
+   </pre><img src="_static/qmt_spgr_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/qmt_spgr_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'qmt_spgr_Demo.qmrlab.mat'</span>);
    FitResultsSave_nii(FitResults);
-   save(<span class="string">'SPGRParameters.mat'</span>,<span class="string">'Model'</span>);
-   </pre><img src="_static/SPGR_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="6">Check the results</h2><p >Load them in qMRLab</p><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017a</a><br ></p></div>
+   
+   <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'qmt_spgr.
+   -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+                 (1) use equation to generate synthetic MRI data
+                 (2) add rician noise
+                 (3) fit and plot curve
+   -------------------------------------------------------------------------</pre><pre class="codeinput">      x = struct;
+         x.F = 0.16;
+         x.kr = 30;
+         x.R1f = 1;
+         x.R1r = 1;
+         x.T2f = 0.03;
+         x.T2r = 1.3e-05;
+         <span class="comment">% Get all possible options</span>
+         Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
+         <span class="comment">% run simulation using options `Opt(1)`</span>
+         figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
+         FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
+   
+   <span class="comment">% -------------------------------------------------------------------------</span>
+   </pre><img src="_static/qmt_spgr_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+                   (1) vary fitting parameters from lower (lb) to upper (ub) bound.
+                   (2) run Sim_Single_Voxel_Curve Nofruns times
+                   (3) Compute mean and std across runs
+   -------------------------------------------------------------------------</pre><pre class="codeinput">      <span class="comment">%              F             kr            R1f           R1r           T2f           T2r</span>
+         OptTable.st = [0.16          30            1             1             0.03          1.3e-05]; <span class="comment">% nominal values</span>
+         OptTable.fx = [0             1             1             1             1             1]; <span class="comment">%vary F...</span>
+         OptTable.lb = [0.0001        0.0001        0.05          0.05          0.003         3e-06]; <span class="comment">%...from 0.0001</span>
+         OptTable.ub = [0.5           1e+02         5             5             0.5           5e-05]; <span class="comment">%...to 0.5</span>
+         <span class="comment">% Get all possible options</span>
+         Opt = button2opts([Model.Sim_Single_Voxel_Curve_buttons, Model.Sim_Sensitivity_Analysis_buttons],1);
+         <span class="comment">% run simulation using options `Opt(1)`</span>
+         SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
+         SimVaryPlot(SimResults, <span class="string">'F'</span> ,<span class="string">'F'</span> );
+   </pre><img src="_static/qmt_spgr_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>

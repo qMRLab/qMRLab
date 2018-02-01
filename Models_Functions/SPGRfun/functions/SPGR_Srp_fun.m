@@ -25,6 +25,8 @@ kf  =  kr * F;
 M0f = 1;
 M0r = F*M0f;
 
+if T2f<=0, warning('T2f is null. Absurd.'); mxy=nan(size(xData,1),1); return; end
+
 if ( FitOpt.R1reqR1f )
      R1r = x(3);
 end

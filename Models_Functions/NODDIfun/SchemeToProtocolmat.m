@@ -1,4 +1,4 @@
-function protocol = SchemeToProtocol(Prot)
+function protocol = SchemeToProtocolmat(Prot)
 %
 % Reads a Camino Version 1 schemefile into a protocol object
 %
