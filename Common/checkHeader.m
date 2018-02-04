@@ -9,15 +9,16 @@ function b = checkHeader(file)
     % Check head
     if size(h.head) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate description of the model\n');
+        fprintf(2,'ERROR: Missing description of the model\n\n');
     end
     if size(h.assumption) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate assumptions format\n');
+        fprintf(2,'ERROR: Missing assumptions\n\n');
     end
     if size(h.input) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate input format\n');
+        fprintf(2,'ERROR: Missing or inadequate input format\n');
+        informSyntaxInputOrOutput();
     else
         d = true;
         for i = 1:size(h.input)
@@ -27,13 +28,15 @@ function b = checkHeader(file)
             end
         end
         if d == false
-            fprintf('ERROR: Missing one or more input description or incorrect spacing\n');
+            fprintf(2,'ERROR: Missing one or more input description or incorrect spacing\n');
+            informSyntaxInputOrOutput();
         end      
     end
     
     if size(h.output) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate output format\n');
+        fprintf(2,'ERROR: Missing or inadequate output format\n');
+        informSyntaxInputOrOutput();
     else
         d = true;
         s = size(h.protocol);
@@ -44,13 +47,15 @@ function b = checkHeader(file)
             end
         end
         if d == false
-            fprintf('ERROR: Missing one or more output description or incorrect spacing\n');
+            fprintf(2,'ERROR: Missing one or more output description or incorrect spacing\n');
+            informSyntaxInputOrOutput();
         end
     end
     
     if size(h.protocol) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate protocol format\n');
+        fprintf(2,'ERROR: Missing or inadequate protocol format\n');
+        informSyntaxProtocolOrOption();
     else
         d = true;
         s = size(h.protocol);
@@ -68,12 +73,14 @@ function b = checkHeader(file)
             end
         end
         if d == false
-            fprintf('ERROR: Missing one or more protocol description or incorrect spacing\n');
+            fprintf(2,'ERROR: Missing one or more protocol description or incorrect spacing\n');
+            informSyntaxProtocolOrOption();
         end
     end
     if size(h.option) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate option format');
+        fprintf(2,'ERROR: Missing or inadequate option format\n');
+        informSyntaxProtocolOrOption();
     else
         d = true;
         for i = 1:size(h.option)
@@ -83,21 +90,41 @@ function b = checkHeader(file)
             end
         end
         if d == false
-            fprintf('ERROR: Missing one or more option description or incorrect spacing\n');
+            fprintf(2,'ERROR: Missing one or more option description or incorrect spacing\n');
+            informSyntaxProtocolOrOption();
         end
     end
     if size(h.usage) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate usage format\n');
+        fprintf(2,'ERROR: Missing or inadequate usage format\n\n');
     end
     if size(h.author) == 0 | strcmp(h.author(1),'FILL')
         b = false;
-        fprintf('ERROR: Missing or inadequate author format\n');
+        fprintf(2,'ERROR: Missing or inadequate author format\n\n');
     end
     if size(h.references) == 0
         b = false;
-        fprintf('ERROR: Missing or inadequate references format\n');
+        fprintf(2,'ERROR: Missing or inadequate references format\n\n');
     end
     if b == true
         fprintf('CORRECT HEADER FORMAT \n\n');
+    else
+        fprintf(2, '*Please respect the spacing number in between names and descriptions.\n\n');
+        fprintf(2, 'For more information on the correct header format, please see other models .m files.\n');
     end
+    
+end
+
+function informSyntaxInputOrOutput()
+     fprintf('Please use the folowing syntax:\n');
+     fprintf('   Name               Description (if needed)\n');
+     fprintf('*If a description is to long, you can continue on the next line with the same indent and two more spaces.*\n\n');
+end
+
+function informSyntaxProtocolOrOption()
+    fprintf('Please use the folowing syntax:\n');
+    fprintf('   Name               Description (if needed)\n');
+    fprintf('     Name             Description\n');
+    fprintf('*If a description is to long, you can continue on the next line with the same indent and two more spaces.*\n\n');  
+end
+        
