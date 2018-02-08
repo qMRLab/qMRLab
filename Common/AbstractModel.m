@@ -51,7 +51,24 @@ classdef (Abstract) AbstractModel
                 error(ME.identifier, [class(obj) ':' ME.message])
             end
         end
+        
+        % Do some error checking
+        function sanityCheck(obj,data)
+           % check if all necessary inputs are present
+           
+           % check if all input data is sampled the same way
+           MRIinputs = fieldnames(data);
+           MRIinputs(structfun(@isempty,data))=[];
+           MRIinputs(strcmp(MRIinputs,'hdr'))=[];
+           qData = double(data.(MRIinputs{1}));
+           x = 1; y = 1; z = 1;
+           [x,y,z,nT] = size(qData);
+           
+           % check if protocol matched data
+        end
     end
+    
+
     
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)

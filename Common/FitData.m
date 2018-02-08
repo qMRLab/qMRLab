@@ -28,6 +28,9 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
+% Before fitting, do a sanity check on the input data and protocol
+Model.sanityCheck(data);
+
 tStart = tic;
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
 if Model.voxelwise % process voxelwise
