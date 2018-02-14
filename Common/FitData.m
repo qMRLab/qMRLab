@@ -39,7 +39,8 @@ if Model.voxelwise % process voxelwise
     MRIinputs = fieldnames(data);
     MRIinputs(structfun(@isempty,data))=[];
     MRIinputs(strcmp(MRIinputs,'hdr'))=[];
-    qData = double(data.(MRIinputs{1}));
+    qDataIdx=find((strcmp(Model.MRIinputs{1},MRIinputs')));
+    qData = double(data.(MRIinputs{qDataIdx}));
     x = 1; y = 1; z = 1;
     [x,y,z,nT] = size(qData);   
     
