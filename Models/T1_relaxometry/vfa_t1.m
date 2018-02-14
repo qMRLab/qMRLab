@@ -53,6 +53,7 @@ end
         MRIinputs = {'VFAData','B1map','Mask'};
         xnames = {'M0','T1'};
         voxelwise = 1;
+        reqInputs = [1 0 0];
         
         % Protocol
         Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...
