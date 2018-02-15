@@ -55,9 +55,15 @@ classdef (Abstract) AbstractModel
         % Do some error checking
         function sanityCheck(obj,data)
            mode = struct('WindowStyle','modal','Interpreter','tex');
-           % check if all necessary inputs are present and in correct order
+           % check if all necessary inputs are present 
            MRIinputs = fieldnames(data);
            %if data is empty
+           if isempty(MRIinputs)
+               txt=strcat('No input data provided');
+               h = errordlg(txt,'Input Error', mode);
+               uiwait(h)
+               error('There is no input data')
+           end
            %if required number of inputs
            for i=1:length(obj.reqInputs)
                if obj.reqInputs(i) %if it's required input
@@ -66,18 +72,27 @@ classdef (Abstract) AbstractModel
                        h = errordlg(txt,'Input Error', mode);
                        uiwait(h)
                        error('The input data is incorrect')
-                   end                      
+                   end
                end
            end
-           % check if all input data is sampled the same way
-           MRIinputs = fieldnames(data);
-           MRIinputs(structfun(@isempty,data))=[];
-           MRIinputs(strcmp(MRIinputs,'hdr'))=[];
-           qData = double(data.(MRIinputs{1}));
+           % check if all input data is sampled the same as qData input
+           qDataIdx=find((strcmp(obj.MRIinputs{1},MRIinputs')));
+           qData = double(data.(MRIinputs{qDataIdx}));
            x = 1; y = 1; z = 1;
            [x,y,z,nT] = size(qData);
-
+           for ii=1:length(obj.reqInputs)
+               if (ii ~= qDataIdx) %not the qData
+                   [x_,y_,z_]=size(data.(MRIinputs{ii}));
+                   if(x_~=x || z_~=z || z_~=z)
+                       txt=convertStringsToChars("Inputs not sampled the same way:"+newline+cellstr(MRIinputs{qDataIdx})+" is "+num2str(x)+ "x" +num2str(y)+ "x"+ num2str(z)+ "x"+ num2str(nT) +"."+ cellstr(MRIinputs{ii}) + " input is  "+ num2str(x_)+ "x"+ num2str(y_)+ "x" +num2str(z_));
+                       h = errordlg(txt,'Input Error', mode);
+                       uiwait(h)
+                       error('The input data is sampled incorrectly')
+                   end
+               end
+           end
            % check if protocol matches data
+           
         end
     end
 
