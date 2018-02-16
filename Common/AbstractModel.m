@@ -68,7 +68,7 @@ classdef (Abstract) AbstractModel
            for i=1:length(obj.reqInputs)
                if obj.reqInputs(i) %if it's required input
                    if(~any(strcmp(obj.MRIinputs{i},MRIinputs')))
-                       txt=strcat('Cannot find required input called ',cellstr(obj.MRIinputs{i}),'. Your input is ',cellstr(MRIinputs{i}));
+                       txt=convertStringsToChars("Cannot find required input called " + cellstr(obj.MRIinputs{i}) + newline + ". Your input is " + cellstr(MRIinputs{i}));
                        h = errordlg(txt,'Input Error', mode);
                        uiwait(h)
                        error('The input data is incorrect')
@@ -92,11 +92,17 @@ classdef (Abstract) AbstractModel
                end
            end
            % check if protocol matches data
-           
+           nr = size(obj.Prot.(MRIinputs{qDataIdx}).Mat,1);
+           if(nr ~= nT)  %number of rows should match time dimension of qData
+               txt=convertStringsToChars("Number of input volumes ="+ num2trs(nT) + "but protocol has "+ num2trs(nr) +" rows.");
+               h = errordlg(txt,'Protocol Error', mode);
+               uiwait(h)
+               error('The protocol is not entered incorrectly')
+               
+           end
         end
+
     end
-
-
 
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
