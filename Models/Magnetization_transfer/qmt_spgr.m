@@ -184,6 +184,30 @@ end
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
+            
+            % Disable/enable some MT pulse options --> Add ### to the button
+            % Name you want to disable
+            disablelist = {'Fermi transition (a)','Bandwidth','Sinc TBW'};
+            switch  obj.options.MT_Pulse_Shape
+                case {'sinc','sinchann'}
+                    disable = [true, true, false];
+                case {'gausshann','gaussian'}
+                    disable = [true, false, true];
+                case 'sincgauss'
+                    disable = [true, false, false];
+                case 'fermi'
+                    disable = [false, true, true];
+                otherwise
+                    disable = [true, true, true];
+            end
+            for ll = 1:length(disablelist)
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                if disable(ll)
+                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                else
+                    obj.buttons{indtodisable} = [disablelist{ll}];
+                end
+            end
         end
 
         function obj = Precompute(obj)
