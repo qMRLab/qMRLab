@@ -248,7 +248,7 @@ end
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');
+                warning('No MToff (i.e. no volumes acquired with Angles=0) --> Fitting assumes that MTData are already normalized.');
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
