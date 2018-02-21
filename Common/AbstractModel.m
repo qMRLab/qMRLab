@@ -93,7 +93,14 @@ classdef (Abstract) AbstractModel
                end
            end
            % check if protocol matches data
-           
+           nR = size(obj.Prot.(obj.MRIinputs{1}).Mat,1);
+           if nT ~= size(obj.Prot.(obj.MRIinputs{1}).Mat,1)
+               txt=convertStringsToChars("Protocol has:"+num2str(nR)+" rows. And input volume "+cellstr(obj.MRIinputs{1})+" has "+num2str(nT)+ " frames");
+               h = errordlg(txt,'Input Mismatch', mode);
+               uiwait(h)
+               error('The protocol does not match the input incorrectly')
+               
+           end
         end
         
         function optionalInputs = get_MRIinputs_optional(obj)
