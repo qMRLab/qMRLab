@@ -150,7 +150,7 @@ classdef BrowserSet
             DataName = get(obj.NameText, 'String');
             %Check for files and set fields automatically
             for i = 1:length(fileList)
-                if strfind(fileList{i}(1:end-4), DataName{1})
+                if strfind(fileList{i}(1:end-4), DataName)
                     obj.FullFile = fullfile(Path,fileList{i});                    
                     set(obj.FileBox, 'String', obj.FullFile);
                     obj.DataLoad();
