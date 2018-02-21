@@ -136,7 +136,7 @@ classdef BrowserSet
                 end
             end
             Data = getappdata(0, 'Data'); 
-            Data.(class(getappdata(0,'Model'))).(obj.NameID{1}) = double(tmp);
+            Data.(class(getappdata(0,'Model'))).(obj.NameID) = double(tmp);
             if exist('nii','var'),	Data.hdr = nii.hdr; end
             setappdata(0, 'Data', Data);            
         end
@@ -150,7 +150,7 @@ classdef BrowserSet
             DataName = get(obj.NameText, 'String');
             %Check for files and set fields automatically
             for i = 1:length(fileList)
-                if strfind(fileList{i}(1:end-4), DataName{1})
+                if strfind(fileList{i}(1:end-4), DataName)
                     obj.FullFile = fullfile(Path,fileList{i});                    
                     set(obj.FileBox, 'String', obj.FullFile);
                     obj.DataLoad();
@@ -187,13 +187,13 @@ classdef BrowserSet
         function ViewBtn_callback(obj,src, event, handles)
             obj.DataLoad();
             dat = getappdata(0, 'Data');
-            dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
+            dat=dat.(class(getappdata(0,'Model'))).(obj.NameID);
             if isempty(dat), errordlg('empty data'); return; end
             
             n = ndims(dat);
-            Data.(obj.NameID{1,1}) = dat;
+            Data.(obj.NameID) = dat;
             
-            Data.fields = {obj.NameID{1,1}};
+            Data.fields = {obj.NameID};
             handles.CurrentData = Data;
             DrawPlot(handles);
         end
