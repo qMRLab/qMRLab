@@ -208,6 +208,7 @@ end
                     obj.buttons{indtodisable} = [disablelist{ll}];
                 end
             end
+            obj.options = button2opts(obj.buttons);
         end
 
         function obj = Precompute(obj)
