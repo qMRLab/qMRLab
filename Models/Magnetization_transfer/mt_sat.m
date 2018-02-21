@@ -22,15 +22,15 @@ classdef mt_sat < AbstractModel
 %                               Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
 %
 % Protocol:
-%     MT    [FA  TR  Offset]  flip angle [deg], TR [s], Offset Frequency [Hz]
-%     T1    [FA  TR]          flip angle [deg], TR [s]
-%     PD    [FA  TR]          flip angle [deg], TR [s]
+%     MTw    [FA  TR  Offset]  flip angle [deg], TR [s], Offset Frequency [Hz]
+%     T1w    [FA  TR]          flip angle [deg], TR [s]
+%     PDw    [FA  TR]          flip angle [deg], TR [s]
 %
 % Example of command line usage (see also <a href="matlab: showdemo mt_sat_batch">showdemo mt_sat_batch</a>):
 %   Model = mt_sat;  % Create class from model
-%   Model.Prot.MT.Mat = txt2mat('MT.txt');  % Load protocol
-%   Model.Prot.T1.Mat = txt2mat('T1.txt');
-%   Model.Prot.PD.Mat = txt2mat('PD.txt');
+%   Model.Prot.MTw.Mat = txt2mat('MT.txt');  % Load protocol
+%   Model.Prot.T1w.Mat = txt2mat('T1.txt');
+%   Model.Prot.PDw.Mat = txt2mat('PD.txt');
 %   data = struct;  % Create data structure
 %   data.MTw = load_nii_data('MTw.nii.gz');
 %   data.T1w = load_nii_data('T1w.nii.gz');
@@ -59,11 +59,11 @@ classdef mt_sat < AbstractModel
         voxelwise = 0;
 
         % Protocol
-        Prot = struct('MT',struct('Format',{{'FlipAngle' 'TR (s)'}},...
+        Prot = struct('MTw',struct('Format',{{'FlipAngle' 'TR (s)'}},...
                                    'Mat',  [6 0.028]),...
-                      'T1',struct('Format',{{'FlipAngle' 'TR'}},...
+                      'T1w',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [20 0.018]),...
-                      'PD',struct('Format',{{'FlipAngle' 'TR'}},...
+                      'PDw',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [6 0.028]));
         % Model options
         buttons = {'B1 correction factor', 0.4};
@@ -77,11 +77,11 @@ classdef mt_sat < AbstractModel
         end
 
         function FitResult = fit(obj,data)
-            MTparams = obj.Prot.MT.Mat;
+            MTparams = obj.Prot.MTw.Mat;
 
-            PDparams = obj.Prot.PD.Mat;
+            PDparams = obj.Prot.PDw.Mat;
 
-            T1params = obj.Prot.T1.Mat;
+            T1params = obj.Prot.T1w.Mat;
             
             B1params = obj.options.B1correctionfactor;
             
@@ -97,8 +97,8 @@ classdef mt_sat < AbstractModel
             % 2.0.6
             if checkanteriorver(version,[2 0 6])
                 obj.MRIinputs = {'MTw'    'T1w'    'PDw'    'B1map'    'Mask'}; % add B1map
-                obj.Prot.MT.Format(3) = []; % remove offset
-                obj.Prot.MT.Mat(:,3)  = [];
+                obj.Prot.MTw.Format(3) = []; % remove offset
+                obj.Prot.MTw.Mat(:,3)  = [];
                 % add B1factor
                 obj.buttons = {'B1 correction factor',   [0.4000]};
                 obj.options.B1correctionfactor=0.04;
