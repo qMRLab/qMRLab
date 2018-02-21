@@ -148,6 +148,11 @@ end
             if obj.options.Fitting_UseR1maptoconstrainR1f
                 obj.fx(3) = true;
             end
+            
+            if obj.options.Fitting_FixR1rR1f
+                obj.fx(4) = true;
+            end
+            
             SrParam = GetSrParam(obj);
             SrProt = GetSrProt(obj);
             [obj.st(6),obj.st(5)] = computeSr(SrParam,SrProt);

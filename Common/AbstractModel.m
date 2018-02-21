@@ -65,8 +65,9 @@ classdef (Abstract) AbstractModel
                error('There is no input data')
            end
            %if required number of inputs
-           for i=1:length(obj.reqInputs)
-               if obj.reqInputs(i) %if it's required input
+           optionalInputs = obj.get_MRIinputs_optional;
+           for i=1:length(optionalInputs)
+               if ~optionalInputs(i) %if it's required input
                    if(~any(strcmp(obj.MRIinputs{i},MRIinputs')))
                        txt=strcat('Cannot find required input called ',cellstr(obj.MRIinputs{i}),'. Your input is ',cellstr(MRIinputs{i}));
                        h = errordlg(txt,'Input Error', mode);
@@ -80,7 +81,7 @@ classdef (Abstract) AbstractModel
            qData = double(data.(MRIinputs{qDataIdx}));
            x = 1; y = 1; z = 1;
            [x,y,z,nT] = size(qData);
-           for ii=1:length(obj.reqInputs)
+           for ii=1:length(MRIinputs)
                if (ii ~= qDataIdx) %not the qData
                    [x_,y_,z_]=size(data.(MRIinputs{ii}));
                    if(x_~=x || z_~=z || z_~=z)
@@ -94,6 +95,19 @@ classdef (Abstract) AbstractModel
            % check if protocol matches data
            
         end
+        
+        function optionalInputs = get_MRIinputs_optional(obj)
+            % Optional input? Search in help
+            optionalInputs = false(1,length(obj.MRIinputs));
+            hlptxt = help(obj.ModelName);
+            for ii = 1:length(obj.MRIinputs)
+                if ~isempty(strfind(hlptxt,['(' obj.MRIinputs{ii} ')']))
+                    optionalInputs(ii)=true;
+                end
+            end
+        end
+
+
     end
 
 

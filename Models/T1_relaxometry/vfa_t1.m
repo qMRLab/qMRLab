@@ -6,6 +6,7 @@ classdef vfa_t1 < AbstractModel
 % Inputs:
 %   VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
 %   (B1map)           excitation (B1+) fieldmap. Used to correct flip angles. [optional]
+%   (Mask)          Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
 %   T1              Longitudinal relaxation time [s]
@@ -53,7 +54,7 @@ end
         MRIinputs = {'VFAData','B1map','Mask'};
         xnames = {'M0','T1'};
         voxelwise = 1;
-        reqInputs = [1 0 0];
+        %reqInputs = [1 0 0];
         
         % Protocol
         Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...

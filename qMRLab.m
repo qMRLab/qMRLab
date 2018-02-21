@@ -3,7 +3,7 @@ function varargout = qMRLab(varargin)
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
+% Written by: Jean-Fran???is Cabana, 2016
 %
 % -- MTSAT functionality: P. Beliveau, 2017
 % -- File Browser changes: P. Beliveau 2017
@@ -81,8 +81,9 @@ if ~isfield(handles,'opened') % qMRI already opened?
         Model = Modelfun();
         close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
         MRIinputs = Model.MRIinputs;
+        optionalInputs = get_MRIinputs_optional(Model);
         % create file browser uicontrol with specific inputs
-        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{MethodList{iMethod} MRIinputs{:}});
+        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,MethodList{iMethod}, MRIinputs,optionalInputs);
         FileBrowserList(iMethod).Visible('off');
         
     end
@@ -103,7 +104,7 @@ if ~isempty(varargin)
     if length(varargin)>1
         data=varargin{2};
         for ff=fieldnames(data)';
-            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+            FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).setFileName(ff{1}, data.(ff{1}))
         end
     end
 end
@@ -126,13 +127,13 @@ end
 
 % View first file
 if length(varargin)>1
-    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
 % View first file
 if length(varargin)>1
-    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
@@ -254,7 +255,7 @@ OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
 % Show FileBrowser
 FileBrowserList = GetAppData('FileBrowserList');
-MethodNum = find(strcmp([FileBrowserList.MethodID],Method));
+MethodNum = find(strcmp({FileBrowserList.MethodID},Method));
 for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
