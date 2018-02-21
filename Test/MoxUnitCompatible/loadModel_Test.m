@@ -14,6 +14,9 @@ for im = 1:length(MethodList)
    % LOAD
    savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[MethodList{im} '.qmrlab.mat']);
    savedModel = qMRloadObj(savedModel_fname);
+   try
+   savedModel = savedModel.UpdateFields;
+   end
    savedProps = objProps2struct(savedModel);
    ver_saved = savedProps.version;
    savedProps = rmfield(savedProps,'version');
