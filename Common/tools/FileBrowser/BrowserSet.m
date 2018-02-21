@@ -47,7 +47,7 @@ classdef BrowserSet
                 obj.BrowseBtnOn = varargin{6};
                 obj.ViewBtnOn = varargin{7};
                 
-                obj.NameID = InputName;
+                obj.NameID = {InputName};
 
                 Position = [Location, 0.1, 0.1];
                 obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
@@ -149,9 +149,9 @@ classdef BrowserSet
             set(obj.FileBox, 'String', '');
             DataName = get(obj.NameText, 'String');
             %Check for files and set fields automatically
-            for i = 1:length(fileList)
-                if strfind(fileList{i}(1:end-4), DataName{1})
-                    obj.FullFile = fullfile(Path,fileList{i});                    
+            for ii = 1:length(fileList)
+                if strfind(fileList{ii}(1:end-4), DataName{1})
+                    obj.FullFile = fullfile(Path,fileList{ii});                    
                     set(obj.FileBox, 'String', obj.FullFile);
                     obj.DataLoad();
                 end
