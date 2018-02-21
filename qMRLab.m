@@ -387,13 +387,13 @@ save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
-fn = fieldnames(FitResults.Files);
-mainfile = FitResults.Files.(fn{1});
-ii = 1;
-while isempty(mainfile)
-    ii = ii+1;
-    mainfile = FitResults.Files.(fn{ii});
-end    
+%fn = fieldnames(FitResults.Files);
+mainfile = FitResults.Files.fN;
+%ii = 1;
+% while isempty(mainfile)
+%     ii = ii+1;
+%     mainfile = FitResults.Files.(fn{ii});
+% end    
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     [~,~,ext]=fileparts(mainfile);
