@@ -41,17 +41,21 @@ classdef BrowserSet
                 % parse the input arguments
                 parent = varargin{1};
                 handles = varargin{2};
-                Name = varargin{3};
-                Location = varargin{4};
-                obj.BrowseBtnOn = varargin{5};
-                obj.ViewBtnOn = varargin{6};
+                InputName = varargin{3};
+                InputOptional = varargin{4};
+                Location = varargin{5};
+                obj.BrowseBtnOn = varargin{6};
+                obj.ViewBtnOn = varargin{7};
                 
-                obj.NameID = Name;
+                obj.NameID = InputName;
 
                 Position = [Location, 0.1, 0.1];
                 obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);
                 
+                % Set color to gray if optional
+                if InputOptional, set(obj.NameText,'ForegroundColor',[.5 .5 .5]); end
+                    
                 if obj.BrowseBtnOn == 1
                     Location = Location + [0.1, 0];
                     LocationBrowse = Location;
