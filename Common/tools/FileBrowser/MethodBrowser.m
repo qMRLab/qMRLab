@@ -165,7 +165,7 @@ classdef MethodBrowser
         function FileName = getFileName(obj)
             for i=1:obj.NbItems
                 fN = get(obj.ItemsList(i).NameText,'String');
-                FileName.(fN{1}) = obj.ItemsList(i).GetFileName;
+                FileName.fN = obj.ItemsList(i).GetFileName;
             end
         end
         
