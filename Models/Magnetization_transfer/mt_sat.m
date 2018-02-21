@@ -12,7 +12,8 @@ classdef mt_sat < AbstractModel
 %
 % Outputs:
 %	  MTSAT         MT saturation map (%), T1-corrected
-%     T1            T1 map (s)            
+%     T1            T1 map (s)    
+%    (B1map)        B1+ map. B1map = 1 : perfectly accurate flip angle. Optional.
 %
 % Options:
 %     B1 correction factor     Correction factor (empirical) for the transmit RF. Only
