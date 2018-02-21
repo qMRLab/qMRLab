@@ -136,7 +136,7 @@ classdef BrowserSet
                 end
             end
             Data = getappdata(0, 'Data'); 
-            Data.(class(getappdata(0,'Model'))).(obj.NameID{1}) = double(tmp);
+            Data.(class(getappdata(0,'Model'))).(obj.NameID) = double(tmp);
             if exist('nii','var'),	Data.hdr = nii.hdr; end
             setappdata(0, 'Data', Data);            
         end
@@ -191,9 +191,9 @@ classdef BrowserSet
             if isempty(dat), errordlg('empty data'); return; end
             
             n = ndims(dat);
-            Data.(obj.NameID{1,1}) = dat;
+            Data.(obj.NameID) = dat;
             
-            Data.fields = {obj.NameID{1,1}};
+            Data.fields = {obj.NameID};
             handles.CurrentData = Data;
             DrawPlot(handles);
         end
