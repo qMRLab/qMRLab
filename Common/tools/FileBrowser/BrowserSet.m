@@ -187,7 +187,7 @@ classdef BrowserSet
         function ViewBtn_callback(obj,src, event, handles)
             obj.DataLoad();
             dat = getappdata(0, 'Data');
-            dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
+            dat=dat.(class(getappdata(0,'Model'))).(obj.NameID);
             if isempty(dat), errordlg('empty data'); return; end
             
             n = ndims(dat);
