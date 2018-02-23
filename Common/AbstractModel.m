@@ -68,8 +68,8 @@ classdef (Abstract) AbstractModel
            optionalInputs = obj.get_MRIinputs_optional;
            for i=1:length(optionalInputs)
                if ~optionalInputs(i) %if it's required input
-                   if(~any(strcmp(obj.MRIinputs{i},MRIinputs')))
-                       txt=strcat('Cannot find required input called ',cellstr(obj.MRIinputs{i}),'. Your input is ',cellstr(MRIinputs{i}));
+                   if(~any(strcmp(obj.MRIinputs{i},MRIinputs')) || isempty(data.(MRIinputs{i})))
+                       txt=convertStringsToChars("Cannot find required input called " + cellstr(obj.MRIinputs{i}));
                        h = errordlg(txt,'Input Error', mode);
                        uiwait(h)
                        error('The input data is incorrect')
@@ -82,7 +82,7 @@ classdef (Abstract) AbstractModel
            x = 1; y = 1; z = 1;
            [x,y,z,nT] = size(qData);
            for ii=1:length(MRIinputs)
-               if (ii ~= qDataIdx) %not the qData
+               if (~isempty(data.(MRIinputs{ii})) && ii ~= qDataIdx) %not empty and not the qData
                    [x_,y_,z_]=size(data.(MRIinputs{ii}));
                    if(x_~=x || z_~=z || z_~=z)
                        txt=convertStringsToChars("Inputs not sampled the same way:"+newline+cellstr(MRIinputs{qDataIdx})+" is "+num2str(x)+ "x" +num2str(y)+ "x"+ num2str(z)+ "x"+ num2str(nT) +"."+ cellstr(MRIinputs{ii}) + " input is  "+ num2str(x_)+ "x"+ num2str(y_)+ "x" +num2str(z_));
