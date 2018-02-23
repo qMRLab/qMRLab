@@ -225,6 +225,28 @@ end
             end
         end
         
+        function plotProt(obj)
+            Prot = GetProt(obj);
+            subplot(2,1,1)
+            plot(Prot.ti(2:end),diff(Prot.ti))
+            
+            hold on
+            minti = min(Prot.ti); maxti = max(Prot.ti);
+            tilin=linspace(minti,maxti,length(Prot.ti));
+            plot(tilin(2:end),diff(tilin),'--')     
+            tilog=logspace(log10(minti),log10(maxti),length(Prot.ti));
+            plot(tilog(2:end),diff(tilog),'--')     
+            ylabel('\Delta ti')
+            xlabel('ti')
+            ylim([min(diff(Prot.ti)),max(diff(Prot.ti))])
+            legend({'Experiment', 'Linear spacing','Log10 spacing'})
+            title('Inversion time spacing (logspace?, linspace?)')
+            subplot(2,1,2)
+            imshow qmt_sirfse.png
+            title('Pulse sequence diagram')
+        end
+        
+          
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);

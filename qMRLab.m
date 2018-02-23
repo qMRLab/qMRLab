@@ -387,13 +387,13 @@ save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
-%fn = fieldnames(FitResults.Files);
-mainfile = FitResults.Files.fN;
-%ii = 1;
-% while isempty(mainfile)
-%     ii = ii+1;
-%     mainfile = FitResults.Files.(fn{ii});
-% end    
+fn = fieldnames(FitResults.Files);
+mainfile = FitResults.Files.(fn{1});
+ii = 1;
+while isempty(mainfile)
+    ii = ii+1;
+    mainfile = FitResults.Files.(fn{ii});
+end    
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     [~,~,ext]=fileparts(mainfile);
@@ -781,11 +781,16 @@ data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
 Model = GetAppData('Model');
 
 % Get selected voxel
-S = size(data.(Model.MRIinputs{1}));
+S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
+Data = handles.CurrentData;
+selected = get(handles.SourcePop,'Value');
+Scurrent = [size(Data.(Data.fields{selected}),1) size(Data.(Data.fields{selected}),2) size(Data.(Data.fields{selected}),3)];
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
     helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
+elseif ~isequal(Scurrent, S)
+    helpdlg([Model.MRIinputs{1} ' file in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer. Load corresponding ' Model.MRIinputs{1} '.'])
 else
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);

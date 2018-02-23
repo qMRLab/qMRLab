@@ -344,12 +344,12 @@ end
 
         function plotProt(obj)
             Prot = GetProt(obj);
-            subplot(2,1,1)
+            subplot(3,1,1)
             plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
             ylabel('Angle')
             xlabel('offset (Hz)')
-            subplot(2,1,2)
-            title('MTpulse')
+            title('MT parameter (FA, Offset)')
+            subplot(3,1,2)
             angles = Prot.Angles(1);
             offsets = Prot.Offsets(1);
             shape = Prot.MTpulse.shape;
@@ -357,6 +357,10 @@ end
             PulseOpt = Prot.MTpulse.opt;
             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
             ViewPulse(Pulse,'b1');
+            title('MTpulse shape')
+            subplot(3,1,3)
+            imshow qmt_spgr.png
+            title('Pulse sequence diagram')
         end
 
         function Prot = GetProt(obj)
