@@ -69,7 +69,7 @@ classdef (Abstract) AbstractModel
            for i=1:length(optionalInputs)
                if ~optionalInputs(i) %if it's required input
                    if(~any(strcmp(obj.MRIinputs{i},MRIinputs')) || isempty(data.(MRIinputs{i})))
-                       txt=convertStringsToChars("Cannot find required input called " + cellstr(obj.MRIinputs{i}));
+                       txt=['Cannot find required input called '  obj.MRIinputs{i}];
                        h = errordlg(txt,'Input Error', mode);
                        uiwait(h)
                        error('The input data is incorrect')
@@ -85,7 +85,7 @@ classdef (Abstract) AbstractModel
                if (~isempty(data.(MRIinputs{ii})) && ii ~= qDataIdx) %not empty and not the qData
                    [x_,y_,z_]=size(data.(MRIinputs{ii}));
                    if(x_~=x || z_~=z || z_~=z)
-                       txt=convertStringsToChars("Inputs not sampled the same way:"+newline+cellstr(MRIinputs{qDataIdx})+" is "+num2str(x)+ "x" +num2str(y)+ "x"+ num2str(z)+ "x"+ num2str(nT) +"."+ cellstr(MRIinputs{ii}) + " input is  "+ num2str(x_)+ "x"+ num2str(y_)+ "x" +num2str(z_));
+                       txt=['Inputs not sampled the same way:' newline MRIinputs{qDataIdx} ' is ' num2str(x)  'x'  num2str(y)  'x'  num2str(z)  'x'  num2str(nT)  '.' newline  MRIinputs{ii}   ' input is  '  num2str(x_)  'x'  num2str(y_)  'x'  num2str(z_)];
                        h = errordlg(txt,'Input Error', mode);
                        uiwait(h)
                        error('The input data is sampled incorrectly')
@@ -95,7 +95,7 @@ classdef (Abstract) AbstractModel
            % check if protocol matches data
            nR = size(obj.Prot.(obj.MRIinputs{1}).Mat,1);
            if nT ~= size(obj.Prot.(obj.MRIinputs{1}).Mat,1)
-               txt=convertStringsToChars("Protocol has:"+num2str(nR)+" rows. And input volume "+cellstr(obj.MRIinputs{1})+" has "+num2str(nT)+ " frames");
+               txt=['Protocol has:' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
                h = errordlg(txt,'Input Mismatch', mode);
                uiwait(h)
                error('The protocol does not match the input incorrectly')
