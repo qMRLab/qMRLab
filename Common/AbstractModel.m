@@ -10,7 +10,6 @@ classdef (Abstract) AbstractModel
     properties
         version
         ModelName
-        %ErrMess
     end
 
     methods
@@ -18,7 +17,6 @@ classdef (Abstract) AbstractModel
         function obj = AbstractModel()
             obj.version = qMRLabVer();
             obj.ModelName = class(obj);
-            %obj.ErrMess = [];
         end
 
         function saveObj(obj, suffix)
@@ -55,15 +53,14 @@ classdef (Abstract) AbstractModel
         end
 
         % Do some error checking
-        function sanityCheck(obj,data)
-           
-            mode = struct('WindowStyle','modal','Interpreter','tex');
+        function [ErrMsg]=sanityCheck(obj,data)
+           [ErrMsg]=[];
            % check if all necessary inputs are present 
            MRIinputs = fieldnames(data);
            %if data is empty
            if isempty(MRIinputs)
                txt=strcat('No input data provided');
-               %obj.ErrMess = txt;
+               ErrMsg = txt;
                return
            end
            %if required number of inputs
@@ -72,9 +69,8 @@ classdef (Abstract) AbstractModel
                if ~optionalInputs(i) %if it's required input
                    if(~any(strcmp(obj.MRIinputs{i},MRIinputs')) || isempty(data.(MRIinputs{i})))
                        txt=['Cannot find required input called '  obj.MRIinputs{i}];
-                       h = errordlg(txt,'Input Error', mode);
-                       uiwait(h)
-                       error('The input data is incorrect')
+                       ErrMsg = txt;
+                       return
                    end
                end
            end
@@ -88,20 +84,19 @@ classdef (Abstract) AbstractModel
                    [x_,y_,z_]=size(data.(MRIinputs{ii}));
                    if(x_~=x || z_~=z || z_~=z)
                        txt=['Inputs not sampled the same way:' sprintf('\n') MRIinputs{qDataIdx} ' is ' num2str(x)  'x'  num2str(y)  'x'  num2str(z)  'x'  num2str(nT)  '.' sprintf('\n')  MRIinputs{ii}   ' input is  '  num2str(x_)  'x'  num2str(y_)  'x'  num2str(z_)];
-                       h = errordlg(txt,'Input Error', mode);
-                       uiwait(h)
-                       error('The input data is sampled incorrectly')
+                       ErrMsg = txt;
+                       return
                    end
                end
            end
            % check if protocol matches data
-           nR = size(obj.Prot.(obj.MRIinputs{1}).Mat,1);
-           if nT ~= size(obj.Prot.(obj.MRIinputs{1}).Mat,1)
-               txt=['Protocol has:' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
-               h = errordlg(txt,'Input Mismatch', mode);
-               uiwait(h)
-               error('The protocol does not match the input')
-               
+           if ~isempty(obj.Prot)
+               nR = size(obj.Prot.(obj.MRIinputs{1}).Mat,1);
+               if (nT ~= size(obj.Prot.(obj.MRIinputs{1}).Mat,1) && ~isempty(obj.Prot))
+                   txt=['Protocol has:' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
+                   ErrMsg = txt;
+                   return
+               end
            end
         end
         

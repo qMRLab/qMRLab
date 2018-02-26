@@ -29,7 +29,13 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % ----------------------------------------------------------------------------------------------------
 
 % Before fitting, do a sanity check on the input data and protocol
-Model.sanityCheck(data);
+[ErrMsg]=Model.sanityCheck(data);
+if ~isempty(ErrMsg)
+    Mode = struct('WindowStyle','modal','Interpreter','tex');
+    h = errordlg(ErrMsg,'Input Error', Mode);
+    uiwait(h)
+    error(ErrMsg)
+end
 
 tStart = tic;
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
