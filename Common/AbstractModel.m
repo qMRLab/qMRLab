@@ -5,11 +5,12 @@ classdef (Abstract) AbstractModel
     %   *Methods*
     %   save: save model object properties to a file as an struct.
     %   load: load model properties from a struct-file into the object.
-    %
-
+    % 
+   
     properties
         version
         ModelName
+        %ErrMess
     end
 
     methods
@@ -17,6 +18,7 @@ classdef (Abstract) AbstractModel
         function obj = AbstractModel()
             obj.version = qMRLabVer();
             obj.ModelName = class(obj);
+            %obj.ErrMess = [];
         end
 
         function saveObj(obj, suffix)
@@ -54,15 +56,15 @@ classdef (Abstract) AbstractModel
 
         % Do some error checking
         function sanityCheck(obj,data)
-           mode = struct('WindowStyle','modal','Interpreter','tex');
+           
+            mode = struct('WindowStyle','modal','Interpreter','tex');
            % check if all necessary inputs are present 
            MRIinputs = fieldnames(data);
            %if data is empty
            if isempty(MRIinputs)
                txt=strcat('No input data provided');
-               h = errordlg(txt,'Input Error', mode);
-               uiwait(h)
-               error('There is no input data')
+               %obj.ErrMess = txt;
+               return
            end
            %if required number of inputs
            optionalInputs = obj.get_MRIinputs_optional;
@@ -85,7 +87,7 @@ classdef (Abstract) AbstractModel
                if (~isempty(data.(MRIinputs{ii})) && ii ~= qDataIdx) %not empty and not the qData
                    [x_,y_,z_]=size(data.(MRIinputs{ii}));
                    if(x_~=x || z_~=z || z_~=z)
-                       txt=['Inputs not sampled the same way:' newline MRIinputs{qDataIdx} ' is ' num2str(x)  'x'  num2str(y)  'x'  num2str(z)  'x'  num2str(nT)  '.' newline  MRIinputs{ii}   ' input is  '  num2str(x_)  'x'  num2str(y_)  'x'  num2str(z_)];
+                       txt=['Inputs not sampled the same way:' sprintf('\n') MRIinputs{qDataIdx} ' is ' num2str(x)  'x'  num2str(y)  'x'  num2str(z)  'x'  num2str(nT)  '.' sprintf('\n')  MRIinputs{ii}   ' input is  '  num2str(x_)  'x'  num2str(y_)  'x'  num2str(z_)];
                        h = errordlg(txt,'Input Error', mode);
                        uiwait(h)
                        error('The input data is sampled incorrectly')
@@ -98,7 +100,7 @@ classdef (Abstract) AbstractModel
                txt=['Protocol has:' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
                h = errordlg(txt,'Input Mismatch', mode);
                uiwait(h)
-               error('The protocol does not match the input incorrectly')
+               error('The protocol does not match the input')
                
            end
         end
