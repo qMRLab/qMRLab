@@ -792,11 +792,13 @@ elseif sum(S)==0
 elseif ~isequal(Scurrent, S)
     helpdlg([Model.MRIinputs{1} ' file in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer. Load corresponding ' Model.MRIinputs{1} '.'])
 else
+    % Check data consistency
+    Model.sanityCheck(data);
+    
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
     y = 1+ S(2) - info_dcm.Position(2);
     z = str2double(get(handles.SliceValue,'String'));
-    index = sub2ind(S,x,y,z);
     
     for ii=1:length(Model.MRIinputs)
         if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
@@ -805,7 +807,6 @@ else
     end
     if isfield(data,'Mask'), data.Mask = []; end
     
-    Sim.Opt.AddNoise = 0;
     % Create axe
     if ishandle(68), clf(68), end % If a data fit check has already been run,
                                   % clear the previous data from the figure plot
