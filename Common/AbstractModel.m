@@ -57,18 +57,20 @@ classdef (Abstract) AbstractModel
            [ErrMsg]=[];
            % check if all necessary inputs are present 
            MRIinputs = fieldnames(data);
+           
+           for error=1:1 % allow break
            %if data is empty
            if isempty(MRIinputs)
                txt=strcat('No input data provided');
-               ErrMsg = txt;
+               ErrMsg = txt; break
            end
            %if required number of inputs
            optionalInputs = obj.get_MRIinputs_optional;
-           for i=1:length(optionalInputs)
-               if ~optionalInputs(i) %if it's required input
-                   if(~any(strcmp(obj.MRIinputs{i},MRIinputs')) || isempty(data.(MRIinputs{i})))
-                       txt=['Cannot find required input called '  obj.MRIinputs{i}];
-                       ErrMsg = txt;
+           for ii=1:length(optionalInputs)
+               if ~optionalInputs(ii) %if it's required input
+                   if(~any(strcmp(obj.MRIinputs{ii},MRIinputs')) || ~isfield(data,obj.MRIinputs{ii}) || isempty(data.(obj.MRIinputs{ii})))
+                       txt=['Cannot find required input called '  obj.MRIinputs{ii}];
+                       ErrMsg = txt; break
                    end
                end
            end
@@ -82,7 +84,7 @@ classdef (Abstract) AbstractModel
                    [x_,y_,z_]=size(data.(MRIinputs{ii}));
                    if(x_~=x || z_~=z || z_~=z)
                        txt=['Inputs not sampled the same way:' sprintf('\n') MRIinputs{qDataIdx} ' is ' num2str(x)  'x'  num2str(y)  'x'  num2str(z)  'x'  num2str(nT)  '.' sprintf('\n')  MRIinputs{ii}   ' input is  '  num2str(x_)  'x'  num2str(y_)  'x'  num2str(z_)];
-                       ErrMsg = txt;
+                       ErrMsg = txt; break
                    end
                end
            end
@@ -91,13 +93,18 @@ classdef (Abstract) AbstractModel
                nR = size(obj.Prot.(obj.MRIinputs{1}).Mat,1);
                if (nT ~= size(obj.Prot.(obj.MRIinputs{1}).Mat,1) && ~isempty(obj.Prot))
                    txt=['Protocol has: ' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
-                   ErrMsg = txt;
+                   ErrMsg = txt; break
                end
            end
-           
+           end
            % error if no output
            if nargout==0 && ~isempty(ErrMsg)
-               errordlg(ErrMsg,'Input data are not consistent')
+               if moxunit_util_platform_is_octave
+                   errordlg(ErrMsg,'Input Error');
+               else
+                   Mode = struct('WindowStyle','modal','Interpreter','tex');
+                   errordlg(ErrMsg,'Input Error', Mode);
+               end
            end
         end
         

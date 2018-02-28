@@ -29,13 +29,7 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % ----------------------------------------------------------------------------------------------------
 
 % Before fitting, do a sanity check on the input data and protocol
-[ErrMsg]=Model.sanityCheck(data);
-if ~isempty(ErrMsg)
-    Mode = struct('WindowStyle','modal','Interpreter','tex');
-    h = errordlg(ErrMsg,'Input Error', Mode);
-    uiwait(h)
-    error(ErrMsg)
-end
+Model.sanityCheck(data);
 
 tStart = tic;
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
@@ -138,7 +132,7 @@ if Model.voxelwise % process voxelwise
         
         if ISTRAVIS && ii>2
             try
-                Fit = load('FitResults/FitResults.mat');
+                Fit = load(fullfile('.','FitResults','FitResults.mat'));
             end
             break;
         end
