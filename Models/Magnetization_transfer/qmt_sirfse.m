@@ -119,7 +119,7 @@ end
         % Model options
         buttons = {'PANEL','Inversion_Pulse',2,...
                    'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)',0.001,...
-                   'PANEL','Fitting',2,...
+                   'PANEL','fitting constraints',2,...
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'PANEL','Sr_Calculation',2,...
@@ -145,11 +145,11 @@ end
         end
         
         function obj = UpdateFields(obj)
-            if obj.options.Fitting_UseR1maptoconstrainR1f
+            if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3) = true;
             end
             
-            if obj.options.Fitting_FixR1rR1f
+            if obj.options.fittingconstraints_FixR1rR1f
                 obj.fx(4) = true;
             end
             
@@ -310,13 +310,13 @@ end
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
             end
-            FitOpt.R1map = obj.options.Fitting_UseR1maptoconstrainR1f;
+            FitOpt.R1map = obj.options.fittingconstraints_UseR1maptoconstrainR1f;
             FitOpt.names = obj.xnames;
             FitOpt.fx = obj.fx;
             FitOpt.st = obj.st;
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
-            FitOpt.R1reqR1f = obj.options.Fitting_FixR1rR1f;
+            FitOpt.R1reqR1f = obj.options.fittingconstraints_FixR1rR1f;
         end
         
         function SrParam = GetSrParam(obj)           
@@ -337,4 +337,19 @@ end
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
         end
     end
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % 2.0.6
+            if checkanteriorver(version,[2 0 7])
+                obj.options.fittingconstraints_UseR1maptoconstrainR1f = obj.options.Fitting_UseR1maptoconstrainR1f;
+                obj.options = rmfield(obj.options,'Fitting_UseR1maptoconstrainR1f');
+                obj.options.fittingconstraints_FixR1rR1f = obj.options.Fitting_FixR1rR1f;
+                obj.options = rmfield(obj.options,'Fitting_FixR1rR1f');
+                obj.buttons{strcmp(obj.buttons,'Fitting')} = 'fitting constraints';
+            end
+        end
+    end
+
 end
