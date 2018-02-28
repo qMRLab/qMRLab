@@ -58,7 +58,7 @@ classdef (Abstract) AbstractModel
            % check if all necessary inputs are present 
            MRIinputs = fieldnames(data);
            
-           for error=1:1 % allow break
+           for brkloop=1:1 % allow break
            %if data is empty
            if isempty(MRIinputs)
                txt=strcat('No input data provided');
@@ -74,6 +74,8 @@ classdef (Abstract) AbstractModel
                    end
                end
            end
+           if ~isempty(ErrMsg), break; end
+           
            % check if all input data is sampled the same as qData input
            qDataIdx=find((strcmp(obj.MRIinputs{1},MRIinputs')));
            qData = double(data.(MRIinputs{qDataIdx}));
@@ -88,6 +90,8 @@ classdef (Abstract) AbstractModel
                    end
                end
            end
+           if ~isempty(ErrMsg), break; end
+           
            % check if protocol matches data
            if ~isempty(obj.Prot)
                if isfield(obj.Prot,obj.MRIinputs{1})
@@ -106,6 +110,7 @@ classdef (Abstract) AbstractModel
                else
                    Mode = struct('WindowStyle','modal','Interpreter','tex');
                    errordlg(ErrMsg,'Input Error', Mode);
+                   error(ErrMsg);
                end
            end
         end
