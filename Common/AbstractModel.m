@@ -81,7 +81,7 @@ classdef (Abstract) AbstractModel
            [x,y,z,nT] = size(qData);
            for ii=1:length(MRIinputs)
                if (~isempty(data.(MRIinputs{ii})) && ii ~= qDataIdx) %not empty and not the qData
-                   [x_,y_,z_]=size(data.(MRIinputs{ii}));
+                   [x_,y_,z_,t_]=size(data.(MRIinputs{ii}));
                    if(x_~=x || z_~=z || z_~=z)
                        txt=['Inputs not sampled the same way:' sprintf('\n') MRIinputs{qDataIdx} ' is ' num2str(x)  'x'  num2str(y)  'x'  num2str(z)  'x'  num2str(nT)  '.' sprintf('\n')  MRIinputs{ii}   ' input is  '  num2str(x_)  'x'  num2str(y_)  'x'  num2str(z_)];
                        ErrMsg = txt; break
