@@ -103,7 +103,7 @@ classdef (Abstract) AbstractModel
         function optionalInputs = get_MRIinputs_optional(obj)
             % Optional input? Search in help
             optionalInputs = false(1,length(obj.MRIinputs));
-            hlptxt = help(obj.ModelName);
+            hlptxt = qMRinfo(obj.ModelName);
             for ii = 1:length(obj.MRIinputs)
                 if ~isempty(strfind(hlptxt,['(' obj.MRIinputs{ii} ')']))
                     optionalInputs(ii)=true;
