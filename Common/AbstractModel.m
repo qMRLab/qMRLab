@@ -61,7 +61,6 @@ classdef (Abstract) AbstractModel
            if isempty(MRIinputs)
                txt=strcat('No input data provided');
                ErrMsg = txt;
-               return
            end
            %if required number of inputs
            optionalInputs = obj.get_MRIinputs_optional;
@@ -70,7 +69,6 @@ classdef (Abstract) AbstractModel
                    if(~any(strcmp(obj.MRIinputs{i},MRIinputs')) || isempty(data.(MRIinputs{i})))
                        txt=['Cannot find required input called '  obj.MRIinputs{i}];
                        ErrMsg = txt;
-                       return
                    end
                end
            end
@@ -85,7 +83,6 @@ classdef (Abstract) AbstractModel
                    if(x_~=x || z_~=z || z_~=z)
                        txt=['Inputs not sampled the same way:' sprintf('\n') MRIinputs{qDataIdx} ' is ' num2str(x)  'x'  num2str(y)  'x'  num2str(z)  'x'  num2str(nT)  '.' sprintf('\n')  MRIinputs{ii}   ' input is  '  num2str(x_)  'x'  num2str(y_)  'x'  num2str(z_)];
                        ErrMsg = txt;
-                       return
                    end
                end
            end
@@ -93,10 +90,14 @@ classdef (Abstract) AbstractModel
            if ~isempty(obj.Prot)
                nR = size(obj.Prot.(obj.MRIinputs{1}).Mat,1);
                if (nT ~= size(obj.Prot.(obj.MRIinputs{1}).Mat,1) && ~isempty(obj.Prot))
-                   txt=['Protocol has:' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
+                   txt=['Protocol has: ' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
                    ErrMsg = txt;
-                   return
                end
+           end
+           
+           % error if no output
+           if nargout==0 && ~isempty(ErrMsg)
+               errordlg(ErrMsg,'Input data are not consistent')
            end
         end
         
