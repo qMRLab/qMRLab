@@ -119,7 +119,7 @@ This is useful when you want to preview the fit of a single voxel (note this opt
 
 5.	Define or load the appropriate protocol in the *Options* panel (see :ref:`5.1 Protocol` for details).
 6.	Define your fitting options in the Options panel (see :ref:`5.2.	Fitting` for details).
-7.  You can preview the fitted curve for a selected voxel by using the **View Data Fit** button. Make sure a dataset is loaded by clikcing **View** beside the data file field
+7.  You can preview the fitted curve for a selected voxel by using the **View Data Fit** button. Make sure a dataset is loaded by clicking **View** beside the data file field
 8.  Click **Select** button in the 'Cursor' section to activate voxel selection mode, select a voxel to preview and click **View Data Fit**. You can now see the fitted curve and the parameters computed for that voxel.
 
 .. figure:: _static/view_fit_1vox.png
