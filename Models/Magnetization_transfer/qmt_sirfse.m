@@ -10,7 +10,7 @@ classdef qmt_sirfse < AbstractModel
 %
 % Inputs:
 %   MTdata              Magnetization Transfert data
-%   (R1map)             1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
+%   (R1map)             1/T1map (OPTIONAL but recommended)
 %   (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
