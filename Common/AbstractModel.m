@@ -129,9 +129,6 @@ classdef (Abstract) AbstractModel
 
     end
 
-
-    end
-
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             objStruct = objProps2struct(obj);
