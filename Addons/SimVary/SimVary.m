@@ -30,7 +30,7 @@ st = [OptTable.st];
 lb = [OptTable.lb];
 ub = [OptTable.ub];
 
-for pp=1:length(OptTable.fx)
+for pp=1:length(fx)
     if ~fx(pp)
         Sens.x = linspace(lb(pp),ub(pp),Nsteps);
         % Create waitbar
