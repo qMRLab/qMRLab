@@ -184,6 +184,30 @@ end
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
+            
+            % Disable/enable some MT pulse options --> Add ### to the button
+            % Name you want to disable
+            disablelist = {'Fermi transition (a)','Bandwidth','Sinc TBW'};
+            switch  obj.options.MT_Pulse_Shape
+                case {'sinc','sinchann'}
+                    disable = [true, true, false];
+                case {'gausshann','gaussian'}
+                    disable = [true, false, true];
+                case 'sincgauss'
+                    disable = [true, false, false];
+                case 'fermi'
+                    disable = [false, true, true];
+                otherwise
+                    disable = [true, true, true];
+            end
+            for ll = 1:length(disablelist)
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                if disable(ll)
+                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                else
+                    obj.buttons{indtodisable} = [disablelist{ll}];
+                end
+            end
         end
 
         function obj = Precompute(obj)
@@ -224,7 +248,7 @@ end
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');
+                warning('No MToff (i.e. no volumes acquired with Angles=0) --> Fitting assumes that MTData are already normalized.');
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
@@ -245,7 +269,7 @@ end
             % normalize data
             NoMT = Protocol.Angles<1;
             if ~any(NoMT)
-                warning('No MToff. MTData cannot be normalized.');
+                warning('No MToff (i.e. no volumes acquired with Angles=0) --> Fitting assumes that MTData are already normalized.');
             else
                 data.MTdata = data.MTdata/median(data.MTdata(NoMT));
                 data.MTdata = data.MTdata(~NoMT);
@@ -320,12 +344,12 @@ end
 
         function plotProt(obj)
             Prot = GetProt(obj);
-            subplot(2,1,1)
+            subplot(3,1,1)
             plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
             ylabel('Angle')
             xlabel('offset (Hz)')
-            subplot(2,1,2)
-            title('MTpulse')
+            title('MT parameter (FA, Offset)')
+            subplot(3,1,2)
             angles = Prot.Angles(1);
             offsets = Prot.Offsets(1);
             shape = Prot.MTpulse.shape;
@@ -333,6 +357,10 @@ end
             PulseOpt = Prot.MTpulse.opt;
             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
             ViewPulse(Pulse,'b1');
+            title('MTpulse shape')
+            subplot(3,1,3)
+            imshow qmt_spgr.png
+            title('Pulse sequence diagram')
         end
 
         function Prot = GetProt(obj)
