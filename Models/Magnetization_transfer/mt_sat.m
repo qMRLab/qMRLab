@@ -9,10 +9,12 @@ classdef mt_sat < AbstractModel
 %            pulse
 %   T1w     3D T1-weighted data. Spoiled Gradient Echo (or FLASH)
 %   PDw     3D PD-weighted data. Spoiled Gradient Echo (or FLASH)
+%  (B1map)  B1+ map. B1map = 1 : perfectly accurate flip angle. Optional.
+%  (Mask)   Binary mask. DOES NOT ACCELERATE FITTING. Just for visualisation
 %
 % Outputs:
 %	  MTSAT         MT saturation map (%), T1-corrected
-%     T1            T1 map (s)            
+%     T1            T1 map (s)    
 %
 % Options:
 %     B1 correction factor     Correction factor (empirical) for the transmit RF. Only

@@ -52,6 +52,7 @@ classdef (Abstract) AbstractModel
             end
         end
         
+
         % Do some error checking
         function sanityCheck(obj,data)
            % check if all necessary inputs are present
@@ -66,6 +67,18 @@ classdef (Abstract) AbstractModel
            
            % check if protocol matched data
         end
+
+        function optionalInputs = get_MRIinputs_optional(obj)
+            % Optional input? Search in help
+            optionalInputs = false(1,length(obj.MRIinputs));
+            hlptxt = help(obj.ModelName);
+            for ii = 1:length(obj.MRIinputs)
+                if ~isempty(strfind(hlptxt,['(' obj.MRIinputs{ii} ')']))
+                    optionalInputs(ii)=true;
+                end
+            end
+        end
+
     end
     
 
