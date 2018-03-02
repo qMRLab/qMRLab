@@ -20,12 +20,11 @@ classdef mwf < AbstractModel
 %       'T2*'      For a GRE sequence
 %
 % Protocol:
-%   1 .txt files or 1 .mat file :
-%     TE    [TE1 TE2 ...] % list of echo times [ms]
+%  MET2data   [TE1 TE2 ...] % list of echo times [ms]
 %
 % Example of command line usage (see also <a href="matlab: showdemo mwf_batch">showdemo mwf_batch</a>):
 %   Model = mwf;  % Create class from model
-%   Model.Prot.Echo.Mat=[10:10:320];
+%   Model.Prot.MET2data.Mat=[10:10:320];
 %   data = struct;  % Create data structure
 %   data.MET2data ='MET2data.mat';  % Load data
 %   data.Mask = 'Mask.mat';
