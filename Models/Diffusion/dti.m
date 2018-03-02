@@ -5,7 +5,7 @@ classdef dti < AbstractModel
 %   
 % Inputs:
 %   DiffusionData       4D diffusion weighted dataset
-%   SigmaNoise
+%   (SigmaNoise)
 %   (Mask)              Binary mask to accelerate fitting [optional]
 %
 % Outputs:
@@ -50,7 +50,7 @@ end
 
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'};
-        xnames = { 'FA','MD','L1','L2','L3','residue'};
+        xnames = {'L1','L2','L3'};
         voxelwise = 1;
         
         % fitting options
@@ -128,7 +128,10 @@ end
             S0 = scd_preproc_getS0(data.DiffusionData,Prot);
             
             % Detect negative values
-            if min(data.DiffusionData)<0, warning('Negative values detected in DiffusionData. threshold to 0.'); data.DiffusionData = max(0,data.DiffusionData); end
+            if min(data.DiffusionData)<0
+                %warning('Negative values detected in DiffusionData. threshold to 0.'); 
+                data.DiffusionData = max(0,data.DiffusionData); 
+            end
 
             % fit
             D=scd_model_dti(max(eps,data.DiffusionData)./max(eps,S0),Prot);
@@ -148,16 +151,16 @@ end
                 [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
                 D(:)=xopt;
             end
-            FitResults.residue = residue;
             
             % compute metrics
             [~,L] = eig(D); L = sort(diag(L),'descend');
+            L_mean = sum(L)/3;
+            FitResults.FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2));
             FitResults.L1 = L(1);
             FitResults.L2 = L(2);
             FitResults.L3 = L(3);
             FitResults.D  = D(:);
-            L_mean = sum(L)/3;
-            FitResults.FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2));
+            FitResults.residue = residue;
                 % S0
             S0vals = unique([S0 Prot(:,7)],'rows');
             for ii = 1:size(S0vals,1)
