@@ -1,12 +1,37 @@
 classdef dti < AbstractModel
-%dti: Diffusion Tensor Imaging
-% Methods:
-%   plotmodel        Plot the diffusion-weighted signal as a function of Gparallel
-%                       EXAMPLE:
-%                       A = DTI;
-%                       L1 = 1; L2 = 1; L3 = 3; % um2/ms
-%                       A.plotmodel([L1 L2 L3]);
-%   doThat           Description of doThat
+%dti: Compute a tensor from diffusion data
+%
+% Assumptions:
+%   
+% Inputs:
+%   DiffusionData       4D diffusion weighted dataset
+%   SigmaNoise
+%   (Mask)              Binary mask to accelerate fitting [optional]
+%
+% Outputs:
+%	FA                  Fractional anisotropy
+%   D                   Mean diffusivity
+%   L1                  Principal eigenvalue
+%   L2                  Second eigenvalue
+%   L3                  Third eigenvalue
+%   residue             Residue of the fit
+%
+% Protocol:
+%
+% Options
+%   NONE
+%
+% Example of command line usage (see also <a href="matlab: showdemo dti_batch">showdemo dti_batch</a>):
+%   Model=dti;
+%   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
+%   data = struct;  % Create data structure
+%   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
+%   data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
+%   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
+%   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');  % Save in local folder: FitResults/
+%
+%   For more examples: <a href="matlab: qMRusage(dti_dam);">qMRusage(dti_dam)</a>
+%
 %
 % Example of command line usage (see also <a href="matlab: showdemo dti_batch">showdemo dti_batch</a>):
 %   For more examples: <a href="matlab: qMRusage(dti);">qMRusage(dti)</a>
@@ -25,7 +50,7 @@ end
 
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'};
-        xnames = { 'L1','L2','L3'};
+        xnames = { 'FA','MD','L1','L2','L3','residue'};
         voxelwise = 1;
         
         % fitting options
