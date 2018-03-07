@@ -1,10 +1,13 @@
-function test_suite=loadModel_Test
+function test_suite=loadModel_Test(debug)
 try % assignment of 'localfunctions' is necessary in Matlab >= 2016
     test_functions=localfunctions();
 catch % no problem; early Matlab versions can use initTestSuite fine
 end
-initTestSuite;
-
+if exist('debug','var') && debug
+    load_test
+else
+    initTestSuite;
+end
 
 function load_test
 

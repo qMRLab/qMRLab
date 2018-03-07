@@ -182,6 +182,23 @@ fittingtable = get(handles.FitOptTable,'Data'); % Get options
 Model = getappdata(0,'Model');
 Model.xnames = fittingtable(:,1)';
 
+% Manage R1map and R1r in qmt_SPGR
+    indR1map = cellfun(@(x) strcmp(x,'R1MAP'), fittingtable);
+    indR1map(:,1)=false;
+    if sum(indR1map(:))
+        fittingtable{indR1map} = Model.st(strcmp(Model.xnames,'R1f'));
+    end
+    indR1f = cellfun(@(x) strcmp(x,'R1f'), fittingtable);
+    indR1f(:,1)=false;
+    if sum(indR1f(:))
+    fittingtable{indR1f} = Model.st(strcmp(Model.xnames,'R1r'));
+    end
+    indT2f = cellfun(@(x) strcmp(x,'(R1f*T2f)/R1f'), fittingtable);
+    indT2f(:,1)=false;
+    if sum(indT2f(:))
+    fittingtable{indT2f} = Model.st(strcmp(Model.xnames,'T2f'));
+    end
+
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
     if size(fittingtable,2)>1, Model.fx = cell2mat(fittingtable(:,2)'); end
     if size(fittingtable,2)>2
@@ -197,6 +214,15 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         if isprop(Model,'lb') && isprop(Model,'ub')
             Model.lb = cell2mat(fittingtable(:,4)');
             Model.ub = cell2mat(fittingtable(:,5)');
+        end
+        if isfield(Model.options,'fittingconstraints_UseR1maptoconstrainR1f') && Model.options.fittingconstraints_UseR1maptoconstrainR1f
+            fittingtable{strcmp(fittingtable(:,1),'R1f'),3}='R1MAP';
+        end
+        if isfield(Model.options,'fittingconstraints_FixR1rR1f')  && Model.options.fittingconstraints_FixR1rR1f
+            fittingtable{strcmp(fittingtable(:,1),'R1r'),3}='R1f';
+        end
+        if isfield(Model.options,'fittingconstraints_FixR1fT2f')  && Model.options.fittingconstraints_FixR1fT2f
+            fittingtable{strcmp(fittingtable(:,1),'T2f'),3}='(R1f*T2f)/R1f';
         end
         set(handles.FitOptTable,'Data',fittingtable);
     end

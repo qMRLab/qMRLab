@@ -184,6 +184,12 @@ end
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3)=true;
             end
+            if obj.options.fittingconstraints_FixR1rR1f
+                obj.fx(4)=true;
+            end
+            if obj.options.fittingconstraints_FixR1fT2f
+                obj.fx(5)=true;
+            end
             
             % Disable/enable some MT pulse options --> Add ### to the button
             % Name you want to disable
@@ -209,7 +215,14 @@ end
                 end
             end
         end
-
+    
+        function optionalInputs = get_MRIinputs_optional(obj)
+            optionalInputs = get_MRIinputs_optional@AbstractModel(obj);
+            if obj.options.fittingconstraints_UseR1maptoconstrainR1f
+                optionalInputs(strcmp(obj.MRIinputs,'R1map')) = false;
+            end
+        end
+        
         function obj = Precompute(obj)
             if isempty(obj.ProtSfTable)
                 obj.ProtSfTable = CacheSf(GetProt(obj));

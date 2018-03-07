@@ -125,8 +125,6 @@ classdef (Abstract) AbstractModel
                 end
             end
         end
-
-
     end
 
     methods(Access = protected)
