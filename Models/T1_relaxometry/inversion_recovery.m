@@ -19,8 +19,7 @@ classdef inversion_recovery < AbstractModel
 %
 %
 % Protocol:
-%	IRData  Array [NbTIsx1]
-%   	TI       inversion times [ms]
+%	IRData  [TI1 TI2...TIn] inversion times [ms]
 %
 % Options:
 %   Method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
@@ -28,6 +27,17 @@ classdef inversion_recovery < AbstractModel
 %                         S=a + b*exp(-TI/T1)
 %      'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
 %                         S=|a + b*exp(-TI/T1)|
+%
+% Example of command line usage (see also <a href="matlab: showdemo inversion_recovery_batch">showdemo inversion_recovery_batch</a>):
+%   Model = inversion_recovery;  % Create class from model
+%   Model.Prot.IRData.Mat=[350.0000; 500.0000; 650.0000; 800.0000; 950.0000; 1100.0000; 1250.0000; 1400.0000; 1700.0000];
+%   data = struct;  % Create data structure
+%   data.MET2data ='IRData.mat';  % Load data
+%   data.Mask = 'Mask.mat';
+%   FitResults = FitData(data,Model); %fit data
+%   FitResultsSave_mat(FitResults);
+%
+%       For more examples: <a href="matlab: qMRusage(minversion_recovery);">qMRusage(inversion_recovery)</a>
 %
 % Author: Ilana Leppert, 2017
 %
