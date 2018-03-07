@@ -18,7 +18,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))
+import shutil
+import xml.etree.ElementTree
+import io
+import copy
+sys.path.insert(0, os.path.abspath('../'))
+
+initialpath = os.getcwd()
 
 
 # -- General configuration ------------------------------------------------
@@ -33,7 +39,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages', 'sphinxcontrib.matlab']
+    'sphinx.ext.githubpages',
+    'sphinx.ext.autosectionlabel']
+    #'sphinxcontrib.matlab']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -54,7 +62,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'qMRlab'
+project = u'qMRLab'
 copyright = u'2017, NeuroPoly'
 author = u'NeuroPoly'
 
@@ -91,26 +99,31 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
-
+#html_theme = 'alabaster'
+html_theme = "sphinx_rtd_theme"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
 # html_theme_options = {}
 html_theme_options = {
-    'logo': 'logo-neuropoly.png',
+#   'logo': 'logo-neuropoly.png',
     'github_user': 'neuropoly',
     'github_repo': 'qMRLab',
     'github_button': True,
     'github_banner': True,
 }
-
+html_theme_options = {
+    'collapse_navigation': False,
+    'display_version': False,
+    'navigation_depth': 4,
+}
+#html_logo = '_static/logo-neuropoly.png'
+html_logo = '_static/qMR_logo.png'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
@@ -130,7 +143,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'qMRlabdoc'
+htmlhelp_basename = 'qMRLabdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -157,7 +170,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'qMRlab.tex', u'qMRlab Documentation',
+    (master_doc, 'qMRLab.tex', u'qMRLab Documentation',
      u'Ilana Leppert', 'manual'),
 ]
 
@@ -167,7 +180,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'qmrlab', u'qMRlab Documentation',
+    (master_doc, 'qmrLab', u'qMRLab Documentation',
      [author], 1)
 ]
 
@@ -178,7 +191,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'qMRlab', u'qMRlab Documentation',
-     author, 'qMRlab', 'One line description of project.',
+    (master_doc, 'qMRLab', u'qMRLab Documentation',
+     author, 'qMRLab', 'One line description of project.',
      'Miscellaneous'),
 ]

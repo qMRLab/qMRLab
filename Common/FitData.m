@@ -18,7 +18,7 @@ function Fit = FitData(data, Model, wait , Fittmp)
 %     Fit                        [struct] with fitted parameters
 %
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Fran??ois Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 %
@@ -28,7 +28,7 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
-tic;
+tStart = tic;
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
@@ -80,12 +80,14 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
     
+    if (isempty(h)), j_progress('Fitting voxel ',l); end
     for ii = 1:l
         vox = Voxels(ii);
         
         % Update waitbar
         if (isempty(h))
-            fprintf('Fitting voxel %d/%d\r',ii,l);
+            j_progress(ii)
+%            fprintf('Fitting voxel %d/%d\r',ii,l);
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
             waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
@@ -125,10 +127,12 @@ if Model.voxelwise % process voxelwise
         end
         
         if ISTRAVIS && ii>2
+            try
+                Fit = load('FitResults/FitResults.mat');
+            end
             break;
         end
     end
-    
     
 else % process entire volume
     if exist('wait','var') && (wait)
@@ -139,12 +143,16 @@ else % process entire volume
 
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
+    disp('...done');
 end
 % delete waitbar
 if (~isempty(h));  delete(h); end
 
-Fit.Time = toc;
+Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
 Fit.Version = qMRLabVer;
+if exist(fullfile('.','FitTempResults.mat'),'file')
+    delete FitTempResults.mat
+end
 end

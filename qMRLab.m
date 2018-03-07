@@ -33,6 +33,7 @@ if nargin && ischar(varargin{1})
 end
 
 if nargout
+    varargin{end+1}='wait';
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
@@ -42,6 +43,7 @@ end
 
 % --- Executes just before qMRLab is made visible.
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
+if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 if ~isfield(handles,'opened') % qMRI already opened?
     handles.opened = 1;
     clc;
@@ -56,7 +58,6 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.FitDataSlice = [];
     handles.dcm_obj = [];
     MethodList = {}; SetAppData(MethodList);
-    handles.output = hObject;
     guidata(hObject, handles);
         
     
@@ -71,7 +72,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.ModelDir = [qMRLabDir filesep 'Models'];
     guidata(hObject, handles);
     addModelMenu(hObject, eventdata, handles);
-
+    
     % Fill FileBrowser with buttons
     MethodList = getappdata(0, 'MethodList');
     MethodList = strrep(MethodList, '.m', '');
@@ -87,12 +88,13 @@ if ~isfield(handles,'opened') % qMRI already opened?
         FileBrowserList(iMethod).Visible('off');
         
     end
-
+    
+    
     SetAppData(FileBrowserList);
     
     load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
 else
-    Method = class(getappdata(0,'Model'));
+    Method = class(GetAppData('Model'));
 end
 % LOAD INPUT
 if ~isempty(varargin)
@@ -118,6 +120,17 @@ set(handles.MethodSelection, 'Value', i);
 
 
 MethodMenu(hObject, eventdata, handles, Method);
+if wait
+uiwait(hObject)
+end
+
+
+
+% View first file
+if length(varargin)>1
+    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj.ViewBtn_callback(butobj,[],[],handles)
+end
 
 % View first file
 if length(varargin)>1
@@ -128,22 +141,38 @@ end
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
-varargout{1} = handles.output;
-wh=findall(0,'tag','TMWWaitbar');
-delete(wh);
+if nargout
+    varargout{1} = GetAppData('Model');
+    AppData = getappdata(0);
+    Fields = fieldnames(AppData);
+    for k=1:length(Fields)
+        rmappdata(0, Fields{k});
+    end
+end
+
 
 % Executes when user attempts to close qMRLab.
 function qMRLab_CloseRequestFcn(hObject, eventdata, handles)
+if isequal(get(hObject, 'waitstatus'), 'waiting')
+    % The GUI is still in UIWAIT, us UIRESUME
+    uiresume(hObject);
+else
+    AppData = getappdata(0);
+    Fields = fieldnames(AppData);
+    for k=1:length(Fields)
+        rmappdata(0, Fields{k});
+    end
+end
+% The GUI is no longer waiting, just close it
+delete(hObject);
 h = findobj('Tag','OptionsGUI');
 delete(findobj('Tag','Simu'))
 delete(h);
-delete(hObject);
+wh=findall(0,'tag','TMWWaitbar');
+delete(wh);
+
+
 % cd(handles.root);
-AppData = getappdata(0);
-Fields = fieldnames(AppData);
-for k=1:length(Fields)
-    rmappdata(0, Fields{k});
-end
 
 function MethodSelection_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
@@ -340,6 +369,9 @@ SetAppData(FitResults);
 wh=findall(0,'tag','TMWWaitbar');
 delete(wh);
 
+% convert Model to struct
+FitResults.Model = objProps2struct(FitResults.Model);
+
 % Save fit results
 if(~isempty(FitResults.StudyID))
     filename = strcat(FitResults.StudyID,'.mat');
@@ -392,7 +424,7 @@ set(handles.CurrentFitId,'String',FileName);
 
 % FITRESULTSLOAD
 function FitResultsLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile({'*FitResults.mat;*FitTempResults.mat'},'FitResults.mat');
+[FileName,PathName] = uigetfile({'*FitResults.mat;*.qmrlab.mat'},'FitResults.mat');
 if PathName == 0, return; end
 set(handles.CurrentFitId,'String',FileName);
 FitResults = load(fullfile(PathName,FileName));
@@ -403,8 +435,8 @@ else
 end
 if isfield(FitResults,'FitOpt'), FitOpt =  FitResults.FitOpt; SetAppData(FitResults, Prot, FitOpt); Method = FitResults.Protocol.Method; end
 if isfield(FitResults,'Model')
-    Method = class(FitResults.Model);
-    Model = FitResults.Model;
+    Method = FitResults.Model.ModelName;
+    Model = qMRloadObj(FitResults.Model);
     SetAppData(FitResults,Model);
 end
 
@@ -557,7 +589,8 @@ RefreshPlot(handles);
 
 % SAVE FIG
 function SaveFig_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile('FitResults','NewFig.fig'));
+[FileName,PathName] = uiputfile(fullfile('.','NewFig.fig'));
+
 if PathName == 0, return; end
 xl = xlim;
 yl = ylim;
@@ -571,39 +604,189 @@ delete(h);
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
 Data =  getappdata(0,'Data');
+Model = class(GetAppData('Model')); % Get cur model name (string)
 Map = getimage(handles.FitDataAxe);
-% exclude the 0 from mask
-if isfield(Data,'Mask')    
-    if ~isempty(Data.Mask)
-        Map(~rot90(Data.Mask)) = 0;
+
+% Mask data
+if isfield(Data.(Model),'Mask')
+    if ~isempty(Data.(Model).Mask)
+        Map(~rot90(Data.(Model).Mask)) = 0;
     end
 end
-SourceFields = cellstr(get(handles.SourcePop,'String'));
-Source = SourceFields{get(handles.SourcePop,'Value')};
+
 ii = find(Map);
 nVox = length(ii);
 data = reshape(Map(ii),1,nVox);
-% figure
-figure
-hist(data,20);
+
+% Plot figure
+f=figure('Position', [0 0 700 400], 'Resize', 'Off');
+
+% Matlab < R2014b
+MatlabVer = version;
+if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+hist(data, defaultNumBins); 
+% Label axes
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
 xlabel(Source);
 ylabel('Counts');
-% statistics (mean and standard deviation)
+return;
+end
+
+% Matlab >= R2014b
+h_plot = subplot(1,2,2); % Use subplot to give space for GUI elements
+h_plot.OuterPosition = [0.3 0 0.7 1.0];
+
+h_hist=histogram(data);
+defaultNumBins = h_hist.NumBins;
+% Label axes
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+xlabel(Source);
+h_ylabel = ylabel('Counts');
+
+% Statistics (mean and standard deviation)
 Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
-text(0.77,0.94,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
+h_stats=text(0.10,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
+
+% No. of bins GUI objects
+h_text_bin = uicontrol(f,'Style','text',...
+                     'String', 'Number of bins:',...
+                     'FontSize', 14,...
+                     'Position',[5 20+300 140 34]);
+h_edit_bin = uicontrol(f,'Style','edit',...
+                     'String', defaultNumBins,...
+                     'FontSize', 14,...
+                     'Position',[135 25+300 34 34]);
+h_slider_bin = uicontrol(f,'Style','slider',...
+                       'Min',1,'Max',100,'Value',defaultNumBins,...
+                       'SliderStep',[1/(100-1) 1/(100-1)],...
+                       'Position',[185 26+300 0 30],...
+                       'Callback',{@sl_call,{h_hist h_edit_bin}});
+h_edit_bin.Callback = {@ed_call,{h_hist h_slider_bin}};
+
+% Min-Max GUI objects
+h_text_min = uicontrol(f,'Style','text',...
+                      'String', 'Min',...
+                      'FontSize', 14,...
+                      'Position',[0 20+200 140 34]);
+h_edit_min = uicontrol(f,'Style','edit',...
+                     'String', h_hist.BinLimits(1),...
+                     'FontSize', 14,...
+                     'Position', [35 20+180 70 34]);
+h_text_max = uicontrol(f,'Style','text',...
+                      'String', 'Max',...
+                      'FontSize', 14,...
+                      'Position',[135 20+200 34 34]);
+h_edit_max = uicontrol(f,'Style','edit',...
+                     'String', h_hist.BinLimits(2),...
+                     'FontSize', 14,...
+                     'Position', [116 20+180 70 34]);
+h_button_minmax = uicontrol(f,'Style','pushbutton',...
+                              'String', 'Recalculate',...
+                              'FontSize', 14,...
+                              'Position', [65 20+140 100 34],...
+                              'Callback',{@minmax_call,{h_hist h_edit_min h_edit_max data h_stats}});
+
+% Normalization GUI objects
+h_text_min = uicontrol(f,'Style','text',...
+                      'String', 'Normalization mode',...
+                      'FontSize', 14,...
+                      'Position',[30 20+40 180 34]);
+h_popup_norm = uicontrol(f,'Style','popupmenu',...
+                           'String', {'Count',...
+                                      'Cumulative count',...
+                                      'Probability',...
+                                      'PDF',...
+                                      'CDF'},...
+                           'FontSize', 14,...
+                           'Position', [30 20+20 180 34],...
+                           'Callback',{@norm_call,{h_hist h_ylabel}});
+
+% Histogram GUI callbacks
+function [] = sl_call(varargin)
+    % Callback for the histogram slider.
+    [h_slider_bin,h_cell] = varargin{[1,3]};
+    h_hist = h_cell{1};
+    h_edit_bin = h_cell{2};
+
+    h_hist.NumBins = round(h_slider_bin.Value);
+    h_edit_bin.String = round(h_slider_bin.Value);
+
+function [] = ed_call(varargin)
+    % Callback for the histogram edit box.
+    [h_edit_bin,h_cell] = varargin{[1,3]};
+    h_hist = h_cell{1};
+    h_slider_bin = h_cell{2};
+
+    h_hist.NumBins = round(str2double(h_edit_bin.String));
+    h_slider_bin.Value = round(str2double(h_edit_bin.String));
+
+function [] = minmax_call(varargin)
+    % Callback for the histogram bin bounds recalculate box.
+    h_cell = varargin{3};
+    h_hist = h_cell{1};
+    h_min = h_cell{2};
+    h_max = h_cell{3};
+    data = h_cell{4};
+    h_stats = h_cell{5};
+
+    % Mask data out of range of min-max
+    minVal = str2double(h_min.String);
+    maxVal = str2double(h_max.String);
+    data(data>maxVal) = [];
+    data(data<minVal) = [];
+
+    h_hist.Data=data;
+
+    % Small hack to refresh histogram object/fig.
+    numBins = h_hist.NumBins;
+    if numBins == 100
+        h_hist.NumBins = numBins-1;
+        h_hist.NumBins = numBins;
+    else
+        h_hist.NumBins = numBins+1;
+        h_hist.NumBins = numBins;
+    end
+
+    % Update stats on fig
+    h_stats.String = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
+
+function [] = norm_call(varargin)
+    % Callback for the histogram edit box.
+    [h_popup_norm,h_cell] = varargin{[1,3]};
+    h_hist = h_cell{1};
+    h_ylabel = h_cell{2};
+
+    menu_status = h_popup_norm.String{h_popup_norm.Value};
+
+    switch menu_status
+        case 'Count'
+            h_hist.Normalization = 'count';
+        case 'Cumulative count'
+            h_hist.Normalization = 'cumcount';
+        case 'Probability'
+            h_hist.Normalization = 'probability';
+        case 'PDF'
+            h_hist.Normalization = 'pdf';
+        case 'CDF'
+            h_hist.Normalization = 'cdf';
+    end
+
+    h_ylabel.String = menu_status;
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
 % Get data
-data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model'))); MRIinput = fieldnames(data); MRIinput(strcmp(MRIinput,'hdr'))=[];
-[Method, Prot, FitOpt] = GetAppData('Method','Prot','FitOpt');
+data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
+Model = GetAppData('Model');
 
 % Get selected voxel
-S = size(data.(MRIinput{1}));
+S = size(data.(Model.MRIinputs{1}));
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
-    helpdlg(['Specify a ' MRIinput{1} ' file in the filebrowser'])
+    helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
 else
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
@@ -611,17 +794,21 @@ else
     z = str2double(get(handles.SliceValue,'String'));
     index = sub2ind(S,x,y,z);
     
-    for ii=1:length(MRIinput)
-        if ~isempty(data.(MRIinput{ii}))
-            data.(MRIinput{ii}) = squeeze(data.(MRIinput{ii})(x,y,z,:));
+    for ii=1:length(Model.MRIinputs)
+        if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
+            data.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(x,y,z,:));
         end
     end
     if isfield(data,'Mask'), data.Mask = []; end
     
     Sim.Opt.AddNoise = 0;
     % Create axe
+    if ishandle(68), clf(68), end % If a data fit check has already been run,
+                                  % clear the previous data from the figure plot
+
     figure(68)
-    set(68,'Name',['Fitting results of voxel [' num2str([x y z]) ']'],'NumberTitle','off');
+
+    set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
     haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
     
     if ~isempty(haxes)
@@ -688,6 +875,24 @@ pan off;
 fig = gcf;
 handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
+
+set(handles.dcm_obj,'UpdateFcn',{@dataCursorUpdateFcn,handles})
+
+function txt = dataCursorUpdateFcn(h_PointDataTip,event_obj,handles)
+% Customizes text of data tips
+
+pos = get(event_obj,'Position');
+data = event_obj.Target.CData;
+
+SourceFields = cellstr(get(handles.SourcePop,'String'));
+Source = SourceFields{get(handles.SourcePop,'Value')};
+
+sliceNum = str2double(get(handles.SliceValue,'String'));
+
+txt = {['Source: ', Source],...
+       ['[X,Y]: ', '[', num2str(pos(1)), ',', num2str(pos(2)), ']'],...
+       ['Slice: ', num2str(sliceNum)],...
+	   ['Value: ', num2str(data(pos(2), pos(1)))]};
 
 function RefreshPlot(handles)
 if isempty(handles.CurrentData), return; end

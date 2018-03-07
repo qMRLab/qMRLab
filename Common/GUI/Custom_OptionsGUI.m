@@ -13,6 +13,7 @@ function varargout = Custom_OptionsGUI(varargin)
 
 
 % Begin initialization code - DO NOT EDIT
+if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); if nargout, varargout{1} = varargin{1}; end; return; end
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
@@ -25,6 +26,9 @@ if nargin && ischar(varargin{1})
 end
 
 if nargout
+    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS'))
+        varargin{end+1}='wait';
+    end
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
 else
     gui_mainfcn(gui_State, varargin{:});
@@ -34,6 +38,9 @@ end
 
 % --- Executes just before Custom_OptionsGUI is made visible.
 function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+% WAIT IF OUTPUTS
+if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+
 handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
 handles.CellSelect = [];
@@ -51,7 +58,6 @@ handles.opened = 1;
 % POPULATE FITTING PANEL
 % Load model parameters
 Model = varargin{1}; 
-% Allow to open Option_GUI only:
 setappdata(0,'Model',Model);
 Nparam = length(Model.xnames);
 
@@ -119,13 +125,26 @@ if ismethod(Model,'plotProt')
 end
 guidata(hObject, handles);
 
+if wait
+uiwait(hObject)
+end
+
 
     
 
 
     
 function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles) 
-%varargout{1} = handles.output;
+if nargout
+    varargout{1} = getappdata(0,'Model');
+    rmappdata(0,'Model');
+end
+
+function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)
+if isequal(get(hObject, 'waitstatus'), 'waiting')
+    % The GUI is still in UIWAIT, us UIRESUME
+    uiresume(hObject);
+end
 
 % #########################################################################
 %                           SIMULATION PANEL
@@ -155,7 +174,7 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     if size(fittingtable,2)>2
         if ~any(cellfun('isempty',fittingtable(:,3)))
             Model.st = cell2mat(fittingtable(:,3)');
-            if isfield(Model,'lb') && isfield(Model,'ub')
+            if isprop(Model,'lb') && isprop(Model,'ub')
                 % check that starting point > lb and < ub
                 Model.st = max([Model.st; Model.lb],[],1);
                 Model.st = min([Model.st; Model.ub],[],1);
@@ -253,7 +272,7 @@ OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 function Load_Callback(hObject, eventdata, handles)
 [FileName,PathName] = uigetfile('*.mat');
 if PathName == 0, return; end
-Model = load(fullfile(PathName,FileName));
+Model = qMRloadObj(fullfile(PathName,FileName));
 oldModel = getappdata(0,'Model');
 if ~isa(Model,class(oldModel))
     errordlg(['Invalid protocol file. Select a ' class(oldModel) ' parameters file']);
@@ -266,8 +285,7 @@ OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 % --- Executes on button press in Save.
 function Save_Callback(hObject, eventdata, handles)
 Model = getappdata(0,'Model');
-[file,path] = uiputfile(['qMRILab_' class(Model) 'Parameters.mat'],'Save file name');
+[file,path] = uiputfile([class(Model) '.qmrlab.mat'],'Save file name');
 if file
-    save(fullfile(path,file),'Model')
+    Model.saveObj(fullfile(path,file))
 end
-

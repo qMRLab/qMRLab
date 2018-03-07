@@ -501,9 +501,12 @@ if ( tissue_flag ~= 0 || voxelwise_ROI_flag == 1 )
     gm_IEW_t2_regNNLS = reshape(gm_IEW_t2_regNNLS,data_voxels,data_slices);
     for slice = 1:data_slices
         mROI_mwf_regNNLS(slice)         = mean(nonzeros(mwf_regNNLS(:,slice)));
-        stdROI_regNNLS(slice)           = std(nonzeros(mwf_regNNLS(:,slice)));    
+        valtmp           = std(nonzeros(mwf_regNNLS(:,slice)));    
+        if isempty(valtmp), stdROI_regNNLS(slice) = nan; else stdROI_regNNLS(slice) = valtmp; end
         mROI_gm_IEW_t2_regNNLS(slice)   = mean(nonzeros(gm_IEW_t2_regNNLS(:,slice)));
-        stdROI_gm_IEW_t2_regNNLS(slice) = std(nonzeros(gm_IEW_t2_regNNLS(:,slice)));        
+        valtmp = std(nonzeros(gm_IEW_t2_regNNLS(:,slice)));    
+        if isempty(valtmp), stdROI_gm_IEW_t2_regNNLS(slice) = nan; else stdROI_gm_IEW_t2_regNNLS(slice) = valtmp; end
+
 %         mROI_gm_MW_t2_regNNLS(slice) = mean(nonzeros(gm_MW_t2_regNNLS(:,slice)));
 %         stdROI_gm_MW_t2_regNNLS(slice) = std(nonzeros(gm_MW_t2_regNNLS(:,slice)));     
 %         disp(fprintf('\nAverage regMWF over tissue mask (slice %d): %3.2f +/- %3.2f %%', slice, 100*mROI_mwf_regNNLS(slice), 100*stdROI_regNNLS(slice))); 
