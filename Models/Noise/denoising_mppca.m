@@ -1,4 +1,4 @@
-classdef denoising_mppca
+classdef denoising_mppca < AbstractModel
 % denoising_mppca :  4d image denoising and noise map estimation by exploiting
 %                      data redundancy in the PCA domain using universal properties 
 %                      of the eigenspectrum of random covariance matrices, 
@@ -10,10 +10,11 @@ classdef denoising_mppca
 %
 % Inputs:
 %   Data4D              4D data (any modality)
+%  (Mask)                Binary mask with region-of-interest
 %
 % Outputs:
 %   Data4D_denoised     denoised 4D data
-%   Sigma               standard deviation of the rician noise
+%   sigma_g               standard deviation of the rician noise
 %
 % Options:
 %	sampling
@@ -35,6 +36,10 @@ classdef denoising_mppca
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
+    properties (Hidden=true)
+        onlineData_url = 'https://osf.io/ve3xy/download/';
+    end
+
     properties
         MRIinputs = {'Data4D','Mask'};
         xnames = {};
@@ -63,8 +68,9 @@ classdef denoising_mppca
             dims=size(data.Data4D);
             kernel = min(dims(1:3),obj.options.kernel);
             [V,Ind] = min(dims(1:3));
-            if V<7, helpdlg(['your dataset has very few slices. To prevent to much cropping, reduce the kernel to the minimum in the Option Panel (dimension #' num2str(Ind) ').']); end
-            [FitResults.Data4D_denoised, FitResults.Sigma] = MPdenoising(data.Data4D,data.Mask,kernel, obj.options.sampling);
+            if ~isfield(data,'Mask'), data.Mask = []; end
+            if V<7 && kernel(Ind)>1, helpdlg(['your dataset has very few slices. To avoid loosing too many slices, kernel is set to 1 in the dimension #' num2str(Ind) '.']); kernel(Ind)=1; end
+            [FitResults.Data4D_denoised, FitResults.sigma_g] = MPdenoising(data.Data4D,data.Mask,kernel, obj.options.sampling);
         end
         
     end
