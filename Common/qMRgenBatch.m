@@ -112,6 +112,7 @@ end
 % Read template line by line into cell array
 fid = fopen('genBatch.qmr');
 allScript = textscan(fid,'%s','Delimiter','\n');
+fclose(fid);
 allScript = allScript{1}; % This is a cell aray that contains template
 
 
