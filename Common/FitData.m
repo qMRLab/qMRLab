@@ -29,6 +29,8 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % ----------------------------------------------------------------------------------------------------
 
 tStart = tic;
+
+h=[];
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
@@ -73,7 +75,6 @@ if Model.voxelwise % process voxelwise
     
     %############################# FITTING LOOP ###############################
     % Create waitbar
-    h=[];
     if exist('wait','var') && (wait)
         h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
             'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
