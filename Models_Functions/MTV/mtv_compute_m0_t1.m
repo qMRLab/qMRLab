@@ -17,10 +17,10 @@ function [M0, T1] = mtv_compute_m0_t1(data, flipAngles, TR, b1Map, roi, fixT1, v
 % verbose: logical
 %
 
-
+if ndims(data)<3, data = permute(data(:),[2 3 4 1]); end
 if (nargin < 4) || isempty(b1Map)
     dataSize = size(data);
-    b1Map = ones(dataSize(1:end-1));
+    b1Map = ones([dataSize(1:end-1) 1]);
 end
 
 if nargin<5 || isempty(roi)
@@ -43,9 +43,9 @@ T1 = zeros([dims(1:end-1)]);
 M0 = zeros([dims(1:end-1)]);
 
 warning('off');
-sprintf('%s\n\n\n','loop over voxels...')
+%sprintf('%s\n\n\n','loop over voxels...')
 for vox=1:dims(1)*dims(2)*dims(3)
-    disp([sprintf('\b\b\b\b\b%3i',floor(vox/(dims(1)*dims(2)*dims(3))*100)) '%'])
+    %disp([sprintf('\b\b\b\b\b%3i',floor(vox/(dims(1)*dims(2)*dims(3))*100)) '%'])
     if roi(vox) && b1Map(vox)~=0
 
     kk=floor((vox-1)/(dims(1)*dims(2))); jj=floor((vox-kk*dims(1)*dims(2)-1)/(dims(1))); ii=vox-kk*dims(1)*dims(2)-jj*dims(1);
@@ -75,7 +75,7 @@ for vox=1:dims(1)*dims(2)*dims(3)
         %% Get M0
         [FA,iFA]=min(flipAngles);
         
-        M0(vox)=getM0fromT1(T1(vox),TR,data(ii,jj,kk,iFA),FA*b1Map(vox));
+        M0(vox)=getM0fromT1(T1(vox),TR(1),data(ii,jj,kk,iFA),FA*b1Map(vox));
         % add length of the confidence interval at 68.2% in the fourth
         % dimension
         
@@ -92,7 +92,7 @@ if ~fixT1
 %    T1(:,:,:,2)=T12;
 %     M0(:,:,:,2)=M02;
 end
-display('...done')
+%display('...done')
 
 
 function [fitresult, gof] = LinearFit(x, y, verbose)
@@ -153,6 +153,6 @@ M0 = b/(1-exp(-TR/T1));
 function M0=getM0fromT1(T1,TR,S,FA)
 % Volz, S., N�th, U., Deichmann, R., 2012. Correction of systematic errors in quantitative proton density mapping. Magn. Reson. Med. 68, 74?85.
 % Steady state
-ST=(1-exp(-TR/T1))/(1-cos(FA*pi/180)*exp(-TR/T1))*sin(FA*pi/180);
+ST=(1-exp(-TR./T1))./(1-cos(FA*pi/180).*exp(-TR./T1)).*sin(FA*pi/180);
 % M0=RP*PD (RP=Receiver Profile)
 M0=S/ST;

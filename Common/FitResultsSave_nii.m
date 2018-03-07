@@ -16,7 +16,7 @@ for i = 1:length(FitResults.fields)
     save_nii_v2(FitResults.(map),fullfile(folder,file),fname_copyheader,64);
     end
 end
-if moxunit_util_platform_is_octave % octave cannot save models
-    FitResults = rmfield(FitResults,'Model');
+if isfield(FitResults,'Model')
+    FitResults.Model = objProps2struct(FitResults.Model);
 end
 save(fullfile(folder,'FitResults.mat'),'-struct','FitResults')

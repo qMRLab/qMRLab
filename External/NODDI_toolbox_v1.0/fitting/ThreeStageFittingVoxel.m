@@ -21,8 +21,6 @@ end
 
 %% Initialization
 
-warning off all
-
 % Get the required variables
 modelname = model.name;
 noOfStages = model.noOfStages;

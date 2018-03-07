@@ -3,19 +3,46 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to qMRlab's documentation!
+Welcome to qMRLab's documentation!
 ==================================
 .. image:: _static/logo-neuropoly.png
    :scale: 60 %
    :align: center
 
+Welcome to qMRLab, a software for quantitative MR image analysis. Please take a look at the following for an overview of what qMRLab can do for you:
+
+.. raw:: html
+
+    <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+        <iframe width="700" height="394" src="https://www.youtube.com/embed/-yrbtCYDorI?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+    </div>
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
+   :caption: Introduction
 
-   documentation.rst
+   introduction.rst
+   methods.rst
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Installation
+
+   install.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Getting Started
+
+   gui-example.rst
+   batch_example.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: General Usage Guidelines
+
+   usage-guidelines.rst
 
 Indices and tables
 ==================
