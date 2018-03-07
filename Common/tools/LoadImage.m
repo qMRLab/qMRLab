@@ -35,6 +35,7 @@ function File = LoadImage(FullFile)
     elseif strcmp(ext,'.raw');
         FF = fopen(FullFile);
         File = fread(FF, [320,320], 'uint16');
+        fclose(FF);
         File = File';
         %Header = 0
     end
