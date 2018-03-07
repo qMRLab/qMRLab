@@ -906,7 +906,7 @@ yl = ylim;
 % imagesc(flipdim(Current',1));
 imagesc(rot90(Current));
 axis equal off;
-RefreshColorMap(handles)
+RefreshColorMap(handles);
 xlim(xl);
 ylim(yl);
 
@@ -946,7 +946,7 @@ if Press == 1
     set(handles.FitDataAxe);
     imagesc(handles.NewMap);
     axis equal off;
-    colorbar('south','YColor','white');
+    RefreshColorMap(handles);
 end
 set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'on');
 set(gcf,'Pointer','Arrow');
@@ -969,7 +969,7 @@ guidata(gcbo, handles);
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
 axis equal off;
-colorbar('south','YColor','white');
+RefreshColorMap(handles);
 function RoiThreshMax_Callback(hObject, eventdata, handles)
 handles.threshMax = str2double(get(hObject, 'String'));
 if ~isempty(get(handles.RoiThreshMin, 'String'))
@@ -987,7 +987,7 @@ guidata(gcbo, handles);
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
 axis equal off;
-colorbar('south','YColor','white');
+RefreshColorMap(handles);
 
 % SAVE
 function RoiSave_Callback(hObject, eventdata, handles)
@@ -1043,7 +1043,7 @@ handles.NewMap = Map.*Roi;
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
 axis equal off;
-colorbar('south','YColor','white');
+RefreshColorMap(handles);
 
 
 % ######################## CREATE FUNCTIONS ##############################
