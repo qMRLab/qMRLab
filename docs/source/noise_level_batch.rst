@@ -103,9 +103,9 @@ noise_level :  Noise histogram fitting within a noise mask
    
    data = struct();
    <span class="comment">% Data4D.nii.gz contains [70   70    4  197] data.</span>
-   data.Data4D=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noise_level_demo/noise_level_data/Data4D.nii.gz'</span>));
+   data.Data4D=double(load_nii_data(<span class="string">'noise_level_data/Data4D.nii.gz'</span>));
    <span class="comment">% NoiseMask.nii.gz contains [70  70   4] data.</span>
-   data.NoiseMask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noise_level_demo/noise_level_data/NoiseMask.nii.gz'</span>));
+   data.NoiseMask=double(load_nii_data(<span class="string">'noise_level_data/NoiseMask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -118,7 +118,7 @@ noise_level :  Noise histogram fitting within a noise mask
    </pre><pre class="codeoutput">     N        eta      sigma_g
        1.0000    0.0000    7.8462
    
-   ...done   0%
+   ...done
    </pre><img src="_static/noise_level_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
    

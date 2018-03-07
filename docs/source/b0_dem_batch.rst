@@ -128,9 +128,9 @@ b0_dem map :  Dual Echo Method for B0 mapping
    
    data = struct();
    <span class="comment">% Phase.nii.gz contains [64  64   1   8] data.</span>
-   data.Phase=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b0_dem_demo/b0_dem_data/Phase.nii.gz'</span>));
+   data.Phase=double(load_nii_data(<span class="string">'b0_dem_data/Phase.nii.gz'</span>));
    <span class="comment">% Magn.nii.gz contains [64  64   1   8] data.</span>
-   data.Magn=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b0_dem_demo/b0_dem_data/Magn.nii.gz'</span>));
+   data.Magn=double(load_nii_data(<span class="string">'b0_dem_data/Magn.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -140,7 +140,7 @@ b0_dem map :  Dual Echo Method for B0 mapping
    FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">...done   0%
+   </pre><pre class="codeoutput">...done
    </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
    

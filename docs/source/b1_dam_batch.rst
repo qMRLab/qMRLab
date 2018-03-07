@@ -115,9 +115,9 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    
    data = struct();
    <span class="comment">% SF60.nii.gz contains [64  64] data.</span>
-   data.SF60=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF60.nii.gz'</span>));
+   data.SF60=double(load_nii_data(<span class="string">'b1_dam_data/SF60.nii.gz'</span>));
    <span class="comment">% SF120.nii.gz contains [64  64] data.</span>
-   data.SF120=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF120.nii.gz'</span>));
+   data.SF120=double(load_nii_data(<span class="string">'b1_dam_data/SF120.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -127,7 +127,7 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">...done   0%
+   </pre><pre class="codeoutput">...done
    </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
    

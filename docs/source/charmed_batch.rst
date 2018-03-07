@@ -183,9 +183,9 @@ charmed: Composite Hindered and Restricted Model for Diffusion
    
    data = struct();
    <span class="comment">% DiffusionData.nii.gz contains [64    64     1  1791] data.</span>
-   data.DiffusionData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/charmed_demo/charmed_data/DiffusionData.nii.gz'</span>));
+   data.DiffusionData=double(load_nii_data(<span class="string">'charmed_data/DiffusionData.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [64  64] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/charmed_demo/charmed_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'charmed_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
