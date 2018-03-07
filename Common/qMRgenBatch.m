@@ -2,12 +2,12 @@
 % qMRgenBatch(Model,path)
 %   
 % Input
-%   Model (qMRLab object)
-%
-% 
+%   Model        [qMRLab object]
+%  (path)        [String]
+%  (nodwnld)     [logical] download example dataset? 0 --> generate batch only
 % Written by: Agah Karakuzu, 2017
 
-function qMRgenBatch(Model,path)
+function qMRgenBatch(Model,path,nodwnld)
 
 % Main function
 
@@ -41,10 +41,14 @@ saveJoker = '*-saveCommand-*';
 
 
 % Directory definition ====================== START
-if ~exist('path','var')
-demoDir = downloadData(Model,[]);
+if ~exist('nodwnld','var') || ~nodwnld
+    if ~exist('path','var')
+        demoDir = downloadData(Model,[]);
+    else
+        demoDir = downloadData(Model,path);
+    end
 else
-demoDir = downloadData(Model,path);
+    demoDir = path;
 end
 
 
