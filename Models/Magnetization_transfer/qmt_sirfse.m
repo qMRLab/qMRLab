@@ -342,7 +342,7 @@ end
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
             % 2.0.6
-            if checkanteriorver(version,[2 0 7])
+            if checkanteriorver(version,[2 0 8])
                 obj.options.fittingconstraints_UseR1maptoconstrainR1f = obj.options.Fitting_UseR1maptoconstrainR1f;
                 obj.options = rmfield(obj.options,'Fitting_UseR1maptoconstrainR1f');
                 obj.options.fittingconstraints_FixR1rR1f = obj.options.Fitting_FixR1rR1f;
