@@ -1,5 +1,5 @@
-b1_dam map:  Double-Angle Method for B1+ mapping
-================================================
+b0_dem map :  Dual Echo Method for B0 mapping
+=============================================
 
 .. raw:: html
 
@@ -43,47 +43,52 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    <span class="comment">% purposes and Octave.</span>
    <span class="comment">%</span>
    <span class="comment">% Please execute this m-file section by section to get familiar with batch</span>
-   <span class="comment">% processing for b1_dam on CLI.</span>
+   <span class="comment">% processing for b0_dem on CLI.</span>
    <span class="comment">%</span>
-   <span class="comment">% Demo files are downloaded into b1_dam_data folder.</span>
+   <span class="comment">% Demo files are downloaded into b0_dem_data folder.</span>
    <span class="comment">%</span>
    <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b1_dam'</span>); <span class="comment">% Display help</span>
-   </pre><pre class="codeoutput">  b1_dam map:  Double-Angle Method for B1+ mapping
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b0_dem'</span>); <span class="comment">% Display help</span>
+   </pre><pre class="codeoutput">  b0_dem map :  Dual Echo Method for B0 mapping
     
      Assumptions:
-       Compute a B1map using 2 SPGR images with 2 different flip angles (60, 120deg)
+       Compute B0 map based on 2 phase images with different TEs
     
      Inputs:
-       SF60            SPGR data at a flip angle of 60 degree
-       SF120           SPGR data at a flip angle of 120 degree
+       Phase       4D phase image, 2 different TEs in time dimension
+       Magn        3D magnitude image
     
      Outputs:
-    	B1map           Excitation (B1+) field map
+    	B0map       B0 field map [Hz]
     
      Protocol:
-    	NONE
+       TimingTable
+           deltaTE     Difference in TE between 2 images [ms]            
     
-     Options
-       NONE
+     Options:
+       Magn thresh     relative threshold for the magnitude (phase is undefined in the background
     
-     Example of command line usage (see also a href="matlab: showdemo b1_dam_batch"showdemo b1_dam_batch/a):
-       Model = b1_dam;% Create class from model 
-       data.SF60 = double(load_nii_data('SF60.nii.gz')); %load data
-       data.SF120  = double(load_nii_data('SF120.nii.gz'));
-       FitResults       = FitData(data,Model); % fit data
-       FitResultsSave_nii(FitResults,'SF60.nii.gz'); %save nii file using SF60.nii.gz as template
-    
-       For more examples: a href="matlab: qMRusage(b1_dam);"qMRusage(b1_dam)/a
+     Example of command line usage (see also a href="matlab: showdemo b0_dem_batch"showdemo b0_dem_batch/a):
+       Model = b0_dem;  % Create class from model 
+       Model.Prot.TimingTable.Mat = 1.92e-3; % deltaTE [s]
+       data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
+       data.Magn  = double(load_nii_data('Magn.nii.gz'));
+       FitResults       = FitData(data,Model);
+       FitResultsSave_nii(FitResults,'Phase.nii.gz'); %save nii file using Phase.nii.gz as template
+        
+       For more examples: a href="matlab: qMRusage(b0_dem);"qMRusage(b0_dem)/a
     
      Author: Ian Gagnon, 2017
     
      References:
        Please cite the following if you use this module:
-         Insko, E.K., Bolinger, L., 1993. Mapping of the Radiofrequency Field.
-         J. Magn. Reson. A 103, 82?85.
+         Maier, F., Fuentes, D., Weinberg, J.S., Hazle, J.D., Stafford, R.J.,
+         2015. Robust phase unwrapping for MR temperature imaging using a
+         magnitude-sorted list, multi-clustering algorithm. Magn. Reson. Med.
+         73, 1662?1668. Schofield, M.A., Zhu, Y., 2003. Fast phase unwrapping
+         algorithm for interferometric applications. Opt. Lett. 28, 1194?1196
        In addition to citing the package:
          Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
          Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
@@ -92,10 +97,10 @@ b1_dam map:  Double-Angle Method for B1+ mapping
          visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
    
        Reference page in Doc Center
-          doc b1_dam
+          doc b0_dem
    
    
-   </pre><h2 id="3">II- INITIALIZE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><h2 id="4">A- CREATE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><pre class="codeinput">Model = b1_dam;
+   </pre><h2 id="3">II- INITIALIZE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><h2 id="4">A- CREATE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><pre class="codeinput">Model = b0_dem;
    
    <span class="comment">% -------------------------------------------------------------------------</span>
    </pre><h2 id="5">B- MODIFY OPTIONS</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
@@ -104,20 +109,28 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">b1_dam.</span>
+   </pre><img src="_static/b0_dem_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">b0_dem.</span>
    -------------------------------------------------------------------------
-   </pre><pre class="codeinput"><span class="comment">% This object does not have protocol attributes.</span>
-   </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by b1_dam.
+   </pre><pre class="codeinput"><span class="comment">% b0_dem object needs 1 protocol field(s) to be assigned:</span>
+   
+   
+   <span class="comment">% TimingTable</span>
+   <span class="comment">% --------------</span>
+   <span class="comment">% deltaTE is a vector of [1X1]</span>
+   deltaTE = [0.0019];
+   Model.Prot.TimingTable.Mat = [ deltaTE];
+   <span class="comment">% -----------------------------------------</span>
+   </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by b0_dem.
    -------------------------------------------------------------------------
-   b1_dam object needs 2 data input(s) to be assigned:</pre><pre class="codeinput"><span class="comment">% SF60</span>
-   <span class="comment">% SF120</span>
+   b0_dem object needs 2 data input(s) to be assigned:</pre><pre class="codeinput"><span class="comment">% Phase</span>
+   <span class="comment">% Magn</span>
    <span class="comment">% --------------</span>
    
    data = struct();
-   <span class="comment">% SF60.nii.gz contains [64  64] data.</span>
-   data.SF60=double(load_nii_data(<span class="string">'b1_dam_data/SF60.nii.gz'</span>));
-   <span class="comment">% SF120.nii.gz contains [64  64] data.</span>
-   data.SF120=double(load_nii_data(<span class="string">'b1_dam_data/SF120.nii.gz'</span>));
+   <span class="comment">% Phase.nii.gz contains [64  64   1   8] data.</span>
+   data.Phase=double(load_nii_data(<span class="string">'b0_dem_data/Phase.nii.gz'</span>));
+   <span class="comment">% Magn.nii.gz contains [64  64   1   8] data.</span>
+   data.Magn=double(load_nii_data(<span class="string">'b0_dem_data/Magn.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -132,11 +145,11 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/b1_dam_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'b1_dam_Demo.qmrlab.mat'</span>);
-   FitResultsSave_nii(FitResults, <span class="string">'b1_dam_data/SF60.nii.gz'</span>);
+   </pre><img src="_static/b0_dem_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'b0_dem_Demo.qmrlab.mat'</span>);
+   FitResultsSave_nii(FitResults, <span class="string">'b0_dem_data/Phase.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'b1_dam.
+   </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'b0_dem.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise

@@ -72,6 +72,7 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
     
      Inputs:
        DiffusionData       4D diffusion weighted dataset
+       (Mask)               Binary mask to accelerate the fitting (OPTIONAL)
     
      Outputs:
        di                  Diffusion coefficient in the restricted compartment.
@@ -159,9 +160,9 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
    
    data = struct();
    <span class="comment">% DiffusionData.nii.gz contains [74   87   50  109] data.</span>
-   data.DiffusionData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noddi_demo/noddi_data/DiffusionData.nii.gz'</span>));
+   data.DiffusionData=double(load_nii_data(<span class="string">'noddi_data/DiffusionData.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [74  87  50] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noddi_demo/noddi_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'noddi_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
