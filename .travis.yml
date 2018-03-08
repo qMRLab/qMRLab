@@ -31,7 +31,7 @@ before_install:
 
     
 script:
-    octave --no-gui --eval "unix('ls');"
+    bash octave --no-gui --eval "unix('ls');"
     travis_wait 80 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('-recursive');exit(~res);"
 
 
