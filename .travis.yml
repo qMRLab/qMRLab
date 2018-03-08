@@ -32,16 +32,6 @@ before_install:
     
 script:
     octave --no-gui --eval "unix('ls');"
-    octave --no-gui --eval "pkg install io-2.4.10.tar.gz"
-    octave --no-gui --eval "pkg install image-2.6.1.tar.gz"
-    octave --no-gui --eval "pkg install struct-1.0.14.tar.gz"
-    octave --no-gui --eval "pkg install optim-1.5.2.tar.gz"
-    octave --no-gui --eval "pkg install statistics-1.3.0.tar.gz"
-    octave --no-gui --eval "pkg load io"
-    octave --no-gui --eval "pkg load image"
-    octave --no-gui --eval "pkg load struct"
-    octave --no-gui --eval "pkg load optim"
-    octave --no-gui --eval "pkg load statistics"
     travis_wait 80 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('-recursive');exit(~res);"
 
 
