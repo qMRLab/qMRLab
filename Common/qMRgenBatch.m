@@ -2,12 +2,12 @@
 % qMRgenBatch(Model,path)
 %   
 % Input
-%   Model (qMRLab object)
-%
-% 
+%   Model        [qMRLab object]
+%  (path)        [String]
+%  (nodwnld)     [logical] download example dataset? 0 --> generate batch only
 % Written by: Agah Karakuzu, 2017
 
-function qMRgenBatch(Model,path)
+function qMRgenBatch(Model,path,nodwnld)
 
 % Main function
 
@@ -41,10 +41,14 @@ saveJoker = '*-saveCommand-*';
 
 
 % Directory definition ====================== START
-if ~exist('path','var')
-demoDir = downloadData(Model,[]);
+if ~exist('nodwnld','var') || ~nodwnld
+    if ~exist('path','var')
+        demoDir = downloadData(Model,[]);
+    else
+        demoDir = downloadData(Model,path);
+    end
 else
-demoDir = downloadData(Model,path);
+    demoDir = path;
 end
 
 
@@ -112,6 +116,7 @@ end
 % Read template line by line into cell array
 fid = fopen('genBatch.qmr');
 allScript = textscan(fid,'%s','Delimiter','\n');
+fclose(fid);
 allScript = allScript{1}; % This is a cell aray that contains template
 
 
@@ -314,8 +319,8 @@ elseif not(isempty(niiFiles))
     niiFiles = niiFiles(~cellfun('isempty',niiFiles));
 end
 
-matCommand = getDataAssign(matFiles,fooMat,reqData,'mat',demoDir,sep);
-niiCommand = getDataAssign(niiFiles,fooNii,reqData,'nifti',demoDir,sep);
+matCommand = getDataAssign(matFiles,fooMat,reqData,'mat',demoDir,Model);
+niiCommand = getDataAssign(niiFiles,fooNii,reqData,'nifti',demoDir,Model);
 
 
 
@@ -345,7 +350,7 @@ end
 
 end
 
-function datCommand = getDataAssign(input,foo,req,format,dir,sep)
+function datCommand = getDataAssign(input,foo,req,format,dir,Model)
 
 % Subfunction of dataCommands.
 
@@ -358,6 +363,8 @@ function datCommand = getDataAssign(input,foo,req,format,dir,sep)
 
 [boolIdx,~] = ismember(input,foo);
 
+visDir = [Model.ModelName '_data'];
+
 flg = ismember(1,boolIdx);
 
 if flg
@@ -368,19 +375,19 @@ if flg
     for i=1:length(readList);
         
         if strcmp(format,'nifti')
-            curDat = double(load_nii_data([dir sep readList{i}]));
+            curDat = double(load_nii_data([dir filesep readList{i}]));
             eq{n} = ['% ' readList{i} ' contains ' '[' num2str(size(curDat)) '] data.'];
             rd = readList{i};
-            eq{n+1} = ['data.' rd(1:end-7) '=' 'double(load_nii_data(' '''' dir sep readList{i} '''' '));'];
+            eq{n+1} = ['data.' rd(1:end-7) '=' 'double(load_nii_data(' '''' visDir filesep readList{i} '''' '));'];
             n = n+2;
             
         elseif strcmp(format,'mat')
-            load([dir sep readList{i}]);
+            load([dir filesep readList{i}]);
             dt = readList{i};
             dt = dt(1:end-4);
             curDat = eval(dt);
             eq{n} = ['% ' readList{i} ' contains ' '[' num2str(size(curDat)) '] data.'];
-            eq{n+1} = [ ' load(' '''' dir sep readList{i} '''' ');'];
+            eq{n+1} = [ ' load(' '''' visDir filesep readList{i} '''' ');'];
             n = n+2;
             eq2{i} = [' data.' req{i} '= double(' req{i} ');'];
             

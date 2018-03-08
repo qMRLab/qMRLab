@@ -5,7 +5,7 @@ waitfor(h);
 path = uigetdir(); % Save batch example to this dir
 end
 cd(path);
-
+path = '.'; % use relative path
 
 mkdir([Model.ModelName '_demo']);
 cd([Model.ModelName '_demo']);
@@ -58,16 +58,16 @@ end
 
 
 
-oldname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4)];
+oldname = [path filesep filename(1:end-4)];
 if (exist(oldname,'dir')~=0)
-    newname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4) '_data'];
+    newname = [path filesep filename(1:end-4) '_data'];
     movefile(oldname,newname);
     dataPath = newname;
 else
-    dirFiles = dir([path filesep Model.ModelName '_demo']);
+    dirFiles = dir(path);
     dirFiles=dirFiles(~ismember({dirFiles.name},{'.','..'}));
     mkdir([filename(1:end-4) '_data']);
-    newname = [path filesep [Model.ModelName '_demo'] filesep filename(1:end-4) '_data'];
+    newname = [path filesep filename(1:end-4) '_data'];
     for i =1:length(dirFiles)
         if not(strcmp(dirFiles(i).name,'FitResults'))
         movefile(dirFiles(i).name,[newname filesep dirFiles(i).name]);
