@@ -52,7 +52,6 @@ classdef (Abstract) AbstractModel
             end
         end
 
-
         % Do some error checking
         function [ErrMsg]=sanityCheck(obj,data)
            [ErrMsg]=[];
@@ -125,7 +124,6 @@ classdef (Abstract) AbstractModel
                 end
             end
         end
-
     end
 
     methods(Access = protected)
