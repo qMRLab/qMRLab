@@ -1,9 +1,10 @@
 addpath(genpath(pwd))
 
 % install octave package
-%{
+
 if moxunit_util_platform_is_octave
-    installlist = {'struct','optim','io','statistics','image'};
+    installlist = {'struct-1.0.14.tar.gz','optim-1.5.2.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','image-2.6.1.tar.gz'};
+    loadlist = {'struct','optim','io','statistics','image'};
     for ii=1:length(installlist)
         try
             disp(['loading ' installlist{ii}])
@@ -13,7 +14,7 @@ if moxunit_util_platform_is_octave
             while errorcount % try to install 30 times (Travis)
                 try
                     pkg('install','-forge',installlist{ii})
-                    pkg('load',installlist{ii})
+                    pkg('load',loadlist{ii})
                     errorcount = 0;
                 catch err
                     errorcount = errorcount+1;
@@ -25,7 +26,8 @@ if moxunit_util_platform_is_octave
         end
     end
 end
-%}
+
+
 
 try
     NODDI_erfi(.8);
