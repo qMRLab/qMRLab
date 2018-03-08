@@ -1,6 +1,7 @@
 addpath(genpath(pwd))
 
 % install octave package
+%{
 if moxunit_util_platform_is_octave
     installlist = {'struct','optim','io','statistics','image'};
     for ii=1:length(installlist)
@@ -24,6 +25,7 @@ if moxunit_util_platform_is_octave
         end
     end
 end
+%}
 
 try
     NODDI_erfi(.8);
