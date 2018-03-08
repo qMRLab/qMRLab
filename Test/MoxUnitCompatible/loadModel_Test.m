@@ -1,10 +1,13 @@
-function test_suite=loadModel_Test
+function test_suite=loadModel_Test(debug)
 try % assignment of 'localfunctions' is necessary in Matlab >= 2016
     test_functions=localfunctions();
 catch % no problem; early Matlab versions can use initTestSuite fine
 end
-initTestSuite;
-
+if exist('debug','var') && debug
+    load_test
+else
+    initTestSuite;
+end
 
 function load_test
 
@@ -14,6 +17,9 @@ for im = 1:length(MethodList)
    % LOAD
    savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[MethodList{im} '.qmrlab.mat']);
    savedModel = qMRloadObj(savedModel_fname);
+   try
+   savedModel = savedModel.UpdateFields;
+   end
    savedProps = objProps2struct(savedModel);
    ver_saved = savedProps.version;
    savedProps = rmfield(savedProps,'version');

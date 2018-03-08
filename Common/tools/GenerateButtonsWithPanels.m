@@ -15,6 +15,7 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 % ----------------------------------------------------------------------------------------------------
 %   NOMENCLATURE:
 %   * Global: Always put the title of the option as a string BEFORE the option
+%             If the title starts with ### --> option is disabled
 %   * Panel: If you want to regroup options in a panel, you must declare
 %            the panel before:
 %            1) Write 'PANEL'
@@ -31,7 +32,7 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 %     Example2: buttons = {'Option',{1,2,3}}
 % ----------------------------------------------------------------------------------------------------
 %   COMPLETE EXAMPLE:
-% buttons = {'NoPanel1',true,'PANEL','Panel1Title',4,'number1',1,'number2',2,'number3',3,'popupmenu1',{'choice1','choice2','choice3'},'NoPanel2',{1,2,3},'PANEL','Panel2Title',2,'number4',4,'checkbox2',false,};
+% buttons = {'NoPanel1',true,'PANEL','Panel1Title',4,'number1',1,'###number2',2,'number3',3,'popupmenu1',{'choice1','choice2','choice3'},'NoPanel2',{1,2,3},'PANEL','Panel2Title',2,'number4',4,'checkbox2',false,};
 % ParentHandle = 1;
 % figure(1); h = GenerateButtonsWithPanels(buttons,1);
 
