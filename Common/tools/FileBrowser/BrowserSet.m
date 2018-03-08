@@ -41,17 +41,21 @@ classdef BrowserSet
                 % parse the input arguments
                 parent = varargin{1};
                 handles = varargin{2};
-                Name = varargin{3};
-                Location = varargin{4};
-                obj.BrowseBtnOn = varargin{5};
-                obj.ViewBtnOn = varargin{6};
+                InputName = varargin{3};
+                InputOptional = varargin{4};
+                Location = varargin{5};
+                obj.BrowseBtnOn = varargin{6};
+                obj.ViewBtnOn = varargin{7};
                 
-                obj.NameID = Name;
+                obj.NameID = {InputName};
 
                 Position = [Location, 0.1, 0.1];
                 obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);
                 
+                % Set color to gray if optional
+                if InputOptional, set(obj.NameText,'ForegroundColor',[.5 .5 .5]); end
+                    
                 if obj.BrowseBtnOn == 1
                     Location = Location + [0.1, 0];
                     LocationBrowse = Location;
@@ -145,9 +149,9 @@ classdef BrowserSet
             set(obj.FileBox, 'String', '');
             DataName = get(obj.NameText, 'String');
             %Check for files and set fields automatically
-            for i = 1:length(fileList)
-                if strfind(fileList{i}(1:end-4), DataName{1})
-                    obj.FullFile = fullfile(Path,fileList{i});                    
+            for ii = 1:length(fileList)
+                if strfind(fileList{ii}(1:end-4), DataName{1})
+                    obj.FullFile = fullfile(Path,fileList{ii});                    
                     set(obj.FileBox, 'String', obj.FullFile);
                     obj.DataLoad();
                 end

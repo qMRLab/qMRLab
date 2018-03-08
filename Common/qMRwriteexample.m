@@ -10,4 +10,4 @@ end
 
 fid = fopen('bSSFP_batch.m','w');
 fprintf(fid,example);
-fclose(fid)
+fclose(fid);

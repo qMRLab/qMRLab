@@ -15,6 +15,7 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 % ----------------------------------------------------------------------------------------------------
 %   NOMENCLATURE:
 %   * Global: Always put the title of the option as a string BEFORE the option
+%             If the title starts with ### --> option is disabled
 %   * Panel: If you want to regroup options in a panel, you must declare
 %            the panel before:
 %            1) Write 'PANEL'
@@ -31,7 +32,7 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 %     Example2: buttons = {'Option',{1,2,3}}
 % ----------------------------------------------------------------------------------------------------
 %   COMPLETE EXAMPLE:
-% buttons = {'NoPanel1',true,'PANEL','Panel1Title',4,'number1',1,'number2',2,'number3',3,'popupmenu1',{'choice1','choice2','choice3'},'NoPanel2',{1,2,3},'PANEL','Panel2Title',2,'number4',4,'checkbox2',false,};
+% buttons = {'NoPanel1',true,'PANEL','Panel1Title',4,'number1',1,'###number2',2,'number3',3,'popupmenu1',{'choice1','choice2','choice3'},'NoPanel2',{1,2,3},'PANEL','Panel2Title',2,'number4',4,'checkbox2',false,};
 % ParentHandle = 1;
 % figure(1); h = GenerateButtonsWithPanels(buttons,1);
 
@@ -165,37 +166,42 @@ N = length(opts)/2;
     end
 % ----------------------------------------------------------------------------------------------------
          
-for i = 1:N
-    val = opts{2*i};
-    tag = genvarname_v2(opts{2*i-1});
-    if islogical(opts{2*i})
-        handle.(tag) = uicontrol('Style','checkbox','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
-            'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(i) 0.9 Height],...
+for ii = 1:N
+    val = opts{2*ii};
+	% special case: disable if ### in option name
+    if strcmp(opts{2*ii-1}(1:3),'###'), opts{2*ii-1} = opts{2*ii-1}(4:end); disable=true; else, disable=false; end
+    tag = genvarname_v2(opts{2*ii-1});
+    if islogical(opts{2*ii})
+        handle.(tag) = uicontrol('Style','checkbox','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
+            'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(ii) 0.9 Height],...
             'Value',val,'HorizontalAlignment','center');
-    elseif isnumeric(opts{2*i}) && length(opts{2*i})==1
-        uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
-            'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(i) Width Height]);
+    elseif isnumeric(opts{2*ii}) && length(opts{2*ii})==1
+        uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
+            'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
         handle.(tag) = uicontrol('Style','edit',...
-            'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(i) Width Height],'String',val,'Callback',@(x,y) check_numerical(x,y,val));
-    elseif iscell(opts{2*i})
-        uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
-            'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(i) Width Height]);
-        if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*i},'UniformOutput',0))); end % retrieve previous value
+            'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(ii) Width Height],'String',val,'Callback',@(x,y) check_numerical(x,y,val));
+    elseif iscell(opts{2*ii})
+        uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
+            'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
+        if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*ii},'UniformOutput',0))); end % retrieve previous value
         handle.(tag) = uicontrol('Style','popupmenu',...
-            'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(i) Width Height],'String',opts{2*i},'Value',val);
-    elseif isnumeric(opts{2*i}) && length(opts{2*i})>1
-         uicontrol('Style','Text','String',[opts{2*i-1} ':'],'ToolTipString',opts{2*i-1},...
-            'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(i) Width Height]);
-             handle.(tag) = uitable(PanelHandle,'Data',opts{2*i},'Units','normalized','Position',[0.45 y(i) Width Height*1.1]);
-             set(handle.(tag),'ColumnEditable',true(1,size(opts{2*i},2)));
-             if size(opts{2*i},1)<5, set(handle.(tag),'RowName',''); end
+            'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(ii) Width Height],'String',opts{2*ii},'Value',val);
+    elseif isnumeric(opts{2*ii}) && length(opts{2*ii})>1
+         uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
+            'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
+             handle.(tag) = uitable(PanelHandle,'Data',opts{2*ii},'Units','normalized','Position',[0.45 y(ii) Width Height*1.1]);
+             set(handle.(tag),'ColumnEditable',true(1,size(opts{2*ii},2)));
+             if size(opts{2*ii},1)<5, set(handle.(tag),'RowName',''); end
              widthpx = getpixelposition(PanelHandle)*Width; widthpx = floor(widthpx(3))-2;
-             if size(opts{2*i},2)<5, set(handle.(tag),'ColumnName',''); set(handle.(tag),'ColumnWidth',repmat({widthpx/size(opts{2*i},2)},[1 size(opts{2*i},2)])); end
+             if size(opts{2*ii},2)<5, set(handle.(tag),'ColumnName',''); set(handle.(tag),'ColumnWidth',repmat({widthpx/size(opts{2*ii},2)},[1 size(opts{2*ii},2)])); end
                  
-    elseif strcmp(opts{2*i},'pushbutton')         
-            handle.(tag) = uicontrol('Style','togglebutton','String',opts{2*i-1},'ToolTipString',opts{2*i-1},...
-            'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(i) 0.9 Height],...
+    elseif strcmp(opts{2*ii},'pushbutton')         
+            handle.(tag) = uicontrol('Style','togglebutton','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
+            'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(ii) 0.9 Height],...
             'HorizontalAlignment','center');
+    end
+    if disable
+        set(handle.(tag),'enable','off')
     end
 end
 

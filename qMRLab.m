@@ -3,7 +3,7 @@ function varargout = qMRLab(varargin)
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
+% Written by: Jean-Fran???is Cabana, 2016
 %
 % -- MTSAT functionality: P. Beliveau, 2017
 % -- File Browser changes: P. Beliveau 2017
@@ -83,8 +83,9 @@ if ~isfield(handles,'opened') % qMRI already opened?
         Model = Modelfun();
         close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
         MRIinputs = Model.MRIinputs;
+        optionalInputs = get_MRIinputs_optional(Model);
         % create file browser uicontrol with specific inputs
-        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{MethodList{iMethod} MRIinputs{:}});
+        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,MethodList{iMethod}, MRIinputs,optionalInputs);
         FileBrowserList(iMethod).Visible('off');
         
     end
@@ -105,7 +106,7 @@ if ~isempty(varargin)
     if length(varargin)>1
         data=varargin{2};
         for ff=fieldnames(data)';
-            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+            FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).setFileName(ff{1}, data.(ff{1}))
         end
     end
 end
@@ -128,13 +129,13 @@ end
 
 % View first file
 if length(varargin)>1
-    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
 % View first file
 if length(varargin)>1
-    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
@@ -256,7 +257,7 @@ OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
 % Show FileBrowser
 FileBrowserList = GetAppData('FileBrowserList');
-MethodNum = find(strcmp([FileBrowserList.MethodID],Method));
+MethodNum = find(strcmp({FileBrowserList.MethodID},Method));
 for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
@@ -782,11 +783,16 @@ data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
 Model = GetAppData('Model');
 
 % Get selected voxel
-S = size(data.(Model.MRIinputs{1}));
+S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
+Data = handles.CurrentData;
+selected = get(handles.SourcePop,'Value');
+Scurrent = [size(Data.(Data.fields{selected}),1) size(Data.(Data.fields{selected}),2) size(Data.(Data.fields{selected}),3)];
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
     helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
+elseif ~isequal(Scurrent, S)
+    helpdlg([Model.MRIinputs{1} ' file in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer. Load corresponding ' Model.MRIinputs{1} '.'])
 else
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
@@ -902,7 +908,7 @@ yl = ylim;
 % imagesc(flipdim(Current',1));
 imagesc(rot90(Current));
 axis equal off;
-RefreshColorMap(handles)
+RefreshColorMap(handles);
 xlim(xl);
 ylim(yl);
 
@@ -942,7 +948,7 @@ if Press == 1
     set(handles.FitDataAxe);
     imagesc(handles.NewMap);
     axis equal off;
-    colorbar('south','YColor','white');
+    RefreshColorMap(handles);
 end
 set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'on');
 set(gcf,'Pointer','Arrow');
@@ -965,7 +971,7 @@ guidata(gcbo, handles);
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
 axis equal off;
-colorbar('south','YColor','white');
+RefreshColorMap(handles);
 function RoiThreshMax_Callback(hObject, eventdata, handles)
 handles.threshMax = str2double(get(hObject, 'String'));
 if ~isempty(get(handles.RoiThreshMin, 'String'))
@@ -983,7 +989,7 @@ guidata(gcbo, handles);
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
 axis equal off;
-colorbar('south','YColor','white');
+RefreshColorMap(handles);
 
 % SAVE
 function RoiSave_Callback(hObject, eventdata, handles)
@@ -1039,7 +1045,7 @@ handles.NewMap = Map.*Roi;
 set(handles.FitDataAxe);
 imagesc(handles.NewMap);
 axis equal off;
-colorbar('south','YColor','white');
+RefreshColorMap(handles);
 
 
 % ######################## CREATE FUNCTIONS ##############################

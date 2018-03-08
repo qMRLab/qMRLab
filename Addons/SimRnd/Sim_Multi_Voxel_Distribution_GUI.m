@@ -36,6 +36,8 @@ if ~isfield(handles,'opened')
     if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,1)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
         FitOptTable(:,2)=mat2cell(handles.Model.st(:),ones(Nparam,1));
+    elseif isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
+        FitOptTable(:,2)=mat2cell((handles.Model.ub(:) + handles.Model.lb(:))/2,ones(Nparam,1));
     end
     if isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
         FitOptTable(:,3)=mat2cell((handles.Model.ub(:) - handles.Model.lb(:))/10,ones(Nparam,1));
@@ -54,7 +56,7 @@ if ~isfield(handles,'opened')
     else
         opts = cat(2,opts,{'SNR',50});
     end
-    handles.options = GenerateButtons(opts,handles.OptionsPanel,.15);
+    handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
 
     handles.opened = 1;
 end
@@ -76,76 +78,6 @@ function varargout = Sim_Multi_Voxel_Distribution_OutputFcn(hObject, eventdata, 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
-% --- Executes on selection change in SimVaryPlotX.
-function SimVaryPlotX_Callback(hObject, eventdata, handles)
-SimVaryPlotResults(handles)
-
-% --- Executes during object creation, after setting all properties.
-function SimVaryPlotX_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to SimVaryPlotX (see GCBO)
-
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in SimVaryPlotY.
-function SimVaryPlotY_Callback(hObject, eventdata, handles)
-SimVaryPlotResults(handles)
-
-% --- Executes during object creation, after setting all properties.
-function SimVaryPlotY_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to SimVaryPlotY (see GCBO)
-
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in Save.
-function Save_Callback(hObject, eventdata, handles)
-if isfield(handles,'SimVaryResults')
-    Method = class(handles.Model);
-    [FileName,PathName] = uiputfile([Method '_SimResults.mat']);
-    if PathName == 0, return; end
-    SimVaryResults = handles.SimVaryResults;
-    save(fullfile(PathName,FileName),'SimVaryResults')
-end
-
-function Load_Callback(hObject, eventdata, handles)
-Method = class(handles.Model);
-[FileName,PathName] = uigetfile([Method '_SimResults.mat']);
-if PathName == 0, return; end
-load(fullfile(PathName,FileName));
-handles.SimVaryResults = SimVaryResults;
-SetSimVaryResults(handles)
-guidata(hObject, handles);
-
-function SetSimVaryResults(handles)
-ff=fieldnames(handles.SimVaryResults);
-set(handles.SimVaryPlotX,'String',ff);
-ff=fieldnames(handles.SimVaryResults.(ff{1}));
-set(handles.SimVaryPlotY,'String',ff(~ismember(ff,{'x','fit'})));
-SimVaryPlotResults(handles)
-
-
-
-function SimVaryPlotResults(handles)
-if isfield(handles,'SimVaryResults')
-    Xaxis = get(handles.SimVaryPlotX,'String'); Xaxis = Xaxis{get(handles.SimVaryPlotX,'Value')};
-    Yaxis = get(handles.SimVaryPlotY,'String'); Yaxis = Yaxis{get(handles.SimVaryPlotY,'Value')};
-    SimVaryPlot(handles.SimVaryResults,Xaxis,Yaxis)
-end
-
 % --- Executes on button press in SimRndVaryUpdate.
 function SimRndVaryUpdate_Callback(hObject, eventdata, handles)
 % Read Table
@@ -160,6 +92,27 @@ Opt = button_handle2opts(handles.options);
 handles.RndParam = GetRndParam(SimRndOpt,Opt.Nofvoxels);
 handles.SimRndResults = handles.Model.Sim_Multi_Voxel_Distribution(handles.RndParam, Opt);
 SimRndPlotResultsgui(handles);
+guidata(hObject, handles);
+
+% --- Executes on button press in Save.
+function Save_Callback(hObject, eventdata, handles)
+if isfield(handles,'SimRndResults')
+    Method = class(handles.Model);
+    [FileName,PathName] = uiputfile([Method '_SimRndResults.mat']);
+    if PathName == 0, return; end
+    SimRndResults = handles.SimRndResults;
+    RndParam      = handles.RndParam;
+    save(fullfile(PathName,FileName),'SimRndResults','RndParam')
+end
+
+function Load_Callback(hObject, eventdata, handles)
+Method = class(handles.Model);
+[FileName,PathName] = uigetfile([Method '_SimResults.mat']);
+if PathName == 0, return; end
+load(fullfile(PathName,FileName));
+handles.SimRndResults = SimRndResults;
+handles.RndParam      = RndParam;
+SimRndPlotResultsgui(handles)
 guidata(hObject, handles);
 
 

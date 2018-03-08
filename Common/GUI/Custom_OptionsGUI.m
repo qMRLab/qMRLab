@@ -1,7 +1,7 @@
 function varargout = Custom_OptionsGUI(varargin)
 % Custom_OPTIONSGUI MATLAB code for Custom_OptionsGUI.fig
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
+% Written by: Jean-Fran???is Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMTLab in your work, please cite :
 
@@ -43,7 +43,6 @@ if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]
 
 handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
-handles.CellSelect = [];
 handles.caller = [];            % Handle to caller GUI
 
 if (length(varargin)>1 && ~isempty(varargin{2}) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
@@ -107,16 +106,35 @@ if ~isempty(Model.Prot)
     fields = fieldnames(Model.Prot); fields = fields(end:-1:1);
     N = length(fields);
     for ii = 1:N
+        handles.(fields{ii}).CellSelect = [];
+        % Create PANEL
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .05*N .9 (1-.05*N)]);
-        uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0 .94 .05*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+        
+        % Create TABLE
+        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
+        % add Callbacks
+        set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));
+        set(handles.(fields{ii}).table,'CellSelectionCallback', @(hObject, eventdata) SeqTable_CellSelectionCallback(hObject, eventdata, handles, fields{ii}));
         set(handles.(fields{ii}).table,'ColumnEditable', true);
+        
         if size(Model.Prot.(fields{ii}).Format,1) > 1
             set(handles.(fields{ii}).table,'RowName', Model.Prot.(fields{ii}).Format);
+            set(handles.(fields{ii}).table,'ColumnName','');
         else
             set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
+            % Create BUTTONS
+            % ADD
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(hObject, eventdata, handles,fields{ii}));
+            % REMOVE
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.04*N .44 .02*N],'Style','pushbutton','String','Remove','Callback',@(hObject, eventdata) PointRem_Callback(hObject, eventdata, handles,fields{ii}));
+            % Move up
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.02*N .44 .02*N],'Style','pushbutton','String','Move up','Callback',@(hObject, eventdata) PointUp_Callback(hObject, eventdata, handles,fields{ii}));
+            % Move down
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
+            % LOAD
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0    .94 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
         end
-        handles.(fields{ii}).table.CellEditCallback = @(hObject,Prot) UpdateProt(fields{ii},Prot,handles);
+
     end
 end
 
@@ -169,6 +187,23 @@ fittingtable = get(handles.FitOptTable,'Data'); % Get options
 Model = getappdata(0,'Model');
 Model.xnames = fittingtable(:,1)';
 
+% Manage R1map and R1r in qmt_SPGR
+    indR1map = cellfun(@(x) strcmp(x,'R1MAP'), fittingtable);
+    indR1map(:,1)=false;
+    if sum(indR1map(:))
+        fittingtable{indR1map} = Model.st(strcmp(Model.xnames,'R1f'));
+    end
+    indR1f = cellfun(@(x) strcmp(x,'R1f'), fittingtable);
+    indR1f(:,1)=false;
+    if sum(indR1f(:))
+    fittingtable{indR1f} = Model.st(strcmp(Model.xnames,'R1r'));
+    end
+    indT2f = cellfun(@(x) strcmp(x,'(R1f*T2f)/R1f'), fittingtable);
+    indT2f(:,1)=false;
+    if sum(indT2f(:))
+    fittingtable{indT2f} = Model.st(strcmp(Model.xnames,'T2f'));
+    end
+
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
     if size(fittingtable,2)>1, Model.fx = cell2mat(fittingtable(:,2)'); end
     if size(fittingtable,2)>2
@@ -184,6 +219,15 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         if isprop(Model,'lb') && isprop(Model,'ub')
             Model.lb = cell2mat(fittingtable(:,4)');
             Model.ub = cell2mat(fittingtable(:,5)');
+        end
+        if isfield(Model.options,'fittingconstraints_UseR1maptoconstrainR1f') && Model.options.fittingconstraints_UseR1maptoconstrainR1f
+            fittingtable{strcmp(fittingtable(:,1),'R1f'),3}='R1MAP';
+        end
+        if isfield(Model.options,'fittingconstraints_FixR1rR1f')  && Model.options.fittingconstraints_FixR1rR1f
+            fittingtable{strcmp(fittingtable(:,1),'R1r'),3}='R1f';
+        end
+        if isfield(Model.options,'fittingconstraints_FixR1fT2f')  && Model.options.fittingconstraints_FixR1fT2f
+            fittingtable{strcmp(fittingtable(:,1),'T2f'),3}='(R1f*T2f)/R1f';
         end
         set(handles.FitOptTable,'Data',fittingtable);
     end
@@ -232,6 +276,23 @@ UpdateProt(MRIinput,Prot,handles)
 
 
 function UpdateProt(MRIinput,Prot,handles)
+if ~isnumeric(Prot)
+    h_table = Prot.Source;
+    Prot = Prot.Source.Data;
+else
+    h_table = handles.(MRIinput).table;
+end
+
+% Color problematic lines in red
+if ~isempty(find(isnan(Prot), 1))
+    LinesColor = ones(size(Prot,1),3);
+    LinesColor(2:2:end,:) = LinesColor(2:2:end,:)*0.9400;
+    LinesColor(max(isnan(Prot),[],2),:) = repmat([.7 .5 .5],[sum(max(isnan(Prot),[],2)),1]);
+    set(h_table,'BackgroundColor',LinesColor);
+    return;
+end
+
+% if ok, load Prot into Model
 Model = getappdata(0,'Model');
 if isnumeric(Prot)
     Model.Prot.(MRIinput).Mat = Prot;
@@ -289,3 +350,79 @@ Model = getappdata(0,'Model');
 if file
     Model.saveObj(fullfile(path,file))
 end
+
+% GENERATE SEQUENCE
+function GenSeq_Callback(hObject, eventdata, handles, field)
+Prot = GetProt(handles);
+ti = get(handles.TiBox,'String');
+td = get(handles.TdBox,'String');
+[Prot.ti,Prot.td] = SIRFSE_GetSeq( eval(ti), eval(td) );
+SetProt(Prot,handles);
+
+% REMOVE POINT
+function PointRem_Callback(hObject, eventdata, handles, field)
+handles = guidata(hObject);
+selected = handles.(field).CellSelect;
+data = get(handles.(field).table,'Data');
+nRows = size(data,1);
+if (numel(selected)==0)
+    data = data(1:nRows-1,:);
+else
+    data (selected(:,1), :) = [];
+end
+set(handles.(field).table,'Data',data);
+UpdateProt(field,data,handles)
+
+
+% ADD POINT
+function PointAdd_Callback(hObject, eventdata, handles, field)
+handles = guidata(hObject);
+selected = handles.(field).CellSelect;
+oldDat = get(handles.(field).table,'Data');
+nRows = size(oldDat,1);
+data = nan(nRows+1,size(oldDat,2));
+if (numel(selected)==0)
+    data(1:nRows,:) = oldDat;
+else
+    data(1:selected(1),:) = oldDat(1:selected(1),:);
+    data(selected(1)+2:end,:) = oldDat(selected(1)+1:end,:);
+end
+set(handles.(field).table,'Data',data);
+UpdateProt(field,data,handles)
+
+% MOVE POINT UP
+function PointUp_Callback(hObject, eventdata, handles, field)
+handles = guidata(hObject);
+selected = handles.(field).CellSelect;
+data = get(handles.(field).table,'Data');
+oldDat = data;
+if (numel(selected)==0)
+    return;
+else
+    data(selected(1)-1,:) = oldDat(selected(1),:);
+    data(selected(1),:) = oldDat(selected(1)-1,:);
+end
+set(handles.(field).table,'Data',data);
+UpdateProt(field,data,handles)
+
+
+% MOVE POINT DOWN
+function PointDown_Callback(hObject, eventdata, handles, field)
+handles = guidata(hObject);
+selected = handles.(field).CellSelect;
+data = get(handles.(field).table,'Data');
+oldDat = data;
+if (numel(selected)==0)
+    return;
+else
+    data(selected(1)+1,:) = oldDat(selected(1),:);
+    data(selected(1),:) = oldDat(selected(1)+1,:);
+end
+set(handles.(field).table,'Data',data);
+UpdateProt(field,data,handles)
+
+
+% CELL SELECT
+function SeqTable_CellSelectionCallback(hObject, eventdata, handles, field)
+handles.(field).CellSelect = eventdata.Indices;
+guidata(hObject,handles);
