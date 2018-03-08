@@ -7,13 +7,15 @@ if moxunit_util_platform_is_octave
     loadlist = {'struct','optim','io','statistics','image'};
     for ii=1:length(installlist)
         try
-            disp(['loading ' installlist{ii}])
-            pkg('load',installlist{ii})
+            disp(['Installing --> ' installlist{ii}])
+            pkg('install',installlist{ii})
+            disp(['Loading -->' installlist{ii}])
+            pkg('load',loadllist{ii})
         catch
             errorcount = 1;
             while errorcount % try to install 30 times (Travis)
                 try
-                    pkg('install','-forge',installlist{ii})
+                    pkg('install',installlist{ii})
                     pkg('load',loadlist{ii})
                     errorcount = 0;
                 catch err
