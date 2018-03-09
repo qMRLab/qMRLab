@@ -114,7 +114,6 @@ classdef (Abstract) AbstractModel
                end
            end
         end
-        
         function optionalInputs = get_MRIinputs_optional(obj)
             % Optional input? Search in help
             optionalInputs = false(1,length(obj.MRIinputs));

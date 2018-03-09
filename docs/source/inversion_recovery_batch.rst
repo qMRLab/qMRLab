@@ -22,8 +22,8 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    .content pre, code { font-size:11px; }
    .content tt { font-size: 1.0em; }
    .content pre { margin:0px 0px 20px; }
-   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
-   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; overflow-x:scroll}
+   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word -wrap: break-word;}
    .content pre.error { color:red; }
    .content @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
    .content span.keyword { color:#0000FF }
@@ -38,6 +38,17 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    .content .footer a:visited { color:#878787; }
    .content table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
    .content table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+   ::-webkit-scrollbar {
+       -webkit-appearance: none;
+       width: 4px;
+       height: 5px;
+      }
+   
+      ::-webkit-scrollbar-thumb {
+       border-radius: 5px;
+       background-color: rgba(0,0,0,.5);
+       -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+      }
    </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
@@ -70,8 +81,7 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
     
     
      Protocol:
-    	IRData  Array [NbTIsx1]
-       	TI       inversion times [ms]
+    	IRData  [TI1 TI2...TIn] inversion times [ms]
     
      Options:
        Method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
@@ -79,6 +89,17 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
                              S=a + b*exp(-TI/T1)
           'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
                              S=|a + b*exp(-TI/T1)|
+    
+     Example of command line usage (see also a href="matlab: showdemo inversion_recovery_batch"showdemo inversion_recovery_batch/a):
+       Model = inversion_recovery;  % Create class from model
+       Model.Prot.IRData.Mat=[350.0000; 500.0000; 650.0000; 800.0000; 950.0000; 1100.0000; 1250.0000; 1400.0000; 1700.0000];
+       data = struct;  % Create data structure
+       data.MET2data ='IRData.mat';  % Load data
+       data.Mask = 'Mask.mat';
+       FitResults = FitData(data,Model); %fit data
+       FitResultsSave_mat(FitResults);
+    
+           For more examples: a href="matlab: qMRusage(minversion_recovery);"qMRusage(inversion_recovery)/a
     
      Author: Ilana Leppert, 2017
     
@@ -122,9 +143,9 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    data = struct();
    
    <span class="comment">% IRData.mat contains [128  128    1    9] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/IRData.mat'</span>);
+    load(<span class="string">'inversion_recovery_data/IRData.mat'</span>);
    <span class="comment">% Mask.mat contains [128  128] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/Mask.mat'</span>);
+    load(<span class="string">'inversion_recovery_data/Mask.mat'</span>);
     data.IRData= double(IRData);
     data.Mask= double(Mask);
    

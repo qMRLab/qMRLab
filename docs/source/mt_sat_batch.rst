@@ -22,8 +22,8 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    .content pre, code { font-size:11px; }
    .content tt { font-size: 1.0em; }
    .content pre { margin:0px 0px 20px; }
-   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
-   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; overflow-x:scroll}
+   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word -wrap: break-word;}
    .content pre.error { color:red; }
    .content @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
    .content span.keyword { color:#0000FF }
@@ -38,6 +38,17 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    .content .footer a:visited { color:#878787; }
    .content table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
    .content table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+   ::-webkit-scrollbar {
+       -webkit-appearance: none;
+       width: 4px;
+       height: 5px;
+      }
+   
+      ::-webkit-scrollbar-thumb {
+       border-radius: 5px;
+       background-color: rgba(0,0,0,.5);
+       -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+      }
    </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
@@ -61,10 +72,12 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
                 pulse
        T1w     3D T1-weighted data. Spoiled Gradient Echo (or FLASH)
        PDw     3D PD-weighted data. Spoiled Gradient Echo (or FLASH)
+      (B1map)  B1+ map. B1map = 1 : perfectly accurate flip angle. Optional.
+      (Mask)   Binary mask. DOES NOT ACCELERATE FITTING. Just for visualisation
     
      Outputs:
     	  MTSAT         MT saturation map (%), T1-corrected
-         T1            T1 map (s)            
+         T1            T1 map (s)    
     
      Options:
          B1 correction factor     Correction factor (empirical) for the transmit RF. Only
@@ -72,15 +85,15 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
                                    Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
     
      Protocol:
-         MT    [FA  TR  Offset]  flip angle [deg], TR [s], Offset Frequency [Hz]
-         T1    [FA  TR]          flip angle [deg], TR [s]
-         PD    [FA  TR]          flip angle [deg], TR [s]
+         MTw    [FA  TR  Offset]  flip angle [deg], TR [s], Offset Frequency [Hz]
+         T1w    [FA  TR]          flip angle [deg], TR [s]
+         PDw    [FA  TR]          flip angle [deg], TR [s]
     
      Example of command line usage (see also a href="matlab: showdemo mt_sat_batch"showdemo mt_sat_batch/a):
        Model = mt_sat;  % Create class from model
-       Model.Prot.MT.Mat = txt2mat('MT.txt');  % Load protocol
-       Model.Prot.T1.Mat = txt2mat('T1.txt');
-       Model.Prot.PD.Mat = txt2mat('PD.txt');
+       Model.Prot.MTw.Mat = txt2mat('MT.txt');  % Load protocol
+       Model.Prot.T1w.Mat = txt2mat('T1.txt');
+       Model.Prot.PDw.Mat = txt2mat('PD.txt');
        data = struct;  % Create data structure
        data.MTw = load_nii_data('MTw.nii.gz');
        data.T1w = load_nii_data('T1w.nii.gz');
@@ -116,21 +129,21 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    </pre><pre class="codeinput"><span class="comment">% mt_sat object needs 3 protocol field(s) to be assigned:</span>
    
    
-   <span class="comment">% MT</span>
-   <span class="comment">% T1</span>
-   <span class="comment">% PD</span>
+   <span class="comment">% MTw</span>
+   <span class="comment">% T1w</span>
+   <span class="comment">% PDw</span>
    <span class="comment">% --------------</span>
    FlipAngle = 6;
    TR  = 0.028;
-   Model.Prot.MT.Mat = [ FlipAngle TR ];
+   Model.Prot.MTw.Mat = [ FlipAngle TR ];
    <span class="comment">% -----------------------------------------</span>
    FlipAngle = 20;
    TR = 0.018;
-   Model.Prot.T1.Mat = [ FlipAngle TR];
+   Model.Prot.T1w.Mat = [ FlipAngle TR];
    <span class="comment">% -----------------------------------------</span>
    FlipAngle = 6;
    TR = 0.028;
-   Model.Prot.PD.Mat = [ FlipAngle TR];
+   Model.Prot.PDw.Mat = [ FlipAngle TR];
    <span class="comment">% -----------------------------------------</span>
    </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by mt_sat.
    -------------------------------------------------------------------------
@@ -143,11 +156,11 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    
    data = struct();
    <span class="comment">% MTw.nii.gz contains [128  128   96] data.</span>
-   data.MTw=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mt_sat_demo/mt_sat_data/MTw.nii.gz'</span>));
+   data.MTw=double(load_nii_data(<span class="string">'mt_sat_data/MTw.nii.gz'</span>));
    <span class="comment">% T1w.nii.gz contains [128  128   96] data.</span>
-   data.T1w=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mt_sat_demo/mt_sat_data/T1w.nii.gz'</span>));
+   data.T1w=double(load_nii_data(<span class="string">'mt_sat_data/T1w.nii.gz'</span>));
    <span class="comment">% PDw.nii.gz contains [128  128   96] data.</span>
-   data.PDw=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mt_sat_demo/mt_sat_data/PDw.nii.gz'</span>));
+   data.PDw=double(load_nii_data(<span class="string">'mt_sat_data/PDw.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -157,7 +170,7 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">...done   0%
+   </pre><pre class="codeoutput">...done
    </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
    
