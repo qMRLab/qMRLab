@@ -4,20 +4,20 @@ addpath(genpath(pwd))
 
 if moxunit_util_platform_is_octave
     more off;
-    installlist = {'struct-1.0.14.tar.gz','optim-1.5.2.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','image-2.6.1.tar.gz'};
+    installist = {'struct-1.0.14.tar.gz','optim-1.5.2.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','image-2.6.1.tar.gz'};
     loadlist = {'struct','optim','io','statistics','image'};
-    for ii=1:length(installlist)
+    for ii=1:length(installist)
         try
-            disp(['Installing --> ' installlist{ii}])
-            eval(['pkg install ' installlist{ii}])
+            disp(['Installing --> ' installist{ii}])
+            eval(['pkg install ' installist{ii}])
             disp(['Loading -->' loadlist{ii}])
-            eval(['pkg load ' loadllist{ii}])
+            eval(['pkg load ' loadlist{ii}])
         catch
             errorcount = 1;
             while errorcount % try to install 30 times (Travis)
                 try
-                    eval(['pkg install ' installlist{ii}])
-                    eval(['pkg load ' loadllist{ii}])
+                    eval(['pkg install ' installist{ii}])
+                    eval(['pkg load ' loadlist{ii}])
                     errorcount = 0;
                 catch err
                     errorcount = errorcount+1;
