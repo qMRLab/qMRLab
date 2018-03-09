@@ -163,19 +163,13 @@ dti: Compute a tensor from diffusion data
    FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput error">Error using AbstractModel/sanityCheck (line 113)
-   Cannot find required input called SigmaNoise
-   
-   Error in FitData (line 32)
-   Model.sanityCheck(data);
-   
-   Error in dti_batch (line 88)
-   FitResults = FitData(data,Model,0);
+   </pre><pre class="codeoutput">Fitting voxel       3/164005
+   ...done   0%
    </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
-   </pre><h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'dti_Demo.qmrlab.mat'</span>);
+   </pre><img src="_static/dti_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/dti_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'dti_Demo.qmrlab.mat'</span>);
    FitResultsSave_nii(FitResults, <span class="string">'dti_data/DiffusionData.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
@@ -194,7 +188,7 @@ dti: Compute a tensor from diffusion data
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+   </pre><img src="_static/dti_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs
@@ -209,4 +203,4 @@ dti: Compute a tensor from diffusion data
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
          figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'L1'</span> ,<span class="string">'L1'</span> );
-   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>
+   </pre><img src="_static/dti_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>
