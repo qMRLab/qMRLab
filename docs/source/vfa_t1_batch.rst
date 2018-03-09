@@ -168,7 +168,7 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
              T1: 1.3447
          fields: {'M0'  'T1'}
        computed: [128128 double]
-           Time: 0.0092
+           Time: 0.0175
        Protocol: [11 struct]
           Model: [11 vfa_t1]
         Version: [2 0 8]
@@ -192,8 +192,8 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">    T1: 0.7285
-       M0: 2.0885e+03
+   </pre><pre class="codeoutput">    T1: 0.6219
+       M0: 1.9242e+03
    
    </pre><img src="_static/vfa_t1_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
