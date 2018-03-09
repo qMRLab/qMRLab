@@ -9,14 +9,14 @@ if moxunit_util_platform_is_octave
     for ii=1:length(installlist)
         try
             disp(['Installing --> ' installlist{ii}])
-            pkg(['pkg install ' installlist{ii}])
+            eval(['pkg install ' installlist{ii}])
             disp(['Loading -->' loadlist{ii}])
             eval(['pkg load ' loadllist{ii}])
         catch
             errorcount = 1;
             while errorcount % try to install 30 times (Travis)
                 try
-                    pkg(['pkg install ' installlist{ii}])
+                    eval(['pkg install ' installlist{ii}])
                     eval(['pkg load ' loadllist{ii}])
                     errorcount = 0;
                 catch err
