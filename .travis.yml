@@ -9,7 +9,11 @@
 language: java
 
 cache:
-  - apt
+  
+  apt: true
+  directories:
+    
+    - $HOME/octave
 env:
  global:
     - OCTAVE=octave
