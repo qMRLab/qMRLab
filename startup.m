@@ -16,8 +16,8 @@ if moxunit_util_platform_is_octave
             errorcount = 1;
             while errorcount % try to install 30 times (Travis)
                 try
-                    pkg('install',installlist{ii})
-                    pkg('load',loadlist{ii})
+                    pkg(['pkg install ' installlist{ii}])
+                    eval(['pkg load ' loadllist{ii}])
                     errorcount = 0;
                 catch err
                     errorcount = errorcount+1;
@@ -28,13 +28,7 @@ if moxunit_util_platform_is_octave
             end
         end
     end
-disp('--------------------------------------------')    
-%path
-disp('--------------------------------------------')
-unix('ls "library /home/travis/octave/optim-1.5.1/x86_64-pc-linux-gnu-api-v51"')
-unix('ls "library /home/travis/octave/optim-1.5.1/x86_64-pc-linux-gnu-api-v51/private"')
-disp('--------------------------------------------')  
-
+disp('Packages have been installed and loaded.')    
 end
 
 
