@@ -83,12 +83,11 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
            'T2*'      For a GRE sequence
     
      Protocol:
-       1 .txt files or 1 .mat file :
-         TE    [TE1 TE2 ...] % list of echo times [ms]
+      MET2data   [TE1 TE2 ...] % list of echo times [ms]
     
      Example of command line usage (see also a href="matlab: showdemo mwf_batch"showdemo mwf_batch/a):
        Model = mwf;  % Create class from model
-       Model.Prot.Echo.Mat=[10:10:320];
+       Model.Prot.MET2data.Mat=[10:10:320];
        data = struct;  % Create data structure
        data.MET2data ='MET2data.mat';  % Load data
        data.Mask = 'Mask.mat';
@@ -144,9 +143,9 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
    data = struct();
    
    <span class="comment">% MET2data.mat contains [64  64   1  32] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/MET2data.mat'</span>);
+    load(<span class="string">'mwf_data/MET2data.mat'</span>);
    <span class="comment">% Mask.mat contains [64  64] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/Mask.mat'</span>);
+    load(<span class="string">'mwf_data/Mask.mat'</span>);
     data.MET2data= double(MET2data);
     data.Mask= double(Mask);
    

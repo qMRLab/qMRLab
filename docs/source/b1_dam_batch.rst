@@ -126,9 +126,9 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    
    data = struct();
    <span class="comment">% SF60.nii.gz contains [64  64] data.</span>
-   data.SF60=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF60.nii.gz'</span>));
+   data.SF60=double(load_nii_data(<span class="string">'b1_dam_data/SF60.nii.gz'</span>));
    <span class="comment">% SF120.nii.gz contains [64  64] data.</span>
-   data.SF120=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF120.nii.gz'</span>));
+   data.SF120=double(load_nii_data(<span class="string">'b1_dam_data/SF120.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>

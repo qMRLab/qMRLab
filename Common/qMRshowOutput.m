@@ -1,6 +1,7 @@
 function qMRshowOutput(FitResults,data,Model)
 % Show mid-slice fitting maps
-% Also show a fit in the center voxel
+% Also show a fit in an off-center voxel to avoid central sulcus in brain
+% images
 
 outputIm = FitResults.(FitResults.fields{1});
 hmap = figure();
@@ -13,14 +14,14 @@ if length(size(outputIm))>2
 else
     imagesc(imrotate(outputIm,90)); colormap('jet');  title(FitResults.fields{1});
 end
-climm = prctile(outputIm(outputIm~=0),10);
-climM = prctile(outputIm(outputIm~=0),90);
+climm = prctile(outputIm(outputIm~=0),20);
+climM = prctile(outputIm(outputIm~=0),80);
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
 if FitResults.Model.voxelwise 
     
-    row = round(size(outputIm,1)/2);
-    col = round(size(outputIm,2)/2);
+    row = round(size(outputIm,1)/1.7);
+    col = round(size(outputIm,2)/1.7);
     slice = round(size(outputIm,3)/2);
  
     voxel = [row, col, slice]; % check center voxel

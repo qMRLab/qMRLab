@@ -176,11 +176,11 @@ qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
    
    data = struct();
    <span class="comment">% MTdata.nii.gz contains [128  128    1   16] data.</span>
-   data.MTdata=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/MTdata.nii.gz'</span>));
+   data.MTdata=double(load_nii_data(<span class="string">'qmt_bssfp_data/MTdata.nii.gz'</span>));
    <span class="comment">% R1map.nii.gz contains [128  128] data.</span>
-   data.R1map=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/R1map.nii.gz'</span>));
+   data.R1map=double(load_nii_data(<span class="string">'qmt_bssfp_data/R1map.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [128  128] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_bssfp_demo/qmt_bssfp_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'qmt_bssfp_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>

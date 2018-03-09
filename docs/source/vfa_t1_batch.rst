@@ -68,7 +68,8 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
      
      Inputs:
        VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
-       (B1map)           excitation (B1+) fieldmap. Used to correct flip angles. [optional]
+       (B1map)         excitation (B1+) fieldmap. Used to correct flip angles. (optional)
+       (Mask)          Binary mask to accelerate the fitting (optional)
     
      Outputs:
        T1              Longitudinal relaxation time [s]
@@ -143,11 +144,11 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    
    data = struct();
    <span class="comment">% VFAData.nii.gz contains [128  128    1    2] data.</span>
-   data.VFAData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/VFAData.nii.gz'</span>));
+   data.VFAData=double(load_nii_data(<span class="string">'vfa_t1_data/VFAData.nii.gz'</span>));
    <span class="comment">% B1map.nii.gz contains [128  128] data.</span>
-   data.B1map=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/B1map.nii.gz'</span>));
+   data.B1map=double(load_nii_data(<span class="string">'vfa_t1_data/B1map.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [128  128] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'vfa_t1_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -163,14 +164,14 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
-   </pre><pre class="codeoutput">          M0: 2.4206e+03
-             T1: 1.7778
+   </pre><pre class="codeoutput">          M0: 2.5567e+03
+             T1: 1.3447
          fields: {'M0'  'T1'}
        computed: [128128 double]
-           Time: 0.0382
+           Time: 0.0175
        Protocol: [11 struct]
           Model: [11 vfa_t1]
-        Version: [2 0 7]
+        Version: [2 0 8]
    
    </pre><img src="_static/vfa_t1_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/vfa_t1_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'vfa_t1_Demo.qmrlab.mat'</span>);
    FitResultsSave_nii(FitResults, <span class="string">'vfa_t1_data/VFAData.nii.gz'</span>);
@@ -191,8 +192,8 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">    M0: 2.0505e+03
-       T1: 0.7261
+   </pre><pre class="codeoutput">    T1: 0.6219
+       M0: 1.9242e+03
    
    </pre><img src="_static/vfa_t1_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.

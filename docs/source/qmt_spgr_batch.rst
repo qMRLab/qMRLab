@@ -218,15 +218,15 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
    data = struct();
    
    <span class="comment">% MTdata.mat contains [88  128    1   10] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/MTdata.mat'</span>);
+    load(<span class="string">'qmt_spgr_data/MTdata.mat'</span>);
    <span class="comment">% R1map.mat contains [88  128] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/R1map.mat'</span>);
+    load(<span class="string">'qmt_spgr_data/R1map.mat'</span>);
    <span class="comment">% B1map.mat contains [88  128] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B1map.mat'</span>);
+    load(<span class="string">'qmt_spgr_data/B1map.mat'</span>);
    <span class="comment">% B0map.mat contains [88  128] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/B0map.mat'</span>);
+    load(<span class="string">'qmt_spgr_data/B0map.mat'</span>);
    <span class="comment">% Mask.mat contains [88  128] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/qmt_spgr_demo/qmt_spgr_data/Mask.mat'</span>);
+    load(<span class="string">'qmt_spgr_data/Mask.mat'</span>);
     data.MTdata= double(MTdata);
     data.R1map= double(R1map);
     data.B1map= double(B1map);

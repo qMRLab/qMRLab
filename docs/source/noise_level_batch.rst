@@ -100,7 +100,23 @@ noise_level :  Noise histogram fitting within a noise mask
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><img src="_static/noise_level_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">noise_level.</span>
+   </pre><pre class="codeoutput error">No appropriate method, property, or field 'st' for class 'noise_level'.
+   
+   Error in Custom_OptionsGUISetOpt (line 189)
+           fittingtable{indR1map} = Model.st(strcmp(Model.xnames,'R1f'));
+   
+   Error in Custom_OptionsGUIOptionsGUI_OpeningFcn (line 96)
+       SetOpt(handles);
+   
+   Error in gui_mainfcn (line 220)
+       feval(gui_State.gui_OpeningFcn, gui_hFigure, [], guidata(gui_hFigure), varargin{:});
+   
+   Error in Custom_OptionsGUI (line 32)
+       [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+   
+   Error in noise_level_batch (line 32)
+   Model = Custom_OptionsGUI(Model); % You need to close GUI to move on. 
+   </pre><h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">noise_level.</span>
    -------------------------------------------------------------------------
    </pre><pre class="codeinput"><span class="comment">% noise_level object needs 0 protocol field(s) to be assigned:</span>
    
@@ -114,9 +130,9 @@ noise_level :  Noise histogram fitting within a noise mask
    
    data = struct();
    <span class="comment">% Data4D.nii.gz contains [70   70    4  197] data.</span>
-   data.Data4D=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noise_level_demo/noise_level_data/Data4D.nii.gz'</span>));
+   data.Data4D=double(load_nii_data(<span class="string">'noise_level_data/Data4D.nii.gz'</span>));
    <span class="comment">% NoiseMask.nii.gz contains [70  70   4] data.</span>
-   data.NoiseMask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noise_level_demo/noise_level_data/NoiseMask.nii.gz'</span>));
+   data.NoiseMask=double(load_nii_data(<span class="string">'noise_level_data/NoiseMask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -126,15 +142,11 @@ noise_level :  Noise histogram fitting within a noise mask
    FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">     N        eta      sigma_g
-       1.0000    0.0000    7.8462
-   
-   ...done
-   </pre><img src="_static/noise_level_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
+   </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/noise_level_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'noise_level_Demo.qmrlab.mat'</span>);
+   </pre><h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'noise_level_Demo.qmrlab.mat'</span>);
    FitResultsSave_nii(FitResults, <span class="string">'noise_level_data/Data4D.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
