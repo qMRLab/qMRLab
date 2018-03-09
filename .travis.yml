@@ -14,6 +14,7 @@ cache:
   directories:
     
     - $HOME/octave
+    - $HOME/build/neuropoly/qMRLab/osfData
 env:
  global:
     - OCTAVE=octave
