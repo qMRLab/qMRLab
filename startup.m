@@ -1,8 +1,10 @@
 addpath(genpath(pwd))
 
-% install octave package
+% Set state 1 if cache is cleared, if not set it to 2.
+state = 2; 
 
 if moxunit_util_platform_is_octave
+if state == 1
     more off;
     installist = {'struct-1.0.14.tar.gz','optim-1.5.2.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','image-2.6.1.tar.gz'};
     loadlist = {'struct','optim','io','statistics','image'};
@@ -29,6 +31,16 @@ if moxunit_util_platform_is_octave
         end
     end
 disp('Packages have been installed and loaded.')    
+end
+
+elseif state == 2
+    
+    addpath('/home/travis/octave');
+    loadlist = {'struct','optim','io','statistics','image'};
+    for ii=1:length(loadlist)
+            disp(['Loading -->' loadlist{ii}])
+            eval(['pkg load ' loadlist{ii}])
+    end
 end
 
 
