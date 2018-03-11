@@ -31,16 +31,21 @@ if state == 1
         end
     end
 disp('Packages have been installed and loaded.')    
-end
+
 
 elseif state == 2
     
     addpath('/home/travis/octave');
     loadlist = {'struct','optim','io','statistics','image'};
     for ii=1:length(loadlist)
+            try
             disp(['Loading -->' loadlist{ii}])
             eval(['pkg load ' loadlist{ii}])
+            catch err
+                disp(err);
+            end
     end
+end
 end
 
 
