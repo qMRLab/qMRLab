@@ -21,6 +21,7 @@ for iModel = 1:length(Modellist)
 
     % Generate batch
     eval(['Model = ' Modellist{iModel}]);
+    %cd([tmpDir filesep Modellist{iModel} '_demo']);
     qMRgenBatch(Model,pwd)
     
     % Test if any dataset exist
@@ -41,10 +42,10 @@ for iModel = 1:length(Modellist)
     cd ..
     
     % clean testing dataset
-    rmdir([Model.ModelName '_demo'],'s')
+    %rmdir([Model.ModelName '_demo'],'s')
 end
 cd(curdir)
-rmdir(tmpDir,'s')
+%rmdir(tmpDir,'s')
 
 function TestTeardown
 setenv('ISTRAVIS','0')
