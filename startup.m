@@ -1,7 +1,7 @@
 addpath(genpath(pwd))
 
 % Set state 1 if cache is cleared, if not set it to 2.
-state = 2; 
+state = 1; 
 
 if moxunit_util_platform_is_octave
 if state == 1
