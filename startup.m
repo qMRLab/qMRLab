@@ -1,7 +1,7 @@
 addpath(genpath(pwd))
 
 % Set state 1 if cache is cleared, if not set it to 2.
-state = 1; 
+state = 2; 
 
 if moxunit_util_platform_is_octave
 if state == 1
@@ -38,7 +38,7 @@ pkg list
 
 elseif state == 2
     
-    addpath('/home/travis/octave');
+    
     addpath('/home/travis/build/neuropoly/qMRLab/octPacks')
     pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks'
     pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages'
