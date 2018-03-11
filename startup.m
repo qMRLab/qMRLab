@@ -51,6 +51,8 @@ elseif state == 2
                 disp(err);
             end
     end
+    pkg list
+    demo lsqcurvefit
 end
 end
 
