@@ -8,6 +8,7 @@ if state == 1
     more off;
     installist = {'struct-1.0.14.tar.gz','optim-1.5.2.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','image-2.6.1.tar.gz'};
     loadlist = {'struct','optim','io','statistics','image'};
+    cd('/home/travis/build/neuropoly/qMRLab/octPacks');
     for ii=1:length(installist)
     pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks'
     pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages'
@@ -38,6 +39,7 @@ pkg list
 elseif state == 2
     
     addpath('/home/travis/octave');
+    addpath('/home/travis/build/neuropoly/qMRLab/octPacks')
     pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks'
     pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages'
     loadlist = {'struct','optim','io','statistics','image'};
