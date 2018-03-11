@@ -14,7 +14,6 @@ cache:
   directories:
     
     - $HOME/octave
-    - /usr/lib/x86_64-linux-gnu/octave
     - /usr/share/octave
     - $HOME/build/neuropoly/qMRLab/osfData
 env:
