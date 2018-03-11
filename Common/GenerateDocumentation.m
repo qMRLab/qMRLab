@@ -43,3 +43,4 @@ system('make')
 
 % Remove tmp folder 
 rmdir([mainDir filesep 'tmp'],'s')
+rmdir(tmpDir,'s')

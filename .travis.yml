@@ -34,8 +34,13 @@ before_install:
     - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz -P /home/travis/build/neuropoly/qMRLab
     - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/build/neuropoly/qMRLab
 
-    
-script:
-    travis_wait 80 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('-recursive');exit(~res);"
+jobs:
+  include:
+    - stage: Startup
+      script: travis_wait 10 octave --no-gui --eval "startup;"
+    - stage: MoxUnitTests
+      script: travis_wait 10 octave --no-gui --eval "cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');exit(~res);"
+      script: travis_wait 15 octave --no-gui --eval "cd('Test/MoxUnitCompatible/');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
+      script: travis_wait 15 octave --no-gui --eval "cd('Test/MoxUnitCompatible/');res=moxunit_runtests('Sim_test.m');exit(~res);"
 
 

@@ -10,8 +10,12 @@ setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
 
 function test_batch
 curdir = pwd;
+
+% ======================================== TRAVIS CACHE I
+% Travis will put all required data here: 
 tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
-mkdir(tmpDir);
+
+% mkdir(tmpDir); This directory will be there (by Travis)
 cd(tmpDir)
 Modellist = list_models';
 for iModel = 1:length(Modellist)
@@ -21,8 +25,25 @@ for iModel = 1:length(Modellist)
 
     % Generate batch
     eval(['Model = ' Modellist{iModel}]);
-    %cd([tmpDir filesep Modellist{iModel} '_demo']);
-    qMRgenBatch(Model,pwd)
+    
+    % ======================================== TRAVIS CACHE I
+    % Comment out following if there OSF files have been UPDATED: 
+    
+    cd([tmpDir filesep Modellist{iModel} '_demo']);
+    
+    % --------------------------------------------------------------
+    
+    % ======================================== TRAVIS CACHE II 
+    % ----------------------------- Batch generation w/ w/o download
+    % Comment out following if OSF files are kept the SAME: 
+    
+    %qMRgenBatch(Model,pwd)
+    
+    % Comment out following if OSF files have been UPDATED: 
+   
+    qMRgenBatch(Model,pwd,0)
+    
+    % --------------------------------------------------------------
     
     % Test if any dataset exist
     isdata = true;
@@ -40,8 +61,8 @@ for iModel = 1:length(Modellist)
     end
     close all
     cd ..
-    
-    % clean testing dataset
+    % ======================================== TRAVIS CACHE III 
+    % Do not clean testing dataset anymore, otherwise cache will be gone
     %rmdir([Model.ModelName '_demo'],'s')
 end
 cd(curdir)
