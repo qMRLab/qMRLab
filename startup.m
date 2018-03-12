@@ -8,7 +8,7 @@ addpath(genpath(pwd));
 %  <false> if cache (for octave packages) is cleared
 %  <true> if the same cache (for octave packages) is still in use
 
-cacheState = true;
+cacheState = false;
 % -----------------------------------------------------
 
 if moxunit_util_platform_is_octave
@@ -42,14 +42,14 @@ if moxunit_util_platform_is_octave
             end
         end
         pkg list
-        
+        unix('ls /home/travis/octave')
         
     elseif cacheState
         
-        
-        addpath('/home/travis/build/neuropoly/qMRLab/octPacks')
-        pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks'
-        pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages'
+        addpath('home/travis/octave');
+        addpath('/home/travis/build/neuropoly/qMRLab/octPacks');
+        pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks';
+        pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages';
         loadlist = {'struct','optim','io','statistics','image'};
         for ii=1:length(loadlist)
             try
