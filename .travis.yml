@@ -39,8 +39,8 @@ before_install:
     # --------------
 jobs:
   include:
-    - stage:
-      script: travis_wait 1 octave --no-gui --eval "startup;"
+    - stage: test
+      #script: travis_wait 1 octave --no-gui --eval "startup;"
       script: travis_wait 10 octave --no-gui --eval "startup; cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');exit(~res);"
       
       #- script: travis_wait 10 octave --no-gui --eval "cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');exit(~res);"
