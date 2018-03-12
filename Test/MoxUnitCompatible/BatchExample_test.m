@@ -11,39 +11,46 @@ setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
 function test_batch
 curdir = pwd;
 
-% ======================================== TRAVIS CACHE I
-% Travis will put all required data here: 
-tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
+% ======================================== TRAVIS CACHE SELECTION
 
-% mkdir(tmpDir); This directory will be there (by Travis)
+% Set <<cahceState>> to:
+
+%  <false> if cache (for OSF data) is cleared or to be updated
+%  <true> if the same cache (for OSF data) is still in use
+
+cacheState = true;
+% -----------------------------------------------------
+
+% This directory will be created on Travis server. See .travis.yml
+tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
 cd(tmpDir)
+
 Modellist = list_models';
 for iModel = 1:length(Modellist)
     disp('===============================================================')
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
     disp('===============================================================')
 
-    % Generate batch
+    
     eval(['Model = ' Modellist{iModel}]);
     
-    % ======================================== TRAVIS CACHE I
-    % Comment out following if there OSF files have been UPDATED: 
+  
+    if cacheState
+        % Navigate to the batch example folders 
+        cd([tmpDir filesep Modellist{iModel} '_demo']);
+    end
     
-    cd([tmpDir filesep Modellist{iModel} '_demo']);
     
-    % --------------------------------------------------------------
     
-    % ======================================== TRAVIS CACHE II 
-    % ----------------------------- Batch generation w/ w/o download
-    % Comment out following if OSF files are kept the SAME: 
+    if ~cacheState
+        % Generate batch w/ downloading data
+        qMRgenBatch(Model,pwd)
+    elseif cacheState
+        % Generate batch w/o downloading data
+        qMRgenBatch(Model,pwd,0)
+    end
     
-    %qMRgenBatch(Model,pwd)
-    
-    % Comment out following if OSF files have been UPDATED: 
-   
-    qMRgenBatch(Model,pwd,0)
-    
-    % --------------------------------------------------------------
+ 
     
     % Test if any dataset exist
     isdata = true;
@@ -61,12 +68,10 @@ for iModel = 1:length(Modellist)
     end
     close all
     cd ..
-    % ======================================== TRAVIS CACHE III 
-    % Do not clean testing dataset anymore, otherwise cache will be gone
-    %rmdir([Model.ModelName '_demo'],'s')
+   
 end
 cd(curdir)
-%rmdir(tmpDir,'s')
+
 
 function TestTeardown
 setenv('ISTRAVIS','0')
