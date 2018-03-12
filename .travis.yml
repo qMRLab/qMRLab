@@ -26,7 +26,7 @@ before_install:
     - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
     - travis_retry sudo apt-add-repository -y ppa:octave/stable
     - travis_retry sudo apt-get -y -qq update
-     travis_retry sudo apt-get install -y wget
+    - travis_retry sudo apt-get install -y wget
     # get Octave 4,0
     - travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev
     # Please comment in following section if you need to update packages or add a new one
@@ -42,11 +42,11 @@ before_install:
 
 jobs:
   include:
+    - stage: Test 
+      script: travis_wait 10 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');exit(~res);
     - stage: Test
-      env: COMMAND= Batch_and_others 
-      script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
     - stage: Test
-      env: COMMAND= Sim_test
       script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('Sim_test.m');exit(~res);"
 
   
