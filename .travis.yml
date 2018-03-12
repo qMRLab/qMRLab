@@ -43,10 +43,10 @@ before_install:
 jobs:
   include:
     - stage: Test
-      env: COMMAND=Test:Batch_and_others  
-      script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');cd('Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
+      env: COMMAND= Batch_and_others 
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
     - stage: Test
-      env: COMMAND=Test:Sim_test
+      env: COMMAND= Sim_test
       script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('Sim_test.m');exit(~res);"
 
   
