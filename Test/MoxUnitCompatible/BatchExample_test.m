@@ -18,7 +18,7 @@ curdir = pwd;
 %  <false> if cache (for OSF data) is cleared or to be updated
 %  <true> if the same cache (for OSF data) is still in use
 
-cacheState = true;
+cacheState = false;
 % -----------------------------------------------------
 
 % This directory will be created on Travis server. See .travis.yml
