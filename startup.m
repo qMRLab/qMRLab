@@ -46,8 +46,8 @@ if moxunit_util_platform_is_octave
         
     elseif cacheState
         
-        addpath('home/travis/octave');
-        addpath('/home/travis/build/neuropoly/qMRLab/octPacks');
+        addpath(genpath('/home/travis/octave'));
+        addpath(genpath('/home/travis/build/neuropoly/qMRLab/octPacks'));
         pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks';
         pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages';
         loadlist = {'struct','optim','io','statistics','image'};
