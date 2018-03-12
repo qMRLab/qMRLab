@@ -21,6 +21,7 @@ env:
     - OCTAVE=octave
 before_install:
     # to prevent IPv6 being used for APT
+    language: OCTAVE
     - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
     - travis_retry sudo apt-get -y -qq update
     - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
@@ -38,6 +39,10 @@ before_install:
     #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz -P /home/travis/build/neuropoly/qMRLab/octPacks
     #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/build/neuropoly/qMRLab/octPacks
     # --------------
+matrix:
+  include:
+  - name: Build with foo as bar
+  
 jobs:
   include:
     - stage: Test
