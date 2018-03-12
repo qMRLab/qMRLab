@@ -21,7 +21,6 @@ env:
     - OCTAVE=octave
 before_install:
     # to prevent IPv6 being used for APT
-    language: OCTAVE
     - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
     - travis_retry sudo apt-get -y -qq update
     - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
@@ -39,17 +38,15 @@ before_install:
     #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz -P /home/travis/build/neuropoly/qMRLab/octPacks
     #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/build/neuropoly/qMRLab/octPacks
     # --------------
-matrix:
-  include:
-  - name: Build with foo as bar
-  
+
+
 jobs:
   include:
     - stage: Test
-      script: travis_wait 10 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');exit(~res);"
+      env: COMMAND=Test:Batch_and_others  
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');cd('Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
     - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
-    - stage: Test
+      env: COMMAND=Test:Sim_test
       script: travis_wait 30 octave --no-gui --eval "startup;cd('Test/MoxUnitCompatible');res=moxunit_runtests('Sim_test.m');exit(~res);"
 
   
