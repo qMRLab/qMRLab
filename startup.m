@@ -61,7 +61,7 @@ if moxunit_util_platform_is_octave
         end
         pkg list % See the list of installed packages
         demo lsqcurvefit % See if it performs w/o errors
-        unix('lscpu'); % Check processor allowance on remote server
+        %unix('lscpu'); % Check processor allowance on remote server
     end
 end
 
