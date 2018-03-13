@@ -41,8 +41,16 @@ if moxunit_util_platform_is_octave
                 end
             end
         end
+        
+        addpath(genpath('/home/travis/octave'));
+        addpath(genpath('/home/travis/build/neuropoly/qMRLab/octPacks'));
+        
         pkg list
         unix('ls /home/travis/octave')
+        chk = test('lsqcurvefit');
+        if ~chk
+            error('Lsqcurvefit could not be loaded properly');
+        end
         
     elseif cacheState
         
@@ -60,7 +68,10 @@ if moxunit_util_platform_is_octave
             end
         end
         pkg list % See the list of installed packages
-        demo lsqcurvefit % See if it performs w/o errors
+        chk = test('lsqcurvefit');
+        if ~chk
+            error('Lsqcurvefit could not be loaded properly');
+        end
         %unix('lscpu'); % Check processor allowance on remote server
     end
 end
