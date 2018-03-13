@@ -16,10 +16,10 @@ if moxunit_util_platform_is_octave
         more off;
         installist = {'struct-1.0.14.tar.gz','optim-1.5.2.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','image-2.6.1.tar.gz'};
         loadlist = {'struct','optim','io','statistics','image'};
-        cd('/home/travis/build/neuropoly/qMRLab/octPacks');
+        cd('/home/travis/octave');
         for ii=1:length(installist)
-            pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks'
-            pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages'
+            pkg prefix '/home/travis/octave'
+            pkg local_list '/home/travis/octave/.octave_packages'
             try
                 disp(['Installing --> ' installist{ii}])
                 eval(['pkg install ' installist{ii}])
@@ -43,11 +43,11 @@ if moxunit_util_platform_is_octave
         end
         
         addpath(genpath('/home/travis/octave'));
-        addpath(genpath('/home/travis/build/neuropoly/qMRLab/octPacks'));
-        
+      
         pkg list
         unix('ls /home/travis/octave')
         chk = test('lsqcurvefit');
+        
         if ~chk
             error('Lsqcurvefit could not be loaded properly');
         end
@@ -55,9 +55,9 @@ if moxunit_util_platform_is_octave
     elseif cacheState
         
         addpath(genpath('/home/travis/octave'));
-        addpath(genpath('/home/travis/build/neuropoly/qMRLab/octPacks'));
-        pkg prefix '/home/travis/build/neuropoly/qMRLab/octPacks';
-        pkg local_list '/home/travis/build/neuropoly/qMRLab/octPacks/.octave_packages';
+        
+        pkg prefix '/home/travis/octave';
+        pkg local_list '/home/travis/octave/.octave_packages';
         loadlist = {'struct','optim','io','statistics','image'};
         for ii=1:length(loadlist)
             try
