@@ -14,7 +14,7 @@ cache:
   directories:
     # Following directories will be generated 
     - $HOME/octave
-    - $HOME/build/neuropoly/qMRLab/osfData
+    #- $HOME/build/neuropoly/qMRLab/osfData
 env:
  global:
     - OCTAVE=octave
@@ -45,10 +45,24 @@ jobs:
       script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');exit(~res);"
     - stage: Test
       script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
+    # Paste Sim_test commands below 
     - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('Sim_test_part1.m');exit(~res);"
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_charmed.m);exit(~res);"
     - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('Sim_test_part2.m');exit(~res);"
-
-  
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_dti.m);exit(~res);"
+    - stage: Test
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_noddi.m);exit(~res);"
+    - stage: Test
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_bssfp.m);exit(~res);"
+    - stage: Test
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_sirfse.m);exit(~res);"
+    - stage: Test
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_spgr.m);exit(~res);"
+    - stage: Test
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_inversion_recovery.m);exit(~res);"
+    - stage: Test
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_vfa_t1.m);exit(~res);"
+    - stage: Test
+      script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_mwf.m);exit(~res);"
+      
 
