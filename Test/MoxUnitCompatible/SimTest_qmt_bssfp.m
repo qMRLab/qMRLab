@@ -14,7 +14,7 @@ disp('Running simulation test for qmt_bssfp');
 disp('testing Simulation Single Voxel Curve...');
 
 
-Model = str2func(qmt_bssfp); Model = Model();
+Model = str2func('qmt_bssfp'); Model = Model();
 savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[qmt_bssfp '.qmrlab.mat']);
 if ~exist(savedModel_fname,'file')
 Model.saveObj(savedModel_fname);

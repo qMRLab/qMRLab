@@ -14,7 +14,7 @@ disp('Running simulation test for inversion_recovery');
 disp('testing Simulation Single Voxel Curve...');
 
 
-Model = str2func(inversion_recovery); Model = Model();
+Model = str2func('inversion_recovery'); Model = Model();
 savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[inversion_recovery '.qmrlab.mat']);
 if ~exist(savedModel_fname,'file')
 Model.saveObj(savedModel_fname);
