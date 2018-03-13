@@ -46,7 +46,7 @@ jobs:
     - stage: Test
       script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m');exit(~res);"
     # Paste Sim_test commands below 
-   - stage: Test
+    - stage: Test
     script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_charmed.m');exit(~res);"
     - stage: Test
     script: travis_wait 30 octave --no-gui --eval "startup;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_dti.m');exit(~res);"
