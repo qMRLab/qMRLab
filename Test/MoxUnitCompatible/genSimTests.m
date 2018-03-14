@@ -28,7 +28,7 @@ for ii = 1:length(MethodList)
         fclose(fileID);
         
         disp('- stage: Test');
-        disp(['script: travis_wait 30 octave --no-gui --eval "startup;cd(' char(39) '/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible' char(39) ');res=moxunit_runtests(' char(39) writeName char(39) ');exit(~res);"']);
+        disp(['  script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd(' char(39) '/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible' char(39) ');res=moxunit_runtests(' char(39) writeName char(39) ');exit(~res);"']);
     end
     
     
