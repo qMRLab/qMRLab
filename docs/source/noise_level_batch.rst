@@ -142,19 +142,7 @@ noise_level :  Noise histogram fitting within a noise mask
    FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-<<<<<<< HEAD
-<<<<<<< HEAD
    </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
-=======
-   </pre><pre class="codeoutput">     N        eta      sigma_g
-       1.0000    0.0000    7.8462
-   
-   ...done
-   </pre><img src="_static/noise_level_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
->>>>>>> 5bcd0bc1eef8b89747a75cd7aa80d3da4a1b4657
-=======
-   </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
->>>>>>> 6a54cbc8227f094fbed4d560cc5f6fcef47bfc98
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
