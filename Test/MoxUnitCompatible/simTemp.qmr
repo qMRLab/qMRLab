@@ -1,4 +1,4 @@
-function test_suite=Sim_test
+function test_suite=SimTest_*-modelName-*
 try % assignment of 'localfunctions' is necessary in Matlab >= 2016
     test_functions=localfunctions();
 catch % no problem; early Matlab versions can use initTestSuite fine
@@ -9,17 +9,19 @@ function TestSetup
 setenv('ISDISPLAY','0') % go faster! Fit only 2 voxels in FitData.m
 
 function test_Sim
-disp('testing Simulation Single Voxel Curve...')
-MethodList = list_models;
-for im = 1:length(MethodList)
-    Model = str2func(MethodList{im}); Model = Model();
-    savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[MethodList{im} '.qmrlab.mat']);
+disp('===========================================')
+disp('Running simulation test for *-modelName-*');
+disp('testing Simulation Single Voxel Curve...');
+
+
+    Model = str2func('*-modelName-*'); Model = Model();
+    savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['*-modelName-*.qmrlab.mat']);
     if ~exist(savedModel_fname,'file')
         Model.saveObj(savedModel_fname);
     else
         Model = Model.loadObj(savedModel_fname);
     end
-    if ~Model.voxelwise, continue; end
+    
     disp(class(Model))
     try Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1); end
     try st = Model.st; catch, try st = mean([Model.lb(:),Model.ub(:)],2); catch, st = ones(length(Model.xnames),1); end; end
@@ -39,7 +41,7 @@ for im = 1:length(MethodList)
         assertTrue(isempty(FitResults) & isempty(GroundTruth),evalc('FitResults, GroundTruth'))
     end
     disp ..ok
-end
+
 
 function TestTeardown
 setenv('ISDISPLAY','') % go faster! Fit only 2 voxels in FitData.m
