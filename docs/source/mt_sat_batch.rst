@@ -179,6 +179,7 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    FitResultsSave_nii(FitResults, <span class="string">'mt_sat_data/MTw.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'mt_sat.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
