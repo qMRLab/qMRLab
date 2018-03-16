@@ -1,12 +1,37 @@
 classdef dti < AbstractModel
-%dti: Diffusion Tensor Imaging
-% Methods:
-%   plotmodel        Plot the diffusion-weighted signal as a function of Gparallel
-%                       EXAMPLE:
-%                       A = DTI;
-%                       L1 = 1; L2 = 1; L3 = 3; % um2/ms
-%                       A.plotmodel([L1 L2 L3]);
-%   doThat           Description of doThat
+%dti: Compute a tensor from diffusion data
+%
+% Assumptions:
+%   
+% Inputs:
+%   DiffusionData       4D diffusion weighted dataset
+%   (SigmaNoise)
+%   (Mask)              Binary mask to accelerate fitting [optional]
+%
+% Outputs:
+%	FA                  Fractional anisotropy
+%   D                   Mean diffusivity
+%   L1                  Principal eigenvalue
+%   L2                  Second eigenvalue
+%   L3                  Third eigenvalue
+%   residue             Residue of the fit
+%
+% Protocol:
+%
+% Options
+%   NONE
+%
+% Example of command line usage (see also <a href="matlab: showdemo dti_batch">showdemo dti_batch</a>):
+%   Model=dti;
+%   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
+%   data = struct;  % Create data structure
+%   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');  % Load data
+%   data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
+%   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
+%   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');  % Save in local folder: FitResults/
+%
+%   For more examples: <a href="matlab: qMRusage(dti_dam);">qMRusage(dti_dam)</a>
+%
 %
 % Example of command line usage (see also <a href="matlab: showdemo dti_batch">showdemo dti_batch</a>):
 %   For more examples: <a href="matlab: qMRusage(dti);">qMRusage(dti)</a>
@@ -25,7 +50,7 @@ end
 
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'};
-        xnames = { 'L1','L2','L3'};
+        xnames = {'L1','L2','L3'};
         voxelwise = 1;
         
         % fitting options
@@ -103,7 +128,10 @@ end
             S0 = scd_preproc_getS0(data.DiffusionData,Prot);
             
             % Detect negative values
-            if min(data.DiffusionData)<0, warning('Negative values detected in DiffusionData. threshold to 0.'); data.DiffusionData = max(0,data.DiffusionData); end
+            if min(data.DiffusionData)<0
+                %warning('Negative values detected in DiffusionData. threshold to 0.'); 
+                data.DiffusionData = max(0,data.DiffusionData); 
+            end
 
             % fit
             D=scd_model_dti(max(eps,data.DiffusionData)./max(eps,S0),Prot);
@@ -123,16 +151,16 @@ end
                 [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
                 D(:)=xopt;
             end
-            FitResults.residue = residue;
             
             % compute metrics
             [~,L] = eig(D); L = sort(diag(L),'descend');
+            L_mean = sum(L)/3;
+            FitResults.FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2));
             FitResults.L1 = L(1);
             FitResults.L2 = L(2);
             FitResults.L3 = L(3);
             FitResults.D  = D(:);
-            L_mean = sum(L)/3;
-            FitResults.FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2));
+            FitResults.residue = residue;
                 % S0
             S0vals = unique([S0 Prot(:,7)],'rows');
             for ii = 1:size(S0vals,1)

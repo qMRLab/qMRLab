@@ -20,6 +20,7 @@ classdef noddi < AbstractModel
 %
 % Inputs:
 %   DiffusionData       4D diffusion weighted dataset
+%   (Mask)               Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
 %   di                  Diffusion coefficient in the restricted compartment.

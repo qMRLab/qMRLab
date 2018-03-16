@@ -27,6 +27,11 @@ class Model(object):
 
 category_list = []
 models = []
+#Retrieve the temporary folder containing Data files and batch examples from the text file
+with io.open('../tmp/tmpDocDir.txt','rb') as fpwdTemp:
+	pwd = (fpwdTemp.readline()).rstrip('\n')
+fpwdTemp.close()
+
 for root, dirs, files in os.walk('../Models'):
 	#Check the models that are there
 	for name in files:
@@ -34,7 +39,7 @@ for root, dirs, files in os.walk('../Models'):
 			#Get the file name
 			name_pos = name.find(".m")
 			cfile = name[:name_pos]
-
+			
 			#Get the file category (in wich folder it's located)
 			#Get the index to split the folder path
 			root_pos = root.find("Models")
@@ -67,12 +72,11 @@ for root, dirs, files in os.walk('../Models'):
 					cname = [l for l in line_lst if '%' in l][0].split('%')[1]
 					cname = cname.strip()
 					found = True
-					print cname
 
 			#Get the information if there is a demo folder with the batch_example
 			cdemo = False
 			#Check for a .m file in demo
-			for root_s, dirs_s, files_s in os.walk('../Data'):
+			for root_s, dirs_s, files_s in os.walk(pwd):
 				for name_s in files_s:
 					#Remove the _batch part in the file name
 					name_pos = name_s.find("_batch")
@@ -82,7 +86,8 @@ for root, dirs, files in os.walk('../Models'):
 						cdemo = True
 						#Set the destination and the source location for the .rst fils
 						dst = './source/'+ cfile +'_batch.rst'
-						src = '../Data/' + cfile + '_demo/html/'+cfile+'_batch.html'
+						src = pwd + os.sep + cfile + '_demo' + os.sep +'html'+ os.sep + cfile + '_batch.html'
+						print(src)
 						#Copy the html file into a rst file in the correct location
 						os.system("python embed_html.py "+dst+" "+src+" \""+cname+"\"")
 					#Copy the png files
