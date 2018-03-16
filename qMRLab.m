@@ -81,8 +81,9 @@ if ~isfield(handles,'opened') % qMRI already opened?
         Model = Modelfun();
         close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
         MRIinputs = Model.MRIinputs;
+        optionalInputs = get_MRIinputs_optional(Model);
         % create file browser uicontrol with specific inputs
-        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,{MethodList{iMethod} MRIinputs{:}});
+         FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,MethodList{iMethod}, MRIinputs,optionalInputs);
         FileBrowserList(iMethod).Visible('off');
         
     end
@@ -103,7 +104,7 @@ if ~isempty(varargin)
     if length(varargin)>1
         data=varargin{2};
         for ff=fieldnames(data)';
-            FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).setFileName(ff{1}, data.(ff{1}))
+            FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).setFileName(ff{1}, data.(ff{1}))
         end
     end
 end
@@ -126,13 +127,13 @@ end
 
 % View first file
 if length(varargin)>1
-    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);	
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
 % View first file
 if length(varargin)>1
-    butobj = FileBrowserList(strcmp([FileBrowserList.MethodID],Method)).ItemsList(1);
+    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
@@ -254,7 +255,7 @@ OpenOptionsPanel_Callback(hObject, eventdata, handles)
 
 % Show FileBrowser
 FileBrowserList = GetAppData('FileBrowserList');
-MethodNum = find(strcmp([FileBrowserList.MethodID],Method));
+MethodNum = find(strcmp({FileBrowserList.MethodID},Method));
 for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
@@ -782,17 +783,24 @@ data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
 Model = GetAppData('Model');
 
 % Get selected voxel
+S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];	
 S = size(data.(Model.MRIinputs{1}));
+Data = handles.CurrentData;	
+selected = get(handles.SourcePop,'Value');	
+Scurrent = [size(Data.(Data.fields{selected}),1) size(Data.(Data.fields{selected}),2) size(Data.(Data.fields{selected}),3)];
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
     helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
+elseif ~isequal(Scurrent, S)	
+   helpdlg([Model.MRIinputs{1} ' file in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer. Load corresponding ' Model.MRIinputs{1} '.'])
 else
+    Model.sanityCheck(data);
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
     y = 1+ S(2) - info_dcm.Position(2);
     z = str2double(get(handles.SliceValue,'String'));
-    index = sub2ind(S,x,y,z);
+    
     
     for ii=1:length(Model.MRIinputs)
         if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
@@ -902,170 +910,10 @@ yl = ylim;
 % imagesc(flipdim(Current',1));
 imagesc(rot90(Current));
 axis equal off;
-RefreshColorMap(handles)
+RefreshColorMap(handles);
 xlim(xl);
 ylim(yl);
 
-
-% ##############################################################################################
-%                                    ROI
-% ##############################################################################################
-
-% DRAW
-function RoiDraw_Callback(hObject, eventdata, handles)
-set(gcf,'Pointer','Cross');
-set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'off')
-contents = cellstr(get(hObject,'String'));
-model = contents{get(hObject,'Value')};
-set(handles.FitDataAxe);
-imagesc(getimage(handles.FitDataAxe));
-axis equal off;
-switch model
-    case 'Ellipse'
-        draw = imellipse();
-    case 'Polygone'
-        draw = impoly();
-    case 'Rectangle'
-        draw = imrect();
-    case 'FreeHand'
-        draw = imfreehand();
-    otherwise
-        warning('Choose a Drawing Method');
-end
-%Press = waitforbuttonpress;
-%while Press == 0
-%    Press = waitforbuttonpress;
-%end
-%if Press == 1
-    Map = getimage(handles.FitDataAxe);
-    if(isfield(handles,'ROI'))
-        %guidata(gcbo, handles);
-        handles.ROI = handles.ROI + double(draw.createMask());
-        handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
-        handles.NewMap = (handles.NewMap./max(handles.NewMap(:)))*0.6;
-        guidata(gcbo, handles);
-        set(handles.FitDataAxe);
-        green = cat(3, zeros(size(Map)), ones(size(Map)), zeros(size(Map)));
-        b = imshow(green);
-        set(b, 'AlphaData', handles.NewMap)
-        hold on
-        imagesc(Map);
-        hold off
-        axis equal off;
-        colorbar('east','YColor','black');
-    else 
-        handles.ROI = double(draw.createMask());
-        handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
-        handles.NewMap = (handles.NewMap./max(handles.NewMap(:)))*0.8;
-        guidata(gcbo, handles);
-        % figure
-        set(handles.FitDataAxe);
-        green = cat(3, zeros(size(Map)), ones(size(Map)), zeros(size(Map)));
-        b = imshow(green);
-        set(b, 'AlphaData', handles.NewMap)
-        hold on
-        imagesc(Map);
-        hold off
-        axis equal off;
-        colorbar('east','YColor','black');
-    end
-%end
-set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'on');
-set(gcf,'Pointer','Arrow');
-
-% THRESHOLD
-function RoiThreshMin_Callback(hObject, eventdata, handles)
-handles.threshMin = str2double(get(hObject, 'String'));
-if ~isempty(get(handles.RoiThreshMax, 'String'))
-    handles.threshMax = str2double(get(handles.RoiThreshMax, 'String'));
-else
-    handles.threshMax = str2double(get(handles.MaxValue, 'String'));
-end
-handles.NewMap = getimage(handles.FitDataAxe);
-handles.NewMap(handles.NewMap<handles.threshMin) = 0;
-handles.NewMap(handles.NewMap>handles.threshMax) = 0;
-handles.ROI = handles.NewMap;
-handles.ROI(handles.ROI~=0) = 1;
-guidata(gcbo, handles); 
-% figure
-set(handles.FitDataAxe);
-imagesc(handles.NewMap);
-axis equal off;
-colorbar('south','YColor','white');
-function RoiThreshMax_Callback(hObject, eventdata, handles)
-handles.threshMax = str2double(get(hObject, 'String'));
-if ~isempty(get(handles.RoiThreshMin, 'String'))
-    handles.threshMin = str2double(get(handles.RoiThreshMin, 'String'));
-else
-    handles.threshMin = str2double(get(handles.MinValue, 'String'));
-end
-handles.NewMap = getimage(handles.FitDataAxe);
-handles.NewMap(handles.NewMap<handles.threshMin) = 0;
-handles.NewMap(handles.NewMap>handles.threshMax) = 0;
-handles.ROI = handles.NewMap;
-handles.ROI(handles.ROI~=0) = 1;
-guidata(gcbo, handles); 
-% figure
-set(handles.FitDataAxe);
-imagesc(handles.NewMap);
-axis equal off;
-colorbar('south','YColor','white');
-
-% SAVE
-function RoiSave_Callback(hObject, eventdata, handles)
-% Get the WD
-Method = GetAppData('Method');
-FileBrowserList = GetAppData('FileBrowserList');
-MethodList = getappdata(0, 'MethodList');
-MethodList = strrep(MethodList, '.m', '');
-MethodCount = numel(MethodList);
-for i=1:MethodCount
-    if FileBrowserList(i).IsMethodID(Method)
-        MethodID = i;
-    end
-end
-WD = FileBrowserList(MethodID).getWD;
-Mask = rot90(handles.ROI,-1);
-if ~isempty(WD)
-    if exist(fullfile(WD, 'Mask.mat'),'file') || exist(fullfile(WD, 'Mask.nii'),'file')
-        choice = questdlg('Replace the old mask?','A mask exist!','Yes','No','No');
-        switch choice
-            case 'Yes'
-                FullPathName = fullfile(WD, 'Mask');
-                save(FullPathName,'Mask');                 
-            case 'No'
-                [FileName, PathName] = uiputfile({'*.mat'},'Save as');
-                FullPathName = fullfile(PathName, FileName);
-                if FileName ~= 0
-                    save(FullPathName,'Mask');
-                end
-        end
-    else
-        FullPathName = fullfile(WD, 'Mask');
-        save(FullPathName,'Mask');
-    end
-else
-    [FileName, PathName] = uiputfile({'*.mat'},'Save as');
-    FullPathName = fullfile(PathName, FileName);
-    if FileName ~= 0
-        save(FullPathName,'Mask');
-    end  
-end
-
-% LOAD
-function RoiLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile({'*.mat'});
-if isequal(FileName,0), return; end
-FullPathName = fullfile(PathName, FileName);
-Tmp = load(FullPathName);
-Roi = rot90(Tmp.Mask);
-Map = getimage(handles.FitDataAxe);
-handles.NewMap = Map.*Roi;
-% figure
-set(handles.FitDataAxe);
-imagesc(handles.NewMap);
-axis equal off;
-colorbar('south','YColor','white');
 
 
 % ######################## CREATE FUNCTIONS ##############################
