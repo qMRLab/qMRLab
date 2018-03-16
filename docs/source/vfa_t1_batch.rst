@@ -22,8 +22,8 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    .content pre, code { font-size:11px; }
    .content tt { font-size: 1.0em; }
    .content pre { margin:0px 0px 20px; }
-   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
-   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; overflow-x:scroll}
+   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word -wrap: break-word;}
    .content pre.error { color:red; }
    .content @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
    .content span.keyword { color:#0000FF }
@@ -38,6 +38,17 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    .content .footer a:visited { color:#878787; }
    .content table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
    .content table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+   ::-webkit-scrollbar {
+       -webkit-appearance: none;
+       width: 4px;
+       height: 5px;
+      }
+   
+      ::-webkit-scrollbar-thumb {
+       border-radius: 5px;
+       background-color: rgba(0,0,0,.5);
+       -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+      }
    </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
@@ -57,7 +68,8 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
      
      Inputs:
        VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
-       (B1map)           excitation (B1+) fieldmap. Used to correct flip angles. [optional]
+       (B1map)         excitation (B1+) fieldmap. Used to correct flip angles. (optional)
+       (Mask)          Binary mask to accelerate the fitting (optional)
     
      Outputs:
        T1              Longitudinal relaxation time [s]
@@ -132,11 +144,11 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    
    data = struct();
    <span class="comment">% VFAData.nii.gz contains [128  128    1    2] data.</span>
-   data.VFAData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/VFAData.nii.gz'</span>));
+   data.VFAData=double(load_nii_data(<span class="string">'vfa_t1_data/VFAData.nii.gz'</span>));
    <span class="comment">% B1map.nii.gz contains [128  128] data.</span>
-   data.B1map=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/B1map.nii.gz'</span>));
+   data.B1map=double(load_nii_data(<span class="string">'vfa_t1_data/B1map.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [128  128] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/vfa_t1_demo/vfa_t1_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'vfa_t1_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -152,14 +164,14 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    <span class="comment">% -------------------------------------------------------------------------</span>
    
    qMRshowOutput(FitResults,data,Model);
-   </pre><pre class="codeoutput">          M0: 0
-             T1: 0
-         fields: {'M0'  'T1'}
-       computed: [128128 double]
-           Time: 0.0259
-       Protocol: [11 struct]
+   </pre><pre class="codeoutput">          M0: 2.5567e+03
           Model: [11 vfa_t1]
-        Version: [2 0 7]
+       Protocol: [11 struct]
+             T1: 1.3447
+           Time: 0.0626
+        Version: [2 0 8]
+       computed: [128128 double]
+         fields: {'T1'  'M0'}
    
    </pre><img src="_static/vfa_t1_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/vfa_t1_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'vfa_t1_Demo.qmrlab.mat'</span>);
    FitResultsSave_nii(FitResults, <span class="string">'vfa_t1_data/VFAData.nii.gz'</span>);
@@ -180,8 +192,8 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
    
    <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">    M0: 1.9972e+03
-       T1: 0.6752
+   </pre><pre class="codeoutput">    T1: 0.6985
+       M0: 1.8919e+03
    
    </pre><img src="_static/vfa_t1_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.

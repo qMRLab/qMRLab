@@ -93,8 +93,8 @@ if __name__ == "__main__":
 .content pre, code { font-size:11px; }
 .content tt { font-size: 1.0em; }
 .content pre { margin:0px 0px 20px; }
-.content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
-.content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+.content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; overflow-x:scroll}
+.content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word -wrap: break-word;}
 .content pre.error { color:red; }
 .content @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
 .content span.keyword { color:#0000FF }
@@ -109,6 +109,17 @@ if __name__ == "__main__":
 .content .footer a:visited { color:#878787; }
 .content table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
 .content table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 4px;
+    height: 5px;
+   }
+
+   ::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+   }
 </style>""")
 
 			parser = MyHTMLParser(sbuf, dstdir, srcdir)

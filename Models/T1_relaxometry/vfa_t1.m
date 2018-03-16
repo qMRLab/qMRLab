@@ -5,7 +5,8 @@ classdef vfa_t1 < AbstractModel
 % 
 % Inputs:
 %   VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
-%   (B1map)           excitation (B1+) fieldmap. Used to correct flip angles. [optional]
+%   (B1map)         excitation (B1+) fieldmap. Used to correct flip angles. (optional)
+%   (Mask)          Binary mask to accelerate the fitting (optional)
 %
 % Outputs:
 %   T1              Longitudinal relaxation time [s]
@@ -100,7 +101,9 @@ end
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
             TR = obj.Prot.VFAData.Mat(:,2);
             if ~isfield(data,'B1map'), data.B1map=1; end
-            [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+            [m0, t1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+            FitResult.T1 = t1;
+            FitResult.M0 = m0;
 
        
        end

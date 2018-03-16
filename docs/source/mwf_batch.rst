@@ -22,8 +22,8 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
    .content pre, code { font-size:11px; }
    .content tt { font-size: 1.0em; }
    .content pre { margin:0px 0px 20px; }
-   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
-   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+   .content pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; overflow-x:scroll}
+   .content pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word -wrap: break-word;}
    .content pre.error { color:red; }
    .content @media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
    .content span.keyword { color:#0000FF }
@@ -38,6 +38,17 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
    .content .footer a:visited { color:#878787; }
    .content table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
    .content table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+   ::-webkit-scrollbar {
+       -webkit-appearance: none;
+       width: 4px;
+       height: 5px;
+      }
+   
+      ::-webkit-scrollbar-thumb {
+       border-radius: 5px;
+       background-color: rgba(0,0,0,.5);
+       -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+      }
    </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
@@ -72,12 +83,11 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
            'T2*'      For a GRE sequence
     
      Protocol:
-       1 .txt files or 1 .mat file :
-         TE    [TE1 TE2 ...] % list of echo times [ms]
+      MET2data   [TE1 TE2 ...] % list of echo times [ms]
     
      Example of command line usage (see also a href="matlab: showdemo mwf_batch"showdemo mwf_batch/a):
        Model = mwf;  % Create class from model
-       Model.Prot.Echo.Mat=[10:10:320];
+       Model.Prot.MET2data.Mat=[10:10:320];
        data = struct;  % Create data structure
        data.MET2data ='MET2data.mat';  % Load data
        data.Mask = 'Mask.mat';
@@ -133,9 +143,9 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
    data = struct();
    
    <span class="comment">% MET2data.mat contains [64  64   1  32] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/MET2data.mat'</span>);
+    load(<span class="string">'mwf_data/MET2data.mat'</span>);
    <span class="comment">% Mask.mat contains [64  64] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/mwf_demo/mwf_data/Mask.mat'</span>);
+    load(<span class="string">'mwf_data/Mask.mat'</span>);
     data.MET2data= double(MET2data);
     data.Mask= double(Mask);
    

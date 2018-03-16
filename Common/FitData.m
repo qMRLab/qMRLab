@@ -28,6 +28,9 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
+% Before fitting, do a sanity check on the input data and protocol
+Model.sanityCheck(data);
+
 tStart = tic;
 
 h=[];
@@ -38,7 +41,8 @@ if Model.voxelwise % process voxelwise
     MRIinputs = fieldnames(data);
     MRIinputs(structfun(@isempty,data))=[];
     MRIinputs(strcmp(MRIinputs,'hdr'))=[];
-    qData = double(data.(MRIinputs{1}));
+    qDataIdx=find((strcmp(Model.MRIinputs{1},MRIinputs')));
+    qData = double(data.(MRIinputs{qDataIdx}));
     x = 1; y = 1; z = 1;
     [x,y,z,nT] = size(qData);   
     
@@ -129,7 +133,7 @@ if Model.voxelwise % process voxelwise
         
         if ISTRAVIS && ii>2
             try
-                Fit = load('FitResults/FitResults.mat');
+                Fit = load(fullfile('.','FitResults','FitResults.mat'));
             end
             break;
         end
