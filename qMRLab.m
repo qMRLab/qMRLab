@@ -995,13 +995,9 @@ function RoiAnalysis_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% setappdata(0,'handles_old', handles);
  setappdata(0,'roidata',handles.CurrentData);
-%save([handles.root '/state.mat'],'handles');
 roiGui = Roi_analysis(handles);
-hand = getappdata(0,'handles_old');
 set(roiGui,'WindowStyle','modal') %If you want to "freeze" main GUI until secondary is closed.
 uiwait(roiGui) %Wait for user to finish with secondary GUI.
-%guidata(handles,handles.mainHandles);
 guidata(hObject, handles);
 %----------------------------------------- END ------------------------------------------%
