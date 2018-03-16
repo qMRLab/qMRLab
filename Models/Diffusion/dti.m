@@ -33,19 +33,15 @@ classdef dti < AbstractModel
 %     TE (s)            Echo time
 %
 % Options:
-%   Rician noise bias               Used if no SigmaNoise map is provided.
-%     'Compute Sigma per voxel'     Sigma is estimated by computing the STD across repeated scans.
-%     'fix sigma'                   Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
-%   Display Type
-%     'q-value'                     abscissa for plots: q = gamma.delta.G (?m-1)
-%     'b-value'                     abscissa for plots: b = (2.pi.q)^2.(Delta-delta/3) (s/mm2)
-%   S0 normalization
-%     'Use b=0'                     Use b=0 images. In case of variable TE, your dataset requires a b=0 for each TE.
-%     'Single T2 compartment'       In case of variable TE acquisition:
-%                                   fit single T2 using data acquired at b<1000s/mm2 (assuming Gaussian diffusion))
-%   Time-dependent models
-%     'Burcaw 2015'                 XXX
-%     'Ning MRM 2016'               XXX
+%   fitting type                    
+%     'linear'                              Solves the linear problem (ln(S/S0) = -bD)
+%     'non-linear (Rician Likelihood)'      Add an additional fitting step,
+%                                            using the Rician Likelihood.
+%   Rician noise bias                       only for non-linear fitting
+%                                            SigmaNoise map is prioritary.
+%     'Compute Sigma per voxel'             Sigma is estimated by computing the STD across repeated scans.
+%     'fix sigma'                           Use scd_noise_std_estimation to measure noise level. Use 'value' to fix Sigma.
+%
 %
 % Example of command line usage (see <a href="matlab: web(which('dti_batch.html'))"> dti_batch.html</a>):
 %      Model = dti
@@ -96,7 +92,7 @@ end
                             'Mat', txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
-        buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10};
+        buttons = {'fitting type',{'non-linear (Rician Likelihood)','linear'},'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10};
         options = struct();
         
     end
@@ -126,6 +122,13 @@ end
                 obj.options.Riciannoisebias_value  = 'auto';
             elseif isempty(obj.options.Riciannoisebias_value)
                 obj.options.Riciannoisebias_value=10;
+            end
+            
+            % disable Rician noise panel if linear
+            if strcmp(obj.options.fittingtype,'linear')
+                obj.buttons{strcmp(obj.buttons,'Rician noise bias') | strcmp(obj.buttons,'###Rician noise bias')} = '###Rician noise bias';
+            else
+                obj.buttons{strcmp(obj.buttons,'Rician noise bias') | strcmp(obj.buttons,'###Rician noise bias')} = 'Rician noise bias';
             end
         end
 
@@ -167,21 +170,22 @@ end
             D=scd_model_dti(max(eps,data.DiffusionData)./max(eps,S0),Prot);
             % RICIAN NOISE
             % use Rician noise and fix b=0
-            % use Rician noise and fix b=0
-            if isfield(data,'SigmaNoise') && ~isempty(data.SigmaNoise)
-                SigmaNoise = data.SigmaNoise(1);
-            elseif strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
-                SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data.DiffusionData);
-            else
-                SigmaNoise = obj.options.Riciannoisebias_value;
-            end
-            
             residue=0;
-            if ~moxunit_util_platform_is_octave && SigmaNoise
-                [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03));
-                D(:)=xopt;
+            if strcmp(obj.options.fittingtype,'non-linear (Rician Likelihood)')
+                if isfield(data,'SigmaNoise') && ~isempty(data.SigmaNoise)
+                    SigmaNoise = data.SigmaNoise(1);
+                elseif strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
+                    SigmaNoise = computesigmanoise(obj.Prot.DiffusionData.Mat,data.DiffusionData);
+                else
+                    SigmaNoise = obj.options.Riciannoisebias_value;
+                end
+                
+                
+                if ~moxunit_util_platform_is_octave && SigmaNoise
+                    [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03,'Algorithm','quasi-newton'));
+                    D(:)=xopt;
+                end
             end
-            
             % compute metrics
             [~,L] = eig(D); L = sort(diag(L),'descend');
             L_mean = sum(L)/3;
@@ -286,6 +290,12 @@ end
                 index = find(strcmp(obj.buttons,'Compute Sigma per voxel'));
                obj.buttons(index:(index+1)) = [];
                obj.options = rmfield(obj.options, 'ComputeSigmapervoxel');
+            end
+            
+            % New fitting method
+            if checkanteriorver(version,[2 0 9])
+                obj.buttons = ['fitting type',{{'non-linear (Rician Likelihood)','linear'}}, obj.buttons];
+                obj.options.fittingtype = 'non-linear (Rician Likelihood)';
             end
         end
     end
