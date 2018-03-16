@@ -103,7 +103,7 @@ if ~isempty(varargin)
     FileBrowserList = GetAppData('FileBrowserList');
     if length(varargin)>1
         data=varargin{2};
-        for ff=fieldnames(data)';
+        for ff=fieldnames(data)'
             FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).setFileName(ff{1}, data.(ff{1}))
         end
     end
@@ -124,12 +124,6 @@ uiwait(hObject)
 end
 
 
-
-% View first file
-if length(varargin)>1
-    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
-    butobj.ViewBtn_callback(butobj,[],[],handles)
-end
 
 % View first file
 if length(varargin)>1
@@ -797,22 +791,30 @@ else
     
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
-    y = 1+ S(2) - info_dcm.Position(2);
+    y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);
     z = str2double(get(handles.SliceValue,'String'));
+    View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
+    switch View{get(handles.ViewPop,'Value')}
+        case 'Axial',    vox = [x,y,z]; 
+        case 'Coronal',  vox = [x,z,y]; 
+        case 'Sagittal', vox = [z,x,y]; 
+    end
     
     for ii=1:length(Model.MRIinputs)
         if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
-            data.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(x,y,z,:));
+            data.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(vox(1),vox(2),vox(3),:));
         end
     end
     if isfield(data,'Mask'), data.Mask = []; end
     
     % Create axe
-    if ishandle(68), clf(68), end % If a data fit check has already been run,
-                                  % clear the previous data from the figure plot
-
     figure(68)
-
+    h = findobj(68,'Style','checkbox','String','hold plot in order to compare voxels');
+    if isempty(h) || ~get(h,'Value')  % If a data fit check has already been run OR do not hold plot,
+            clf(68)        % clear the previous data from the figure plot
+            uicontrol('Style','checkbox','String','hold plot in order to compare voxels','Value',0,'Position',[0 0 210 20]);
+    end 
+                                  
     set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
     haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
     

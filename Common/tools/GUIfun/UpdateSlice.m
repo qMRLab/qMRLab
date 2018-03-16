@@ -2,7 +2,7 @@ function UpdateSlice(handles)
 % UpdateSlice: set slice slider maximal value
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Fran?ois Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
@@ -12,17 +12,29 @@ function UpdateSlice(handles)
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
 
-View =  get(handles.ViewPop,'Value');
-switch View
-    case 1
+View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
+switch View{get(handles.ViewPop,'Value')}
+    case 'Axial'
         x = 3;
-    case 2
+        set(handles.txt_OrientL,  'String', 'L');
+        set(handles.txt_OrientR,  'String', 'R');
+        set(handles.txt_OrientS,  'String', 'A');
+        set(handles.txt_OrientI,  'String', 'P');
+    case 'Coronal'
         x = 2;
-    case 3
+        set(handles.txt_OrientL,  'String', 'L');
+        set(handles.txt_OrientR,  'String', 'R');
+        set(handles.txt_OrientS,  'String', 'S');
+        set(handles.txt_OrientI,  'String', 'I');
+    case 'Sagittal'
         x = 1;
+        set(handles.txt_OrientL,  'String', 'P');
+        set(handles.txt_OrientR,  'String', 'A');
+        set(handles.txt_OrientS,  'String', 'S');
+        set(handles.txt_OrientI,  'String', 'I');
 end
 dim = handles.FitDataDim;
-if (dim(3)>1)
+if (min(dim(1:3))>1)
     slice = handles.FitDataSlice(x);
     size = handles.FitDataSize(x);
     set(handles.SliceValue,  'String', slice);

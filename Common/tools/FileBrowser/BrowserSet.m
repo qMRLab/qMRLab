@@ -63,8 +63,8 @@ classdef BrowserSet
                 
                 Location = Location + [0.11, 0];
                 Position = [Location, 0.65, 0.1];
-                obj.FileBox = uicontrol(parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
-                    'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                obj.FileBox = uicontrol(parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
+                    'BackgroundColor', [1 1 1]);
                 
                 if obj.BrowseBtnOn == 1
                     Position = [LocationBrowse, 0.1, 0.1];
@@ -111,34 +111,37 @@ classdef BrowserSet
         % -- DATA LOAD
         %   load data from file and make accessible to qMRLab fct
         function DataLoad(obj)
+            set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
             obj.FullFile = get(obj.FileBox, 'String');
             tmp = [];
             if ~isempty(obj.FullFile)
-                [pathstr,name,ext] = fileparts(obj.FullFile);
-                Data = getappdata(0,'Data');
-                if strcmp(ext,'.mat');
+                [~,~,ext] = fileparts(obj.FullFile);
+                if strcmp(ext,'.mat')
                     mat = load(obj.FullFile);
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
-                elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img');
+                elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img')
                     tmp = load_nii_data(obj.FullFile);
-                elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif');
+                elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
                     TiffInfo = imfinfo(obj.FullFile);
                     NbIm = numel(TiffInfo);
                     if NbIm == 1
                         File = imread(obj.FullFile);
                     else
-                        for ImNo = 1:NbIm;
+                        for ImNo = 1:NbIm
                             File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);
                         end
                     end
                     tmp = File;
+                else
+                    warndlg(['file extention ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
                 end
             end
             Data = getappdata(0, 'Data'); 
             Data.(class(getappdata(0,'Model'))).(obj.NameID{1}) = double(tmp);
             if exist('nii','var'),	Data.hdr = nii.hdr; end
-            setappdata(0, 'Data', Data);            
+            setappdata(0, 'Data', Data); 
+            set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
         end
         
         %------------------------------------------------------------------
@@ -175,7 +178,11 @@ classdef BrowserSet
             else
                 PathName = '';
             end
-            obj.FullFile = fullfile(PathName,FileName);
+            if FileName
+                obj.FullFile = fullfile(PathName,FileName);
+            else
+                obj.FullFile = '';
+            end
             set(obj.FileBox,'String',obj.FullFile);
             
             DataLoad(obj);            
@@ -185,7 +192,6 @@ classdef BrowserSet
         % -- VIEW BUTTONS
         %------------------------------------------------------------------
         function ViewBtn_callback(obj,src, event, handles)
-            obj.DataLoad();
             dat = getappdata(0, 'Data');
             dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
             if isempty(dat), errordlg('empty data'); return; end
