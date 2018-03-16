@@ -10,23 +10,36 @@ setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
 
 function test_batch
 curdir = pwd;
-tmpDir = tempname;
+
+
+tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
 mkdir(tmpDir);
 cd(tmpDir)
+
 Modellist = list_models';
 for iModel = 1:length(Modellist)
     disp('===============================================================')
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
     disp('===============================================================')
-
-    % Generate batch
+    
+    
     eval(['Model = ' Modellist{iModel}]);
+    
+    
+    
+    
+    
+    
+    
     qMRgenBatch(Model,pwd)
+    
+    
+    
     
     % Test if any dataset exist
     isdata = true;
-    try 
-        Model.onlineData_url; 
+    try
+        Model.onlineData_url;
     catch
         isdata = false;
     end
@@ -40,11 +53,9 @@ for iModel = 1:length(Modellist)
     close all
     cd ..
     
-    % clean testing dataset
-    rmdir([Model.ModelName '_demo'],'s')
 end
 cd(curdir)
-rmdir(tmpDir,'s')
+
 
 function TestTeardown
 setenv('ISTRAVIS','0')

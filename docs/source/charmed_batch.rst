@@ -194,9 +194,9 @@ charmed: Composite Hindered and Restricted Model for Diffusion
    
    data = struct();
    <span class="comment">% DiffusionData.nii.gz contains [64    64     1  1791] data.</span>
-   data.DiffusionData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/charmed_demo/charmed_data/DiffusionData.nii.gz'</span>));
+   data.DiffusionData=double(load_nii_data(<span class="string">'charmed_data/DiffusionData.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [64  64] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/charmed_demo/charmed_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'charmed_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -216,6 +216,7 @@ charmed: Composite Hindered and Restricted Model for Diffusion
    FitResultsSave_nii(FitResults, <span class="string">'charmed_data/DiffusionData.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'charmed.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data

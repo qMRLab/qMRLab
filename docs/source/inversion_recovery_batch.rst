@@ -81,8 +81,7 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
     
     
      Protocol:
-    	IRData  Array [NbTIsx1]
-       	TI       inversion times [ms]
+    	IRData  [TI1 TI2...TIn] inversion times [ms]
     
      Options:
        Method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
@@ -90,6 +89,17 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
                              S=a + b*exp(-TI/T1)
           'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
                              S=|a + b*exp(-TI/T1)|
+    
+     Example of command line usage (see also a href="matlab: showdemo inversion_recovery_batch"showdemo inversion_recovery_batch/a):
+       Model = inversion_recovery;  % Create class from model
+       Model.Prot.IRData.Mat=[350.0000; 500.0000; 650.0000; 800.0000; 950.0000; 1100.0000; 1250.0000; 1400.0000; 1700.0000];
+       data = struct;  % Create data structure
+       data.MET2data ='IRData.mat';  % Load data
+       data.Mask = 'Mask.mat';
+       FitResults = FitData(data,Model); %fit data
+       FitResultsSave_mat(FitResults);
+    
+           For more examples: a href="matlab: qMRusage(minversion_recovery);"qMRusage(inversion_recovery)/a
     
      Author: Ilana Leppert, 2017
     
@@ -133,9 +143,9 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    data = struct();
    
    <span class="comment">% IRData.mat contains [128  128    1    9] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/IRData.mat'</span>);
+    load(<span class="string">'inversion_recovery_data/IRData.mat'</span>);
    <span class="comment">% Mask.mat contains [128  128] data.</span>
-    load(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/inversion_recovery_demo/inversion_recovery_data/Mask.mat'</span>);
+    load(<span class="string">'inversion_recovery_data/Mask.mat'</span>);
     data.IRData= double(IRData);
     data.Mask= double(Mask);
    
@@ -156,6 +166,7 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
    FitResultsSave_nii(FitResults);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'inversion_recovery.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data

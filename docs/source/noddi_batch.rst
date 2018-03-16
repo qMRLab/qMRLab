@@ -83,6 +83,7 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
     
      Inputs:
        DiffusionData       4D diffusion weighted dataset
+       (Mask)               Binary mask to accelerate the fitting (OPTIONAL)
     
      Outputs:
        di                  Diffusion coefficient in the restricted compartment.
@@ -170,9 +171,9 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
    
    data = struct();
    <span class="comment">% DiffusionData.nii.gz contains [74   87   50  109] data.</span>
-   data.DiffusionData=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noddi_demo/noddi_data/DiffusionData.nii.gz'</span>));
+   data.DiffusionData=double(load_nii_data(<span class="string">'noddi_data/DiffusionData.nii.gz'</span>));
    <span class="comment">% Mask.nii.gz contains [74  87  50] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/noddi_demo/noddi_data/Mask.nii.gz'</span>));
+   data.Mask=double(load_nii_data(<span class="string">'noddi_data/Mask.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -192,6 +193,7 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
    FitResultsSave_nii(FitResults, <span class="string">'noddi_data/DiffusionData.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'noddi.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data

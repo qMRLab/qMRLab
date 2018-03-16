@@ -126,9 +126,9 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    
    data = struct();
    <span class="comment">% SF60.nii.gz contains [64  64] data.</span>
-   data.SF60=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF60.nii.gz'</span>));
+   data.SF60=double(load_nii_data(<span class="string">'b1_dam_data/SF60.nii.gz'</span>));
    <span class="comment">% SF120.nii.gz contains [64  64] data.</span>
-   data.SF120=double(load_nii_data(<span class="string">'/Users/ilanaleppert/Documents/work/qMRLab/Data/b1_dam_demo/b1_dam_data/SF120.nii.gz'</span>));
+   data.SF120=double(load_nii_data(<span class="string">'b1_dam_data/SF120.nii.gz'</span>));
    
    
    <span class="comment">% -------------------------------------------------------------------------</span>
@@ -147,6 +147,7 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    FitResultsSave_nii(FitResults, <span class="string">'b1_dam_data/SF60.nii.gz'</span>);
    
    <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'b1_dam.
    -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data

@@ -364,7 +364,6 @@ function datCommand = getDataAssign(input,foo,req,format,dir,Model)
 [boolIdx,~] = ismember(input,foo);
 
 visDir = [Model.ModelName '_data'];
-
 flg = ismember(1,boolIdx);
 
 if flg
