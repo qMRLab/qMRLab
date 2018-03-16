@@ -808,11 +808,13 @@ else
     if isfield(data,'Mask'), data.Mask = []; end
     
     % Create axe
-    if ishandle(68), clf(68), end % If a data fit check has already been run,
-                                  % clear the previous data from the figure plot
-
     figure(68)
-
+    h = findobj(68,'Style','checkbox','String','hold plot in order to compare voxels');
+    if isempty(h) || ~get(h,'Value')  % If a data fit check has already been run OR do not hold plot,
+            clf(68)        % clear the previous data from the figure plot
+            uicontrol('Style','checkbox','String','hold plot in order to compare voxels','Value',0,'Position',[0 0 210 20]);
+    end 
+                                  
     set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
     haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
     
