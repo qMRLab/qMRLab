@@ -791,12 +791,14 @@ else
     
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
-    y = 1+ S(2) - info_dcm.Position(2);
+    y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);
     z = str2double(get(handles.SliceValue,'String'));
-    View =  get(handles.ViewPop,'Value');
-    vox = [x,y,z];
-    if View==3, vox = vox([3 1 2]); end % sagittal
-    if View==2, vox = vox([2 3 1]); end % corronal    
+    View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
+    switch View{get(handles.ViewPop,'Value')}
+        case 'Axial',    vox = [x,y,z]; 
+        case 'Coronal',  vox = [x,z,y]; 
+        case 'Sagittal', vox = [z,x,y]; 
+    end
     
     for ii=1:length(Model.MRIinputs)
         if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
