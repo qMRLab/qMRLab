@@ -75,7 +75,8 @@ end
 
 % POPULATE OPTIONS PANEL
 if ~isempty(Model.buttons)
-    
+    % delete old buttons
+    delete(findobj('Parent',handles.OptionsPanel,'Type','uipanel'))
     % Generate Buttons
     handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel);
     
@@ -156,6 +157,7 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
+    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediatly. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)

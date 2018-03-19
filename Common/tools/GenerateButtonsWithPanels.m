@@ -111,8 +111,10 @@ if ~isempty(opts)
         switch location 
             
             case 'Panel' % Reel Panels
+                if strcmp(PanelTitle{ip}(1:3),'###'), disablepanel = true; else disablepanel=false; end
                 ReelPanel(ip) = uipanel('Parent',ParentHandle,'Title',PanelTitle{ip},'FontSize',11,'FontWeight','bold',...
                                         'BackgroundColor',[0.94 0.94 0.94],'Position',[x y Width Height]);
+                if disablepanel, set(ReelPanel(ip),'Visible','off'); end
                 htmp = GenerateButtonsInPanels(opts(io:NumPanel(2,ip)),ReelPanel(ip));
                 f = fieldnames(htmp);
                 for i = 1:length(f)
