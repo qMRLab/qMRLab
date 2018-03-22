@@ -44,17 +44,21 @@ classdef BrowserSet
                 InputName = varargin{2};
                 InputOptional = varargin{3};
                 Location = varargin{4};
-                obj.BrowseBtnOn = varargin{5};
-                obj.ViewBtnOn = varargin{6};
+                info = varargin{5};
+                
+                obj.BrowseBtnOn = true;
+                obj.ViewBtnOn = true;
                 
                 obj.NameID = {InputName};
                 
                 Position = [Location, 0.02, 0.1];
-                Cmap = imread('help_ex.png');
-                Cmapnull = max(Cmap,[],3) == 0;
-                Cmap = Cmap + repmat(uint8(Cmapnull),[1 1 3])*(255*0.94);
-                obj.InfoBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', ...
-                    'CData', Cmap,'Position',Position);
+                if ~isempty(info)
+                    Cmap = imread('help_ex.png');
+                    Cmapnull = max(Cmap,[],3) == 0;
+                    Cmap = Cmap + repmat(uint8(Cmapnull),[1 1 3])*(255*0.94);
+                    obj.InfoBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', ...
+                        'CData', Cmap,'Position',Position,'Callback',@(hObj,eventdata,handles) helpdlg(info));
+                end
                 Position = [[Location+[0.03 0]], 0.07, 0.1];
                 obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);

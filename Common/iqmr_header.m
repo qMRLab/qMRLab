@@ -180,6 +180,7 @@ classdef iqmr_header
                 end
                 line = fgets(fID);
             end
+            fclose(fID);
             h = iqmr_header(head,assumption,input,output,protocol,option,usage,author,references);
         end
         

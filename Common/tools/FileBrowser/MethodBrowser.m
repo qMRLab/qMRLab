@@ -31,7 +31,13 @@ classdef MethodBrowser
             obj.MethodID = Model.ModelName;
             InputsName = Model.MRIinputs;
             InputsOptional = Model.get_MRIinputs_optional;
-            
+            try
+            header = iqmr_header.header_parse(which(Model.ModelName));
+            catch
+                header.input = {''};
+            end
+            if isempty(header.input), header.input = {''}; end
+                
             Location = [0.02, 0.7];
             
             obj.NbItems = size(InputsName,2);
@@ -39,7 +45,9 @@ classdef MethodBrowser
             obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
             
             for ii=1:obj.NbItems
-                obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, 1, 1);
+                headerii = strcmp(header.input(:,1),InputsName{ii}) | strcmp(header.input(:,1),['(' InputsName{ii} ')']);
+                if max(headerii), headerii = header.input{find(headerii,1,'first'),2}; else, headerii=''; end
+                obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, headerii);
                 Location = Location + [0.0, -0.15];
             end
             
