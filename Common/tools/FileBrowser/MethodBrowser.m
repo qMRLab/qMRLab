@@ -31,11 +31,7 @@ classdef MethodBrowser
             obj.MethodID = Model.ModelName;
             InputsName = Model.MRIinputs;
             InputsOptional = Model.get_MRIinputs_optional;
-            try
             header = iqmr_header.header_parse(which(Model.ModelName));
-            catch
-                header.input = {''};
-            end
             if isempty(header.input), header.input = {''}; end
                 
             Location = [0.02, 0.7];

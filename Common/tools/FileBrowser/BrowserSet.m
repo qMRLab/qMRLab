@@ -26,8 +26,6 @@ classdef BrowserSet
         InfoBtn;
         FileBox;
         ViewBtn;
-        BrowseBtnOn;
-        ViewBtnOn;
         
     end
     
@@ -35,7 +33,7 @@ classdef BrowserSet
         %------------------------------------------------------------------
         % -- CONSTRUCTOR
         function obj = BrowserSet(varargin)
-            % BrowserSet(parentPanel,Name,InputOptional,Location,BrowseBtnOn,ViewBtnOn)
+            % BrowserSet(parentPanel,Name,InputOptional,Location)
             % handles: used for the view button
             % Name: Name of the field
             if nargin>0
@@ -46,57 +44,46 @@ classdef BrowserSet
                 Location = varargin{4};
                 info = varargin{5};
                 
-                obj.BrowseBtnOn = true;
-                obj.ViewBtnOn = true;
-                
                 obj.NameID = {InputName};
                 
                 Position = [Location, 0.02, 0.1];
+                % add Info button
                 if ~isempty(info)
                     Cmap = imread('help_ex.png');
                     Cmapnull = max(Cmap,[],3) == 0;
                     Cmap = Cmap + repmat(uint8(Cmapnull),[1 1 3])*(255*0.94);
                     obj.InfoBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', ...
-                        'CData', Cmap,'Position',Position,'Callback',@(hObj,eventdata,handles) helpdlg(info));
+                        'CData', Cmap,'ForegroundColor',[0.94 0.94 0.94],'BackgroundColor',[0.94 0.94 0.94],'Position',Position,'Callback',@(hObj,eventdata,handles) helpdlg(info));
                 end
-                Position = [[Location+[0.03 0]], 0.07, 0.1];
+                
+                % add Input Name
+                Position = [[Location+[0.03 0]], 0.10, 0.1];
                 obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);
                 
                 % Set color to gray if optional
                 if InputOptional, set(obj.NameText,'ForegroundColor',[.5 .5 .5]); end
                     
-                if obj.BrowseBtnOn == 1
-                    Location = Location + [0.1, 0];
-                    LocationBrowse = Location;
-                end
-                
-                Location = Location + [0.11, 0];
-                Position = [Location, 0.65, 0.1];
+                % add Browse button
+                Position = [Location + [0.14, 0], 0.1, 0.1];
+                obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
+                    'String', 'Browse', 'Position', Position, 'FontSize', 0.6);
+
+                % add Browse button
+                Position = [Location + [0.27, 0], 0.58, 0.1];
                 obj.FileBox = uicontrol(parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
                     'BackgroundColor', [1 1 1]);
                 
-                if obj.BrowseBtnOn == 1
-                    Position = [LocationBrowse, 0.1, 0.1];
-                    obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                        'String', 'Browse', 'Position', Position, 'FontSize', 0.6);
-                end
-
-                if obj.ViewBtnOn == 1 
-                    Location = Location + [0.66, 0];
-                    Position = [Location, 0.1, 0.1];
-                    obj.ViewBtn = uicontrol(parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
-                        'String', 'View', 'Position', Position, 'FontSize', 0.6);           
-                end
+                % add View button
+                Position = [Location + [0.87, 0], 0.10, 0.1];
+                obj.ViewBtn = uicontrol(parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
+                    'String', 'View', 'Position', Position, 'FontSize', 0.6);
                 
                 % Set Callbacks
                 set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
-                if obj.BrowseBtnOn
-                    set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
-                end
-                if obj.ViewBtnOn == 1
-                    set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
-                end
+                set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
+
             end % testing varargin
         end % constructor end
         

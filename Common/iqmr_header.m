@@ -312,7 +312,7 @@ classdef iqmr_header
                 k = k + 1;
                 cat = 1;
             elseif line(index_name) ~= ' '
-                protocol{k,3} = strtrim(line(index_name:index));
+                protocol{k,3} = strtrim(line(index_name:min(index,end)));
                 if length(line) > 23
                     protocol{k,4} = strtrim(line(index:length(line)));
                 end
