@@ -67,7 +67,7 @@ classdef iqmr_header
         %               aut     (cells)
         %               ref     (cells)
         
-        function obj = header(head,ass,in,out,prot,opt,us,aut,ref)
+        function obj = iqmr_header(head,ass,in,out,prot,opt,us,aut,ref)
             obj.head = head;
             obj.assumption = ass;
             obj.input = in;
@@ -142,45 +142,45 @@ classdef iqmr_header
                     %Go get the informations
                     if strcmpi(reading, '')
                         %Get the first part
-                        head = header.get_head(head, line);
+                        head = iqmr_header.get_head(head, line);
                         
                     elseif strcmpi(reading,fields(1))
                         %Get the Assumptions
-                        assumption = header.get_assumption(assumption, line);
+                        assumption = iqmr_header.get_assumption(assumption, line);
                         
                     elseif strcmpi(reading,fields(2))
                         %Get the inputs 
-                        input = header.get_input(input, line);
+                        input = iqmr_header.get_input(input, line);
                         
                     elseif strcmpi(reading, fields(3))
                         %Get the outputs 
-                        output = header.get_output(output, line);
+                        output = iqmr_header.get_output(output, line);
                         
                     elseif strcmpi(reading,fields(4))
                         %Get the protocols
-                        protocol = header.get_protocol(protocol, line);
+                        protocol = iqmr_header.get_protocol(protocol, line);
 
                     elseif strcmpi(reading,fields(5))
                         %Get the options
-                        option = header.get_option(option, line);
+                        option = iqmr_header.get_option(option, line);
 
                     elseif strcmpi(reading,fields(6))
                         %Get the usage
-                        usage = header.get_usage(usage, line);
+                        usage = iqmr_header.get_usage(usage, line);
 
                     elseif strcmpi(reading,fields(7))
                         %Get the author
-                        author = header.get_author(author, line);
+                        author = iqmr_header.get_author(author, line);
 
                     elseif strcmpi(reading,fields(8))
                         %Get the references
-                        references = header.get_references(references, line);
+                        references = iqmr_header.get_references(references, line);
 
                     end
                 end
                 line = fgets(fID);
             end
-            h = header(head,assumption,input,output,protocol,option,usage,author,references);
+            h = iqmr_header(head,assumption,input,output,protocol,option,usage,author,references);
         end
         
         % Description: Get the assumptions from the file
