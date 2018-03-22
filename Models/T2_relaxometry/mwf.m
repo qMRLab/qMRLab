@@ -201,7 +201,7 @@ end
                 hold off
                 title('Fitting','FontSize',12);
                 if ~moxunit_util_platform_is_octave
-                legend({'Simulated data','Fitted curve'},'Location','best','FontSize',12);
+                legend({'Raw data','Fitted curve'},'Location','best','FontSize',12);
                 end
                 xlabel('EchoTimes (ms)');
                 ylabel('MET2 ()');
