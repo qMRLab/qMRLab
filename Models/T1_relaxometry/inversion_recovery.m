@@ -147,6 +147,8 @@ end
             ylabel('Signal','FontSize',15);
             legend('data', 'polarity restored', 'fit','Location','best')
             set(gca,'FontSize',15)
+            title(sprintf('T1=%0.2f ms; Residuals=%0.2f;',FitResults.T1,FitResults.res),...
+                'FontSize',14);
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)

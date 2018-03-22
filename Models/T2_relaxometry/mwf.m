@@ -188,6 +188,14 @@ end
                 %----------------------- subplot 1 -----------------------%
                 subplot(2,1,1)
                 plot(T2.vals,Spectrum,'r');
+                %plot vertical bars at estimated T2
+                hold on
+                ax=gca;
+                hei=ax.YLim(2);
+                plot(x.T2MW*(ones(1,hei)),1:1:hei,'--b')
+                plot(x.T2IEW*(ones(1,hei)),1:1:hei,'--k')
+                legend('Spectrum',strcat('T2MW=',num2str(x.T2MW),' ms'),strcat('T2IEW=',num2str(x.T2IEW),' ms'))
+                annotation('textbox',[0.5 0.65 0.05 0.05],'String',{['MWF=' num2str(x.MWF)]},'FitBoxToText','on','BackgroundColor',[0.9  0.9 0.9]);
                 title('Spectrums','FontSize',12);
                 xlabel('T2 (ms)');
                 ylabel('Proton density');
