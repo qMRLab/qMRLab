@@ -820,14 +820,16 @@ else
     
     if ~isempty(haxes)
         % turn gray old plots
-        haxes = get(haxes(min(end,2)),'children');
-        set(haxes,'Color',[0.8 0.8 0.8]);
-        hAnnotation = get(haxes,'Annotation');
-        % remove their legends
-        for ih=1:length(hAnnotation)
-            if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
-            hLegendEntry = get(hAnnot,'LegendInformation');
-            set(hLegendEntry,'IconDisplayStyle','off');
+        for h=1:length(haxes) %might have subplots
+            haxe = get(haxes(h),'children');
+            set(haxe,'Color',[0.8 0.8 0.8]);
+            hAnnotation = get(haxe,'Annotation');
+            % remove their legends
+            for ih=1:length(hAnnotation)
+                if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
+                hLegendEntry = get(hAnnot,'LegendInformation');
+                set(hLegendEntry,'IconDisplayStyle','off');
+            end
         end
     end
     hold on;
