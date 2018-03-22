@@ -29,9 +29,13 @@ for im = 1:length(MethodList)
             % compare with Ground Truth
             GT = load(['value_' class(Model) '.mat']);
             [~,ModelOpttest,GTModelOpttest]=comp_struct(ModelOpt,GT.ModelOpt);
-            assertTrue(isempty(ModelOpttest) & isempty(GTModelOpttest),evalc('ModelOpttest, GTModelOpttest'))
-            assertVectorsAlmostEqual(st{iopt},GT.st{iopt},'relative',1e-4,[MethodList{im} ' changed... value_' MethodList{im} '.mat has to be regenerated'])
-            assertVectorsAlmostEqual(Smodel{iopt},GT.Smodel{iopt},'relative',1e-2,['Testing consistency of equation for Model ' MethodList{im}])
+            if ~isempty(ModelOpttest) || ~isempty(GTModelOpttest)
+                msg = [MethodList{im} ' buttons/options has changed' evalc('ModelOpttest, GTModelOpttest')]; 
+            else
+                msg = '';
+            end
+            assertVectorsAlmostEqual(st{iopt},GT.st{iopt},'relative',1e-4,[MethodList{im} ' starting point (st) changed... ' msg ' value_' MethodList{im} '.mat has to be regenerated.'])
+            assertVectorsAlmostEqual(Smodel{iopt},GT.Smodel{iopt},'relative',1e-2,['Synthetic signal obtained from ' MethodList{im} ' equation is not consistent with previous versions... ' msg])
         elseif iopt == length(ModelOpt)
             save(['value_' class(Model) '.mat'],'Smodel','st','ModelOpt')
         end

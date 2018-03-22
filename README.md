@@ -11,7 +11,7 @@ The modularity of the implementation makes it easy to add any additional modules
 
 qMRLab is a fork from the initial project ['qMTLab'](https://github.com/neuropoly/qMTLab).  
 
-For **documentation**, visit the ['Documentation website'](http://qmrlab.readthedocs.io/en/master/documentation.html)
+For **documentation**, visit the ['Documentation website'](http://qmrlab.readthedocs.io/)
 If you are a developer, visit the ['Wiki page'](https://github.com/neuropoly/qMRLab/wiki) 
 
 

@@ -10,7 +10,7 @@ classdef qmt_sirfse < AbstractModel
 %
 % Inputs:
 %   MTdata              Magnetization Transfert data
-%   (R1map)             1/T1map (OPTIONAL but RECOMMANDED Boudreau 2017 MRM)
+%   (R1map)             1/T1map (OPTIONAL but recommended)
 %   (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
@@ -119,7 +119,7 @@ end
         % Model options
         buttons = {'PANEL','Inversion_Pulse',2,...
                    'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)',0.001,...
-                   'PANEL','Fitting',2,...
+                   'PANEL','fitting constraints',2,...
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'PANEL','Sr_Calculation',2,...
@@ -145,9 +145,14 @@ end
         end
         
         function obj = UpdateFields(obj)
-            if obj.options.Fitting_UseR1maptoconstrainR1f
+            if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3) = true;
             end
+            
+            if obj.options.fittingconstraints_FixR1rR1f
+                obj.fx(4) = true;
+            end
+            
             SrParam = GetSrParam(obj);
             SrProt = GetSrProt(obj);
             [obj.st(6),obj.st(5)] = computeSr(SrParam,SrProt);
@@ -220,6 +225,28 @@ end
             end
         end
         
+        function plotProt(obj)
+            Prot = GetProt(obj);
+            subplot(2,1,1)
+            plot(Prot.ti(2:end),diff(Prot.ti))
+            
+            hold on
+            minti = min(Prot.ti); maxti = max(Prot.ti);
+            tilin=linspace(minti,maxti,length(Prot.ti));
+            plot(tilin(2:end),diff(tilin),'--')     
+            tilog=logspace(log10(minti),log10(maxti),length(Prot.ti));
+            plot(tilog(2:end),diff(tilog),'--')     
+            ylabel('\Delta ti')
+            xlabel('ti')
+            ylim([min(diff(Prot.ti)),max(diff(Prot.ti))])
+            legend({'Experiment', 'Linear spacing','Log10 spacing'})
+            title('Inversion time spacing (logspace?, linspace?)')
+            subplot(2,1,2)
+            imshow qmt_sirfse.png
+            title('Pulse sequence diagram')
+        end
+        
+          
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
@@ -283,13 +310,13 @@ end
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
             end
-            FitOpt.R1map = obj.options.Fitting_UseR1maptoconstrainR1f;
+            FitOpt.R1map = obj.options.fittingconstraints_UseR1maptoconstrainR1f;
             FitOpt.names = obj.xnames;
             FitOpt.fx = obj.fx;
             FitOpt.st = obj.st;
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
-            FitOpt.R1reqR1f = obj.options.Fitting_FixR1rR1f;
+            FitOpt.R1reqR1f = obj.options.fittingconstraints_FixR1rR1f;
         end
         
         function SrParam = GetSrParam(obj)           
@@ -310,4 +337,19 @@ end
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
         end
     end
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % 2.0.6
+            if checkanteriorver(version,[2 0 7])
+                obj.options.fittingconstraints_UseR1maptoconstrainR1f = obj.options.Fitting_UseR1maptoconstrainR1f;
+                obj.options = rmfield(obj.options,'Fitting_UseR1maptoconstrainR1f');
+                obj.options.fittingconstraints_FixR1rR1f = obj.options.Fitting_FixR1rR1f;
+                obj.options = rmfield(obj.options,'Fitting_FixR1rR1f');
+                obj.buttons{strcmp(obj.buttons,'Fitting')} = 'fitting constraints';
+            end
+        end
+    end
+
 end

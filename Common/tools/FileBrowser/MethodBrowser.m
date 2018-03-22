@@ -30,22 +30,18 @@ classdef MethodBrowser
             if nargin > 2            
                 obj.Parent = varargin{1};
                 handles = varargin(2);
-                Params = varargin{3}; 
+                InputsName = varargin{4};
+                InputsOptional = varargin{5};
                 
-                obj.MethodID = Params(1);
+                obj.MethodID = varargin{3};
                 Location = [0.02, 0.7];
                 
-                TheSize = size(Params);
-                if strcmp(Params(TheSize(2)), '') 
-                    obj.NbItems = TheSize(2)-2;
-                else
-                    obj.NbItems = TheSize(2)-1;
-                end
+                obj.NbItems = size(InputsName,2);
                 
                 obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
                 
-                for i=1:obj.NbItems
-                    obj.ItemsList(i) = BrowserSet(obj.Parent, handles, Params(i+1), Location, 1, 1);
+                for ii=1:obj.NbItems
+                    obj.ItemsList(ii) = BrowserSet(obj.Parent, handles, InputsName{ii}, InputsOptional(ii), Location, 1, 1);
                     Location = Location + [0.0, -0.15];
                 end
                 
