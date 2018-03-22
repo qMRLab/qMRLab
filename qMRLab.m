@@ -80,10 +80,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
         Modelfun = str2func(MethodList{iMethod});
         Model = Modelfun();
         close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
-        MRIinputs = Model.MRIinputs;
-        optionalInputs = get_MRIinputs_optional(Model);
         % create file browser uicontrol with specific inputs
-        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,MethodList{iMethod}, MRIinputs,optionalInputs);
+        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,Model);
         FileBrowserList(iMethod).Visible('off');
         
     end

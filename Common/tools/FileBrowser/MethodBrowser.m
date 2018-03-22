@@ -25,38 +25,35 @@ classdef MethodBrowser
     methods
         %------------------------------------------------------------------
         % constructor
-        function obj = MethodBrowser(varargin)
-            obj.Parent = varargin{1};
-            if nargin > 2            
-                obj.Parent = varargin{1};
-                handles = varargin(2);
-                InputsName = varargin{4};
-                InputsOptional = varargin{5};
-                
-                obj.MethodID = varargin{3};
-                Location = [0.02, 0.7];
-                
-                obj.NbItems = size(InputsName,2);
-                
-                obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
-                
-                for ii=1:obj.NbItems
-                    obj.ItemsList(ii) = BrowserSet(obj.Parent, handles, InputsName{ii}, InputsOptional(ii), Location, 1, 1);
-                    Location = Location + [0.0, -0.15];
-                end
-                
-                % setup work directory and study ID display
-                obj.WorkDir_FullPath = '';
-                obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
-                obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
-                obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
-                    'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
-                obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
-                obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
+        function obj = MethodBrowser(Parent,Model)
+            % example: figure(1); clf; MB = MethodBrowser(1,dti); 
+            obj.Parent = Parent;
+            obj.MethodID = Model.ModelName;
+            InputsName = Model.MRIinputs;
+            InputsOptional = Model.get_MRIinputs_optional;
+            
+            Location = [0.02, 0.7];
+            
+            obj.NbItems = size(InputsName,2);
+            
+            obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
+            
+            for ii=1:obj.NbItems
+                obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, 1, 1);
+                Location = Location + [0.0, -0.15];
             end
+            
+            % setup work directory and study ID display
+            obj.WorkDir_FullPath = '';
+            obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
+                'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
+            obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
+            obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
+                'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
+                'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
+            obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
+                'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
+            obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
         end % end constructor
                   
         %------------------------------------------------------------------
@@ -91,9 +88,9 @@ classdef MethodBrowser
         
         %------------------------------------------------------------------
         % DataLoad - load the images using setappdata
-        function DataLoad(obj, handles)
+        function DataLoad(obj)
             for i=1:obj.NbItems
-                obj.ItemsList(i).DataLoad(handles);
+                obj.ItemsList(i).DataLoad;
             end
         end
         
@@ -141,7 +138,6 @@ classdef MethodBrowser
         %------------------------------------------------------------------
         % get working directory name
         function WD = setWD(obj,WD)
-            % WD = setWD(obj,handles,WD)
             obj.WD_BrowseBtn_callback(obj,WD)
         end
         

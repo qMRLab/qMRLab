@@ -23,33 +23,39 @@ classdef BrowserSet
     properties(Hidden = true)
         NameText;
         BrowseBtn;
+        InfoBtn;
         FileBox;
         ViewBtn;
         BrowseBtnOn;
         ViewBtnOn;
-
+        
     end
     
     methods
         %------------------------------------------------------------------
         % -- CONSTRUCTOR
         function obj = BrowserSet(varargin)
-            % BrowserSet(parentPanel,handles,Name)
+            % BrowserSet(parentPanel,Name,InputOptional,Location,BrowseBtnOn,ViewBtnOn)
             % handles: used for the view button
             % Name: Name of the field
             if nargin>0
                 % parse the input arguments
                 parent = varargin{1};
-                handles = varargin{2};
-                InputName = varargin{3};
-                InputOptional = varargin{4};
-                Location = varargin{5};
-                obj.BrowseBtnOn = varargin{6};
-                obj.ViewBtnOn = varargin{7};
+                InputName = varargin{2};
+                InputOptional = varargin{3};
+                Location = varargin{4};
+                obj.BrowseBtnOn = varargin{5};
+                obj.ViewBtnOn = varargin{6};
                 
                 obj.NameID = {InputName};
-
-                Position = [Location, 0.1, 0.1];
+                
+                Position = [Location, 0.02, 0.1];
+                Cmap = imread('help_ex.png');
+                Cmapnull = max(Cmap,[],3) == 0;
+                Cmap = Cmap + repmat(uint8(Cmapnull),[1 1 3])*(255*0.94);
+                obj.InfoBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', ...
+                    'CData', Cmap,'Position',Position);
+                Position = [[Location+[0.03 0]], 0.07, 0.1];
                 obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);
                 
@@ -69,16 +75,23 @@ classdef BrowserSet
                 if obj.BrowseBtnOn == 1
                     Position = [LocationBrowse, 0.1, 0.1];
                     obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                        'String', 'Browse', 'Position', Position, 'FontSize', 0.6, ...
-                        'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                        'String', 'Browse', 'Position', Position, 'FontSize', 0.6);
                 end
 
                 if obj.ViewBtnOn == 1 
                     Location = Location + [0.66, 0];
                     Position = [Location, 0.1, 0.1];
                     obj.ViewBtn = uicontrol(parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
-                        'String', 'View', 'Position', Position, 'FontSize', 0.6, ...
-                        'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event, handles{1,1})});           
+                        'String', 'View', 'Position', Position, 'FontSize', 0.6);           
+                end
+                
+                % Set Callbacks
+                set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                if obj.BrowseBtnOn
+                    set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                end
+                if obj.ViewBtnOn == 1
+                    set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
                 end
             end % testing varargin
         end % constructor end
@@ -94,6 +107,7 @@ classdef BrowserSet
             set(obj.BrowseBtn, 'Visible', Visibility);
             set(obj.FileBox, 'Visible', Visibility);
             set(obj.ViewBtn, 'Visible', Visibility);
+            set(obj.InfoBtn, 'Visible', Visibility);
         end
         
         %------------------------------------------------------------------
@@ -138,10 +152,22 @@ classdef BrowserSet
                 end
             end
             Data = getappdata(0, 'Data'); 
-            Data.(class(getappdata(0,'Model'))).(obj.NameID{1}) = double(tmp);
+            Model = getappdata(0,'Model');
+            Data.(class(Model)).(obj.NameID{1}) = double(tmp);
             if exist('nii','var'),	Data.hdr = nii.hdr; end
+
             setappdata(0, 'Data', Data); 
             set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
+
+            setappdata(0, 'Data', Data);            
+            ErrMsg = Model.sanityCheck(Data.(class(Model)));
+%             if ~isempty(ErrMsg)
+%                 set(obj.InfoBtn,'TooltipString',ErrMsg)
+%                 set(obj.InfoBtn,'Visible','on')
+%             else
+%                 set(obj.InfoBtn,'Visible','off')
+%             end
+                
         end
         
         %------------------------------------------------------------------
@@ -191,7 +217,7 @@ classdef BrowserSet
         %------------------------------------------------------------------
         % -- VIEW BUTTONS
         %------------------------------------------------------------------
-        function ViewBtn_callback(obj,src, event, handles)
+        function ViewBtn_callback(obj,src, event)
             dat = getappdata(0, 'Data');
             dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
             if isempty(dat), errordlg('empty data'); return; end
@@ -200,6 +226,7 @@ classdef BrowserSet
             Data.(obj.NameID{1,1}) = dat;
             
             Data.fields = {obj.NameID{1,1}};
+            handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
             DrawPlot(handles);
         end
