@@ -1,9 +1,9 @@
-%Script pour tester la bonne écriture des headers des models
+%Script pour tester la bonne ?criture des headers des models
 
-function b = checkHeader(file)
+function b = iqmr_checkHeader(file)
     b = true;
     cdmfile(file);
-    h = header.header_parse(file);
+    h = iqmr_header.header_parse(file);
     
     fprintf('Header verification of %s in progress... \nPlease wait until the process is finished...\n\n', file);
     % Check head
@@ -36,7 +36,6 @@ function b = checkHeader(file)
         fprintf('ERROR: Missing or inadequate output format\n');
     else
         d = true;
-        s = size(h.protocol);
         for i = 1:(1)
             if strcmp(h.output(i,2),'')
                 b = false;
@@ -56,12 +55,12 @@ function b = checkHeader(file)
         s = size(h.protocol);
         for i = 1:s(1)
             if s(2) >= 3
-                if ~strcmp(h.protocol(i,3),'') & strcmp(h.protocol(i,4),'')
+                if ~strcmp(h.protocol(i,3),'') && strcmp(h.protocol(i,4),'')
                     b = false;
                     d = false;
                 end
             else
-                if ~strcmp(h.protocol(i,1),'') & strcmp(h.protocol(i,2),'')
+                if ~strcmp(h.protocol(i,1),'') && strcmp(h.protocol(i,2),'')
                     b = false;
                     d = false;
                 end  
@@ -77,7 +76,7 @@ function b = checkHeader(file)
     else
         d = true;
         for i = 1:size(h.option)
-            if ~strcmp(h.option(i,3),'') & strcmp(h.option(i,4),'')
+            if ~strcmp(h.option(i,3),'') && strcmp(h.option(i,4),'')
                 b = false;
                 d = false;
             end
@@ -90,7 +89,7 @@ function b = checkHeader(file)
         b = false;
         fprintf('ERROR: Missing or inadequate usage format\n');
     end
-    if size(h.author) == 0 | strcmp(h.author(1),'FILL')
+    if size(h.author) == 0 || strcmp(h.author(1),'FILL')
         b = false;
         fprintf('ERROR: Missing or inadequate author format\n');
     end

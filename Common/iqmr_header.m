@@ -31,7 +31,7 @@
 % Author: Gabriel Berestovoy
 % References: see other
 
-classdef header
+classdef iqmr_header
     % Description : Properties of the header class.
     % Attributs:    assumption  (cells)
     %               input       (cells)
@@ -123,7 +123,7 @@ classdef header
             %Loop across the file
             while ~feof(fID) && ~finished
                 %Check if the header is finished
-                if strcmpi(reading,fields(8)) && length(strfind(line,'%')) == 0
+                if strcmpi(reading,fields(8)) && isempty(strfind(line,'%'))
                     finished = 1;
                 end
                 %Check for the section that is read in the file
@@ -131,7 +131,7 @@ classdef header
                     line = strrep(line,'%','');
                     for i = 1:length(fields)
                         finds = strfind(lower(line),lower(fields(i)));
-                        if length(finds) ~= 0
+                        if ~isempty(finds)
                             if finds(1)<= 13
                                 reading = fields(i);
                                 k=1;
@@ -187,15 +187,9 @@ classdef header
         function a = get_assumption(assumption, line)
             global fields;
             global k;
-            global cat;
-            global finished;
-            global index_descr;
-            global index_cat;
-            global index_first;
-            global index_name;
             
             a = assumption;
-            if length(strfind(lower(line), lower(fields(1)))) ~= 0 && strncmpi(strtrim(line),fields(1),length(fields(1)));
+            if ~isempty(strfind(lower(line), lower(fields(1)))) && strncmpi(strtrim(line),fields(1),length(fields(1)))
             elseif length(line) > 4 && line(4) ~= ' '
                   a{k,1} = line;
                   k = k + 1;
@@ -208,21 +202,17 @@ classdef header
         function input = get_input(i, line)
             global fields;
             global k;
-            global cat;
-            global finished;
             global index_descr;
-            global index_cat;
             global index_first;
-            global index_name;
             
             input = i;
             %Get the inputs 
-            [startindex endindex] = regexp(line, '\s+');
+            [startindex, endindex] = regexp(line, '\s+');
             index_first = 4;
-            if length(startindex) ~= 0 && length(endindex) ~= 0
+            if ~isempty(startindex) && ~isempty(endindex)
                 index_first = endindex(1) - startindex(1) + 2;
             end
-            if length(strfind(line, fields(2))) ~= 0 && strncmpi(strtrim(line),fields(2),length(fields(3)))
+            if ~isempty(strfind(line, fields(2))) && strncmpi(strtrim(line),fields(2),length(fields(3)))
                 index_descr = 10;
             elseif line(index_first) ~= ' ' && index_first < index_descr
                 %input{k,1} = strtrim(extractBetween(line,index_first,endindex(2)));
@@ -241,20 +231,16 @@ classdef header
         function output = get_output(ou, line)
             global fields;
             global k;
-            global cat;
-            global finished;
             global index_descr;
-            global index_cat;
             global index_first;
-            global index_name;
             
             output = ou;
-            [startindex endindex] = regexp(line, '\s+');
+            [startindex, endindex] = regexp(line, '\s+');
             index_first = 4;
-            if length(startindex) ~= 0 && length(endindex) ~= 0
+            if ~isempty(startindex) && ~isempty(endindex)
                 index_first = endindex(1) - startindex(1) + 2;
             end
-            if length(strfind(line, fields(3))) ~= 0 && strncmpi(strtrim(line),fields(3),length(fields(3)))
+            if ~isempty(strfind(line, fields(3))) && strncmpi(strtrim(line),fields(3),length(fields(3)))
                 index_descr = 10;
             elseif line(index_first) ~= ' ' && index_first < index_descr
                 output{k,1} = strtrim(line(index_first:endindex(2)));
@@ -275,22 +261,21 @@ classdef header
             global fields;
             global k;
             global cat;
-            global finished;
             global index_descr;
             global index_cat;
             global index_first;
             global index_name;
             
             protocol = p;
-            [startindex endindex] = regexp(line,'\s+');
+            [startindex, endindex] = regexp(line,'\s+');
             index = 1;
             i = 1;
-            if exist('index_cat') == 0
+            if exist('index_cat','var') == 0
                 index_cat = -1;
                 index_name = -1;
                 index_first = 4;
             end
-            if length(startindex) ~= 0 && length(endindex) ~= 0
+            if ~isempty(startindex) && ~isempty(endindex)
                 index_first = endindex(1) - startindex(1) + 2;
             end
             if index_cat == 0 
@@ -309,7 +294,7 @@ classdef header
             if index == 1
                 index = 23;
             end
-            if length(strfind(line, fields(4))) ~= 0 && strncmpi(strtrim(line),fields(4),length(fields(4)))
+            if ~isempty(strfind(line, fields(4))) && strncmpi(strtrim(line),fields(4),length(fields(4)))
                 index_cat = 0;
                 index_name = 0;
                 index_descr = 0;
@@ -349,22 +334,21 @@ classdef header
             global fields;
             global k;
             global cat;
-            global finished;
             global index_descr;
             global index_cat;
             global index_first;
             global index_name;
             
             option = op;
-            [startindex endindex] = regexp(line,'\s+');
+            [startindex, endindex] = regexp(line,'\s+');
             index = 1;
             i = 1;
-            if exist('index_cat') == 0
+            if exist('index_cat','var') == 0
                 index_cat = -1;
                 index_name = -1;
                 index_first = 4;
             end
-            if length(startindex) ~= 0 && length(endindex) ~= 0
+            if ~isempty(startindex) && ~isempty(endindex)
                 index_first = endindex(1) - startindex(1) + 2;
             end
             if index_cat == 0 
@@ -383,7 +367,7 @@ classdef header
             if index == 1
                 index = 23;
             end
-            if length(strfind(line, fields(5))) ~= 0 && strncmpi(strtrim(line),fields(5),length(fields(5)))
+            if ~isempty(strfind(line, fields(5))) && strncmpi(strtrim(line),fields(5),length(fields(5)))
                 index_cat = 0;
                 index_name = 0;
                 index_descr = 0;
@@ -422,15 +406,9 @@ classdef header
         function usage = get_usage(u, line)
             global fields;
             global k;
-            global cat;
-            global finished;
-            global index_descr;
-            global index_cat;
-            global index_first;
-            global index_name;
             
             usage = u;
-            if length(strfind(line, fields(6))) ~= 0 && strncmpi(strtrim(line),fields(6),length(fields(6)));
+            if ~isempty(strfind(line, fields(6))) && strncmpi(strtrim(line),fields(6),length(fields(6)))
             else
                 usage{k,1}=strtrim(line);
                 k = k + 1;
@@ -439,14 +417,7 @@ classdef header
         
         % Description: Get the author from the file
         function author = get_author(au, line)
-            global fields;
             global k;
-            global cat;
-            global finished;
-            global index_descr;
-            global index_cat;
-            global index_first;
-            global index_name;
             
             author = au;
             author{k,1}=strtrim(line);
@@ -457,15 +428,9 @@ classdef header
         function references = get_references(r, line)
             global fields;
             global k;
-            global cat;
-            global finished;
-            global index_descr;
-            global index_cat;
-            global index_first;
-            global index_name;
             
             references = r;
-            if length(strfind(line, fields(8))) ~= 0 && strncmpi(strtrim(line),fields(6),length(fields(6)));
+            if ~isempty(strfind(line, fields(8))) && strncmpi(strtrim(line),fields(6),length(fields(6)))
             else
                 references{k,1} = strtrim(line);
                 k = k + 1;
@@ -474,14 +439,7 @@ classdef header
         
         % Description: Get the header's first part from the file
         function head = get_head(he, line)
-            global fields;
             global k;
-            global cat;
-            global finished;
-            global index_descr;
-            global index_cat;
-            global index_first;
-            global index_name;
             
             head = he;
             head{k,1} = strtrim(line);
