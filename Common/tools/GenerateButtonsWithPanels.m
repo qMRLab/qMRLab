@@ -111,7 +111,7 @@ if ~isempty(opts)
         switch location 
             
             case 'Panel' % Reel Panels
-                if strcmp(PanelTitle{ip}(1:2),'##'), disablepanel = true; else disablepanel=false; end
+                if strcmp(PanelTitle{ip}(1:min(end,3)),'###'), disablepanel = true; else disablepanel=false; end
                 ReelPanel(ip) = uipanel('Parent',ParentHandle,'Title',PanelTitle{ip},'FontSize',11,'FontWeight','bold',...
                                         'BackgroundColor',[0.94 0.94 0.94],'Position',[x y Width Height]);
                 if disablepanel, set(ReelPanel(ip),'Visible','off'); end
