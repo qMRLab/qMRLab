@@ -15,9 +15,8 @@ function varargout = qMRLab(varargin)
 % Software for data simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
-qMRLabDir = fileparts(which(mfilename()));
-addpath(genpath(qMRLabDir));
-if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
+
+if logical(exist('OCTAVE_VERSION', 'builtin')), warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -43,6 +42,10 @@ end
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
 if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 if ~isfield(handles,'opened') % qMRI already opened?
+    % Add qMRLab to path
+    qMRLabDir = fileparts(which(mfilename()));
+    addpath(genpath(qMRLabDir));
+
     handles.opened = 1;
     clc;
     % startup;
@@ -335,6 +338,10 @@ data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
 data = data.(Method);
+
+% check data
+ErrMsg = Model.sanityCheck(data);
+if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
@@ -910,6 +917,7 @@ axis equal off;
 RefreshColorMap(handles);
 xlim(xl);
 ylim(yl);
+drawnow;
 
 
 % ##############################################################################################
