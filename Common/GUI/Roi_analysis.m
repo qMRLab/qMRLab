@@ -1,6 +1,6 @@
 function varargout = Roi_analysis(varargin)
 % qmrlab MATLAB code for Roi_analysis.fig
-% GUI for ROI analysis of simulated/fitted x
+% GUI for ROI analysis of simulated/fitted qMRI maps
 
 % ----------------------------------------------------------------------------------------------------
 % Written by: Tommy Boshkovski, 2018
@@ -65,7 +65,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     NewPos     = CurrentPos;
     NewPos(1)  = CurrentPos(1) - 40;
     set(gcf, 'Position', NewPos);
-    set(findall(handles.ROIs,'-property','enable'), 'enable', 'off');
+    set(handles.roiDraw, 'enable', 'off');
     set(handles.AddROI, 'enable', 'on');
     set(handles.ROIList, 'enable', 'on');
     handles.CurrentData = getappdata(0,'roidata');
@@ -172,9 +172,10 @@ else
     boxMsg{size(boxMsg,1)+1,1} = ['ROI' num2str(size(boxMsg,1)+1)];
 end
 set(handles.ROIList,'String',boxMsg);
-set(findall(handles.ROIs,'-property','enable'), 'enable', 'off');
+set(handles.roiDraw, 'enable', 'off');
 set(handles.AddROI, 'enable', 'on');
 set(handles.ROIList, 'enable', 'on');
+set(handles.DeleteRoi, 'enable', 'on');
 set(gcf,'Pointer','Arrow')
 guidata(gcbo,handles);
 
@@ -242,71 +243,20 @@ RefreshPlot(handles);
 function ROIList_Callback(hObject, eventdata, handles)
 
 %get selected ROI
-index_selected = get(hObject,'Value');
-SourceFields = cellstr(get(handles.data,'String'));
-Source = SourceFields{get(handles.data,'Value')};
-View = get(handles.ViewPop,'Value');
-Slice = str2double(get(handles.SliceValue,'String'));
-Time = str2double(get(handles.TimeValue,'String'));
+RefreshPlot(handles);
 
-Data = handles.CurrentData;
-data = Data.(Source);
-switch View
-    case 1
-        Map = rot90(squeeze(data(:,:,Slice,Time)));
-        NewMap = Map.*squeeze(handles.ROI{index_selected}.vol(:,:,Slice,Time));
-    case 2
-        Map = rot90(squeeze(data(:,Slice,:,Time)));
-        NewMap = Map.*rot90(squeeze(handles.ROI{index_selected}.vol(Slice,:,:,Time)));
-    case 3
-        Map = rot90(squeeze(data(Slice,:,:,Time)));
-        NewMap = Map.*rot90(squeeze(handles.ROI{index_selected}.vol(:,Slice,:,Time)),3);
-end
-
-guidata(gcbo, handles);
-set(handles.FitDataAxe);
-%overaly the image with a colored ROI
-green = cat(3, ones(size(Map)).* handles.ROI{index_selected}.color(1), ones(size(Map)).* handles.ROI{index_selected}.color(2), ...
-ones(size(Map)).* handles.ROI{index_selected}.color(3)); % randomly select a color
-hold on
-imagesc(Map);
-b = imshow(green);
-set(b, 'AlphaData', NewMap)
-hold off
-axis equal off;
-
-switch View
-    case 1
-        colorbar('location', 'East', 'Color', 'white');
-    case 2
-        colorbar('location', 'South', 'Color', 'white');
-    case 3
-        colorbar('location', 'South', 'Color', 'white');
-end
-
-
-table(2:1+size(get(handles.data,'String'),1),1) = get(handles.data,'String');
-table(1,1:4) = {'map','mean','std','median'};
-length = max(size(handles.CurrentData.fields,2),size(handles.CurrentData.fields,1));
-for i = 1:length
-    data = Data.(handles.CurrentData.fields{i});
-    data = data(handles.ROI{index_selected}.vol > 0);
-    table(1+i,2) = {mean(data(~isnan(data) & ~isinf(data)))};
-    table(1+i,3) = {std(data(~isnan(data) & ~isinf(data)))};
-    table(1+i,4) = {median(data(~isnan(data) & ~isinf(data)))};
-end
-set(handles.RoiResults,'Data',table)
 
 
 % --- Executes on button press in AddROI.
 function AddROI_Callback(hObject, eventdata, handles)
-set(findall(handles.ROIs,'-property','enable'), 'enable', 'on');
+set(handles.roiDraw, 'enable', 'on');
 
 
 % --- Executes on button press in DeleteRoi.
 function DeleteRoi_Callback(hObject, eventdata, handles)
 
 index_selected = get(handles.ROIList,'Value');
+if(size(handles.ROI,2) == 0) return; end
 rois = get(handles.ROIList,'String');
 rois = removerows(rois,index_selected);
 list = handles.ROI';
@@ -433,12 +383,57 @@ if isempty(handles.CurrentData), return; end
 Current = GetCurrents(handles);
 xl = xlim;
 yl = ylim;
-% imagesc(flipdim(Current',1));
-imagesc(rot90(Current));
-axis equal off;
-RefreshColorMaps(handles)
-xlim(xl);
-ylim(yl);
+% 
+
+index_selected = get(handles.ROIList,'Value');
+if (size(handles.ROI,2) ~= 0)
+    SourceFields = cellstr(get(handles.data,'String'));
+    Source = SourceFields{get(handles.data,'Value')};
+    View = get(handles.ViewPop,'Value');
+    Slice = str2double(get(handles.SliceValue,'String'));
+    Time = str2double(get(handles.TimeValue,'String'));
+    transparency = get(handles.roi_transparency,'Value');
+    Data = handles.CurrentData;
+    data = Data.(Source);
+    switch View
+        case 1
+            Map = rot90(squeeze(data(:,:,Slice,Time)));
+            NewMap = squeeze(handles.ROI{index_selected}.vol(:,:,Slice,Time))*transparency;
+        case 2
+            Map = rot90(squeeze(data(:,Slice,:,Time)));
+            NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(Slice,:,:,Time)))*transparency;
+        case 3
+            Map = rot90(squeeze(data(Slice,:,:,Time)));
+            NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(:,Slice,:,Time)),3)*transparency;
+    end
+    
+    guidata(gcbo, handles);
+    set(handles.FitDataAxe);
+    %overaly the image with a colored ROI
+    green = cat(3, ones(size(Map)).* handles.ROI{index_selected}.color(1), ones(size(Map)).* handles.ROI{index_selected}.color(2), ...
+        ones(size(Map)).* handles.ROI{index_selected}.color(3)); % randomly select a color
+    hold on
+    imagesc(Map);
+    b = imshow(green);
+    set(b, 'AlphaData', NewMap)
+    hold off
+    table(2:1+size(get(handles.data,'String'),1),1) = get(handles.data,'String');
+    table(1,1:4) = {'map','mean','std','median'};
+    length = max(size(handles.CurrentData.fields,2),size(handles.CurrentData.fields,1));
+    for i = 1:length
+        data = Data.(handles.CurrentData.fields{i});
+        data = data(handles.ROI{index_selected}.vol > 0);
+        table(1+i,2) = {mean(data(~isnan(data) & ~isinf(data)))};
+        table(1+i,3) = {std(data(~isnan(data) & ~isinf(data)))};
+        table(1+i,4) = {median(data(~isnan(data) & ~isinf(data)))};
+    end
+    set(handles.RoiResults,'Data',table)
+end
+    axis equal off;
+    RefreshColorMaps(handles)
+    xlim(xl);
+    ylim(yl);
+
 
 
 function DrawMaps(handles)
@@ -977,6 +972,9 @@ function zoomIn_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of zoomIn
 h = zoom;
 h.Direction = 'in';
+if(strcmp(get(handles.zoomOut,'TooltipString'),'on'))
+    set(handles.zoomOut,'Value',0)
+end
 if(strcmp(get(handles.zoomIn,'TooltipString'),'off'))
 h.Enable = 'on';
 set(handles.zoomIn,'TooltipString','on')
@@ -993,6 +991,9 @@ function zoomOut_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 h = zoom;
 h.Direction = 'out';
+if(strcmp(get(handles.zoomIn,'TooltipString'),'on'))
+    set(handles.zoomIn,'Value',0)
+end
 if(strcmp(get(handles.zoomOut,'TooltipString'),'off'))
 h.Enable = 'on';
 set(handles.zoomOut,'TooltipString','on')
@@ -1001,3 +1002,20 @@ else
     h.Enable = 'off';
 end
 % Hint: get(hObject,'Value') returns toggle state of zoomOut
+
+
+% --- Executes on slider movement.
+function roi_transparency_Callback(hObject, eventdata, handles)
+RefreshPlot(handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function roi_transparency_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to roi_transparency (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
