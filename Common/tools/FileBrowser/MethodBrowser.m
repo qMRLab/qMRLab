@@ -20,6 +20,7 @@ classdef MethodBrowser
         WorkDir_FullPath;
         StudyID_TextArea;
         StudyID_TextID;
+        WarnBut_DataConsistensy;
     end
     
     methods
@@ -47,17 +48,23 @@ classdef MethodBrowser
                 Location = Location + [0.0, -0.15];
             end
             
+            % ADD WARNING BUTTON
+            obj.WarnBut_DataConsistensy = uicontrol(obj.Parent, 'Style', 'Text','units', 'normalized','BackgroundColor',[0.94 0.94 0.94],'ForegroundColor',[1 0 0],'FontSize',10,...
+                'Position', [0,0,1,0.08], 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
+            
             % setup work directory and study ID display
             obj.WorkDir_FullPath = '';
             obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
-            obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
+                'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.05,0.85,0.1,0.1],'FontSize', 0.6);
             obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
+                'String', 'Browse', 'Position', [0.16,0.85,0.1,0.1], 'FontSize', 0.6, ...
                 'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
+            obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
+                 'Position', [0.27,0.85,0.3,0.1],'FontSize', 0.6);
             obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
-            obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
+                'String', 'Study ID:', 'Position', [0.58,0.85,0.1,0.1], 'FontSize', 0.6);
+            obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
+                 'Position', [0.69,0.85,0.28,0.1],'FontSize', 0.6);
         end % end constructor
                   
         %------------------------------------------------------------------
@@ -71,7 +78,10 @@ classdef MethodBrowser
             set(obj.WorkDir_BrowseBtn, 'Visible', Visibility);
             set(obj.WorkDir_FileNameArea, 'Visible', Visibility);
             set(obj.StudyID_TextArea, 'Visible', Visibility);
-            set(obj.StudyID_TextID, 'Visible', Visibility);            
+            set(obj.StudyID_TextID, 'Visible', Visibility);
+            % Warning button is unvisible if no warning
+            if isempty(get(obj.WarnBut_DataConsistensy,'TooltipString')), Visibility = 'off'; end
+            set(obj.WarnBut_DataConsistensy, 'Visible', Visibility);
         end
         
         %------------------------------------------------------------------
@@ -142,7 +152,7 @@ classdef MethodBrowser
         %------------------------------------------------------------------
         % get working directory name
         function WD = setWD(obj,WD)
-            obj.WD_BrowseBtn_callback(obj,WD)
+            obj.WD_BrowseBtn_callback(WD)
         end
         
         %------------------------------------------------------------------

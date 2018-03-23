@@ -26,7 +26,7 @@ classdef BrowserSet
         InfoBtn;
         FileBox;
         ViewBtn;
-        
+        parent;
     end
     
     methods
@@ -38,7 +38,7 @@ classdef BrowserSet
             % Name: Name of the field
             if nargin>0
                 % parse the input arguments
-                parent = varargin{1};
+                obj.parent = varargin{1};
                 InputName = varargin{2};
                 InputOptional = varargin{3};
                 Location = varargin{4};
@@ -49,16 +49,13 @@ classdef BrowserSet
                 Position = [Location, 0.02, 0.1];
                 % add Info button
                 if ~isempty(info)
-                    Cmap = imread('help_ex.png');
-                    Cmapnull = max(Cmap,[],3) == 0;
-                    Cmap = Cmap + repmat(uint8(Cmapnull),[1 1 3])*(255*0.94);
-                    obj.InfoBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', ...
-                        'CData', Cmap,'ForegroundColor',[0.94 0.94 0.94],'BackgroundColor',[0.94 0.94 0.94],'Position',Position,'Callback',@(hObj,eventdata,handles) helpdlg(info));
+                    obj.InfoBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized','BackgroundColor',[0.94 0.94 0.94], ...
+                        'String', '?','FontWeight','bold','TooltipString',info,'Position',Position,'Callback',@(hObj,eventdata,handles) helpdlg(info));
                 end
                 
                 % add Input Name
                 Position = [[Location+[0.03 0]], 0.10, 0.1];
-                obj.NameText = uicontrol(parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
+                obj.NameText = uicontrol(obj.parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);
                 
                 % Set color to gray if optional
@@ -66,18 +63,18 @@ classdef BrowserSet
                     
                 % add Browse button
                 Position = [Location + [0.14, 0], 0.1, 0.1];
-                obj.BrowseBtn = uicontrol(parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'Browse', 'Position', Position, 'FontSize', 0.6);
+                obj.BrowseBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
+                    'String', 'Browse', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
 
                 % add Browse button
                 Position = [Location + [0.27, 0], 0.58, 0.1];
-                obj.FileBox = uicontrol(parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
+                obj.FileBox = uicontrol(obj.parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
                     'BackgroundColor', [1 1 1]);
                 
                 % add View button
                 Position = [Location + [0.87, 0], 0.10, 0.1];
-                obj.ViewBtn = uicontrol(parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'View', 'Position', Position, 'FontSize', 0.6);
+                obj.ViewBtn = uicontrol(obj.parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
+                    'String', 'View', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
                 
                 % Set Callbacks
                 set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
@@ -152,12 +149,16 @@ classdef BrowserSet
 
             setappdata(0, 'Data', Data);            
             ErrMsg = Model.sanityCheck(Data.(class(Model)));
-%             if ~isempty(ErrMsg)
-%                 set(obj.InfoBtn,'TooltipString',ErrMsg)
-%                 set(obj.InfoBtn,'Visible','on')
-%             else
-%                 set(obj.InfoBtn,'Visible','off')
-%             end
+            hWarnBut = findobj(obj.parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
+            if ~isempty(ErrMsg)
+                set(hWarnBut,'String',ErrMsg)
+                set(hWarnBut,'TooltipString',ErrMsg)
+                set(hWarnBut,'Visible','on')
+            else
+                set(hWarnBut,'String','')
+                set(hWarnBut,'TooltipString','')
+                set(hWarnBut,'Visible','off')
+            end
                 
         end
         
