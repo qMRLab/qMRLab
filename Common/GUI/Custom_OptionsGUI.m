@@ -71,6 +71,13 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         FitOptTable(:,5) = mat2cell(Model.ub(:),ones(Nparam,1));
     end
     set(handles.FitOptTable,'Data',FitOptTable)
+    
+    % Add TooltipString
+    try
+        modelheader=iqmr_header.header_parse(which(Model.ModelName));
+        modelheader=modelheader.output';
+        set(handles.FitOptTable,'TooltipString', sprintf('%-10s: %s\n',modelheader{:}));
+    end
 end
 
 % POPULATE OPTIONS PANEL
