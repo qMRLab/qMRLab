@@ -788,8 +788,10 @@ if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
     helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
-elseif ~isequal(Scurrent, S)
-    helpdlg([Model.MRIinputs{1} ' file in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer. Load corresponding ' Model.MRIinputs{1} '.'])
+elseif ~isequal(Scurrent(1:3), S(1:3))
+    Sstr = sprintf('%ix',S);
+    Scurstr = sprintf('%ix',Scurrent);
+    helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
 else
     % Check data consistency
     Model.sanityCheck(data);
