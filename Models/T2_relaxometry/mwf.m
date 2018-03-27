@@ -147,7 +147,7 @@ end
             data.Mask = 1;
             FitResults = fit(obj,data);
             if display
-                plotModel(obj, [], data);
+                plotModel(obj, FitResults, data);
                 subplot(2,1,1)
                 EchoTimes   = obj.Prot.MET2data.Mat;
                 T2          = getT2(obj,EchoTimes);
@@ -191,12 +191,11 @@ end
                 %plot vertical bars at estimated T2
                 hold on
                 ax=gca;
-                hei=ax.YLim(2);
+                hei=ax.YLim(2);hei=ceil(hei);
                 plot(x.T2MW*(ones(1,hei)),1:1:hei,'--b')
                 plot(x.T2IEW*(ones(1,hei)),1:1:hei,'--k')
                 legend('Spectrum',strcat('T2MW=',num2str(x.T2MW),' ms'),strcat('T2IEW=',num2str(x.T2IEW),' ms'))
-                annotation('textbox',[0.5 0.65 0.05 0.05],'String',{['MWF=' num2str(x.MWF)]},'FitBoxToText','on','BackgroundColor',[0.9  0.9 0.9]);
-                title('Spectrums','FontSize',12);
+                title(sprintf('Spectrums MWF=%0.2f T2MW=%0.2f ms T2IEW=%0.2f ms',x.MWF,x.T2MW,x.T2IEW),'FontSize',12);
                 xlabel('T2 (ms)');
                 ylabel('Proton density');
                 %----------------------- subplot 2 -----------------------%
