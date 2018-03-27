@@ -150,16 +150,16 @@ if(isfield(handles,'ROI'))
     
     switch View
         case 1
-            handles.ROI{size(handles.ROI,2)+1}.vol=rot90(zeros(size(data)));
-            handles.ROI{size(handles.ROI,2)}.vol(:,:,Slice,Time) = roi;
+            handles.ROI{size(handles.ROI,2)+1}.vol=zeros(size(data));
+            handles.ROI{size(handles.ROI,2)}.vol(:,:,Slice,Time) = rot90(roi,-1);
             handles.ROI{size(handles.ROI,2)}.color = rand(3);
         case 2
-            handles.ROI{size(handles.ROI,2)+1}.vol=rot90(zeros(size(data)));
-            handles.ROI{size(handles.ROI,2)}.vol(Slice,:,:,Time)=rot90(roi,3);
+            handles.ROI{size(handles.ROI,2)+1}.vol=zeros(size(data));
+            handles.ROI{size(handles.ROI,2)}.vol(:,Slice,:,Time)=rot90(roi,-1);
             handles.ROI{size(handles.ROI,2)}.color = rand(3);
         case 3
-            handles.ROI{size(handles.ROI,2)+1}.vol=rot90(zeros(size(data)));
-            handles.ROI{size(handles.ROI,2)}.vol(:,Slice,:,Time)=rot90(roi);
+            handles.ROI{size(handles.ROI,2)+1}.vol=zeros(size(data));
+            handles.ROI{size(handles.ROI,2)}.vol(Slice,:,:,Time)=rot90(roi,-1);
             handles.ROI{size(handles.ROI,2)}.color = rand(3);
     end
 end
@@ -264,6 +264,61 @@ list = removerows(list,index_selected);
 handles.ROI = list';
 set(handles.ROIList,'String',rois);
 guidata(gcbo,handles);
+
+
+% --- Executes on button press in zoomIn.
+function zoomIn_Callback(hObject, eventdata, handles)
+% hObject    handle to zoomIn (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of zoomIn
+h = zoom;
+h.Direction = 'in';
+if(strcmp(get(handles.zoomOut,'TooltipString'),'on'))
+    set(handles.zoomOut,'Value',0)
+end
+if(strcmp(get(handles.zoomIn,'TooltipString'),'off'))
+h.Enable = 'on';
+set(handles.zoomIn,'TooltipString','on')
+else
+    set(handles.zoomIn,'TooltipString','off')
+    h.Enable = 'off';
+end
+
+
+% --- Executes on button press in zoomOut.
+function zoomOut_Callback(hObject, eventdata, handles)
+% hObject    handle to zoomOut (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+h = zoom;
+h.Direction = 'out';
+if(strcmp(get(handles.zoomIn,'TooltipString'),'on'))
+    set(handles.zoomIn,'Value',0)
+end
+if(strcmp(get(handles.zoomOut,'TooltipString'),'off'))
+h.Enable = 'on';
+set(handles.zoomOut,'TooltipString','on')
+else
+    set(handles.zoomOut,'TooltipString','off')
+    h.Enable = 'off';
+end
+% Hint: get(hObject,'Value') returns toggle state of zoomOut
+% --- Executes on slider movement.
+
+function roi_transparency_Callback(hObject, eventdata, handles)
+RefreshPlot(handles);
+
+% --- Executes on button press in saveResults.
+function saveResults_Callback(hObject, eventdata, handles)
+results = handles.RoiResults.Data;
+[FileName, PathName] = uiputfile({'*.mat'},'Save as');
+FullPathName = fullfile(PathName, FileName);
+if FileName ~= 0
+    save(FullPathName,'Mask');
+end
+
 
 
 function ColorMapStyle_Callback(hObject, eventdata, handles)
@@ -386,7 +441,6 @@ yl = ylim;
 % 
 
 index_selected = get(handles.ROIList,'Value');
-if (size(handles.ROI,2) ~= 0)
     SourceFields = cellstr(get(handles.data,'String'));
     Source = SourceFields{get(handles.data,'Value')};
     View = get(handles.ViewPop,'Value');
@@ -395,16 +449,17 @@ if (size(handles.ROI,2) ~= 0)
     transparency = get(handles.roi_transparency,'Value');
     Data = handles.CurrentData;
     data = Data.(Source);
+    if (size(handles.ROI,2) ~= 0)
     switch View
         case 1
             Map = rot90(squeeze(data(:,:,Slice,Time)));
-            NewMap = squeeze(handles.ROI{index_selected}.vol(:,:,Slice,Time))*transparency;
+            NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(:,:,Slice,Time)))*transparency;
         case 2
             Map = rot90(squeeze(data(:,Slice,:,Time)));
-            NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(Slice,:,:,Time)))*transparency;
+            NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(:,Slice,:,Time)))*transparency;
         case 3
             Map = rot90(squeeze(data(Slice,:,:,Time)));
-            NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(:,Slice,:,Time)),3)*transparency;
+            NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(Slice,:,:,Time)))*transparency;
     end
     
     guidata(gcbo, handles);
@@ -428,7 +483,17 @@ if (size(handles.ROI,2) ~= 0)
         table(1+i,4) = {median(data(~isnan(data) & ~isinf(data)))};
     end
     set(handles.RoiResults,'Data',table)
-end
+    else
+    switch View
+        case 1
+            Map = rot90(squeeze(data(:,:,Slice,Time)));
+        case 2
+            Map = rot90(squeeze(data(:,Slice,:,Time)));
+        case 3
+            Map = rot90(squeeze(data(Slice,:,:,Time)));
+    end
+    imagesc(Map);
+    end
     axis equal off;
     RefreshColorMaps(handles)
     xlim(xl);
@@ -963,50 +1028,9 @@ function togglebutton4_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of togglebutton4
 
 
-% --- Executes on button press in zoomIn.
-function zoomIn_Callback(hObject, eventdata, handles)
-% hObject    handle to zoomIn (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of zoomIn
-h = zoom;
-h.Direction = 'in';
-if(strcmp(get(handles.zoomOut,'TooltipString'),'on'))
-    set(handles.zoomOut,'Value',0)
-end
-if(strcmp(get(handles.zoomIn,'TooltipString'),'off'))
-h.Enable = 'on';
-set(handles.zoomIn,'TooltipString','on')
-else
-    set(handles.zoomIn,'TooltipString','off')
-    h.Enable = 'off';
-end
 
 
-% --- Executes on button press in zoomOut.
-function zoomOut_Callback(hObject, eventdata, handles)
-% hObject    handle to zoomOut (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-h = zoom;
-h.Direction = 'out';
-if(strcmp(get(handles.zoomIn,'TooltipString'),'on'))
-    set(handles.zoomIn,'Value',0)
-end
-if(strcmp(get(handles.zoomOut,'TooltipString'),'off'))
-h.Enable = 'on';
-set(handles.zoomOut,'TooltipString','on')
-else
-    set(handles.zoomOut,'TooltipString','off')
-    h.Enable = 'off';
-end
-% Hint: get(hObject,'Value') returns toggle state of zoomOut
 
-
-% --- Executes on slider movement.
-function roi_transparency_Callback(hObject, eventdata, handles)
-RefreshPlot(handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1019,3 +1043,4 @@ function roi_transparency_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
