@@ -127,7 +127,7 @@ classdef BrowserSet
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
                 elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img')
-                    tmp = load_nii_data(obj.FullFile);
+                    [tmp, hdr] = load_nii_data(obj.FullFile);
                 elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
                     TiffInfo = imfinfo(obj.FullFile);
                     NbIm = numel(TiffInfo);
@@ -143,15 +143,20 @@ classdef BrowserSet
                     warndlg(['file extention ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
                 end
             end
-            Data = getappdata(0, 'Data'); 
+            
+            Data = getappdata(0, 'Data');
             Model = getappdata(0,'Model');
             Data.(class(Model)).(obj.NameID{1}) = double(tmp);
-            if exist('nii','var'),	Data.hdr = nii.hdr; end
+            
+            if exist('hdr','var')
+                Data.([class(Model) '_hdr']) = hdr; 
+            elseif isfield(Data,[class(Model) '_hdr'])
+                Data = rmfield(Data,[class(Model) '_hdr']);
+            end
 
             setappdata(0, 'Data', Data); 
             set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
 
-            setappdata(0, 'Data', Data);            
             ErrMsg = Model.sanityCheck(Data.(class(Model)));
             hWarnBut = findobj(obj.parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
             if ~isempty(ErrMsg)

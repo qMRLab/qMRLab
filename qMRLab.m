@@ -337,6 +337,7 @@ function FitGo_FitData(hObject, eventdata, handles)
 data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
+if isfield(data,[class(Model) '_hdr']), hdr = data.([class(Model) '_hdr']); end
 data = data.(Method);
 
 % check data
@@ -372,35 +373,32 @@ FitResults.Model = objProps2struct(FitResults.Model);
 
 % Save fit results
 if(~isempty(FitResults.StudyID))
-    filename = strcat(FitResults.StudyID,'.mat');
+    filename = strcat('FitResults_',FitResults.StudyID,'.mat');
 else
     filename = 'FitResults.mat';
 end
 outputdir = fullfile(FitResults.WD,'FitResults');
 if ~exist(outputdir,'dir'), mkdir(outputdir); 
 else
-    outputdir = fullfile(FitResults.WD,['FitResults' datestr(now,'_yyyymmdd_HHMM')]);
-    mkdir(outputdir); 
+    iii=1; filenamenew = filename;
+    while exist(fullfile(FitResults.WD,'FitResults',filenamenew),'file')
+        iii=iii+1;
+        filenamenew = strrep(filename,'.mat',['_' num2str(iii) '.mat']);
+    end
+    filename = filenamenew;
 end
 save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
-fn = fieldnames(FitResults.Files);
-mainfile = FitResults.Files.(fn{1});
-ii = 1;
-while isempty(mainfile)
-    ii = ii+1;
-    mainfile = FitResults.Files.(fn{ii});
-end    
-for i = 1:length(FitResults.fields)
-    map = FitResults.fields{i};
-    [~,~,ext]=fileparts(mainfile);
+for ii = 1:length(FitResults.fields)
+    map = FitResults.fields{ii};
     file = strcat(map,'.nii.gz');
-    if strcmp(ext,'.mat')
+
+    if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
-        save_nii_v2(FitResults.(map),fullfile(outputdir,file),mainfile,64);
+        save_nii_v2(FitResults.(map),fullfile(outputdir,file),hdr,64);
     end
 end
 
@@ -422,7 +420,7 @@ set(handles.CurrentFitId,'String',FileName);
 
 % FITRESULTSLOAD
 function FitResultsLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile({'*FitResults.mat;*.qmrlab.mat'},'FitResults.mat');
+[FileName,PathName] = uigetfile({'*FitResults*.mat;*.qmrlab.mat'},'FitResults.mat');
 if PathName == 0, return; end
 set(handles.CurrentFitId,'String',FileName);
 FitResults = load(fullfile(PathName,FileName));

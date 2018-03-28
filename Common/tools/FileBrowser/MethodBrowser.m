@@ -56,11 +56,11 @@ classdef MethodBrowser
             obj.WorkDir_FullPath = '';
             obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.05,0.85,0.1,0.1],'FontSize', 0.6);
+            obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
+                'Position', [0.27,0.85,0.3,0.1],'FontSize', 0.6);
             obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Browse', 'Position', [0.16,0.85,0.1,0.1], 'FontSize', 0.6, ...
                 'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
-            obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
-                 'Position', [0.27,0.85,0.3,0.1],'FontSize', 0.6);
             obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Study ID:', 'Position', [0.58,0.85,0.1,0.1], 'FontSize', 0.6);
             obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
@@ -132,9 +132,17 @@ classdef MethodBrowser
             end
             
             % clear previous data
-            if isappdata(0,'Data')
-                rmappdata(0,'Data'); 
-            end
+                Data = getappdata(0,'Data');
+                if isfield(Data,Method)
+                    fields = fieldnames(Data.(Method));
+                    for ff=1:length(fields)
+                        Data.(Method).(fields{ff})=[];
+                    end
+                end
+                if isfield(Data,[Method '_hdr'])
+                    Data = rmfield(Data,[Method '_hdr']); 
+                end
+                setappdata(0,'Data',Data); 
             
             % Manage each data items
             for i=1:obj.NbItems

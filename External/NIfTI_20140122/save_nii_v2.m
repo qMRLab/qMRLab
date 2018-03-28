@@ -52,11 +52,15 @@ function save_nii_v2(nii, fileprefix, old_nii_fname,datatype)
 if ~isstruct(nii)
     if exist('old_nii_fname','var')
         img = nii;
-        nii = load_nii(old_nii_fname,[],[],[],[],[],1);
+        if ischar(old_nii_fname)
+            nii = load_nii(old_nii_fname,[],[],[],[],[],1);
+        elseif isstruct(old_nii_fname)
+            nii = old_nii_fname;
+        end
         for it=1:size(img,4)
             tmp(:,:,:,it) = unxform_nii(nii, img(:,:,:,it));
         end
-        if size(unxform_nii(nii, nii.img(:,:,:,1))) ~= size(unxform_nii(nii, img(:,:,:,1))), error('old_nii_fname doesn''t have the same dimension as your new data'); end
+        if isfield(nii,'img') && size(unxform_nii(nii, nii.img(:,:,:,1))) ~= size(unxform_nii(nii, img(:,:,:,1))), error('old_nii_fname doesn''t have the same dimension as your new data'); end
         nii.original.img =tmp;
         nii.original.hdr.dime.dim(5)=size(img,4);
         nii.original.hdr.dime.dim(1)=find(nii.original.hdr.dime.dim>1, 1, 'last' )-1;
