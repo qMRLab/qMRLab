@@ -479,30 +479,15 @@ RefreshPlot(handles);
 
 % MIN
 function MinValue_Callback(hObject, eventdata, handles)
-min   =  str2double(get(hObject,'String'));
-max = str2double(get(handles.MaxValue, 'String'));
+mini   =  str2double(get(hObject,'String'));
+maxi = str2double(get(handles.MaxValue, 'String'));
 
-% special treatment for MTSAT visualisation
-CurMethod = getappdata(0, 'Method');
-if strcmp(CurMethod, 'MTSAT')
-    if n > 2
-        Min = min(min(min(MTdata)));
-        Max = max(max(max(MTdata)));
-        ImSize = size(MTdata);
-    else
-        Min = min(min(MTdata));
-        Max = max(max(MTdata));
-    end
-    set(handles.MinValue, 'Min', Min);
-    set(handles.MinValue, 'Max', Max);
-    set(handles.MinValue, 'Value', Min+1);
-else
-    lower =  0.5 * min;
-    set(handles.MinSlider, 'Value', min);
-    set(handles.MinSlider, 'min',   lower);
-    caxis([min max]);
-    % RefreshColorMap(handles);
-end
+lower =  mini - 0.25*abs(mini+maxi);
+set(handles.MinSlider, 'Value', mini);
+set(handles.MinSlider, 'min',   lower);
+caxis([mini maxi]);
+% RefreshColorMap(handles);
+
 
 function MinSlider_Callback(hObject, eventdata, handles)
 maxi = str2double(get(handles.MaxValue, 'String'));

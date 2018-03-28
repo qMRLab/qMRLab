@@ -108,8 +108,10 @@ classdef mt_sat < AbstractModel
                 obj.Prot.T1w = obj.Prot.T1; obj.Prot = rmfield(obj.Prot,'T1');
                 obj.Prot.PDw = obj.Prot.PD; obj.Prot = rmfield(obj.Prot,'PD');
                 
-                obj.Prot.MTw.Format(3) = []; % remove offset
-                obj.Prot.MTw.Mat(:,3)  = [];
+                if size(obj.Prot.MTw.Format,2)>2
+                    obj.Prot.MTw.Format(3) = []; % remove offset
+                    obj.Prot.MTw.Mat(:,3)  = [];
+                end
             end
         end
     end
