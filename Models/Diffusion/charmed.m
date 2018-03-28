@@ -299,11 +299,22 @@ end
             data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             if display
-                plotModel(obj, FitResults, data);
-                hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
                 h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
                 set(h,'LineWidth',.5)
+                for iD = 1:length(h)
+                    if ~moxunit_util_platform_is_octave
+                        hAnnotation  = get(h(iD),'Annotation');
+                        hLegendEntry = get(hAnnotation','LegendInformation');
+                        set(hLegendEntry,'IconDisplayStyle','off');
+                    end
+                end
+                hold on
+                plotModel(obj, FitResults, data);
+                ax=gca;
+                t = text(0.7*max(get(ax,'Xlim')),0.25*max(get(ax,'Ylim')),{'o = sim data','x = noisy sim data'});
+                t.FontSize = 10;
+                t.BackgroundColor = [0.9  0.9 0.9];
             end
         end
         
