@@ -35,6 +35,11 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 % buttons = {'NoPanel1',true,'PANEL','Panel1Title',4,'number1',1,'###number2',2,'number3',3,'popupmenu1',{'choice1','choice2','choice3'},'NoPanel2',{1,2,3},'PANEL','Panel2Title',2,'number4',4,'checkbox2',false,};
 % ParentHandle = 1;
 % figure(1); h = GenerateButtonsWithPanels(buttons,1);
+% % Read buttons
+% Options = button_handle2opts(h);
+%
+%
+% See also button_handle2opts
 
 % Basics informations
 PanelPos = find(strcmp(buttons,'PANEL')); % Panel position
@@ -81,7 +86,7 @@ if ~isempty(opts)
     
 % ----------------------------------------------------------------------------------------------------
 %   PANELS DISPLAY
-    
+    if ~exist('ParentHandle','var'), ParentHandle = figure; end
     Position = getpixelposition(ParentHandle);
     PanelHeight = 35/Position(4);
     PanelGap = 0.02;
