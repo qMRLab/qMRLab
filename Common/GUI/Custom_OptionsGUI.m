@@ -230,7 +230,7 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         if isfield(Model.options,'fittingconstraints_FixR1rR1f')  && Model.options.fittingconstraints_FixR1rR1f
             fittingtable{strcmp(fittingtable(:,1),'R1r'),3}='R1f';
         end
-        if isfield(Model.options,'fittingconstraints_FixR1fT2f')  && Model.options.fittingconstraints_FixR1fT2f
+        if isfield(Model.options,'fittingconstraints_FixR1fT2f')  && Model.options.fittingconstraints_FixR1fT2f && (~isfield(Model.options,'Model') || ~any(strcmp(Model.options.Model,{'SledPikeRP', 'SledPikeCW'})))
             fittingtable{strcmp(fittingtable(:,1),'T2f'),3}='(R1f*T2f)/R1f';
         end
         set(handles.FitOptTable,'Data',fittingtable);
