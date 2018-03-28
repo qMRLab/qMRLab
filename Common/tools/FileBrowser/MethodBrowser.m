@@ -42,7 +42,7 @@ classdef MethodBrowser
             obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
             
             for ii=1:obj.NbItems
-                headerii = strcmp(header.input(:,1),InputsName{ii}) | strcmp(header.input(:,1),['(' InputsName{ii} ')']);
+                headerii = strcmp(header.input(:,1),InputsName{ii}) | strcmp(header.input(:,1),['(' InputsName{ii} ')']) | strcmp(header.input(:,1),['((' InputsName{ii} '))']);
                 if max(headerii), headerii = header.input{find(headerii,1,'first'),2}; else, headerii=''; end
                 obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, headerii);
                 Location = Location + [0.0, -0.15];
