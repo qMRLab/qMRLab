@@ -190,6 +190,7 @@ end
                 plot(T2.vals,Spectrum,'r');
                 %plot vertical bars at estimated T2
                 hold on
+                x = mat2struct(x,obj.xnames); %convert to structure
                 ax=gca;
                 line([x.T2MW x.T2MW], get(ax,'Ylim'),'Color','cyan','LineStyle','-.')
                 line([x.T2IEW x.T2IEW], get(ax,'Ylim'),'Color','black','LineStyle','-.')
