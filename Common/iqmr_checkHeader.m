@@ -97,7 +97,7 @@ function b = iqmr_checkHeader(file)
         b = false;
         fprintf(2,'ERROR: Missing or inadequate usage format\n\n');
     end
-    if size(h.author) == 0 || strcmp(h.author(1),'FILL')
+    if max(size(h.author)) == 0 || strcmp(h.author(1),'FILL')
         b = false;
         fprintf(2,'ERROR: Missing or inadequate author format\n\n');
     end

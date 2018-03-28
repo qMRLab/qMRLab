@@ -56,10 +56,14 @@ classdef BrowserSet
                 % add Input Name
                 Position = [[Location+[0.03 0]], 0.10, 0.1];
                 obj.NameText = uicontrol(obj.parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6);
+                    'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6,'FontWeight','bold');
                 
                 % Set color to gray if optional
                 if InputOptional, set(obj.NameText,'ForegroundColor',[.5 .5 .5]); end
+                if InputOptional==2 
+                    set(obj.NameText,'FontWeight','normal');
+                    set(obj.NameText,'String',['(' obj.NameID{:} ')']);
+                end
                     
                 % add Browse button
                 Position = [Location + [0.14, 0], 0.1, 0.1];
