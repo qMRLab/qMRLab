@@ -302,6 +302,7 @@ end
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
                 h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
                 set(h,'LineWidth',.5)
+                % remove data legends
                 for iD = 1:length(h)
                     if ~moxunit_util_platform_is_octave
                         hAnnotation  = get(h(iD),'Annotation');
@@ -312,7 +313,7 @@ end
                 hold on
                 plotModel(obj, FitResults, data);
                 ax=gca;
-                t = text(0.7*max(get(ax,'Xlim')),0.25*max(get(ax,'Ylim')),{'o = sim data','x = noisy sim data'});
+                t = text(0.7*max(get(ax,'Xlim')),0.25*max(get(ax,'Ylim')),{'o = sim data','x = noisy sim data','- = fit'});
                 set(t,'FontSize',10)
                 set(t,'BackgroundColor',[0.9  0.9 0.9]);
             end
