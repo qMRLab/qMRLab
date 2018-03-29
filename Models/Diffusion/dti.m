@@ -277,10 +277,6 @@ end
                 end
                 hold on
                 plotModel(obj, FitResults, data);
-                ax=gca;
-                t = text(0.7*max(get(ax,'Xlim')),0.25*max(get(ax,'Ylim')),{'o = sim data','x = noisy sim data','- = fit'});
-                set(t,'FontSize',10)
-                set(t,'BackgroundColor',[0.9  0.9 0.9]);
             end
         end
         
