@@ -237,8 +237,6 @@ end
             
             % plot fitting curves
             scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'none','-');
-            FitResults = mat2struct(FitResults,obj.xnames); 
-            title(sprintf('Fitting FA=%0.2f',FitResults.FA),'FontSize',14);
         end
         
         function plotProt(obj)
