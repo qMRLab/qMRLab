@@ -617,6 +617,7 @@ f=figure('Position', [0 0 700 400], 'Resize', 'Off');
 % Matlab < R2014b
 MatlabVer = version;
 if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+defaultNumBins = max(5,round(length(data)/100));
 hist(data, defaultNumBins); 
 % Label axes
 SourceFields = cellstr(get(handles.SourcePop,'String'));
@@ -639,7 +640,7 @@ xlabel(Source);
 h_ylabel = ylabel('Counts');
 
 % Statistics (mean and standard deviation)
-Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
+Stats = sprintf('Mean: %4.3g \n Median: %4.3g \n   Std: %4.3g',mean(data(~isinf(data) & ~isnan(data))),median(data(~isinf(data) & ~isnan(data))),std(data(~isinf(data) & ~isnan(data))));
 h_stats=text(0.10,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
 
 % No. of bins GUI objects
@@ -743,8 +744,9 @@ function [] = minmax_call(varargin)
     end
 
     % Update stats on fig
-    h_stats.String = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
-
+    Stats = sprintf('Mean: %4.3g \n Median: %4.3g \n   Std: %4.3g',mean(data(~isinf(data) & ~isnan(data))),median(data(~isinf(data) & ~isnan(data))),std(data(~isinf(data) & ~isnan(data))));
+    set(h_stats,'String',Stats);
+    
 function [] = norm_call(varargin)
     % Callback for the histogram edit box.
     [h_popup_norm,h_cell] = varargin{[1,3]};
