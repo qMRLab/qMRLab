@@ -11,8 +11,11 @@ setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
 function test_batch
 curdir = pwd;
 
-
-tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
+if exist('/home/travis','dir')
+    tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
+else
+    tmpDir = tempdir;
+end
 mkdir(tmpDir);
 cd(tmpDir)
 

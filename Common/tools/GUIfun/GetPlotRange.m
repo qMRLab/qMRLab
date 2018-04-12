@@ -6,8 +6,8 @@ values=Current(:); values(isinf(values))=[]; values(isnan(values))=[];
 
 if length(unique(values))>20 % it is a mask?
     values(~values)=[];
-    Min = prctile(values,1); % 5 percentile of the data to prevent extreme values
-    Max = prctile(values,99);% 95 percentile of the data to prevent extreme values
+    Min = prctile(values,1); % 1 percentile of the data to prevent extreme values
+    Max = prctile(values,99);% 99 percentile of the data to prevent extreme values
 else
     Min=min(values);
     Max=max(values);

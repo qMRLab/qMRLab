@@ -11,7 +11,7 @@ classdef qmt_spgr < AbstractModel
 %   (R1map)             1/T1map (VFA RECOMMENDED Boudreau 2017 MRM)
 %   (B1map)             B1 field map, used for flip angle correction (=1 if not provided)
 %   (B0map)             B0 field map, used for offset correction (=0Hz if not provided)
-%   (Mask)              Binary mask to accelerate the fitting
+%   ((Mask))            Binary mask to accelerate the fitting
 %
 % Outputs:
 %   F                   Ratio of number of restricted pool to free pool, defined
@@ -187,8 +187,18 @@ end
             if obj.options.fittingconstraints_FixR1rR1f
                 obj.fx(4)=true;
             end
-            if obj.options.fittingconstraints_FixR1fT2f
+            if obj.options.fittingconstraints_FixR1fT2f && any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
                 obj.fx(5)=true;
+            end
+            
+            disablelist = {'Fix R1f*T2f','R1f*T2f ='};
+            for ll = 1:length(disablelist)
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                if ~any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
+                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                else
+                    obj.buttons{indtodisable} = disablelist{ll};
+                end
             end
             
             % Disable/enable some MT pulse options --> Add ### to the button

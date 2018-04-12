@@ -11,7 +11,7 @@ classdef qmt_sirfse < AbstractModel
 % Inputs:
 %   MTdata              Magnetization Transfert data
 %   (R1map)             1/T1map (OPTIONAL but recommended)
-%   (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
+%   ((Mask))            Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
 %   F                   Ratio of number of restricted pool to free pool, defined 
@@ -336,6 +336,14 @@ end
             SrProt.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
         end
+        
+        function optionalInputs = get_MRIinputs_optional(obj)
+            optionalInputs = get_MRIinputs_optional@AbstractModel(obj);
+            if obj.options.fittingconstraints_UseR1maptoconstrainR1f
+                optionalInputs(strcmp(obj.MRIinputs,'R1map')) = false;
+            end
+        end
+
     end
     
     methods(Access = protected)
