@@ -11,7 +11,7 @@ classdef qmt_spgr < AbstractModel
 %   (R1map)             1/T1map (VFA RECOMMENDED Boudreau 2017 MRM)
 %   (B1map)             B1 field map, used for flip angle correction (=1 if not provided)
 %   (B0map)             B0 field map, used for offset correction (=0Hz if not provided)
-%   ((Mask))            Binary mask to accelerate the fitting
+%   (Mask)              Binary mask to accelerate the fitting
 %
 % Outputs:
 %   F                   Ratio of number of restricted pool to free pool, defined
