@@ -31,7 +31,7 @@ before_install:
     # Please comment in following section if you need to update packages or add a new one
     # If following section is going to be commented in, please set cacheState to false in startup.m
     # --------------
-    - travis_retry wget -O OctavePackages.zip https://osf.io/t465n/download -P /home/travis/octave
+    - travis_retry wget -O /home/travis/octave/OctavePackages.zip https://osf.io/t465n/download
     - unzip /home/travis/octave/OctavePackages.zip
     #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/struct-1.0.14.tar.gz -P /home/travis/octave
     #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/optim-1.5.2.tar.gz -P /home/travis/octave
