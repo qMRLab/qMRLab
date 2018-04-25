@@ -130,7 +130,7 @@ classdef iqmr_header
                 if strcmpi(line(1), '%') && ~strcmpi(strrep(strrep(line,char(10),''),char(13),''),'%')
                     line = strrep(line,'%','');
                     for i = 1:length(fields)
-                        finds = strfind(lower(line),lower(fields(i)));
+                        finds = strfind(lower(line),lower(char(fields(i))));
                         if ~isempty(finds)
                             if finds(1)<= 13
                                 reading = fields(i);
@@ -190,7 +190,7 @@ classdef iqmr_header
             global k;
             
             a = assumption;
-            if ~isempty(strfind(lower(line), lower(fields(1)))) && strncmpi(strtrim(line),fields(1),length(fields(1)))
+            if ~isempty(strfind(lower(line), lower(char(fields(1))))) && strncmpi(strtrim(line),fields(1),length(fields(1)))
             elseif length(line) > 4 && line(4) ~= ' '
                   a{k,1} = line;
                   k = k + 1;
@@ -213,7 +213,7 @@ classdef iqmr_header
             if ~isempty(startindex) && ~isempty(endindex)
                 index_first = endindex(1) - startindex(1) + 2;
             end
-            if ~isempty(strfind(line, fields(2))) && strncmpi(strtrim(line),fields(2),length(fields(3)))
+            if ~isempty(strfind(line, char(fields(2)))) && strncmpi(strtrim(line),fields(2),length(fields(3)))
                 index_descr = 10;
             elseif line(index_first) ~= ' ' && index_first < index_descr
                 %input{k,1} = strtrim(extractBetween(line,index_first,endindex(2)));
@@ -241,7 +241,7 @@ classdef iqmr_header
             if ~isempty(startindex) && ~isempty(endindex)
                 index_first = endindex(1) - startindex(1) + 2;
             end
-            if ~isempty(strfind(line, fields(3))) && strncmpi(strtrim(line),fields(3),length(fields(3)))
+            if ~isempty(strfind(line, char(fields(3)))) && strncmpi(strtrim(line),fields(3),length(fields(3)))
                 index_descr = 10;
             elseif line(index_first) ~= ' ' && index_first < index_descr
                 output{k,1} = strtrim(line(index_first:endindex(2)));
@@ -295,7 +295,7 @@ classdef iqmr_header
             if index == 1
                 index = 23;
             end
-            if ~isempty(strfind(line, fields(4))) && strncmpi(strtrim(line),fields(4),length(fields(4)))
+            if ~isempty(strfind(line, char(fields(4)))) && strncmpi(strtrim(line),fields(4),length(fields(4)))
                 index_cat = 0;
                 index_name = 0;
                 index_descr = 0;
@@ -368,7 +368,7 @@ classdef iqmr_header
             if index == 1
                 index = 23;
             end
-            if ~isempty(strfind(line, fields(5))) && strncmpi(strtrim(line),fields(5),length(fields(5)))
+            if ~isempty(strfind(line, char(fields(5)))) && strncmpi(strtrim(line),fields(5),length(fields(5)))
                 index_cat = 0;
                 index_name = 0;
                 index_descr = 0;
@@ -409,7 +409,7 @@ classdef iqmr_header
             global k;
             
             usage = u;
-            if ~isempty(strfind(line, fields(6))) && strncmpi(strtrim(line),fields(6),length(fields(6)))
+            if ~isempty(strfind(line, char(fields(6)))) && strncmpi(strtrim(line),fields(6),length(fields(6)))
             else
                 usage{k,1}=strtrim(line);
                 k = k + 1;
@@ -431,7 +431,7 @@ classdef iqmr_header
             global k;
             
             references = r;
-            if ~isempty(strfind(line, fields(8))) && strncmpi(strtrim(line),fields(6),length(fields(6)))
+            if ~isempty(strfind(line, char(fields(8)))) && strncmpi(strtrim(line),fields(6),length(fields(6)))
             else
                 references{k,1} = strtrim(line);
                 k = k + 1;

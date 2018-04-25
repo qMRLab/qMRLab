@@ -120,10 +120,10 @@ classdef (Abstract) AbstractModel
             optionalInputs = zeros(1,length(obj.MRIinputs));
             hlptxt = qMRinfo(obj.ModelName);
             for ii = 1:length(obj.MRIinputs)
-                if ~isempty(strfind(hlptxt,['(' obj.MRIinputs{ii} ')']))
+                if ~isempty(strfind(hlptxt,char(['(' obj.MRIinputs{ii} ')'])))
                     optionalInputs(ii)=1;
                 end
-                if ~isempty(strfind(hlptxt,['((' obj.MRIinputs{ii} '))']))
+                if ~isempty(strfind(hlptxt,char(['((' obj.MRIinputs{ii} '))'])))
                     optionalInputs(ii)=2;
                 end
             end

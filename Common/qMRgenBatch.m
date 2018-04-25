@@ -431,7 +431,7 @@ function newScript = replaceJoker(thisJoker,replaceWith,inScript,type)
 % inScript : Input script (thisJoker will be replaced in inSCript)
 % type: 1 or 2: In-line replacements or block replacements
 
-IndexC = strfind(inScript, {thisJoker});
+IndexC = strfind(inScript, char({thisJoker}));
 idx = find(not(cellfun('isempty', IndexC)));
 
 if type == 1 % In-line replacements
