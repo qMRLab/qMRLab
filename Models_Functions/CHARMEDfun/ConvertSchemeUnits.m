@@ -1,5 +1,10 @@
 function scheme = ConvertSchemeUnits(scheme,sessionnum,in3d)
 % convert units
+% scheme = ConvertSchemeUnits(scheme,sessionnum,in3d)
+% scheme:       [nx7] (Gx Gy Gz Gnorm Delta delta TE) in International System units
+% sessionnum:   [logical] 1--> adds a column #9 with session number (unique Delta/delta/TE/(Gnorm))
+% in3d:         [logical] 1--> sessionnum will search for different shells (different Gnorm)
+
 scheme(:,4)   = scheme(:,4).*sqrt(sum(scheme(:,1:3).^2,2))*1e-3; % G mT/um
 scheme(:,1:3) = scheme(:,1:3)./repmat(sqrt(scheme(:,1).^2+scheme(:,2).^2+scheme(:,3).^2),1,3); scheme(isnan(scheme))=0;
 scheme(:,5)   = scheme(:,5)*10^3; % DELTA ms

@@ -52,6 +52,7 @@ classdef (Abstract) AbstractModel
             end
         end
 
+
         % Do some error checking
         function [ErrMsg]=sanityCheck(obj,data)
            [ErrMsg]=[];
@@ -116,14 +117,18 @@ classdef (Abstract) AbstractModel
         end
         function optionalInputs = get_MRIinputs_optional(obj)
             % Optional input? Search in help
-            optionalInputs = false(1,length(obj.MRIinputs));
+            optionalInputs = zeros(1,length(obj.MRIinputs));
             hlptxt = qMRinfo(obj.ModelName);
             for ii = 1:length(obj.MRIinputs)
-                if ~isempty(strfind(hlptxt,['(' obj.MRIinputs{ii} ')']))
-                    optionalInputs(ii)=true;
+                if ~isempty(strfind(hlptxt,char(['(' obj.MRIinputs{ii} ')'])))
+                    optionalInputs(ii)=1;
+                end
+                if ~isempty(strfind(hlptxt,char(['((' obj.MRIinputs{ii} '))'])))
+                    optionalInputs(ii)=2;
                 end
             end
         end
+
     end
 
     methods(Access = protected)

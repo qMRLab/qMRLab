@@ -45,7 +45,7 @@ end
 
 % --- Executes just before Sim_Single_Voxel_Curve_GUI is made visible.
 function Sim_Single_Voxel_Curve_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
-set(findobj('Name','qMRILab'),'pointer', 'watch'); drawnow;
+set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
 
 if ~isfield(handles,'opened')
     handles.output = hObject;
@@ -79,7 +79,7 @@ if ~isfield(handles,'opened')
 end
 % Update handles structure
 guidata(hObject, handles);
-set(findobj('Name','qMRILab'),'pointer', 'arrow'); drawnow;
+set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
 
 
 

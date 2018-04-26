@@ -13,7 +13,7 @@ function varargout = Roi_analysis(varargin)
 % Software for x simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
-gui_Singleton = 1;
+gui_Singleton = 0;
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
     'gui_OpeningFcn', @Roi_analysis_OpeningFcn, ...
@@ -167,7 +167,7 @@ end
 %add new ROI to the list of ROIs in the listbox
 boxMsg = get(handles.ROIList,'String');
 if(size(boxMsg,2)==0)
-    boxMsg{size(boxMsg,1),1} = ['ROI' num2str(size(boxMsg,1))];
+    boxMsg{1,1} = 'ROI1';
 else
     boxMsg{size(boxMsg,1)+1,1} = ['ROI' num2str(size(boxMsg,1)+1)];
 end
@@ -261,9 +261,13 @@ rois = get(handles.ROIList,'String');
 rois = removerows(rois,index_selected);
 list = handles.ROI';
 list = removerows(list,index_selected);
+if(size(list,1) == 0) 
+    list = {};
+end
 handles.ROI = list';
 set(handles.ROIList,'String',rois);
 guidata(gcbo,handles);
+RefreshPlot(handles);
 
 
 % --- Executes on button press in zoomIn.
@@ -435,7 +439,6 @@ RefreshPlot(handles);
 
 function RefreshPlot(handles)
 if isempty(handles.CurrentData), return; end
-Current = GetCurrents(handles);
 xl = xlim;
 yl = ylim;
 % 
@@ -462,13 +465,14 @@ index_selected = get(handles.ROIList,'Value');
             NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(Slice,:,:,Time)))*transparency;
     end
     
-    guidata(gcbo, handles);
+    %guidata(gcbo, handles);
     set(handles.FitDataAxe);
     %overaly the image with a colored ROI
     green = cat(3, ones(size(Map)).* handles.ROI{index_selected}.color(1), ones(size(Map)).* handles.ROI{index_selected}.color(2), ...
         ones(size(Map)).* handles.ROI{index_selected}.color(3)); % randomly select a color
-    hold on
+    
     imagesc(Map);
+    hold on
     b = imshow(green);
     set(b, 'AlphaData', NewMap)
     hold off
@@ -520,11 +524,11 @@ colormap(maps{val});
 View = get(handles.ViewPop,'Value');
 switch View
     case 1
-        colorbar('location', 'East', 'Color', 'white');
+        colorbar('location', 'East', 'Color', 'white', 'FontSize',12,'FontWeight','bold');
     case 2
-        colorbar('location', 'South', 'Color', 'white');
+        colorbar('location', 'South', 'Color', 'white', 'FontSize',12,'FontWeight','bold');
     case 3
-        colorbar('location', 'South', 'Color', 'white');
+        colorbar('location', 'South', 'Color', 'white', 'FontSize',12,'FontWeight','bold');
 end
 min = str2double(get(handles.MinValue, 'String'));
 max = str2double(get(handles.MaxValue, 'String'));
@@ -992,47 +996,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in togglebutton1.
-function togglebutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to togglebutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of togglebutton1
-
-
-% --- Executes on button press in togglebutton2.
-function togglebutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to togglebutton2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of togglebutton2
-
-
-% --- Executes on button press in togglebutton3.
-function togglebutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to togglebutton3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of togglebutton3
-
-
-% --- Executes on button press in togglebutton4.
-function togglebutton4_Callback(hObject, eventdata, handles)
-% hObject    handle to togglebutton4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of togglebutton4
-
-
-
-
-
-
-
 % --- Executes during object creation, after setting all properties.
 function roi_transparency_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to roi_transparency (see GCBO)
@@ -1043,4 +1006,3 @@ function roi_transparency_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-

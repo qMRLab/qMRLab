@@ -187,8 +187,18 @@ end
             if obj.options.fittingconstraints_FixR1rR1f
                 obj.fx(4)=true;
             end
-            if obj.options.fittingconstraints_FixR1fT2f
+            if obj.options.fittingconstraints_FixR1fT2f && any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
                 obj.fx(5)=true;
+            end
+            
+            disablelist = {'Fix R1f*T2f','R1f*T2f ='};
+            for ll = 1:length(disablelist)
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                if ~any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
+                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                else
+                    obj.buttons{indtodisable} = disablelist{ll};
+                end
             end
             
             % Disable/enable some MT pulse options --> Add ### to the button

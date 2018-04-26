@@ -4,7 +4,7 @@ classdef qmt_bssfp < AbstractModel
 % Assumptions:
 % 
 % Inputs:
-%   MTData        4D Magnetization Transfer data
+%   MTdata        4D Magnetization Transfer data
 %   (R1map)       1/T1map (optional)
 %   (Mask)        Binary mask to accelerate the fitting (optional)
 %

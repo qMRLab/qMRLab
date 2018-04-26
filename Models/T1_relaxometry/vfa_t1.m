@@ -153,7 +153,7 @@ end
             Mval = max(X);
             plot([mval Mval],intercept+slope*[mval Mval],'-r');
             hold off
-            title('Linear Fit','FontSize',14);
+            title(sprintf('Linear Fit: T1=%0.4f s; M0=%0.0f;',x.T1,x.M0),'FontSize',14);
             xlabel('[au]','FontSize',12);
             ylabel('[au]','FontSize',12);
             legend('linearized data', 'linear fit','Location','best')

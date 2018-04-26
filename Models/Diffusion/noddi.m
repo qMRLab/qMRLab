@@ -249,11 +249,19 @@ end
             data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             if display
-                plotModel(obj, FitResults, data);
-                hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
                 h = scd_display_qspacedata3D(Smodel,Prot,fibredir,'o','none');
                 set(h,'LineWidth',.5)
+                % remove data legends
+                for iD = 1:length(h)
+                    if ~moxunit_util_platform_is_octave
+                        hAnnotation  = get(h(iD),'Annotation');
+                        hLegendEntry = get(hAnnotation','LegendInformation');
+                        set(hLegendEntry,'IconDisplayStyle','off');
+                    end
+                end
+                hold on
+                plotModel(obj, FitResults, data);
             end
         end
         

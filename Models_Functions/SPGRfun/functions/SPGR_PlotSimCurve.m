@@ -31,5 +31,5 @@ if ~moxunit_util_platform_is_octave
     set(hleg,'location','best');
     legend('boxoff');
 end
-xlabel('Offets (Hz)','FontWeight','bold','FontSize',10);
+xlabel('Offset (Hz)','FontWeight','bold','FontSize',10);
 ylabel('|Mz|','FontWeight','bold','FontSize',10);

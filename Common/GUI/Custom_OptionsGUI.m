@@ -71,11 +71,19 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         FitOptTable(:,5) = mat2cell(Model.ub(:),ones(Nparam,1));
     end
     set(handles.FitOptTable,'Data',FitOptTable)
+    
+    % Add TooltipString
+    try
+        modelheader=iqmr_header.header_parse(which(Model.ModelName));
+        modelheader=modelheader.output';
+        set(handles.FitOptTable,'TooltipString', sprintf('%-10s: %s\n',modelheader{:}));
+    end
 end
 
 % POPULATE OPTIONS PANEL
 if ~isempty(Model.buttons)
-    
+    % delete old buttons
+    delete(findobj('Parent',handles.OptionsPanel,'Type','uipanel'))
     % Generate Buttons
     handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel);
     
@@ -151,6 +159,7 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
+    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediatly. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)
@@ -221,7 +230,7 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         if isfield(Model.options,'fittingconstraints_FixR1rR1f')  && Model.options.fittingconstraints_FixR1rR1f
             fittingtable{strcmp(fittingtable(:,1),'R1r'),3}='R1f';
         end
-        if isfield(Model.options,'fittingconstraints_FixR1fT2f')  && Model.options.fittingconstraints_FixR1fT2f
+        if isfield(Model.options,'fittingconstraints_FixR1fT2f')  && Model.options.fittingconstraints_FixR1fT2f && (~isfield(Model.options,'Model') || ~any(strcmp(Model.options.Model,{'SledPikeRP', 'SledPikeCW'})))
             fittingtable{strcmp(fittingtable(:,1),'T2f'),3}='(R1f*T2f)/R1f';
         end
         set(handles.FitOptTable,'Data',fittingtable);

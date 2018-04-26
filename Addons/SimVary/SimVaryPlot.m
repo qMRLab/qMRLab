@@ -13,14 +13,14 @@ E(1:length(SimVaryResults.(Xaxis).(Yaxis).std))    =  SimVaryResults.(Xaxis).(Ya
 
 
 if (strcmp(Xaxis,Yaxis))
-    plot([Xmin Xmax], [Xmin Xmax], 'k-');
+    plot([Xmin Xmax], [Xmin Xmax], 'k-'); hold on;
 else
     if ~isempty(SimVaryResults.(Xaxis).(Yaxis).GroundTruth)
         plot([Xmin Xmax],[SimVaryResults.(Xaxis).(Yaxis).GroundTruth SimVaryResults.(Xaxis).(Yaxis).GroundTruth], 'k-','DisplayName','GroundTruth');
+        hold on
     end
 end
 set(gca,'FontUnit','normalized')
-hold on
 he = errorbar(X, Y, E);
 set(he,'DisplayName','Mean +/- Std')
 xlabel(sprintf('Input %s',  Xaxis), 'FontWeight', 'Bold');
