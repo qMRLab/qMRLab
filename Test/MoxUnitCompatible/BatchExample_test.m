@@ -20,12 +20,10 @@ mkdir(tmpDir);
 cd(tmpDir)
 
 Modellist = list_models';
-%***TEMP(May 8th 2018): skip qmt_spgr to shorten TRAVIS test***
-IndexC=strfind(Modellist,'qmt_spgr');
-Index = find(not(cellfun('isempty', IndexC)));
-Modellist(Index) = [];
-%***TEMP(May 8th 2018): skip qmt_spgr to shorten TRAVIS test***
-for iModel = 1:length(Modellist)
+
+%for iModel = 1:length(Modellist)
+for iModel = 1:4
+
     disp('===============================================================')
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
     disp('===============================================================')
