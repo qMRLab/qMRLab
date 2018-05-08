@@ -22,7 +22,7 @@ cd(tmpDir)
 Modellist = list_models';
 
 %for iModel = 1:length(Modellist)
-for iModel = 1:4
+for iModel = 1:1
 
     disp('===============================================================')
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
