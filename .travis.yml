@@ -46,7 +46,7 @@ jobs:
     - stage: Test 
       script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive');exit(~res);"
     - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m','-with_coverage','-cover','coverage.json');exit(~res);"             # Paste Sim_test commands below 
+      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage.json');exit(~res);"             # Paste Sim_test commands below 
     # Pay attention to the indentation! Make them look like -stage and script lines above.
     - stage: Test
       script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_charmed.m');exit(~res);"
