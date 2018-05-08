@@ -1,6 +1,6 @@
 function ver = qMRLabVer
 %%
-versionfile=fullfile(fileparts(which('qMRLab.m')),'version.txt');
+versionfile='version.txt';
 fid = fopen(versionfile,'r');
 s = fgetl(fid);
 fclose(fid);
