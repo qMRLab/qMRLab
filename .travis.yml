@@ -39,7 +39,7 @@ before_install:
     - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz -P /home/travis/octave
     - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/octave
     # --------------
-    - make -C MOcov install
+    - make -C External/MOcov install
 
 jobs:
   include:
