@@ -89,7 +89,7 @@ end
         % Protocol
         Prot = struct('DiffusionData',...
                     struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
-                            'Mat', txt2mat(fullfile(fileparts(which('qMRLab.m')),'Models_Functions', 'NODDIfun', 'Protocol.txt'),'InfoLevel',0))); % You can define a default protocol here.
+                            'Mat', txt2mat('NODDIProtocol.txt'))); % You can define a default protocol here.
         
         % Model options
         buttons = {'fitting type',{'non-linear (Rician Likelihood)','linear'},'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10};
