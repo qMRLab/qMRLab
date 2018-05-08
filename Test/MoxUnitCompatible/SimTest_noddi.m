@@ -15,7 +15,7 @@ disp('testing Simulation Single Voxel Curve...');
 
 
 Model = str2func('noddi'); Model = Model();
-savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['noddi.qmrlab.mat']);
+savedModel_fname = 'noddi.qmrlab.mat';
 if ~exist(savedModel_fname,'file')
 Model.saveObj(savedModel_fname);
 else
