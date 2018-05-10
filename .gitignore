@@ -64,4 +64,5 @@ Data
 tmp/
 
 # Coveralls.io reports
+reports/
 *coverage*
