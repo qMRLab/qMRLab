@@ -68,4 +68,5 @@ jobs:
       script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_mwf.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','/home/travis/build/neuropoly/qMRLab/reports/coverage_SimTest_mwf.json');exit(~res);" 
 
 after_success:
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;mocov_combine('/home/travis/build/neuropoly/qMRLab/reports/', 'coverage_combined.json'), exit;" 
     - curl --verbose -F json_file=@/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage.json https://coveralls.io/api/v1/jobs
