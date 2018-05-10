@@ -147,14 +147,14 @@ end
             data.Mask = 1;
             FitResults = fit(obj,data);
             if display
-                plotModel(obj, [], data);
+                plotModel(obj, FitResults, data);
                 subplot(2,1,1)
                 EchoTimes   = obj.Prot.MET2data.Mat;
                 T2          = getT2(obj,EchoTimes);
                 hold on
-                plot(T2.vals,Spectrum,'b');
+                plot(T2.vals,Spectrum,'b-');
                 if ~moxunit_util_platform_is_octave
-                legend({'Fitted Spectrum','Simulated Spectrum'},'FontSize',10);
+                legend({'Fitted Spectrum','T2MW','T2IEW','Simulated Spectrum'},'FontSize',10);
                 end
                 hold off
             end
@@ -188,7 +188,14 @@ end
                 %----------------------- subplot 1 -----------------------%
                 subplot(2,1,1)
                 plot(T2.vals,Spectrum,'r');
-                title('Spectrums','FontSize',12);
+                %plot vertical bars at estimated T2
+                hold on
+                x = mat2struct(x,obj.xnames); %convert to structure
+                ax=gca;
+                line([x.T2MW x.T2MW], get(ax,'Ylim'),'Color','cyan','LineStyle','-.')
+                line([x.T2IEW x.T2IEW], get(ax,'Ylim'),'Color','black','LineStyle','-.')
+                legend('Fitted spectrum','T2MW','T2IEW')
+                title(sprintf('Spectrums MWF=%0.2f T2MW=%0.2f ms T2IEW=%0.2f ms',x.MWF,x.T2MW,x.T2IEW),'FontSize',12);
                 xlabel('T2 (ms)');
                 ylabel('Proton density');
                 %----------------------- subplot 2 -----------------------%
@@ -201,7 +208,7 @@ end
                 hold off
                 title('Fitting','FontSize',12);
                 if ~moxunit_util_platform_is_octave
-                legend({'Simulated data','Fitted curve'},'Location','best','FontSize',12);
+                legend({'Raw data','Fitted curve'},'Location','best','FontSize',12);
                 end
                 xlabel('EchoTimes (ms)');
                 ylabel('MET2 ()');

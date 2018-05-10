@@ -136,11 +136,11 @@ end
             Prot(Prot(:,4)==0,1:6) = 0;
             [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
             cmax = max(c); % find images repeated more than 5 times (for relevant STD)
-            if cmax<2
+            if cmax<2 && ~strcmp(obj.options.Riciannoisebias_Method,'fix sigma')
                 warndlg({'Your dataset doesn''t have 2 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
                 obj.options.Riciannoisebias_Method = 'fix sigma';
             elseif cmax<5
-                warndlg({'Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+                warning('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately. Specify a fixed Sigma Noise in the option panel instead. See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.')
             end
             
             if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
@@ -299,11 +299,19 @@ end
             data.DiffusionData = ricernd(Smodel,sigma);
             FitResults = fit(obj,data);
             if display
-                plotModel(obj, FitResults, data);
-                hold on
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
                 h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
                 set(h,'LineWidth',.5)
+                % remove data legends
+                for iD = 1:length(h)
+                    if ~moxunit_util_platform_is_octave
+                        hAnnotation  = get(h(iD),'Annotation');
+                        hLegendEntry = get(hAnnotation','LegendInformation');
+                        set(hLegendEntry,'IconDisplayStyle','off');
+                    end
+                end
+                hold on
+                plotModel(obj, FitResults, data);
             end
         end
         

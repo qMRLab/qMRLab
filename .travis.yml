@@ -25,17 +25,19 @@ before_install:
     - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
     - travis_retry sudo apt-add-repository -y ppa:octave/stable
     - travis_retry sudo apt-get -y -qq update
-    #- travis_retry sudo apt-get install -y wget
+    - travis_retry sudo apt-get install -y wget
     # get Octave 4,0
     - travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev
     # Please comment in following section if you need to update packages or add a new one
     # If following section is going to be commented in, please set cacheState to false in startup.m
     # --------------
-    #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/struct-1.0.14.tar.gz -P /home/travis/octave
-    #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/optim-1.5.2.tar.gz -P /home/travis/octave
-    #- travis_retry wget https://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/io-2.4.10.tar.gz -P /home/travis/octave
-    #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz -P /home/travis/octave
-    #- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/octave
+    #- travis_retry wget -O /home/travis/octave/OctavePackages.zip https://osf.io/t465n/download
+    #- unzip /home/travis/octave/OctavePackages.zip
+    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/struct-1.0.14.tar.gz -P /home/travis/octave
+    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/optim-1.5.2.tar.gz -P /home/travis/octave
+    - travis_retry wget https://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/io-2.4.10.tar.gz -P /home/travis/octave
+    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz -P /home/travis/octave
+    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/octave
     # --------------
 
 

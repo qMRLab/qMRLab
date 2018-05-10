@@ -76,4 +76,23 @@ grid on, box off
 
 hold off
 
+% Add legend about linestyle
+switch Linestyle
+    case 'none'
+        switch Marker
+            case 'o'
+                txt = [Marker ' = simulated data'];
+                pos = [0.2, 0.97];
+            case 'x'
+                txt = [Marker ' = noisy simulated data'];
+                pos = [0.5, 0.97];
+        end
+    otherwise
+        txt = [Linestyle ' = fit'];
+        pos = [0.8, 0.97];
+end
+t = text(pos(1),pos(2),txt,'Units','normalized');
+set(t,'FontSize',10);
+set(t,'BackgroundColor',[0.9  0.9 0.9]);
+
 end

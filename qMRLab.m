@@ -15,11 +15,9 @@ function varargout = qMRLab(varargin)
 % Software for data simulation, analysis and visualization.
 % Concepts in Magnetic Resonance Part A
 % ----------------------------------------------------------------------------------------------------
-qMRLabDir = fileparts(which(mfilename()));
-if ~exist('moxunit_util_platform_is_octave','file')
-    addpath(genpath(qMRLabDir));
-end
-if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
+
+if logical(exist('OCTAVE_VERSION', 'builtin')), warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -45,6 +43,10 @@ end
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
 if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 if ~isfield(handles,'opened') % qMRI already opened?
+    % Add qMRLab to path
+    qMRLabDir = fileparts(which(mfilename()));
+    addpath(genpath(qMRLabDir));
+
     handles.opened = 1;
     clc;
     % startup;
@@ -82,10 +84,8 @@ if ~isfield(handles,'opened') % qMRI already opened?
         Modelfun = str2func(MethodList{iMethod});
         Model = Modelfun();
         close(setdiff(findall(0,'type','figure'),flist)); % close figures that might open when calling models
-        MRIinputs = Model.MRIinputs;
-        optionalInputs = get_MRIinputs_optional(Model);
         % create file browser uicontrol with specific inputs
-        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,handles,MethodList{iMethod}, MRIinputs,optionalInputs);
+        FileBrowserList(iMethod) = MethodBrowser(handles.FitDataFileBrowserPanel,Model);
         FileBrowserList(iMethod).Visible('off');
         
     end
@@ -338,7 +338,12 @@ function FitGo_FitData(hObject, eventdata, handles)
 data =  GetAppData('Data');
 Method = GetAppData('Method');
 Model = getappdata(0,'Model');
+if isfield(data,[class(Model) '_hdr']), hdr = data.([class(Model) '_hdr']); end
 data = data.(Method);
+
+% check data
+ErrMsg = Model.sanityCheck(data);
+if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
 % Do the fitting
 FitResults = FitData(data,Model,1);
@@ -369,35 +374,32 @@ FitResults.Model = objProps2struct(FitResults.Model);
 
 % Save fit results
 if(~isempty(FitResults.StudyID))
-    filename = strcat(FitResults.StudyID,'.mat');
+    filename = strcat('FitResults_',FitResults.StudyID,'.mat');
 else
     filename = 'FitResults.mat';
 end
 outputdir = fullfile(FitResults.WD,'FitResults');
 if ~exist(outputdir,'dir'), mkdir(outputdir); 
 else
-    outputdir = fullfile(FitResults.WD,['FitResults' datestr(now,'_yyyymmdd_HHMM')]);
-    mkdir(outputdir); 
+    iii=1; filenamenew = filename;
+    while exist(fullfile(FitResults.WD,'FitResults',filenamenew),'file')
+        iii=iii+1;
+        filenamenew = strrep(filename,'.mat',['_' num2str(iii) '.mat']);
+    end
+    filename = filenamenew;
 end
 save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii maps
-fn = fieldnames(FitResults.Files);
-mainfile = FitResults.Files.(fn{1});
-ii = 1;
-while isempty(mainfile)
-    ii = ii+1;
-    mainfile = FitResults.Files.(fn{ii});
-end    
-for i = 1:length(FitResults.fields)
-    map = FitResults.fields{i};
-    [~,~,ext]=fileparts(mainfile);
+for ii = 1:length(FitResults.fields)
+    map = FitResults.fields{ii};
     file = strcat(map,'.nii.gz');
-    if strcmp(ext,'.mat')
+
+    if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
-        save_nii_v2(FitResults.(map),fullfile(outputdir,file),mainfile,64);
+        save_nii_v2(FitResults.(map),fullfile(outputdir,file),hdr,64);
     end
 end
 
@@ -419,7 +421,7 @@ set(handles.CurrentFitId,'String',FileName);
 
 % FITRESULTSLOAD
 function FitResultsLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile({'*FitResults.mat;*.qmrlab.mat'},'FitResults.mat');
+[FileName,PathName] = uigetfile({'*FitResults*.mat;*.qmrlab.mat'},'FitResults.mat');
 if PathName == 0, return; end
 set(handles.CurrentFitId,'String',FileName);
 FitResults = load(fullfile(PathName,FileName));
@@ -478,30 +480,15 @@ RefreshPlot(handles);
 
 % MIN
 function MinValue_Callback(hObject, eventdata, handles)
-min   =  str2double(get(hObject,'String'));
-max = str2double(get(handles.MaxValue, 'String'));
+mini   =  str2double(get(hObject,'String'));
+maxi = str2double(get(handles.MaxValue, 'String'));
 
-% special treatment for MTSAT visualisation
-CurMethod = getappdata(0, 'Method');
-if strcmp(CurMethod, 'MTSAT')
-    if n > 2
-        Min = min(min(min(MTdata)));
-        Max = max(max(max(MTdata)));
-        ImSize = size(MTdata);
-    else
-        Min = min(min(MTdata));
-        Max = max(max(MTdata));
-    end
-    set(handles.MinValue, 'Min', Min);
-    set(handles.MinValue, 'Max', Max);
-    set(handles.MinValue, 'Value', Min+1);
-else
-    lower =  0.5 * min;
-    set(handles.MinSlider, 'Value', min);
-    set(handles.MinSlider, 'min',   lower);
-    caxis([min max]);
-    % RefreshColorMap(handles);
-end
+lower =  mini - 0.25*abs(mini+maxi);
+set(handles.MinSlider, 'Value', mini);
+set(handles.MinSlider, 'min',   lower);
+caxis([mini maxi]);
+% RefreshColorMap(handles);
+
 
 function MinSlider_Callback(hObject, eventdata, handles)
 maxi = str2double(get(handles.MaxValue, 'String'));
@@ -619,6 +606,7 @@ f=figure('Position', [0 0 700 400], 'Resize', 'Off');
 % Matlab < R2014b
 MatlabVer = version;
 if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+defaultNumBins = max(5,round(length(data)/100));
 hist(data, defaultNumBins); 
 % Label axes
 SourceFields = cellstr(get(handles.SourcePop,'String'));
@@ -641,7 +629,7 @@ xlabel(Source);
 h_ylabel = ylabel('Counts');
 
 % Statistics (mean and standard deviation)
-Stats = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
+Stats = sprintf('Mean: %4.3g \n Median: %4.3g \n   Std: %4.3g',mean(data(~isinf(data) & ~isnan(data))),median(data(~isinf(data) & ~isnan(data))),std(data(~isinf(data) & ~isnan(data))));
 h_stats=text(0.10,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
 
 % No. of bins GUI objects
@@ -745,8 +733,9 @@ function [] = minmax_call(varargin)
     end
 
     % Update stats on fig
-    h_stats.String = sprintf('Mean: %4.3e \n   Std: %4.3e',mean(data),std(data));
-
+    Stats = sprintf('Mean: %4.3g \n Median: %4.3g \n   Std: %4.3g',mean(data(~isinf(data) & ~isnan(data))),median(data(~isinf(data) & ~isnan(data))),std(data(~isinf(data) & ~isnan(data))));
+    set(h_stats,'String',Stats);
+    
 function [] = norm_call(varargin)
     % Callback for the histogram edit box.
     [h_popup_norm,h_cell] = varargin{[1,3]};
@@ -785,8 +774,10 @@ if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
     helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
-elseif ~isequal(Scurrent, S)
-    helpdlg([Model.MRIinputs{1} ' file in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer. Load corresponding ' Model.MRIinputs{1} '.'])
+elseif ~isequal(Scurrent(1:3), S(1:3))
+    Sstr = sprintf('%ix',S);
+    Scurstr = sprintf('%ix',Scurrent);
+    helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
 else
     % Check data consistency
     Model.sanityCheck(data);
@@ -822,14 +813,16 @@ else
     
     if ~isempty(haxes)
         % turn gray old plots
-        haxes = get(haxes(min(end,2)),'children');
-        set(haxes,'Color',[0.8 0.8 0.8]);
-        hAnnotation = get(haxes,'Annotation');
-        % remove their legends
-        for ih=1:length(hAnnotation)
-            if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
-            hLegendEntry = get(hAnnot,'LegendInformation');
-            set(hLegendEntry,'IconDisplayStyle','off');
+        for h=1:length(haxes) %might have subplots
+            haxe = get(haxes(h),'children');
+            set(haxe,'Color',[0.8 0.8 0.8]);
+            hAnnotation = get(haxe,'Annotation');
+            % remove their legends
+            for ih=1:length(hAnnotation)
+                if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
+                hLegendEntry = get(hAnnot,'LegendInformation');
+                set(hLegendEntry,'IconDisplayStyle','off');
+            end
         end
     end
     hold on;
@@ -914,6 +907,7 @@ axis equal off;
 RefreshColorMap(handles);
 xlim(xl);
 ylim(yl);
+drawnow;
 
 
 % ##############################################################################################

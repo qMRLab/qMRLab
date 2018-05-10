@@ -14,49 +14,70 @@ classdef MethodBrowser
     end
     properties(Hidden = true)
         % common to all methods, work directory and studyID
+        InfoBtnWD;
         WorkDir_TextArea;
         WorkDir_BrowseBtn;
         WorkDir_FileNameArea;
         WorkDir_FullPath;
         StudyID_TextArea;
         StudyID_TextID;
+        WarnBut_DataConsistensy;
     end
     
     methods
         %------------------------------------------------------------------
         % constructor
-        function obj = MethodBrowser(varargin)
-            obj.Parent = varargin{1};
-            if nargin > 2            
-                obj.Parent = varargin{1};
-                handles = varargin(2);
-                InputsName = varargin{4};
-                InputsOptional = varargin{5};
+        function obj = MethodBrowser(Parent,Model)
+            % example: figure(1); clf; MB = MethodBrowser(1,dti); 
+            obj.Parent = Parent;
+            obj.MethodID = Model.ModelName;
+            InputsName = Model.MRIinputs;
+            InputsOptional = Model.get_MRIinputs_optional;
+            header = iqmr_header.header_parse(which(Model.ModelName));
+            if isempty(header.input), header.input = {''}; end
                 
-                obj.MethodID = varargin{3};
-                Location = [0.02, 0.7];
-                
-                obj.NbItems = size(InputsName,2);
-                
-                obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
-                
-                for ii=1:obj.NbItems
-                    obj.ItemsList(ii) = BrowserSet(obj.Parent, handles, InputsName{ii}, InputsOptional(ii), Location, 1, 1);
-                    Location = Location + [0.0, -0.15];
-                end
-                
-                % setup work directory and study ID display
-                obj.WorkDir_FullPath = '';
-                obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Work Dir:', 'HorizontalAlignment', 'left', 'Position', [0.02,0.85,0.1,0.1],'FontSize', 0.6);
-                obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.22,0.85,0.3,0.1],'FontSize', 0.6);
-                obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'Browse', 'Position', [0.11,0.85,0.1,0.1], 'FontSize', 0.6, ...
-                    'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
-                obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'Study ID:', 'Position', [0.55,0.85,0.1,0.1], 'FontSize', 0.6);
-                obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized', 'Position', [0.65,0.85,0.3,0.1],'FontSize', 0.6);
+            Location = [0.02, 0.7];
+            
+            obj.NbItems = size(InputsName,2);
+            
+            obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
+            
+            for ii=1:obj.NbItems
+                headerii = strcmp(header.input(:,1),InputsName{ii}) | strcmp(header.input(:,1),['(' InputsName{ii} ')']) | strcmp(header.input(:,1),['((' InputsName{ii} '))']);
+                if max(headerii), headerii = header.input{find(headerii,1,'first'),2}; else, headerii=''; end
+                obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, headerii);
+                Location = Location + [0.0, -0.15];
             end
+            
+            % ADD WARNING BUTTON
+            obj.WarnBut_DataConsistensy = uicontrol(obj.Parent, 'Style', 'Text','units', 'normalized','BackgroundColor',[0.94 0.94 0.94],'ForegroundColor',[1 0 0],'FontSize',10,...
+                'Position', [0,0,1,0.08], 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
+            
+            % setup work directory and study ID display
+            Info = {'1. Path to data (Optional): ',...
+                '    FitResults will be saved to this directory',...
+                ['    Default: ' pwd],...
+                '',...
+                '    The files containing the following pattern in their name will be loaded automatically (Case Sensitive):',...
+                sprintf('    -  *%s*\n',Model.MRIinputs{:}),...
+                '',...
+                '2. Study ID (Optional):',...
+                '    Suffix for the FitResults file'};
+            Info = sprintf('%s\n',Info{:});
+            obj.InfoBtnWD = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized','BackgroundColor',[0.94 0.94 0.94], ...
+                'String', '?','FontWeight','bold','TooltipString',sprintf('%s\n',Info),'Position',[0.02,0.85,0.02,0.1],'Callback',@(hObj,eventdata,handles) helpdlg(Info));
+            obj.WorkDir_FullPath = '';
+            obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
+                'String', 'Path data:', 'HorizontalAlignment', 'left', 'Position', [0.05,0.85,0.1,0.1],'FontSize', 0.6);
+            obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
+                'Position', [0.27,0.85,0.3,0.1],'FontSize', 0.6);
+            obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
+                'String', 'Browse', 'Position', [0.16,0.85,0.1,0.1], 'FontSize', 0.6, ...
+                'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
+            obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
+                'String', 'Study ID:', 'Position', [0.58,0.85,0.1,0.1], 'FontSize', 0.6);
+            obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
+                 'Position', [0.69,0.85,0.28,0.1],'FontSize', 0.6);
         end % end constructor
                   
         %------------------------------------------------------------------
@@ -65,12 +86,16 @@ classdef MethodBrowser
             for i=1:obj.NbItems
                 obj.ItemsList(i).Visible(Visibility);
             end
+            set(obj.InfoBtnWD, 'Visible', Visibility); 
             set(obj.WorkDir_BrowseBtn, 'Visible', Visibility); 
             set(obj.WorkDir_TextArea, 'Visible', Visibility);
             set(obj.WorkDir_BrowseBtn, 'Visible', Visibility);
             set(obj.WorkDir_FileNameArea, 'Visible', Visibility);
             set(obj.StudyID_TextArea, 'Visible', Visibility);
-            set(obj.StudyID_TextID, 'Visible', Visibility);            
+            set(obj.StudyID_TextID, 'Visible', Visibility);
+            % Warning button is unvisible if no warning
+            if isempty(get(obj.WarnBut_DataConsistensy,'TooltipString')), Visibility = 'off'; end
+            set(obj.WarnBut_DataConsistensy, 'Visible', Visibility);
         end
         
         %------------------------------------------------------------------
@@ -91,9 +116,9 @@ classdef MethodBrowser
         
         %------------------------------------------------------------------
         % DataLoad - load the images using setappdata
-        function DataLoad(obj, handles)
+        function DataLoad(obj)
             for i=1:obj.NbItems
-                obj.ItemsList(i).DataLoad(handles);
+                obj.ItemsList(i).DataLoad;
             end
         end
         
@@ -121,9 +146,17 @@ classdef MethodBrowser
             end
             
             % clear previous data
-            if isappdata(0,'Data')
-                rmappdata(0,'Data'); 
-            end
+                Data = getappdata(0,'Data');
+                if isfield(Data,Method)
+                    fields = fieldnames(Data.(Method));
+                    for ff=1:length(fields)
+                        Data.(Method).(fields{ff})=[];
+                    end
+                end
+                if isfield(Data,[Method '_hdr'])
+                    Data = rmfield(Data,[Method '_hdr']); 
+                end
+                setappdata(0,'Data',Data); 
             
             % Manage each data items
             for i=1:obj.NbItems
@@ -141,8 +174,7 @@ classdef MethodBrowser
         %------------------------------------------------------------------
         % get working directory name
         function WD = setWD(obj,WD)
-            % WD = setWD(obj,handles,WD)
-            obj.WD_BrowseBtn_callback(obj,WD)
+            obj.WD_BrowseBtn_callback(WD)
         end
         
         %------------------------------------------------------------------
