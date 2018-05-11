@@ -6,9 +6,14 @@ cache:
 env:
   global:
   - OCTAVE=octave
-  - secure: DpSqDOE7XISPw3apNYRecop6QRWnc5R86j642TRte+RPcxLDJ1PKGYViGu0md3FkdH+zGKFgf/KKJUjwFmrUvsUIeUuTKBs0SksDhiP0XyiLPpVtVeuOk4FBIYlnWCX+l2KmGqMNOtjvMPSVkNz78NrZwunoYDJZDplexNXKz/Gfk65Io3I4/Td6M4S/hKZaUBCTB4eUqZt8VXNSyOLoEZeOU+pvYRIx2i7CeXOJjHDiZ8JNP4ldExu/xiZxpfGQs1Z1O4jyt4cfRZhnyZwvchHhyAoBrYAPpfzlYjabLumEpMnFlhaVRQ0odPjum/Ipc4e/8ua36eUur8MdvgHZDjMWBIdrBw8vAN6U/JLzWTwF2zyLQYHWEpnTsl3KXOwxPWhcFs6E0w1oVHue9jRgPCEN1M5xosYpevnGTpOUCtvJBxGsUxv9BvLObzA2YsahqGamOMxniNq/dKpq266pm+YOVVkug8vuvNb3vmLWAGTSs3Gx9fjcUOvKvB308dZ7n+vC5NAgzRz7TsBEThv0rYKttk8vauldYfAz1vCNVMONeXdjziRO5j89v006Bb/tEsz3ArMDqEGbDcch57BnUdA2O9ijKtLm9uiD57WhejEJxTBjaKV9lyQBwloHCnzdWKKe7Rgiu2cClz7XU4gu8z+AkK8OwVclLtuba+7LjC4=
+  - secure: AuaFi6wbz58JxJauG+EYGyYTjoh5aK9I6RiECfC+KJ2E7rmnf1wi9gDEArylSs8Eg6sKGekYiE11RB7eTjQwePZcYnKDj5XD2ROsNZ0eDlcqMB67DjjNX8ozn9mnht3ba2JqbCXUGz1TH3CrZurjE0rnR0VksDygLZOdvSlv9OqL1Jvf8anV75fkRIjPB1wLvGsxkQHh2OivGyNQhAH9rUeZawHZTqRQUsO92z+mO5NQDay5r43ZmhKdC600oUhTVlJjgm9NRnyxz+r4rLp7rLlrAyHlUVYvb5zgWbQbjdfeZ08+yEqgleULs9zOzMq9AJm7ba6mUXz065mctwmT4uC3aIQjKcmeaE7TZTVCkiVhc3opIUatmBgActPzTJ9NPXt48/uxZF42s1cTRaDZNm9iIZxQK9Np+CelB7b5MSsIZ8UMpaBU+H8IIr7XGoa0ReQ2vYDnzA6XIwlxiVL8nvO//LOA7vmRe6xwFrgnWtC/B/CcqWw+Hdw3H0lEZW9ikwfNAWmUkjh5zR6MI2PQ7oTxp2SyFjJhDLEMltO0BIo0pAEW1HWUGtvkU9n5RGwc9a2TFzi8eNadDw3VQqcsPzx6fl1yEMYLviG4At0dZsO0PWaOzGy+J51UZDwKHuolIMYsJEBkAQsZmCLiJR+TYvKge2fii5ZXRUN9xt/W94g=
+  - secure: bAS2ZfTRxzR7AtsIXy0i8WSNa+fwh4aTS0+8iyKmOpKygw+kkRZj20uexDgSQFdGQzQwYXTjgNvldD1ad4KHHcqoxuh7N2fI/SS/8xGOu2Xb5xvn2Pt5EFXKQ9QnYa6flHMEfeddoM41kiRHR/e59R9/gAr6cfKMye/b20JlmmppV+T2zvFgU+w1GhOmRPGkTE0xdBpdgZGjVP+ux9ydrta23dB8qLjAr6fMDCYGA0XXGOjGib5qBBVsDgkBThWuqM7lUBFemk0bzBjQxz3PrKT88ZdMVi+9WdlGJ7Qy6Niip6r21tNsAUMyeF3uvDw+6rb5BGntYDR05wB2hdBdzjmVu6A8SiFuUDSsRBdu+2VKpDesnR4/f+6THyivXSm7YP92VM0NSwJyYvN8HUWZTRW/+ely35rrtcm+cisbSJch1sNYrp/jT5l2LKVwlb7xno5JXjf7AxTV9JhPEtikEkDlMdotYOWHOqGAvNp4Aw3+oH0sv69otfoK/68z4F+HqN4CDn8ou8Hm55rwQsEsLXX6jgy2PbgOpPil15lTY/OgoiSDbeiNmVByhiWMYX8zidlRedN39lwEZhycPS7wnhQmBU8Bstf821FAsZQlldPM3Btg72kydMTTtUpmtW1hy9B5QkUym5yR9Qy4qlzkJTfLmTmrEkLuBm9/BbVJgGs=
 before_install:
-- ./home/travis/build/neuropoly/qMRLab/ecr_credentials.sh
+- mkdir -p ~/.aws
+- cat > ~/.aws/credentials << EOL
+- - default
+- aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+- aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
 - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
 - travis_retry sudo apt-get -y -qq update
 - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
@@ -57,11 +62,6 @@ jobs:
   - stage: Test
     script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_mwf.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_mwf.json');exit(~res);"
   - stage: CombineReports
-    script: mv ~/$TRAVIS_BUILD_NUMBER/*.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/;octave
-      --no-gui --eval "cd('/home/travis/build/neuropoly/qMRLab/');startup;mocov_combine('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/','coverage_combined.json')";
-      mv /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json
-      ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json
+    script: mv ~/$TRAVIS_BUILD_NUMBER/*.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/;octave --no-gui --eval "cd('/home/travis/build/neuropoly/qMRLab/');startup;mocov_combine('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/','coverage_combined.json')"; mv /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json
   - stage: Coveralls
-    script: mv ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json;curl
-      --verbose -F json_file=@/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json
-      https://coveralls.io/api/v1/jobs
+    script: mv ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json;curl --verbose -F json_file=@/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json https://coveralls.io/api/v1/jobs
