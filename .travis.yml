@@ -22,6 +22,7 @@ deploy:
   provider: s3
   # access_key_id: "YOUR AWS ACCESS KEY"
   secure: "dNIIx5Z0vU1svkg4wqaCWp3QNH2vWSbNSDP1hhStDeBzja0nzolrmyh0+7BX1usR7ot0mCZ/IoDV0sX68znPlJbsde1cuxQOGSd3sEMwLg/LbLfe6jjARwEBcOcvMlYyoNUR0k2y8/5Y4G8g868cW89qEdowZrcZ8SFa2LXdEWNslIs6AV400HPan7fIaRhwh5salfd/swkjk35BnWy8imbGQnvAc4Sj30Fc71e8kzJFXtoOj+sPOqCwQJqwRoeC07PLu3U5S5mBHNn7zOFRN/RYFvGrPO3e6iKA70FWMQKZViNmSBtWbQA2pm58SkRyAviuVHDUg7ACEz+uM0L7W78XppUDCC2JEJxe6SWMJzhPxJuabq6oxEuJu1nN1emeTL2JLItn22r1imqgkB2HqIEVIAKIi7R7Iysh1b9HDu94kqTNzhzvZfs+8d+lyeJ8gb2pvlcdQQaQVtYcjxUF6HIoxkrpRLgO9q5vWE4uAzenttoWqxbxjzH8DcBtgeHHKlnMo/IX5pjgyujANnq5m0PcMHuRzPTI8Wg5s2BtWSj5LeyDpraCxAUdOb1pQFzlhl6nM/BWhWkPsk8wrQ4a3Bnea6MwEcklJvsnFzRXzg1zOapMK28FchxHmkxoAPEHQjeesc9F3eUkGmd0nR0li81kp0DJQlnWa/UQediRrmU="  bucket: "qmrlab"
+  bucket: "qmrlab"
 before_install:
     # to prevent IPv6 being used for APT
     - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
