@@ -40,13 +40,17 @@ before_install:
     - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/octave
     # --------------
     - make -C External/MOcov install
+    # set up awscli packages
+    - pip install --user awscli
+    - mkdir -p ~/$TRAVIS_BUILD_NUMBER
+    - aws s3 sync s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER ~/$TRAVIS_BUILD_NUMBER
 
 jobs:
   include:
     - stage: Test 
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_quickMoxTests.json');exit(~res);"
+      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_quickMoxTests.json');exit(~res);"; mv coverage_quickMoxTests.json ~/$TRAVIS_BUILD_NUMBER/coverage_quickMoxTests.json
     - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_BatchExample.json');exit(~res);"
+      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_BatchExample.json');exit(~res);"; mv coverage_BatchExample.json ~/$TRAVIS_BUILD_NUMBER/coverage_BatchExample.json
     # Pay attention to the indentation! Make them look like -stage and script lines above.
     - stage: Test
       script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_charmed.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_charmed.json');exit(~res);"
@@ -67,6 +71,6 @@ jobs:
     - stage: Test
       script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_mwf.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_mwf.json');exit(~res);"
     - stage: CombineReports
-      script: octave --no-gui --eval "cd('/home/travis/build/neuropoly/qMRLab/');startup;mocov_combine('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/','coverage_combined.json')"
+      script: mv ~/$TRAVIS_BUILD_NUMBER/*.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/;octave --no-gui --eval "cd('/home/travis/build/neuropoly/qMRLab/');startup;mocov_combine('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/','coverage_combined.json')"; mv /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json
     - stage: Coveralls
-      script: curl --verbose -F json_file=@/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json https://coveralls.io/api/v1/jobs
+      script: mv ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json;curl --verbose -F json_file=@/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json https://coveralls.io/api/v1/jobs
