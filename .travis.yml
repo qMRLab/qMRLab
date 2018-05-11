@@ -18,6 +18,11 @@ cache:
 env:
  global:
     - OCTAVE=octave
+deploy:
+  provider: s3
+  # access_key_id: "YOUR AWS ACCESS KEY"
+  secure: "Q5lxujwrmVEBOAA2Pdr+MFU+77JZLpwjSrrpBnL7au0bSYJuqJBsUYXxpGe5VElG16YT2ZvA7NY4pBChMSYiEb8qKtqBb/xNoCEmiJSZFd3DYlG7fXCZGuxfWZjqBbB97jkpGCyugmtFVDnlcn/M87iH6Gbxn8QBG6+8zxfvqWE54NbSUk4Hp3pUsz+SHhQtmQ6xf5qKUuXcKLEZFge+zUy/B9h52bboH1GZgPMNhSg0oNgWWoNeLdmJ6K1C7cmMdboFGNcKSUVK8Jv7t4Kz1lt5GHnmfmmZCHmwK43VvxN25b1msjv1WmiPCllXUgJJa11WHyWBXuio+QXxuU+DMfYOq2m71yP7eRCMPljZAciXc/qCz051IJKgg89EbH9bYJmGLUiayx03B7hQr9IuSurZYeDjCGpWNhzLkR3XUB7Z/ijDebOAuqeAsT/NG2awrQQuIUkL7wYS3De3impgpHQ2efu6ZVfQQcn4Rc2urWNXeez4vBESn2KE2jkq9EkrhSkR0EPYo+Gt0m0HL1DFkC40Io6RFnjUAldhvQLNsDZk+bx94xI8fezSHbLYUiVbicgUlp/6KkiGoXsBEL9sJi4pPnDy6ldMzycU/7xgb/3v81QSxrBc0uJhwA+TZ2Gq+aU+zbIElS5W3gnDuF8mpvKPebnY8G4G03P0KGfdY6c="
+  bucket: "qmrlab"
 before_install:
     # to prevent IPv6 being used for APT
     - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
