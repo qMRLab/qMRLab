@@ -8,7 +8,7 @@ env:
   - OCTAVE=octave
   - secure: DpSqDOE7XISPw3apNYRecop6QRWnc5R86j642TRte+RPcxLDJ1PKGYViGu0md3FkdH+zGKFgf/KKJUjwFmrUvsUIeUuTKBs0SksDhiP0XyiLPpVtVeuOk4FBIYlnWCX+l2KmGqMNOtjvMPSVkNz78NrZwunoYDJZDplexNXKz/Gfk65Io3I4/Td6M4S/hKZaUBCTB4eUqZt8VXNSyOLoEZeOU+pvYRIx2i7CeXOJjHDiZ8JNP4ldExu/xiZxpfGQs1Z1O4jyt4cfRZhnyZwvchHhyAoBrYAPpfzlYjabLumEpMnFlhaVRQ0odPjum/Ipc4e/8ua36eUur8MdvgHZDjMWBIdrBw8vAN6U/JLzWTwF2zyLQYHWEpnTsl3KXOwxPWhcFs6E0w1oVHue9jRgPCEN1M5xosYpevnGTpOUCtvJBxGsUxv9BvLObzA2YsahqGamOMxniNq/dKpq266pm+YOVVkug8vuvNb3vmLWAGTSs3Gx9fjcUOvKvB308dZ7n+vC5NAgzRz7TsBEThv0rYKttk8vauldYfAz1vCNVMONeXdjziRO5j89v006Bb/tEsz3ArMDqEGbDcch57BnUdA2O9ijKtLm9uiD57WhejEJxTBjaKV9lyQBwloHCnzdWKKe7Rgiu2cClz7XU4gu8z+AkK8OwVclLtuba+7LjC4=
 before_install:
-- ./ecr_credentials.sh
+- ./home/travis/build/neuropoly/qMRLab/ecr_credentials.sh
 - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
 - travis_retry sudo apt-get -y -qq update
 - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
