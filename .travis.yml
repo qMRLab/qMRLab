@@ -1,81 +1,67 @@
-# vim ft=yaml
-# travis-ci.org definition for MOxUnit build (based on CoSMoMVPA,
-# which is based on PyMVPA, which is based on nipype configuration, 
-# which in turn was based on nipy)
-#
-# We pretend to be java because we need GNU Octave which is not
-# available (as of April 2015)
-
 language: java
-
 cache:
-  
-  apt: true # Not working for public repos :( 
+  apt: true
   directories:
-    # Following directories will be generated 
-    - $HOME/octave
-    #- $HOME/build/neuropoly/qMRLab/osfData
+  - "$HOME/octave"
 env:
- global:
-    - OCTAVE=octave
-deploy:
-  provider: s3
-  # access_key_id: "YOUR AWS ACCESS KEY"
-  secure: "dNIIx5Z0vU1svkg4wqaCWp3QNH2vWSbNSDP1hhStDeBzja0nzolrmyh0+7BX1usR7ot0mCZ/IoDV0sX68znPlJbsde1cuxQOGSd3sEMwLg/LbLfe6jjARwEBcOcvMlYyoNUR0k2y8/5Y4G8g868cW89qEdowZrcZ8SFa2LXdEWNslIs6AV400HPan7fIaRhwh5salfd/swkjk35BnWy8imbGQnvAc4Sj30Fc71e8kzJFXtoOj+sPOqCwQJqwRoeC07PLu3U5S5mBHNn7zOFRN/RYFvGrPO3e6iKA70FWMQKZViNmSBtWbQA2pm58SkRyAviuVHDUg7ACEz+uM0L7W78XppUDCC2JEJxe6SWMJzhPxJuabq6oxEuJu1nN1emeTL2JLItn22r1imqgkB2HqIEVIAKIi7R7Iysh1b9HDu94kqTNzhzvZfs+8d+lyeJ8gb2pvlcdQQaQVtYcjxUF6HIoxkrpRLgO9q5vWE4uAzenttoWqxbxjzH8DcBtgeHHKlnMo/IX5pjgyujANnq5m0PcMHuRzPTI8Wg5s2BtWSj5LeyDpraCxAUdOb1pQFzlhl6nM/BWhWkPsk8wrQ4a3Bnea6MwEcklJvsnFzRXzg1zOapMK28FchxHmkxoAPEHQjeesc9F3eUkGmd0nR0li81kp0DJQlnWa/UQediRrmU="
-  bucket: "qmrlab"
+  global:
+  - OCTAVE=octave
+  - secure: DpSqDOE7XISPw3apNYRecop6QRWnc5R86j642TRte+RPcxLDJ1PKGYViGu0md3FkdH+zGKFgf/KKJUjwFmrUvsUIeUuTKBs0SksDhiP0XyiLPpVtVeuOk4FBIYlnWCX+l2KmGqMNOtjvMPSVkNz78NrZwunoYDJZDplexNXKz/Gfk65Io3I4/Td6M4S/hKZaUBCTB4eUqZt8VXNSyOLoEZeOU+pvYRIx2i7CeXOJjHDiZ8JNP4ldExu/xiZxpfGQs1Z1O4jyt4cfRZhnyZwvchHhyAoBrYAPpfzlYjabLumEpMnFlhaVRQ0odPjum/Ipc4e/8ua36eUur8MdvgHZDjMWBIdrBw8vAN6U/JLzWTwF2zyLQYHWEpnTsl3KXOwxPWhcFs6E0w1oVHue9jRgPCEN1M5xosYpevnGTpOUCtvJBxGsUxv9BvLObzA2YsahqGamOMxniNq/dKpq266pm+YOVVkug8vuvNb3vmLWAGTSs3Gx9fjcUOvKvB308dZ7n+vC5NAgzRz7TsBEThv0rYKttk8vauldYfAz1vCNVMONeXdjziRO5j89v006Bb/tEsz3ArMDqEGbDcch57BnUdA2O9ijKtLm9uiD57WhejEJxTBjaKV9lyQBwloHCnzdWKKe7Rgiu2cClz7XU4gu8z+AkK8OwVclLtuba+7LjC4=
 before_install:
-    # to prevent IPv6 being used for APT
-    - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
-    - travis_retry sudo apt-get -y -qq update
-    - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
-    - travis_retry sudo apt-add-repository -y ppa:octave/stable
-    - travis_retry sudo apt-get -y -qq update
-    - travis_retry sudo apt-get install -y wget
-    # get Octave 4,0
-    - travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev
-    # Please comment in following section if you need to update packages or add a new one
-    # If following section is going to be commented in, please set cacheState to false in startup.m
-    # --------------
-    #- travis_retry wget -O /home/travis/octave/OctavePackages.zip https://osf.io/t465n/download
-    #- unzip /home/travis/octave/OctavePackages.zip
-    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/struct-1.0.14.tar.gz -P /home/travis/octave
-    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/optim-1.5.2.tar.gz -P /home/travis/octave
-    - travis_retry wget https://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/io-2.4.10.tar.gz -P /home/travis/octave
-    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz -P /home/travis/octave
-    - travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz -P /home/travis/octave
-    # --------------
-    - make -C External/MOcov install
-    # set up awscli packages
-    - pip install --user awscli
-    - mkdir -p ~/$TRAVIS_BUILD_NUMBER
-    - aws s3 sync s3://travis-build-stages-shared-storage-test/$TRAVIS_BUILD_NUMBER ~/$TRAVIS_BUILD_NUMBER
-
+- ./ecr_credentials.sh
+- sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
+- travis_retry sudo apt-get -y -qq update
+- travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
+- travis_retry sudo apt-add-repository -y ppa:octave/stable
+- travis_retry sudo apt-get -y -qq update
+- travis_retry sudo apt-get install -y wget
+- travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev
+- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/struct-1.0.14.tar.gz
+  -P /home/travis/octave
+- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/optim-1.5.2.tar.gz
+  -P /home/travis/octave
+- travis_retry wget https://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/io-2.4.10.tar.gz
+  -P /home/travis/octave
+- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/statistics-1.3.0.tar.gz
+  -P /home/travis/octave
+- travis_retry wget http://sourceforge.net/projects/octave/files/Octave%20Forge%20Packages/Individual%20Package%20Releases/image-2.6.1.tar.gz
+  -P /home/travis/octave
+- make -C External/MOcov install
+- pip install --user awscli
+- mkdir -p ~/$TRAVIS_BUILD_NUMBER
+- aws s3 sync s3://qmrlab/$TRAVIS_BUILD_NUMBER ~/$TRAVIS_BUILD_NUMBER
 jobs:
   include:
-    - stage: Test 
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_quickMoxTests.json');exit(~res);"; mv coverage_quickMoxTests.json ~/$TRAVIS_BUILD_NUMBER/coverage_quickMoxTests.json
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_BatchExample.json');exit(~res);"; mv coverage_BatchExample.json ~/$TRAVIS_BUILD_NUMBER/coverage_BatchExample.json
-    # Pay attention to the indentation! Make them look like -stage and script lines above.
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_charmed.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_charmed.json');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_dti.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_dti.json');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_noddi.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_noddi.json');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_bssfp.m');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_sirfse.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_qmt_sirfse.json');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_spgr.m');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_inversion_recovery.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_inversion_recovery.json');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_vfa_t1.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_vfa_t1.json');exit(~res);"
-    - stage: Test
-      script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_mwf.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_mwf.json');exit(~res);"
-    - stage: CombineReports
-      script: mv ~/$TRAVIS_BUILD_NUMBER/*.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/;octave --no-gui --eval "cd('/home/travis/build/neuropoly/qMRLab/');startup;mocov_combine('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/','coverage_combined.json')"; mv /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json
-    - stage: Coveralls
-      script: mv ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json;curl --verbose -F json_file=@/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json https://coveralls.io/api/v1/jobs
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_quickMoxTests.json');exit(~res);";
+      mv coverage_quickMoxTests.json ~/$TRAVIS_BUILD_NUMBER/coverage_quickMoxTests.json
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('BatchExample_test.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_BatchExample.json');exit(~res);";
+      mv coverage_BatchExample.json ~/$TRAVIS_BUILD_NUMBER/coverage_BatchExample.json
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_charmed.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_charmed.json');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_dti.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_dti.json');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_noddi.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_noddi.json');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_bssfp.m');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_sirfse.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_qmt_sirfse.json');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_spgr.m');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_inversion_recovery.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_inversion_recovery.json');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_vfa_t1.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_vfa_t1.json');exit(~res);"
+  - stage: Test
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_mwf.m','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_json_file','coverage_SimTest_mwf.json');exit(~res);"
+  - stage: CombineReports
+    script: mv ~/$TRAVIS_BUILD_NUMBER/*.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/;octave
+      --no-gui --eval "cd('/home/travis/build/neuropoly/qMRLab/');startup;mocov_combine('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/','coverage_combined.json')";
+      mv /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json
+      ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json
+  - stage: Coveralls
+    script: mv ~/$TRAVIS_BUILD_NUMBER/coverage_combined.json /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json;curl
+      --verbose -F json_file=@/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/coverage_combined.json
+      https://coveralls.io/api/v1/jobs
