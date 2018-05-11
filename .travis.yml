@@ -21,8 +21,10 @@ before_install:
 - make -C External/MOcov install
 - pip install --user awscli
 - mkdir -p ~/$TRAVIS_BUILD_NUMBER
+- ls ~/$TRAVIS_BUILD_NUMBER
 - aws s3 ls s3://qmrlab
 - aws s3 sync s3://qmrlab/$TRAVIS_BUILD_NUMBER ~/$TRAVIS_BUILD_NUMBER
+- ls ~/$TRAVIS_BUILD_NUMBER
 - aws s3 ls s3://qmrlab
 - aws s3 ls s3://qmrlab/$TRAVIS_BUILD_NUMBER
 - ls ~/$TRAVIS_BUILD_NUMBER
