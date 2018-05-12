@@ -111,4 +111,5 @@ function res=find_files_recursively(root_dir,file_re,monitor,exclude_re)
         res_cell{k}=res;
     end
 
+    res_cell=res_cell(~cellfun('isempty',res_cell));
     res=cat(1,res_cell{:});
