@@ -18,7 +18,7 @@ function combinedReports = mocov_combine(dirPath, outputFileName)
     jsonFileNames = dir([dirPath, '*.json']);
     numFiles = length(jsonFileNames);
 
-    for fileIndex = 1:length(numFiles)
+    for fileIndex = 1:numFiles
         jsonData{fileIndex} = loadjson([dirPath, jsonFileNames(fileIndex).name]);
     end
 
