@@ -39,7 +39,7 @@ function combinedReports = mocov_combine(dirPath, outputFileName)
             if ~isempty(combinedReports.source_files{srcIndex}.coverage{covIndex}) %Skip untracked lines ("NULL")
                 
                 sumCount = 0;
-                for fileIndex=length(numFiles)
+                for fileIndex = 1:numFiles
                     sumCount = sumCount + jsonData{fileIndex}.source_files{srcIndex}.coverage{covIndex};
                 end
 
