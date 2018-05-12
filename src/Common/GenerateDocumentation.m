@@ -1,5 +1,5 @@
 %% Launch from any folder --> this script will create a folder qMRLab/Data
-cd(fileparts(which('qMRLab.m')));
+cd([fileparts(which('qMRLab.m')),'/src']);
 
 mainDir = pwd; 
 
