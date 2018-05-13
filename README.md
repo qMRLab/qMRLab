@@ -1,4 +1,4 @@
-# <img src="https://user-images.githubusercontent.com/1421029/39968283-3e741156-56a5-11e8-8b95-d4b8f0ed3c23.png" width="300">
+# qMRLab
 [![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=coverage-clean)](https://coveralls.io/github/neuropoly/qMRLab?branch=coverage-clean)
 
 Welcome to qMRLab, all your quantitative MRI needs under one umbrella! 
