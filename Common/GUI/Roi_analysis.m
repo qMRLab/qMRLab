@@ -339,7 +339,7 @@ results = handles.RoiResults.Data;
 [FileName, PathName] = uiputfile({'*.mat'},'Save as');
 FullPathName = fullfile(PathName, FileName);
 if FileName ~= 0
-    save(FullPathName,'Mask');
+    save(FullPathName,'results');
 end
 
 
@@ -843,3 +843,23 @@ function roi_transparency_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on button press in roiDilation.
+function roiDilation_Callback(hObject, eventdata, handles)
+index_selected = get(handles.ROIList,'Value');
+se = strel('line',3,0);
+se1 = strel('line',3,90);
+handles.ROI{index_selected}.vol = imdilate(handles.ROI{index_selected}.vol,[se se1]);
+guidata(hObject,handles);
+RefreshPlot(handles);
+
+
+% --- Executes on button press in roiErosion.
+function roiErosion_Callback(hObject, eventdata, handles)
+index_selected = get(handles.ROIList,'Value');
+se = strel('line',3,0);
+se1 = strel('line',3,90);
+handles.ROI{index_selected}.vol = imerode(handles.ROI{index_selected}.vol,[se se1]);
+guidata(hObject,handles);
+RefreshPlot(handles);
