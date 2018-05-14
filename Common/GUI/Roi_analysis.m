@@ -65,7 +65,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     NewPos     = CurrentPos;
     NewPos(1)  = CurrentPos(1) - 40;
     set(gcf, 'Position', NewPos);
-    set(handles.roiDraw, 'enable', 'off');
+    set(handles.drawROI, 'enable', 'off');
     set(handles.AddROI, 'enable', 'on');
     set(handles.ROIList, 'enable', 'on');
     handles.CurrentData = getappdata(0,'roidata');
@@ -113,8 +113,8 @@ end
 
 
 
-% --- Executes on selection change in roiDraw.
-function roiDraw_Callback(hObject, eventdata, handles)
+% --- Executes on selection change in drawROI.
+function drawROI_Callback(hObject, eventdata, handles)
 
 set(gcf,'Pointer','Cross');
 contents = cellstr(get(hObject,'String'));
@@ -172,7 +172,7 @@ else
     boxMsg{size(boxMsg,1)+1,1} = ['ROI' num2str(size(boxMsg,1)+1)];
 end
 set(handles.ROIList,'String',boxMsg);
-set(handles.roiDraw, 'enable', 'off');
+set(handles.drawROI, 'enable', 'off');
 set(handles.AddROI, 'enable', 'on');
 set(handles.ROIList, 'enable', 'on');
 set(handles.DeleteRoi, 'enable', 'on');
@@ -230,6 +230,22 @@ if FileName ~= 0
     save(FullPathName,'Mask');
 end
 
+% --- Executes on button press in saveImage.
+function saveImage_Callback(hObject, eventdata, handles)
+% hObject    handle to saveImage (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[FileName, PathName] = uiputfile({'*.fig'},'Save as');
+FullPathName = fullfile(PathName, FileName);
+if FileName ~= 0
+fignew = figure('Visible','off'); % Invisible figure
+newAxes = copyobj(handles.FitDataAxe,fignew); % Copy the appropriate axes
+set(newAxes,'Position',get(groot,'DefaultAxesPosition')); % The original position is copied too, so adjust it.
+set(fignew,'CreateFcn','set(gcbf,''Visible'',''on'')'); % Make it visible upon loading
+savefig(fignew,FullPathName);
+delete(fignew);
+end
 
 
 % --- Executes on selection change in x dropdown list.
@@ -249,14 +265,16 @@ RefreshPlot(handles);
 
 % --- Executes on button press in AddROI.
 function AddROI_Callback(hObject, eventdata, handles)
-set(handles.roiDraw, 'enable', 'on');
+set(handles.drawROI, 'enable', 'on');
 
 
 % --- Executes on button press in DeleteRoi.
 function DeleteRoi_Callback(hObject, eventdata, handles)
 
 index_selected = get(handles.ROIList,'Value');
-if(size(handles.ROI,2) == 0) return; end
+if(size(handles.ROI,2) == 0)
+    return;
+end
 rois = get(handles.ROIList,'String');
 rois = removerows(rois,index_selected);
 list = handles.ROI';
@@ -266,6 +284,7 @@ if(size(list,1) == 0)
 end
 handles.ROI = list';
 set(handles.ROIList,'String',rois);
+set(handles.ROIList,'Value',index_selected-1);
 guidata(gcbo,handles);
 RefreshPlot(handles);
 
@@ -664,6 +683,9 @@ set(handles.MinSlider, 'Value',  Min);
 set(handles.MaxSlider, 'Value',  Max);
 guidata(findobj('Name','qMRLab'), handles);
 
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+%guidata(handles,handles.mainHandles);
+delete(hObject);
 
 %%UI Create functions
 
@@ -726,7 +748,7 @@ function TimeSlider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-function roiDraw_CreateFcn(hObject, eventdata, handles)
+function drawROI_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
@@ -734,23 +756,7 @@ function data_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-function figure1_CloseRequestFcn(hObject, eventdata, handles)
-%guidata(handles,handles.mainHandles);
-delete(hObject);
-
-
-
 function edit7_Callback(hObject, eventdata, handles)
-% hObject    handle to edit7 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit7 as text
-%        str2double(get(hObject,'String')) returns contents of edit7 as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function edit7_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -761,19 +767,7 @@ function edit7_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
 function edit8_Callback(hObject, eventdata, handles)
-% hObject    handle to edit8 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit8 as text
-%        str2double(get(hObject,'String')) returns contents of edit8 as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function edit8_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit8 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -784,19 +778,7 @@ function edit8_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on slider movement.
 function slider6_Callback(hObject, eventdata, handles)
-% hObject    handle to slider6 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
 function slider6_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider6 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -806,19 +788,7 @@ function slider6_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes on slider movement.
 function slider7_Callback(hObject, eventdata, handles)
-% hObject    handle to slider7 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
 function slider7_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to slider7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -828,19 +798,7 @@ function slider7_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes on selection change in popupmenu8.
 function popupmenu8_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu8 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu8 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu8
-
-
-% --- Executes during object creation, after setting all properties.
 function popupmenu8_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to popupmenu8 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -851,158 +809,37 @@ function popupmenu8_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
 function edit9_Callback(hObject, eventdata, handles)
-% hObject    handle to edit9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit9 as text
-%        str2double(get(hObject,'String')) returns contents of edit9 as a double
-
-
-% --- Executes during object creation, after setting all properties.
 function edit9_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on slider movement.
 function slider8_Callback(hObject, eventdata, handles)
-% hObject    handle to slider8 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
 function slider8_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider8 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes on selection change in popupmenu9.
 function popupmenu9_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu9 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu9
-
-
-% --- Executes during object creation, after setting all properties.
 function popupmenu9_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on button press in pushbutton10.
 function pushbutton10_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-
 function edit10_Callback(hObject, eventdata, handles)
-% hObject    handle to edit10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit10 as text
-%        str2double(get(hObject,'String')) returns contents of edit10 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit10_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on slider movement.
 function slider9_Callback(hObject, eventdata, handles)
-% hObject    handle to slider9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
 function slider9_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider9 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-
-
-% --- Executes on selection change in popupmenu10.
 function popupmenu10_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu10 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu10
-
-
-% --- Executes during object creation, after setting all properties.
 function popupmenu10_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu10 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes during object creation, after setting all properties.
 function roi_transparency_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to roi_transparency (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
