@@ -1,4 +1,5 @@
-# qMRLab (beta) [![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)
+# qMRLab (beta)
+[![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=coverage-clean)](https://coveralls.io/github/neuropoly/qMRLab?branch=coverage-clean)
 
 Welcome to qMRLab, all your quantitative MRI needs under one umbrella! 
 
