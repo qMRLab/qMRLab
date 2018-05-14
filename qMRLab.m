@@ -70,7 +70,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     set(gcf, 'Position', NewPos);
     
     % Fill Menu with models
-    handles.ModelDir = [qMRLabDir filesep 'Models'];
+    handles.ModelDir = [qMRLabDir filesep 'src/Models'];
     guidata(hObject, handles);
     addModelMenu(hObject, eventdata, handles);
     
@@ -92,7 +92,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     
     SetAppData(FileBrowserList);
     
-    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
+    load(fullfile(handles.root,'src','Common','Parameters','DefaultMethod.mat'));
 else
     Method = class(GetAppData('Model'));
 end
