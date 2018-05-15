@@ -70,7 +70,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     set(gcf, 'Position', NewPos);
     
     % Fill Menu with models
-    handles.ModelDir = [qMRLabDir filesep 'Models'];
+    handles.ModelDir = [qMRLabDir filesep 'src/Models'];
     guidata(hObject, handles);
     addModelMenu(hObject, eventdata, handles);
     
@@ -92,7 +92,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     
     SetAppData(FileBrowserList);
     
-    load(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'));
+    load(fullfile(handles.root,'src','Common','Parameters','DefaultMethod.mat'));
 else
     Method = class(GetAppData('Model'));
 end
@@ -214,7 +214,7 @@ end
 SetAppData(Data);
 
 % Now create Simulation panel
-handles.methodfiles = fullfile(handles.root,'Models_Functions',[Method 'fun']);
+handles.methodfiles = fullfile(handles.root,'src','Models_Functions',[Method 'fun']);
 % find the Simulation functions of the selected Method
 Methodfun = methods(Method);
 Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
@@ -281,7 +281,7 @@ end
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
-save(fullfile(handles.root,'Common','Parameters','DefaultMethod.mat'),'Method');
+save(fullfile(handles.root,'src','Common','Parameters','DefaultMethod.mat'),'Method');
 
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
