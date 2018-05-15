@@ -1,5 +1,5 @@
 # qMRLab (beta)
-[![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/neuropoly/qMRLab?branch=master)
+[![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/neuropoly/qMRLab?branch=master)[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/neuropoly/qMRLab/bids?filepath=qMRLab/mt_sat_example.ipynb)
 
 Welcome to qMRLab, all your quantitative MRI needs under one umbrella! 
 
