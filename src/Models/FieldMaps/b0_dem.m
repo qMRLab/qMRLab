@@ -115,7 +115,8 @@ end
                 FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);                 
             end
             
-            
+            % Save unwrapped phase
+            FitResult.Phase_uw = Phase_uw;
         end        
     end
 end
