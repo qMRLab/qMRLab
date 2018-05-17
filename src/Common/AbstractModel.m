@@ -22,13 +22,19 @@ classdef (Abstract) AbstractModel
         function saveObj(obj, suffix)
             if ~exist('suffix','var'), suffix = class(obj); end
             try
+                % check file extension
+                [path, filename, ext] = fileparts(suffix);
+                [~, filename, ext2] = fileparts(filename);
+                
+                if ~isempty(ext) && ~strcmp([ext2, ext],'.qmrlab.mat')
+                    error(['file extension ' ext2, ext, ' is not valid. Extension should be .qmrlab.mat '])
+                end
+                 % save
                 objStruct = objProps2struct(obj);
-
-                save([strrep(regexprep(suffix,'.qmrlab.mat','','ignorecase'),'.mat','') '.qmrlab.mat'], '-struct', 'objStruct');
-
                 if moxunit_util_platform_is_octave
-
-                 save('-mat7-binary', [strrep(regexprep(suffix,'.qmrlab.mat','','ignorecase'),'.mat','') '.qmrlab.mat'], '-struct' ,'objStruct');
+                    save('-mat7-binary', fullfile(path, [filename '.qmrlab.mat']), '-struct' ,'objStruct');
+                else
+                    save(fullfile(path, [filename '.qmrlab.mat']), '-struct', 'objStruct');
                 end
 
 
