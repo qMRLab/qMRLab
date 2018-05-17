@@ -27,7 +27,7 @@ classdef (Abstract) AbstractModel
                 [~, filename, ext2] = fileparts(filename);
                 
                 if ~isempty(ext) && ~strcmp([ext2, ext],'.qmrlab.mat')
-                    error(['file extension ' ext2, ext, ' is not valid. Extension should be .qmrlab.mat '])
+                    error('filename:extension',['file extension ' ext2, ext, ' is not valid. Extension should be .qmrlab.mat '])
                 end
                  % save
                 objStruct = objProps2struct(obj);
