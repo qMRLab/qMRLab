@@ -281,10 +281,12 @@ list = handles.ROI';
 list = removerows(list,index_selected);
 if(size(list,1) == 0) 
     list = {};
+    rois = char.empty(1,0);
+    index_selected=1;
 end
 handles.ROI = list';
 set(handles.ROIList,'String',rois);
-set(handles.ROIList,'Value',index_selected-1);
+set(handles.ROIList,'Value',index_selected);
 guidata(gcbo,handles);
 RefreshPlot(handles);
 
@@ -463,6 +465,7 @@ yl = ylim;
 % 
 
 index_selected = get(handles.ROIList,'Value');
+
     SourceFields = cellstr(get(handles.data,'String'));
     Source = SourceFields{get(handles.data,'Value')};
     View = get(handles.ViewPop,'Value');
@@ -861,5 +864,44 @@ index_selected = get(handles.ROIList,'Value');
 se = strel('line',3,0);
 se1 = strel('line',3,90);
 handles.ROI{index_selected}.vol = imerode(handles.ROI{index_selected}.vol,[se se1]);
+guidata(hObject,handles);
+RefreshPlot(handles);
+
+
+% --- Executes on button press in roiEdit.
+function roiEdit_Callback(hObject, eventdata, handles)
+index_selected = get(handles.ROIList,'Value');
+% fignew = figure('Visible','off'); % Invisible figure
+% set(newAxes,'Position',get(groot,'DefaultAxesPosition')); % The original position is copied too, so adjust it.
+% imagesc(rot90(GetCurrents(handles)));
+% axis equal off;
+draw = imfreehand(gca);
+if(isfield(handles,'ROI'))
+    roi = double(createMask());
+    SourceFields = cellstr(get(handles.data,'String'));
+    Source = SourceFields{get(handles.data,'Value')};
+    View = get(handles.ViewPop,'Value');
+    Slice = str2double(get(handles.SliceValue,'String'));
+    Time = str2double(get(handles.TimeValue,'String'));
+    
+    Data = handles.CurrentData;
+    data = Data.(Source);
+    
+    
+    switch View
+        case 1
+            tmp=zeros(size(data));
+            tmp(:,:,Slice,Time) = rot90(roi,-1);
+            handles.ROI{index_selected}.vol = double(handles.ROI{index_selected}.vol|tmp);
+        case 2
+            tmp=zeros(size(data));
+            tmp(:,Slice,:,Time)=rot90(roi,-1);
+            handles.ROI{index_selected}.vol = double(handles.ROI{index_selected}.vol|tmp);
+        case 3
+            tmp=zeros(size(data));
+            tmp(Slice,:,:,Time)=rot90(roi,-1);
+            handles.ROI{index_selected}.vol = double(handles.ROI{index_selected}.vol|tmp);
+    end
+end
 guidata(hObject,handles);
 RefreshPlot(handles);
