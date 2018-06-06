@@ -22,32 +22,10 @@ N = size(mask_pad);
 %% Laplacian unwrapping
 
 tic
-
-    ksize = [3, 3, 3];               
-    khsize = (ksize-1)/2;
-
-    kernel = [];
-    kernel(:,:,1) = [0 0 0; 0 1 0; 0 0 0];
-    kernel(:,:,2) = [0 1 0; 1 -6 1; 0 1 0];
-    kernel(:,:,3) = [0 0 0; 0 1 0; 0 0 0];
-
-    Kernel = zeros(N);
-    Kernel( 1+N(1)/2 - khsize(1) : 1+N(1)/2 + khsize(1), 1+N(2)/2 - khsize(2) : 1+N(2)/2 + khsize(2), 1+N(3)/2 - khsize(3) : 1+N(3)/2 + khsize(3) ) = -kernel;
-
-
-    del_op = fftn(fftshift(Kernel));
-    del_inv = zeros(size(del_op));
-
-    del_inv( del_op~=0 ) = 1 ./ del_op( del_op~=0 );
-
-    del_phase = cos(phase_wrap_pad) .* ifftn( fftn(sin(phase_wrap_pad)) .* del_op ) - sin(phase_wrap_pad) .* ifftn( fftn(cos(phase_wrap_pad)) .* del_op );
-
-    phase_lunwrap = ifftn( fftn(del_phase) .* del_inv );
-
+phase_lunwrap = unwrap_phase_laplacian(phase_wrap_pad);
 toc
 
 plot_axialSagittalCoronal(phase_lunwrap, 2, [-3.5,3.5], 'Laplacian unwrapping')
-
 
 %% Sharp filtering to remove background phase
 
