@@ -41,7 +41,7 @@ before_install:
 jobs:
   include:
   - stage: Test
-    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/UnitTests');res=moxunit_runtests('-recursive','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_exclude','*GUI*','-cover_json_file','coverage_UnitTests.json');exit(~res);";aws s3 cp /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests/coverage_UnitTests.json s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_UnitTests.json
+    script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/UnitTests');res=moxunit_runtests('-recursive','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_exclude','*GUI*','-cover_json_file','coverage_UnitTests.json');exit(~res);";aws s3 cp /home/travis/build/neuropoly/qMRLab/Test/UnitTests/coverage_UnitTests.json s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_UnitTests.json
   - stage: Test
     script: travis_wait 30 octave --no-gui --eval "bootstrapTest;cd('/home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests');res=moxunit_runtests('-recursive','-with_coverage','-cover','/home/travis/build/neuropoly/qMRLab/src','-cover_exclude','*GUI*','-cover_json_file','coverage_quickMoxTests.json');exit(~res);";aws s3 cp /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_quickMoxTests.json
   - stage: Test
