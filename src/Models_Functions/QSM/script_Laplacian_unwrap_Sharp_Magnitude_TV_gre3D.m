@@ -16,13 +16,9 @@ plot_axialSagittalCoronal(magn, 2, [0, 500], 'Magnitude')
 
 %% Zero pad for Sharp kernel convolution
 
-pad_size = [9,9,9];     % pad for Sharp recon
-
-mask_pad = padarray(mask, pad_size);
-phase_wrap = padarray(phase_wrap, pad_size);
+[phase_wrap_pad, mask_pad] = pad_volume_for_sharp(phase_wrap, mask);
 
 N = size(mask_pad);
-
 
 %% Laplacian unwrapping
 
@@ -43,7 +39,7 @@ tic
 
     del_inv( del_op~=0 ) = 1 ./ del_op( del_op~=0 );
 
-    del_phase = cos(phase_wrap) .* ifftn( fftn(sin(phase_wrap)) .* del_op ) - sin(phase_wrap) .* ifftn( fftn(cos(phase_wrap)) .* del_op );
+    del_phase = cos(phase_wrap_pad) .* ifftn( fftn(sin(phase_wrap_pad)) .* del_op ) - sin(phase_wrap_pad) .* ifftn( fftn(cos(phase_wrap_pad)) .* del_op );
 
     phase_lunwrap = ifftn( fftn(del_phase) .* del_inv );
 toc

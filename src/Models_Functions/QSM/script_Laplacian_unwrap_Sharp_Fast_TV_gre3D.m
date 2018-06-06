@@ -4,7 +4,7 @@ load phase_wrap_gre_3D_p6mm
 load mask_gre_3D_p6mm
 
 TE = 8.1e-3;      % second
-B0 = 3;          % Tesla
+B0 = 3;           % Tesla
 gyro = 2*pi*42.58;
 
 phase_wrap = mask .* phase_wrap;
@@ -14,13 +14,9 @@ plot_axialSagittalCoronal(phase_wrap, 1, [-pi, pi], 'Masked, wrapped phase')
 
 %% Zero pad for Sharp kernel convolution
 
-pad_size = [9,9,9];     % pad for Sharp recon
-
-mask_pad = padarray(mask, pad_size);
-phase_wrap = padarray(phase_wrap, pad_size);
+[phase_wrap_pad, mask_pad] = pad_volume_for_sharp(phase_wrap, mask);
 
 N = size(mask_pad);
-
 
 %% Laplacian unwrapping
 
@@ -43,7 +39,7 @@ tic
 
     del_inv( del_op~=0 ) = 1 ./ del_op( del_op~=0 );
 
-    del_phase = cos(phase_wrap) .* ifftn( fftn(sin(phase_wrap)) .* del_op ) - sin(phase_wrap) .* ifftn( fftn(cos(phase_wrap)) .* del_op );
+    del_phase = cos(phase_wrap_pad) .* ifftn( fftn(sin(phase_wrap_pad)) .* del_op ) - sin(phase_wrap_pad) .* ifftn( fftn(cos(phase_wrap_pad)) .* del_op );
 
     phase_lunwrap = ifftn( fftn(del_phase) .* del_inv );
 
