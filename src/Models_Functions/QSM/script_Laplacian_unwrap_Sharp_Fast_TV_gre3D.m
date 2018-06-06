@@ -14,7 +14,8 @@ plot_axialSagittalCoronal(phase_wrap, 1, [-pi, pi], 'Masked, wrapped phase')
 
 %% Zero pad for Sharp kernel convolution
 
-[phase_wrap_pad, mask_pad] = pad_volume_for_sharp(phase_wrap, mask);
+phase_wrap_pad = pad_volume_for_sharp(phase_wrap);
+mask_pad = pad_volume_for_sharp(mask);
 
 N = size(mask_pad);
 
