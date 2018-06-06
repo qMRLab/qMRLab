@@ -23,6 +23,8 @@ function unwrappedPhase = unwrap_phase_laplacian(wrappedPhase)
 %   Schofield and Zhu (2003), Fast phase unwrapping algorithm for 
 %   interferometric applications, Opt. Lett.,  28:1194-1196. 
 
+    N = size(wrappedPhase);
+
     ksize = [3, 3, 3];               
     khsize = (ksize-1)/2;
 
