@@ -1,9 +1,13 @@
 function unwrappedPhase = unwrap_phase_laplacian(wrappedPhase)
 %UNWRAP_PHASE_LAPLACIAN Unwrap phase volume using the Laplacian technique.
 %   
-%   References:
+%   Laplacians and inverse Laplacians in this algorithm are calculated
+%   using the discrete Laplacian operator (for convolutions) as well as the
+%   convolution theorem.
+%
+%   Original reference:
 %   Bilgic et al. (2014), Fast quantitative susceptibility mapping with 
-%   L1?regularization and automatic parameter selection. Magn. Reson. Med.,
+%   L1-regularization and automatic parameter selection. Magn. Reson. Med.,
 %   72: 1444-1459. doi:10.1002/mrm.25029
 %
 %   ... which references:
@@ -24,26 +28,48 @@ function unwrappedPhase = unwrap_phase_laplacian(wrappedPhase)
 %   interferometric applications, Opt. Lett.,  28:1194-1196. 
 
     N = size(wrappedPhase);
-
+    
+    % Kernel size (and difference "h" size)
     ksize = [3, 3, 3];               
     khsize = (ksize-1)/2;
 
+    % Discrete Laplacian operator 
     kernel = [];
-    kernel(:,:,1) = [0 0 0; 0 1 0; 0 0 0];
-    kernel(:,:,2) = [0 1 0; 1 -6 1; 0 1 0];
-    kernel(:,:,3) = [0 0 0; 0 1 0; 0 0 0];
+    kernel(:,:,1) = [0  0  0; ...
+                     0  1  0; ...
+                     0  0  0];
+    
+    kernel(:,:,2) = [0  1  0; ...
+                     1 -6  1;... 
+                     0  1  0];
 
+    kernel(:,:,3) = [0  0  0; ...
+                     0  1  0; ...
+                     0  0  0];
+    % See wiki for 1D and 2D filters: https://en.wikipedia.org/wiki/Discrete_Laplace_operator#Implementation_via_operator_discretization
+
+    % Extend kernel to image size for use by convolution theorem (need to
+    % be same dimension as the volume, as the FT of it will be multiplied
+    % voxel-wise, unlike the convolution operation.
     Kernel = zeros(N);
-    Kernel( 1+N(1)/2 - khsize(1) : 1+N(1)/2 + khsize(1), 1+N(2)/2 - khsize(2) : 1+N(2)/2 + khsize(2), 1+N(3)/2 - khsize(3) : 1+N(3)/2 + khsize(3) ) = -kernel;
+    Kernel( 1+N(1)/2 - khsize(1) : 1+N(1)/2 + khsize(1), ...
+            1+N(2)/2 - khsize(2) : 1+N(2)/2 + khsize(2), ...
+            1+N(3)/2 - khsize(3) : 1+N(3)/2 + khsize(3) )        = -kernel; % MB: Why the negative of the kernel?
 
-
+    % FFT of the discrete Laplacian operator
     del_op = fftn(fftshift(Kernel));
+
+    % FFT of the inverse of the discrete Laplacian operator
     del_inv = zeros(size(del_op));
+    del_inv( del_op~=0 ) = 1 ./ del_op( del_op~=0 ); % MB: It appears that the indexing here is not necessary. I tested it without it using Berkin's sample dataset, and it results in the same matrix with or without the indexing.
 
-    del_inv( del_op~=0 ) = 1 ./ del_op( del_op~=0 );
-
+    % The next equation is from Schofield 2003, p.1194, column 2, paragraph
+    % 3, line 10. Except here the Laplacian are numerically calculated by
+    % using the convolution theorem.
     del_phase = cos(wrappedPhase) .* ifftn( fftn(sin(wrappedPhase)) .* del_op ) - sin(wrappedPhase) .* ifftn( fftn(cos(wrappedPhase)) .* del_op );
 
+    % Unwrapped phase numerically caluculated by using the convolution
+    % theorem.
     unwrappedPhase = ifftn( fftn(del_phase) .* del_inv );
 
 end
