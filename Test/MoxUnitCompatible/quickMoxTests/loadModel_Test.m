@@ -15,7 +15,7 @@ MethodList = list_models;
 %%
 for im = 1:length(MethodList)
    % LOAD
-   savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',[MethodList{im} '.qmrlab.mat']);
+   savedModel_fname = [MethodList{im} '.qmrlab.mat'];
    savedModel = qMRloadObj(savedModel_fname);
    try
    savedModel = savedModel.UpdateFields;
