@@ -111,11 +111,16 @@ if isfield(handles, 'metricdata') && ~isreset
     return;
 end
 
-
+% --- Executes on button press in AddROI.
+function AddROI_Callback(hObject, eventdata, handles)
+set(handles.drawROI, 'enable', 'on');
 
 % --- Executes on selection change in drawROI.
 function drawROI_Callback(hObject, eventdata, handles)
 
+set(handles.figure1,'WindowButtonMotionFcn',[]);
+set(handles.figure1,'WindowKeyPressFcn',[]);
+set(handles.figure1,'WindowButtonDownFcn',[]);
 set(gcf,'Pointer','Cross');
 contents = cellstr(get(hObject,'String'));
 model = contents{get(hObject,'Value')};
@@ -137,7 +142,13 @@ switch model
 end
 
 if(isfield(handles,'ROI'))
-    roi = double(draw.createMask());
+     
+         if(size(draw,1) == 0)
+             set(gcf,'Pointer','Arrow')
+             return;
+         end
+        roi = double(draw.createMask());
+    
     SourceFields = cellstr(get(handles.data,'String'));
     Source = SourceFields{get(handles.data,'Value')};
     View = get(handles.ViewPop,'Value');
@@ -162,8 +173,7 @@ if(isfield(handles,'ROI'))
             handles.ROI{size(handles.ROI,2)}.vol(Slice,:,:,Time)=rot90(roi,-1);
             handles.ROI{size(handles.ROI,2)}.color = rand(3);
     end
-end
-
+    
 %add new ROI to the list of ROIs in the listbox
 boxMsg = get(handles.ROIList,'String');
 if(size(boxMsg,2)==0)
@@ -178,6 +188,8 @@ set(handles.ROIList, 'enable', 'on');
 set(handles.DeleteRoi, 'enable', 'on');
 set(gcf,'Pointer','Arrow')
 guidata(gcbo,handles);
+
+end
 
 
 % --- Executes on button press in load_rois.
@@ -262,12 +274,6 @@ function ROIList_Callback(hObject, eventdata, handles)
 RefreshPlot(handles);
 
 
-
-% --- Executes on button press in AddROI.
-function AddROI_Callback(hObject, eventdata, handles)
-set(handles.drawROI, 'enable', 'on');
-
-
 % --- Executes on button press in DeleteRoi.
 function DeleteRoi_Callback(hObject, eventdata, handles)
 
@@ -279,6 +285,7 @@ rois = get(handles.ROIList,'String');
 rois = removerows(rois,index_selected);
 list = handles.ROI';
 list = removerows(list,index_selected);
+index_selected = index_selected-1;
 if(size(list,1) == 0) 
     list = {};
     rois = char.empty(1,0);
@@ -474,7 +481,7 @@ index_selected = get(handles.ROIList,'Value');
     transparency = get(handles.roi_transparency,'Value');
     Data = handles.CurrentData;
     data = Data.(Source);
-    if (size(handles.ROI,2) ~= 0)
+    if (index_selected <= size(handles.ROI,2))
     switch View
         case 1
             Map = rot90(squeeze(data(:,:,Slice,Time)));
@@ -851,6 +858,9 @@ end
 % --- Executes on button press in roiDilation.
 function roiDilation_Callback(hObject, eventdata, handles)
 index_selected = get(handles.ROIList,'Value');
+if(index_selected > size(handles.ROI,2))
+    return;
+end
 se = strel('line',3,0);
 se1 = strel('line',3,90);
 handles.ROI{index_selected}.vol = imdilate(handles.ROI{index_selected}.vol,[se se1]);
@@ -861,6 +871,9 @@ RefreshPlot(handles);
 % --- Executes on button press in roiErosion.
 function roiErosion_Callback(hObject, eventdata, handles)
 index_selected = get(handles.ROIList,'Value');
+if(index_selected > size(handles.ROI,2))
+    return;
+end
 se = strel('line',3,0);
 se1 = strel('line',3,90);
 handles.ROI{index_selected}.vol = imerode(handles.ROI{index_selected}.vol,[se se1]);
