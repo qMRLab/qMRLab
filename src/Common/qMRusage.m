@@ -2,11 +2,15 @@ function example = qMRusage(Model,mstr)
 % QMRUSAGE usage and example for qMR objects methods
 %   qMRusage(obj) display the usage of all methods available for Model 'obj' 
 %
-%   qMRusage(obj,MethodName) display only usage of the method MethodName (e.g. fit)
+%   qMRusage(obj,MethodName) display usage of the method MethodName.
+%                             MethodName (if available): 'fit', 'equation',
+%                             'plotModel', 'Sim_Single_Voxel_Curve'
 %   
-%   Example
-%     Model = MWF;
+%   Example:
+%     Model = mwf;
 %     qMRusage(Model)
+%
+%   Example:
 %     qMRusage(Model,'equation')
 % 
 if nargout, example = ''; end

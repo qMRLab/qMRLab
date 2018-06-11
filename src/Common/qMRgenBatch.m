@@ -5,9 +5,14 @@
 %   Model        [qMRLab object]
 %  (path)        [String]
 %  (nodwnld)     [logical] download example dataset? 0 --> generate batch only
+%
+% Example
+%  qMRgenBatch(inversion_recovery)
+%
 % Written by: Agah Karakuzu, 2017
 
 function qMRgenBatch(Model,path,nodwnld)
+if nargin<1, help qMRgenBatch, return; end
 
 % Main function
 
