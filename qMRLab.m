@@ -377,7 +377,7 @@ if(~isempty(FitResults.StudyID))
 else
     filename = 'FitResults.mat';
 end
-outputdir = fullfile(FitResults.WD,['FitResults_', datestr(datetime('now','TimeZone','local'),'yyyy-mm-ddTHH-MM-SS')]); % ISO 8601 format adapted for MATLAB compatibility
+outputdir = fullfile(FitResults.WD,['FitResults_', datestr(datetime('now','TimeZone','local'),'yyyy-mm-dd_HH-MM-SS')]); % ISO 8601 format adapted for MATLAB compatibility
 if ~exist(outputdir,'dir'), mkdir(outputdir); 
 else
     iii=1; outputdirnew = outputdir;
