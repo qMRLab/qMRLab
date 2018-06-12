@@ -56,8 +56,12 @@ handles.opened = 1;
 
 % POPULATE FITTING PANEL
 % Load model parameters
-Model = varargin{1}; 
+if isempty(varargin), Model = getappdata(0,'Model');
+else
+    Model = varargin{1};
+end
 setappdata(0,'Model',Model);
+set(handles.uipanel29,'Title',[strrep(Model.ModelName, '_', ' ') ' options'])
 Nparam = length(Model.xnames);
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)

@@ -1,4 +1,5 @@
-function qMRlistModel
+function list = qMRlistModel
+if nargout, list = list_models; end
 for im = list_models'
     header=qMRinfo(im{:}); % not compatible with octave
     if moxunit_util_platform_is_octave, return; end
