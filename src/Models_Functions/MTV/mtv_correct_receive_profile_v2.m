@@ -40,7 +40,8 @@ for ii=2:7
     B(ii)=co(2);
     
 end
-imagesc3D(g,[prctile(g(:),10) prctile(g(:),90)]); drawnow;
+[xmin, xmax] = range_outlier(g);
+imagesc3D(g,[xmin xmax]); drawnow;
 save_nii_v2(g,'gain.nii.gz',fname_M0,64)
 %% calcute the CSF PD
 
