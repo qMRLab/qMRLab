@@ -114,20 +114,32 @@ end
 % --- Executes on button press in AddROI.
 function AddROI_Callback(hObject, eventdata, handles)
 set(handles.drawROI, 'enable', 'on');
+set(handles.AddROI, 'enable', 'off');
+uiwait(msgbox('Press ESC and then SPACE to finish adding ROIs.','Info','modal'));
+drawROI_Callback(hObject, eventdata, handles)
 
 % --- Executes on selection change in drawROI.
 function drawROI_Callback(hObject, eventdata, handles)
 
-set(handles.figure1,'WindowButtonMotionFcn',[]);
-set(handles.figure1,'WindowKeyPressFcn',[]);
-set(handles.figure1,'WindowButtonDownFcn',[]);
 set(gcf,'Pointer','Cross');
-contents = cellstr(get(hObject,'String'));
-model = contents{get(hObject,'Value')};
+% contents = cellstr(get(hObject,'String'));
+% model = contents{get(hObject,'Value')};
+contents = get(handles.drawROI,'String');
+model = cell2str_v3(contents(get(handles.drawROI,'Value')),'');
 set(handles.FitDataAxe);
 imagesc(rot90(GetCurrents(handles)));
 axis equal off;
 RefreshColorMaps(handles);
+global KEY_IS_PRESSED
+KEY_IS_PRESSED  = 0;
+flag=1;
+% while(strcmpi(model,'Choose ROI'))
+%     model = cell2str_v3(contents(get(handles.drawROI,'Value')),'');
+% end
+while(~KEY_IS_PRESSED)
+    pause(2);
+    %model = contents{get(hObject,'Value')};
+    model = cell2str_v3(contents(get(handles.drawROI,'Value')),'');
 switch model
     case 'Ellipse'
         draw = imellipse();
@@ -140,6 +152,7 @@ switch model
     otherwise
         warning('Choose a Drawing Method');
 end
+%position = wait(draw);
 
 if(isfield(handles,'ROI'))
      
@@ -161,20 +174,33 @@ if(isfield(handles,'ROI'))
     
     switch View
         case 1
+            if(flag)
             handles.ROI{size(handles.ROI,2)+1}.vol=zeros(size(data));
             handles.ROI{size(handles.ROI,2)}.vol(:,:,Slice,Time) = rot90(roi,-1);
-            handles.ROI{size(handles.ROI,2)}.color = rand(3);
+            handles.ROI{size(handles.ROI,2)}.color = rand(1,3);
+            else
+                handles.ROI{size(handles.ROI,2)}.vol(:,:,Slice,Time) = handles.ROI{size(handles.ROI,2)}.vol(:,:,Slice,Time) + rot90(roi,-1);
+            end
         case 2
+            if(flag)
             handles.ROI{size(handles.ROI,2)+1}.vol=zeros(size(data));
             handles.ROI{size(handles.ROI,2)}.vol(:,Slice,:,Time)=rot90(roi,-1);
-            handles.ROI{size(handles.ROI,2)}.color = rand(3);
+            handles.ROI{size(handles.ROI,2)}.color = rand(1,3);
+            else
+                handles.ROI{size(handles.ROI,2)}.vol(:,Slice,:,Time)= handles.ROI{size(handles.ROI,2)}.vol(:,Slice,:,Time) + rot90(roi,-1);
+            end
         case 3
+            if(flag)
             handles.ROI{size(handles.ROI,2)+1}.vol=zeros(size(data));
             handles.ROI{size(handles.ROI,2)}.vol(Slice,:,:,Time)=rot90(roi,-1);
-            handles.ROI{size(handles.ROI,2)}.color = rand(3);
+            handles.ROI{size(handles.ROI,2)}.color = rand(1,3);
+            else
+                handles.ROI{size(handles.ROI,2)}.vol(Slice,:,:,Time)=handles.ROI{size(handles.ROI,2)}.vol(Slice,:,:,Time)+rot90(roi,-1);
+            end
     end
     
 %add new ROI to the list of ROIs in the listbox
+if(flag)
 boxMsg = get(handles.ROIList,'String');
 if(size(boxMsg,2)==0)
     boxMsg{1,1} = 'ROI1';
@@ -182,14 +208,21 @@ else
     boxMsg{size(boxMsg,1)+1,1} = ['ROI' num2str(size(boxMsg,1)+1)];
 end
 set(handles.ROIList,'String',boxMsg);
+flag = 0;
+end
+guidata(hObject,handles);
+draw.resume();
+end
+end
+
 set(handles.drawROI, 'enable', 'off');
 set(handles.AddROI, 'enable', 'on');
 set(handles.ROIList, 'enable', 'on');
 set(handles.DeleteRoi, 'enable', 'on');
 set(gcf,'Pointer','Arrow')
 guidata(gcbo,handles);
-
-end
+set(handles.ROIList,'Value',size(handles.ROI,2));
+RefreshPlot(handles);
 
 
 % --- Executes on button press in load_rois.
@@ -307,14 +340,12 @@ function zoomIn_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of zoomIn
 h = zoom;
 h.Direction = 'in';
-if(strcmp(get(handles.zoomOut,'TooltipString'),'on'))
+if(get(handles.zoomOut,'Value')==1)
     set(handles.zoomOut,'Value',0)
 end
-if(strcmp(get(handles.zoomIn,'TooltipString'),'off'))
+if(get(handles.zoomIn,'Value')==1)
 h.Enable = 'on';
-set(handles.zoomIn,'TooltipString','on')
 else
-    set(handles.zoomIn,'TooltipString','off')
     h.Enable = 'off';
 end
 
@@ -326,14 +357,12 @@ function zoomOut_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 h = zoom;
 h.Direction = 'out';
-if(strcmp(get(handles.zoomIn,'TooltipString'),'on'))
+if(get(handles.zoomIn,'Value')==1)
     set(handles.zoomIn,'Value',0)
 end
-if(strcmp(get(handles.zoomOut,'TooltipString'),'off'))
+if(get(handles.zoomOut,'Value')==1)
 h.Enable = 'on';
-set(handles.zoomOut,'TooltipString','on')
 else
-    set(handles.zoomOut,'TooltipString','off')
     h.Enable = 'off';
 end
 % Hint: get(hObject,'Value') returns toggle state of zoomOut
@@ -362,37 +391,18 @@ function Auto_Callback(hObject, eventdata, handles)
 GetPlotRanges(handles);
 RefreshPlot(handles);
 
-% SOURCE
-function SourcePop_Callback(hObject, eventdata, handles)
-GetPlotRanges(handles);
-RefreshPlot(handles);
 
 % MIN
 function MinValue_Callback(hObject, eventdata, handles)
-min   =  str2double(get(hObject,'String'));
-max = str2double(get(handles.MaxValue, 'String'));
 
-% special treatment for MTSAT visualisation
-CurMethod = getappdata(0, 'Method');
-if strcmp(CurMethod, 'MTSAT')
-    if n > 2
-        Min = min(min(min(MTdata)));
-        Max = max(max(max(MTdata)));
-        ImSize = size(MTdata);
-    else
-        Min = min(min(MTdata));
-        Max = max(max(MTdata));
-    end
-    set(handles.MinValue, 'Min', Min);
-    set(handles.MinValue, 'Max', Max);
-    set(handles.MinValue, 'Value', Min+1);
-else
-    lower =  0.5 * min;
-    set(handles.MinSlider, 'Value', min);
-    set(handles.MinSlider, 'min',   lower);
-    caxis([min max]);
-    % RefreshColorMap(handles);
-end
+mini   =  str2double(get(hObject,'String'));
+maxi = str2double(get(handles.MaxValue, 'String'));
+
+lower =  mini - 0.25*abs(mini+maxi);
+set(handles.MinSlider, 'Value', mini);
+set(handles.MinSlider, 'min',   lower);
+caxis([mini maxi]);
+
 
 function MinSlider_Callback(hObject, eventdata, handles)
 maxi = str2double(get(handles.MaxValue, 'String'));
@@ -469,6 +479,7 @@ function RefreshPlot(handles)
 if isempty(handles.CurrentData), return; end
 xl = xlim;
 yl = ylim;
+set(gcf,'Pointer','Arrow')
 % 
 
 index_selected = get(handles.ROIList,'Value');
@@ -494,7 +505,7 @@ index_selected = get(handles.ROIList,'Value');
             NewMap = rot90(squeeze(handles.ROI{index_selected}.vol(Slice,:,:,Time)))*transparency;
     end
     
-    %guidata(gcbo, handles);
+    
     set(handles.FitDataAxe);
     %overaly the image with a colored ROI
     green = cat(3, ones(size(Map)).* handles.ROI{index_selected}.color(1), ones(size(Map)).* handles.ROI{index_selected}.color(2), ...
@@ -508,13 +519,30 @@ index_selected = get(handles.ROIList,'Value');
     table(2:1+size(get(handles.data,'String'),1),1) = get(handles.data,'String');
     table(1,1:4) = {'map','mean','std','median'};
     length = max(size(handles.CurrentData.fields,2),size(handles.CurrentData.fields,1));
+    k=1;
     for i = 1:length
         data = Data.(handles.CurrentData.fields{i});
         data = data(handles.ROI{index_selected}.vol > 0);
         table(1+i,2) = {mean(data(~isnan(data) & ~isinf(data)))};
         table(1+i,3) = {std(data(~isnan(data) & ~isinf(data)))};
         table(1+i,4) = {median(data(~isnan(data) & ~isinf(data)))};
+%         if(i==1)
+%             %hold on
+%             subplot(round(length/2),2,i)
+%             histogram(data',20,'FaceColor',rand(1,3))
+%             title(handles.CurrentData.fields{i});
+%             
+%         else
+%             subplot(round(length/2),2,i)
+%             histogram(data',20,'FaceColor',rand(1,3));
+%             title(handles.CurrentData.fields{i})
+%             
+%         end
+        
     end
+    %hold off
+   % legend(handles.CurrentData.fields)
+    axes(handles.FitDataAxe);
     set(handles.RoiResults,'Data',table)
     else
     switch View
@@ -561,6 +589,7 @@ switch View
 end
 min = str2double(get(handles.MinValue, 'String'));
 max = str2double(get(handles.MaxValue, 'String'));
+axis(handles.FitDataAxe);
 caxis([min max]);
 
 
@@ -699,14 +728,7 @@ delete(hObject);
 
 %%UI Create functions
 
-function roiList_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function x_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+
 function popupmenu3_Callback(hObject, eventdata, handles)
 function popupmenu3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -766,89 +788,8 @@ function data_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
-function edit7_Callback(hObject, eventdata, handles)
-function edit7_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit7 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function edit8_Callback(hObject, eventdata, handles)
-function edit8_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit8 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function slider6_Callback(hObject, eventdata, handles)
-function slider6_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider6 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-function slider7_Callback(hObject, eventdata, handles)
-function slider7_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider7 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-function popupmenu8_Callback(hObject, eventdata, handles)
-function popupmenu8_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu8 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function edit9_Callback(hObject, eventdata, handles)
-function edit9_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function slider8_Callback(hObject, eventdata, handles)
-function slider8_CreateFcn(hObject, eventdata, handles)
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-function popupmenu9_Callback(hObject, eventdata, handles)
-function popupmenu9_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function pushbutton10_Callback(hObject, eventdata, handles)
-function edit10_Callback(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function slider9_Callback(hObject, eventdata, handles)
-function slider9_CreateFcn(hObject, eventdata, handles)
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-function popupmenu10_Callback(hObject, eventdata, handles)
-function popupmenu10_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 function roi_transparency_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
@@ -918,3 +859,19 @@ if(isfield(handles,'ROI'))
 end
 guidata(hObject,handles);
 RefreshPlot(handles);
+
+
+% --- Executes on key press with focus on figure1 and none of its controls.
+function figure1_KeyPressFcn(hObject, eventdata, handles)
+global KEY_IS_PRESSED
+KEY_IS_PRESSED  = 1;
+if(strcmpi(eventdata.Key,'space'))
+set(handles.drawROI, 'enable', 'off');
+set(handles.AddROI, 'enable', 'on');
+set(handles.ROIList, 'enable', 'on');
+set(handles.DeleteRoi, 'enable', 'on');
+set(gcf,'Pointer','Arrow')
+guidata(gcbo,handles);
+set(handles.ROIList,'Value',size(handles.ROI,2));
+RefreshPlot(handles);
+end

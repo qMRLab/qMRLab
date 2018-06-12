@@ -407,6 +407,7 @@ SetAppData(FileBrowserList);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
+set(handles.RoiAnalysis,'Enable','on');
 
 
 % FITRESULTSSAVE
@@ -766,8 +767,7 @@ data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
 Model = GetAppData('Model');
 
 % Get selected voxel
-S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];	
-S = size(data.(Model.MRIinputs{1}));
+S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
 Data = handles.CurrentData;	
 selected = get(handles.SourcePop,'Value');	
 Scurrent = [size(Data.(Data.fields{selected}),1) size(Data.(Data.fields{selected}),2) size(Data.(Data.fields{selected}),3)];
@@ -802,7 +802,7 @@ else
     end
     if isfield(data,'Mask'), data.Mask = []; end
     
-    Sim.Opt.AddNoise = 0;
+    
     % Create axe
     figure(68)
     h = findobj(68,'Style','checkbox','String','hold plot in order to compare voxels');
