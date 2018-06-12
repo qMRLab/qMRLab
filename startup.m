@@ -1,7 +1,11 @@
 addpath(genpath(pwd))
 
-% install octave package
-if moxunit_util_platform_is_octave
+if ~moxunit_util_platform_is_octave % MATLAB
+    % Test Optimization toolbox is installed
+    if ~license('test', 'Optimization_Toolbox'), error('Optimization_Toolbox is missing... most model won''t fit. Consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''OP'');">Optimization Toolbox</a>'); end
+    
+else % OCTAVE
+    % install octave package
     installlist = {'struct','optim','io','statistics','image'};
     for ii=1:length(installlist)
         try
