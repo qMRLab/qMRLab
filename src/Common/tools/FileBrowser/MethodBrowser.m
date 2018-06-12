@@ -1,16 +1,16 @@
 classdef MethodBrowser
-        % MethodBrowser  - Manage fields in the file Browser per methods
-        %   P.Beliveau 2017 - setup
-        %   * All Methods have in common the WorkDir Button and File Box and
-        %       the StudyID file Box
-        %   * All other file managements uicontrols are contained in the
-        %       ItemsList
+    % MethodBrowser  - Manage fields in the file Browser per methods
+    %   P.Beliveau 2017 - setup
+    %   * All Methods have in common the WorkDir Button and File Box and
+    %       the StudyID file Box
+    %   * All other file managements uicontrols are contained in the
+    %       ItemsList
     
     properties
-        Parent;        
+        Parent;
         ItemsList; % is a list of the class BrowserSet objects
         NbItems;
-        MethodID = 'unassigned';        
+        MethodID = 'unassigned';
     end
     properties(Hidden = true)
         % common to all methods, work directory and studyID
@@ -21,6 +21,7 @@ classdef MethodBrowser
         WorkDir_FullPath;
         StudyID_TextArea;
         StudyID_TextID;
+        DownloadBtn;
         WarnBut_DataConsistensy;
     end
     
@@ -28,14 +29,14 @@ classdef MethodBrowser
         %------------------------------------------------------------------
         % constructor
         function obj = MethodBrowser(Parent,Model)
-            % example: figure(1); clf; MB = MethodBrowser(1,dti); 
+            % example: figure(1); clf; MB = MethodBrowser(1,dti);
             obj.Parent = Parent;
             obj.MethodID = Model.ModelName;
             InputsName = Model.MRIinputs;
             InputsOptional = Model.get_MRIinputs_optional;
             header = iqmr_header.header_parse(which(Model.ModelName));
             if isempty(header.input), header.input = {''}; end
-                
+            
             Location = [0.02, 0.7];
             
             obj.NbItems = size(InputsName,2);
@@ -58,7 +59,7 @@ classdef MethodBrowser
                 '    FitResults will be saved to this directory',...
                 ['    Default: ' pwd],...
                 '',...
-                '    The files containing the following pattern in their name will be loaded automatically (Case Sensitive):',...
+                '    The files (.nii, .nii.gz, .mat) containing the following pattern in their name will be loaded automatically (Case Sensitive):',...
                 sprintf('    -  *%s*\n',Model.MRIinputs{:}),...
                 '',...
                 '2. Study ID (Optional):',...
@@ -73,26 +74,30 @@ classdef MethodBrowser
                 'Position', [0.27,0.85,0.3,0.1],'FontSize', 0.6);
             obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Browse', 'Position', [0.16,0.85,0.1,0.1], 'FontSize', 0.6, ...
-                'Callback', {@(src, event)MethodBrowser.WD_BrowseBtn_callback(obj)});
+                'Callback', {@(src, event) WD_BrowseBtn_callback(obj)});
             obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
                 'String', 'Study ID:', 'Position', [0.58,0.85,0.1,0.1], 'FontSize', 0.6);
             obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
-                 'Position', [0.69,0.85,0.28,0.1],'FontSize', 0.6);
+                'Position', [0.69,0.85,0.10,0.1],'FontSize', 0.6);
+            obj.DownloadBtn = uicontrol(obj.Parent, 'Style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized',...
+                'Position', [0.80,0.85,0.19,0.10],'FontSize', 0.6, 'String', 'Download example', 'BackGroundColor', [0, 0.65, 1],  ...
+                'Callback', {@(src, event) DownloadBtn_callback(obj)});
         end % end constructor
-                  
+        
         %------------------------------------------------------------------
         % Visible
         function Visible(obj, Visibility)
             for i=1:obj.NbItems
                 obj.ItemsList(i).Visible(Visibility);
             end
-            set(obj.InfoBtnWD, 'Visible', Visibility); 
-            set(obj.WorkDir_BrowseBtn, 'Visible', Visibility); 
+            set(obj.InfoBtnWD, 'Visible', Visibility);
+            set(obj.WorkDir_BrowseBtn, 'Visible', Visibility);
             set(obj.WorkDir_TextArea, 'Visible', Visibility);
             set(obj.WorkDir_BrowseBtn, 'Visible', Visibility);
             set(obj.WorkDir_FileNameArea, 'Visible', Visibility);
             set(obj.StudyID_TextArea, 'Visible', Visibility);
             set(obj.StudyID_TextID, 'Visible', Visibility);
+            set(obj.DownloadBtn, 'Visible', Visibility);
             % Warning button is unvisible if no warning
             if isempty(get(obj.WarnBut_DataConsistensy,'TooltipString')), Visibility = 'off'; end
             set(obj.WarnBut_DataConsistensy, 'Visible', Visibility);
@@ -146,17 +151,17 @@ classdef MethodBrowser
             end
             
             % clear previous data
-                Data = getappdata(0,'Data');
-                if isfield(Data,Method)
-                    fields = fieldnames(Data.(Method));
-                    for ff=1:length(fields)
-                        Data.(Method).(fields{ff})=[];
-                    end
+            Data = getappdata(0,'Data');
+            if isfield(Data,Method)
+                fields = fieldnames(Data.(Method));
+                for ff=1:length(fields)
+                    Data.(Method).(fields{ff})=[];
                 end
-                if isfield(Data,[Method '_hdr'])
-                    Data = rmfield(Data,[Method '_hdr']); 
-                end
-                setappdata(0,'Data',Data); 
+            end
+            if isfield(Data,[Method '_hdr'])
+                Data = rmfield(Data,[Method '_hdr']);
+            end
+            setappdata(0,'Data',Data);
             
             % Manage each data items
             for i=1:obj.NbItems
@@ -185,12 +190,12 @@ classdef MethodBrowser
             StudyID = obj.StudyID_TextID;
         end
         
-                %------------------------------------------------------------------
+        %------------------------------------------------------------------
         % get study ID name
         function setStudyID(obj,StudyID)
             set(obj.StudyID_TextID, 'String',StudyID);
         end
-
+        
         %------------------------------------------------------------------
         % getFileName
         % get the filename for the specified ID data
@@ -213,13 +218,12 @@ classdef MethodBrowser
                 obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)
             end
         end
-
         
-               
-    end
-    
-
-    methods(Static)
+        
+        
+        
+        
+        
         %------------------------------------------------------------------
         % -- WD_BrowseBtn_callback
         %   Callback function for the working directory
@@ -238,7 +242,17 @@ classdef MethodBrowser
             obj.setFullPath();
             
         end
+        
+        function DownloadBtn_callback(obj)
+            set(findobj('Name','qMRLab'),'pointer', 'watch')
+            Model = getappdata(0,'Model');
+            qMRgenBatch(Model);
+            WD_BrowseBtn_callback(obj, [pwd filesep  Model.ModelName '_data']);
+            set(findobj('Name','qMRLab'),'pointer', 'arrow')
+
+        end
+        
     end
     
+    
 end
-

@@ -1,7 +1,7 @@
 classdef noddi < AbstractModel
 % noddi:   Neurite Orientation Dispersion and Density Imaging
 %          Three-compartment model for fitting multi-shell DWI
-%<a href="matlab: figure, imshow noddi.png ;">Pulse Sequence Diagram</a>
+%<a href="matlab: figure, imshow Diffusion.png ;">Pulse Sequence Diagram</a>
 %           
 % ASSUMPTIONS:
 %   Neuronal fibers model:
@@ -53,7 +53,7 @@ classdef noddi < AbstractModel
 %                         Available models are:
 %                           -WatsonSHStickTortIsoVIsoDot_B0 is a four model compartment used for ex-vivo datasets
 %
-% Example of command line usage (see also <a href="matlab: showdemo noddi_batch">showdemo noddi_batch</a>):
+% Example of command line usage
 %   For more examples: <a href="matlab: qMRusage(noddi);">qMRusage(noddi)</a>
 %
 % Author: Tanguy Duval
@@ -81,7 +81,7 @@ end
         
         % Protocol
         Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
-                            'Mat', txt2mat('NODDIProtocol.txt'))); % You can define a default protocol here.
+                            'Mat', txt2mat('NODDIProtocol.txt','InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
         buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};

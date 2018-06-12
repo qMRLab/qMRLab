@@ -1,7 +1,11 @@
 addpath(genpath(pwd))
 
-% install octave package
-if moxunit_util_platform_is_octave
+if ~moxunit_util_platform_is_octave % MATLAB
+    % Test Optimization toolbox is installed
+    if ~license('test', 'Optimization_Toolbox'), error('Optimization_Toolbox is missing... most model won''t fit. Consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''OP'');">Optimization Toolbox</a>'); end
+    
+else % OCTAVE
+    % install octave package
     installlist = {'struct','optim','io','statistics','image'};
     for ii=1:length(installlist)
         try
@@ -38,6 +42,10 @@ catch
         cd(cur)
     catch
         cd(cur)
-        error('Cannot compile External/Faddeeva_MATLAB, a function used by NODDI. Plz install a compiler and run Faddeeva_build. Alternatively, edit NODDI_erfi.')
+        if moxunit_util_platform_is_octave
+            error('Cannot compile External/Faddeeva_MATLAB.m, a function used by NODDI (in NODDI_erfi.m). Plz install a compiler (https://fr.mathworks.com/support/compilers.html) and run startup.m again.')
+        else
+            warning('NODDI IS SLOW: Cannot compile External/Faddeeva_MATLAB.m, a fast function used by NODDI (in NODDI_erfi.m). Plz install a compiler (https://fr.mathworks.com/support/compilers.html) and run startup.m again.')
+        end
     end
 end
