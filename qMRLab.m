@@ -3,7 +3,7 @@ function varargout = qMRLab(varargin)
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran???is Cabana, 2016
+% Written by: Jean-Fran�is Cabana, 2016
 %
 % -- MTSAT functionality: P. Beliveau, 2017
 % -- File Browser changes: P. Beliveau 2017
@@ -128,7 +128,7 @@ end
 
 % View first file
 if length(varargin)>1
-    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
+    butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);	
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
@@ -408,6 +408,7 @@ SetAppData(FileBrowserList);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
+set(handles.RoiAnalysis,'Enable','on');
 
 
 % FITRESULTSSAVE
@@ -421,6 +422,7 @@ set(handles.CurrentFitId,'String',FileName);
 
 % FITRESULTSLOAD
 function FitResultsLoad_Callback(hObject, eventdata, handles)
+
 [FileName,PathName] = uigetfile({'*FitResults*.mat;*.qmrlab.mat;*.mat'},'FitResults.mat');
 if PathName == 0, return; end
 set(handles.CurrentFitId,'String',FileName);
@@ -457,7 +459,7 @@ SetAppData(FileBrowserList);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
-
+set(handles.RoiAnalysis,'Enable','on');
 
 
 % #########################################################################
@@ -767,21 +769,21 @@ Model = GetAppData('Model');
 
 % Get selected voxel
 S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
-Data = handles.CurrentData;
-selected = get(handles.SourcePop,'Value');
+Data = handles.CurrentData;	
+selected = get(handles.SourcePop,'Value');	
 Scurrent = [size(Data.(Data.fields{selected}),1) size(Data.(Data.fields{selected}),2) size(Data.(Data.fields{selected}),3)];
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
 elseif sum(S)==0
     helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
+
 elseif ~isequal(Scurrent(1:3), S(1:3))
     Sstr = sprintf('%ix',S);
     Scurstr = sprintf('%ix',Scurrent);
     helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
+
 else
-    % Check data consistency
     Model.sanityCheck(data);
-    
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
     y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);
@@ -793,12 +795,14 @@ else
         case 'Sagittal', vox = [z,x,y]; 
     end
     
+    
     for ii=1:length(Model.MRIinputs)
         if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
             data.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(vox(1),vox(2),vox(3),:));
         end
     end
     if isfield(data,'Mask'), data.Mask = []; end
+    
     
     % Create axe
     figure(68)
@@ -910,140 +914,6 @@ ylim(yl);
 drawnow;
 
 
-% ##############################################################################################
-%                                    ROI
-% ##############################################################################################
-
-% DRAW
-function RoiDraw_Callback(hObject, eventdata, handles)
-set(gcf,'Pointer','Cross');
-set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'off')
-contents = cellstr(get(hObject,'String'));
-model = contents{get(hObject,'Value')};
-switch model
-    case 'Ellipse'
-        draw = imellipse();
-    case 'Polygone'
-        draw = impoly();
-    case 'Rectangle'
-        draw = imrect();
-    case 'FreeHand'
-        draw = imfreehand();
-    otherwise
-        warning('Choose a Drawing Method');
-end
-Press = waitforbuttonpress;
-while Press == 0
-    Press = waitforbuttonpress;
-end
-if Press == 1
-    Map = getimage(handles.FitDataAxe);
-    handles.ROI = double(draw.createMask());
-    handles.NewMap = (Map(:,:,1,1)).*(handles.ROI);
-    guidata(gcbo, handles); 
-    % figure
-    set(handles.FitDataAxe);
-    imagesc(handles.NewMap);
-    axis equal off;
-    RefreshColorMap(handles);
-end
-set(findall(handles.ROIPanel,'-property','enable'), 'enable', 'on');
-set(gcf,'Pointer','Arrow');
-
-% THRESHOLD
-function RoiThreshMin_Callback(hObject, eventdata, handles)
-handles.threshMin = str2double(get(hObject, 'String'));
-if ~isempty(get(handles.RoiThreshMax, 'String'))
-    handles.threshMax = str2double(get(handles.RoiThreshMax, 'String'));
-else
-    handles.threshMax = str2double(get(handles.MaxValue, 'String'));
-end
-handles.NewMap = getimage(handles.FitDataAxe);
-handles.NewMap(handles.NewMap<handles.threshMin) = 0;
-handles.NewMap(handles.NewMap>handles.threshMax) = 0;
-handles.ROI = handles.NewMap;
-handles.ROI(handles.ROI~=0) = 1;
-guidata(gcbo, handles); 
-% figure
-set(handles.FitDataAxe);
-imagesc(handles.NewMap);
-axis equal off;
-RefreshColorMap(handles);
-function RoiThreshMax_Callback(hObject, eventdata, handles)
-handles.threshMax = str2double(get(hObject, 'String'));
-if ~isempty(get(handles.RoiThreshMin, 'String'))
-    handles.threshMin = str2double(get(handles.RoiThreshMin, 'String'));
-else
-    handles.threshMin = str2double(get(handles.MinValue, 'String'));
-end
-handles.NewMap = getimage(handles.FitDataAxe);
-handles.NewMap(handles.NewMap<handles.threshMin) = 0;
-handles.NewMap(handles.NewMap>handles.threshMax) = 0;
-handles.ROI = handles.NewMap;
-handles.ROI(handles.ROI~=0) = 1;
-guidata(gcbo, handles); 
-% figure
-set(handles.FitDataAxe);
-imagesc(handles.NewMap);
-axis equal off;
-RefreshColorMap(handles);
-
-% SAVE
-function RoiSave_Callback(hObject, eventdata, handles)
-% Get the WD
-Method = GetAppData('Method');
-FileBrowserList = GetAppData('FileBrowserList');
-MethodList = getappdata(0, 'MethodList');
-MethodList = strrep(MethodList, '.m', '');
-MethodCount = numel(MethodList);
-for i=1:MethodCount
-    if FileBrowserList(i).IsMethodID(Method)
-        MethodID = i;
-    end
-end
-WD = FileBrowserList(MethodID).getWD;
-Mask = rot90(handles.ROI,-1);
-if ~isempty(WD)
-    if exist(fullfile(WD, 'Mask.mat'),'file') || exist(fullfile(WD, 'Mask.nii'),'file')
-        choice = questdlg('Replace the old mask?','A mask exist!','Yes','No','No');
-        switch choice
-            case 'Yes'
-                FullPathName = fullfile(WD, 'Mask');
-                save(FullPathName,'Mask');                 
-            case 'No'
-                [FileName, PathName] = uiputfile({'*.mat'},'Save as');
-                FullPathName = fullfile(PathName, FileName);
-                if FileName ~= 0
-                    save(FullPathName,'Mask');
-                end
-        end
-    else
-        FullPathName = fullfile(WD, 'Mask');
-        save(FullPathName,'Mask');
-    end
-else
-    [FileName, PathName] = uiputfile({'*.mat'},'Save as');
-    FullPathName = fullfile(PathName, FileName);
-    if FileName ~= 0
-        save(FullPathName,'Mask');
-    end  
-end
-
-% LOAD
-function RoiLoad_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uigetfile({'*.mat'});
-if isequal(FileName,0), return; end
-FullPathName = fullfile(PathName, FileName);
-Tmp = load(FullPathName);
-Roi = rot90(Tmp.Mask);
-Map = getimage(handles.FitDataAxe);
-handles.NewMap = Map.*Roi;
-% figure
-set(handles.FitDataAxe);
-imagesc(handles.NewMap);
-axis equal off;
-RefreshColorMap(handles);
-
 
 % ######################## CREATE FUNCTIONS ##############################
 function SimVaryOptRuns_CreateFcn(hObject, eventdata, handles)
@@ -1119,4 +989,14 @@ function TimeSlider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+function RoiAnalysis_Callback(hObject, eventdata, handles)
+% hObject    handle to RoiAnalysis (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+ setappdata(0,'roidata',handles.CurrentData);
+roiGui = Roi_analysis(handles);
+set(roiGui,'WindowStyle','modal') %If you want to "freeze" main GUI until secondary is closed.
+uiwait(roiGui) %Wait for user to finish with secondary GUI.
+guidata(hObject, handles);
 %----------------------------------------- END ------------------------------------------%
