@@ -137,9 +137,9 @@ classdef MethodBrowser
             
             % manage protocol and fit options
             Method = getappdata(0,'Method');
-            for i = 1:length(fileList)
-                if ~~strfind(fileList{i}, 'Protocol')
-                    ProtLoad(fullfile(Path,fileList{i}));
+            for ii = 1:length(fileList)
+                if ~~strfind(fileList{ii}, 'Protocol')
+                    ProtLoad(fullfile(Path,fileList{ii}));
                     Model = getappdata(0,'Model');
                     Custom_OptionsGUI(Model, gcf);
                 end
@@ -159,9 +159,26 @@ classdef MethodBrowser
                 setappdata(0,'Data',Data); 
             
             % Manage each data items
-            for i=1:obj.NbItems
-                obj.ItemsList(i).setPath(Path, fileList);
+            for ii=1:obj.NbItems
+                obj.ItemsList(ii).setPath(Path, fileList,0);
             end
+            
+            % warning
+            Data = getappdata(0, 'Data');
+            Model = getappdata(0,'Model');
+            ErrMsg = Model.sanityCheck(Data.(class(Model)));
+            hWarnBut = findobj(obj.Parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
+            if ~isempty(ErrMsg)
+                set(hWarnBut,'String',ErrMsg)
+                set(hWarnBut,'TooltipString',ErrMsg)
+                set(hWarnBut,'Visible','on')
+            else
+                set(hWarnBut,'String','')
+                set(hWarnBut,'TooltipString','')
+                set(hWarnBut,'Visible','off')
+            end
+
+
         end % end SetFullPath
         
         
