@@ -377,15 +377,16 @@ if(~isempty(FitResults.StudyID))
 else
     filename = 'FitResults.mat';
 end
-outputdir = fullfile(FitResults.WD,'FitResults');
+outputdir = fullfile(FitResults.WD,['FitResults_', datestr(datetime('now','TimeZone','local'),'yyyy-mm-dd_HH-MM-SS')]); % ISO 8601 format adapted for MATLAB compatibility
 if ~exist(outputdir,'dir'), mkdir(outputdir); 
 else
-    iii=1; filenamenew = filename;
-    while exist(fullfile(FitResults.WD,'FitResults',filenamenew),'file')
+    iii=1; outputdirnew = outputdir;
+    while exist(outputdirnew,'dir')
         iii=iii+1;
-        filenamenew = strrep(filename,'.mat',['_' num2str(iii) '.mat']);
+        outputdirnew = [outputdir,'_' num2str(iii)];
     end
-    filename = filenamenew;
+    outputdir = outputdirnew;
+    mkdir(outputdir);
 end
 save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
