@@ -24,11 +24,11 @@ classdef (Abstract) AbstractModel
             try
                 objStruct = objProps2struct(obj);
 
-                save([regexprep(regexprep(suffix,'.qmrlab.mat','','ignorecase'),'.mat','','ignorecase') '.qmrlab.mat'], '-struct', 'objStruct');
+                save([strrep(regexprep(suffix,'.qmrlab.mat','','ignorecase'),'.mat','') '.qmrlab.mat'], '-struct', 'objStruct');
 
                 if moxunit_util_platform_is_octave
 
-                 save('-mat7-binary', [regexprep(regexprep(suffix,'.qmrlab.mat','','ignorecase'),'.mat','','ignorecase') '.qmrlab.mat'], '-struct' ,'objStruct');
+                 save('-mat7-binary', [strrep(regexprep(suffix,'.qmrlab.mat','','ignorecase'),'.mat','') '.qmrlab.mat'], '-struct' ,'objStruct');
                 end
 
 
