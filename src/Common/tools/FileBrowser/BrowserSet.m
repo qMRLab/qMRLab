@@ -233,6 +233,8 @@ classdef BrowserSet
             handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
             DrawPlot(handles);
+            
+            set(handles.RoiAnalysis,'Enable','on');
         end
         
         
