@@ -422,7 +422,7 @@ set(handles.CurrentFitId,'String',FileName);
 % FITRESULTSLOAD
 function FitResultsLoad_Callback(hObject, eventdata, handles)
 
-[FileName,PathName] = uigetfile({'*FitResults*.mat;*.qmrlab.mat'},'FitResults.mat');
+[FileName,PathName] = uigetfile({'*FitResults*.mat;*.qmrlab.mat;*.mat'},'FitResults.mat');
 if PathName == 0, return; end
 set(handles.CurrentFitId,'String',FileName);
 FitResults = load(fullfile(PathName,FileName));
