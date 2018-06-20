@@ -15,7 +15,7 @@ disp('testing Simulation Single Voxel Curve...');
 
 
 Model = str2func('dti'); Model = Model();
-savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['dti.qmrlab.mat']);
+savedModel_fname = 'dti.qmrlab.mat';
 if ~exist(savedModel_fname,'file')
 Model.saveObj(savedModel_fname);
 else

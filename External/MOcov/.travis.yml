@@ -1,0 +1,40 @@
+# vim ft=yaml
+# travis-ci.org definition for MOxUnit build (based on CoSMoMVPA,
+# which is based on PyMVPA, which is based on nipype configuration, 
+# which in turn was based on nipy)
+#
+# We pretend to be java because we need GNU Octave which is not
+# available (as of April 2015)
+
+language: java
+
+cache:
+  - apt
+env:
+ global:
+    - OCTAVE=octave
+before_install:
+    # to prevent IPv6 being used for APT
+    - sudo bash -c "echo 'Acquire::ForceIPv4 \"true\";' > /etc/apt/apt.conf.d/99force-ipv4"
+    - travis_retry sudo apt-get -y -qq update
+    - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
+    - travis_retry sudo apt-add-repository -y ppa:octave/stable
+    - travis_retry sudo apt-get -y -qq update
+    # get Octave 4,0
+    - travis_retry sudo apt-get -y -qq install octave
+    # install MOxUnit
+    - cd ..
+    - rm -rf MOxUnit
+    - git clone https://github.com/MOxUnit/MOxUnit.git
+    - make -C MOxUnit install
+    # cd back to original directory 
+    - cd MOcov
+
+script:
+    - if [[  "$SHIPPABLE" == "true"  ]]; then
+          make test JUNIT_XML=../MOcov/shippable/testresults/testresults.xml;
+      elif [[  "$TRAVIS" == "true"  ]]; then
+          make test;
+      fi
+
+
