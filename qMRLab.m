@@ -184,9 +184,8 @@ for iM=1:length(MethodList), MethodListfull{iM} = sprintf(['%-' num2str(maxlengt
 set(handles.MethodSelection,'String',MethodListfull);
 set(handles.MethodSelection,'FontName','FixedWidth')
 set(handles.MethodSelection,'FontWeight','bold')
-set(handles.MethodSelection,'FontSize',10); % issue #124
 set(handles.MethodSelection,'FontUnits','normalized')
-
+set(handles.MethodSelection,'FontSize',.5)
 
 
 %###########################################################################################
