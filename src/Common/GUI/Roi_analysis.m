@@ -315,9 +315,9 @@ if(size(handles.ROI,2) == 0)
     return;
 end
 rois = get(handles.ROIList,'String');
-rois = removerows(rois,index_selected);
+rois = rois(setdiff(1:length(rois),index_selected));
 list = handles.ROI';
-list = removerows(list,index_selected);
+list = list(setdiff(1:length(list),index_selected));
 index_selected = index_selected-1;
 if(size(list,1) == 0) 
     list = {};
