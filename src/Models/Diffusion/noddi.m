@@ -81,7 +81,7 @@ end
         
         % Protocol
         Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
-                            'Mat', txt2mat('NODDIProtocol.txt'))); % You can define a default protocol here.
+                            'Mat', txt2mat('NODDIProtocol.txt','InfoLevel',0))); % You can define a default protocol here.
         
         % Model options
         buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};
