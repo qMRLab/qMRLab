@@ -31,69 +31,11 @@ plot_axialSagittalCoronal(phase_lunwrap, 3, [-3.5,3.5], 'Laplacian unwrapping')
 
 %% recursive filtering with decreasing filter sizes
 
-threshold = .05;                     % truncation level
-    
-Kernel_Sizes = 9:-2:3;
-
-Phase_Del = zeros(N);
-mask_prev = zeros(N);
-
-
 tic
-for k = 1:length(Kernel_Sizes)
-    
-    disp(['Kernel size: ', num2str(Kernel_Sizes(k))])
-    
-    Kernel_Size = Kernel_Sizes(k);
-
-    ksize = [Kernel_Size, Kernel_Size, Kernel_Size];                % Sharp kernel size
-
-   
-    khsize = (ksize-1)/2;
-    [a,b,c] = meshgrid(-khsize(2):khsize(2), -khsize(1):khsize(1), -khsize(3):khsize(3));
-
-    kernel = (a.^2 / khsize(1)^2 + b.^2 / khsize(2)^2 + c.^2 / khsize(3)^2 ) <= 1;
-    kernel = -kernel / sum(kernel(:));
-    kernel(khsize(1)+1,khsize(2)+1,khsize(3)+1) = 1 + kernel(khsize(1)+1,khsize(2)+1,khsize(3)+1);
-
-    Kernel = zeros(N);
-    Kernel( 1+N(1)/2 - khsize(1) : 1+N(1)/2 + khsize(1), 1+N(2)/2 - khsize(2) : 1+N(2)/2 + khsize(2), 1+N(3)/2 - khsize(3) : 1+N(3)/2 + khsize(3) ) = -kernel;
-
-    del_sharp = fftn(fftshift(Kernel));
-    
-
-    % erode mask to remove convolution artifacts
-    erode_size = ksize + 1;
-
-    mask_sharp = imerode(mask_pad, strel('line', erode_size(1), 0));
-    mask_sharp = imerode(mask_sharp, strel('line', erode_size(2), 90));
-    mask_sharp = permute(mask_sharp, [1,3,2]);
-    mask_sharp = imerode(mask_sharp, strel('line', erode_size(3), 0));
-    mask_sharp = permute(mask_sharp, [1,3,2]);
-    
-    
-    % apply Sharp to Laplacian unwrapped phase
-    phase_del = ifftn(fftn(phase_lunwrap) .* del_sharp);
-
-    Phase_Del = Phase_Del + phase_del .* (mask_sharp - mask_prev); 
-    
-    mask_prev = mask_sharp;
-
-    if k == 1
-        delsharp_inv = zeros(size(del_sharp));
-        delsharp_inv( abs(del_sharp) > threshold ) = 1 ./ del_sharp( abs(del_sharp) > threshold );
-    end        
-    
-end
+nfm_Sharp_lunwrap = background_removal_sharp(phase_lunwrap, mask_pad, [TE B0 gyro], 'iterative');
 toc
 
-
-phase_Sharp_lunwrap = real( ifftn(fftn(Phase_Del) .* delsharp_inv) .* mask_sharp );
-nfm_Sharp_lunwrap = phase_Sharp_lunwrap / (B0 * gyro * TE);
-
-
 plot_axialSagittalCoronal(nfm_Sharp_lunwrap, 4, [-.05,.05] )
-
 
 %% gradient masks from magnitude image using k-space gradients
 

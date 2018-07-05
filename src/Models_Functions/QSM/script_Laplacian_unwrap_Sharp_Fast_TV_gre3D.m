@@ -30,47 +30,10 @@ plot_axialSagittalCoronal(phase_lunwrap, 2, [-3.5,3.5], 'Laplacian unwrapping')
 %% Sharp filtering to remove background phase
 
 tic
-
-    ksize = [9, 9, 9];                % Sharp kernel size
-    threshold = .05;                  % truncation level
-
-    khsize = (ksize-1)/2;
-    [a,b,c] = meshgrid(-khsize(2):khsize(2), -khsize(1):khsize(1), -khsize(3):khsize(3));
-
-    kernel = (a.^2 / khsize(1)^2 + b.^2 / khsize(2)^2 + c.^2 / khsize(3)^2 ) <= 1;
-    kernel = -kernel / sum(kernel(:));
-    kernel(khsize(1)+1,khsize(2)+1,khsize(3)+1) = 1 + kernel(khsize(1)+1,khsize(2)+1,khsize(3)+1);
-
-    Kernel = zeros(N);
-    Kernel( 1+N(1)/2 - khsize(1) : 1+N(1)/2 + khsize(1), 1+N(2)/2 - khsize(2) : 1+N(2)/2 + khsize(2), 1+N(3)/2 - khsize(3) : 1+N(3)/2 + khsize(3) ) = -kernel;
-
-    del_sharp = fftn(fftshift(Kernel));
-    delsharp_inv = zeros(size(del_sharp));
-    delsharp_inv( abs(del_sharp) > threshold ) = 1 ./ del_sharp( abs(del_sharp) > threshold );
-
-
-    % erode mask to remove convolution artifacts
-    erode_size = ksize + 1;
-
-    mask_sharp = imerode(mask_pad, strel('line', erode_size(1), 0));
-    mask_sharp = imerode(mask_sharp, strel('line', erode_size(2), 90));
-    mask_sharp = permute(mask_sharp, [1,3,2]);
-    mask_sharp = imerode(mask_sharp, strel('line', erode_size(3), 0));
-    mask_sharp = permute(mask_sharp, [1,3,2]);
-
-
-    % apply Sharp to Laplacian wrapped phase
-
-    phase_del_lunwrap = ifftn(fftn(phase_lunwrap) .* del_sharp) .* mask_sharp;
-    phase_Sharp_lunwrap = real( ifftn(fftn(phase_del_lunwrap) .* delsharp_inv) .* mask_sharp );
-
-    nfm_Sharp_lunwrap = phase_Sharp_lunwrap / (B0 * gyro * TE);
-
+nfm_Sharp_lunwrap = background_removal_sharp(phase_lunwrap, mask_pad, [TE B0 gyro], 'once');
 toc
 
 plot_axialSagittalCoronal(nfm_Sharp_lunwrap, 3, [-.05,.05] )
-
-
 
 %% plot L-curve for L2-regularized recon
 
