@@ -1,4 +1,4 @@
-function nfm_Sharp_lunwrap = background_removal_sharp(phase_lunwrap, mask_pad, physParams, filterMode)
+function [nfm_Sharp_lunwrap, mask_sharp] = background_removal_sharp(phase_lunwrap, mask_pad, physParams, filterMode)
 %BACKGROUND_REMOVAL_SHARP Background phase removal using SHARP (Sophisticated harmonic artifact reduction for phase data)
 %   Code refractored from Berkin Bilgic's scripts: "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m" 
 %   and "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m"
@@ -18,14 +18,14 @@ function nfm_Sharp_lunwrap = background_removal_sharp(phase_lunwrap, mask_pad, p
     end
     switch filterMode
         case 'once'
-            nfm_Sharp_lunwrap = sharp_once(phase_lunwrap, mask_pad, physParams);
+            [nfm_Sharp_lunwrap, mask_sharp] = sharp_once(phase_lunwrap, mask_pad, physParams);
         case 'iterative'
-            nfm_Sharp_lunwrap = sharp_iterative(phase_lunwrap, mask_pad, physParams);
+            [nfm_Sharp_lunwrap, mask_sharp] = sharp_iterative(phase_lunwrap, mask_pad, physParams);
     end
 
 end
 
-function nfm_Sharp_lunwrap = sharp_once(phase_lunwrap, mask_pad, physParams)
+function [nfm_Sharp_lunwrap, mask_sharp] = sharp_once(phase_lunwrap, mask_pad, physParams)
 
     % constants
     TE = physParams(1);
@@ -56,7 +56,7 @@ function nfm_Sharp_lunwrap = sharp_once(phase_lunwrap, mask_pad, physParams)
 end
 
 
-function nfm_Sharp_lunwrap = sharp_iterative(phase_lunwrap, mask_pad, physParams)
+function [nfm_Sharp_lunwrap, mask_sharp] = sharp_iterative(phase_lunwrap, mask_pad, physParams)
 
     % constants
     TE = physParams(1);
