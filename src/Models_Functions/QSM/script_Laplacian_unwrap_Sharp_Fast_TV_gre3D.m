@@ -11,11 +11,12 @@ phase_wrap = mask .* phase_wrap;
 
 plot_axialSagittalCoronal(phase_wrap, 1, [-pi, pi], 'Masked, wrapped phase')
 
-
 %% Zero pad for Sharp kernel convolution
 
-phase_wrap_pad = pad_volume_for_sharp(phase_wrap);
-mask_pad = pad_volume_for_sharp(mask);
+pad_size = [9,9,9];     % pad for Sharp recon
+                        % MB: Investigate why 9 zeros for each dimension?
+phase_wrap_pad = pad_volume_for_sharp(phase_wrap, pad_size);
+mask_pad = pad_volume_for_sharp(mask, pad_size);
 
 N = size(mask_pad);
 
@@ -30,7 +31,7 @@ plot_axialSagittalCoronal(phase_lunwrap, 2, [-3.5,3.5], 'Laplacian unwrapping')
 %% Sharp filtering to remove background phase
 
 tic
-nfm_Sharp_lunwrap = background_removal_sharp(phase_lunwrap, mask_pad, [TE B0 gyro], 'once');
+[nfm_Sharp_lunwrap, mask_sharp] = background_removal_sharp(phase_lunwrap, mask_pad, [TE B0 gyro], 'once');
 toc
 
 plot_axialSagittalCoronal(nfm_Sharp_lunwrap, 3, [-.05,.05] )
@@ -112,7 +113,6 @@ disp(['Optimal lambda, consistency, regularization: ', num2str([Lambda(index_opt
 
 figure(4), subplot(1,2,2), semilogx(Lambda, Kappa, 'marker', '*')
 
-
 %% closed form solution with optimal lambda
 
 lambda_L2 = Lambda(index_opt);
@@ -128,17 +128,13 @@ chi_L2 = chi_L2(1+pad_size(1):end-pad_size(1),1+pad_size(2):end-pad_size(2),1+pa
 
 plot_axialSagittalCoronal(chi_L2, 1, [-.15,.15])
 
-
 %% Determine SB lambda using L-curve and fix mu at lambda_L2
 
 
 mu = lambda_L2;         % Gradient consistency => pick from L2-closed form recon
                         % since the first iteration gives L2 recon    
 
-[k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
-fdx = 1 - exp(-2*pi*1i*k1/N(1));
-fdy = 1 - exp(-2*pi*1i*k2/N(2));
-fdz = 1 - exp(-2*pi*1i*k3/N(3));
+[fdx, fdy, fdz] = calc_fdr(N);
 
 cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
 
@@ -236,63 +232,11 @@ figure(5), subplot(1,2,2), semilogx(Lambda, Kappa, 'marker', '*'), axis tight
 
 lambda_L1 = Lambda(index_opt);
 
-
-
 %% Split Bregman QSM
 
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, FOV, pad_size);
 
-lambda = lambda_L1;     % L1 penalty
-
-mu = lambda_L2;         % Gradient consistency => pick from L2-closed form recon
-                        % since the first iteration gives L2 recon    
-                        
-threshold = lambda/mu;
-
-
-cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
-
-DFy = conj(D) .* fftn(nfm_Sharp_lunwrap);
-
-SB_reg = 1 ./ (eps + D2 + mu * E2);
-
-vx = zeros(N);          vy = zeros(N);          vz = zeros(N);
-nx = zeros(N);          ny = zeros(N);          nz = zeros(N);
-Fu = zeros(N);
-
-
-tic
-for t = 1:20
-    
-    Fu_prev = Fu;
-    
-    Fu = ( DFy + mu * (cfdx.*fftn(vx - nx) + cfdy.*fftn(vy - ny) + cfdz.*fftn(vz - nz)) ) .* SB_reg;
-
-    Rxu = ifftn(fdx .*  Fu);    Ryu = ifftn(fdy .*  Fu);    Rzu = ifftn(fdz .*  Fu);
-
-    rox = Rxu + nx;    roy = Ryu + ny;    roz = Rzu + nz;
-        
-    vx = max(abs(rox) - threshold, 0) .* sign(rox);
-    vy = max(abs(roy) - threshold, 0) .* sign(roy);
-    vz = max(abs(roz) - threshold, 0) .* sign(roz);
-    
-    nx = rox - vx;     ny = roy - vy;     nz = roz - vz; 
-    
-    res_change = 100 * norm(Fu(:) - Fu_prev(:)) / norm(Fu(:));
-    disp(['Iteration  ', num2str(t), '  ->  Change in Chi: ', num2str(res_change), ' %'])
-    
-    if res_change < 1
-        break
-    end
-    
-end
-toc
-
-
-chi_sb = ifftn(Fu) .* mask_sharp;
-chi_SB = real( chi_sb(1+pad_size(1):end-pad_size(1),1+pad_size(2):end-pad_size(2),1+pad_size(3):end-pad_size(3)) ) ;
-    
 plot_axialSagittalCoronal(chi_SB, 2, [-.15,.15])
-
 
 %% plot max intensity projections for L1, L2 and phase images
 
@@ -311,8 +255,6 @@ nfm_disp = abs(nfm_Sharp_lunwrap(1+pad_size(1):end-pad_size(1),1+pad_size(2):end
 figure(12), subplot(1,3,1), imagesc(max(nfm_disp, [], 3), scale3), colormap gray, axis image off
 figure(12), subplot(1,3,2), imagesc(imrotate(squeeze(max(nfm_disp, [], 2)), 90), scale3), colormap gray, axis square off
 figure(12), subplot(1,3,3), imagesc(imrotate(squeeze(max(nfm_disp, [], 1)), 90), scale3), colormap hot, axis square off
-
-
 
 %% k-space picture of L1 and L2 recons
 
@@ -336,5 +278,3 @@ figure(14), subplot(1,3,3), imagesc( squeeze(kspace_L2(1+end/2,:,:)), scale_log 
 figure(15), subplot(1,3,1), imagesc( kspace_nfm(:,:,1+end/2), scale_nfm ), axis square off, colormap gray
 figure(15), subplot(1,3,2), imagesc( squeeze(kspace_nfm(:,1+end/2,:)), scale_nfm ), axis square off, colormap gray
 figure(15), subplot(1,3,3), imagesc( squeeze(kspace_nfm(1+end/2,:,:)), scale_nfm), axis square off, colormap gray
-
-
