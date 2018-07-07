@@ -40,7 +40,10 @@ plot_axialSagittalCoronal(nfm_Sharp_lunwrap, 4, [-.05,.05] )
 
 %% gradient masks from magnitude image using k-space gradients
 
-[fdx, fdy, fdz] = calc_fdr(N);
+[k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
+fdx = -1 + exp(2*pi*1i*k1/N(1));
+fdy = -1 + exp(2*pi*1i*k2/N(2));
+fdz = -1 + exp(2*pi*1i*k3/N(3));
 
 magn_pad = padarray(magn, pad_size) .* mask_sharp;
 magn_pad = magn_pad / max(magn_pad(:));
@@ -279,77 +282,15 @@ lambda_L1 = Lambda(index_opt);
 
 %% Split Bregman QSM
 
-chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, FOV, pad_size);
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, [fdx, fdy, fdz], FOV, pad_size);
 
 plot_axialSagittalCoronal(chi_SB, 3, [-.15,.15], 'L1 solution')
 plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SB))).^.5, 13, [0,20], 'L1 solution k-space')
 
 %% Split Bregman QSM with preconditioner and magnitude weighting
 
-lambda = lambda_L1;     % L1 penalty
-
-mu = lambda_L2;         % Gradient consistency => pick from L2-closed form recon
-                        
-threshold = lambda/mu;
-
-
-cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
-
-DFy = conj(D) .* fftn(nfm_Sharp_lunwrap);
-
-
-SB_frw = eps + D2 + mu * E2;
-SB_reg = 1 ./ SB_frw;
-
-
-vx = zeros(N);          vy = zeros(N);          vz = zeros(N);
-nx = zeros(N);          ny = zeros(N);          nz = zeros(N);
-Pcg_iter = 0;
-
-Fu = fftn(D_regx);      % use close-form L2-reg. solution as initial guess
-
-precond_inverse = @(x,SB_reg) SB_reg(:).*x;
-
-
-tic
-for t = 1:20
-    
-    Fu_prev = Fu;
-    
-    b = DFy + mu * (cfdx.*fftn( (vx - nx).*magn_weight(:,:,:,1) ) + cfdy.*fftn( (vy - ny).*magn_weight(:,:,:,2) ) + cfdz.*fftn( (vz - nz).*magn_weight(:,:,:,3) ));
-    
-    % solve A * (Fu) = b with preconditioned cg  
-    [Fu, flag, pcg_res, pcg_iter] = pcg(@(x) apply_forward( x, D2, mu, fdx, fdy, fdz, cfdx, cfdy, cfdz, magn_weight ), b(:), 1e-2, 10, @(x) precond_inverse(x, SB_reg), [], Fu_prev(:));
-    
-    Fu = reshape(Fu, N);
-    
-    Rxu = magn_weight(:,:,:,1) .* ifftn(fdx .*  Fu);    
-    Ryu = magn_weight(:,:,:,2) .* ifftn(fdy .*  Fu);    
-    Rzu = magn_weight(:,:,:,3) .* ifftn(fdz .*  Fu);
-
-    rox = Rxu + nx;    roy = Ryu + ny;    roz = Rzu + nz;
-        
-    vx = max(abs(rox) - threshold, 0) .* sign(rox);
-    vy = max(abs(roy) - threshold, 0) .* sign(roy);
-    vz = max(abs(roz) - threshold, 0) .* sign(roz);
-    
-    nx = rox - vx;     ny = roy - vy;     nz = roz - vz; 
-    
-    res_change = 100 * norm(Fu(:) - Fu_prev(:)) / norm(Fu(:));
-    Pcg_iter = pcg_iter + Pcg_iter;
-    disp(['Iteration  ', num2str(t), '  ->  Change in Chi: ', num2str(res_change), ' %', '    PCG iter: ', num2str(pcg_iter), '   PCG residual: ', num2str(pcg_res)])
-    
-    if res_change < 1
-        break
-    end
-    
-end
-toc
-
-disp(['Total no of PCG iters: ', num2str(Pcg_iter)])
-
-chi_sbm = ifftn(Fu) .* mask_sharp;
-chi_SBM = real( chi_sbm(1+pad_size(1):end-pad_size(1),1+pad_size(2):end-pad_size(2),1+pad_size(3):end-pad_size(3)) ) ;
+preconMagWeightFlag = 1;
+chi_SBM = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, [fdx, fdy, fdz], FOV, pad_size, preconMagWeightFlag);
 
 plot_axialSagittalCoronal(chi_SBM, 4, [-.15,.15], 'L1 solution with magnitude weighting')
 plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SBM))).^.5, 14, [0,20], 'L1 magn weighting k-space')

@@ -132,10 +132,13 @@ plot_axialSagittalCoronal(chi_L2, 1, [-.15,.15])
 
 
 mu = lambda_L2;         % Gradient consistency => pick from L2-closed form recon
-                        % since the first iteration gives L2 recon    
-
-[fdx, fdy, fdz] = calc_fdr(N);
-
+                        % since the first iteration gives L2 recon   
+                        
+[k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
+fdx = 1 - exp(-2*pi*1i*k1/N(1));
+fdy = 1 - exp(-2*pi*1i*k2/N(2));
+fdz = 1 - exp(-2*pi*1i*k3/N(3));
+    
 cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
 
 E2 = abs(fdx).^2 + abs(fdy).^2 + abs(fdz).^2;
@@ -234,7 +237,7 @@ lambda_L1 = Lambda(index_opt);
 
 %% Split Bregman QSM
 
-chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, FOV, pad_size);
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, [fdx, fdy, fdz], FOV, pad_size);
 
 plot_axialSagittalCoronal(chi_SB, 2, [-.15,.15])
 

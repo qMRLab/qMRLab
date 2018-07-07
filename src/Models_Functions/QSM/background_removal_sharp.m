@@ -9,9 +9,18 @@ function [nfm_Sharp_lunwrap, mask_sharp] = background_removal_sharp(phase_lunwra
 %   physParams: [TE B0 gyro]
 %   filterMode: 'once' or 'iterative'
 %
-%   Reference: Li W, Wu B, Liu C. Quantitative susceptibility mapping of 
+%   Original reference: 
+%   Bilgic et al. (2014), Fast quantitative susceptibility mapping with 
+%   L1-regularization and automatic parameter selection. Magn. Reson. Med.,
+%   72: 1444-1459. doi:10.1002/mrm.25029
+%
+%   ... which references:
+%
+%   Li W, Wu B, Liu C. Quantitative susceptibility mapping of 
 %   human brain reflects spatial variation in tissue composition. 
 %   NeuroImage 2011; 55(4): 1645?1656.
+%
+
 
     if nargin < 4
         filterMode = 'once';
