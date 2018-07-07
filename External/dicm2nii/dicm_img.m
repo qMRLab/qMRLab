@@ -1,7 +1,7 @@
 function img = dicm_img(s, xpose)
 % Read image of a dicom file.
 % 
-% img = dicm_img(metaStructOrFilename, xpose);
+% img = DICM_IMG(metaStructOrFilename, xpose);
 % 
 % The mandatory first input is the dicom file name, or the struct returned by
 % dicm_hdr. The output keeps the data type in dicom file.
@@ -17,7 +17,6 @@ function img = dicm_img(s, xpose)
 
 % TO DO: take care of BitsAllocated, BitsStored and HighBit related issue.
 % Now we assume
-%   HighBit is BitsStored-1;
 %   extra bits beyond BitsStored are zeros.
 
 % History (yymmdd):
@@ -33,18 +32,23 @@ function img = dicm_img(s, xpose)
 % 150404 Add 'if' block for numeric s.PixelData (BVfile). 
 % 160114 cast s.PixelData.Bytes to double (thx DavidR). 
 % 160127 support big endian files. 
+% 160521 support dicom with BitsStored~=HighBit+1 (thx RayL).
+% 171201 Bug fix for compressed dicom without offset table (thx DianaG).
 
-persistent flds dict;
-if isempty(flds)
-    flds = {'Columns' 'Rows' 'BitsAllocated'};
-    dict = dicm_dict('', [flds 'SamplesPerPixel' 'PixelRepresentation' ...
-                     'PlanarConfiguration' 'BitsStored' 'HighBit']);
+persistent flds dict mem cleanObj;
+if isempty(flds), flds = {'Rows' 'Columns' 'BitsAllocated'}; end
+if isstruct(s) && ~all(isfield(s, [flds 'PixelData'])), s = s.Filename; end
+if ischar(s) % input is file name
+    if isempty(dict)
+        dict = dicm_dict('', ['SamplesPerPixel' 'PlanarConfiguration' ...
+            flds 'BitsStored' 'HighBit' 'PixelRepresentation' ]);
+    end
+    [s, err] = dicm_hdr(s, dict); 
+    if isempty(s), error(err); end
 end
-if isstruct(s) && ~all(isfield(s, flds)), s = s.Filename; end
-if ischar(s), [s, err] = dicm_hdr(s, dict); end % input is file name
-if isempty(s), error(err); end
+
 if isfield(s, 'SamplesPerPixel'), spp = double(s.SamplesPerPixel);
-else spp = 1;
+else, spp = 1;
 end
 
 if isnumeric(s.PixelData) % data already in hdr
@@ -52,9 +56,13 @@ if isnumeric(s.PixelData) % data already in hdr
     return;
 end
 
-if all(isfield(s, {'BitsStored' 'HighBit'})) && s.BitsStored ~= s.HighBit+1
-    error('Please report to author: HighBit+1 ~= BitsStored, %s', s.Filename);
+if ~isfield(s.PixelData, 'Format')
+    fmt = sprintf('*uint%g', s.BitsAllocated);
+else
+    fmt =  s.PixelData.Format;
 end
+
+if nargin<2 || isempty(xpose), xpose = true; end % same as dicomread by default
 
 fid = fopen(s.Filename);
 if fid<0
@@ -66,74 +74,83 @@ if fid<0
 end
 closeFile = onCleanup(@() fclose(fid));
 fseek(fid, s.PixelData.Start, -1);
-if ~isfield(s.PixelData, 'Format')
-    fmt = sprintf('*uint%g', s.BitsAllocated);
-else
-    fmt =  s.PixelData.Format;
+
+if isfield(s, 'TransferSyntaxUID'), tsUID = s.TransferSyntaxUID;
+else, tsUID = '1.2.840.10008.1.2.1'; % files other than dicom
 end
 
-if nargin<2 || isempty(xpose), xpose = true; end % same as dicomread by default
-
-if ~isfield(s, 'TransferSyntaxUID') || ... % files other than dicom
-        strcmp(s.TransferSyntaxUID, '1.2.840.10008.1.2.1') || ...
-        strcmp(s.TransferSyntaxUID, '1.2.840.10008.1.2.2') || ...
-        strcmp(s.TransferSyntaxUID, '1.2.840.10008.1.2')
+if any(strcmp(tsUID, {'1.2.840.10008.1.2.1' '1.2.840.10008.1.2.2' '1.2.840.10008.1.2'}))
     n = double(s.PixelData.Bytes) / (double(s.BitsAllocated) / 8);
     img = fread(fid, n, fmt);
+    
+    if all(isfield(s, {'BitsStored' 'HighBit'})) && ...
+            (s.BitsStored ~= s.HighBit+1) && (s.BitsStored ~= s.BitsAllocated)
+        img = bitshift(img, s.BitsStored-s.HighBit-1);
+    end
+    
     dim = double([s.Columns s.Rows]);
+    nFrame = n/spp/dim(1)/dim(2);
     if ~isfield(s, 'PlanarConfiguration') || s.PlanarConfiguration==0
-        img = reshape(img, [spp dim n/spp/dim(1)/dim(2)]);
+        img = reshape(img, [spp dim nFrame]);
         img = permute(img, [2 3 1 4]);
     else
-        img = reshape(img, [dim spp n/spp/dim(1)/dim(2)]);
+        img = reshape(img, [dim spp nFrame]);
     end
     if xpose, img = permute(img, [2 1 3 4]); end
-    if isfield(s, 'TransferSyntaxUID') && ...
-            strcmp(s.TransferSyntaxUID, '1.2.840.10008.1.2.2');
-        img = swapbytes(img);
-    end
-else % rely on imread for decompression
+    if strcmp(tsUID, '1.2.840.10008.1.2.2'), img = swapbytes(img); end % BE
+else % compressed dicom: rely on imread for decompression
     b = fread(fid, inf, '*uint8'); % read all as bytes
-    nEnd = numel(b) - 8; % terminator 0xFFFE E0DD and its zero length
-    n = typecast(b(5:8), 'uint32'); i = 8+n; % length of offset table
-    if n>0
-        nFrame = n/4; % # of elements in offset table 
-    else % empty offset table
-        ind = strfind(b', uint8([254 255 0 224])); % 0xFFFE E000
-        nFrame = numel(ind) - 1; % one more for offset table, even if empty
+    del = uint8([254 255 0 224]); % delimeter in LE
+    if ~isequal(b(1:4)', del), error('%s is not compressed dicom', s.Filename); end
+    nEnd = numel(b)-8; % 8 for terminator 0xFFFE E0DD and its zero length
+    len = typecast(b(5:8), 'uint32'); % length of offset table
+    if len>0
+        nFrame = len / 4;
+    else % no offset table: search delimiters to estimate nFrame
+        nFrame = numel(strfind(b(9:end)', del)); % may count false delimeters
     end
     img = zeros(s.Rows, s.Columns, spp, nFrame, fmt(2:end)); % pre-allocate
-    
-    useMemmapfile = ~isempty(which('memmapfile'));
-    fname = tempname;
-    if useMemmapfile
-        fid = fopen(fname, 'w');
-        n = double(s.Columns) * double(s.Rows) * double(s.BitsAllocated) / 8 * spp;
-        fwrite(fid, zeros(n, 1, 'uint8')); % large enough: 1 frame w/o compression
-        fclose(fid); 
-        m = memmapfile(fname, 'Writable', true);
-    end
-    deleteTemp = onCleanup(@() delete(fname)); % after memmapfile
-    
-    for j = 1:nFrame
-        i = i+4; % delimiter: FFFE E000
-        n = typecast(b(i+uint32(1:4)), 'uint32'); i = i+4;
-        if useMemmapfile
-            m.Data(1:n) = b(i+(1:n)); i = i + n;
-        else
-            fid = fopen(fname, 'w');
-            fwrite(fid, b(i+(1:n)), 'uint8'); i = i + n;
+    i = 8 + double(len); % 8 for leading delimeter and len, skip offset table
+    j = 0; 
+    while i<nEnd
+        j = j + 1;
+        % if ~isequal(b(i+(1:4))', del), error('Expect delimeter'); end
+        i = i + 4; % skip delimeter (FFFE E000)
+        n = double(typecast(b(i+(1:4)), 'uint32')); i = i+4;
+        if isempty(mem) || numel(mem.Data)<n
+            if isempty(cleanObj) % 1st time function call
+                mem.Filename = tempname;
+                cleanObj = onCleanup(@() cleanup(mem.Filename));
+            end
+            fid = fopen(mem.Filename, 'a'); % allow to append after mapped
+            n1 = max(n*4, nEnd/nFrame*32); % arbituary large
+            fwrite(fid, zeros(2^nextpow2(n1), 1, 'uint8'));
             fclose(fid); 
+            mem = memmapfile(mem.Filename, 'Writable', true);
         end
-        img(:,:,:,j) = imread(fname); % take care of decompression
-        if i>nEnd % in case false delimiter in data was counted
-            img(:,:,:,j+1:end) = [];
-            break;
-        end
+        mem.Data(1:n) = b(i+(1:n)); i = i+n;
+        img(:,:,:,j) = imread(mem.Filename); % expand if more than nFrame
     end
+    if j<nFrame, img(:,:,:,j+1:end) = []; end % truncate if less than nFrame
     if ~xpose, img = permute(img, [2 1 3 4]); end
 end
 
 if isfield(s, 'PixelRepresentation') && s.PixelRepresentation>0
     img = reshape(typecast(img(:), fmt(3:end)), size(img)); % signed
 end
+
+    function cleanup(fname)
+        try clear mem; end %#ok<*TRYNC> otherwise can't delete fname
+        try delete(fname); end
+    end
+end
+
+% Compressed dicom format:
+%  FFFE E000 % start with delimeter
+%  XXXX XXXX % length of offset table, often 0
+%  Offset table in uint32 if not 0-length
+%   FFFE E000 % each frame start with delimeter
+%   XXXX XXXX % length of this compressed frame
+%   data % len-bytes for this frame (imread reads it)
+%   Repeat [delimeter, len, data] if +1 frames
+%  FFFE E0DD 0000 0000 % end with terminator and 0

@@ -1,125 +1,66 @@
-classdef (CaseInsensitiveProperties) java_dnd < handle
-% JAVA_DND Class for Drag & Drop functionality.
-%   obj = JAVA_DND(javaobj) creates a java_dnd object for the specified Java
-%   object, such as 'javax.swing.JTextArea' or 'javax.swing.JList'. Callback
-%   function obj.DropFcn listen to drop actions of system files or plain text.
-%
-%   JAVA_DND Properties:
-%       Parent            - The associated Java object.
-%       DropFcn           - Callback function for files or plain txt.
-%
-%   JAVA_DND Methods:
-%       java_dnd        - Constructs the java_dnd object.
-%
-%   See also:
-%       uicontrol, javaObjectEDT.    
-%
-%   dndcontrol Written by: Maarten van der Seijs, 2015.
-%   Version: 1.0, 13 October 2015.
-%   Modified by Xiangrui Li for nii_viewer and dicm2nii:
-%    1. Combine two callback into one
-%    2. Allow extra input arguments
-%    3. Remove initJava, and do it automatically
-%    4. Remove demo etc to make it simple
-%    5. Rename file to avoid problem in case original dndcontrol on path
+function java_dnd(jObj, dropFcn)
+% Set Matlab dropFcn for java object, like JavaFrame or JTextField.
 
-    properties (Hidden)
-        dropTarget;                
-    end
-    
-    properties (Dependent)
-        %PARENT The associated Java object.
-        Parent;
-    end
-    
-    properties
-        DropFcn;        
-    end
-       
-    methods
-        function obj = java_dnd(Parent, DropFcn)
-        %java_dnd Drag & Drop control constructor.
-        %   obj = java_dnd(javaobj) contstructs a java_dnd object for 
-        %   the given parent control javaobj. The parent control should be a 
-        %   subclass of java.awt.Component, such as most Java Swing widgets.
-        %
-        %   obj = java_dnd(javaobj,DropFcn) sets the callback functions for
-        %   dropping of files and text.
-            
-            if (exist('MLDropTarget','class') ~= 8)
-                classpath = fileparts(mfilename('fullpath'));                
-                javaclasspath(classpath);                
-            end 
-             
-            % Construct DropTarget            
-            obj.dropTarget = handle(javaObjectEDT('MLDropTarget'),'CallbackProperties');
-            set(obj.dropTarget,'DropCallback',{@java_dnd.DndCallback,obj});
-            set(obj.dropTarget,'DragEnterCallback',{@java_dnd.DndCallback,obj});
-            
-            % Set DropTarget to Parent
-            if nargin >=1, Parent.setDropTarget(obj.dropTarget); end
-            
-            % Set callback functions
-            if nargin >=2, obj.DropFcn = DropFcn; end 
-        end
-        
-        function set.Parent(obj, Parent)
-            if isempty(Parent)
-                obj.dropTarget.setComponent([]);
-                return
-            end
-            if isa(Parent,'handle') && ismethod(Parent,'java')
-                Parent = Parent.java;
-            end
-            assert(isa(Parent,'java.awt.Component'),'Parent is not a subclass of java.awt.Component.')
-            assert(ismethod(Parent,'setDropTarget'),'DropTarget cannot be set on this object.')
-            
-            obj.dropTarget.setComponent(Parent);
-        end
-        
-        function Parent = get.Parent(obj)
-            Parent = obj.dropTarget.getComponent();
-        end
-    end
-    
-    methods (Static, Hidden = true)
-        %% Callback functions
-        function DndCallback(jSource, jEvent, obj)
-            
-            if jEvent.isa('java.awt.dnd.DropTargetDropEvent') % Drop event     
-                try
-                    dropType = jSource.getDropType();
-                    if dropType<1 || dropType>2 % No success.
-                        jEvent.dropComplete(true);  
-                        return;
-                    end
-                    
-                    if dropType==1 % String dropped.
-                        evt.DropType = 'string';
-                        evt.Data = char(jSource.getTransferData());
-                    else % file(s) dropped.
-                        evt.DropType = 'file';
-                        evt.Data = cell(jSource.getTransferData());
-                    end
-                    
-                    if iscell(obj.DropFcn)
-                        feval(obj.DropFcn{1}, obj, evt, obj.DropFcn{2:end});
-                    else
-                        feval(obj.DropFcn, obj, evt);
-                    end
-                    
-                    % Set dropComplete
-                    jEvent.dropComplete(true);  
-                catch ME
-                    % Set dropComplete
-                    jEvent.dropComplete(true);  
-                    rethrow(ME)
-                end                              
-                
-            elseif jEvent.isa('java.awt.dnd.DropTargetDragEvent') % Drag event                               
-                 action = java.awt.dnd.DnDConstants.ACTION_COPY;
-                 jEvent.acceptDrag(action);
-            end            
+% 170421 Xiangrui Li adapted from dndcontrol class by Maarten van der Seijs:
+% https://www.mathworks.com/matlabcentral/fileexchange/53511
+
+if ~exist('MLDropTarget', 'class')
+    pth = fileparts(mfilename('fullpath'));
+    javaclasspath(pth); % dynamic for this session
+    fid = fopen(fullfile(prefdir, 'javaclasspath.txt'), 'a+');
+    if fid>0 % static path for later sessions: work for 2013+?
+        cln = onCleanup(@() fclose(fid));
+        fseek(fid, 0, 'bof');
+        classpth = fread(fid, inf, '*char')';
+        if isempty(strfind(classpth, pth)) %#ok<*STREMP> % avoid multiple write
+            fseek(fid, 0, 'bof');
+            fprintf(fid, '%s\n', pth);
         end
     end
 end
+
+dropTarget = handle(javaObjectEDT('MLDropTarget'), 'CallbackProperties');
+set(dropTarget, 'DragEnterCallback', @DragEnterCallback);
+set(dropTarget, 'DragExitCallback', @DragExitCallback);
+set(dropTarget, 'DropCallback', {@DropCallback, dropFcn});
+jObj.setDropTarget(dropTarget);
+%%
+
+function DropCallback(jSource, jEvent, dropFcn)
+setComplete = onCleanup(@()jEvent.dropComplete(true));
+% DropAction: Neither ctrl nor shift Dn, PC/MAC 2, Linux 1
+% All OS: ctrlDn 1, shiftDn 2, both Dn 1073741824 (2^30)
+if ispc || ismac
+    evt.ControlDown = jEvent.getDropAction() ~= 2;
+else % fails to report CtrlDn if user releases shift between DragEnter and Drop
+    evt.ControlDown = bitget(jEvent.getDropAction,31)>0; % ACTION_LINK 1<<30
+    java.awt.Robot().keyRelease(16); % shift up
+end
+evt.Location = [jEvent.getLocation.x jEvent.getLocation.y]; % top-left [0 0]
+if jSource.getDropType() == 1 % String dropped
+    evt.DropType = 'string';
+    evt.Data = char(jSource.getTransferData());
+    if strncmp(evt.Data, 'file://', 7) % files identified as string
+        evt.DropType = 'file';
+        evt.Data = regexp(evt.Data, '(?<=file://).*?(?=\r?\n)', 'match')';
+    end
+elseif jSource.getDropType() == 2 % file(s) dropped
+    evt.DropType = 'file';
+    evt.Data = cell(jSource.getTransferData());
+else, return; % No success
+end
+
+if iscell(dropFcn), feval(dropFcn{1}, jSource, evt, dropFcn{2:end});
+else, feval(dropFcn, jSource, evt);
+end
+%%
+
+function DragEnterCallback(~, jEvent)
+try jEvent.acceptDrag(1); catch, return; end % ACTION_COPY
+if ~ispc && ~ismac, java.awt.Robot().keyPress(16); end % shift down
+%%
+
+function DragExitCallback(~, jEvent)
+if ~ispc && ~ismac, java.awt.Robot().keyRelease(16); end % shift up
+try jEvent.rejectDrag(1); catch, end % ACTION_COPY
+%%
