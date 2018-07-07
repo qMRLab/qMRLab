@@ -60,7 +60,7 @@ if ~isstruct(nii)
         for it=1:size(img,4)
             tmp(:,:,:,it) = unxform_nii(nii, img(:,:,:,it));
         end
-        if isfield(nii,'img') && max(size(unxform_nii(nii, nii.img(:,:,:,1))) ~= size(unxform_nii(nii, img(:,:,:,1)))), error('old_nii_fname doesn''t have the same dimension as your new data'); end
+        if isfield(nii,'img') && max(size(unxform_nii(nii, nii.img(:,:,:,1))) ~= size(unxform_nii(nii, img(:,:,:,1)))), error(['old_nii_fname (' sprintf('%ix',size(nii.img)) ') doesn''t have the same dimension as your new data (' sprintf('%ix',size(img)) ')']); end
         nii.original.img =tmp;
         nii.original.hdr.dime.dim(5)=size(img,4);
         nii.original.hdr.dime.dim(1)=find(nii.original.hdr.dime.dim>1, 1, 'last' )-1;
