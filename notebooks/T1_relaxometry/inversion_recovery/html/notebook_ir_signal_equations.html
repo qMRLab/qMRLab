@@ -1,0 +1,184 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>notebook_ir_signal_equations</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-07-10"><meta name="DC.source" content="notebook_ir_signal_equations.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Mock notebook for Inversion Recovery signal equation comparison</a></li><li><a href="#2">Setup parameters</a></li><li><a href="#3">Calculate signals</a></li><li><a href="#4">Plot comparison of Eqs 1, 2, 3</a></li><li><a href="#5">Plot comparison of Eq. 1 with it's constant adjusted for T2/FA contributions</a></li></ul></div><h2 id="1">Mock notebook for Inversion Recovery signal equation comparison</h2><pre class="codeinput">close <span class="string">all</span>
+</pre><h2 id="2">Setup parameters</h2><p>All times are in seconds All flip angles are in degrees</p><pre class="codeinput">params.T1 = 0.900;
+params.TR = 5.0;
+params.TI = linspace(0.001, params.TR, 100);
+
+params.TE = 0.004;
+params.T2 = 0.040;
+
+params.FA = 90;
+
+params.signalConstant = 1;
+</pre><h2 id="3">Calculate signals</h2><pre class="codeinput"><span class="comment">% Eq. 1</span>
+signal_II = ir_equations(params, <span class="string">'IdealInversion'</span>);
+
+<span class="comment">% Eq. 2</span>
+signal_II_IEAT2 = ir_equations(params, <span class="string">'IdealInversion_IgnoreExcitationAndT2'</span>);
+
+<span class="comment">% Eq. 3</span>
+signal_II_IEAT2_LTR = ir_equations(params, <span class="string">'IdealInversion_IgnoreExcitationAndT2_LongTR'</span>);
+</pre><h2 id="4">Plot comparison of Eqs 1, 2, 3</h2><pre class="codeinput">h1.figure = figure(1);
+
+h1.plot{1} = plot(params.TI, signal_II); hold <span class="string">on</span>
+h1.plot{2} = plot(params.TI, signal_II_IEAT2);
+h1.plot{3} = plot(params.TI, signal_II_IEAT2_LTR);
+
+h1.legend = legend({<span class="string">'Eq. 1'</span>, <span class="string">'Eq. 2'</span>, <span class="string">'Eq. 3'</span>}, <span class="string">'Location'</span>, <span class="string">'best'</span>);
+h1.xlabel = xlabel(<span class="string">'TI (s)'</span>);
+h1.ylabel = ylabel(<span class="string">'Signal (a.u.)'</span>);
+
+plotFigureProperties(h1)
+</pre><img vspace="5" hspace="5" src="notebook_ir_signal_equations_01.png" style="width:600px;height:600px;" alt=""> <h2 id="5">Plot comparison of Eq. 1 with it's constant adjusted for T2/FA contributions</h2><pre class="codeinput">h2.figure = figure(2);
+
+<span class="comment">% Adjust constant by the T2/FA contributions</span>
+params.signalConstant = 1 / (exp(-params.TE/params.T2) * sind(params.FA));
+assertEqual(size(params.signalConstant), [1, 1]) <span class="comment">% Make sure we only added constant TE/T2/FA values.</span>
+
+signal_II_ConstantAdjusted = ir_equations(params, <span class="string">'IdealInversion'</span>);
+
+h2.plot{1} = plot(params.TI, signal_II, <span class="string">'LineWidth'</span>, 4); hold <span class="string">on</span>
+h2.plot{2} = plot(params.TI, signal_II_ConstantAdjusted, <span class="string">'LineWidth'</span>, 4);
+
+h2.legend = legend({<span class="string">'Eq. 1'</span>,<span class="string">'Eq. 1 - Const. Adj.'</span>}, <span class="string">'Location'</span>, <span class="string">'best'</span>);
+h2.xlabel = xlabel(<span class="string">'TI (s)'</span>);
+h2.ylabel = ylabel(<span class="string">'Signal (a.u.)'</span>);
+
+plotFigureProperties(h2)
+</pre><img vspace="5" hspace="5" src="notebook_ir_signal_equations_02.png" style="width:600px;height:600px;" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Mock notebook for Inversion Recovery signal equation comparison
+%
+
+close all
+
+%% Setup parameters
+% All times are in seconds
+% All flip angles are in degrees
+
+params.T1 = 0.900;
+params.TR = 5.0;
+params.TI = linspace(0.001, params.TR, 100);
+            
+params.TE = 0.004;
+params.T2 = 0.040;
+            
+params.FA = 90;
+
+params.signalConstant = 1;
+
+%% Calculate signals
+%
+
+% Eq. 1
+signal_II = ir_equations(params, 'IdealInversion');
+
+% Eq. 2
+signal_II_IEAT2 = ir_equations(params, 'IdealInversion_IgnoreExcitationAndT2');
+
+% Eq. 3
+signal_II_IEAT2_LTR = ir_equations(params, 'IdealInversion_IgnoreExcitationAndT2_LongTR');
+
+%% Plot comparison of Eqs 1, 2, 3
+%
+
+h1.figure = figure(1);
+
+h1.plot{1} = plot(params.TI, signal_II); hold on
+h1.plot{2} = plot(params.TI, signal_II_IEAT2);
+h1.plot{3} = plot(params.TI, signal_II_IEAT2_LTR);
+
+h1.legend = legend({'Eq. 1', 'Eq. 2', 'Eq. 3'}, 'Location', 'best');
+h1.xlabel = xlabel('TI (s)');
+h1.ylabel = ylabel('Signal (a.u.)');
+
+plotFigureProperties(h1)
+%% Plot comparison of Eq. 1 with it's constant adjusted for T2/FA contributions
+%
+
+h2.figure = figure(2);
+
+% Adjust constant by the T2/FA contributions
+params.signalConstant = 1 / (exp(-params.TE/params.T2) * sind(params.FA));
+assertEqual(size(params.signalConstant), [1, 1]) % Make sure we only added constant TE/T2/FA values.
+
+signal_II_ConstantAdjusted = ir_equations(params, 'IdealInversion');
+
+h2.plot{1} = plot(params.TI, signal_II, 'LineWidth', 4); hold on
+h2.plot{2} = plot(params.TI, signal_II_ConstantAdjusted, 'LineWidth', 4);
+
+h2.legend = legend({'Eq. 1','Eq. 1 - Const. Adj.'}, 'Location', 'best');
+h2.xlabel = xlabel('TI (s)');
+h2.ylabel = ylabel('Signal (a.u.)');
+
+plotFigureProperties(h2)
+
+##### SOURCE END #####
+--></body></html>
