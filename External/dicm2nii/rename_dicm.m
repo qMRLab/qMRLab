@@ -1,7 +1,7 @@
 function rename_dicm(files, fmt)
-% Rename dicom files so the names are human readable.
+% Rename dicom files so the names are meaninful to human.
 % 
-% rename_dicm(files, outputNameFormat)
+% RENAME_DICM(files, outputNameFormat)
 % 
 % The first input is the dicom file(s) or a folder containing dicom files.
 % The second input is the format for the result file names. Support format
@@ -23,7 +23,7 @@ function rename_dicm(files, fmt)
 % 4: 2334ZL_run1_00001.dcm (PatientName_SeriesDescription_instance). This may be
 %    useful if files for different subjects are in the same folder.
 % 
-% 5: run1_003_001_00001.dcm (SeriesDescription_Series__acquisition_instance). 
+% 5: run1_003_001_00001.dcm (SeriesDescription_Series_acquisition_instance). 
 %    This ensures no name conflict, and is the default.
 % 
 % Whenever there is name confict, you will see red warning and the latter
@@ -32,7 +32,7 @@ function rename_dicm(files, fmt)
 % If the first input is not provided or empty, you will be asked to pick up
 % a folder.
 % 
-% See also DICM_HDR SORT_DICM
+% See also DICM_HDR, SORT_DICM, ANONYMIZE_DICM
  
 % History (yymmdd):
 % 0710?? Write it (Xiangrui Li)
@@ -44,6 +44,7 @@ function rename_dicm(files, fmt)
 % 1402?? Add Manufacturer to flds (bug caused by dicm_hdr update)
 % 140506 Use SeriesDescription to replace ProtocolName non-Siemens
 % 151001 Avoid cd so it works if m file is at pwd but path not set
+% 171211 Make AcquisitionNumer and Manufacturer not mandidate.
 
 if nargin<1 || isempty(files)
     folder = uigetdir(pwd, 'Select a folder containing DICOM files');
@@ -78,13 +79,13 @@ end
 flds = {'InstanceNumber' 'AcquisitionNumber' 'SeriesNumber' 'EchoNumber' 'ProtocolName' ...
         'SeriesDescription' 'PatientName' 'PatientID' 'Manufacturer'};
 dict = dicm_dict('', flds);
+tryGetField = dicm2nii('', 'tryGetField', 'func_handle');
 
 nFile = numel(files);
 if nFile<1, return; end
 if ~strcmp(folder(end), filesep), folder(end+1) = filesep; end
 err = '';
 str = sprintf('%g/%g', 1, nFile);
-iswin = ispc;
 more off;
 fprintf(' Renaming DICOM files: %s', str);
 
@@ -93,43 +94,34 @@ for i = 1:nFile
     str = sprintf('%g/%g', i, nFile);
     fprintf('%s', str);
     s = dicm_hdr([folder files{i}], dict);
+    vendor = tryGetField(s, 'Manufacturer', '');
     try % skip if no these fields
         sN = s.SeriesNumber;
-        aN = s.AcquisitionNumber;
+        aN = tryGetField(s, 'AcquisitionNumber', 1);
         iN = s.InstanceNumber;
-        if strncmp(s.Manufacturer, 'SIEMENS', 7)
-            pName = strtrim(s.ProtocolName);
-        else
-            pName = strtrim(s.SeriesDescription);
+        if fmt ~= 2
+            if strncmp(vendor, 'SIEMENS', 7)
+                pName = strtrim(s.ProtocolName);
+            else
+                pName = strtrim(s.SeriesDescription);
+            end
+            pName(~isstrprop(pName, 'alphanum')) = '_'; % valid file name
+            pName = regexprep(pName, '_{2,}', '_');
         end
-        if isfield(s, 'PatientName')
-            sName = s.PatientName;
-        else
-            sName = s.PatientID;
+        if fmt==2 || fmt==4
+            sName = tryGetField(s, 'PatientName');
+            if isempty(sName), sName = tryGetField(s, 'PatientID'); end
+            sName(~isstrprop(sName, 'alphanum')) = '_';
+            sName = regexprep(sName, '_{2,}', '_');
         end
     catch me %#ok
         continue;
     end
     
-    pName(~isstrprop(pName, 'alphanum')) = '_'; % make str valid for file name
-    while 1
-        ind = strfind(pName, '__');
-        if isempty(ind), break; end
-        pName(ind) = [];
-    end
-    sName(~isstrprop(sName, 'alphanum')) = '_'; % make str valid for file name
-    while 1
-        ind = strfind(sName, '__');
-        if isempty(ind), break; end
-        sName(ind) = [];
-    end
-    
-    if strncmpi(s.Manufacturer, 'Philips', 7) % SeriesNumber is useless
+    if strncmpi(vendor, 'Philips', 7) % SeriesNumber is useless
         sN = aN;
-    elseif strncmpi(s.Manufacturer, 'SIEMENS', 7)
-        if isfield(s, 'EchoNumber') && s.EchoNumber>1
-            aN = s.EchoNumber; % fieldmap phase image
-        end
+    elseif strncmpi(vendor, 'SIEMENS', 7) && tryGetField(s, 'EchoNumber', 1)>1
+        aN = s.EchoNumber; % fieldmap phase image
     end
     
     if fmt == 1 % pN_001
@@ -148,8 +140,8 @@ for i = 1:nFile
     
     if strcmpi(files{i}, name), continue; end % done already
     
-    if iswin, cmd = ['rename "' folder files{i} '" ' name];
-    else cmd = ['mv "' folder files{i} '" "' folder name '"'];
+    if ispc, cmd = ['rename "' folder files{i} '" ' name];
+    else, cmd = ['mv "' folder files{i} '" "' folder name '"'];
     end % matlab movefile is too slow
     
     [er, foo] = system(cmd);
