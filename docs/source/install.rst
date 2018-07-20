@@ -12,7 +12,9 @@ Please also cite the reference for the particular module you are using (specifie
 
 Dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* MATLAB_R2014b or later (or Octave 4.2.1 or later)
+* MATLAB_R2014b or later with Optimization Toolbox 
+or
+* Octave 4.2.1 or later
 
 Zip Download Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
