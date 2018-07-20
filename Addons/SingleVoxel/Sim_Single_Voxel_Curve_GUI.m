@@ -61,6 +61,13 @@ if ~isfield(handles,'opened')
     
     
     % fill Table
+    if isprop(handles.Model,'xnames_x')
+        handles.Model.xnames=handles.Model.xnames_x;
+        handles.Model.st=handles.Model.st_x;
+        handles.Model.ub=handles.Model.ub_x;
+        handles.Model.lb=handles.Model.lb_x;
+    end
+        
     Nparam = length(handles.Model.xnames);
     FitOptTable(:,1)=handles.Model.xnames(:);
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)

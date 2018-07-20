@@ -63,6 +63,14 @@ end
         ub           = [ 5000        0    10000 ]; % upper bound
         fx           = [    0        0        0 ]; % fix parameters
         
+        xnames_x = {'T1','TR','FAinv','FAexcite','FArefocus'}; %input parameters specific to an actual acquisition, i.e. explicit
+                % fitting options explicit
+        st_x           = [  600    3000      180     90     180]; % starting point
+        lb_x           = [    0.0001   0        0    0      0]; % lower bound
+        ub_x           = [ 5000        20000    200     95      200]; % upper bound
+        fx_x           = [    0        0        0      0    0]; % fix parameters
+        
+        
         % Protocol
         Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]')); %default protocol
         
@@ -92,11 +100,26 @@ end
 
         % -------------IR EQUATION-------------------------------------------------------------------------
         function Smodel = equation(obj, x)
-            % Generates an IR signal based on input parameters
+            % Generates an IR signal based on fit parameters
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
                
             % equation
             Smodel = x.ra + x.rb * exp(-obj.Prot.IRData.Mat./x.T1);
+            if (strcmp(obj.options.method, 'Magnitude'))
+                Smodel = abs(Smodel);
+            end
+        end
+        
+        % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
+        function Smodel = equation_x(obj, x)
+            % Generates an IR signal based on explicit sequence parameters
+            x = mat2struct(x,obj.xnames_x); % if x is a structure, convert to vector
+               
+            % equation for GRE-IR
+            M0=1; %normalized signal
+            ra = M0 * (1-cos(x.FAinv)*exp(-x.TR/x.T1))/(1-cos(x.FAinv)*cos(x.FAexcite)*exp(-x.TR/x.T1));
+            rb = -M0 * (1-cos(x.FAinv))/(1-cos(x.FAinv)*cos(x.FAexcite)*exp(-x.TR/x.T1));
+            Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
             if (strcmp(obj.options.method, 'Magnitude'))
                 Smodel = abs(Smodel);
             end
@@ -158,7 +181,7 @@ end
             % :returns: [struct] FitResults
             
             if ~exist('display','var'), display = 1; end
-            Smodel = equation(obj, x);
+            Smodel = equation_x(obj, x);
             sigma = max(abs(Smodel))/Opt.SNR;
             if (strcmp(obj.options.method, 'Magnitude'))
                 data.IRData = ricernd(Smodel,sigma);
