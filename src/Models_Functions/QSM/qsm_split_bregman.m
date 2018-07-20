@@ -1,4 +1,4 @@
-function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, fvec, FOV, pad_size, preconMagWeightFlag)
+function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, fvec, FOV, pad_size, preconMagWeightFlag, magn_weight)
 %QSM_SPLIT_BREGMAN Calculates the QSM susceptibility map using a split-Bregman
 %algorithm and L1-regularization.
 %   
@@ -17,7 +17,7 @@ function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, la
 %   Goldstein T, Osher S. The split Bregman method for L1-regularized 
 %   problems. SIAM J Imaging Sci 2009;2:323?343.
 
-    if nargin <7
+    if nargin < 8
        preconMagWeightFlag = 0; 
     end
 
@@ -31,7 +31,7 @@ function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, la
 
     N = size(mask_sharp);
 
-    fdx = fvec(1); fdy = fvec(2); fdz = fvec(3);
+    fdx = fvec{1}; fdy = fvec{2}; fdz = fvec{3};
     
     cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
 

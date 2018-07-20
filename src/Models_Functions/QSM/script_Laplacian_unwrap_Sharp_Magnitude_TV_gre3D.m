@@ -282,7 +282,7 @@ lambda_L1 = Lambda(index_opt);
 
 %% Split Bregman QSM
 
-chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, [fdx, fdy, fdz], FOV, pad_size);
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, {fdx, fdy, fdz}, FOV, pad_size);
 
 plot_axialSagittalCoronal(chi_SB, 3, [-.15,.15], 'L1 solution')
 plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SB))).^.5, 13, [0,20], 'L1 solution k-space')
@@ -290,7 +290,7 @@ plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SB))).^.5, 13, [0,20], 'L1 solut
 %% Split Bregman QSM with preconditioner and magnitude weighting
 
 preconMagWeightFlag = 1;
-chi_SBM = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, [fdx, fdy, fdz], FOV, pad_size, preconMagWeightFlag);
+chi_SBM = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, {fdx, fdy, fdz}, FOV, pad_size, preconMagWeightFlag, magn_weight);
 
 plot_axialSagittalCoronal(chi_SBM, 4, [-.15,.15], 'L1 solution with magnitude weighting')
 plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SBM))).^.5, 14, [0,20], 'L1 magn weighting k-space')

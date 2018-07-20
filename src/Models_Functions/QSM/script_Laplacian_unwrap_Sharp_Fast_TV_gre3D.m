@@ -237,7 +237,7 @@ lambda_L1 = Lambda(index_opt);
 
 %% Split Bregman QSM
 
-chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, [fdx, fdy, fdz], FOV, pad_size);
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, {fdx, fdy, fdz}, FOV, pad_size);
 
 plot_axialSagittalCoronal(chi_SB, 2, [-.15,.15])
 
