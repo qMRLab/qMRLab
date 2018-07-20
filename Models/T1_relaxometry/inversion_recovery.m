@@ -181,6 +181,7 @@ end
             % :returns: [struct] FitResults
             
             if ~exist('display','var'), display = 1; end
+
             Smodel = equation_x(obj, x);
             sigma = max(abs(Smodel))/Opt.SNR;
             if (strcmp(obj.options.method, 'Magnitude'))
