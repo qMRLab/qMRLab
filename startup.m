@@ -9,7 +9,7 @@ end
 
 if ~moxunit_util_platform_is_octave % MATLAB
     % Test Optimization toolbox is installed
-    if isempty(license('inuse', 'Optimization_Toolbox')), error('Optimization_Toolbox is not available in the current session: most qMR models won''t fit. If it is not installed or is expired, consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''OP'');">Optimization Toolbox</a> if you want to use qMRLab in MATLAB.'); end
+    if ~license('test', 'Optimization_Toolbox'), error('Optimization_Toolbox is not installed on your system: most qMR models won''t fit. Please consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''OP'');">Optimization Toolbox</a> if you want to use qMRLab in MATLAB.'); end
     
 else % OCTAVE
     % install octave package
