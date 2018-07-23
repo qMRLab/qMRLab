@@ -6,7 +6,7 @@ function qMR_reportBug(exception)
 % example:
 %   qMR_reportBug(MException.last)
 
-if nargin<1, help('qMR_reportBug'); end
+if nargin<1, help('qMR_reportBug'); return; end
 qMRLabDir = fileparts(which('qMRLab.m'));
 qmrexcep = strfind({exception.stack.file},qMRLabDir);
 if any(~cellfun(@isempty,qmrexcep))
