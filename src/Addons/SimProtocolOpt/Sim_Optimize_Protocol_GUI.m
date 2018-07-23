@@ -41,6 +41,11 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+
+% Add Try/Catch to all uicontrol
+listobj = findobj(hObject,'-depth',100,'Type','UIControl');
+addtryfunc(listobj);
+
 % End initialization code - DO NOT EDIT
 
 % --- Executes just before Sim_SimOptProt is made visible.

@@ -120,6 +120,12 @@ set(handles.MethodSelection, 'Value', i);
 
 
 MethodMenu(hObject, eventdata, handles, Method);
+
+% Add Try/Catch to all uicontrol
+listobj = findobj(hObject,'-depth',100,'Type','UIControl');
+addtryfunc(listobj);
+
+% Wait if output
 if wait
 uiwait(hObject)
 end
