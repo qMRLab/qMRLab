@@ -95,6 +95,9 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
+% Add Try/Catch to all uicontrol
+listobj = findobj(hObject,'-depth',100,'Type','UIControl');
+addtryfunc(listobj);
 
 % UIWAIT makes Sim_Sensitivity_Analysis_GUI wait for user response (see UIRESUME)
 % uiwait(handles.Simu);
