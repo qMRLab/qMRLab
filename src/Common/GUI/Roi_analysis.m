@@ -86,6 +86,10 @@ handles.Data = varargin;
 % Update handles structure
 guidata(hObject, handles);
 
+% Add Try/Catch to all uicontrol
+listobj = findobj(hObject,'-depth',100,'Type','UIControl');
+addtryfunc(listobj);
+
 initialize_gui(hObject, handles, false);
 
 
@@ -599,7 +603,7 @@ function UpdateSlices(handles)
 % UpdateSlice: set slice slider maximal value
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
+% Written by: Jean-Fran???is Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 

@@ -120,6 +120,12 @@ set(handles.MethodSelection, 'Value', i);
 
 
 MethodMenu(hObject, eventdata, handles, Method);
+
+% Add Try/Catch to all uicontrol
+listobj = findobj(hObject,'-depth',100,'Type','UIControl');
+addtryfunc(listobj);
+
+% Wait if output
 if wait
 uiwait(hObject)
 end
@@ -783,7 +789,11 @@ elseif ~isequal(Scurrent(1:3), S(1:3))
     helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
 
 else
-    Model.sanityCheck(data);
+    ErrMsg = Model.sanityCheck(data);
+    Mode = struct('WindowStyle','modal','Interpreter','tex');
+    errordlg(ErrMsg,'Input Error', Mode);
+    return;
+    
     info_dcm = getCursorInfo(handles.dcm_obj);
     x = info_dcm.Position(1);
     y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);

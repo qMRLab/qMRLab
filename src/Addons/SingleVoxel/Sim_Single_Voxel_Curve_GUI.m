@@ -81,6 +81,11 @@ end
 guidata(hObject, handles);
 set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
 
+% Add Try/Catch to all uicontrol
+listobj = findobj(hObject,'-depth',100,'Type','UIControl');
+addtryfunc(listobj);
+
+
 
 
 % --- Executes on button press in UpdatePlot.
