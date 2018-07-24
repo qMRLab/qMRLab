@@ -79,7 +79,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulation Options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'TR',3000,'FAinv',180,'FAexcite',90,'Compute ra rb','pushbutton'};%'FArefocus',180,
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
 
     end
@@ -182,7 +182,11 @@ end
             
             if ~exist('display','var'), display = 1; end
 
-            Smodel = equation_x(obj, x);
+            M0=1; %normalized signal
+            x(3) = M0 * (1-cos(Opt.FAinv)*exp(-Opt.TR/x(1)))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x(1)));
+            x(2) = -M0 * (1-cos(Opt.FAinv))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x(1)));
+            %Smodel = equation_x(obj, x);
+            Smodel = equation(obj, x);
             sigma = max(abs(Smodel))/Opt.SNR;
             if (strcmp(obj.options.method, 'Magnitude'))
                 data.IRData = ricernd(Smodel,sigma);
