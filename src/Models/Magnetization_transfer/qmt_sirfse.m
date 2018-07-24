@@ -83,7 +83,9 @@ classdef qmt_sirfse < AbstractModel
 
 % References:
 %   Please cite the following if you use this module:
-%     FILL
+%     Li, K., Zu, Z., Xu, J., Janve, V. A., Gore, J. C., Does, M. D., & Gochberg, D. F. (2010).
+%       Optimized inversion recovery sequences for quantitative T1 and magnetization transfer imaging.
+%       Magn Reson Med, 64(2), 491500.
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     
