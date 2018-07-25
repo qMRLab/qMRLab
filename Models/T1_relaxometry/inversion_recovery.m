@@ -97,6 +97,9 @@ end
         function obj = UpdateFields(obj)
             obj.Prot.IRData.Mat = sort(obj.Prot.IRData.Mat);
         end
+        function obj = SimOpt(obj,x,Opt)
+            [ra,rb] = ComputeRaRb(obj,x,Opt);
+        end
 
         % -------------IR EQUATION-------------------------------------------------------------------------
         function Smodel = equation(obj, x)
@@ -111,14 +114,12 @@ end
         end
         
         % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
-        function Smodel = equation_x(obj, x)
-            % Generates an IR signal based on explicit sequence parameters
-            x = mat2struct(x,obj.xnames_x); % if x is a structure, convert to vector
-               
+        function [ra,rb] = ComputeRaRb(obj,x,Opt)
+            
             % equation for GRE-IR
             M0=1; %normalized signal
-            ra = M0 * (1-cos(x.FAinv)*exp(-x.TR/x.T1))/(1-cos(x.FAinv)*cos(x.FAexcite)*exp(-x.TR/x.T1));
-            rb = -M0 * (1-cos(x.FAinv))/(1-cos(x.FAinv)*cos(x.FAexcite)*exp(-x.TR/x.T1));
+            ra = M0 * (1-cos(Opt.FAinv)*exp(-Opt.TR/x.T1))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x.T1));
+            rb = -M0 * (1-cos(Opt.FAinv))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x.T1));
             Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
             if (strcmp(obj.options.method, 'Magnitude'))
                 Smodel = abs(Smodel);
