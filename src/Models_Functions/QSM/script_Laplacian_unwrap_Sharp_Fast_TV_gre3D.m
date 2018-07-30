@@ -7,6 +7,8 @@ TE = 8.1e-3;      % second
 B0 = 3;           % Tesla
 gyro = 2*pi*42.58;
 
+directionFlag = 'forward';
+
 phase_wrap = mask .* phase_wrap;
 
 plot_axialSagittalCoronal(phase_wrap, 1, [-pi, pi], 'Masked, wrapped phase')
@@ -38,10 +40,7 @@ plot_axialSagittalCoronal(nfm_Sharp_lunwrap, 3, [-.05,.05] )
 
 %% plot L-curve for L2-regularized recon
 
-[k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
-fdx = 1 - exp(-2*pi*1i*k1/N(1));
-fdy = 1 - exp(-2*pi*1i*k2/N(2));
-fdz = 1 - exp(-2*pi*1i*k3/N(3));
+[fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag);
 
 FOV = N .* [.6, .6, .6];  % (in milimeters)
 
@@ -49,7 +48,6 @@ D = fftshift(kspace_kernel(FOV, N));
 
 E2 = abs(fdx).^2 + abs(fdy).^2 + abs(fdz).^2; 
 D2 = abs(D).^2;
-
 
 Nfm_pad = fftn(nfm_Sharp_lunwrap);
 
@@ -134,11 +132,8 @@ plot_axialSagittalCoronal(chi_L2, 1, [-.15,.15])
 mu = lambda_L2;         % Gradient consistency => pick from L2-closed form recon
                         % since the first iteration gives L2 recon   
                         
-[k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
-fdx = 1 - exp(-2*pi*1i*k1/N(1));
-fdy = 1 - exp(-2*pi*1i*k2/N(2));
-fdz = 1 - exp(-2*pi*1i*k3/N(3));
-    
+[fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag);
+
 cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
 
 E2 = abs(fdx).^2 + abs(fdy).^2 + abs(fdz).^2;
@@ -149,7 +144,6 @@ SB_reg = 1 ./ (eps + D2 + mu * E2);
 DFy = conj(D) .* fftn(nfm_Sharp_lunwrap);
 
 Lambda = logspace(-4, -2.5, 15);
-
 
 SB_consistency = zeros(size(Lambda));
 SB_regularization = zeros(size(Lambda));
@@ -237,7 +231,7 @@ lambda_L1 = Lambda(index_opt);
 
 %% Split Bregman QSM
 
-chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, {fdx, fdy, fdz}, FOV, pad_size);
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, FOV, pad_size);
 
 plot_axialSagittalCoronal(chi_SB, 2, [-.15,.15])
 

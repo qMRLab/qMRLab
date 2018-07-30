@@ -8,6 +8,8 @@ TE = 8.1e-3;      % second
 B0 = 3;           % Tesla
 gyro = 2*pi*42.58;
 
+directionFlag = 'backward';
+
 phase_wrap = mask .* phase_wrap;
 
 plot_axialSagittalCoronal(phase_wrap, 1, [-pi, pi], 'Masked, wrapped phase')
@@ -40,10 +42,7 @@ plot_axialSagittalCoronal(nfm_Sharp_lunwrap, 4, [-.05,.05] )
 
 %% gradient masks from magnitude image using k-space gradients
 
-[k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
-fdx = -1 + exp(2*pi*1i*k1/N(1));
-fdy = -1 + exp(2*pi*1i*k2/N(2));
-fdz = -1 + exp(2*pi*1i*k3/N(3));
+[fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag);
 
 magn_pad = padarray(magn, pad_size) .* mask_sharp;
 magn_pad = magn_pad / max(magn_pad(:));
@@ -282,7 +281,7 @@ lambda_L1 = Lambda(index_opt);
 
 %% Split Bregman QSM
 
-chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, {fdx, fdy, fdz}, FOV, pad_size);
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, FOV, pad_size);
 
 plot_axialSagittalCoronal(chi_SB, 3, [-.15,.15], 'L1 solution')
 plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SB))).^.5, 13, [0,20], 'L1 solution k-space')
@@ -290,7 +289,7 @@ plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SB))).^.5, 13, [0,20], 'L1 solut
 %% Split Bregman QSM with preconditioner and magnitude weighting
 
 preconMagWeightFlag = 1;
-chi_SBM = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, {fdx, fdy, fdz}, FOV, pad_size, preconMagWeightFlag, magn_weight);
+chi_SBM = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, FOV, pad_size, preconMagWeightFlag, magn_weight);
 
 plot_axialSagittalCoronal(chi_SBM, 4, [-.15,.15], 'L1 solution with magnitude weighting')
 plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SBM))).^.5, 14, [0,20], 'L1 magn weighting k-space')
