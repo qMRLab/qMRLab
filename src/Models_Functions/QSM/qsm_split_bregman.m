@@ -31,7 +31,7 @@ function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, la
 
     N = size(mask_sharp);
 
-    [fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag);
+    [fdx, fdy, fdz] = calc_fdr(N, directionFlag);
     
     cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
 

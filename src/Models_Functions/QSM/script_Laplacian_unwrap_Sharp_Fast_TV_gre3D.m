@@ -40,7 +40,7 @@ plot_axialSagittalCoronal(nfm_Sharp_lunwrap, [-.05,.05] )
 
 %% plot L-curve for L2-regularized recon
 
-[fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag);
+[fdx, fdy, fdz] = calc_fdr(N, directionFlag);
 
 FOV = N .* [.6, .6, .6];  % (in milimeters)
 

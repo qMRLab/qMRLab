@@ -42,7 +42,7 @@ plot_axialSagittalCoronal(nfm_Sharp_lunwrap, [-.05,.05] )
 
 %% gradient masks from magnitude image using k-space gradients
 
-[fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag);
+[fdx, fdy, fdz] = calc_fdr(N, directionFlag);
 
 magn_pad = padarray(magn, pad_size) .* mask_sharp;
 magn_pad = magn_pad / max(magn_pad(:));

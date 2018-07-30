@@ -1,5 +1,5 @@
-function [fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag)
-%calculate_kspace_of_image_differentiation_operator Function who's
+function [fdx, fdy, fdz] = calc_fdr(N, directionFlag)
+%calc_fdr Function who's
 %diagonals are the k-space representation of the image-domain differencing
 %operator. See "vx" in the reference below.
 %

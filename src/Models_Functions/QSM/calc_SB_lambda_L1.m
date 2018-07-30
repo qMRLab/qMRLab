@@ -20,7 +20,7 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, FOV, direct
     mu = lambda_L2;         % Gradient consistency => pick from L2-closed form recon
                             % since the first iteration gives L2 recon   
 
-    [fdx, fdy, fdz] = calculate_kspace_of_image_differentiation_operator(N, directionFlag);
+    [fdx, fdy, fdz] = calc_fdr(N, directionFlag);
 
     cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
 
