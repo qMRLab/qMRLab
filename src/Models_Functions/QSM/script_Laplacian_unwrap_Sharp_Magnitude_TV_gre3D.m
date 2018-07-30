@@ -180,7 +180,7 @@ plot_axialSagittalCoronal(fftshift(abs(fftn(chi_L2pcg))).^.5, [0,20], 'L2 Magnit
 
 %% Determine SB lambda using L-curve and fix mu at lambda_L2
 
-lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, directionFlag);
+lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, FOV, directionFlag);
 
 %% Split Bregman QSM
 

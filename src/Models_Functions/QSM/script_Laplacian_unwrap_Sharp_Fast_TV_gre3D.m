@@ -128,7 +128,7 @@ plot_axialSagittalCoronal(chi_L2, [-.15,.15])
 
 %% Determine SB lambda using L-curve and fix mu at lambda_L2
 
-lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, directionFlag);
+lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, FOV, directionFlag);
 
 %% Split Bregman QSM
 

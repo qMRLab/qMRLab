@@ -1,4 +1,4 @@
-function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, directionFlag)
+function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, FOV, directionFlag)
 %calc_SB_lambda_L1 Cubic Determine Split-Berman lambda L1 using L-curve and fix mu at lambda_L2
 %   nfm_Sharp_lunwrap: Sharp-unwrapped phase
 %   lambda_L2: L2 regularization term
