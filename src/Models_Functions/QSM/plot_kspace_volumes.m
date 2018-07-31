@@ -5,9 +5,9 @@ function [] = plot_kspace_volumes(kspaceVolumes, scales)
 %
 
     for volumeIndex = 1:length(kspaceVolumes)
-        figure(), subplot(1,3,1), imagesc( kspaceVolumes{volumesIndex}(:,:,1+end/2), scales{volumesIndex} ), axis square off, colormap gray
-        figure(get(gcf,'Number')), subplot(1,3,2), imagesc( squeeze(kspaceVolumes{volumesIndex}(:,1+end/2,:)), scales{volumesIndex} ), axis square off, colormap gray
-        figure(get(gcf,'Number')), subplot(1,3,3), imagesc( squeeze(kspaceVolumes{volumesIndex}(1+end/2,:,:)), scales{volumesIndex} ), axis square off, colormap gray
+        figure(), subplot(1,3,1), imagesc( kspaceVolumes{volumeIndex}(:,:,1+end/2), scales{volumeIndex} ), axis square off, colormap gray
+        figure(get(gcf,'Number')), subplot(1,3,2), imagesc( squeeze(kspaceVolumes{volumeIndex}(:,1+end/2,:)), scales{volumeIndex} ), axis square off, colormap gray
+        figure(get(gcf,'Number')), subplot(1,3,3), imagesc( squeeze(kspaceVolumes{volumeIndex}(1+end/2,:,:)), scales{volumeIndex} ), axis square off, colormap gray
     end
 
 end
