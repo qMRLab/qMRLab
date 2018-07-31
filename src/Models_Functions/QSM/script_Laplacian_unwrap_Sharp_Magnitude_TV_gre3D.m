@@ -44,25 +44,7 @@ plot_axialSagittalCoronal(nfm_Sharp_lunwrap, [-.05,.05] )
 
 %% gradient masks from magnitude image using k-space gradients
 
-[fdx, fdy, fdz] = calc_fdr(N, directionFlag);
-
-magn_pad = padarray(magn, pad_size) .* mask_sharp;
-magn_pad = magn_pad / max(magn_pad(:));
-
-Magn = fftn(magn_pad);
-magn_grad = cat(4, ifftn(Magn.*fdx), ifftn(Magn.*fdy), ifftn(Magn.*fdz));
-
-magn_weight = zeros(size(magn_grad));
-
-for s = 1:size(magn_grad,4)
-    magn_use = abs(magn_grad(:,:,:,s));
-    
-    magn_order = sort(magn_use(mask_sharp==1), 'descend');
-    magn_threshold = magn_order( round(length(magn_order) * .3) );
-    magn_weight(:,:,:,s) = magn_use <= magn_threshold;
-
-    plot_axialSagittalCoronal(magn_weight(:,:,:,s), [0,.1], '')
-end
+[ magn_weight ] = calc_gradient_mask_from_magnitude_image(magn, mask_sharp, pad_size, directionFlag);
 
 %% Determine optimal Lambda L2
 
@@ -89,31 +71,9 @@ plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SBM))).^.5, [0,20], 'L1 magn wei
 
 %% plot max intensity projections for L1, L2 and phase images
 
-scale1 = [0,.37];
-figure(), subplot(1,3,1), imagesc(max(chi_SB, [], 3), scale1), colormap gray, axis image off   
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc(imrotate(squeeze(max(chi_SB, [], 2)), 90), scale1), colormap gray, axis square off
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc(imrotate(squeeze(max(chi_SB, [], 1)), 90), scale1), colormap hot, axis square off
-
-scale2 = [0,.37];
-figure(), subplot(1,3,1), imagesc(max(chi_SBM, [], 3), scale2), colormap gray, axis image off   
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc(imrotate(squeeze(max(chi_SBM, [], 2)), 90), scale2), colormap gray, axis square off
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc(imrotate(squeeze(max(chi_SBM, [], 1)), 90), scale2), colormap hot, axis square off
-
-scale3 = [0,.37];
-figure(), subplot(1,3,1), imagesc(max(chi_L2, [], 3), scale3), colormap gray, axis image off
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc(imrotate(squeeze(max(chi_L2, [], 2)), 90), scale3), colormap gray, axis square off
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc(imrotate(squeeze(max(chi_L2, [], 1)), 90), scale3), colormap hot, axis square off
-
-scale4 = [0,.37];
-figure(), subplot(1,3,1), imagesc(max(chi_L2pcg, [], 3), scale4), colormap gray, axis image off
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc(imrotate(squeeze(max(chi_L2pcg, [], 2)), 90), scale4), colormap gray, axis square off
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc(imrotate(squeeze(max(chi_L2pcg, [], 1)), 90), scale4), colormap hot, axis square off
-
-scale5 = [0,.18];
 nfm_disp = abs(nfm_Sharp_lunwrap(1+pad_size(1):end-pad_size(1),1+pad_size(2):end-pad_size(2),1+pad_size(3):end-pad_size(3)));
-figure(), subplot(1,3,1), imagesc(max(nfm_disp, [], 3), scale5), colormap gray, axis image off
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc(imrotate(squeeze(max(nfm_disp, [], 2)), 90), scale5), colormap gray, axis square off
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc(imrotate(squeeze(max(nfm_disp, [], 1)), 90), scale5), colormap hot, axis square off
+
+plot_max_intensity_projections({chi_SB, chi_SBM, chi_L2, chi_L2pcg, nfm_disp}, {[0, 0.37], [0, 0.37], [0, 0.37], [0, 0.37], [0, 0.18]})
 
 %% k-space picture of L1 and L2 recons
 
@@ -123,26 +83,4 @@ kspace_L1M = log( fftshift(abs(fftn(chi_SBM))) );
 kspace_L2M = log( fftshift(abs(fftn(chi_L2pcg))) );
 kspace_nfm = log( fftshift(abs(fftn(nfm_Sharp_lunwrap))) );
 
-scale_log = [2, 7.5];
-scale_nfm = [2, 6.5];
-
-
-figure(), subplot(1,3,1), imagesc( kspace_L1(:,:,1+end/2), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc( squeeze(kspace_L1(:,1+end/2,:)), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc( squeeze(kspace_L1(1+end/2,:,:)), scale_log ), axis square off, colormap gray
-
-figure(), subplot(1,3,1), imagesc( kspace_L1M(:,:,1+end/2), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc( squeeze(kspace_L1M(:,1+end/2,:)), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc( squeeze(kspace_L1M(1+end/2,:,:)), scale_log ), axis square off, colormap gray
-
-figure(), subplot(1,3,1), imagesc( kspace_L2(:,:,1+end/2), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc( squeeze(kspace_L2(:,1+end/2,:)), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc( squeeze(kspace_L2(1+end/2,:,:)), scale_log ), axis square off, colormap gray
-
-figure(), subplot(1,3,1), imagesc( kspace_L2M(:,:,1+end/2), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc( squeeze(kspace_L2M(:,1+end/2,:)), scale_log ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc( squeeze(kspace_L2M(1+end/2,:,:)), scale_log ), axis square off, colormap gray
-
-figure(), subplot(1,3,1), imagesc( kspace_nfm(:,:,1+end/2), scale_nfm ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,2), imagesc( squeeze(kspace_nfm(:,1+end/2,:)), scale_nfm ), axis square off, colormap gray
-figure(get(gcf,'Number')), subplot(1,3,3), imagesc( squeeze(kspace_nfm(1+end/2,:,:)), scale_nfm), axis square off, colormap gray
+plot_kspace_volumes({kspace_L1, kspace_L1M, kspace_L2, kspace_L2M, kspace_nfm}, {[2, 7.5], [2, 7.5], [2, 7.5], [2, 7.5], [2, 6.5]})
