@@ -1,4 +1,4 @@
-function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, FOV, pad_size, preconMagWeightFlag, magn_weight)
+function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, imageResolution, pad_size, preconMagWeightFlag, magn_weight)
 %QSM_SPLIT_BREGMAN Calculates the QSM susceptibility map using a split-Bregman
 %algorithm and L1-regularization.
 %   
@@ -30,7 +30,8 @@ function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, la
     threshold = lambda/mu;
 
     N = size(mask_sharp);
-
+    FOV = N .* imageResolution;  % (in milimeters)
+    
     [fdx, fdy, fdz] = calc_fdr(N, directionFlag);
     
     cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);

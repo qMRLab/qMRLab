@@ -1,5 +1,5 @@
-function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, FOV, directionFlag)
-%calc_SB_lambda_L1 Cubic Determine Split-Berman lambda L1 using L-curve and fix mu at lambda_L2
+function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolution, directionFlag)
+%calc_SB_lambda_L1 Determine Split-Berman lambda L1 using L-curve and fix mu at lambda_L2
 %   nfm_Sharp_lunwrap: Sharp-unwrapped phase
 %   lambda_L2: L2 regularization term
 %   directionFlag: 'forward' or 'backward', direction of the
@@ -16,6 +16,7 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, FOV, direct
 %
 
     N = size(nfm_Sharp_lunwrap);
+    FOV = N .* imageResolution;  % (in milimeters)
 
     mu = lambda_L2;         % Gradient consistency => pick from L2-closed form recon
                             % since the first iteration gives L2 recon   
