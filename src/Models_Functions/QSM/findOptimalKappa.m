@@ -1,4 +1,4 @@
-function [ index_opt ] = findOptimalKappa(Lambda, regularization, consistency)
+function [index_opt, Kappa] = findOptimalKappa(Lambda, regularization, consistency)
 %FINDOPTIMALKAPPA cubic spline differentiation to find Kappa index 
 %(largest curvature) 
 %   Lambda:Range of regularization weights to optimize
