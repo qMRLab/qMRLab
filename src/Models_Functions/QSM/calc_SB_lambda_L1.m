@@ -86,33 +86,10 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, Lambda, lambda_L2, ima
 
     figure(), subplot(1,2,1), plot(SB_consistency, SB_regularization, 'marker', '*'), axis square
 
+    % cubic spline differentiation to find Kappa (largest curvature) 
 
-    eta = log(SB_regularization);
-    rho = log(SB_consistency.^2);
-
-    M = [0 3 0 0; 0 0 2 0; 0 0 0 1; 0 0 0 0];
-
-    pp = spline(Lambda, eta);
-    ppd = pp;
-
-    ppd.coefs = ppd.coefs*M;
-    eta_del = ppval(ppd, Lambda);
-    ppd.coefs = ppd.coefs*M;
-    eta_del2 = ppval(ppd, Lambda);
-
-
-    pp = spline(Lambda, rho);
-    ppd = pp;
-
-    ppd.coefs = ppd.coefs*M;
-    rho_del = ppval(ppd, Lambda);
-    ppd.coefs = ppd.coefs*M;
-    rho_del2 = ppval(ppd, Lambda);
-
-
-    Kappa = 2 * (rho_del2 .* eta_del - eta_del2 .* rho_del) ./ (rho_del.^2 + eta_del.^2).^1.5;
-
-    index_opt = find(Kappa == max(Kappa));
+    index_opt = findOptimalKappa(Lambda, SB_regularization, SB_consistency);
+    
     disp(['Optimal lambda, consistency, regularization: ', num2str([Lambda(index_opt), SB_consistency(index_opt), SB_regularization(index_opt)])])
 
     figure(get(gcf,'Number')), subplot(1,2,2), semilogx(Lambda, Kappa, 'marker', '*'), axis tight
@@ -120,4 +97,3 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, Lambda, lambda_L2, ima
     lambda_L1 = Lambda(index_opt);
 
 end
-
