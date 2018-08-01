@@ -57,8 +57,10 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
     toc
 
     figure(), subplot(1,2,1), plot(consistency, regularization, 'marker', '*')
-
-
+    
+    % Memory cleanup
+    clear nfm_forward Nfm_pad
+    
     % cubic spline differentiation to find Kappa (largest curvature) 
 
     eta = log(regularization.^2);
@@ -90,6 +92,9 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
     disp(['Optimal lambda, consistency, regularization: ', num2str([Lambda(index_opt), consistency(index_opt), regularization(index_opt)])])
 
     figure(get(gcf,'Number')), subplot(1,2,2), semilogx(Lambda, Kappa, 'marker', '*')
+    
+    % Memory cleanup
+    clear eta_del eta_del2 Kappa pp ppd rho_del rho_del2
 
     %% closed form solution with optimal lambda
 
@@ -100,19 +105,20 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
         D_regx = ifftn(D_reg .* fftn(nfm_Sharp_lunwrap));
     toc
 
-
     chi_L2 = real(D_regx) .* mask_sharp;
     chi_L2 = chi_L2(1+pad_size(1):end-pad_size(1),1+pad_size(2):end-pad_size(2),1+pad_size(3):end-pad_size(3));
 
     plot_axialSagittalCoronal(chi_L2, [-.15,.15])
     plot_axialSagittalCoronal(fftshift(abs(fftn(chi_L2))).^.5, [0,20], 'L2-kspace')
-
     
+    % Memory cleanup
+    clear D_reg
+
     %% L2-regularized solution with pre-conditionned magnitude weighting
     
     if exist('magn_weight', 'var')
-        A_frw = D2 + lambda_L2 * E2;
-        A_inv = 1 ./ (eps + A_frw);
+        %            (eps +     (A_frw)        )   - for better memory management
+        A_inv = 1 ./ (eps + D2 + lambda_L2 * E2);
 
         b = D.*fftn(nfm_Sharp_lunwrap);
 
