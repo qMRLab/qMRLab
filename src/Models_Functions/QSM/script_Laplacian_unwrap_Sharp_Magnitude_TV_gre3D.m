@@ -80,7 +80,7 @@ clear magn
 
 %% Determine SB lambda L1 using L-curve and fix mu at lambda_L2
 
-lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambdaL1Range, lambda_L2, imageResolution, directionFlag);
+lambda_L1 = calcSBLambdaL1(nfm_Sharp_lunwrap, lambdaL1Range, lambda_L2, imageResolution, directionFlag);
 
 %% Split Bregman QSM
 
