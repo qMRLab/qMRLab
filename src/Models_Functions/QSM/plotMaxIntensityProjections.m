@@ -1,9 +1,17 @@
-function [] = plot_max_intensity_projections(volumes, scales)
-%PLOT_MAX_INTENSITY_PROJECTIONS Plot the maximum intensity projections of
+function [] = plotMaxIntensityProjections(volumes, scales)
+%PLOTMAXINTENSITYPROJECTIONS Plot the maximum intensity projections of
 %3D volumes.
 %   volumes: Cell array of volumes to plot
 %   scales: Cell array of scales ([min, max]) for the image plots.
 %
+%   Code refractored from Berkin Bilgic's scripts: "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m" 
+%   and "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m"
+%   Original source: https://martinos.org/~berkin/software.html
+%
+%   Original reference:
+%   Bilgic et al. (2014), Fast quantitative susceptibility mapping with 
+%   L1-regularization and automatic parameter selection. Magn. Reson. Med.,
+%   72: 1444-1459. doi:10.1002/mrm.25029
 
     for volumeIndex = 1:length(volumes)
         figure(), subplot(1,3,1), imagesc(max(volumes{volumeIndex}, [], 3), scales{volumeIndex}), colormap gray, axis image off   

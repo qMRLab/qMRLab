@@ -1,5 +1,5 @@
-function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, imageResolution, pad_size, preconMagWeightFlag, magn_weight)
-%QSM_SPLIT_BREGMAN Calculates the QSM susceptibility map using a split-Bregman
+function chi_SB = qsmSplitBregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, imageResolution, pad_size, preconMagWeightFlag, magn_weight)
+%QSMSPLITBREGMAN Calculates the QSM susceptibility map using a split-Bregman
 %algorithm and L1-regularization.
 %   
 %   
@@ -32,11 +32,11 @@ function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, la
     N = size(mask_sharp);
     FOV = N .* imageResolution;  % (in milimeters)
     
-    [fdx, fdy, fdz] = calc_fdr(N, directionFlag);
+    [fdx, fdy, fdz] = calcFdr(N, directionFlag);
     
     cfdx = conj(fdx);           cfdy = conj(fdy);          cfdz = conj(fdz);
 
-    D = fftshift(kspace_kernel(FOV, N));
+    D = fftshift(kspaceKernel(FOV, N));
     DFy = conj(D) .* fftn(nfm_Sharp_lunwrap);
 
     E2 = abs(fdx).^2 + abs(fdy).^2 + abs(fdz).^2;
@@ -69,7 +69,7 @@ function chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, la
              b = DFy + mu * (cfdx.*fftn( (vx - nx).*magn_weight(:,:,:,1) ) + cfdy.*fftn( (vy - ny).*magn_weight(:,:,:,2) ) + cfdz.*fftn( (vz - nz).*magn_weight(:,:,:,3) ));
     
             % solve A * (Fu) = b with preconditioned cg  
-            [Fu, flag, pcg_res, pcg_iter] = pcg(@(x) apply_forward( x, D2, mu, fdx, fdy, fdz, cfdx, cfdy, cfdz, magn_weight ), b(:), 1e-2, 10, @(x) precond_inverse(x, SB_reg), [], Fu_prev(:));
+            [Fu, flag, pcg_res, pcg_iter] = pcg(@(x) applyForward( x, D2, mu, fdx, fdy, fdz, cfdx, cfdy, cfdz, magn_weight ), b(:), 1e-2, 10, @(x) precond_inverse(x, SB_reg), [], Fu_prev(:));
     
             Fu = reshape(Fu, N);
     

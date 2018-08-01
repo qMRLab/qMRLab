@@ -1,5 +1,5 @@
-function unwrappedPhase = unwrap_phase_laplacian(wrappedPhase)
-%UNWRAP_PHASE_LAPLACIAN Unwrap phase volume using the Laplacian technique.
+function unwrappedPhase = unwrapPhaseLaplacian(wrappedPhase)
+%UNWRAPPHASELAPLACIAN Unwrap phase volume using the Laplacian technique.
 %   
 %   Laplacians and inverse Laplacians in this algorithm are calculated
 %   using the discrete Laplacian operator (for convolutions) as well as the

@@ -1,5 +1,5 @@
-function [nfm_Sharp_lunwrap, mask_sharp] = background_removal_sharp(phase_lunwrap, mask_pad, physParams, filterMode)
-%BACKGROUND_REMOVAL_SHARP Background phase removal using SHARP (Sophisticated harmonic artifact reduction for phase data)
+function [nfm_Sharp_lunwrap, mask_sharp] = backgroundRemovalSharp(phase_lunwrap, mask_pad, physParams, filterMode)
+%BACKGROUNDREMOVALSHARP Background phase removal using SHARP (Sophisticated harmonic artifact reduction for phase data)
 %   Code refractored from Berkin Bilgic's scripts: "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m" 
 %   and "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m"
 %   Original source: https://martinos.org/~berkin/software.html

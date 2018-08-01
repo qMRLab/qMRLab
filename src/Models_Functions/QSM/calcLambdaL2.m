@@ -1,4 +1,4 @@
-function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mask_sharp, Lambda, imageResolution, directionFlag, pad_size, magn_weight)
+function [ lambda_L2, chi_L2, chi_L2pcg] = calcLambdaL2(nfm_Sharp_lunwrap, mask_sharp, Lambda, imageResolution, directionFlag, pad_size, magn_weight)
 %CALC_SB_LAMBDA_L2 Determine optimal Lambda L2 using using L-curve analysis
 %and get closed-form QSM solution with it.
 %   nfm_Sharp_lunwrap: Sharp-unwrapped phase.
@@ -21,11 +21,11 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
 
     N = size(nfm_Sharp_lunwrap);
 
-    [fdx, fdy, fdz] = calc_fdr(N, directionFlag);
+    [fdx, fdy, fdz] = calcFdr(N, directionFlag);
 
     FOV = N .* imageResolution;  % (in milimeters)
 
-    D = fftshift(kspace_kernel(FOV, N));
+    D = fftshift(kspaceKernel(FOV, N));
 
     E2 = abs(fdx).^2 + abs(fdy).^2 + abs(fdz).^2; 
     D2 = abs(D).^2;
@@ -79,8 +79,8 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
     chi_L2 = real(D_regx) .* mask_sharp;
     chi_L2 = chi_L2(1+pad_size(1):end-pad_size(1),1+pad_size(2):end-pad_size(2),1+pad_size(3):end-pad_size(3));
 
-    plot_axialSagittalCoronal(chi_L2, [-.15,.15])
-    plot_axialSagittalCoronal(fftshift(abs(fftn(chi_L2))).^.5, [0,20], 'L2-kspace')
+    plotAxialSagittalCoronal(chi_L2, [-.15,.15])
+    plotAxialSagittalCoronal(fftshift(abs(fftn(chi_L2))).^.5, [0,20], 'L2-kspace')
     
     % Memory cleanup
     clear D_reg
@@ -98,7 +98,7 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
         F_chi0 = fftn(D_regx);      % use close-form L2-reg. solution as initial guess
 
         tic
-            [F_chi, ~, pcg_res, pcg_iter] = pcg(@(x) apply_forward(x, D2, lambda_L2, fdx, fdy, fdz, ...
+            [F_chi, ~, pcg_res, pcg_iter] = pcg(@(x) applyForward(x, D2, lambda_L2, fdx, fdy, fdz, ...
                     conj(fdx), conj(fdy), conj(fdz), magn_weight), b(:), 1e-3, 20, @(x) precond_inverse(x, A_inv), [], F_chi0(:));
         toc
 
@@ -109,8 +109,8 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
         chi_L2pcg = real(ifftn(Chi)) .* mask_sharp;
         chi_L2pcg = chi_L2pcg(1+pad_size(1):end-pad_size(1),1+pad_size(2):end-pad_size(2),1+pad_size(3):end-pad_size(3));
 
-        plot_axialSagittalCoronal(chi_L2pcg, [-.15,.15], 'L2 Magnitude Weighted')
-        plot_axialSagittalCoronal(fftshift(abs(fftn(chi_L2pcg))).^.5, [0,20], 'L2 Magnitude Weighted k-space')
+        plotAxialSagittalCoronal(chi_L2pcg, [-.15,.15], 'L2 Magnitude Weighted')
+        plotAxialSagittalCoronal(fftshift(abs(fftn(chi_L2pcg))).^.5, [0,20], 'L2 Magnitude Weighted k-space')
     else
         chi_L2pcg = [];
     end

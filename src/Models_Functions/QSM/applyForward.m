@@ -1,5 +1,5 @@
-function [ y ] = apply_forward( X, D2, mu, fdx, fdy, fdz, cfdx, cfdy, cfdz, magn_weight )
-%APPLY_FORWARD Summary of this function goes here
+function [ y ] = applyForward( X, D2, mu, fdx, fdy, fdz, cfdx, cfdy, cfdz, magn_weight )
+%APPLYFORWARD Summary of this function goes here
 %   Detailed explanation goes here
 
 x = reshape(X, size(D2));
