@@ -1,4 +1,4 @@
-function [index_opt, Kappa] = findOptimalKappa(Lambda, regularization, consistency)
+function [index_opt, Kappa] = findOptimalKappa(Lambda, regularization, consistency, pow2Flags)
 %FINDOPTIMALKAPPA cubic spline differentiation to find Kappa index 
 %(largest curvature) 
 %   Lambda:Range of regularization weights to optimize
@@ -14,8 +14,17 @@ function [index_opt, Kappa] = findOptimalKappa(Lambda, regularization, consisten
 %   L1-regularization and automatic parameter selection. Magn. Reson. Med.,
 %   72: 1444-1459. doi:10.1002/mrm.25029
 
-    eta = log(regularization);
-    rho = log(consistency.^2);
+    if pow2Flags(1) == true
+        eta = log(regularization.^2);
+    else
+        eta = log(regularization);
+    end
+    
+    if pow2Flags(1) == true
+        rho = log(consistency.^2);
+    else
+        rho = log(consistency);
+    end
 
     M = [0 3 0 0; 0 0 2 0; 0 0 0 1; 0 0 0 0];
 

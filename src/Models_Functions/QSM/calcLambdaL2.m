@@ -61,7 +61,7 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calcLambdaL2(nfm_Sharp_lunwrap, mask_
     
     % cubic spline differentiation to find Kappa (largest curvature) 
 
-    [index_opt, Kappa] = findOptimalKappa(Lambda, regularization, consistency);
+    [index_opt, Kappa] = findOptimalKappa(Lambda, regularization, consistency, [true true]);
  
     disp(['Optimal lambda, consistency, regularization: ', num2str([Lambda(index_opt), consistency(index_opt), regularization(index_opt)])])
 
