@@ -32,7 +32,7 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolu
     D2 = abs(D).^2;
 
     SB_reg = 1 ./ (eps + D2 + mu * E2);
-
+    
     DFy = conj(D) .* fftn(nfm_Sharp_lunwrap);
 
     Lambda = logspace(-4, -2.5, 15);
@@ -40,7 +40,9 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolu
     SB_consistency = zeros(size(Lambda));
     SB_regularization = zeros(size(Lambda));
 
-
+    % Memory cleanup
+    clear E2 D2
+    
     tic
     for h = 1:length(Lambda)
 
@@ -55,11 +57,8 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolu
             Fu_prev = Fu;
             Fu = ( DFy + mu * (cfdx.*fftn(vx - nx) + cfdy.*fftn(vy - ny) + cfdz.*fftn(vz - nz)) ) .* SB_reg;
 
-            Rxu = ifftn(fdx .*  Fu);
-            Ryu = ifftn(fdy .*  Fu);
-            Rzu = ifftn(fdz .*  Fu);
-
-            rox = Rxu + nx;         roy = Ryu + ny;          roz = Rzu + nz;
+            %     (      Rxu      )                     (      Ryu      )                      (      Rzu      )
+            rox = ifftn(fdx .*  Fu) + nx;         roy = ifftn(fdy .*  Fu) + ny;          roz = ifftn(fdz .*  Fu) + nz;
 
             vx = max(abs(rox) - threshold, 0) .* sign(rox);
             vy = max(abs(roy) - threshold, 0) .* sign(roy);
@@ -83,9 +82,10 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolu
     end
     toc
 
+    % Memory cleanup
+    clear D DFy Fu nfm_Sharp_lunwrap nx ny nz residual rox roy roz vx vy vz
 
     figure(), subplot(1,2,1), plot(SB_consistency, SB_regularization, 'marker', '*'), axis square
-
 
 
     eta = log(SB_regularization);
