@@ -17,6 +17,8 @@ pad_size = [9,9,9];     % pad for Sharp recon
                         % MB: Investigate why 9 zeros for each dimension?
 directionFlag = 'backward';
 preconMagWeightFlag = 1;
+lambdaL1Range = logspace(-4, -2.5, 15);
+lambdaL2Range = logspace(-3, 0, 15);
 
 %% Mask wrapped phase
 
@@ -61,13 +63,13 @@ clear mask_pad phase_lunwrap
 % Memory cleanup
 clear magn
 
-%% Determine optimal Lambda L2
+%% Determine optimal lambda L2
 
-[ lambda_L2, chi_L2, chi_L2pcg ] = calc_lambda_L2(nfm_Sharp_lunwrap, mask_sharp, imageResolution, directionFlag, pad_size, magn_weight);
+[ lambda_L2, chi_L2, chi_L2pcg ] = calc_lambda_L2(nfm_Sharp_lunwrap, mask_sharp, lambdaL2Range, imageResolution, directionFlag, pad_size, magn_weight);
 
-%% Determine SB lambda using L-curve and fix mu at lambda_L2
+%% Determine SB lambda L1 using L-curve and fix mu at lambda_L2
 
-lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolution, directionFlag);
+lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambdaL1Range, lambda_L2, imageResolution, directionFlag);
 
 %% Split Bregman QSM
 

@@ -1,8 +1,9 @@
-function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mask_sharp, imageResolution, directionFlag, pad_size, magn_weight)
+function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mask_sharp, Lambda, imageResolution, directionFlag, pad_size, magn_weight)
 %CALC_SB_LAMBDA_L2 Determine optimal Lambda L2 using using L-curve analysis
 %and get closed-form QSM solution with it.
 %   nfm_Sharp_lunwrap: Sharp-unwrapped phase.
 %   mask_sharp: Erroded mask that remove convolution artifacts.
+%   Lambda: Range of L2 regularization weights to optimize
 %   imageResolution: Image resolution in mm.
 %   directionFlag: forward' or 'backward', direction of the
 %   differentiation.
@@ -30,9 +31,6 @@ function [ lambda_L2, chi_L2, chi_L2pcg] = calc_lambda_L2(nfm_Sharp_lunwrap, mas
     D2 = abs(D).^2;
 
     Nfm_pad = fftn(nfm_Sharp_lunwrap);
-
-    Lambda = logspace(-3, 0, 15);
-
 
     regularization = zeros(size(Lambda));
     consistency = zeros(size(Lambda));

@@ -1,6 +1,7 @@
-function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolution, directionFlag)
+function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, Lambda, lambda_L2, imageResolution, directionFlag)
 %calc_SB_lambda_L1 Determine Split-Berman lambda L1 using L-curve and fix mu at lambda_L2
 %   nfm_Sharp_lunwrap: Sharp-unwrapped phase
+%   Lambda: Range of L1 regularization weights to optimize
 %   lambda_L2: L2 regularization term
 %   directionFlag: 'forward' or 'backward', direction of the
 %   differentiation.
@@ -34,8 +35,6 @@ function lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolu
     SB_reg = 1 ./ (eps + D2 + mu * E2);
     
     DFy = conj(D) .* fftn(nfm_Sharp_lunwrap);
-
-    Lambda = logspace(-4, -2.5, 15);
 
     SB_consistency = zeros(size(Lambda));
     SB_regularization = zeros(size(Lambda));
