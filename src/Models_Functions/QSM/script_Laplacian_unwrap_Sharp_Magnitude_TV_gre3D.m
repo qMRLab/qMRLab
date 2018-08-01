@@ -1,16 +1,24 @@
-%% load data
+%% Load Data
 
-load magn_gre_3D_p6mm
 load phase_wrap_gre_3D_p6mm
 load mask_gre_3D_p6mm
+load magn_gre_3D_p6mm
 
+%% Configure measurement parameters
+
+imageResolution = [0.6, 0.6, 0.6]; % (in mm)
 TE = 8.1e-3;      % second
 B0 = 3;           % Tesla
 gyro = 2*pi*42.58;
 
-directionFlag = 'backward';
+%% Configure algorithm processing parameters
 
-imageResolution = [0.6, 0.6, 0.6]; % (in mm)
+pad_size = [9,9,9];     % pad for Sharp recon
+                        % MB: Investigate why 9 zeros for each dimension?
+directionFlag = 'backward';
+preconMagWeightFlag = 1;
+
+%% Mask wrapped phase
 
 phase_wrap = mask .* phase_wrap;
 
@@ -19,8 +27,6 @@ plot_axialSagittalCoronal(magn, [0, 500], 'Magnitude')
 
 %% Zero pad for Sharp kernel convolution
 
-pad_size = [9,9,9];     % pad for Sharp recon
-                        % MB: Investigate why 9 zeros for each dimension?
 phase_wrap_pad = pad_volume_for_sharp(phase_wrap, pad_size);
 mask_pad = pad_volume_for_sharp(mask, pad_size);
 
@@ -34,6 +40,9 @@ toc
 
 plot_axialSagittalCoronal(phase_lunwrap, [-3.5,3.5], 'Laplacian unwrapping')
 
+% Memory cleanup
+clear mask phase_wrap phase_wrap_pad
+
 %% recursive filtering with decreasing filter sizes
 
 tic
@@ -42,9 +51,15 @@ toc
 
 plot_axialSagittalCoronal(nfm_Sharp_lunwrap, [-.05,.05] )
 
+% Memory cleanup
+clear mask_pad phase_lunwrap
+
 %% gradient masks from magnitude image using k-space gradients
 
 [ magn_weight ] = calc_gradient_mask_from_magnitude_image(magn, mask_sharp, pad_size, directionFlag);
+
+% Memory cleanup
+clear magn
 
 %% Determine optimal Lambda L2
 
@@ -56,14 +71,13 @@ lambda_L1 = calc_SB_lambda_L1(nfm_Sharp_lunwrap, lambda_L2, imageResolution, dir
 
 %% Split Bregman QSM
 
-chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, imageResolution, pad_size);
+chi_SB = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, imageResolution, pad_size, 0);
 
 plot_axialSagittalCoronal(chi_SB, [-.15,.15], 'L1 solution')
 plot_axialSagittalCoronal(fftshift(abs(fftn(chi_SB))).^.5, [0,20], 'L1 solution k-space')
 
 %% Split Bregman QSM with preconditioner and magnitude weighting
 
-preconMagWeightFlag = 1;
 chi_SBM = qsm_split_bregman(nfm_Sharp_lunwrap, mask_sharp, lambda_L1, lambda_L2, directionFlag, imageResolution, pad_size, preconMagWeightFlag, magn_weight);
 
 plot_axialSagittalCoronal(chi_SBM, [-.15,.15], 'L1 solution with magnitude weighting')
