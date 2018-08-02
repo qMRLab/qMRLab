@@ -20,7 +20,7 @@ function [index_opt, Kappa] = findOptimalKappa(Lambda, regularization, consisten
         eta = log(regularization);
     end
     
-    if pow2Flags(1) == true
+    if pow2Flags(2) == true
         rho = log(consistency.^2);
     else
         rho = log(consistency);
