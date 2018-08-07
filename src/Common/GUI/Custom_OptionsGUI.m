@@ -159,7 +159,7 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediatly. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
+    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)

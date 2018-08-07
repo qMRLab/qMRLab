@@ -115,13 +115,13 @@ function b = iqmr_checkHeader(file)
 end
 
 function informSyntaxInputOrOutput()
-     fprintf('Please use the folowing syntax:\n');
+     fprintf('Please use the following syntax:\n');
      fprintf('   Name               Description (if needed)\n');
      fprintf('*If a description is to long, you can continue on the next line with the same indent and two more spaces.*\n\n');
 end
 
 function informSyntaxProtocolOrOption()
-    fprintf('Please use the folowing syntax:\n');
+    fprintf('Please use the following syntax:\n');
     fprintf('   Name               Description (if needed)\n');
     fprintf('     Name             Description\n');
     fprintf('*If a description is to long, you can continue on the next line with the same indent and two more spaces.*\n\n');  

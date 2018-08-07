@@ -115,7 +115,7 @@ data_voxels = data_height*data_width;
 num_echoes  = data_dim(1,4);
 
 %%-------------------------------------------------------------------------
-%% Compatibily mask/data
+%% Compatibility mask/data
 %%-------------------------------------------------------------------------
 
 if ROI_flag == 1    

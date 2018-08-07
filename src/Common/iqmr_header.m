@@ -6,7 +6,7 @@
 % Properties
 %   assumption          Assumptions of the model
 %   input               Input arguments of the model
-%   output              Ouput of the functions of the model
+%   output              Output of the functions of the model
 %   protocol            Protocol used in the model
 %   option              Options that can be changed in the model
 %   usage               Usage examples for the model
@@ -21,7 +21,7 @@
 %                         and saves the different informations 
 %
 % Organization of the class
-%   first column: title of the varaible, input, output, option, etc.
+%   first column: title of the variable, input, output, option, etc.
 %   second column: second title for the option, protocol, etc. if there is
 %       one or description
 %   third colum: third title for the option, protocol, etc. if there is one
@@ -33,7 +33,7 @@
 
 classdef iqmr_header
     % Description : Properties of the header class.
-    % Attributs:    assumption  (cells)
+    % Attributes:    assumption  (cells)
     %               input       (cells)
     %               output      (cells)
     %               protocol    (cells)

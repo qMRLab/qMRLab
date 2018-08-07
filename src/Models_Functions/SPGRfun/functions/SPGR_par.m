@@ -61,7 +61,7 @@ for kk = 1:nA
         M0(1:2) = 0;
     end
     
-    % Repeat acquisition to acheive steady state
+    % Repeat acquisition to achieve steady state
     for ii = 1:nP
         
         % Spoiling
@@ -81,7 +81,7 @@ for kk = 1:nA
         Mread = abs(M0(3));
         Mevol(kk,ii) = Mread;
         
-        % If steady state acheived, go to next point
+        % If steady state achieved, go to next point
         if ( Sim.Opt.SScheck && abs(Mread - Mprev)/Mprev <= Sim.Opt.SStol )
             SScount = SScount + 1;
             if (SScount >= 5)

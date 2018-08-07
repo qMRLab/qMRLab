@@ -141,7 +141,7 @@ classdef BrowserSet
                     end
                     tmp = File;
                 else
-                    warndlg(['file extention ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                    warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
                 end
             end
             
