@@ -6,7 +6,7 @@ function Pulse = GetPulse(alpha, delta, Trf, shape, PulseOpt)
 %   alpha: Flip angle (in degrees).
 %   delta: Off-resonance frequency (in Hz);
 %   Trf: RF pulse duration (in seconds)
-%   shape: String. Represents the shape of the RF enveloppe, and each have
+%   shape: String. Represents the shape of the RF envelope, and each have
 %          their own unique functions handles associated to them.
 %
 %           -values-
@@ -51,7 +51,7 @@ omega  =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt));
 omega2 =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt)).^2;
 
 Pulse.pulse_fcn = pulse_fcn;  % Fcn handle to pulse shape function
-Pulse.b1     =   b1;          % Fcn handle to pulse enveloppe amplitude
+Pulse.b1     =   b1;          % Fcn handle to pulse envelope amplitude
 Pulse.amp    =   amp;         % Pulse max amplitude
 Pulse.omega  =   omega;       % Fcn handle to pulse omega1
 Pulse.omega2 =   omega2;      % Fcn handle to pulse omega1^2 (power)

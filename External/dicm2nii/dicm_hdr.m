@@ -70,7 +70,7 @@ function [s, info, dict] = dicm_hdr(fname, dict, iFrames)
 % 150517 fix manufacturer check problem for Octave: no re-read.
 % 150522 PerFrameSQ ind: fix the case if numel(ind)~=nFrame.
 % 150526 read_sq: use ItemDelimitationItem instead of empty dat1 as SQ end.
-% 150924 philips_par: store SliceNumber if not acsending/decending order.
+% 150924 philips_par: store SliceNumber if not ascending/decending order.
 % 151001 check Manufacturer in advance for 'search' method.
 % 160105 Bug fix for b just missing iPixelData (Thx Andrew S).
 % 160127 Support big endian dicom; Always return TransferSyntaxUID for dicm_img.

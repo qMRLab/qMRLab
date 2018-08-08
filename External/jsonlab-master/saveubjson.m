@@ -57,7 +57,7 @@ function json=saveubjson(rootname,obj,varargin)
 %                         back to the string form
 %
 %        opt can be replaced by a list of ('param',value) pairs. The param 
-%        string is equivallent to a field in opt and is case sensitive.
+%        string is equivalent to a field in opt and is case sensitive.
 % output:
 %      json: a binary string in the UBJSON format (see http://ubjson.org)
 %

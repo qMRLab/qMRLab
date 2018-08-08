@@ -581,7 +581,7 @@ function [A,ffn,numHeader,repChar,hl,fpos] = txt2mat(varargin)
 % The first command reads up to 5 elements per line, starting from the
 % first, and puts them to a Nx5 matrix, whereas the second one
 % automatically expands the column size of the output to fit in the maximum
-% number of elements occuring in a line. This is effected by the negative
+% number of elements occurring in a line. This is effected by the negative
 % column number argument that also implies read mode 'line' here.
 %  
 % =========================================================================
@@ -1105,7 +1105,7 @@ if hasReplacements
     % If a ReplaceStr begins with a line break character, such a character
     % will temporarily be prepended to each replacement section to apply
     % the replacement to the _first_ line of a section, too.
-    % Besides, check for any occurence of the break character in the
+    % Besides, check for any occurrence of the break character in the
     % ReplaceStr in order to preventively trigger an update of the line
     % break positions afterwards.
     % Set defaults before checking:
@@ -1441,7 +1441,7 @@ if strcmpi(readMode,'auto') || strcmpi(readMode,'matrix')
             [Atmp,count,errmsg,nextindex] = ...
                     sscanf(char(f8(startIdcF8 : endIdcF8)), formatStr); 
 
-            % the correponding row indices of the output matrix:
+            % the corresponding row indices of the output matrix:
             if hasNotAllLb
                 startRow       = cntLb(sdx-1)+1;
                 endRow         = cntLb(sdx);
@@ -1858,7 +1858,7 @@ num_beg_nan_per_line = diff([0,find(sidx<=numLb)]) - 1;
 [~, sidx] = sort([posLb(2:end).',idc_kombd]);
 num_beg_kombd_per_line = diff([0,find(sidx<=numLb)]) - 1;
 
-% two sequential commas without a (different) separator inbetween
+% two sequential commas without a (different) separator between
 % idc_2kom  = regexp(f8c, ',[^\s:;],', 'start');
 idc_2kom  = regexp(f8c, ',[^\s:;/],');
 
@@ -1927,7 +1927,7 @@ if any( num_kom_per_line(numHeader+1:end) > 0 )
     % and between two commas there has to be another separator
     if  all(num_kom_per_line(numHeader+1:end) == num_beg_kombd_per_line(numHeader+1:end)) ... % Are all commas enclosed by numeric digits?
         && ~any(num_beg_digdotdig_per_line(numHeader+1:end) > 0) ...   % There are no numbers with dots?
-        && ~any(idc_2kom(numHeader+1:end) > 0)                         % There is no pair of commas with no other separator inbetween?
+        && ~any(idc_2kom(numHeader+1:end) > 0)                         % There is no pair of commas with no other separator between?
 
         decchar = ',';
         sepchar = '';
@@ -2122,7 +2122,7 @@ function arg = argincheck(allargin)
 %       arg.has.(argname)  ->  T/F argument was given
 %       arg.num.(argname)  ->  number of values for some non-scalar inputs
 
-% Check input argument occurence (Property/Value-pairs)
+% Check input argument occurrence (Property/Value-pairs)
 %  1 'NumHeaderLines',     Scalar,     13
 %  2 'NumColumns',         Scalar,     100
 %  3 'Format',             String,     ['%d.%d.%d' repmat('%f',1,6)]
@@ -2538,7 +2538,7 @@ while doRead        % loop through text sections
         isLineNotBad = true(numLbSec,1);
     end
     
-    % ~~~ combine selection critera and update txt ~~~~~~~~~~~~~~~~~~~~~~~~
+    % ~~~ combine selection criteria and update txt ~~~~~~~~~~~~~~~~~~~~~~~~
     
     isLineOk = isLineSel & isLineGood & isLineNotBad;
     

@@ -208,7 +208,7 @@ function varargout = nii_viewer(fname, varargin)
 % 151230 Use listbox for files; Add stack buttons; file order reversed.
 % 160102 Store p.R0 if need interp; No coordinate change for background.
 % 160104 set_cdata: avoid indexing for single vol img: may be much faster!
-%        jscroll_handle from findjobj.m to set vertical scoll bar as needed.
+%        jscroll_handle from findjobj.m to set vertical scroll bar as needed.
 % 160107 Rename XYZ label to IJK, implement "Set crosshair at XYZ".
 % 160108 Fix the case of 2-form_code for background and addMask.
 % 160109 Allow to turn off mouse-over display from Preferences;
@@ -2656,7 +2656,7 @@ for i = ix
     end
 end
 
-%% Duplicate image handles, inlcuding ButtonDownFcn for new matlab
+%% Duplicate image handles, including ButtonDownFcn for new matlab
 function h = copyimg(hs)
 h = hs.hsI;
 for i = 1:3, h(i) = handle(copyobj(hs.hsI(i), hs.ax(i))); end
