@@ -247,15 +247,15 @@ if(strcmp(extension{size(extension,2)},'mat'))
         end
     end
 else
-    niftiFile = load_nii(FullPathName);
+    niftiFile = load_nii_data(FullPathName);
     boxMsg = get(handles.ROIList,'String');
     if(size(boxMsg,2)==0)
         boxMsg{size(boxMsg,1),1} = ['ROI' num2str(size(boxMsg,1))];
-        handles.ROI{size(handles.ROI,2)+1}.vol = niftiFile.img;
+        handles.ROI{size(handles.ROI,2)+1}.vol = niftiFile;
         handles.ROI{size(handles.ROI,2)}.color = rand(3);
     else
         boxMsg{size(boxMsg,1)+1,1} = ['ROI' num2str(size(boxMsg,1)+1)];
-        handles.ROI{size(handles.ROI,2)+1}.vol = niftiFile.img;
+        handles.ROI{size(handles.ROI,2)+1}.vol = niftiFile;
         handles.ROI{size(handles.ROI,2)}.color = rand(3);
     end
 end
@@ -599,7 +599,7 @@ function UpdateSlices(handles)
 % UpdateSlice: set slice slider maximal value
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
+% Written by: Jean-Fran???is Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
