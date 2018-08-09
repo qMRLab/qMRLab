@@ -13,7 +13,7 @@ if ~moxunit_util_platform_is_octave % MATLAB
     
 else % OCTAVE
     % install octave package
-    installlist = {'struct','optim','io','statistics','image'};
+    installlist = {'struct','io','statistics','optim','image'};
     for ii=1:length(installlist)
         try
             disp(['loading ' installlist{ii}])
