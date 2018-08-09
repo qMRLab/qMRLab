@@ -61,7 +61,7 @@ for kk = 1:nA
         M0 = BlochSol(TE,M0,Param); 
     end
     
-    % Repeat acquisition to acheive steady state
+    % Repeat acquisition to achieve steady state
     for ii = 1:nP
         
         % Phase cycling
@@ -79,7 +79,7 @@ for kk = 1:nA
         Mread = norm([M0(1) M0(2)]); % read |Mxy|
 %         Mread = abs(M0(2)); % read |My|
         
-        % If steady state acheived, go to next point
+        % If steady state achieved, go to next point
         if ( Sim.Opt.SScheck && abs(Mread - Mprev)/Mprev <= Sim.Opt.SStol )
             SScount = SScount + 1;
             if (SScount >= 5)

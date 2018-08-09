@@ -30,7 +30,7 @@ for ii=2:7
     % Raw estimate
     g = mtv_fit3dsplinemodel(RPp,mask,[],smoothness,pixdim);  % Spline approximation
     %tmp = g; imagesc3D(tmp,[prctile(tmp(:),10) prctile(tmp(:),90)]); drawnow
-    % calulate PD from M0 and RP
+    % calculate PD from M0 and RP
     PDi=M0./g;
     % solve for A B given the new PD estiamtion
     % ( 1./PDi(BM1) )= A* R1basis(:,1) + B*R1basis(:,2);
@@ -40,7 +40,8 @@ for ii=2:7
     B(ii)=co(2);
     
 end
-imagesc3D(g,[prctile(g(:),10) prctile(g(:),90)]); drawnow;
+[xmin, xmax] = range_outlier(g);
+imagesc3D(g,[xmin xmax]); drawnow;
 save_nii_v2(g,'gain.nii.gz',fname_M0,64)
 %% calcute the CSF PD
 

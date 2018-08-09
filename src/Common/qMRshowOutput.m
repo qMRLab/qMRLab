@@ -26,8 +26,7 @@ if length(size(outputIm))>2
 else
     imagesc(imrotate(outputIm,90)); colormap('jet');  title(FitResults.fields{1});
 end
-climm = prctile(outputIm(outputIm~=0),20);
-climM = prctile(outputIm(outputIm~=0),80);
+[climm, climM] = range_outlier(outputIm(outputIm~=0));
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
 if FitResults.Model.voxelwise 
