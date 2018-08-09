@@ -15,7 +15,7 @@ Mread = 0;
 Mprev = 0;
 SScount = 0;
 
-% Repeat acquisition to acheive steady state
+% Repeat acquisition to achieve steady state
 for ii = 1:nP
     % Free precession Ts + Tm
     [~, M_temp] = ode23(@(t,M) Bloch(t,M,Param), [0 Prot.Ts+Prot.Tm], M0);
@@ -24,7 +24,7 @@ for ii = 1:nP
     % Readout
     Mread = abs(M0(3));
     
-    % If steady state acheived, go to next point
+    % If steady state achieved, go to next point
     if ( Sim.Opt.SScheck && abs(Mread - Mprev)/Mprev <= Sim.Opt.SStol )
         SScount = SScount + 1;
         if (SScount >= 5)

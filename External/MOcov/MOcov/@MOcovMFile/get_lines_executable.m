@@ -8,6 +8,6 @@ function msk=get_lines_executable(obj)
 %
 % Output:
 %   msk                 Nx1 logical mask, with msk(k)==true indicating
-%                       that the k-th line can be exectued
+%                       that the k-th line can be executed
 
     msk=obj.executable;

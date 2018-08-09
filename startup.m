@@ -13,7 +13,7 @@ if ~moxunit_util_platform_is_octave % MATLAB
     if ~license('test', 'Image_Toolbox'), warning('Image Toolbox is not installed: ROI Analysis tool not available in the GUI. Consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''IP'');">Image Processing Toolbox</a>'); end
 else % OCTAVE
     % install octave package
-    installlist = {'struct','optim','io','statistics','image'};
+    installlist = {'struct','io','statistics','optim','image'};
     for ii=1:length(installlist)
         try
             disp(['loading ' installlist{ii}])

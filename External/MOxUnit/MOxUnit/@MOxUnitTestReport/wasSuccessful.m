@@ -3,7 +3,7 @@ function tf=wasSuccessful(obj)
 %
 % tf=wasSuccessful(obj)
 %
-%   obj             MOxUnitTestReport instance containg tests that have
+%   obj             MOxUnitTestReport instance containing tests that have
 %                   been run.
 %   tf              true if there were no errors or failures; false
 %                   otherwise.
