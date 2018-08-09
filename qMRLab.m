@@ -364,7 +364,7 @@ if isempty(FitResults.WD), FitResults.WD = pwd; end
 FitResults.Files = FileBrowserList(MethodID).getFileName;
 SetAppData(FitResults);
 
-% Kill the waitbar in case of a problem occured
+% Kill the waitbar in case of a problem occurred
 wh=findall(0,'tag','TMWWaitbar');
 delete(wh);
 

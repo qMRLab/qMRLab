@@ -29,7 +29,7 @@ function X = plotregion(A,b,lb,ub,c,transp,points,linetyp,start_end)
 
 
 if nargin<2
-    error('Too few arguements for plotregion');
+    error('Too few arguments for plotregion');
 elseif nargin<6
     transp=0.5;
 end

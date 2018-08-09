@@ -1239,7 +1239,7 @@ if isempty(TR), return; end
 hdr.pixdim(5) = TR / 1000;
 if tryGetField(s, 'isDTI', 0), return; end
 hdr.xyzt_units = 8; % seconds
-if hdr.dim(5)<3, return; end % skip structual, fieldmap etc
+if hdr.dim(5)<3, return; end % skip structural, fieldmap etc
 
 delay = asc_header(s, 'lDelayTimeInTR')/1000; % in ms now
 if isempty(delay), delay = 0;
