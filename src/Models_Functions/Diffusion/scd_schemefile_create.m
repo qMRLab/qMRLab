@@ -50,7 +50,7 @@ fprintf(fid_scheme,'%s\n%s\n%s\n','#B-vector scheme. Contains gradient direction
 
 
 for i_seq=1:length(bvecs_files)
-    for i_b0_begining = 1:add_b0_beginning
+    for i_b0_beginning = 1:add_b0_beginning
         % write bvecs
         fprintf(fid_bvec_tot, '%f   %f   %f\n',0,0,0);
         % write bvals

@@ -7,7 +7,7 @@ function j_progress(varargin)
 % function fn_progress('cont')
 % from Thomas Deneux, modified by Julien Cohen-Adad 2006-11-24
 %
-% exemple: j_progress('Pouf pouf. Please wait...');for i=1:50, j_progress(i/50), pause(.01), end;j_progress('elapsed')
+% example: j_progress('Pouf pouf. Please wait...');for i=1:50, j_progress(i/50), pause(.01), end;j_progress('elapsed')
 %---
 % progress indicator
 

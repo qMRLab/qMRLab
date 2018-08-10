@@ -19,7 +19,7 @@ function fs=moxunit_util_mfile_subfunctions(fn)
 % Notes:
 %   - this function uses a simple pattern matching algorithm which may
 %     not work correctly if some weird unexpected syntax is used
-%   - nested subfunctions are returned by this funtion as well
+%   - nested subfunctions are returned by this function as well
 %   - in matlab, "which('-subfun',fn)" can be used as an alternative to
 %     this function; Octave does not support this usage of "which"
 %
@@ -40,7 +40,7 @@ function fs=moxunit_util_mfile_subfunctions(fn)
                   newline,[newline newline]};
     text=apply_text_replacements(replacements, raw_text);
 
-    % function outputs can be specifed in three ways, namely with zero,
+    % function outputs can be specified in three ways, namely with zero,
     % one, or more than one output
     argout_pat='\s*((\s([\w~]+\s*=)?)|(\[[\w~,\s]*\]\s*=))\s*';
     argout_pat='\s*(?<argout>(\s([\w~]+\s*=)?)|(\[[\w~,\s]*\]\s*=))\s*';
