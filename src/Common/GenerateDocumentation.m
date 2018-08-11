@@ -15,6 +15,8 @@ dlmwrite([mainDir filesep 'tmp' filesep 'tmpDocDir.txt'],tmpDir,'delimiter','');
 % Navigate to the temporary (private) folder. 
 cd(tmpDir);
 setenv('ISTRAVIS','1')
+setenv('ISDOC','1')
+
 Modellist = list_models';
 for iModel = 1:length(Modellist)
     eval(['Model = ' Modellist{iModel}]);
