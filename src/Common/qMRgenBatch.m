@@ -5,9 +5,14 @@
 %   Model        [qMRLab object]
 %  (path)        [String]
 %  (nodwnld)     [logical] download example dataset? 0 --> generate batch only
+%
+% Example
+%  qMRgenBatch(inversion_recovery)
+%
 % Written by: Agah Karakuzu, 2017
 
 function qMRgenBatch(Model,path,nodwnld)
+if nargin<1, help qMRgenBatch, return; end
 
 % Main function
 
@@ -281,7 +286,7 @@ function [type,dataCommands] = data2CLI(Model,demoDir,sep)
 reqData = Model.MRIinputs; % This is a cell
 
 % @MODIFY
-% Please add more file types if neccesary.
+% Please add more file types if necessary.
 % Here I assume that required files are either mat or nii.gz
 
 fooMat = cellfun(@(x)[x '.mat'],reqData,'UniformOutput',false);

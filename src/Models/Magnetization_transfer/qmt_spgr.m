@@ -38,7 +38,7 @@ classdef qmt_spgr < AbstractModel
 %     Tmt               Duration of the MT pulses (s)
 %     Ts                Free precession delay between the MT and excitation pulses (s)
 %     Tp                Duration of the excitation pulse (s)
-%     Tr                Free precession delay after tje excitation pulse, before
+%     Tr                Free precession delay after the excitation pulse, before
 %                         the next MT pulse (s)
 %     TR                Repetition time of the whole sequence (TR = Tmt + Ts + Tp + Tr)
 %

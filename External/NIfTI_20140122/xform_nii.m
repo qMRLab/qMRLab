@@ -51,7 +51,7 @@
 %	to RAS coordinates; values are s,q,S,Q.  Lower case s,q indicate
 %	"prefer sform or qform, but use others if preferred not present".
 %	Upper case indicate the program is forced to use the specificied
-%	tranform or fail loading.  'preferredForm' will be 's', if it is
+%	transform or fail loading.  'preferredForm' will be 's', if it is
 %	default or empty.	- Jeff Gunter
 %
 %  NIFTI data format can be found on: http://nifti.nimh.nih.gov

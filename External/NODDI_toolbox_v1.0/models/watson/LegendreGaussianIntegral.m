@@ -33,7 +33,7 @@ function [L, D] = LegendreGaussianIntegral(x, n)
 
 % Make sure n is not larger than 6
 if n > 6
-	error('The maximum value for n is 6, which correspondes to the 12th order Legendre polynomial');
+	error('The maximum value for n is 6, which corresponds to the 12th order Legendre polynomial');
 end
 
 %

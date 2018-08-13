@@ -1,5 +1,5 @@
 function [common, d1, d2] = comp_struct(s1,s2,prt,pse,tol,n1,n2)
-% check two structures for differances - i.e. see if strucutre s1 == structure s2
+% check two structures for differences - i.e. see if structure s1 == structure s2
 % function [common, d1, d2] = comp_struct(s1,s2,prt,pse,tol)
 %
 % inputs  5 - 4 optional
@@ -48,7 +48,7 @@ if ~exist('n1','var'); n1 =  inputname(1); end
 if ~exist('n2','var'); n2 = inputname(2); end
 
 
-%% structure defintion
+%% structure definition
 d1 = s1; d2 = s2; common = s1;
 
 
@@ -56,7 +56,7 @@ d1 = s1; d2 = s2; common = s1;
 flag = [0 0];
 % test entire structure
 if ~isequal(s1,s2)
-	% differances noted - parse
+	% differences noted - parse
 	if isstruct(s1) && isstruct(s2)
 		% both structures - once sub structures are tested, do not 
 		% modify the parrent
@@ -107,7 +107,7 @@ if ~isequal(s1,s2)
 		% the same?
 		if ~isequal(s1,s2)
 			flag(1) = 1;
-			% not the same - differance?
+			% not the same - difference?
 			% class error
 			if ~strcmp(class(s1),class(s2))
 				% different classes

@@ -15,7 +15,7 @@ function pulse = gaussian_pulse(t, Trf, PulseOpt)
 %
 %             -properties-
 %             bw: FWHM of the Fourier Transform of the Gaussian function. 
-%                 Conventionnally a measure of the RF bandwith. See
+%                 Conventionnally a measure of the RF bandwidth. See
 %                 deltaf_G in the reference for more details (between Eqs.
 %                 4.12 and 2.14.).
 %
@@ -34,7 +34,7 @@ if(~isfield(PulseOpt,'bw') || isempty(PulseOpt.bw) || ~isfinite(PulseOpt.bw))
 else
     bw = PulseOpt.bw;
     sigma2 = 2*log(2) / (pi*bw).^2; % In the reference, sqrt(2*log(2))/pi 
-                                    % calculated implicitely (= 0.3748).
+                                    % calculated implicitly (= 0.3748).
 end
 
 pulse = exp( -((t-(Trf/2)).^2)/(2*sigma2));

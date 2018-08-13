@@ -488,7 +488,7 @@ else
         end
     end
 
-    % initialize all data vecotrs to zero
+    % initialize all data vectors to zero
     spectrum_NNLS = zeros(data_height,data_width,data_slices,num_t2_vals);
     chi2_NNLS = zeros(data_height,data_width,data_slices);
     gm_t2_NNLS = zeros(data_height,data_width,data_slices);
