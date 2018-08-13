@@ -248,6 +248,24 @@ Model.options = button_handle2opts(handles.OptionsPanel_handle);
 if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end
+
+% SANITY CHECK
+Data = getappdata(0, 'Data');
+if ~isempty(Data) && isfield(Data,class(Model))
+    ErrMsg = Model.sanityCheck(Data.(class(Model)));
+    hWarnBut = findobj('Tag',['WarnBut_DataConsistency_' class(Model)]);
+    if ~isempty(ErrMsg)
+        set(hWarnBut,'String',ErrMsg)
+        set(hWarnBut,'TooltipString',ErrMsg)
+        set(hWarnBut,'Visible','on')
+    else
+        set(hWarnBut,'String','')
+        set(hWarnBut,'TooltipString','')
+        set(hWarnBut,'Visible','off')
+    end
+end
+
+% SAVE
 setappdata(0,'Model',Model);
 
 
