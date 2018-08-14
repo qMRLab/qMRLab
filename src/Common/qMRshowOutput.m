@@ -22,9 +22,9 @@ hmap = figure();
 if length(size(outputIm))>2
     sz = size(outputIm);
     szz = round(sz(3)/2);
-    imagesc(imrotate(outputIm(:,:,szz),90)); colormap('jet');  title(FitResults.fields{1});
+    imagesc(imrotate(outputIm(:,:,szz),90)); colormap('parula');  title(FitResults.fields{1});
 else
-    imagesc(imrotate(outputIm,90)); colormap('jet');  title(FitResults.fields{1});
+    imagesc(imrotate(outputIm,90)); colormap('parula');  title(FitResults.fields{1});
 end
 [climm, climM] = range_outlier(outputIm(outputIm~=0));
 caxis([climm max(climm*1.01,climM)]); colorbar();
