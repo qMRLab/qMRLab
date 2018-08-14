@@ -49,7 +49,7 @@ classdef denoising_mppca < AbstractModel
         Prot  = struct(); % You can define a default protocol here.
         
         % Model options
-        buttons = {'sampling',{'full','fast'},'kernel',[5 5 5]};
+        buttons = {'sampling',{'fast','full'},'kernel',[5 5 5]};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
     end
