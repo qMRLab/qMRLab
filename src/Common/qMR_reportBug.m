@@ -27,13 +27,32 @@ if any(~cellfun(@isempty,qmrexcep))
     errortext.stack = buggyfiles;
     txt = savejson(errortext);
     
-    [res, txt2send] = qstdialogedittxt('title','Bug Report','String',txt);
-    if strcmpi(res,'yes')
-        % send error
-        setpref('Internet','E_mail','qMRLabbugreport@company.com')
-        setpref('Internet','SMTP_Server','mail')
-        txt = {}; for ii=1:size(txt2send,1), txt{ii} = txt2send(ii,:); end
-        sendmail('qmrlab_developers@googlegroups.com','qMRLab issue',sprintf('%s\n',txt{:}))
+    Questions = {sprintf('OUPS... A BUG OCCURED\n\n1- Your Email (optional):') '2- Name / GitHub username (optional)' '3- Describe what happened (optional)' '4- Bug Content'};
+    txt2send = inputdlg(Questions,'Report the following bug to the qMRLab dev team?',[1 30; 1 30; 10 200; 10 200],{'' '' sprintf('I was trying to ...\n\n...when the bug happened') [sprintf('qMRLab version: v%i.%i.%i\nMatlab version: %s\n\n',qMRLabVer,version) txt]});
+    
+    if ~isempty(txt2send)
+        txt2send = Interleave(Questions,txt2send);
+        txt=cellfun(@cellstr,txt2send,'uni',false)
+        txt = cat(1,txt{:});
+        txt = sprintf('%s\n',txt{:});
+        disp('sending...')
+        disp(txt)
+        try
+            % send error
+            setpref('Internet','E_mail','qMRLabbugreport@company.com')
+            setpref('Internet','SMTP_Server','mail.smtp2go.com')
+            
+            props = java.lang.System.getProperties;
+            props.setProperty('mail.smtp.auth','true');
+            
+            setpref('Internet','SMTP_Username','qMRLabBugReport');
+            setpref('Internet','SMTP_Password','E3dUgoH4101M');
+
+            sendmail('qmrlab_developers@googlegroups.com','qMRLab issue',txt);
+        catch ME2
+            warning('Notifier:SendmailError','Sendmail threw an error. Check sendmail before running again.');
+            warning('Nofifier:SendmailError',ME2.message);
+        end
     else
         disp('not reporting error...')
     end
