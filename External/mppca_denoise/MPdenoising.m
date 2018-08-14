@@ -116,7 +116,7 @@ function [Signal, Sigma] = MPdenoising(data, mask, kernel, sampling, centering)
     end
     
     if strcmp(sampling, 'full')
-        warning('image bounderies are not processed.')
+        warning('image boundaries are not processed.')
         mask(1:k(1), :, :) = 0;
         mask(sx-k(1):sx, :, :) = 0;
  

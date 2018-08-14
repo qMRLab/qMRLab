@@ -84,7 +84,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochNoMT_Test < matlab.unittest.T
             testCase.assertEqual(M(end,:), [0 0 -1], 'AbsTol', 0.01);
         end
         
-        function test_no_longi_mag_evol_for_transverse_inital_mag_inf_t2f(testCase)
+        function test_no_longi_mag_evol_for_transverse_initial_mag_inf_t2f(testCase)
             %% Prep
             %
             delta = 100; % Go to the rotating ref frame for this case

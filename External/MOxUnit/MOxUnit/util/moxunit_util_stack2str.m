@@ -10,7 +10,7 @@ function s=moxunit_util_stack2str(stack,prefix)
 %
 % Output:
 %   s                       String representation of the stack, showing one
-%                           element per line. The represention is without a
+%                           element per line. The representing is without a
 %                           trailing newline
 %
     if nargin<2

@@ -22,6 +22,17 @@ function res=NODDI_erfi(x)
 %     isreal(x).*real(-sqrt(-1).*sign(x).*((x<xc).*gammainc(-x.^2,1/2))+...
 %     (x>=xc).*exp(x.^2)./x/sqrt(pi));
 
-% FASTER AND COMPATIBLE WITH BOTH MATLAB AND OCTAVE:
-res = Faddeeva_erfi(x);
+try % FASTER AND COMPATIBLE WITH BOTH MATLAB AND OCTAVE:
+    res = Faddeeva_erfi(x);
+catch
+    if ~moxunit_util_platform_is_octave
+    xc=5.7;%cut for asymptotic approximation (when x is real)
+    res=~isreal(x).*(-(sqrt(-x.^2)./(x+isreal(x))).*gammainc(-x.^2,1/2))+...
+        isreal(x).*real(-sqrt(-1).*sign(x).*((x<xc).*gammainc(-x.^2,1/2))+...
+        (x>=xc).*exp(x.^2)./x/sqrt(pi));
+    else
+        error('Faddeeva_erfi was not build correctly. run Faddeeva_build.m')
+    end
+end
+    
 

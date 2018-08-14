@@ -1,6 +1,6 @@
 Graphical User Interface Usage
 ====================================
-This section describes the various features and funcitonality of the user interface.
+This section describes the various features and functionality of the user interface.
 
 1. Startup
 ----------------------------------
