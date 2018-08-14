@@ -39,16 +39,44 @@ if any(~cellfun(@isempty,qmrexcep))
         disp(txt)
         try
             % send error
+            
+            % Store pref
+            list2store = {'E_mail','SMTP_Server','SMTP_Username','SMTP_Password'};
+            storepref = false(1,length(list2store));
+            storeprefcontent = {};
+            for ils=1:length(list2store)
+                if ispref('Internet',list2store{ils})
+                    storepref(ils)=true;
+                    storeprefcontent{ils} = getpref('Internet',list2store{ils});
+                end
+            end
+            props = java.lang.System.getProperties;
+            try
+                auth = props.getProperty('mail.smtp.auth');
+            end
+            
+            % Set pref
             setpref('Internet','E_mail','qMRLabbugreport@company.com')
             setpref('Internet','SMTP_Server','mail.smtp2go.com')
             
-            props = java.lang.System.getProperties;
             props.setProperty('mail.smtp.auth','true');
             
             setpref('Internet','SMTP_Username','qMRLabBugReport');
             setpref('Internet','SMTP_Password','E3dUgoH4101M');
-
-            sendmail('qmrlab_developers@googlegroups.com','qMRLab issue',txt);
+            
+            % SEND MAIL
+            sendmail('tgdval@gmail.com','qMRLab issue',txt);
+            
+            % Set back original pref
+            for ils=1:length(list2store)
+                if storepref(ils)
+                    setpref('Internet',list2store{ils},storeprefcontent{ils});
+                end
+            end
+            try
+                props.setProperty('mail.smtp.auth',auth);
+            end
+            
         catch ME2
             warning('Notifier:SendmailError','Sendmail threw an error. Check sendmail before running again.');
             warning('Nofifier:SendmailError',ME2.message);
