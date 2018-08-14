@@ -28,9 +28,10 @@ for iModel = 1:length(Modellist)
     cd ..
 end
 setenv('ISTRAVIS','')
+setenv('ISDOC','')
 
 %% Generate restructured text files (docs/source/.rst)
-cd(mainDir);
+cd(fileparts(which('qMRLab.m')));
 cd docs
 % delete old batch
 list = sct_tools_ls('source/*_batch.rst',1,1);
