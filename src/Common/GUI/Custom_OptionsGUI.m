@@ -94,16 +94,21 @@ if ~isempty(Model.buttons)
     % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
     ff = fieldnames(handles.OptionsPanel_handle);
     for ii=1:length(ff)
-        set(handles.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(handles));
-        switch get(handles.OptionsPanel_handle.(ff{ii}),'Style')
-            case 'popupmenu'
-                val =  find(cell2mat(cellfun(@(x) strcmp(x,Model.options.(ff{ii})),get(handles.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
-                set(handles.OptionsPanel_handle.(ff{ii}),'Value',val);
-            case 'checkbox'
-                set(handles.OptionsPanel_handle.(ff{ii}),'Value',Model.options.(ff{ii}));
-            case 'edit'
-                set(handles.OptionsPanel_handle.(ff{ii}),'String',Model.options.(ff{ii}));
-        end     
+        if strcmp(get(handles.OptionsPanel_handle.(ff{ii}),'type'),'uitable')
+            set(handles.OptionsPanel_handle.(ff{ii}),'CellEditCallback',@(src,event) ModelOptions_Callback(handles));
+            set(handles.OptionsPanel_handle.(ff{ii}),'Data',Model.options.(ff{ii}));
+        else
+            set(handles.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(handles));
+            switch get(handles.OptionsPanel_handle.(ff{ii}),'Style')
+                case 'popupmenu'
+                    val =  find(cell2mat(cellfun(@(x) strcmp(x,Model.options.(ff{ii})),get(handles.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
+                    set(handles.OptionsPanel_handle.(ff{ii}),'Value',val);
+                case 'checkbox'
+                    set(handles.OptionsPanel_handle.(ff{ii}),'Value',Model.options.(ff{ii}));
+                case 'edit'
+                    set(handles.OptionsPanel_handle.(ff{ii}),'String',Model.options.(ff{ii}));
+            end
+        end
     end
     SetOpt(handles);
 end
@@ -251,6 +256,24 @@ Model.options = button_handle2opts(handles.OptionsPanel_handle);
 if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end
+
+% SANITY CHECK
+Data = getappdata(0, 'Data');
+if ~isempty(Data) && isfield(Data,class(Model))
+    ErrMsg = Model.sanityCheck(Data.(class(Model)));
+    hWarnBut = findobj('Tag',['WarnBut_DataConsistency_' class(Model)]);
+    if ~isempty(ErrMsg)
+        set(hWarnBut,'String',ErrMsg)
+        set(hWarnBut,'TooltipString',ErrMsg)
+        set(hWarnBut,'Visible','on')
+    else
+        set(hWarnBut,'String','')
+        set(hWarnBut,'TooltipString','')
+        set(hWarnBut,'Visible','off')
+    end
+end
+
+% SAVE
 setappdata(0,'Model',Model);
 
 

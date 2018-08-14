@@ -17,6 +17,7 @@ function varargout = qMRLab(varargin)
 % ----------------------------------------------------------------------------------------------------
 
 if logical(exist('OCTAVE_VERSION', 'builtin')), warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
@@ -68,6 +69,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     NewPos     = CurrentPos;
     NewPos(1)  = CurrentPos(1) - 40;
     set(gcf, 'Position', NewPos);
+    if ispc , set(findobj(handles.FitResultsPlotPanel,'Type','uicontrol'),'FontSize',7); end % everything is bigger on windows or linux
     
     % Fill Menu with models
     handles.ModelDir = [qMRLabDir filesep 'src/Models'];
@@ -183,8 +185,8 @@ for iM=1:length(MethodList), MethodListfull{iM} = sprintf(['%-' num2str(maxlengt
 set(handles.MethodSelection,'String',MethodListfull);
 set(handles.MethodSelection,'FontName','FixedWidth')
 set(handles.MethodSelection,'FontWeight','bold')
-set(handles.MethodSelection,'FontSize',15)
-
+set(handles.MethodSelection,'FontUnits','normalized')
+set(handles.MethodSelection,'FontSize',.5)
 
 
 %###########################################################################################
