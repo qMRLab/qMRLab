@@ -1,4 +1,4 @@
-classdef qsm_gre < AbstractModel % Name your Model
+classdef qsm_sb < AbstractModel % Name your Model
 % CustomExample :  Describe the method here
 %<a href="matlab: figure, imshow CustomExample.png ;">Pulse Sequence Diagram</a>
 %
@@ -61,7 +61,7 @@ classdef qsm_gre < AbstractModel % Name your Model
         % Gyromagnetic ratio at 1T 
         gyro = 2*pi*42.58;
         
-        % Zero padding size for mask and wrapped phase volumes
+        % Zero padding sUn*x that is supported by the Qize for mask and wrapped phase volumes
         % This padding is for SHARP kernel convolutions 
         pad_size = [9 9 9];
         
@@ -73,10 +73,10 @@ classdef qsm_gre < AbstractModel % Name your Model
         
         
         % --- Acquisition related paramters (protocols) 
-        Prot = struct('PhaseGRE',struct('Format',{{'TE (s)' 'Spacing[1] (mm)' 'Spacing[2] (mm)' 'Spacing[3] (mm)' 'FieldStrength (T)'}},...
-                                   'Mat',  [8.1e-3 0.6 0.6 0.6 3]),...
-                      'MagnGRE',struct('Format',{{'TE (s)' 'Spacing[1] (mm)' 'Spacing[2] (mm)' 'Spacing[3] (mm)' 'FieldStrength (T)'}},...
-                                   'Mat',  [8.1e-3 0.6 0.6 0.6 3]));
+        Prot = struct('Resolution',struct('Format',{{'VoxDim[1] (mm)' 'VoxDim[2] (mm)' 'VoxDim[3] (mm)'}},...
+                                   'Mat',  [0.6 0.6 0.6]),...
+                      'Timing',struct('Format',{{'TE (s)'}},...
+                                   'Mat', [8.1e-3]));
         
         % Model options
         buttons = {'direction',{'forward','backward'},'sharp_mode',{'once','iterative'}, 'H_freq (MHz)', 42.58};
