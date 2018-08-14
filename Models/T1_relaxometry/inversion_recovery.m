@@ -79,7 +79,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulation Options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'TR',3000,'FAinv',180,'FAexcite',90,'Compute ra rb','pushbutton'};%'FArefocus',180,
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'TR',3000,'FAinv',180,'FAexcite',90,'FArefocus',180,'Compute ra rb','pushbutton'};%
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
 
     end
@@ -99,6 +99,8 @@ end
         end
         function obj = SimOpt(obj,x,Opt)
             [ra,rb] = ComputeRaRb(obj,x,Opt);
+            mess = strcat('Please enter rb=',num2str(rb),' and ra=',num2str(ra),' in the table');
+            msgbox(mess,'Use these simulation parameters');
         end
 
         % -------------IR EQUATION-------------------------------------------------------------------------
@@ -115,9 +117,9 @@ end
         
         % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
         function [ra,rb] = ComputeRaRb(obj,x,Opt)
-            
+            x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
             % equation for GRE-IR
-            M0=1; %normalized signal
+            M0=1000; %normalized signal
             ra = M0 * (1-cos(Opt.FAinv)*exp(-Opt.TR/x.T1))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x.T1));
             rb = -M0 * (1-cos(Opt.FAinv))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x.T1));
             Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
