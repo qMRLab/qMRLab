@@ -20,7 +20,7 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 %            the panel before:
 %            1) Write 'PANEL'
 %            2) Give his title
-%            3) Give the number of options present in this panel
+%            3) Give the number of options present in this_ panel
 %     Example: buttons = {'PANEL','PanelTitle','nOptions',...}
 %   * Number: Simply write the number after his title
 %     Example: buttons = {'Option',1}
@@ -177,6 +177,8 @@ for ii = 1:N
     val = opts{2*ii};
 	% special case: disable if ### in option name
     if strcmp(opts{2*ii-1}(1:3),'###'), opts{2*ii-1} = opts{2*ii-1}(4:end); disable=true; else, disable=false; end
+    if strcmp(opts{2*ii-1}(1:4),'####'), opts{2*ii-1} = opts{2*ii-1}(5:end); noVis = true; else, noVis =false; end
+
     tag = genvarname_v2(opts{2*ii-1});
     if islogical(opts{2*ii})
         handle.(tag) = uicontrol('Style','checkbox','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
@@ -208,7 +210,10 @@ for ii = 1:N
             'HorizontalAlignment','center');
     end
     if disable
-        set(handle.(tag),'enable','off')
+        set(handle.(tag),'enable','off');
+    end
+    if noVis
+        set(handle.(tag),'Visible','off');
     end
 end
 

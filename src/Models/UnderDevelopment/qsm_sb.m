@@ -76,10 +76,18 @@ classdef qsm_sb < AbstractModel % Name your Model
         Prot = struct('Resolution',struct('Format',{{'VoxDim[1] (mm)' 'VoxDim[2] (mm)' 'VoxDim[3] (mm)'}},...
                                    'Mat',  [0.6 0.6 0.6]),...
                       'Timing',struct('Format',{{'TE (s)'}},...
-                                   'Mat', [8.1e-3]));
+                                   'Mat', 8.1e-3), ... 
+                      'Magnetization', struct('Format', {{'Field Strength (T)' 'Central Freq. (MHz)'}}, 'Mat', [3 42.58]));
         
         % Model options
-        buttons = {'direction',{'forward','backward'},'sharp_mode',{'once','iterative'}, 'H_freq (MHz)', 42.58};
+        buttons = {'Differentiation Direction',{'forward','backward'},'PaddingSize', [9 9 9], 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'} ,'PANEL', 'Regularization Selection', 4,...
+        'L1 Regularized', true, 'L2 Regularized', true, 'Split-Bregman', false, 'No Regularization', false, ...           
+        'PANEL', 'Regularization Params',6, ...
+            'Lambda L1', 5, 'ReOptimize Lambda L1', false, 'L1 Opt Range', [-4 2.5 15], ...
+            'Lambda L2', 5, 'ReOptimize Lambda L2', false, 'dfgd', [-4 2.5 15]
+          
+            };
+       
         options= struct();
         
     end
@@ -94,13 +102,22 @@ classdef qsm_sb < AbstractModel % Name your Model
     
     methods
         
-        function obj = qsm_gre
+        function obj = qsm_sb
             
         obj.lambdaL1Range = logspace(obj.rangeL1(1),obj.rangeL1(2), obj.rangeL1(3));
         obj.lambdaL2Range = logspace(obj.rangeL2(1), obj.rangeL2(2), obj.rangeL2(3));
             
         obj.options = button2opts(obj.buttons); 
             
+        end
+        
+        function obj = UpdateFields(obj)
+           
+            obj = linkGUIState(obj, 'Split-Bregman', 'L1 Regularized', 'enable_disable');
+            obj = linkGUIState(obj, 'Split-Bregman', 'L2 Regularized', 'enable_disable');
+            %if obj.options.RegularizationSelection_SplitBregman
+            %obj = setButtonInvisible(obj,'Differentiation Direction',1);
+            %end 
         end
         
         function Smodel = equation(obj, x)
@@ -122,7 +139,6 @@ classdef qsm_sb < AbstractModel % Name your Model
         function FitResults = fit(obj,data)
         
             PhaseParams = obj.Prot.PhaseGRE.Mat;
-            
             Opt = GetFitOpt(obj);
             [FitResults.chi_SB, FitResults.chi_L2, FitResults.chi_L2pcg, FitResults.nfm_disp] = qsm_gre_exec(data, PhaseParams, Opt);
         
@@ -153,4 +169,97 @@ classdef qsm_sb < AbstractModel % Name your Model
 
 
     end
+    
+    
+    methods (Access = protected)
+        
+        function idx = getButtonIdx(obj,buttonName)
+        
+             idx = find(strcmp(obj.buttons,buttonName) | strcmp(obj.buttons,['###' buttonName]) | ...
+                   strcmp(obj.buttons,['####' buttonName]));
+                 
+            
+        end
+        
+        function obj = setButtonInvisible(obj,buttonName,state)
+          
+            idx = getButtonIdx(obj,buttonName);
+            
+            if state
+                
+                % There may be an attampt to
+                obj.buttons{idx} = ['####' buttonName];
+                
+            elseif not(state) && strcmp(obj.buttons{idx}(1:4),'####')
+               
+                obj.buttons{idx} = buttonName;
+            
+            end
+            
+        end
+        
+        function obj = setButtonDisabled(obj,buttonName,state)
+        
+             idx = getButtonIdx(obj,buttonName);
+            
+            if state && not(strcmp(obj.buttons{idx}(1:3),'###'))
+                
+                obj.buttons{idx} = ['###' buttonName];
+                
+            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'###')
+                
+                obj.buttons{idx} = buttonName;
+                
+            end
+            
+        end
+        
+        function obj = linkGUIState(obj, checkBoxName, targetObject, eventType)
+           
+            
+            chkName = genvarname_v2(checkBoxName);
+            
+            opts = button2opts(obj.buttons);
+            
+            opNames = fieldnames(opts);
+            
+            chkIdx = find(cellfun(@(x)~isempty(strfind(x,chkName)), opNames));
+            
+            switch eventType
+               
+                case 'enable_disable'
+                
+            if obj.options.(opNames{chkIdx})
+                
+                obj =  setButtonDisabled(obj,targetObject,1);
+                
+            else
+                
+                obj =  setButtonDisabled(obj,targetObject,0);
+                
+            end
+            
+             case 'show_hide'
+                 
+            if obj.options.(opNames{chkIdx})
+                
+                obj =  setButtonDisabled(obj,targetObject,1);
+                
+            else
+                
+                obj =  setButtonDisabled(obj,targetObject,0);
+                
+            end    
+                 
+            
+            end
+            
+              
+            
+        end
+        
+        
+    end
+    
+    
 end
