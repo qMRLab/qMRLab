@@ -116,7 +116,8 @@ classdef BrowserSet
         %------------------------------------------------------------------
         % -- DATA LOAD
         %   load data from file and make accessible to qMRLab fct
-        function DataLoad(obj)
+        function DataLoad(obj,warnmissing)
+            if ~exist('warnmissing','var'), warnmissing=true; end
             set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
             obj.FullFile = get(obj.FileBox, 'String');
             tmp = [];
@@ -140,7 +141,7 @@ classdef BrowserSet
                     end
                     tmp = File;
                 else
-                    warndlg(['file extention ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                    warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
                 end
             end
             
@@ -156,25 +157,27 @@ classdef BrowserSet
 
             setappdata(0, 'Data', Data); 
             set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
-
-            ErrMsg = Model.sanityCheck(Data.(class(Model)));
-            hWarnBut = findobj(obj.parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
-            if ~isempty(ErrMsg)
-                set(hWarnBut,'String',ErrMsg)
-                set(hWarnBut,'TooltipString',ErrMsg)
-                set(hWarnBut,'Visible','on')
-            else
-                set(hWarnBut,'String','')
-                set(hWarnBut,'TooltipString','')
-                set(hWarnBut,'Visible','off')
+            
+            if warnmissing
+                ErrMsg = Model.sanityCheck(Data.(class(Model)));
+                hWarnBut = findobj(obj.parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
+                if ~isempty(ErrMsg)
+                    set(hWarnBut,'String',ErrMsg)
+                    set(hWarnBut,'TooltipString',ErrMsg)
+                    set(hWarnBut,'Visible','on')
+                else
+                    set(hWarnBut,'String','')
+                    set(hWarnBut,'TooltipString','')
+                    set(hWarnBut,'Visible','off')
+                end
             end
-                
         end
         
         %------------------------------------------------------------------
         % -- setPath
         % search for filenames that match the NameText
-        function setPath(obj, Path, fileList)       
+        function setPath(obj, Path, fileList,warnmissing)    
+            if ~exist('warnmissing','var'), warnmissing=true; end
             % clear previous file paths
             set(obj.FileBox, 'String', '');
             DataName = get(obj.NameText, 'String');
@@ -183,7 +186,7 @@ classdef BrowserSet
                 if strfind(fileList{ii}(1:end-4), DataName{1})
                     obj.FullFile = fullfile(Path,fileList{ii});                    
                     set(obj.FileBox, 'String', obj.FullFile);
-                    obj.DataLoad();
+                    obj.DataLoad(warnmissing);
                 end
             end
             
@@ -221,7 +224,7 @@ classdef BrowserSet
         function ViewBtn_callback(obj,src, event)
             dat = getappdata(0, 'Data');
             dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
-            if isempty(dat), errordlg('empty data'); return; end
+            if isempty(dat), errordlg('"Browse" for your own MRI data or click on "download example" data.','empty data'); return; end
             
             n = ndims(dat);
             Data.(obj.NameID{1,1}) = dat;
@@ -230,6 +233,8 @@ classdef BrowserSet
             handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
             DrawPlot(handles);
+            
+            set(handles.RoiAnalysis,'Enable','on');
         end
         
         

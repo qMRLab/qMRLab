@@ -1,6 +1,6 @@
 classdef charmed < AbstractModel
 %charmed: Composite Hindered and Restricted Model for Diffusion
-%<a href="matlab: figure, imshow charmed.png ;">Pulse Sequence Diagram</a>
+%<a href="matlab: figure, imshow Diffusion.png ;">Pulse Sequence Diagram</a>
 %
 %
 % Assumptions:
@@ -106,7 +106,7 @@ end
         % Protocol
         Prot = struct('DiffusionData',...
             struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}},...
-            'Mat',  txt2mat('CHARMEDProtocol.txt'))...
+            'Mat',  txt2mat('CHARMEDProtocol.txt','InfoLevel',0))...
             ); % You can define a default protocol here.
         
         % Model options
