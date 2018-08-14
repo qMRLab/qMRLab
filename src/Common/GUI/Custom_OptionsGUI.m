@@ -39,7 +39,7 @@ end
 % --- Executes just before Custom_OptionsGUI is made visible.
 function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % WAIT IF OUTPUTS
-if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else, wait=false; end
 
 handles.output = hObject;
 handles.root = fileparts(which(mfilename()));
@@ -163,7 +163,10 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
+    if ~isempty(getenv('ISTRAVIS')) && isempty(getenv('ISDOC'))
+        warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.');
+        delete(findobj('Name','OptionsGUI'));
+    end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)
