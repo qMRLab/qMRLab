@@ -76,7 +76,7 @@ classdef qmt_sirfse < AbstractModel
 %     Lineshape         The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
 %     T2r               Transverse relaxation time of the restricted pool (T2r = 1/R2r)
 %
-% Example of command line usage (see also <a href="matlab: showdemo qmt_sirfse_batch">showdemo qmt_sirfse_batch</a>):
+% Example of command line usage:
 %   For more examples: <a href="matlab: qMRusage(qmt_sirfse);">qMRusage(qmt_sirfse)</a>
 %
 % Author: Ian Gagnon, 2017

@@ -100,7 +100,6 @@ classdef qmt_spgr < AbstractModel
 %
 % Command line usage:
 %   <a href="matlab: qMRusage(qmt_spgr);">qMRusage(qmt_spgr</a>
-%   <a href="matlab: showdemo qmt_spgr_batch">showdemo qmt_spgr_batch</a>
 %
 % Author: Ian Gagnon, 2017
 %

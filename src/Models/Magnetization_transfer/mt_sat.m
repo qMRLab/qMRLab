@@ -26,7 +26,7 @@ classdef mt_sat < AbstractModel
 %     T1w    [FA  TR]          flip angle [deg], TR [s]
 %     PDw    [FA  TR]          flip angle [deg], TR [s]
 %
-% Example of command line usage (see also <a href="matlab: showdemo mt_sat_batch">showdemo mt_sat_batch</a>):
+% Example of command line usage:
 %   Model = mt_sat;  % Create class from model
 %   Model.Prot.MTw.Mat = txt2mat('MT.txt');  % Load protocol
 %   Model.Prot.T1w.Mat = txt2mat('T1.txt');
