@@ -49,7 +49,7 @@ b1_dam map:  Double-Angle Method for B1+ mapping
        background-color: rgba(0,0,0,.5);
        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
       }
-   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
+   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(b1_dam)</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
    <span class="comment">%</span>
@@ -58,10 +58,9 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    <span class="comment">%</span>
    <span class="comment">% Demo files are downloaded into b1_dam_data folder.</span>
    <span class="comment">%</span>
-   <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b1_dam'</span>); <span class="comment">% Display help</span>
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b1_dam'</span>); <span class="comment">% Describe the model</span>
    </pre><pre class="codeoutput">  b1_dam map:  Double-Angle Method for B1+ mapping
     
      Assumptions:
@@ -106,59 +105,32 @@ b1_dam map:  Double-Angle Method for B1+ mapping
           doc b1_dam
    
    
-   </pre><h2 id="3">II- INITIALIZE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><h2 id="4">A- CREATE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><pre class="codeinput">Model = b1_dam;
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="5">B- MODIFY OPTIONS</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
-            |- Octave is not GUI compatible. Modify Model.options directly.
-   -------------------------------------------------------------------------</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">b1_dam.</span>
-   -------------------------------------------------------------------------
-   </pre><pre class="codeinput"><span class="comment">% This object does not have protocol attributes.</span>
-   </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by b1_dam.
-   -------------------------------------------------------------------------
-   b1_dam object needs 2 data input(s) to be assigned:</pre><pre class="codeinput"><span class="comment">% SF60</span>
-   <span class="comment">% SF120</span>
-   <span class="comment">% --------------</span>
-   
-   data = struct();
+   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = b1_dam;
+   </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
+            |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
+   </pre><img src="_static/b1_dam_batch_01.png" vspace="5" hspace="5" style="width:569px;height:833px;" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- b1_dam object needs 2 data input(s) to be assigned:
+            |-   SF60
+            |-   SF120</pre><pre class="codeinput">data = struct();
    <span class="comment">% SF60.nii.gz contains [64  64] data.</span>
    data.SF60=double(load_nii_data(<span class="string">'b1_dam_data/SF60.nii.gz'</span>));
    <span class="comment">% SF120.nii.gz contains [64  64] data.</span>
    data.SF120=double(load_nii_data(<span class="string">'b1_dam_data/SF120.nii.gz'</span>));
-   
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="9">B- FIT DATASET</h2><pre >           |- This section will fit data.
-   -------------------------------------------------------------------------</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
-   
-   FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
+   </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">...done
-   </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   
-   qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/b1_dam_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'b1_dam_Demo.qmrlab.mat'</span>);
-   FitResultsSave_nii(FitResults, <span class="string">'b1_dam_data/SF60.nii.gz'</span>);
-   
-   <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
-   </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'b1_dam.
-   -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+   </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
+            |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
+   </pre><img src="_static/b1_dam_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+                 that can be loaded in qMRLab graphical user interface
+            |-  Model object stores all the options and protocol.
+                 It can be easily shared with collaborators to fit their
+                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'b1_dam_data/SF60.nii.gz'</span>);
+   Model.saveObj(<span class="string">'b1_dam_Demo.qmrlab.mat'</span>);
+   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for b1_dam.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
-                 (3) fit and plot curve
-   -------------------------------------------------------------------------</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+                 (3) fit and plot curve</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
+   </pre><h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
-                   (3) Compute mean and std across runs
-   -------------------------------------------------------------------------</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>
+                   (3) Compute mean and std across runs</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
+   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2016b</a><br ></p></div>
