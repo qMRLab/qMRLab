@@ -17,6 +17,7 @@ function varargout = qMRLab(varargin)
 % ----------------------------------------------------------------------------------------------------
 
 if logical(exist('OCTAVE_VERSION', 'builtin')), warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
+
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name', mfilename, ...
