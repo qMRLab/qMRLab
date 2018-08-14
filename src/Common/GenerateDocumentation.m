@@ -26,6 +26,7 @@ for iModel = 1:length(Modellist)
     publish([Modellist{iModel} '_batch.m'])
     
     cd ..
+    close all
 end
 setenv('ISTRAVIS','')
 setenv('ISDOC','')
