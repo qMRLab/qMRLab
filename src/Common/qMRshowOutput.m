@@ -27,7 +27,7 @@ else
     imagesc(imrotate(outputIm,90)); colormap('parula');  title(FitResults.fields{1});
 end
 axis image
-[climm, climM] = range_outlier(outputIm(outputIm~=0));
+[climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
 if FitResults.Model.voxelwise 
