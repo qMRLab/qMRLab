@@ -128,7 +128,6 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
     data.Mask= double(Mask);
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">Fitting voxel     3/2540
-   ...done   0%
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
    </pre><img src="_static/mwf_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <img src="_static/mwf_batch_03.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat

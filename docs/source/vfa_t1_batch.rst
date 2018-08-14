@@ -81,7 +81,7 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
      Options:
        None
     
-     Example of command line usage (see also a href="matlab: showdemo vfa_t1_batch"showdemo vfa_t1_batch/a):
+     Example of command line usage:
        Model = vfa_t1;  % Create class from model 
        Model.Prot.VFAData.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
        data = struct;  % Create data structure 
@@ -127,17 +127,16 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    data.Mask=double(load_nii_data(<span class="string">'vfa_t1_data/Mask.nii.gz'</span>));
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">Fitting voxel     3/4668
-   ...done   0%
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
-   </pre><pre class="codeoutput">          M0: 2.5567e+03
-          Model: [11 vfa_t1]
-       Protocol: [11 struct]
-             T1: 1.3447
-           Time: 0.0114
-        Version: []
-       computed: [128128 double]
+   </pre><pre class="codeoutput">          T1: 1.3447
+             M0: 2.5567e+03
          fields: {'T1'  'M0'}
+       computed: [128128 double]
+           Time: 0.1047
+       Protocol: [11 struct]
+          Model: [11 vfa_t1]
+        Version: [2 0 10]
    
    </pre><img src="_static/vfa_t1_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <img src="_static/vfa_t1_batch_03.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
@@ -156,8 +155,8 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
          <span class="comment">% run simulation using options `Opt(1)`</span>
          figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
-   </pre><pre class="codeoutput">    T1: 0.7696
-       M0: 2.1454e+03
+   </pre><pre class="codeoutput">    T1: 0.6566
+       M0: 1.9168e+03
    
    </pre><img src="_static/vfa_t1_batch_04.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.

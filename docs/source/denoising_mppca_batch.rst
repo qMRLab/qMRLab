@@ -1,5 +1,5 @@
-b0_dem map :  Dual Echo Method for B0 mapping
-=============================================
+denoising_mppca :  4d image denoising and noise map estimation by exploiting
+============================================================================
 
 .. raw:: html
 
@@ -49,88 +49,78 @@ b0_dem map :  Dual Echo Method for B0 mapping
        background-color: rgba(0,0,0,.5);
        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
       }
-   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(b0_dem)</span>
+   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(denoising_mppca)</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
    <span class="comment">%</span>
    <span class="comment">% Please execute this m-file section by section to get familiar with batch</span>
-   <span class="comment">% processing for b0_dem on CLI.</span>
+   <span class="comment">% processing for denoising_mppca on CLI.</span>
    <span class="comment">%</span>
-   <span class="comment">% Demo files are downloaded into b0_dem_data folder.</span>
+   <span class="comment">% Demo files are downloaded into denoising_mppca_data folder.</span>
    <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b0_dem'</span>); <span class="comment">% Describe the model</span>
-   </pre><pre class="codeoutput">  b0_dem map :  Dual Echo Method for B0 mapping
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'denoising_mppca'</span>); <span class="comment">% Describe the model</span>
+   </pre><pre class="codeoutput">  denoising_mppca :  4d image denoising and noise map estimation by exploiting
+                          data redundancy in the PCA domain using universal properties 
+                          of the eigenspectrum of random covariance matrices, 
+                          i.e. Marchenko Pastur distribution
     
      Assumptions:
-       Compute B0 map based on 2 phase images with different TEs
+       Noise follows a rician distribution
+       image bounderies are not processed
     
      Inputs:
-       Phase       4D phase image, 2 different TEs in time dimension
-       Magn        3D magnitude image
+       Data4D              4D data (any modality)
+      (Mask)                Binary mask with region-of-interest
     
      Outputs:
-    	B0map       B0 field map [Hz]
-    
-     Protocol:
-       TimingTable
-           deltaTE     Difference in TE between 2 images [ms]            
+       Data4D_denoised     denoised 4D data
+       sigma_g               standard deviation of the rician noise
     
      Options:
-       Magn thresh     relative threshold for the magnitude (phase is undefined in the background
+    	sampling
+       	'full'          sliding window
+           'fast'          block processing (warning: undersampled noise map will be returned)
+       kernel              window size, typically in order of [5 x 5 x 5]
     
      Example of command line usage:
-       Model = b0_dem;  % Create class from model 
-       Model.Prot.TimingTable.Mat = 1.92e-3; % deltaTE [s]
-       data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
-       data.Magn  = double(load_nii_data('Magn.nii.gz'));
-       FitResults       = FitData(data,Model);
-       FitResultsSave_nii(FitResults,'Phase.nii.gz'); %save nii file using Phase.nii.gz as template
-        
-       For more examples: a href="matlab: qMRusage(b0_dem);"qMRusage(b0_dem)/a
+       Model = denoising_mppca;  % Create class from model
+       data.Data4D = load_nii_data('Data4D.nii.gz');  % Load data
+       FitResults = FitData(data,Model,1);  % Fit each voxel within mask
+       FitResultsSave_nii(FitResults,'Data4D.nii.gz');  % Save in local folder: FitResults/
     
-     Author: Ian Gagnon, 2017
+     Author: Tanguy Duval, 2016
     
      References:
        Please cite the following if you use this module:
-         Maier, F., Fuentes, D., Weinberg, J.S., Hazle, J.D., Stafford, R.J.,
-         2015. Robust phase unwrapping for MR temperature imaging using a
-         magnitude-sorted list, multi-clustering algorithm. Magn. Reson. Med.
-         73, 1662?1668. Schofield, M.A., Zhu, Y., 2003. Fast phase unwrapping
-         algorithm for interferometric applications. Opt. Lett. 28, 1194?1196
+         Veraart, J.; Fieremans, E.  Novikov, D.S. Diffusion MRI noise mapping using random matrix theory Magn. Res. Med., 2016, early view, doi:10.1002/mrm.26059
        In addition to citing the package:
-         Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
-         Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
-         Stikov N. (2016), Quantitative magnetization transfer imaging made
-         easy with qMTLab: Software for data simulation, analysis, and
-         visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+         Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
    
        Reference page in Doc Center
-          doc b0_dem
+          doc denoising_mppca
    
    
-   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = b0_dem;
+   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = denoising_mppca;
    </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
             |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   </pre><img src="_static/b0_dem_batch_01.png" vspace="5" hspace="5" style="width:569px;height:833px;" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- b0_dem object needs 2 data input(s) to be assigned:
-            |-   Phase
-            |-   Magn</pre><pre class="codeinput">data = struct();
-   <span class="comment">% Phase.nii.gz contains [64  64   1   8] data.</span>
-   data.Phase=double(load_nii_data(<span class="string">'b0_dem_data/Phase.nii.gz'</span>));
-   <span class="comment">% Magn.nii.gz contains [64  64   1   8] data.</span>
-   data.Magn=double(load_nii_data(<span class="string">'b0_dem_data/Magn.nii.gz'</span>));
+   </pre><img src="_static/denoising_mppca_batch_01.png" vspace="5" hspace="5" style="width:569px;height:833px;" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- denoising_mppca object needs 2 data input(s) to be assigned:
+            |-   Data4D
+            |-   Mask</pre><pre class="codeinput">data = struct();
+   <span class="comment">% Data4D.nii.gz contains [70   70    4  197] data.</span>
+   data.Data4D=double(load_nii_data(<span class="string">'denoising_mppca_data/Data4D.nii.gz'</span>));
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">...done
-   </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
+   </pre><img src="_static/denoising_mppca_batch_02.png" vspace="5" hspace="5" style="width:387px;height:92px;" alt=""> <h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/b0_dem_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+   </pre><img src="_static/denoising_mppca_batch_03.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
-                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'b0_dem_data/Phase.nii.gz'</span>);
-   Model.saveObj(<span class="string">'b0_dem_Demo.qmrlab.mat'</span>);
-   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for b0_dem.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'denoising_mppca_data/Data4D.nii.gz'</span>);
+   Model.saveObj(<span class="string">'denoising_mppca_Demo.qmrlab.mat'</span>);
+   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for denoising_mppca.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
                  (3) fit and plot curve</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>

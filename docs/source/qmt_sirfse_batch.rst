@@ -138,7 +138,7 @@ qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
          Lineshape         The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
          T2r               Transverse relaxation time of the restricted pool (T2r = 1/R2r)
     
-     Example of command line usage (see also a href="matlab: showdemo qmt_sirfse_batch"showdemo qmt_sirfse_batch/a):
+     Example of command line usage:
        For more examples: a href="matlab: qMRusage(qmt_sirfse);"qMRusage(qmt_sirfse)/a
     
      Author: Ian Gagnon, 2017
@@ -160,7 +160,6 @@ qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
    data.Mask=double(load_nii_data(<span class="string">'qmt_sirfse_data/Mask.nii.gz'</span>));
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">Fitting voxel     3/4354
-   ...done   0%
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
    </pre><img src="_static/qmt_sirfse_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <img src="_static/qmt_sirfse_batch_03.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat

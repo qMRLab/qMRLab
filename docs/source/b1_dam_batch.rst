@@ -79,7 +79,7 @@ b1_dam map:  Double-Angle Method for B1+ mapping
      Options
        NONE
     
-     Example of command line usage (see also a href="matlab: showdemo b1_dam_batch"showdemo b1_dam_batch/a):
+     Example of command line usage:
        Model = b1_dam;% Create class from model 
        data.SF60 = double(load_nii_data('SF60.nii.gz')); %load data
        data.SF120  = double(load_nii_data('SF120.nii.gz'));
