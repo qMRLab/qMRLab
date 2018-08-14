@@ -42,12 +42,12 @@ if any(~cellfun(@isempty,qmrexcep))
             
             % Store pref
             list2store = {'E_mail','SMTP_Server','SMTP_Username','SMTP_Password'};
-            storepref = false(1,length(list2store));
             storeprefcontent = {};
             for ils=1:length(list2store)
                 if ispref('Internet',list2store{ils})
-                    storepref(ils)=true;
                     storeprefcontent{ils} = getpref('Internet',list2store{ils});
+                else
+                    storeprefcontent{ils} = '';
                 end
             end
             props = java.lang.System.getProperties;
@@ -69,9 +69,7 @@ if any(~cellfun(@isempty,qmrexcep))
             
             % Set back original pref
             for ils=1:length(list2store)
-                if storepref(ils)
-                    setpref('Internet',list2store{ils},storeprefcontent{ils});
-                end
+                setpref('Internet',list2store{ils},storeprefcontent{ils});
             end
             try
                 props.setProperty('mail.smtp.auth',auth);
