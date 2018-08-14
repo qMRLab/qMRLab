@@ -100,7 +100,7 @@ elseif iscell(target)
     end
 
     % I thought it is something like R = R0 \ R * R1; but it is way off. It
-    % seems the transform info in src nii is irrevelant, but direction must be
+    % seems the transform info in src nii is irrelevant, but direction must be
     % used: Left/right-handed storage of both src and target img won't affect
     % FSL alignment R. Alignment R may not be diag-major, and can be negative
     % for major axes (e.g. cor/sag slices).

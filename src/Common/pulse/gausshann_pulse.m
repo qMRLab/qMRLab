@@ -15,7 +15,7 @@ function pulse = gausshann_pulse(t, Trf, PulseOpt)
 %
 %             -properties-
 %             bw: FWHM of the Fourier Transform of the Gaussian function. 
-%                 Conventionnally a measure of the RF bandwith. See
+%                 Conventionnally a measure of the RF bandwidth. See
 %                 deltaf_G in the reference for more details (between Eqs.
 %                 4.12 and 2.14.).
 %

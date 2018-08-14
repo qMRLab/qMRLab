@@ -68,6 +68,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     NewPos     = CurrentPos;
     NewPos(1)  = CurrentPos(1) - 40;
     set(gcf, 'Position', NewPos);
+    if ispc , set(findobj(handles.FitResultsPlotPanel,'Type','uicontrol'),'FontSize',7); end % everything is bigger on windows or linux
     
     % Fill Menu with models
     handles.ModelDir = [qMRLabDir filesep 'src/Models'];
@@ -189,8 +190,8 @@ for iM=1:length(MethodList), MethodListfull{iM} = sprintf(['%-' num2str(maxlengt
 set(handles.MethodSelection,'String',MethodListfull);
 set(handles.MethodSelection,'FontName','FixedWidth')
 set(handles.MethodSelection,'FontWeight','bold')
-set(handles.MethodSelection,'FontSize',15)
-
+set(handles.MethodSelection,'FontUnits','normalized')
+set(handles.MethodSelection,'FontSize',.5)
 
 
 %###########################################################################################
@@ -370,7 +371,7 @@ if isempty(FitResults.WD), FitResults.WD = pwd; end
 FitResults.Files = FileBrowserList(MethodID).getFileName;
 SetAppData(FitResults);
 
-% Kill the waitbar in case of a problem occured
+% Kill the waitbar in case of a problem occurred
 wh=findall(0,'tag','TMWWaitbar');
 delete(wh);
 
@@ -1005,6 +1006,8 @@ function RoiAnalysis_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
  setappdata(0,'roidata',handles.CurrentData);
+if ~license('test', 'Image_Toolbox'), warndlg('Image Toolbox is not installed: ROI Analysis tool not available in the GUI;'); return; end
+
 roiGui = Roi_analysis(handles);
 set(roiGui,'WindowStyle','modal') %If you want to "freeze" main GUI until secondary is closed.
 uiwait(roiGui) %Wait for user to finish with secondary GUI.

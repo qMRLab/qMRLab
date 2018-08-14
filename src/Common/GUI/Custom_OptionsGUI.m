@@ -56,8 +56,12 @@ handles.opened = 1;
 
 % POPULATE FITTING PANEL
 % Load model parameters
-Model = varargin{1}; 
+if isempty(varargin), Model = getappdata(0,'Model');
+else
+    Model = varargin{1};
+end
 setappdata(0,'Model',Model);
+set(handles.uipanel29,'Title',[strrep(Model.ModelName, '_', ' ') ' options'])
 Nparam = length(Model.xnames);
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
@@ -164,7 +168,7 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediatly. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
+    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)
@@ -249,6 +253,24 @@ Model.options = button_handle2opts(handles.OptionsPanel_handle);
 if ismethod(Model,'UpdateFields')
     Model = Model.UpdateFields();
 end
+
+% SANITY CHECK
+Data = getappdata(0, 'Data');
+if ~isempty(Data) && isfield(Data,class(Model))
+    ErrMsg = Model.sanityCheck(Data.(class(Model)));
+    hWarnBut = findobj('Tag',['WarnBut_DataConsistency_' class(Model)]);
+    if ~isempty(ErrMsg)
+        set(hWarnBut,'String',ErrMsg)
+        set(hWarnBut,'TooltipString',ErrMsg)
+        set(hWarnBut,'Visible','on')
+    else
+        set(hWarnBut,'String','')
+        set(hWarnBut,'TooltipString','')
+        set(hWarnBut,'Visible','off')
+    end
+end
+
+% SAVE
 setappdata(0,'Model',Model);
 
 

@@ -9,9 +9,9 @@ path = '.'; % use relative path
 
 mkdir([Model.ModelName '_demo']);
 cd([Model.ModelName '_demo']);
-if not(moxunit_util_platform_is_octave)
-commandwindow;
-end
+% if not(moxunit_util_platform_is_octave)
+% commandwindow; %% remove this line--> not compatible with GUI usage
+% end
 disp('Please wait. Downloading data ...');
 try
     url = Model.onlineData_url;
@@ -66,6 +66,7 @@ if (exist(oldname,'dir')~=0)
 else
     dirFiles = dir(path);
     dirFiles=dirFiles(~ismember({dirFiles.name},{'.','..'}));
+    dirFiles=dirFiles(~[dirFiles.isdir]);
     mkdir([filename(1:end-4) '_data']);
     newname = [path filesep filename(1:end-4) '_data'];
     for i =1:length(dirFiles)

@@ -1,7 +1,19 @@
 function qMRshowOutput(FitResults,data,Model)
-% Show mid-slice fitting maps
-% Also show a fit in an off-center voxel to avoid central sulcus in brain
-% images
+% qMRshowOutput   Show mid-slice fitting maps
+%                 Also show a fit in an off-center voxel to avoid central sulcus in brain
+%                 images
+%
+% Example:
+%   Model = noddi;
+%   %% LOAD DATA
+%   data.DiffusionData = load_nii_data('DiffusionData.nii.gz');
+%   data.Mask = load_nii_data('Mask.nii.gz');
+%   %% FIT
+%   FitResults = FitData(data,Model);
+%   %% DISPLAY
+%   qMRshowOutput(FitResults,data,Model)
+
+if nargin<3, help('qMRshowOutput'); return; end
 
 outputIm = FitResults.(FitResults.fields{1});
 hmap = figure();

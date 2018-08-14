@@ -141,7 +141,7 @@ classdef BrowserSet
                     end
                     tmp = File;
                 else
-                    warndlg(['file extention ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                    warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
                 end
             end
             
@@ -224,7 +224,7 @@ classdef BrowserSet
         function ViewBtn_callback(obj,src, event)
             dat = getappdata(0, 'Data');
             dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
-            if isempty(dat), errordlg('empty data'); return; end
+            if isempty(dat), errordlg('"Browse" for your own MRI data or click on "download example" data.','empty data'); return; end
             
             n = ndims(dat);
             Data.(obj.NameID{1,1}) = dat;

@@ -22,7 +22,7 @@ classdef mwf < AbstractModel
 % Protocol:
 %  MET2data   [TE1 TE2 ...] % list of echo times [ms]
 %
-% Example of command line usage (see also <a href="matlab: showdemo mwf_batch">showdemo mwf_batch</a>):
+% Example of command line usage:
 %   Model = mwf;  % Create class from model
 %   Model.Prot.MET2data.Mat=[10:10:320];
 %   data = struct;  % Create data structure
