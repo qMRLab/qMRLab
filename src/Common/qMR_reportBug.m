@@ -65,7 +65,7 @@ if any(~cellfun(@isempty,qmrexcep))
             setpref('Internet','SMTP_Password','E3dUgoH4101M');
             
             % SEND MAIL
-            sendmail('tgdval@gmail.com','qMRLab issue',txt);
+            sendmail('qmrlab_developers@googlegroups.com','qMRLab issue',txt);
             
             % Set back original pref
             for ils=1:length(list2store)
