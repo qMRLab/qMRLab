@@ -62,3 +62,7 @@ Data
 
 # Temporary folder
 tmp/
+
+# Coveralls.io reports
+reports/
+*coverage*

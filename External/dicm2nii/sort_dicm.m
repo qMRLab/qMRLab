@@ -13,7 +13,10 @@ function varargout = sort_dicm(srcDir)
 % each subject, and move corresponding files into each subject folder. If a
 % subject has more than one studies, each study will have a subfolder.
 % 
-% See also DICM2NII, DICM_HDR, RENAME_DICM 
+% This function is kind of obsolete since later version of dicm2nii will convert
+% files with more than one subjects.
+% 
+% See also DICM2NII, DICM_HDR, RENAME_DICM, ANONYMIZE_DICM
 
 % History (yymmdd):
 % 141016 Wrote it (Xiangrui Li).
@@ -47,11 +50,11 @@ for i = 1:n
 
     if isfield(s, 'PatientName'), subj = s.PatientName;
     elseif isfield(s, 'PatientID'), subj = s.PatientID;
-    else continue;
+    else, continue;
     end
     if ~isfield(s, 'StudyID'), s.StudyID = '1'; end
     
-    P = genvarname(['P' subj]);
+    P = genvarname(['P' subj]); %#ok<*DEPGENAM>
     if ~isfield(h, P), h.(P) = []; end
     S = genvarname(['S' s.StudyID]);
     if ~isfield(h.(P), S), h.(P).(S) = {}; end

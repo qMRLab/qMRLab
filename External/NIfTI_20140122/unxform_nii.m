@@ -6,7 +6,7 @@
 %  Usage:  a = load_nii('original_name');
 %          manipulate a.img to make array b;
 %
-%          if you use unxform_nii to un-tranform the image (img) data
+%          if you use unxform_nii to un-transform the image (img) data
 %          block, then nii.original.hdr is the corresponding header.
 %
 %          nii.original.img = unxform_nii(a, b);

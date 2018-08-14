@@ -4,7 +4,7 @@ function label_counts=getTestOutputStatistics(obj)
 % label_counts=getTestOutputStatistics(obj)
 %
 % Input:
-%   obj             MOxUnitTestReport instance containg tests that have
+%   obj             MOxUnitTestReport instance containing tests that have
 %                   been run.
 %
 % Output:
