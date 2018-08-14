@@ -47,6 +47,9 @@ end
 function Sim_Single_Voxel_Curve_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
 
+Model = varargin{1}; 
+setappdata(0,'Model',Model);
+
 if ~isfield(handles,'opened')
     handles.output = hObject;
     handles.Model = varargin{1};
@@ -57,17 +60,30 @@ if ~isfield(handles,'opened')
         opts = {'SNR',50};
     end
     
+    % Generate Buttons
     handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
     
     
-    % fill Table
-    if isprop(handles.Model,'xnames_x')
-        handles.Model.xnames=handles.Model.xnames_x;
-        handles.Model.st=handles.Model.st_x;
-        handles.Model.ub=handles.Model.ub_x;
-        handles.Model.lb=handles.Model.lb_x;
+    
+     % Create CALLBACK for buttons
+    ff = fieldnames(handles.options);
+    for ii=1:length(ff)
+        %set(handles.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(handles));
+        switch get(handles.options.(ff{ii}),'Style')
+%             %case 'popupmenu'
+%                 val =  find(cell2mat(cellfun(@(x) strcmp(x,Model.options.(ff{ii})),get(handles.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
+%                 set(handles.OptionsPanel_handle.(ff{ii}),'Value',val);
+%             case 'checkbox'
+%                 set(handles.OptionsPanel_handle.(ff{ii}),'Value',Model.options.(ff{ii}));
+%             case 'edit'
+%                 set(handles.OptionsPanel_handle.(ff{ii}),'String',Model.options.(ff{ii}));
+            case 'pushbutton'
+                set(handles.options.(ff{ii}),'Callback',@(src,event) ModelSimOptions_Callback(handles));
+        end     
     end
-        
+%    set(handles.options.Computerarb,'Callback',@(src,event) Model.SimOpt(handles.Model,button_handle2opts(handles.options)));
+    %set(handles.options.Computerarb,'Callback',@(src,event) ModelSimOptions_Callback(handles));
+
     Nparam = length(handles.Model.xnames);
     FitOptTable(:,1)=handles.Model.xnames(:);
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
@@ -87,8 +103,6 @@ end
 % Update handles structure
 guidata(hObject, handles);
 set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
-
-
 
 % --- Executes on button press in UpdatePlot.
 function UpdatePlot_Callback(hObject, eventdata, handles)
@@ -132,7 +146,11 @@ set(handles.ParamTable,'Data',xtable);
 set(findobj('Name','Single Voxel Curve'),'pointer', 'arrow'); drawnow;
 
 
-
+function ModelSimOptions_Callback(handles)
+xtable = get(handles.ParamTable,'Data');
+x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
+SimOpt(handles.Model,x,button_handle2opts(handles.options));
+%Sim_Single_Voxel_Curve_GUI_OpeningFcn(handles.output, [], handles, handles.Model, handles.caller)
 
 
 % --- Outputs from this function are returned to the command line.
