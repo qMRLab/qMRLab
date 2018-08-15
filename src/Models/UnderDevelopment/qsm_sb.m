@@ -82,10 +82,8 @@ classdef qsm_sb < AbstractModel % Name your Model
         % Model options
         buttons = {'Direction',{'forward','backward'},'Padding Size', [9 9 9], 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'} ,'PANEL', 'Regularization Selection', 4,...
             'L1 Regularized', true, 'L2 Regularized', true, 'Split-Bregman', false, 'No Regularization', false, ...
-            'PANEL', 'L1 Panel',2, ...
-            'Lambda L1', 5, 'ReOptimize L1', false, 'PANEL', 'L2 Panel', 2, 'Lambda L2',5, ...
-            'ReOptimize Lambda L2', false
-            
+            'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize L1', false, 'L1 Range', [1 2 3], ...
+            'PANEL', 'L2 Panel', 2, 'Lambda L2',5, 'ReOptimize Lambda L2', false, 'L2 Range', [1 2 3]
             };
         
         options= struct();
@@ -115,6 +113,7 @@ classdef qsm_sb < AbstractModel % Name your Model
             
             obj = linkGUIState(obj, 'Split-Bregman', 'L1 Regularized', 'enable_disable_button', 'active_0');
             obj = linkGUIState(obj, 'Split-Bregman', 'L2 Regularized', 'enable_disable_button', 'active_0');
+            obj = linkGUIState(obj, 'Split-Bregman', 'No Regularization', 'show_hide_button', 'active_0');
             obj = linkGUIState(obj, 'Sharp Filtering', 'Sharp Mode', 'show_hide_button', 'active_1');
             obj = linkGUIState(obj, 'L1 Regularized', 'L1 Panel', 'show_hide_panel', 'active_1');
             obj = linkGUIState(obj, 'L2 Regularized', 'L2 Panel', 'show_hide_panel', 'active_1');
@@ -209,7 +208,7 @@ classdef qsm_sb < AbstractModel % Name your Model
             end
             
             if state
-               
+                
                 obj.buttons{idx} = ['###' panelName];
                 
             elseif not(state) && strcmp(obj.buttons{idx}(1:3),'###')
@@ -224,22 +223,16 @@ classdef qsm_sb < AbstractModel % Name your Model
         function obj = linkGUIState(obj, checkBoxName, targetObject, eventType, activeState)
             
             switch activeState
-            
+                
                 case 'active_1'
-                    x = 0;
-                    y = 1;
+                    x = false;
+                    y = true;
                 case 'active_0'
-                    x = 1;
-                    y = 0;
+                    x = true;
+                    y = false;
             end
             
-            chkName = genvarname_v2(checkBoxName);
-            
-            opts = button2opts(obj.buttons);
-            
-            opNames = fieldnames(opts);
-            
-            chkIdx = find(cellfun(@(x)~isempty(strfind(x,chkName)), opNames));
+            [opName, type] = getOptionsFieldName(obj,checkBoxName);
             
             switch eventType
                 
@@ -247,6 +240,7 @@ classdef qsm_sb < AbstractModel % Name your Model
                     
                     if obj.options.(opNames{chkIdx})
                         
+                        obj.options.(opNames{tgtIdx}) = true;
                         obj =  setButtonDisabled(obj,targetObject,x);
                         
                     else
@@ -282,6 +276,39 @@ classdef qsm_sb < AbstractModel % Name your Model
             end
             
             
+            
+        end
+        
+        function [opName, type] = getOptionsFieldName(obj,buttonName)
+            
+            varName = genvarname_v2(buttonName);
+            
+            opts = button2opts(obj.buttons);
+            opNames = fieldnames(opts);
+            
+            varIdx = find(cellfun(@(x)~isempty(strfind(x,varName)), opNames));
+            opName = opNames{varIdx};
+            
+            val = obj.options.(opName);
+            ln = length(val);
+            
+            if islogical(val)
+                
+                type = 'checkbox';
+                
+            elseif isnumeric(val) && ln == 1
+                
+                type = 'singleNum';
+                
+            elseif isnumeric(val) && ln > 1
+                
+                type = 'table';
+                
+            elseif iscell(val)
+                
+                type = 'popupmenu';
+                
+            end
             
         end
         
