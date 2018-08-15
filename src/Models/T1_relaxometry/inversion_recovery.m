@@ -28,7 +28,7 @@ classdef inversion_recovery < AbstractModel
 %      'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
 %                         S=|a + b*exp(-TI/T1)|
 %
-% Example of command line usage
+% Example of command line usage (see also <a href="matlab: showdemo inversion_recovery_batch">showdemo inversion_recovery_batch</a>):
 %   Model = inversion_recovery;  % Create class from model
 %   Model.Prot.IRData.Mat=[350.0000; 500.0000; 650.0000; 800.0000; 950.0000; 1100.0000; 1250.0000; 1400.0000; 1700.0000];
 %   data = struct;  % Create data structure
@@ -37,7 +37,7 @@ classdef inversion_recovery < AbstractModel
 %   FitResults = FitData(data,Model); %fit data
 %   FitResultsSave_mat(FitResults);
 %
-%       For more examples: <a href="matlab: qMRusage(inversion_recovery);">qMRusage(inversion_recovery)</a>
+%       For more examples: <a href="matlab: qMRusage(minversion_recovery);">qMRusage(inversion_recovery)</a>
 %
 % Author: Ilana Leppert, 2017
 %
@@ -63,14 +63,6 @@ end
         ub           = [ 5000        0    10000 ]; % upper bound
         fx           = [    0        0        0 ]; % fix parameters
         
-        xnames_x = {'T1','TR','FAinv','FAexcite','FArefocus'}; %input parameters specific to an actual acquisition, i.e. explicit
-                % fitting options explicit
-        st_x           = [  600    3000      180     90     180]; % starting point
-        lb_x           = [    0.0001   0        0    0      0]; % lower bound
-        ub_x           = [ 5000        20000    200     95      200]; % upper bound
-        fx_x           = [    0        0        0      0    0]; % fix parameters
-        
-        
         % Protocol
         Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]')); %default protocol
         
@@ -79,7 +71,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulation Options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'TR',3000,'FAinv',180,'FAexcite',90,'FArefocus',180,'Compute ra rb','pushbutton'};%
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'M0',1000,'TR',3000,'FAinv',180,'FAexcite',90,'Compute ra rb','pushbutton'};%'FArefocus',180
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
 
     end
@@ -118,14 +110,14 @@ end
         % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
         function [ra,rb] = ComputeRaRb(obj,x,Opt)
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
+            
             % equation for GRE-IR
-            M0=1000; %normalized signal
-            ra = M0 * (1-cos(Opt.FAinv)*exp(-Opt.TR/x.T1))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x.T1));
-            rb = -M0 * (1-cos(Opt.FAinv))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x.T1));
-            Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
-            if (strcmp(obj.options.method, 'Magnitude'))
-                Smodel = abs(Smodel);
-            end
+            ra = Opt.M0 * (1-cos(Opt.FAinv*pi/180)*exp(-Opt.TR/x.T1))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/x.T1));
+            rb = -Opt.M0 * (1-cos(Opt.FAinv*pi/180))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/x.T1));
+            %Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
+            %if (strcmp(obj.options.method, 'Magnitude'))
+            %    Smodel = abs(Smodel);
+            %end
         end
         
         % -------------DATA FITTING-------------------------------------------------------------------------
@@ -173,8 +165,6 @@ end
             ylabel('Signal','FontSize',15);
             legend('data', 'polarity restored', 'fit','Location','best')
             set(gca,'FontSize',15)
-            FitResults = mat2struct(FitResults,obj.xnames); 
-            title(sprintf('Fitting T1=%0.2f ms',FitResults.T1),'FontSize',14);
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
@@ -187,10 +177,6 @@ end
             
             if ~exist('display','var'), display = 1; end
 
-            M0=1; %normalized signal
-            x(3) = M0 * (1-cos(Opt.FAinv)*exp(-Opt.TR/x(1)))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x(1)));
-            x(2) = -M0 * (1-cos(Opt.FAinv))/(1-cos(Opt.FAinv)*cos(Opt.FAexcite)*exp(-Opt.TR/x(1)));
-            %Smodel = equation_x(obj, x);
             Smodel = equation(obj, x);
             sigma = max(abs(Smodel))/Opt.SNR;
             if (strcmp(obj.options.method, 'Magnitude'))
