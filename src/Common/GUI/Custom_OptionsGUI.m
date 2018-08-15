@@ -38,30 +38,61 @@ end
 
 % --- Executes just before Custom_OptionsGUI is made visible.
 function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
+
 % WAIT IF OUTPUTS
+
 if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 
 handles.output = hObject;
+
 handles.root = fileparts(which(mfilename()));
+
 handles.caller = [];            % Handle to caller GUI
 
 if (length(varargin)>1 && ~isempty(varargin{2}) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
+    
     handles.caller = varargin{2};
+    
     CurrentPos = get(hObject, 'Position');
+    
     CallerPos = get(handles.caller, 'Position');
+    
     NewPos = [CallerPos(1)+CallerPos(3), CallerPos(2)+CallerPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
+    
     set(hObject, 'Position', NewPos);
 end
+
 handles.opened = 1;
 
 % POPULATE FITTING PANEL
+% ======================================================================
+
 % Load model parameters
-if isempty(varargin), Model = getappdata(0,'Model');
+
+if isempty(varargin)
+    
+    Model = getappdata(0,'Model');
+    
 else
+    
     Model = varargin{1};
+    
 end
+
+% Assign var to appdata scope 
 setappdata(0,'Model',Model);
+
+% uipanel29 is the main options panel. It has 3 children:
+%
+% OptionsPanel 
+% ProtEditPanel
+% FitOptEditPanel  
+
+
 set(handles.uipanel29,'Title',[strrep(Model.ModelName, '_', ' ') ' options'])
+
+
+
 Nparam = length(Model.xnames);
 
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
@@ -84,7 +115,29 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     end
 end
 
+% Hide FittingOptions panel if equation is not a member funciton. 
+% Give the space to the Options initially. If there is no options, then 
+% remove that one too and leave Protocol only.
+
+% If there is no protocol neither then just close the whole thing :D 
+
+% Denoising, noise level: No Protocol
+% B1 dam has nothing. 
+% vfa_t1 has no options. 
+
+
+
+if not(ismember('equation',methods(Model))); 
+     
+    chld = allchild(handles.uipanel29);
+    set(chld(3),'Visible','off');
+    set(handles.OptionsPanel, 'Position', [0.5140 0.0158 0.4667 0.9735]);
+    
+end
+
 % POPULATE OPTIONS PANEL
+% =======================================================================
+
 if ~isempty(Model.buttons)
     % delete old buttons
     delete(findobj('Parent',handles.OptionsPanel,'Type','uipanel'))
@@ -110,23 +163,35 @@ if ~isempty(Model.buttons)
             end
         end
     end
+    % Noted some concerns @ issue #253
     SetOpt(handles);
 end
 
 % POPULATE PROTOCOL PANEL
+% =======================================================================
+
 if ~isempty(Model.Prot)
+    
     fields = fieldnames(Model.Prot); fields = fields(end:-1:1);
+    
     N = length(fields);
+    
     for ii = 1:N
+        
         handles.(fields{ii}).CellSelect = [];
+        
         % Create PANEL
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
         
         % Create TABLE
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
+        
         % add Callbacks
+        
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));
+        
         set(handles.(fields{ii}).table,'CellSelectionCallback', @(hObject, eventdata) SeqTable_CellSelectionCallback(hObject, eventdata, handles, fields{ii}));
+        
         set(handles.(fields{ii}).table,'ColumnEditable', true);
         
         if size(Model.Prot.(fields{ii}).Format,1) > 1

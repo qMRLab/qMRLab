@@ -4,6 +4,7 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 %   in a specific handle (ParentHandle)
 % ----------------------------------------------------------------------------------------------------
 %   Written by: Ian Gagnon, 2017
+%   Modified  : Agah Karakuzu, 2018
 % ----------------------------------------------------------------------------------------------------  
 %   INPUTS:
 %   1) buttons: A big cell containing all the buttons you want to create.
@@ -41,18 +42,31 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 %
 % See also button_handle2opts
 
-% Basics informations
+% PANEL<paneID><NumberOfUIObjects>
+%
+% PANEL is a specific key value that indicates two preceding entries 
+% include descriptive values for a panel object to be created. 
+% The first one is the PanelID, the second one is the number of UIObjects
+% that will be scoped by this panel. 
+%
+% Arguments following the second value of the PANEL key are subjected
+% to the button generation rules for checkboxes, popupmenus, single val
+% inputs and tables. Total number of button generation key<value> pairs
+% should equal to the number indicated by second value of the PANEL key.
+
 PanelPos = find(strcmp(buttons,'PANEL')); % Panel position
-nPanel = length(PanelPos);                % Number of panel
+nPanel = length(PanelPos);                % Number of panels
 nOpts = (length(buttons)-3*nPanel);       % Number of options
 
 % Panel declarations
+
 PanelTitle = cell(1,nPanel);
 PanelnElements = ones(1,nPanel);
 PanelNum = ones(1,nPanel);
 
 % Take the title and the number of element in memory before removing the 
 % Panel informations ('PANEL','PanelTitle','PanelnElements')
+
 for i = 1:nPanel
     PanelNum(i) = PanelPos(i) - 3*(i-1);
     PanelTitle(i) = buttons(PanelNum(i)+1);
@@ -64,15 +78,21 @@ opts = buttons;
 % Each column of NumPanel and NumNoPanel indicates the beginning (row1) and
 % the end (row2) of a group of options combine whether in the same panel
 % (NumPanel) or between 2 panels (NumNoPanel)
+
 NumOpts = 1:nOpts;
 NumPanel = ones(2,nPanel);
 tempPanel = [];
+
 for iP = 1:nPanel
     NumPanel(:,iP) = [PanelNum(iP);PanelNum(iP)+2*PanelnElements(iP)-1];
     tempPanel = horzcat(tempPanel, NumPanel(1,iP):NumPanel(2,iP));
 end
-temp = diff([0, ~ismember(NumOpts,tempPanel), 0]); % Find options which are not in a panel
+
+% Below line gives buttons that are not scoped by a panel. 
+temp = diff([0, ~ismember(NumOpts,tempPanel), 0]); 
+
 NumNoPanel = [find(temp==1); find(temp==-1)-1];
+
 NoPanelnElements = (NumNoPanel(2,:)-NumNoPanel(1,:)+1)/2;  
 
 
@@ -94,21 +114,28 @@ if ~isempty(opts)
     
     while io < nOpts
         
-        % Fix the location and adjust the position (x,y,width and height)
+        % Fix the location and adjust the position (x, y, width and height)
+        
         if find(NumPanel(1,:)==io)
+        
             location = 'Panel';
             x = 0.05;            
             Width = 0.905;           
             Height = PanelHeight*PanelnElements(ip);
             y = yPrev - PanelGap - Height;
+        
         elseif find(NumNoPanel(1,:)==io)
+        
             location = 'NoPanel';
             x = 0;
             Width = 1;       
             Height = PanelHeight*NoPanelnElements(inp);
             y = yPrev - PanelGap - Height;
+        
         else 'WARNING';
+        
         end
+        
         yPrev = y;
         
         
@@ -116,31 +143,48 @@ if ~isempty(opts)
         switch location 
             
             case 'Panel' % Reel Panels
+                
                 if strcmp(PanelTitle{ip}(1:min(end,3)),'###'), disablepanel = true; else disablepanel=false; end
+                
                 ReelPanel(ip) = uipanel('Parent',ParentHandle,'Title',PanelTitle{ip},'FontSize',11,'FontWeight','bold',...
                                         'BackgroundColor',[0.94 0.94 0.94],'Position',[x y Width Height]);
+                                    
                 if disablepanel, set(ReelPanel(ip),'Visible','off'); end
+                
                 htmp = GenerateButtonsInPanels(opts(io:NumPanel(2,ip)),ReelPanel(ip));
+                
                 f = fieldnames(htmp);
+                
                 for i = 1:length(f)
                     handles.([genvarname_v2(PanelTitle{ip}) '_' f{i}]) = htmp.(f{i});
                 end
+                
                 io = NumPanel(2,ip)+1;
                 ip = ip+1;
                  
             case 'NoPanel' % "Fake" Panels 
+                
                 FakePanel(inp) = uipanel('Parent',ParentHandle,'BorderType','none','BackgroundColor',[0.94 0.94 0.94],...
                                          'Position',[x y Width Height]);
+                                     
                 npref = strcat('NoPanel',num2str(inp)); % NoPanel reference in the handle
+                
                 htmp = GenerateButtonsInPanels(opts(io:NumNoPanel(2,inp)),FakePanel(inp));
+                
                 f = fieldnames(htmp);
+                
                 for i = 1:length(f)
+                
                     handles.(f{i}) = htmp.(f{i});
+                
                 end
+                
                 io = NumNoPanel(2,inp)+1;
+                
                 inp = inp+1;   
      
             case 'WARNING'
+                
                 warndlg('Your "buttons" input isn''t good!','WRONG!');
                 
         end
@@ -149,9 +193,13 @@ end
 
 
 function handle = GenerateButtonsInPanels(opts, PanelHandle, style)
+
 if nargin < 3
+
     style = 'SPREAD'; %Set 'SPREAD' display as default   
+    
 end
+
 N = length(opts)/2;
 
 % ----------------------------------------------------------------------------------------------------
@@ -159,67 +207,132 @@ N = length(opts)/2;
 
     Height = 0.6/N;
     Width = 0.5;
+    
     if N == 1 %Special condition if N=1
         y = (1-Height)/2;
+        
     elseif N == 2
+        
         y = N/(N+1)-Height/4:-1/(N+1)-Height/2:0; %Special condition if N=2
+    
     else
+        
         switch style
+            
             case 'CENTERED'
+                
                 y = N/(N+1)-Height/2:-1/(N+1):0;
+                
             case 'SPREAD'
+                
                 y = N/(N+1):-1/(N+1)-Height/(N-1):0;  
         end
     end
 % ----------------------------------------------------------------------------------------------------
-         
-for ii = 1:N
-    val = opts{2*ii};
-	% special case: disable if ### in option name
-    if strcmp(opts{2*ii-1}(1:3),'###'), opts{2*ii-1} = opts{2*ii-1}(4:end); disable=true; else, disable=false; end
-    if strcmp(opts{2*ii-1}(1:4),'####'), opts{2*ii-1} = opts{2*ii-1}(5:end); noVis = true; else, noVis =false; end
 
+% The below comments belong to the buttons that are not scoped by a Panel:
+%
+% When prepended to the button name (obj.buttons{idx}) ### disables the
+% corresponding UIControl object on the Options panel. 
+%
+% When prepended to the button name (obj.buttons{idx}) *** hides the
+% corresponding UIControl object on the Options panel. 
+
+for ii = 1:N % Loop through all non-panel buttons. 
+    
+    % Buttons are ordered as key<value> pairs in an array form. 
+    
+    % 2*ii is for value
+    % 2*ii-1 is for key
+    
+    val = opts{2*ii}; 
+    
+    if strcmp(opts{2*ii-1}(1:3),'###'), opts{2*ii-1} = opts{2*ii-1}(4:end); disable=true; else disable=false; end
+    
+    if strcmp(opts{2*ii-1}(1:3),'***'), opts{2*ii-1} = opts{2*ii-1}(4:end); noVis = true; else noVis =false; end
+    
+    % Variable names are generated regarding the key. Since these elements
+    % are not scoped by a panel, they will be accessed at the first level
+    % of the obj.options field. 
+    
+    % genvarname_v2 will get rid of several chars such as white spaces, 
+    % parantheses etc., but also the disable/hide Jokers.
+    
     tag = genvarname_v2(opts{2*ii-1});
-    if islogical(opts{2*ii})
+    
+    % Below if-else conditions are to deduce which type of UIObject will
+    % be placed at the Options panel, regarding the itered <value>. 
+    
+    if islogical(opts{2*ii}) % Checkbox (true/false)
+        
         handle.(tag) = uicontrol('Style','checkbox','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(ii) 0.9 Height],...
             'Value',val,'HorizontalAlignment','center');
-    elseif isnumeric(opts{2*ii}) && length(opts{2*ii})==1
+        
+    elseif isnumeric(opts{2*ii}) && length(opts{2*ii})==1 % Single val i/p 
+        
         uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
+        
         handle.(tag) = uicontrol('Style','edit',...
             'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(ii) Width Height],'String',val,'Callback',@(x,y) check_numerical(x,y,val));
-    elseif iscell(opts{2*ii})
+        
+    elseif iscell(opts{2*ii}) % Pop-up (or dropdown...) menu. 
+        
         uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
+        
         if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*ii},'UniformOutput',0))); end % retrieve previous value
+        
         handle.(tag) = uicontrol('Style','popupmenu',...
             'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(ii) Width Height],'String',opts{2*ii},'Value',val);
-    elseif isnumeric(opts{2*ii}) && length(opts{2*ii})>1
+        
+    elseif isnumeric(opts{2*ii}) && length(opts{2*ii})>1 % A table.
+        
          uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
+        
              handle.(tag) = uitable(PanelHandle,'Data',opts{2*ii},'Units','normalized','Position',[0.45 y(ii) Width Height*1.1]);
+             
              set(handle.(tag),'ColumnEditable',true(1,size(opts{2*ii},2)));
+             
+             % Hardcoded convention to assign whether as Row or Col name
+             
              if size(opts{2*ii},1)<5, set(handle.(tag),'RowName',''); end
-             widthpx = getpixelposition(PanelHandle)*Width; widthpx = floor(widthpx(3))-2;
+             
+             widthpx = getpixelposition(PanelHandle)*Width; widthpx = floor(widthpx(3))-2; % ? 
+             
              if size(opts{2*ii},2)<5, set(handle.(tag),'ColumnName',''); set(handle.(tag),'ColumnWidth',repmat({widthpx/size(opts{2*ii},2)},[1 size(opts{2*ii},2)])); end
                  
-    elseif strcmp(opts{2*ii},'pushbutton')         
-            handle.(tag) = uicontrol('Style','togglebutton','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
+    elseif strcmp(opts{2*ii},'pushbutton') % This creates a button.          
+             
+             % Agah: Trace how to assign a callback to this. 
+             
+             handle.(tag) = uicontrol('Style','togglebutton','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(ii) 0.9 Height],...
             'HorizontalAlignment','center');
     end
-    if disable
+    
+    if disable % Please see the first if statement inside the loop.
+        
         set(handle.(tag),'enable','off');
+        
     end
-    if noVis
+    
+    if noVis % Please see the second if statement inside the loop. 
+        
         set(handle.(tag),'Visible','off');
+        
     end
 end
 
 function check_numerical(src,eventdata,val)
+
 str = get(src,'String');
+
 if isempty(str2num(str))
+    
     set(src,'string',num2str(val));
     warndlg('Input must be numerical');
+    
 end
