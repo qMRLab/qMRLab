@@ -176,7 +176,7 @@ N = length(opts)/2;
 for ii = 1:N
     val = opts{2*ii};
 	% special case: disable if ### in option name
-    if strcmp(opts{2*ii-1}(1:3),'###'), opts{2*ii-1} = opts{2*ii-1}(4:end); disable=true; else, disable=false; end
+    if strcmp(opts{2*ii-1}(1:2),'##'), opts{2*ii-1} = opts{2*ii-1}(4:end); disable=true; else, disable=false; end
     tag = genvarname_v2(opts{2*ii-1});
     if islogical(opts{2*ii})
         handle.(tag) = uicontrol('Style','checkbox','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
