@@ -22,9 +22,15 @@ hmap = figure();
 if length(size(outputIm))>2
     sz = size(outputIm);
     szz = round(sz(3)/2);
-    imagesc(imrotate(outputIm(:,:,szz),90)); colormap('parula');  title(FitResults.fields{1});
+    imagesc(imrotate(outputIm(:,:,szz),90));
 else
-    imagesc(imrotate(outputIm,90)); colormap('parula');  title(FitResults.fields{1});
+    imagesc(imrotate(outputIm,90));
+end
+title(FitResults.fields{1});
+if moxunit_util_platform_is_octave
+    colormap('viridis')
+else
+    colormap('parula')
 end
 axis image
 [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
