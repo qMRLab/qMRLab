@@ -81,10 +81,14 @@ classdef qsm_sb < AbstractModel % Name your Model
         
         % Model options
         buttons = {'Direction',{'forward','backward'},'Padding Size', [9 9 9], 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'} ,'PANEL', 'Regularization Selection', 4,...
-            'L1 Regularized', true, 'L2 Regularized', true, 'Split-Bregman', false, 'No Regularization', false, ...
-            'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize L1', false, 'L1 Range', [1 2 3], ...
+            'L1 Regularized', false, 'L2 Regularized', false, 'Split-Bregman', false, 'No Regularization', false, ...
+            'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize Lambda L1', false, 'L1 Range', [1 2 3], ...
             'PANEL', 'L2 Panel', 2, 'Lambda L2',5, 'ReOptimize Lambda L2', false, 'L2 Range', [1 2 3]
             };
+        
+        tips = {'Direction','Direction of the differentiation','Padding Size','Size of the padding', ...
+            'ReOptimize Lambda L1', 'Some explanation here'
+        };
         
         options= struct();
         
@@ -106,17 +110,24 @@ classdef qsm_sb < AbstractModel % Name your Model
             obj.lambdaL2Range = logspace(obj.rangeL2(1), obj.rangeL2(2), obj.rangeL2(3));
             
             obj.options = button2opts(obj.buttons);
-            
+            obj = UpdateFields(obj);
         end
         
         function obj = UpdateFields(obj)
             
-            obj = linkGUIState(obj, 'Split-Bregman', 'L1 Regularized', 'enable_disable_button', 'active_0');
-            obj = linkGUIState(obj, 'Split-Bregman', 'L2 Regularized', 'enable_disable_button', 'active_0');
-            obj = linkGUIState(obj, 'Split-Bregman', 'No Regularization', 'show_hide_button', 'active_0');
+            obj = linkGUIState(obj, 'Split-Bregman', 'L1 Regularized', 'enable_disable_button', 'active_0', true);
+            obj = linkGUIState(obj, 'Split-Bregman', 'L2 Regularized', 'enable_disable_button', 'active_0', true);
+            obj = linkGUIState(obj, 'Split-Bregman', 'No Regularization', 'enable_disable_button', 'active_0',false);
+            
             obj = linkGUIState(obj, 'Sharp Filtering', 'Sharp Mode', 'show_hide_button', 'active_1');
+            
             obj = linkGUIState(obj, 'L1 Regularized', 'L1 Panel', 'show_hide_panel', 'active_1');
             obj = linkGUIState(obj, 'L2 Regularized', 'L2 Panel', 'show_hide_panel', 'active_1');
+            
+            obj = linkGUIState(obj, 'ReOptimize Lambda L1', 'L1 Range', 'show_hide_button', 'active_1');
+            obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'L2 Range', 'show_hide_button', 'active_1');
+            obj = linkGUIState(obj, 'ReOptimize Lambda L1', 'Lambda L1', 'enable_disable_button', 'active_0');
+            obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'Lambda L2', 'enable_disable_button', 'active_0');
             
         end
         
@@ -220,7 +231,9 @@ classdef qsm_sb < AbstractModel % Name your Model
             
         end
         
-        function obj = linkGUIState(obj, checkBoxName, targetObject, eventType, activeState)
+        function obj = linkGUIState(obj, checkBoxName, targetObject, eventType, activeState, setVal)
+            
+            
             
             switch activeState
                 
@@ -232,16 +245,27 @@ classdef qsm_sb < AbstractModel % Name your Model
                     y = false;
             end
             
-            [opName, type] = getOptionsFieldName(obj,checkBoxName);
+            [opNameCheckbox, typeCheckBox] = getOptionsFieldName(obj,checkBoxName);
+            [opNameTarget, typeTarget] = getOptionsFieldName(obj,targetObject);
+            
+            if not(strcmp(typeCheckBox,'checkbox')) 
+                error('LinkGUIState: Second argument must be a checkbox'); 
+            end
+            
             
             switch eventType
                 
                 case 'enable_disable_button'
                     
-                    if obj.options.(opNames{chkIdx})
-                        
-                        obj.options.(opNames{tgtIdx}) = true;
-                        obj =  setButtonDisabled(obj,targetObject,x);
+                    if obj.options.(opNameCheckbox)
+                      
+                      if nargin == 6  
+                      
+                          obj = setValAssign(obj,opNameTarget,typeTarget,setVal);
+                          
+                      end
+                      
+                      obj =  setButtonDisabled(obj,targetObject,x);
                         
                     else
                         
@@ -251,7 +275,7 @@ classdef qsm_sb < AbstractModel % Name your Model
                     
                 case 'show_hide_button'
                     
-                    if obj.options.(opNames{chkIdx})
+                    if obj.options.(opNameCheckbox)
                         
                         obj =  setButtonInvisible(obj,targetObject,x);
                         
@@ -263,7 +287,7 @@ classdef qsm_sb < AbstractModel % Name your Model
                     
                 case 'show_hide_panel'
                     
-                    if obj.options.(opNames{chkIdx})
+                    if obj.options.(opNameCheckbox)
                         
                         obj =  setPanelInvisible(obj,targetObject,x);
                         
@@ -274,7 +298,6 @@ classdef qsm_sb < AbstractModel % Name your Model
                     end
                     
             end
-            
             
             
         end
@@ -289,7 +312,8 @@ classdef qsm_sb < AbstractModel % Name your Model
             varIdx = find(cellfun(@(x)~isempty(strfind(x,varName)), opNames));
             opName = opNames{varIdx};
             
-            val = obj.options.(opName);
+            idx = getButtonIdx(obj,buttonName);
+            val = obj.buttons{idx+1};    
             ln = length(val);
             
             if islogical(val)
@@ -312,8 +336,35 @@ classdef qsm_sb < AbstractModel % Name your Model
             
         end
         
+        function obj = setValAssign(obj,opNameTarget,typeTarget,setVal)
+          
+                try
+                
+                    obj.options.(opNameTarget) = setVal;
+                
+                catch
+                
+                if strcmp(typeTarget,'checkbox') && not(islogical(setVal))
+                    error('setVal to a checkbox targetObject must be logical');
+                end
+                
+                if strcmp(typeTarget,'singleNum') && length(setVal)>1
+                    error('Target object expects a single value.');
+                end
+                
+                if strcmp(typeTarget,'popupmenu') && not(iscell(setVal))
+                    error('Target object expects type cell.');
+                end
+                
+                if strcmp(typeTarget,'table') && length(setVal) == 1
+                    error('Target object expects an array.');
+                end
+                
+                end
+                
+            
+        end
+        
         
     end
-    
-    
 end
