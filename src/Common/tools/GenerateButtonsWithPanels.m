@@ -54,7 +54,7 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle, tips)
 % inputs and tables. Total number of button generation key<value> pairs
 % should equal to the number indicated by second value of the PANEL key.
 
-    
+
 
 PanelPos = find(strcmp(buttons,'PANEL')); % Panel position
 nPanel = length(PanelPos);                % Number of panels
@@ -150,7 +150,7 @@ if ~isempty(opts)
 
                 if strcmp(PanelTitle{ip}(1:min(end,3)),'###')
                    disablepanel = true;
-                 else 
+                 else
                    disablepanel=false;
                  end
 
@@ -159,7 +159,7 @@ if ~isempty(opts)
 
                 if disablepanel, set(ReelPanel(ip),'Visible','off'); end
 
-                
+
                 htmp = GenerateButtonsInPanels(opts(io:NumPanel(2,ip)),ReelPanel(ip),[],tips);
 
                 f = fieldnames(htmp);
@@ -247,7 +247,7 @@ N = length(opts)/2;
 % When prepended to the button name (obj.buttons{idx}) *** hides the
 % corresponding UIControl object on the Options panel.
 
-for ii = 1:N % Loop through all non-panel buttons.
+for ii = 1:N 
 
     % Buttons are ordered as key<value> pairs in an array form.
 
@@ -291,38 +291,46 @@ for ii = 1:N % Loop through all non-panel buttons.
     % be placed at the Options panel, regarding the itered <value>.
 
     if islogical(opts{2*ii}) % Checkbox (true/false)
-
+        
+        % Checkbox itself  
         handle.(tag) = uicontrol('Style','checkbox','String',opts{2*ii-1},'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','Position',[0.05 y(ii) 0.9 Height],...
             'Value',logical(val),'HorizontalAlignment','center');
 
     elseif isnumeric(opts{2*ii}) && length(opts{2*ii})==1 % Single val i/p
-
+        
+        % Entry box label 
         handle.([tag 'lbl']) = uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
-
+        
+        % Entry box itself  
         handle.(tag) = uicontrol('Style','edit',...
             'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(ii) Width Height],'String',val,'Callback',@(x,y) check_numerical(x,y,val));
 
     elseif iscell(opts{2*ii}) % Pop-up (or dropdown...) menu.
 
+        % popup menu label 
         handle.([tag 'lbl']) = uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
 
         if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*ii},'UniformOutput',0))); end % retrieve previous value
-
+        
+        % popup menu itself 
         handle.(tag) = uicontrol('Style','popupmenu',...
             'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(ii) Width Height],'String',opts{2*ii},'Value',val);
-        
-       
+
+
 
     elseif isnumeric(opts{2*ii}) && length(opts{2*ii})>1 % A table.
-
+        
+        % table label 
         handle.([tag 'lbl']) =  uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
-
+             
+             % table itself 
              handle.(tag) = uitable(PanelHandle,'Data',opts{2*ii},'Units','normalized','Position',[0.45 y(ii) Width Height*1.1]);
-
+             
+             % table assingment options till the next elseif 
              set(handle.(tag),'ColumnEditable',true(1,size(opts{2*ii},2)));
 
              % Hardcoded convention to assign whether as Row or Col name
@@ -342,45 +350,57 @@ for ii = 1:N % Loop through all non-panel buttons.
             'HorizontalAlignment','center');
     end
 
-    if disable % Please see the first if statement inside the loop.
+    if disable % Please see the first if statement inside the loop line250.
 
         set(handle.(tag),'enable','off');
 
     end
 
-    if noVis % Please see the second if statement inside the loop.
-        
+    if noVis % Please see the second if statement inside the loop line250.
+
         set(handle.(tag),'visible','off');
         fnames = fieldnames(handle);
         boolLbl = ismember([tag 'lbl'],fnames);
-        
+
         if boolLbl
             set(handle.([tag 'lbl']),'visible','off');
         end
-        
+
     end
+
+    % Below if statement is to add TooltipString to the OptionsPanel BUTTONS
+    % For buttons accompanied by a label object, only label will attain the
+    % tip string. Otherwise some objects (such as tables) are going to 
+    % collapse, partially visible etc. 
     
     
-    if not(isempty(tips))
-      
+    
+    if not(isempty(tips)) % Add Tooltip string 
+        
+        % Convert all cell to the varnames including tip explanations
         tipTag = cellfun(@genvarname_v2, tips,'UniformOutput',false);
+        
+        % Odd entries contain the keys. Get tag vars only. 
         tipTag = tipTag(1:2:end);
         tipsy   = tips(2:2:end);
         [bool, pos] = ismember(tag,tipTag);
         if bool
+
             
-            set(handle.(tag),'Tooltipstring',tipsy{pos});
-        
+
             fnames = fieldnames(handle);
             boolLbl = ismember([tag 'lbl'],fnames);
+            
             if boolLbl
                 set(handle.([tag 'lbl']),'Tooltipstring',tipsy{pos});
+            else
+                set(handle.(tag),'Tooltipstring',tipsy{pos});
             end
-            
+
         end
-    
+
     end
-    
+
 end
 
 function check_numerical(src,eventdata,val)

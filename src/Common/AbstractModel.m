@@ -5,8 +5,8 @@ classdef (Abstract) AbstractModel
     %   *Methods*
     %   save: save model object properties to a file as an struct.
     %   load: load model properties from a struct-file into the object.
-    % 
-   
+    %
+
     properties
         version
         ModelName
@@ -56,9 +56,9 @@ classdef (Abstract) AbstractModel
         % Do some error checking
         function [ErrMsg]=sanityCheck(obj,data)
            [ErrMsg]=[];
-           % check if all necessary inputs are present 
+           % check if all necessary inputs are present
            MRIinputs = fieldnames(data);
-           
+
            for brkloop=1:1 % allow break
            %if data is empty
            if isempty(MRIinputs)
@@ -76,7 +76,7 @@ classdef (Abstract) AbstractModel
                end
            end
            if ~isempty(ErrMsg), break; end
-           
+
            % check if all input data is sampled the same as qData input
            qDataIdx=find((strcmp(obj.MRIinputs{1},MRIinputs')));
            qData = double(data.(MRIinputs{qDataIdx}));
@@ -92,7 +92,7 @@ classdef (Abstract) AbstractModel
                end
            end
            if ~isempty(ErrMsg), break; end
-           
+
            % check if protocol matches data
            if ~isempty(obj.Prot)
                if isfield(obj.Prot,obj.MRIinputs{1})
@@ -132,7 +132,9 @@ classdef (Abstract) AbstractModel
     end
 
     methods(Access = protected)
+
         function obj = qMRpatch(obj,loadedStruct, version)
+        % This function is to xxx
             objStruct = objProps2struct(obj);
             objectProperties = fieldnames(objStruct);
             %Loop through all object properties
@@ -143,6 +145,265 @@ classdef (Abstract) AbstractModel
             end
 
         end
+
+        function idx = getButtonIdx(obj,buttonName)
+        % This function returns obj.buttons index of the buttonName.
+        % All prepended jokers must be included to this list.
+        % Jokers should also be added to the src/Common/tools/genvarname_v2.m
+
+            idx = find(strcmp(obj.buttons,buttonName) | strcmp(obj.buttons,['###' buttonName]) | ...
+                strcmp(obj.buttons,['***' buttonName]));
+
+
+        end
+
+        function obj = setButtonInvisible(obj,buttonName,state)
+        % This function is to show/hide an UIObject associated with buttonName.
+        %
+        % Hiding a UIObject that is not scoped by a frame is performed by
+        % prepending *** joker to its corresponding buttonName. For details,
+        % please see src/Common/tools/GenerateButtonsWithPanels.m.
+        %
+        % Hide UIObject: Assign state variable with true
+        % Show UIObject: Assign state variable with false
+
+            idx = getButtonIdx(obj,buttonName);
+
+            if state
+
+                % There may be an attempt to sth
+                obj.buttons{idx} = ['***' buttonName];
+
+            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'***')
+
+                obj.buttons{idx} = buttonName;
+
+            end
+
+        end
+
+        function obj = setButtonDisabled(obj,buttonName,state)
+          % This function is to disable/enable an UIObject associated with buttonName.
+          %
+          % Disabling a UIObject that is not scoped by a frame is performed by
+          % prepending ### joker to its corresponding buttonName. For details,
+          % please see src/Common/tools/GenerateButtonsWithPanels.m.
+          %
+          % Disable UIObject: Assign state variable with true
+          % Enable UIObject: Assign state variable with false
+
+            idx = getButtonIdx(obj,buttonName);
+
+            if state && not(strcmp(obj.buttons{idx}(1:3),'###'))
+
+                obj.buttons{idx} = ['###' buttonName];
+
+            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'###')
+
+                obj.buttons{idx} = buttonName;
+
+            end
+
+        end
+
+        function obj = setPanelInvisible(obj,panelName,state)
+        % This function is to disable/enable a panel that contians multiple UIObjects.
+        %
+        % Disabling a panel is performed by prepending ### joker to panelName
+        % For details, please see src/Common/tools/GenerateButtonsWithPanels.m.
+        %
+        % Hide panel: Assign state variable with true
+        % Show panel: Assign state variable with false
+
+            idx = getButtonIdx(obj,panelName);
+
+            if not(strcmp(obj.buttons{idx-1},'PANEL'))
+                error(['panelName passed to the setPanelInvisible function' ...
+                    ' does not correspond to a panel']);
+            end
+
+            if state
+
+                obj.buttons{idx} = ['###' panelName];
+
+            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'###')
+
+                obj.buttons{idx} = panelName;
+
+            end
+
+
+        end
+
+        function obj = linkGUIState(obj, checkBoxName, targetObject, eventType, activeState, setVal)
+        % This function to link behaviour of a target UIObject to a checkbox state.
+        % checkBoxName and the targetObject vars must use respective buttonNames.
+        % targetObject can be any button. checkBoxName: only chechboxes.
+        %
+        % eventType is one of the following:
+        %   enable_disable_button
+        %   show_hide_button
+        %   show_hide_panel
+        %
+        % Set activeState to 'active_0' if you'd like to trigger disable/hide
+        % on checking checkbox. Set it to 'active_1' if you'd like to trigger enable/show
+        % for the targetObject on checking checkbox event.
+        % Inverting the checkbox state will invert target behaviour.
+        % Pay attention to the order of linkGUIState functions to ensure desired
+        % dynamic behaviour persists.
+        %
+        % setVal is to assign an UIObject with a desired value before disabling it.
+        % For example, a target may needed to be checked before being disabled:
+        % obj = linkGUIState(obj, 'Split-Bregman', 'L1 Regularized', 'enable_disable_button', 'active_0', true);
+        % Note that targetObject is a checkbox in this example.
+
+            switch activeState
+
+                case 'active_1'
+                    x = false;
+                    y = true;
+                case 'active_0'
+                    x = true;
+                    y = false;
+            end
+
+            [opNameCheckbox, typeCheckBox] = getOptionsFieldName(obj,checkBoxName);
+            [opNameTarget, typeTarget] = getOptionsFieldName(obj,targetObject);
+
+            if not(strcmp(typeCheckBox,'checkbox'))
+                error('LinkGUIState: Second argument must be a checkbox');
+            end
+
+
+            switch eventType
+
+                case 'enable_disable_button'
+
+                    if obj.options.(opNameCheckbox)
+
+                      if nargin == 6
+
+                          obj = setValAssign(obj,opNameTarget,typeTarget,setVal);
+
+                      end
+
+                      obj =  setButtonDisabled(obj,targetObject,x);
+
+                    else
+
+                        obj =  setButtonDisabled(obj,targetObject,y);
+
+                    end
+
+                case 'show_hide_button'
+
+                    if obj.options.(opNameCheckbox)
+
+                        obj =  setButtonInvisible(obj,targetObject,x);
+
+                    else
+
+                        obj =  setButtonInvisible(obj,targetObject,y);
+
+                    end
+
+                case 'show_hide_panel'
+
+                    if obj.options.(opNameCheckbox)
+
+                        obj =  setPanelInvisible(obj,targetObject,x);
+
+                    else
+
+                        obj =  setPanelInvisible(obj,targetObject,y);
+
+                    end
+
+            end
+
+
+        end
+
+        function [opName, type] = getOptionsFieldName(obj,buttonName)
+        % buttonNames are changed to obtain option field names that lives
+        % obj.options.(here). This function is to get corresponding options
+        % name for a given buttonName.
+
+            varName = genvarname_v2(buttonName);
+
+            opts = button2opts(obj.buttons);
+            opNames = fieldnames(opts);
+
+            varIdx = find(cellfun(@(x)~isempty(strfind(x,varName)), opNames));
+            opName = opNames{varIdx};
+
+            idx = getButtonIdx(obj,buttonName);
+            val = obj.buttons{idx+1};
+            ln = length(val);
+
+            if islogical(val)
+
+                type = 'checkbox';
+
+            elseif isnumeric(val) && ln == 1
+
+                type = 'singleNum';
+
+            elseif isnumeric(val) && ln > 1
+
+                type = 'table';
+
+            elseif iscell(val)
+
+                type = 'popupmenu';
+
+            end
+
+        end
+
+        function obj = setValAssign(obj,opNameTarget,typeTarget,setVal)
+        % Subfunction of LinkGUIState to assign a targetObject value.
+
+                try
+
+                    obj.options.(opNameTarget) = setVal;
+
+                catch
+
+                if strcmp(typeTarget,'checkbox') && not(islogical(setVal))
+                    error('setVal to a checkbox targetObject must be logical');
+                end
+
+                if strcmp(typeTarget,'singleNum') && length(setVal)>1
+                    error('Target object expects a single value.');
+                end
+
+                if strcmp(typeTarget,'popupmenu') && not(iscell(setVal))
+                    error('Target object expects type cell.');
+                end
+
+                if strcmp(typeTarget,'table') && length(setVal) == 1
+                    error('Target object expects an array.');
+                end
+
+                end
+
+
+        end
+
+        function state = getCheckBoxState(obj,checkBoxName)
+
+        [opName, type] = getOptionsFieldName(obj,checkBoxName);
+        state = obj.options.(opName);
+
+        if not(strcmp(type,'checkbox'))
+          error('Pass checknoxname please.');
+        end
+
+
+        end
+
+
     end
 
 end
