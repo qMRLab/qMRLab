@@ -1,4 +1,4 @@
-function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
+function handles = GenerateButtonsWithPanels(buttons,ParentHandle, tips)
 %
 %   Function that generate buttons with and without Panel
 %   in a specific handle (ParentHandle)
@@ -53,6 +53,8 @@ function handles = GenerateButtonsWithPanels(buttons,ParentHandle)
 % to the button generation rules for checkboxes, popupmenus, single val
 % inputs and tables. Total number of button generation key<value> pairs
 % should equal to the number indicated by second value of the PANEL key.
+
+    
 
 PanelPos = find(strcmp(buttons,'PANEL')); % Panel position
 nPanel = length(PanelPos);                % Number of panels
@@ -157,7 +159,8 @@ if ~isempty(opts)
 
                 if disablepanel, set(ReelPanel(ip),'Visible','off'); end
 
-                htmp = GenerateButtonsInPanels(opts(io:NumPanel(2,ip)),ReelPanel(ip));
+                
+                htmp = GenerateButtonsInPanels(opts(io:NumPanel(2,ip)),ReelPanel(ip),[],tips);
 
                 f = fieldnames(htmp);
 
@@ -175,7 +178,7 @@ if ~isempty(opts)
 
                 npref = strcat('NoPanel',num2str(inp)); % NoPanel reference in the handle
 
-                htmp = GenerateButtonsInPanels(opts(io:NumNoPanel(2,inp)),FakePanel(inp));
+                htmp = GenerateButtonsInPanels(opts(io:NumNoPanel(2,inp)),FakePanel(inp),[],tips);
 
                 f = fieldnames(htmp);
 
@@ -198,9 +201,9 @@ if ~isempty(opts)
 end
 
 
-function handle = GenerateButtonsInPanels(opts, PanelHandle, style)
+function handle = GenerateButtonsInPanels(opts, PanelHandle, style, tips)
 
-if nargin < 3
+if nargin < 3 || isempty(style)
 
     style = 'SPREAD'; %Set 'SPREAD' display as default
 
@@ -295,7 +298,7 @@ for ii = 1:N % Loop through all non-panel buttons.
 
     elseif isnumeric(opts{2*ii}) && length(opts{2*ii})==1 % Single val i/p
 
-        uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
+        handle.([tag 'lbl']) = uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
 
         handle.(tag) = uicontrol('Style','edit',...
@@ -303,17 +306,19 @@ for ii = 1:N % Loop through all non-panel buttons.
 
     elseif iscell(opts{2*ii}) % Pop-up (or dropdown...) menu.
 
-        uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
+        handle.([tag 'lbl']) = uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
 
         if iscell(val), val = 1; else val =  find(cell2mat(cellfun(@(x) strcmp(x,val),opts{2*ii},'UniformOutput',0))); end % retrieve previous value
 
         handle.(tag) = uicontrol('Style','popupmenu',...
             'Parent',PanelHandle,'Units','normalized','Position',[0.45 y(ii) Width Height],'String',opts{2*ii},'Value',val);
+        
+       
 
     elseif isnumeric(opts{2*ii}) && length(opts{2*ii})>1 % A table.
 
-         uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
+        handle.([tag 'lbl']) =  uicontrol('Style','Text','String',[opts{2*ii-1} ':'],'ToolTipString',opts{2*ii-1},...
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
 
              handle.(tag) = uitable(PanelHandle,'Data',opts{2*ii},'Units','normalized','Position',[0.45 y(ii) Width Height*1.1]);
@@ -344,10 +349,38 @@ for ii = 1:N % Loop through all non-panel buttons.
     end
 
     if noVis % Please see the second if statement inside the loop.
-
+        
         set(handle.(tag),'visible','off');
-
+        fnames = fieldnames(handle);
+        boolLbl = ismember([tag 'lbl'],fnames);
+        
+        if boolLbl
+            set(handle.([tag 'lbl']),'visible','off');
+        end
+        
     end
+    
+    
+    if not(isempty(tips))
+      
+        tipTag = cellfun(@genvarname_v2, tips,'UniformOutput',false);
+        tipTag = tipTag(1:2:end);
+        tipsy   = tips(2:2:end);
+        [bool, pos] = ismember(tag,tipTag);
+        if bool
+            
+            set(handle.(tag),'Tooltipstring',tipsy{pos});
+        
+            fnames = fieldnames(handle);
+            boolLbl = ismember([tag 'lbl'],fnames);
+            if boolLbl
+                set(handle.([tag 'lbl']),'Tooltipstring',tipsy{pos});
+            end
+            
+        end
+    
+    end
+    
 end
 
 function check_numerical(src,eventdata,val)

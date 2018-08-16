@@ -209,7 +209,12 @@ if ~isempty(Model.buttons)
     % of the current model in the scope. Below function passes OptionsPanel
     % handle, and retrives the updated one with buttons (if present) on it.  
     
-    handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel);
+    if isprop(Model,'tips')
+        handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel, Model.tips);
+    else
+        handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel, []);
+        
+    end
     
     % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
     
