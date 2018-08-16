@@ -161,7 +161,14 @@ classdef qsm_sb < AbstractModel % Name your Model
         end
 
         function FitResults = fit(obj,data)
-
+            
+            gyro =   obj.Prot.Magnetization.Mat(2);
+            B0   =   obj.Prot.Magnetization.Mat(1);
+            TE   =   obj.Prot.Timing.Mat;
+            imageResolution = obj.Prot.Resolution.Mat; 
+            
+            FitOpts = GetFitOpt(obj);
+            
             PhaseParams = obj.Prot.PhaseGRE.Mat;
             Opt = GetFitOpt(obj);
             [FitResults.chi_SB, FitResults.chi_L2, FitResults.chi_L2pcg, FitResults.nfm_disp] = qsm_gre_exec(data, PhaseParams, Opt);
@@ -188,7 +195,7 @@ classdef qsm_sb < AbstractModel % Name your Model
             FitOpt.pad_size = obj.pad_size;
             FitOpt.direction = obj.options.direction;
             FitOpt.sharp_mode = obj.options.sharp_mode;
-
+                
 
 
         end
