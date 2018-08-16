@@ -81,20 +81,25 @@ classdef qsm_sb < AbstractModel % Name your Model
 
 
         % Model options
-        buttons = {'Direction',{'forward','backward'},'Padding Size', [9 9 9], 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'} ,'PANEL', 'Regularization Selection', 4,...
+        buttons = {'Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
             'L1 Regularized', false, 'L2 Regularized', false, 'Split-Bregman', false, 'No Regularization', false, ...
-            'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize Lambda L1', false, 'L1 Range', [1 2 3], ...
-            'PANEL', 'L2 Panel', 2, 'Lambda L2',5, 'ReOptimize Lambda L2', false, 'L2 Range', [1 2 3]
+            'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 2.5 15], ...
+            'PANEL', 'L2 Panel', 2, 'Lambda L2',5, 'ReOptimize Lambda L2', false, 'L2 Range', [-4 2.5 15]
             };
 
         % Tiptool descriptions
-        tips = {'Direction','Direction of the differentiation','Padding Size','Size of the padding', ...
-                'Sharp Filtering', 'a filtering that is not blunt', ...
-                'Sharp Mode', 'My generic mood', ...
-                'L1 Regularized', 'You know what you need', ...
-                'L2 Regularized', 'You know what else you need', ...
-                'Split-Bregman', 'split splti split', ...
-        'ReOptimize Lambda L1', 'Some explanation here'
+        tips = {'Direction','Direction of the differentiation', ...
+                'Magnitude Weighting', 'Calculates gradient masks from Magn data using k-space gradients and includes magn weighting in susceptibility maping.',...
+                'Sharp Filtering', 'Enable/Disable SHARP background removal.', ...
+                'Sharp Mode', 'Once: 9x9x9 kernel. Iterative: 9x9x9 to 3x3x3 with the step size of -2x-2x-2.', ...
+                'Padding Size', 'Zero padding size for SHARP kernel convolutions.', ...
+                'L1 Regularized', 'Open L1 regulatization panel.', ...
+                'L2 Regularized', 'Open L2 regulatization panel.', ...
+                'Split-Bregman',  'Perform Split-Bregman quantitative susceptibility mapping.', ...
+        'ReOptimize Lambda L1', 'Do not use default or user-defined Lambda L1.', ...
+        'ReOptimize Lambda L2', 'Do not use default or user-defined Lambda L2.', ...
+        'L1 Range','L1 regularization weights for optimization [min max N]',...
+        'L2 Range','L2 regularization weights for optimization [min max N]'
         };
 
         options= struct();
@@ -125,21 +130,21 @@ classdef qsm_sb < AbstractModel % Name your Model
         end
 
         function obj = UpdateFields(obj)
-            
+
             % Functional but imperfect for now. When Split-Bergman
             % selected,you cannot disable L1 and L2, but they are not
             % disabled. Use state = getCheckBoxState(obj,checkBoxName)
-            % later. 
+            % later.
 
             obj = linkGUIState(obj, 'Sharp Filtering', 'Sharp Mode', 'show_hide_button', 'active_1');
+            obj = linkGUIState(obj, 'Sharp Filtering', 'Padding Size', 'show_hide_button', 'active_1');
 
-            
             obj = linkGUIState(obj, 'Split-Bregman', 'L1 Regularized', 'enable_disable_button', 'active_0', true);
             obj = linkGUIState(obj, 'No Regularization', 'L1 Regularized', 'enable_disable_button', 'active_0',false);
-            
+
             obj = linkGUIState(obj, 'Split-Bregman', 'L2 Regularized', 'enable_disable_button', 'active_0', true);
             obj = linkGUIState(obj, 'No Regularization', 'L2 Regularized', 'enable_disable_button', 'active_0',false);
-            
+
             obj = linkGUIState(obj, 'No Regularization', 'Split-Bregman', 'enable_disable_button', 'active_0',false);
             obj = linkGUIState(obj, 'Split-Bregman', 'No Regularization', 'enable_disable_button', 'active_0',false);
 
@@ -150,8 +155,8 @@ classdef qsm_sb < AbstractModel % Name your Model
             obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'L2 Range', 'show_hide_button', 'active_1');
             obj = linkGUIState(obj, 'ReOptimize Lambda L1', 'Lambda L1', 'enable_disable_button', 'active_0');
             obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'Lambda L2', 'enable_disable_button', 'active_0');
-            
-           
+
+
 
         end
 
@@ -164,17 +169,19 @@ classdef qsm_sb < AbstractModel % Name your Model
         end
 
 
-        function plotModel(obj, FitResults, data)
-
-        end
-
-
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
-
-        end
-
         function FitOpt = GetFitOpt(obj)
-
+            
+            FitOpt.reoptL1_Flag = obj.options.L1Panel_LambdaL1;
+            FitOpt.reoptL2_Flag = obj.options.L1Panel_LambdaL2;
+            
+            FitOpt.regSB_Flag = obj.options.RegularizationSelection_SplitBregman;
+            FitOpt.regL1_Flag = obj.options.RegularizationSelection_L1Regularized;
+            FitOpt.regL2_Flag = obj.options.RegularizationSelection_L2Regularized;
+            
+            FitOpt.magnW_Flag = obj.options.MagnitudeWeighting;
+            
+            FitOpt.sharp_Flag = obj.options.SharpFiltering;
+            
             FitOpt.lambdaL1Range = obj.lambdaL1Range;
             FitOpt.lambdaL2Range = obj.lambdaL2Range;
             FitOpt.gyro = obj.gyro;
