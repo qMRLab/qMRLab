@@ -12,4 +12,3 @@ for ii=1:length(list)
     Modelfun = str2func(list{ii});
     qMRusage(Modelfun(),'fit')
 end
-inexistantFunctionCall()
