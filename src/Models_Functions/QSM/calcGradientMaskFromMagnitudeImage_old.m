@@ -1,16 +1,16 @@
-function [ magn_weight ] = calcGradientMaskFromMagnitudeImage(magn, mask_sharp, pad_size, directionFlag)
-%CALCGRADIENTMASKFROMMAGNITUDEplot_axialSagittalCoronalIMAGE Calculate gradient masks from 
+function [ magn_weight ] = calcGradientMaskFromMagnitudeImage_old(magn, mask_sharp, pad_size, directionFlag)
+%CALCGRADIENTMASKFROMMAGNITUDEplot_axialSagittalCoronalIMAGE Calculate gradient masks from
 %magnitude image using k-space gradients
 %   magn: Volume of magnitude data
 %   mask_sharp: Mask volume (output of SHARP processing)
 %   pad_size: Image padding size
 %
-%   Code refractored from Berkin Bilgic's scripts: "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m" 
+%   Code refractored from Berkin Bilgic's scripts: "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m"
 %   and "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m"
 %   Original source: https://martinos.org/~berkin/software.html
 %
 %   Original reference:
-%   Bilgic et al. (2014), Fast quantitative susceptibility mapping with 
+%   Bilgic et al. (2014), Fast quantitative susceptibility mapping with
 %   L1-regularization and automatic parameter selection. Magn. Reson. Med.,
 %   72: 1444-1459. doi:10.1002/mrm.25029
 

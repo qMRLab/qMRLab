@@ -1,6 +1,5 @@
 classdef qsm_sb < AbstractModel
-% CustomExample :  Describe the method here
-%<a href="matlab: figure, imshow CustomExample.png ;">Pulse Sequence Diagram</a>
+% CustomExample :  Quantitative susceptibility mapping
 %
 % Inputs:
 %   PhaseGRe    3D xxx
@@ -12,8 +11,8 @@ classdef qsm_sb < AbstractModel
 % (2)
 %
 % Fitted Parameters:
-%    Param1
-%    Param2
+%    chi_SB
+%    chi_L2
 %
 % Non-Fitted Parameters:
 %    residue                    Fitting residue.
@@ -25,11 +24,15 @@ classdef qsm_sb < AbstractModel
 % Example of command line usage (see also <a href="matlab: showdemo Custom_batch">showdemo Custom_batch</a>):
 %   For more examples: <a href="matlab: qMRusage(Custom);">qMRusage(Custom)</a>
 %
-% Author:
+% Authors: Mathieu Boudreau and Agah Karakuzu
 %
 % References:
 %   Please cite the following if you use this module:
-%     FILL
+%
+%     Bilgic et al. (2014), Fast quantitative susceptibility mapping with
+%     L1-regularization and automatic parameter selection. Magn. Reson. Med.,
+%     72: 1444-1459. doi:10.1002/mrm.25029
+%
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
@@ -39,7 +42,7 @@ properties
 MRIinputs = {'PhaseGRE', 'MagnGRE', 'Mask'};
 
 % --- Fitted parameters
-xnames = { 'phase_lunwrap','nfm_Sharp_lunwrap', 'mask_Sharp',...
+xnames = { 'chi_SB','chi_L2', 'mask_Sharp',...
 'magn_weight'};
 
 voxelwise = 0;
@@ -76,7 +79,7 @@ tips = {'Direction','Direction of the differentiation', ...
 
 options= struct();
 
-end
+end % Public properties
 
 properties (Hidden = true)
 
@@ -85,12 +88,12 @@ lambdaL2Range = [];
 
 onlineData_url = 'https://osf.io/rn572/download/';
 
-end
+end % Hidden public properties
 
 methods
 
 function obj = qsm_sb
-  % Constructor
+
 
   % Transfer regularization parameter optimization range to the logspace
   obj.lambdaL1Range = logspace(obj.rangeL1(1),obj.rangeL1(2), obj.rangeL1(3));
@@ -99,7 +102,8 @@ function obj = qsm_sb
   obj.options = button2opts(obj.buttons);
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
-end
+
+end % fx: Constructor
 
 function obj = UpdateFields(obj)
 
@@ -128,7 +132,7 @@ function obj = UpdateFields(obj)
   obj = linkGUIState(obj, 'ReOptimize Lambda L1', 'Lambda L1', 'enable_disable_button', 'active_0');
   obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'Lambda L2', 'enable_disable_button', 'active_0');
 
-end
+end %fx: UpdateFields (Member)
 
 function FitResults = fit(obj,data)
 
@@ -136,14 +140,131 @@ function FitResults = fit(obj,data)
   B0   =   obj.Prot.Magnetization.Mat(1);
   TE   =   obj.Prot.Timing.Mat;
   imageResolution = obj.Prot.Resolution.Mat;
+  FitOpt = GetFitOpt(obj)
 
-  FitOpts = GetFitOpt(obj);
+  % For now, assuming wrapped phase.
 
-  PhaseParams = obj.Prot.PhaseGRE.Mat;
-  Opt = GetFitOpt(obj);
-  [FitResults.chi_SB, FitResults.chi_L2, FitResults.chi_L2pcg, FitResults.nfm_disp] = qsm_gre_exec(data, PhaseParams, Opt);
+  % Mask wrapped phase
+  data.Mask = logical(data.Mask);
+  data.PhaseGRE(~data.Mask) = 0;
+
+  if FitOpt.sharp_Flag % SHARP BG removal
+
+    phaseWrapPad = padVolumeForSharp(data.PhaseGRE, FitOpt.padSize);
+    maskPad      = padVolumeForSharp(data.Mask, FitOpt.padSize);
+
+    disp('Started   : Laplacian phase unwrapping ...');
+    phaseLUnwrap = unwrapPhaseLaplacian(phaseWrapPad);
+    disp('Completed : Laplacian phase unwrapping');
+
+    disp('Started   : SHARP background removal ...');
+    [nfmSharpLUnwrap, maskSharp] = backgroundRemovalSharp(phaseLUnwrap, maskPad, [TE B0 gyro], FitOpt.sharpMode);
+    disp('Completed : SHARP background removal');
+
+  else
+
+    disp('Started   : Laplacian phase unwrapping ...');
+    phaseLUnwrap = unwrapPhaseLaplacian(data.PhaseGRE);
+    disp('Completed : Laplacian phase unwrapping');
+
+  end % SHARP BG removal
+
+  if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
+
+    if FitOpt.sharp_Flag
+
+      disp('Started   : Calculation of gradient masks for magn weighting ...');
+      magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskSharp, padSize, FitOpt.direction)
+      disp('Completed : Calculation of gradient masks for magn weighting');
+
+    else
+
+      % NOT SURE AT ALL IF THIS IS LEGIT
+
+      disp('Started   : Calculation of gradient masks for magn weighting ...');
+      magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, data.Mask, [0 0 0], FitOpt.direction)
+      disp('Completed : Calculation of gradient masks for magn weighting');
+
+    end
+
+  elseif isempty(data.MagnGRE) && FitOpt.magnW_Flag
+
+    error('Magnitude data is missing. Cannot perform weighting.');
+
+  end % Magnitude weighting
+
+% Lambda one has a dependency on Lambda2. On the other hand, there is no
+% chi_L1.
+
+% HERE YOU LEFT -------------------------------------------------------> 
+if FitOpt.regL2_Flag
+[ lambda_L2, chi_L2 ] = calcLambdaL2(nfm_Sharp_lunwrap, mask_sharp, lambdaL2Range, imageResolution, directionFlag, pad_size);
+
+else
+
+lambdaL2 = FitOpt.
 
 end
+
+  % Some functions are added as nasted functions for memory management.
+  % --------------------------------------------------------------------
+
+  function paddedVolume = padVolumeForSharp(inputVolume, padSize)
+    % Pads mask and wrapped phase volumes with zeros for SHARP convolutions.
+
+    paddedVolume = padarray(inputVolume, padSize);
+
+  end % fx: padVolumeForSharp (Nested)
+
+  function [fdx, fdy, fdz] = calcFdr(N, direction)
+    % N: Size of the volumes
+    % direction: Direction of the differentiation.
+
+    [k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
+
+    switch direction
+    case 'forward'
+      fdx = 1 - exp(-2*pi*1i*k1/N(1));
+      fdy = 1 - exp(-2*pi*1i*k2/N(2));
+      fdz = 1 - exp(-2*pi*1i*k3/N(3));
+    case 'backward'
+      fdx = -1 + exp(2*pi*1i*k1/N(1));
+      fdy = -1 + exp(2*pi*1i*k2/N(2));
+      fdz = -1 + exp(2*pi*1i*k3/N(3));
+    end
+
+  end % fx: calcFdr (Nested)
+
+  function magnWeight = calcGradientMaskFromMagnitudeImage(magnVolume, maskSharp, padSize, direction)
+    % Calculates gradient masks from magnitude image using k-space gradients.
+
+    N = size(maskSharp);
+
+    [fdx, fdy, fdz] = calcFdr(N, direction);
+
+    magnPad = padarray(magnVolume, padSize) .* maskSharp;
+    magnPad = magnPad / max(magnPad(:));
+
+    Magn = fftn(magnPad);
+    magnGrad = cat(4, ifftn(Magn.*fdx), ifftn(Magn.*fdy), ifftn(Magn.*fdz));
+
+    magnWeight = zeros(size(magnGrad));
+
+    for s = 1:size(magn_grad,4)
+
+      magnUse = abs(magnGrad(:,:,:,s));
+
+      magnOrder = sort(magnUse(maskSharp==1), 'descend');
+      magnThreshold = magnOrder( round(length(magnOrder) * .3) );
+      magnWeight(:,:,:,s) = magnUse <= magnThreshold;
+
+    end
+
+  end % calcGradientMaskFromMagnitudeImage (Nested)
+
+  % --------------------------------------------------------------------
+
+end % fx: fit (Member)
 
 
 function FitOpt = GetFitOpt(obj)
@@ -160,12 +281,13 @@ function FitOpt = GetFitOpt(obj)
 
   FitOpt.magnW_Flag = obj.options.MagnitudeWeighting;
 
-  FitOpt.reoptL1_Flag = obj.options.L1Panel_LambdaL1;
-  FitOpt.reoptL2_Flag = obj.options.L1Panel_LambdaL2;
+  FitOpt.LambdaL1 = obj.options.L1Panel_LambdaL1;
+  FitOpt.LambdaL2 = obj.options.L2Panel_LambdaL2;
+
   FitOpt.lambdaL1Range = obj.lambdaL1Range;
   FitOpt.lambdaL2Range = obj.lambdaL2Range;
 
-end
+end % fx: GetFitOpt (member)
 
 
 end
