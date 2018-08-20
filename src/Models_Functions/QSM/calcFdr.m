@@ -1,4 +1,4 @@
-function [fdx, fdy, fdz] = calcFdr_old(N, directionFlag)
+function [fdx, fdy, fdz] = calcFdr(N, directionFlag)
 %CALCFDR Function who's
 %diagonals are the k-space representation of the image-domain differencing
 %operator. See "vx" in the reference below.

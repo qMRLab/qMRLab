@@ -73,8 +73,8 @@ tips = {'Direction','Direction of the differentiation', ...
 'Split-Bregman',  'Perform Split-Bregman quantitative susceptibility mapping.', ...
 'ReOptimize Lambda L1', 'Do not use default or user-defined Lambda L1.', ...
 'ReOptimize Lambda L2', 'Do not use default or user-defined Lambda L2.', ...
-'L1 Range','L1 regularization weights for optimization [min max N]',...
-'L2 Range','L2 regularization weights for optimization [min max N]'
+'L1 Range','Optimization range for L1 regularization weights [min max N]',...
+'L2 Range','Optimization range for L2 regularization weights [min max N]'
 };
 
 options= struct();
@@ -82,6 +82,9 @@ options= struct();
 end % Public properties
 
 properties (Hidden = true)
+
+rangeL1 = [-4 2.5 5];
+rangeL2 = [-4 2.5 5];
 
 lambdaL1Range = [];
 lambdaL2Range = [];
@@ -132,6 +135,8 @@ function obj = UpdateFields(obj)
   obj = linkGUIState(obj, 'ReOptimize Lambda L1', 'Lambda L1', 'enable_disable_button', 'active_0');
   obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'Lambda L2', 'enable_disable_button', 'active_0');
 
+  % LINK PADSIZE TO THE SHARP
+
 end %fx: UpdateFields (Member)
 
 function FitResults = fit(obj,data)
@@ -140,52 +145,71 @@ function FitResults = fit(obj,data)
   B0   =   obj.Prot.Magnetization.Mat(1);
   TE   =   obj.Prot.Timing.Mat;
   imageResolution = obj.Prot.Resolution.Mat;
-  FitOpt = GetFitOpt(obj)
-
+  FitOpt = GetFitOpt(obj);
+  FitResults = struct();
   % For now, assuming wrapped phase.
 
   % Mask wrapped phase
   data.Mask = logical(data.Mask);
   data.PhaseGRE(~data.Mask) = 0;
 
+  % Throw exceptions here to close annoying please wait window.
+   if not(FitOpt.noreg_Flag) && not(FitOpt.regL2_Flag) && not(FitOpt.regSB_Flag)
+
+      errordlg('Please make a regularization selection.');
+      error('Operation has exited.')
+  elseif not(FitOpt.noreg_Flag) && not(FitOpt.regL2_Flag) && not(FitOpt.regSB_Flag) && not(FitOpt.regL1_Flag)
+      % This is temporary stupid message. This will be handled @ Update
+      errordlg('Regularization L1 alone has no function :p');
+      error('Operation has exited.')
+  end
+
+
   if FitOpt.sharp_Flag % SHARP BG removal
 
-    phaseWrapPad = padVolumeForSharp(data.PhaseGRE, FitOpt.padSize);
-    maskPad      = padVolumeForSharp(data.Mask, FitOpt.padSize);
+    padSize = FitOpt.padSize;
+
+    phaseWrapPad = padVolumeForSharp(data.PhaseGRE, padSize);
+    maskPad      = padVolumeForSharp(data.Mask, padSize);
 
     disp('Started   : Laplacian phase unwrapping ...');
     phaseLUnwrap = unwrapPhaseLaplacian(phaseWrapPad);
     disp('Completed : Laplacian phase unwrapping');
+    disp('-----------------------------------------------');
 
     disp('Started   : SHARP background removal ...');
-    [nfmSharpLUnwrap, maskSharp] = backgroundRemovalSharp(phaseLUnwrap, maskPad, [TE B0 gyro], FitOpt.sharpMode);
+    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap, maskPad, [TE B0 gyro], FitOpt.sharpMode);
     disp('Completed : SHARP background removal');
+    disp('-----------------------------------------------');
+
+
 
   else
 
     disp('Started   : Laplacian phase unwrapping ...');
     phaseLUnwrap = unwrapPhaseLaplacian(data.PhaseGRE);
     disp('Completed : Laplacian phase unwrapping');
+    disp('-----------------------------------------------');
+
+    % WARNING!!: NOT SURE AT ALL IF THIS IS LEGIT
+    %------- ! ! !  ! ! !  ! ! ! ---------
+    % I assumed that even w/o SHARP, magn weight is possible by passing
+    % brainmask and padding size as 0 0 0.
+
+    % If there is sharp, phaseLUnwrap is the SHARP masked one
+    % If there is not sharp phaseLUnwrap is just laplacian unwrapped phase.
+
+    maskGlobal = data.Mask;
+    padSize    = [0 0 0];
 
   end % SHARP BG removal
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
 
-    if FitOpt.sharp_Flag
-
-      disp('Started   : Calculation of gradient masks for magn weighting ...');
-      magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskSharp, padSize, FitOpt.direction)
-      disp('Completed : Calculation of gradient masks for magn weighting');
-
-    else
-
-      % NOT SURE AT ALL IF THIS IS LEGIT
-
-      disp('Started   : Calculation of gradient masks for magn weighting ...');
-      magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, data.Mask, [0 0 0], FitOpt.direction)
-      disp('Completed : Calculation of gradient masks for magn weighting');
-
-    end
+    disp('Started   : Calculation of gradient masks for magn weighting ...');
+    magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
+    disp('Completed : Calculation of gradient masks for magn weighting');
+    disp('-----------------------------------------------');
 
   elseif isempty(data.MagnGRE) && FitOpt.magnW_Flag
 
@@ -193,18 +217,107 @@ function FitResults = fit(obj,data)
 
   end % Magnitude weighting
 
-% Lambda one has a dependency on Lambda2. On the other hand, there is no
-% chi_L1.
+  % Lambda one has a dependency on Lambda2. On the other hand, there is no
+  % chi_L1.
 
-% HERE YOU LEFT -------------------------------------------------------> 
-if FitOpt.regL2_Flag
-[ lambda_L2, chi_L2 ] = calcLambdaL2(nfm_Sharp_lunwrap, mask_sharp, lambdaL2Range, imageResolution, directionFlag, pad_size);
 
-else
+  if FitOpt.regL2_Flag && FitOpt.reoptL2_Flag  % || Reopt Lamda L2 case chi_L2 generation
 
-lambdaL2 = FitOpt.
+    disp('Started   : Reoptimization of lamdaL2. ...');
+    lambdaL2 = calcLambdaL2(phaseLUnwrap, FitOpt.lambdaL2Range, imageResolution);
+    disp(['Completed   : Reoptimization of lamdaL2. Lambda L2: ' num2str(lamdaL2)]);
+    disp('-----------------------------------------------');
 
-end
+    if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % MagnitudeWeighting case | Lambdal2 reopted
+
+      disp('Started   : Calculation of chi_L2 map with magnitude weighting...');
+      [FitResults.chiL2,FitResults.chiL2pcg] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
+      disp('Completed   : Calculation of chi_L2 map with magnitude weighting.');
+      disp('-----------------------------------------------');
+
+    else % No magnitude weighting case | Lambdal2 reopted
+
+      disp('Started   : Calculation of chi_L2 map without magnitude weighting...');
+      [FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize);
+      disp('Completed  : Calculation of chi_L2 map without magnitude weighting.');
+      disp('-----------------------------------------------');
+
+    end
+
+  elseif FitOpt.regL2_Flag && not(FitOpt.reoptL2_Flag ) % || DO NOT reopt Lambda L2 case chi_L2 generation
+
+    if isempty(FitOpt.LambdaL2) % In case user forgets
+
+      error('Lambda2 value is needed. Please select Re-opt LambdaL2 if you dont know the value');
+
+    else
+
+      disp('Skipping reoptimization of Lambda L2.');
+      lambdaL2 = FitOpt.LambdaL2;
+
+    end
+
+    if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % MagnitudeWeighting is present | Lambdal2 known
+
+      disp('Started   : Calculation of chi_L2 map with magnitude weighting...');
+      [FitResults.chiL2,FitResults.chiL2pcg] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
+      disp('Completed   : Calculation of chi_L2 map with magnitude weighting.');
+      disp('-----------------------------------------------');
+
+    else % magn weight is not present | Lambdal2 known
+
+      disp('Started   : Calculation of chi_L2 map without magnitude weighting...');
+      [FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize);
+      disp('Completed  : Calculation of chi_L2 map without magnitude weighting.');
+      disp('-----------------------------------------------');
+
+    end
+
+  end
+
+  % L1 flag is raised only if split bregman is selected
+
+  if FitOpt.regL1_Flag && FitOpt.reoptL1_Flag  % || Reopt Lamda L2 case chi_L2 generation
+
+    disp('Started   : Reoptimization of Lamda L1. ...');
+    lambdaL1 = calcSBLambdaL1(phaseLUnwrap, FitOpt.lambdaL1Range, lambdaL2, imageResolution, FitOpt.direction);
+    disp('Completed   : Reoptimization of Lamda L1. ...');
+    disp('-----------------------------------------------');
+
+  elseif FitOpt.regL1_Flag && not(FitOpt.reoptL1_Flag)
+
+    lambdaL1 = FitOpt.LambdaL1;
+
+  end
+
+
+  if FitOpt.regSB_Flag && FitOpt.magnW_Flag
+
+    disp('Started   : Calculation of chi_SBM map with magnitude weighting.. ...');
+    FitResults.chiSBM = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize, preconMagWeightFlag, magn_weight);
+    disp('Completed   : Calculation of chi_SBM map with magnitude weighting.');
+    disp('-----------------------------------------------');
+
+  elseif FitOpt.regSB_Flag && not(FitOpt.magnW_Flag)
+
+    disp('Started   : Calculation of chi_SBM map without magnitude weighting.. ...');
+    FitResults.chiSBM = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize);
+    disp('Completed   : Calculation of chi_SBM map without magnitude weighting.');
+    disp('-----------------------------------------------');
+
+  end
+
+  if FitOpt.noreg_Flag
+
+    FitResults.nfm = abs(phaseLUnwrap(1+padSize(1):end-padSize(1),1+padSize(2):end-padSize(2),1+padSize(3):end-padSize(3)));
+
+  end
+
+
+
+  if not(isdeployed) && not(exist('OCTAVE_VERSION', 'builtin'))
+      disp('Loading outputs to the GUI may take some time after fit has been completed.');
+  end
 
   % Some functions are added as nasted functions for memory management.
   % --------------------------------------------------------------------
@@ -216,27 +329,9 @@ end
 
   end % fx: padVolumeForSharp (Nested)
 
-  function [fdx, fdy, fdz] = calcFdr(N, direction)
-    % N: Size of the volumes
-    % direction: Direction of the differentiation.
-
-    [k2,k1,k3] = meshgrid(0:N(2)-1, 0:N(1)-1, 0:N(3)-1);
-
-    switch direction
-    case 'forward'
-      fdx = 1 - exp(-2*pi*1i*k1/N(1));
-      fdy = 1 - exp(-2*pi*1i*k2/N(2));
-      fdz = 1 - exp(-2*pi*1i*k3/N(3));
-    case 'backward'
-      fdx = -1 + exp(2*pi*1i*k1/N(1));
-      fdy = -1 + exp(2*pi*1i*k2/N(2));
-      fdz = -1 + exp(2*pi*1i*k3/N(3));
-    end
-
-  end % fx: calcFdr (Nested)
-
   function magnWeight = calcGradientMaskFromMagnitudeImage(magnVolume, maskSharp, padSize, direction)
     % Calculates gradient masks from magnitude image using k-space gradients.
+
 
     N = size(maskSharp);
 
@@ -283,6 +378,9 @@ function FitOpt = GetFitOpt(obj)
 
   FitOpt.LambdaL1 = obj.options.L1Panel_LambdaL1;
   FitOpt.LambdaL2 = obj.options.L2Panel_LambdaL2;
+
+  FitOpt.reoptL1_Flag = obj.options.L1Panel_ReOptimizeLambdaL1;
+  FitOpt.reoptL2_Flag = obj.options.L2Panel_ReOptimizeLambdaL2;
 
   FitOpt.lambdaL1Range = obj.lambdaL1Range;
   FitOpt.lambdaL2Range = obj.lambdaL2Range;
