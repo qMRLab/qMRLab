@@ -24,49 +24,57 @@ classdef mt_ratio < AbstractModel
 %     FILL
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-    
+
     properties (Hidden=true)
         onlineData_url = 'https://osf.io/erm2s/download/';
     end
-    
+
     properties
-        
-        
+
+
         voxelwise = 0;
-        
+
         MRIinputs = {'MTon','MToff', 'Mask'};
-        
-        
-        xnames = {'MTR'}; 
-        
+
+
+        xnames = {'MTR'};
+
         Prot = struct();
         buttons  = {};
         options  = struct();
-        
+
     end
-    
+
     methods
-        
+
         function obj = mt_ratio
-            
+
             obj.options = button2opts(obj.buttons);
-            
+
         end
-        
-        
-        
+
+
+
         function FitResults = fit(obj, data)
-            
+
             FitResults.MTR = 100 * (data.MToff - data.MTon)./data.MToff;
-            
-            if isfield(data,'Mask')
+
+            FitResults.MTR(isnan(FitResults.MTR)) = 0;
+            FitResults.MTR(isinf(FitResults.MTR)) = 0;
+
+            if isfield(data,'Mask') && not(isempty(data.Mask))
+
+                data.Mask(isnan(data.Mask)) = 0;
+
+                data.Mask = logical(data.Mask);
                 FitResults.MTR = FitResults.MTR.*data.Mask;
+
             end
-            
+
         end
-        
-        
-        
-        
+
+
+
+
     end
 end
