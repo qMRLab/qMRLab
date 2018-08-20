@@ -58,8 +58,8 @@ Prot = struct('Resolution',struct('Format',{{'VoxDim[1] (mm)' 'VoxDim[2] (mm)' '
 % Model options
 buttons = {'Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
 'L1 Regularized', false, 'L2 Regularized', false, 'Split-Bregman', false, 'No Regularization', false, ...
-'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
-'PANEL', 'L2 Panel', 2, 'Lambda L2',0.004217, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
+'PANEL', 'L1 Panel',2, 'Lambda L1', 9.21e-04, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
+'PANEL', 'L2 Panel', 2, 'Lambda L2',0.0316, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
 };
 
 % Tiptool descriptions
@@ -83,12 +83,6 @@ end % Public properties
 
 properties (Hidden = true)
 
-rangeL1 = [-4 2.5 5];
-rangeL2 = [-4 2.5 5];
-
-lambdaL1Range = [];
-lambdaL2Range = [];
-
 onlineData_url = 'https://osf.io/rn572/download/';
 
 end % Hidden public properties
@@ -98,9 +92,6 @@ methods
 function obj = qsm_sb
 
 
-  % Transfer regularization parameter optimization range to the logspace
-  obj.lambdaL1Range = logspace(obj.rangeL1(1),obj.rangeL1(2), obj.rangeL1(3));
-  obj.lambdaL2Range = logspace(obj.rangeL2(1), obj.rangeL2(2), obj.rangeL2(3));
   % Convert buttons to options
   obj.options = button2opts(obj.buttons);
   % UpdateFields to take GUI interactions their effect on opening.
@@ -436,9 +427,12 @@ function FitOpt = GetFitOpt(obj)
 
   FitOpt.reoptL1_Flag = obj.options.L1Panel_ReOptimizeLambdaL1;
   FitOpt.reoptL2_Flag = obj.options.L2Panel_ReOptimizeLambdaL2;
-
-  FitOpt.lambdaL1Range = obj.lambdaL1Range;
-  FitOpt.lambdaL2Range = obj.lambdaL2Range;
+  
+  l1r = obj.options.L1Range;
+  l2r = obj.options.L2Range;
+  
+  FitOpt.lambdaL1Range = logspace(l1r(1),l1r(2),l1r(3));
+  FitOpt.lambdaL2Range = logspace(l2r(1),l2r(2),l2r(3));
 
 end % fx: GetFitOpt (member)
 
