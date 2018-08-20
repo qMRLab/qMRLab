@@ -58,15 +58,15 @@ Prot = struct('Resolution',struct('Format',{{'VoxDim[1] (mm)' 'VoxDim[2] (mm)' '
 % Model options
 buttons = {'Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
 'L1 Regularized', false, 'L2 Regularized', false, 'Split-Bregman', false, 'No Regularization', false, ...
-'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 2.5 15], ...
-'PANEL', 'L2 Panel', 2, 'Lambda L2',5, 'ReOptimize Lambda L2', false, 'L2 Range', [-4 2.5 15]
+'PANEL', 'L1 Panel',2, 'Lambda L1', 5, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
+'PANEL', 'L2 Panel', 2, 'Lambda L2',0.004217, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
 };
 
 % Tiptool descriptions
-tips = {'Direction','Direction of the differentiation', ...
+tips = {'Direction','Direction of the differentiation. Global to the calculations of grad. mask, lambda L1 & L2 and chi maps.', ...
 'Magnitude Weighting', 'Calculates gradient masks from Magn data using k-space gradients and includes magn weighting in susceptibility maping.',...
 'Sharp Filtering', 'Enable/Disable SHARP background removal.', ...
-'Sharp Mode', 'Once: 9x9x9 kernel. Iterative: 9x9x9 to 3x3x3 with the step size of -2x-2x-2.', ...
+'Sharp Mode', 'Once: 9x9x9 kernel. Iterative: From 9x9x9 to 3x3x3 with the step size of -2x-2x-2.', ...
 'Padding Size', 'Zero padding size for SHARP kernel convolutions.', ...
 'L1 Regularized', 'Open L1 regulatization panel.', ...
 'L2 Regularized', 'Open L2 regulatization panel.', ...
@@ -126,7 +126,9 @@ function obj = UpdateFields(obj)
 
   obj = linkGUIState(obj, 'No Regularization', 'Split-Bregman', 'enable_disable_button', 'active_0',false);
   obj = linkGUIState(obj, 'Split-Bregman', 'No Regularization', 'enable_disable_button', 'active_0',false);
-
+  
+  obj = linkGUIState(obj, 'No Regularization', 'Magnitude Weighting', 'enable_disable_button', 'active_0',false);
+  
   obj = linkGUIState(obj, 'L1 Regularized', 'L1 Panel', 'show_hide_panel', 'active_1');
   obj = linkGUIState(obj, 'L2 Regularized', 'L2 Panel', 'show_hide_panel', 'active_1');
 
@@ -135,7 +137,12 @@ function obj = UpdateFields(obj)
   obj = linkGUIState(obj, 'ReOptimize Lambda L1', 'Lambda L1', 'enable_disable_button', 'active_0');
   obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'Lambda L2', 'enable_disable_button', 'active_0');
 
-  % LINK PADSIZE TO THE SHARP
+  if not(getCheckBoxState(obj,'L2 Regularized')) && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman')) ...
+          && getCheckBoxState(obj,'L1 Regularized')
+  
+      obj.options.RegularizationSelection_L1Regularized = false;
+      obj = setPanelInvisible(obj,'L1 Panel', 1);
+  end
 
 end %fx: UpdateFields (Member)
 
@@ -153,17 +160,22 @@ function FitResults = fit(obj,data)
   data.Mask = logical(data.Mask);
   data.PhaseGRE(~data.Mask) = 0;
 
-  % Throw exceptions here to close annoying please wait window.
+  
    if not(FitOpt.noreg_Flag) && not(FitOpt.regL2_Flag) && not(FitOpt.regSB_Flag)
 
       errordlg('Please make a regularization selection.');
       error('Operation has exited.')
-  elseif not(FitOpt.noreg_Flag) && not(FitOpt.regL2_Flag) && not(FitOpt.regSB_Flag) && not(FitOpt.regL1_Flag)
-      % This is temporary stupid message. This will be handled @ Update
-      errordlg('Regularization L1 alone has no function :p');
-      error('Operation has exited.')
-  end
+  
+   end
 
+  % No data change with these once they are assigned. Therefore setting
+  % them persistent. Experimental. Let's see. 
+  
+  % Since there is not back and forth data change between the functions we 
+  % call, I used nested functions. There is a trade off between CPU load 
+  % and memory management. 
+  
+  persistent phaseLUnwrap maskGlobal
 
   if FitOpt.sharp_Flag % SHARP BG removal
 
@@ -171,17 +183,23 @@ function FitResults = fit(obj,data)
 
     phaseWrapPad = padVolumeForSharp(data.PhaseGRE, padSize);
     maskPad      = padVolumeForSharp(data.Mask, padSize);
-
+    
+    data.PhaseGRE = [];
+    
     disp('Started   : Laplacian phase unwrapping ...');
-    phaseLUnwrap = unwrapPhaseLaplacian(phaseWrapPad);
+    phaseLUnwrap_tmp = unwrapPhaseLaplacian(phaseWrapPad);
     disp('Completed : Laplacian phase unwrapping');
     disp('-----------------------------------------------');
-
+    
+    clear('phaseWrapPad');
+    
     disp('Started   : SHARP background removal ...');
-    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap, maskPad, [TE B0 gyro], FitOpt.sharpMode);
+    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
-
+    
+    clear('phaseLUnwrap_tmp','maskPad')
+    data.Mask = [];
 
 
   else
@@ -190,7 +208,9 @@ function FitResults = fit(obj,data)
     phaseLUnwrap = unwrapPhaseLaplacian(data.PhaseGRE);
     disp('Completed : Laplacian phase unwrapping');
     disp('-----------------------------------------------');
-
+    
+    data.phaseGRE = [];
+    
     % WARNING!!: NOT SURE AT ALL IF THIS IS LEGIT
     %------- ! ! !  ! ! !  ! ! ! ---------
     % I assumed that even w/o SHARP, magn weight is possible by passing
@@ -201,11 +221,13 @@ function FitResults = fit(obj,data)
 
     maskGlobal = data.Mask;
     padSize    = [0 0 0];
-
+    data.Mask = [];
+    
   end % SHARP BG removal
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
-
+    
+    
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
     disp('Completed : Calculation of gradient masks for magn weighting');
@@ -219,16 +241,33 @@ function FitResults = fit(obj,data)
 
   % Lambda one has a dependency on Lambda2. On the other hand, there is no
   % chi_L1.
-
+    
+  data.MagnGRE = [];
 
   if FitOpt.regL2_Flag && FitOpt.reoptL2_Flag  % || Reopt Lamda L2 case chi_L2 generation
 
     disp('Started   : Reoptimization of lamdaL2. ...');
-    lambdaL2 = calcLambdaL2(phaseLUnwrap, FitOpt.lambdaL2Range, imageResolution);
-    disp(['Completed   : Reoptimization of lamdaL2. Lambda L2: ' num2str(lamdaL2)]);
+    lambdaL2 = calcLambdaL2(phaseLUnwrap, FitOpt.lambdaL2Range, imageResolution, FitOpt.direction);
+    
+    if isempty(lambdaL2)
+        
+        warning('Could not optimize lambda L2 with provided search interval. Setting default value instead.');
+        
+        if not(isempty(FitOpt.LambdaL2))
+        
+            lambdaL2 = FitOpt.LambdaL2;
+       
+        else
+            
+            error('Cannot set lambda L2. Please enter a value or change range.')
+            
+        end
+    end
+        
+    disp(['Completed   : Reoptimization of lamdaL2. Lambda L2: ' num2str(lambdaL2)]);
     disp('-----------------------------------------------');
 
-    if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % MagnitudeWeighting case | Lambdal2 reopted
+    if  FitOpt.magnW_Flag % MagnitudeWeighting case | Lambdal2 reopted
 
       disp('Started   : Calculation of chi_L2 map with magnitude weighting...');
       [FitResults.chiL2,FitResults.chiL2pcg] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
@@ -257,7 +296,7 @@ function FitResults = fit(obj,data)
 
     end
 
-    if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % MagnitudeWeighting is present | Lambdal2 known
+    if FitOpt.magnW_Flag % MagnitudeWeighting is present | Lambdal2 known
 
       disp('Started   : Calculation of chi_L2 map with magnitude weighting...');
       [FitResults.chiL2,FitResults.chiL2pcg] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
@@ -282,7 +321,23 @@ function FitResults = fit(obj,data)
     disp('Started   : Reoptimization of Lamda L1. ...');
     lambdaL1 = calcSBLambdaL1(phaseLUnwrap, FitOpt.lambdaL1Range, lambdaL2, imageResolution, FitOpt.direction);
     disp('Completed   : Reoptimization of Lamda L1. ...');
+    disp(['Completed   : Reoptimization of lamda L1. Lambda L1: ' num2str(lambdaL1)]);
     disp('-----------------------------------------------');
+    
+     if isempty(lambdaL1)
+        
+        warning('Could not optimize lambda L1 with provided search interval. Setting default value instead.');
+        
+        if not(isempty(FitOpt.LambdaL1))
+        
+            lambdaL1 = FitOpt.LambdaL1;
+       
+        else
+            
+            error('Cannot set lambda L1. Please enter a value or change range.')
+            
+        end
+    end
 
   elseif FitOpt.regL1_Flag && not(FitOpt.reoptL1_Flag)
 
@@ -294,7 +349,7 @@ function FitResults = fit(obj,data)
   if FitOpt.regSB_Flag && FitOpt.magnW_Flag
 
     disp('Started   : Calculation of chi_SBM map with magnitude weighting.. ...');
-    FitResults.chiSBM = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize, preconMagWeightFlag, magn_weight);
+    FitResults.chiSBM = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize, FitOpt.magnW_Flag, magnWeight);
     disp('Completed   : Calculation of chi_SBM map with magnitude weighting.');
     disp('-----------------------------------------------');
 
@@ -345,7 +400,7 @@ function FitResults = fit(obj,data)
 
     magnWeight = zeros(size(magnGrad));
 
-    for s = 1:size(magn_grad,4)
+    for s = 1:size(magnGrad,4)
 
       magnUse = abs(magnGrad(:,:,:,s));
 

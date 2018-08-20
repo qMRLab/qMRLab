@@ -1,4 +1,4 @@
-function [lambdaL2] = calcLambdaL2(phaseUnwrapped,rangeLambda, imageResolution)
+function [lambdaL2] = calcLambdaL2(phaseUnwrapped,rangeLambda, imageResolution, directionFlag)
 
 
   N = size(phaseUnwrapped);
@@ -19,7 +19,7 @@ function [lambdaL2] = calcLambdaL2(phaseUnwrapped,rangeLambda, imageResolution)
 
   tic
   for t = 1:length(rangeLambda)
-    disp([num2str(t) ' / ' num2str(length(rangeLambda)));
+    disp([num2str(t) ' / ' num2str(length(rangeLambda))]);
 
     D_reg = D ./ ( eps + D2 + rangeLambda(t) * E2 );
     Chi_L2 = (D_reg .* Nfm_pad);
