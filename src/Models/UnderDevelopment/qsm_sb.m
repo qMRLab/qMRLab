@@ -1,28 +1,27 @@
 classdef qsm_sb < AbstractModel
-% CustomExample :  Quantitative susceptibility mapping
+% qsm_sb :  Fast reconstruction quantitative susceptibility maps with total
+% variation penalty and automatic regularization parameter selection.
 %
 % Inputs:
-%   PhaseGRe    3D xxx
-%   (MagnGRE)     3D xxx
-%   Mask        Binary mask
+%   PhaseGRe    3D GRE acquisition. Wrapped phase image.
+%   (MagnGRE)   3D GRE acquisition. Magnitude part of the image.
+%   Mask        Brain extraction mask.
 %
 % Assumptions:
-% (1)FILL
+% (1)
 % (2)
 %
 % Fitted Parameters:
 %    chi_SB
 %    chi_L2
-%
-% Non-Fitted Parameters:
-%    residue                    Fitting residue.
+%    chi_L2pcg
+%    nfm
 %
 % Options:
-%   Q-space regularization
-%       Smooth q-space data per shell b code for the complete reconstruction pipeline (Laplacian unwrapping, SHARP filtering, ℓ2- and ℓ1- regularized fast susceptibility mapping with magnitude weighting and parameter estimation) is included as supplementary material and made available prior fitting
+%   To be listed.
 %
-% Example of command line usage (see also <a href="matlab: showdemo Custom_batch">showdemo Custom_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(Custom);">qMRusage(Custom)</a>
+%
+%
 %
 % Authors: Mathieu Boudreau and Agah Karakuzu
 %
@@ -101,11 +100,6 @@ end % fx: Constructor
 
 function obj = UpdateFields(obj)
 
-  % Functional but imperfect for now. When Split-Bergman
-  % selected,you cannot disable L1 and L2, but they are not
-  % disabled. Use state = getCheckBoxState(obj,checkBoxName)
-  % later.
-
   obj = linkGUIState(obj, 'Sharp Filtering', 'Sharp Mode', 'show_hide_button', 'active_1');
   obj = linkGUIState(obj, 'Sharp Filtering', 'Padding Size', 'show_hide_button', 'active_1');
 
@@ -117,9 +111,9 @@ function obj = UpdateFields(obj)
 
   obj = linkGUIState(obj, 'No Regularization', 'Split-Bregman', 'enable_disable_button', 'active_0',false);
   obj = linkGUIState(obj, 'Split-Bregman', 'No Regularization', 'enable_disable_button', 'active_0',false);
-  
+
   obj = linkGUIState(obj, 'No Regularization', 'Magnitude Weighting', 'enable_disable_button', 'active_0',false);
-  
+
   obj = linkGUIState(obj, 'L1 Regularized', 'L1 Panel', 'show_hide_panel', 'active_1');
   obj = linkGUIState(obj, 'L2 Regularized', 'L2 Panel', 'show_hide_panel', 'active_1');
 
@@ -130,7 +124,7 @@ function obj = UpdateFields(obj)
 
   if not(getCheckBoxState(obj,'L2 Regularized')) && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman')) ...
           && getCheckBoxState(obj,'L1 Regularized')
-  
+
       obj.options.RegularizationSelection_L1Regularized = false;
       obj = setPanelInvisible(obj,'L1 Panel', 1);
   end
@@ -145,27 +139,25 @@ function FitResults = fit(obj,data)
   imageResolution = obj.Prot.Resolution.Mat;
   FitOpt = GetFitOpt(obj);
   FitResults = struct();
-  % For now, assuming wrapped phase.
 
-  % Mask wrapped phase
+  %  DEV Note:
+  %  Assuming wrapped phase.
+
   data.Mask = logical(data.Mask);
   data.PhaseGRE(~data.Mask) = 0;
 
-  
+
    if not(FitOpt.noreg_Flag) && not(FitOpt.regL2_Flag) && not(FitOpt.regSB_Flag)
 
       errordlg('Please make a regularization selection.');
       error('Operation has exited.')
-  
+
    end
 
+  % DEV Note:
   % No data change with these once they are assigned. Therefore setting
-  % them persistent. Experimental. Let's see. 
-  
-  % Since there is not back and forth data change between the functions we 
-  % call, I used nested functions. There is a trade off between CPU load 
-  % and memory management. 
-  
+  % them persistent. Performance tests to be performed.
+
   persistent phaseLUnwrap maskGlobal
 
   if FitOpt.sharp_Flag % SHARP BG removal
@@ -174,23 +166,23 @@ function FitResults = fit(obj,data)
 
     phaseWrapPad = padVolumeForSharp(data.PhaseGRE, padSize);
     maskPad      = padVolumeForSharp(data.Mask, padSize);
-    
-    data.PhaseGRE = [];
-    
+
+    data.PhaseGRE = []; % Release
+
     disp('Started   : Laplacian phase unwrapping ...');
     phaseLUnwrap_tmp = unwrapPhaseLaplacian(phaseWrapPad);
     disp('Completed : Laplacian phase unwrapping');
     disp('-----------------------------------------------');
-    
-    clear('phaseWrapPad');
-    
+
+    clear('phaseWrapPad'); % Release
+
     disp('Started   : SHARP background removal ...');
     [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
-    
+
     clear('phaseLUnwrap_tmp','maskPad')
-    data.Mask = [];
+    data.Mask = []; % Release
 
 
   else
@@ -199,11 +191,10 @@ function FitResults = fit(obj,data)
     phaseLUnwrap = unwrapPhaseLaplacian(data.PhaseGRE);
     disp('Completed : Laplacian phase unwrapping');
     disp('-----------------------------------------------');
-    
-    data.phaseGRE = [];
-    
-    % WARNING!!: NOT SURE AT ALL IF THIS IS LEGIT
-    %------- ! ! !  ! ! !  ! ! ! ---------
+
+    data.phaseGRE = []; % Release
+
+    % DEV Note:
     % I assumed that even w/o SHARP, magn weight is possible by passing
     % brainmask and padding size as 0 0 0.
 
@@ -213,12 +204,12 @@ function FitResults = fit(obj,data)
     maskGlobal = data.Mask;
     padSize    = [0 0 0];
     data.Mask = [];
-    
+
   end % SHARP BG removal
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
-    
-    
+
+
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
     disp('Completed : Calculation of gradient masks for magn weighting');
@@ -230,31 +221,29 @@ function FitResults = fit(obj,data)
 
   end % Magnitude weighting
 
-  % Lambda one has a dependency on Lambda2. On the other hand, there is no
-  % chi_L1.
-    
+
   data.MagnGRE = [];
 
   if FitOpt.regL2_Flag && FitOpt.reoptL2_Flag  % || Reopt Lamda L2 case chi_L2 generation
 
     disp('Started   : Reoptimization of lamdaL2. ...');
     lambdaL2 = calcLambdaL2(phaseLUnwrap, FitOpt.lambdaL2Range, imageResolution, FitOpt.direction);
-    
+
     if isempty(lambdaL2)
-        
+
         warning('Could not optimize lambda L2 with provided search interval. Setting default value instead.');
-        
+
         if not(isempty(FitOpt.LambdaL2))
-        
+
             lambdaL2 = FitOpt.LambdaL2;
-       
+
         else
-            
+
             error('Cannot set lambda L2. Please enter a value or change range.')
-            
+
         end
     end
-        
+
     disp(['Completed   : Reoptimization of lamdaL2. Lambda L2: ' num2str(lambdaL2)]);
     disp('-----------------------------------------------');
 
@@ -305,6 +294,7 @@ function FitResults = fit(obj,data)
 
   end
 
+  % DEV note:
   % L1 flag is raised only if split bregman is selected
 
   if FitOpt.regL1_Flag && FitOpt.reoptL1_Flag  % || Reopt Lamda L2 case chi_L2 generation
@@ -314,19 +304,19 @@ function FitResults = fit(obj,data)
     disp('Completed   : Reoptimization of Lamda L1. ...');
     disp(['Completed   : Reoptimization of lamda L1. Lambda L1: ' num2str(lambdaL1)]);
     disp('-----------------------------------------------');
-    
+
      if isempty(lambdaL1)
-        
+
         warning('Could not optimize lambda L1 with provided search interval. Setting default value instead.');
-        
+
         if not(isempty(FitOpt.LambdaL1))
-        
+
             lambdaL1 = FitOpt.LambdaL1;
-       
+
         else
-            
+
             error('Cannot set lambda L1. Please enter a value or change range.')
-            
+
         end
     end
 
@@ -365,8 +355,7 @@ function FitResults = fit(obj,data)
       disp('Loading outputs to the GUI may take some time after fit has been completed.');
   end
 
-  % Some functions are added as nasted functions for memory management.
-  % --------------------------------------------------------------------
+  % Some functions are added as nested functions here
 
   function paddedVolume = padVolumeForSharp(inputVolume, padSize)
     % Pads mask and wrapped phase volumes with zeros for SHARP convolutions.
@@ -427,10 +416,10 @@ function FitOpt = GetFitOpt(obj)
 
   FitOpt.reoptL1_Flag = obj.options.L1Panel_ReOptimizeLambdaL1;
   FitOpt.reoptL2_Flag = obj.options.L2Panel_ReOptimizeLambdaL2;
-  
+
   l1r = obj.options.L1Range;
   l2r = obj.options.L2Range;
-  
+
   FitOpt.lambdaL1Range = logspace(l1r(1),l1r(2),l1r(3));
   FitOpt.lambdaL2Range = logspace(l2r(1),l2r(2),l2r(3));
 
