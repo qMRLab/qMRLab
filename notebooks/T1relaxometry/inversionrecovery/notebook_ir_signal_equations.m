@@ -22,13 +22,13 @@ params.signalConstant = 1;
 %
 
 % Eq. 1
-signal_II = ir_equations(params, 'IdealInversion');
+signal_II = ir_equations(params, 2);
 
 % Eq. 2
-signal_II_IEAT2 = ir_equations(params, 'IdealInversion_IgnoreExcitationAndT2');
+signal_II_IEAT2 = ir_equations(params, 3);
 
 % Eq. 3
-signal_II_IEAT2_LTR = ir_equations(params, 'IdealInversion_IgnoreExcitationAndT2_LongTR');
+signal_II_IEAT2_LTR = ir_equations(params, 4);
 
 %% Plot comparison of Eqs 1, 2, 3
 %
@@ -53,7 +53,7 @@ h2.figure = figure(2);
 params.signalConstant = 1 / (exp(-params.TE/params.T2) * sind(params.FA));
 assertEqual(size(params.signalConstant), [1, 1]) % Make sure we only added constant TE/T2/FA values.
 
-signal_II_ConstantAdjusted = ir_equations(params, 'IdealInversion');
+signal_II_ConstantAdjusted = ir_equations(params, 2);
 
 h2.plot{1} = plot(params.TI, signal_II, 'LineWidth', 4); hold on
 h2.plot{2} = plot(params.TI, signal_II_ConstantAdjusted, 'LineWidth', 4);

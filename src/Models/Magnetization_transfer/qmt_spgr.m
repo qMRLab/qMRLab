@@ -305,6 +305,7 @@ end
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
                 x.F,x.R1f,x.R1r,x.T2f,x.T2r),...
                 'FontSize',10);
+            disp(x)
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
