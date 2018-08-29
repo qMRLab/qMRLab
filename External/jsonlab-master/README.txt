@@ -72,7 +72,7 @@ III.Using JSONLab
 
 JSONLab provides two functions, loadjson.m -- a MATLAB->JSON decoder, 
 and savejson.m -- a MATLAB->JSON encoder, for the text-based JSON, and 
-two equivallent functions -- loadubjson and saveubjson for the binary 
+two equivalent functions -- loadubjson and saveubjson for the binary 
 JSON. The detailed help info for the four functions can be found below:
 
 === loadjson.m ===
@@ -100,7 +100,7 @@ JSON. The detailed help info for the four functions can be found below:
        fname: input file name, if fname contains "{}" or "[]", fname
               will be interpreted as a JSON string
        opt: a struct to store parsing options, opt can be replaced by 
-            a list of ('param',value) pairs - the param string is equivallent
+            a list of ('param',value) pairs - the param string is equivalent
             to a field in opt. opt can have the following 
             fields (first in [.|.] is the default)
  
@@ -208,7 +208,7 @@ JSON. The detailed help info for the four functions can be found below:
          opt.Compact [0|1]: 1- out compact JSON format (remove all newlines and tabs)
  
          opt can be replaced by a list of ('param',value) pairs. The param 
-         string is equivallent to a field in opt and is case sensitive.
+         string is equivalent to a field in opt and is case sensitive.
   output:
        json: a string in the JSON format (see http://json.org)
  
@@ -244,7 +244,7 @@ JSON. The detailed help info for the four functions can be found below:
        fname: input file name, if fname contains "{}" or "[]", fname
               will be interpreted as a UBJSON string
        opt: a struct to store parsing options, opt can be replaced by 
-            a list of ('param',value) pairs - the param string is equivallent
+            a list of ('param',value) pairs - the param string is equivalent
             to a field in opt. opt can have the following 
             fields (first in [.|.] is the default)
  
@@ -336,7 +336,7 @@ JSON. The detailed help info for the four functions can be found below:
                           back to the string form
  
          opt can be replaced by a list of ('param',value) pairs. The param 
-         string is equivallent to a field in opt and is case sensitive.
+         string is equivalent to a field in opt and is case sensitive.
   output:
        json: a binary string in the UBJSON format (see http://ubjson.org)
  
@@ -380,7 +380,7 @@ Here are the known issues:
 # 3D or higher dimensional cell/struct-arrays will be converted to 2D arrays;
 # When processing names containing multi-byte characters, Octave and MATLAB \
 can give different field-names; you can use feature('DefaultCharacterSet','latin1') \
-in MATLAB to get consistant results
+in MATLAB to get consistent results
 # savejson can not handle class and dataset.
 # saveubjson converts a logical array into a uint8 ([U]) array
 # an unofficial N-D array count syntax is implemented in saveubjson. We are \

@@ -1,5 +1,5 @@
 function [df, match, er1, er2] = comp_struct(s1,s2,prt,pse,tol,n1,n2,wbf)
-% check two structures for differances - i.e. see if strucutre s1 == structure s2
+% check two structures for differences - i.e. see if structure s1 == structure s2
 % function [match, er1, er2, erc, erv] = comp_struct(s1,s2,prt,pse,tol,n1,n2,wbf)
 %
 % inputs  8 - 7 optional

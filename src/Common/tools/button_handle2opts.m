@@ -5,6 +5,9 @@ function opts = button_handle2opts(optsHandles)
 ff=fieldnames(optsHandles);
 N = length(ff);
 for ii = 1:N
+    if strcmp(get(optsHandles.(ff{ii}),'type'),'uitable')
+        opts.(ff{ii}) = get(optsHandles.(ff{ii}),'Data');
+    else
     switch get(optsHandles.(ff{ii}),'Style')
         case 'edit'
             opts.(ff{ii}) = str2num(get(optsHandles.(ff{ii}),'String'));
@@ -16,5 +19,6 @@ for ii = 1:N
         case 'togglebutton'
             opts.(ff{ii}) = get(optsHandles.(ff{ii}),'Value');
             set(optsHandles.(ff{ii}),'Value',0);
+    end
     end
 end

@@ -4,13 +4,13 @@ function result_str=moxunit_util_remove_matlab_anchor_tag(str)
 % result_str=moxunit_util_escape_xml(input_str)
 %
 % Input:
-%   input_str           Input string with possible occurence of anchor tags
+%   input_str           Input string with possible occurrence of anchor tags
 %                       from error message
 %
 %
 % Output:
 %   result_str          Output string with anchor tags removed.
-%                       Any occurence of '<a foo>bar</a>' in input_str
+%                       Any occurrence of '<a foo>bar</a>' in input_str
 %                       is replaced by 'bar' in output_str; but any
 %                       content between double quote characters is ignored.
 %
@@ -60,11 +60,11 @@ end
 result_str=moxunit_util_strjoin(result_str_cell,'');
 
 function i=find_str_pos(pos, str, needle)
-% find the position before the first occurence of needle in str,
+% find the position before the first occurrence of needle in str,
 % starting at the first position after pos
     i=pos+regexp(str((pos+1):end),regexptranslate('escape',needle),'once')-1;
 
 function i=find_str_pos_after(pos, str, needle)
-% find the position immediately after the first occurence of needle in str,
+% find the position immediately after the first occurrence of needle in str,
 % starting at position pos
     i=numel(needle)+1+find_str_pos(pos, str, needle);

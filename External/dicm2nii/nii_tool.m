@@ -247,7 +247,7 @@ function varargout = nii_tool(cmd, varargin)
 % 160531 fopen uses 'W' for 'w': performance benefit according to Yair.
 % 160701 subFuncHelp: bug fix for mfile case.
 % 161018 gunzipOS: use unique name for outName, to avoid problem with parfor.
-% 161025 Make included linux pigz executible; fix "dd" for windows.
+% 161025 Make included linux pigz executable; fix "dd" for windows.
 % 161031 gunzip_mem(), nii_bytes() for hdr/ext read: read uint8 then parse;
 %        Replace hdr.machine with hdr.swap_endian.
 % 170202 check_gzip/check_dd: cd .. if m_dir is pwd, so get full path for m_dir

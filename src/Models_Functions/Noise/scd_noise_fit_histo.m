@@ -6,7 +6,8 @@ data=data(:);
 p=inputParser;
 addRequired(p,'data',@isnumeric)
 addOptional(p,'nbins',max(15,sqrt(length(data))));
-addOptional(p,'maxval',prctile(data,99));
+[~, xmax] = range_outlier(data);
+addOptional(p,'maxval',xmax);
 addOptional(p,'maxy',0);
 addOptional(p,'color',[0 0 1],@isnumeric);
 addOptional(p,'fig',1,@isnumeric);
@@ -17,7 +18,7 @@ if logical(exist('OCTAVE_VERSION', 'builtin'))
     in.fig = varargin{2};
     in.distrib = varargin{4};
     in.nbins = max(15,sqrt(length(data)));
-    in.maxval = prctile(data,99);
+    [~, in.maxval] = range_outlier(data);
     in.maxy = 0;
     in.color = [0 0 1];
     in.plotfit = 0;
