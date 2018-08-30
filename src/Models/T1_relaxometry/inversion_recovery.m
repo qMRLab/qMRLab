@@ -71,7 +71,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
         % Simulation Options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'M0',1000,'TR',3000,'FAinv',180,'FAexcite',90,'Compute ra rb','pushbutton'};%'FArefocus',180
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'T1',600,'M0',1000,'TR',3000,'FAinv',180,'FAexcite',90,'Update input variables','pushbutton'};%'FArefocus',180
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
 
     end
@@ -89,10 +89,10 @@ end
         function obj = UpdateFields(obj)
             obj.Prot.IRData.Mat = sort(obj.Prot.IRData.Mat);
         end
-        function obj = SimOpt(obj,x,Opt)
+        function xnew = SimOpt(obj,x,Opt)
             [ra,rb] = ComputeRaRb(obj,x,Opt);
-            mess = strcat('Please enter rb=',num2str(rb),' and ra=',num2str(ra),' in the table');
-            msgbox(mess,'Use these simulation parameters');
+            xnew = [Opt.T1 rb ra];
+
         end
 
         % -------------IR EQUATION-------------------------------------------------------------------------
@@ -109,11 +109,41 @@ end
         
         % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
         function [ra,rb] = ComputeRaRb(obj,x,Opt)
-            x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
+
+            % Some sanity checks
+            [ErrMsg]=[];
             
+            for brkloop=1:1
+                if Opt.TR < max(obj.Prot.IRData.Mat) %TR can't be less than max TI
+                    txt=['The TR (' num2str(Opt.TR) ') cannot be less than max TI (' num2str(max(obj.Prot.IRData.Mat)),')'];
+                    ErrMsg = txt; break
+                end
+                if Opt.T1 < 0 || Opt.T1 > 10000
+                    txt='Choose a reasonable value for T1 (0-10000 s)';
+                    ErrMsg = txt; break
+                end
+                if Opt.FAinv < 120 || Opt.FAinv > 220
+                    txt='Choose a reasonable value for the inversion FA (120-220 deg)';
+                    ErrMsg = txt; break
+                end
+                 if Opt.FAexcite < 50 || Opt.FAexcite > 120
+                    txt='Choose a reasonable value for the excitation FA (50-120 deg)';
+                    ErrMsg = txt; break
+                end
+            end
+            if ~isempty(ErrMsg)
+                if moxunit_util_platform_is_octave
+                    errordlg(ErrMsg,'Input Error');
+                else
+                    Mode = struct('WindowStyle','modal','Interpreter','tex');
+                    errordlg(ErrMsg,'Input Error', Mode);
+                    error(ErrMsg);
+                end
+            end
+           
             % equation for GRE-IR
-            ra = Opt.M0 * (1-cos(Opt.FAinv*pi/180)*exp(-Opt.TR/x.T1))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/x.T1));
-            rb = -Opt.M0 * (1-cos(Opt.FAinv*pi/180))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/x.T1));
+            ra = Opt.M0 * (1-cos(Opt.FAinv*pi/180)*exp(-Opt.TR/Opt.T1))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/Opt.T1));
+            rb = -Opt.M0 * (1-cos(Opt.FAinv*pi/180))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/Opt.T1));
             %Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
             %if (strcmp(obj.options.method, 'Magnitude'))
             %    Smodel = abs(Smodel);

@@ -144,8 +144,12 @@ set(findobj('Name','Single Voxel Curve'),'pointer', 'arrow'); drawnow;
 function ModelSimOptions_Callback(handles)
 xtable = get(handles.ParamTable,'Data');
 x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
-SimOpt(handles.Model,x,button_handle2opts(handles.options));
-
+xnew = SimOpt(handles.Model,x,button_handle2opts(handles.options));
+if ~isempty(xnew) % update the ParamTable in the GUI
+    Nparam = length(handles.Model.xnames);
+    xtable(1:Nparam,2) = mat2cell(xnew',ones(Nparam,1));
+    set(handles.ParamTable,'Data',xtable);
+end
 
 
 % --- Outputs from this function are returned to the command line.

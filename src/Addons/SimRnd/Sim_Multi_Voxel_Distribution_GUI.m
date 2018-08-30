@@ -118,7 +118,13 @@ end
 function ModelSimOptions_Callback(handles)
 xtable = get(handles.SimRndVaryOptTable,'Data');
 x=cell2mat(xtable(~cellfun(@isempty,xtable(:,3)),3))';
-SimOpt(handles.Model,x,button_handle2opts(handles.options));
+xnew = SimOpt(handles.Model,x,button_handle2opts(handles.options));
+if ~isempty(xnew) % update the ParamTable in the GUI
+    Nparam = length(handles.Model.xnames);  
+    xtable(1:Nparam,3) = mat2cell(xnew',ones(Nparam,1));  
+    set(handles.SimRndVaryOptTable,'Data',xtable); 
+end
+
 
 function Load_Callback(hObject, eventdata, handles)
 Method = class(handles.Model);
