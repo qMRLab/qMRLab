@@ -999,8 +999,10 @@ function RoiAnalysis_Callback(hObject, eventdata, handles)
  setappdata(0,'roidata',handles.CurrentData);
 if ~license('test', 'Image_Toolbox'), warndlg('Image Toolbox is not installed: ROI Analysis tool not available in the GUI;'); return; end
 
-roiGui = Roi_analysis(handles);
-set(roiGui,'WindowStyle','modal') %If you want to "freeze" main GUI until secondary is closed.
-uiwait(roiGui) %Wait for user to finish with secondary GUI.
-guidata(hObject, handles);
+ tool = imtool3D(handles.CurrentData.(handles.SourcePop.String{handles.SourcePop.Value}));
+
+% roiGui = Roi_analysis(handles);
+% set(roiGui,'WindowStyle','modal') %If you want to "freeze" main GUI until secondary is closed.
+% uiwait(roiGui) %Wait for user to finish with secondary GUI.
+% guidata(hObject, handles);
 %----------------------------------------- END ------------------------------------------%
