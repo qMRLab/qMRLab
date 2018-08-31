@@ -258,7 +258,7 @@ end
     % CLI-only implemented static methods. Can be called directly from
     % class - no object needed.
     methods(Static)
-        function Mz = analyticalSolution(params, seqFlag, approxFlag)
+        function Mz = analytical_solution(params, seqFlag, approxFlag)
             %ANALYTICALSOLUTION  Analytical equations for the longitudinal magnetization of 
             %steady-state inversion recovery experiments with either a gradient echo
             %(GRE-IR) or spin-echo (SE-IR) readouts.
@@ -279,7 +279,7 @@ end
             %       4: Long TR (TR >> T1) approximation of case 3.
             %
             %   **PARAMS PROPERTIES**
-            %   All times in seconds, all angles in degrees.
+            %   All times in ms, all angles in degrees.
             %  'GRE-IR'
             %       case 1: T1, TR, TI, EXC_FA, INV_FA, constant (optional)
             %       case 2: T1, TR, TI, EXC_FA, constant (optional)
@@ -296,5 +296,96 @@ end
             Mz = ir_equations(params, seqFlag, approxFlag);
             
         end
+        
+        function [Mz, Msig] = bloch_sim(params)
+            %BLOCH_SIM Bloch simulations of the GRE-IR pulse sequence.
+            % Simulates 100 spins params.Nex repetitions of the IR pulse
+            % sequences.
+            %
+            % params: Struct with the following fields:
+            %   INV_FA: Inversion pulse flip angle in degrees.
+            %   EXC_FA: Excitation pulse flip angle in degrees.
+            %   TI: Inversion time (ms).
+            %   TR: Repetition time (ms).
+            %   TE: Echo time (ms).
+            %   T1: Longitudinal relaxation time (ms).
+            %   T2: Transverse relaxation time (ms).
+            %   Nex: Number of excitations
+            %
+            %   (optional
+            %       df: Off-resonance frequency of spins relative to excitation pulse (in Hz)
+            %       crushFlag: Numeric flag for perfect spoiling (1) or partial spoiling (2).
+            %       partialDephasing: Partial dephasing fraction (between [0, 1]). 1 = no dephasing, 0 = complete dephasing (sele
+            %       inc: Phase spoiling increment in degrees.
+            %
+            % Outputs:
+            %   Mz: Longitudinal magnetization at time TI (prior to excitation pulse). 
+            %   Msig: Complex signal produced by the transverse magnetization at time TE after excitation.
+            %
+            
+            %% Setup parameters
+            %
+            
+            alpha = deg2rad(params.INV_FA);
+            beta  = deg2rad(params.EXC_FA);
+            TI = params.TI;
+            TR = params.TR;
+            T1 = params.T1;
+            
+            TE = params.TE;
+            T2 = params.T2;
+            
+            Nex = params.Nex;
+            
+            %% Optional parameers
+            
+            if isfield(params, 'df')
+                df = params.df;
+            else
+                df = 0;
+            end
+
+            if isfield(params, 'crushFlag')
+                crushFlag = params.crushFlag;
+            else
+                crushFlag = 1;
+            end
+            
+            if isfield(params, 'partialDephasing')
+                partialDephasing = params.partialDephasing;
+            else
+                partialDephasing = 1;
+            end
+            
+            if isfield(params, 'inc')
+                inc = deg2rad(params.inc);
+            else
+                inc = 0;
+            end
+            
+            %% Simulate for every TI's
+            %
+            
+            for ii = 1:length(TI)
+                
+                [Msig(ii), Mz(ii)] = ir_blochsim(                  ...
+                                                 alpha,            ...
+                                                 beta,             ...
+                                                 TI(ii),           ...
+                                                 T1,               ...
+                                                 T2,               ...
+                                                 TE,               ...
+                                                 TR,               ...
+                                                 crushFlag,        ...
+                                                 partialDephasing, ...
+                                                 df,               ...
+                                                 Nex,              ...
+                                                 inc               ...
+                                                 );
+                
+            end
+            
+        end
+
     end
 end
