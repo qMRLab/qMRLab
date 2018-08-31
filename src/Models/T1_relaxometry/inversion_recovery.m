@@ -254,4 +254,47 @@ end
 %         end
         
     end
+    
+    % CLI-only implemented static methods. Can be called directly from
+    % class - no object needed.
+    methods(Static)
+        function Mz = analyticalSolution(params, seqFlag, approxFlag)
+            %ANALYTICALSOLUTION  Analytical equations for the longitudinal magnetization of 
+            %steady-state inversion recovery experiments with either a gradient echo
+            %(GRE-IR) or spin-echo (SE-IR) readouts.
+            %   Reference: Barral, J. K., Gudmundson, E. , Stikov, N. , Etezadi?Amoli,
+            %   M. , Stoica, P. and Nishimura, D. G. (2010), A robust methodology for
+            %   in vivo T1 mapping. Magn. Reson. Med., 64: 1057-1067.
+            %   doi:10.1002/mrm.22497
+            %
+            %   params: struct with the required parameters for the sequence and
+            %   approximation. See below for list.
+            %
+            %   seqFlag: String. Either 'GRE-IR' or 'SE-IR'
+            %   approxFlag: Integer between 1 and 4.
+            %       1: General equation (no approximation).
+            %       2: Ideal 180 degree pulse approximation of case 1.
+            %       3: Ideal 90 degree pulse approximation of case 2, and readout term
+            %          absorbed into constant.
+            %       4: Long TR (TR >> T1) approximation of case 3.
+            %
+            %   **PARAMS PROPERTIES**
+            %   All times in seconds, all angles in degrees.
+            %  'GRE-IR'
+            %       case 1: T1, TR, TI, EXC_FA, INV_FA, constant (optional)
+            %       case 2: T1, TR, TI, EXC_FA, constant (optional)
+            %       case 3: T1, TR, TI, constant (optional)
+            %       case 4: T1, TI, constant (optional)
+            %
+            %  'SE-IR'
+            %       case 1: Same as 'GRE-IR' case + SE_FA, TE
+            %       case 2: Same as 'GRE-IR' case + TE
+            %       case 3: Same as 'GRE-IR' case + TE
+            %       case 4: Same as 'GRE-IR' case
+            %
+            
+            Mz = ir_equations(params, seqFlag, approxFlag);
+            
+        end
+    end
 end
