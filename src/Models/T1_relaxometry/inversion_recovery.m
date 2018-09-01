@@ -259,7 +259,7 @@ end
     % class - no object needed.
     methods(Static)
         function Mz = analytical_solution(params, seqFlag, approxFlag)
-            %ANALYTICALSOLUTION  Analytical equations for the longitudinal magnetization of 
+            %ANALYTICAL_SOLUTION  Analytical equations for the longitudinal magnetization of 
             %steady-state inversion recovery experiments with either a gradient echo
             %(GRE-IR) or spin-echo (SE-IR) readouts.
             %   Reference: Barral, J. K., Gudmundson, E. , Stikov, N. , Etezadi?Amoli,
@@ -387,5 +387,123 @@ end
             
         end
 
+        function [fitVals, resnorm] = fit_lm(data, params, approxFlag)
+            % FIT_LM Levenberg-Marquardt fitting of GRE-IR data.
+            %
+            % data: Array for a single voxel (length = #TI)
+            % params: Properties TI and TR (except for approxFlag = 4,
+            %         where only TI is needed)
+            % approxFlag: Same flags numbering & equations as for the
+            %             analytical_solution class method.
+            
+            switch approxFlag
+                case 1
+                    TI = params.TI;
+                    TR = params.TR;
+
+                    %    [constant, T1, EXC_FA, INV_FA]
+                    x0 = [1, 1000, 90, 180];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_1, x0, [], [], options);
+
+                    fitVals.INV_FA = x(4);
+                    fitVals.EXC_FA = x(3);
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+                case 2
+                    TI = params.TI;
+                    TR = params.TR;
+
+                    %    [constant, T1, EXC_FA]
+                    x0 = [1, 1000, 90];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_2, x0, [], [], options);
+
+                    fitVals.EXC_FA = x(3);
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+                
+                case 3
+                    TI = params.TI;
+                    TR = params.TR;
+
+                    %    [constant, T1]
+                    x0 = [1, 1000];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_3, x0, [], [], options);
+
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+                    
+                case 4
+                    TI = params.TI;
+                    %    [constant, T1]
+                    x0 = [1, 1000];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_4, x0, [], [], options);
+
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+            end
+
+            
+            %% Loss functions for optimization
+            %
+
+            function lossVal = loss_func_1(x)
+                params.TI = TR;
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                params.EXC_FA = x(3);
+                params.INV_FA = x(4);
+
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 1) - data;
+            end
+            
+            function lossVal = loss_func_2(x)
+                params.TI = TR;
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                params.EXC_FA = x(3);
+
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 2) - data;
+            end
+            
+            function lossVal = loss_func_3(x)
+                params.TI = TR;
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 3) - data;
+            end
+            
+            function lossVal = loss_func_4(x)
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 4) - data;
+            end
+        end
+        
     end
 end

@@ -236,3 +236,69 @@ function test_bloch_sim_eq_analytical_at_steady_state
     Mz_blochSim = inversion_recovery.bloch_sim(params);
 
     assertTrue(all(abs(Mz_analytical-Mz_blochSim)< (eps*10))); % Give slightly more difference leeway due to more calculations in bloch_sim
+
+% inversion_recovery.fit_lm tests
+
+function test_fit_lm_1_returns_T1_within_5pc
+    seqFlag = 'GRE-IR';
+
+    params.EXC_FA = 100;
+    params.INV_FA = 170;
+    params.T1 = 900;
+    params.TR = params.T1*3;
+    params.TI = 50:50:1500;
+
+    Mz_1 = inversion_recovery.analytical_solution(params, seqFlag, 1);
+
+    fitVals = inversion_recovery.fit_lm(Mz_1, params, 1);
+    fittedT1 = fitVals.T1;
+    
+    assertTrue(all(abs(fittedT1-params.T1 ) < (params.T1 * (5/100)) ));
+
+function test_fit_lm_2_returns_T1_within_5pc
+    seqFlag = 'GRE-IR';
+
+    params.EXC_FA = 75;
+    params.INV_FA = 180;
+    params.T1 = 900;
+    params.TR = params.T1*3;
+    params.TI = 50:50:1500;
+
+    Mz_1 = inversion_recovery.analytical_solution(params, seqFlag, 1);
+
+    fitVals = inversion_recovery.fit_lm(Mz_1, params, 2);
+    fittedT1 = fitVals.T1;
+    
+    assertTrue(all(abs(fittedT1-params.T1 ) < (params.T1 * (5/100)) ));
+
+function test_fit_lm_3_returns_T1_within_5pc
+    seqFlag = 'GRE-IR';
+
+    params.EXC_FA = 90;
+    params.INV_FA = 180;
+    params.T1 = 900;
+    params.TR = params.T1*3;
+    params.TI = 50:50:1500;
+
+    Mz_1 = inversion_recovery.analytical_solution(params, seqFlag, 1);
+
+    fitVals = inversion_recovery.fit_lm(Mz_1, params, 3);
+    fittedT1 = fitVals.T1;
+    
+    assertTrue(all(abs(fittedT1-params.T1 ) < (params.T1 * (5/100)) ));
+
+function test_fit_lm_4_returns_T1_within_5pc_for_long_TR_case
+    seqFlag = 'GRE-IR';
+
+    params.EXC_FA = 90;
+    params.INV_FA = 180;
+    params.T1 = 900;
+    params.TR = params.T1*5;
+    params.TI = 50:50:1500;
+
+    Mz_1 = inversion_recovery.analytical_solution(params, seqFlag, 1);
+
+    fitVals = inversion_recovery.fit_lm(Mz_1, params, 4);
+    fittedT1 = fitVals.T1;
+    
+    assertTrue(all(abs(fittedT1-params.T1 ) < (params.T1 * (5/100)) ));
