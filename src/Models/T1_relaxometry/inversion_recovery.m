@@ -254,4 +254,256 @@ end
 %         end
         
     end
+    
+    % CLI-only implemented static methods. Can be called directly from
+    % class - no object needed.
+    methods(Static)
+        function Mz = analytical_solution(params, seqFlag, approxFlag)
+            %ANALYTICAL_SOLUTION  Analytical equations for the longitudinal magnetization of 
+            %steady-state inversion recovery experiments with either a gradient echo
+            %(GRE-IR) or spin-echo (SE-IR) readouts.
+            %   Reference: Barral, J. K., Gudmundson, E. , Stikov, N. , Etezadi?Amoli,
+            %   M. , Stoica, P. and Nishimura, D. G. (2010), A robust methodology for
+            %   in vivo T1 mapping. Magn. Reson. Med., 64: 1057-1067.
+            %   doi:10.1002/mrm.22497
+            %
+            %   params: struct with the required parameters for the sequence and
+            %   approximation. See below for list.
+            %
+            %   seqFlag: String. Either 'GRE-IR' or 'SE-IR'
+            %   approxFlag: Integer between 1 and 4.
+            %       1: General equation (no approximation).
+            %       2: Ideal 180 degree pulse approximation of case 1.
+            %       3: Ideal 90 degree pulse approximation of case 2, and readout term
+            %          absorbed into constant.
+            %       4: Long TR (TR >> T1) approximation of case 3.
+            %
+            %   **PARAMS PROPERTIES**
+            %   All times in ms, all angles in degrees.
+            %  'GRE-IR'
+            %       case 1: T1, TR, TI, EXC_FA, INV_FA, constant (optional)
+            %       case 2: T1, TR, TI, EXC_FA, constant (optional)
+            %       case 3: T1, TR, TI, constant (optional)
+            %       case 4: T1, TI, constant (optional)
+            %
+            %  'SE-IR'
+            %       case 1: Same as 'GRE-IR' case + SE_FA, TE
+            %       case 2: Same as 'GRE-IR' case + TE
+            %       case 3: Same as 'GRE-IR' case + TE
+            %       case 4: Same as 'GRE-IR' case
+            %
+            
+            Mz = ir_equations(params, seqFlag, approxFlag);
+            
+        end
+        
+        function [Mz, Msig] = bloch_sim(params)
+            %BLOCH_SIM Bloch simulations of the GRE-IR pulse sequence.
+            % Simulates 100 spins params.Nex repetitions of the IR pulse
+            % sequences.
+            %
+            % params: Struct with the following fields:
+            %   INV_FA: Inversion pulse flip angle in degrees.
+            %   EXC_FA: Excitation pulse flip angle in degrees.
+            %   TI: Inversion time (ms).
+            %   TR: Repetition time (ms).
+            %   TE: Echo time (ms).
+            %   T1: Longitudinal relaxation time (ms).
+            %   T2: Transverse relaxation time (ms).
+            %   Nex: Number of excitations
+            %
+            %   (optional
+            %       df: Off-resonance frequency of spins relative to excitation pulse (in Hz)
+            %       crushFlag: Numeric flag for perfect spoiling (1) or partial spoiling (2).
+            %       partialDephasing: Partial dephasing fraction (between [0, 1]). 1 = no dephasing, 0 = complete dephasing (sele
+            %       inc: Phase spoiling increment in degrees.
+            %
+            % Outputs:
+            %   Mz: Longitudinal magnetization at time TI (prior to excitation pulse). 
+            %   Msig: Complex signal produced by the transverse magnetization at time TE after excitation.
+            %
+            
+            %% Setup parameters
+            %
+            
+            alpha = deg2rad(params.INV_FA);
+            beta  = deg2rad(params.EXC_FA);
+            TI = params.TI;
+            TR = params.TR;
+            T1 = params.T1;
+            
+            TE = params.TE;
+            T2 = params.T2;
+            
+            Nex = params.Nex;
+            
+            %% Optional parameers
+            
+            if isfield(params, 'df')
+                df = params.df;
+            else
+                df = 0;
+            end
+
+            if isfield(params, 'crushFlag')
+                crushFlag = params.crushFlag;
+            else
+                crushFlag = 1;
+            end
+            
+            if isfield(params, 'partialDephasing')
+                partialDephasing = params.partialDephasing;
+            else
+                partialDephasing = 1;
+            end
+            
+            if isfield(params, 'inc')
+                inc = deg2rad(params.inc);
+            else
+                inc = 0;
+            end
+            
+            %% Simulate for every TI's
+            %
+            
+            for ii = 1:length(TI)
+                
+                [Msig(ii), Mz(ii)] = ir_blochsim(                  ...
+                                                 alpha,            ...
+                                                 beta,             ...
+                                                 TI(ii),           ...
+                                                 T1,               ...
+                                                 T2,               ...
+                                                 TE,               ...
+                                                 TR,               ...
+                                                 crushFlag,        ...
+                                                 partialDephasing, ...
+                                                 df,               ...
+                                                 Nex,              ...
+                                                 inc               ...
+                                                 );
+                
+            end
+            
+        end
+
+        function [fitVals, resnorm] = fit_lm(data, params, approxFlag)
+            % FIT_LM Levenberg-Marquardt fitting of GRE-IR data.
+            %
+            % data: Array for a single voxel (length = #TI)
+            % params: Properties TI and TR (except for approxFlag = 4,
+            %         where only TI is needed)
+            % approxFlag: Same flags numbering & equations as for the
+            %             analytical_solution class method.
+            
+            switch approxFlag
+                case 1
+                    TI = params.TI;
+                    TR = params.TR;
+
+                    %    [constant, T1, EXC_FA, INV_FA]
+                    x0 = [1, 1000, 90, 180];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_1, x0, [], [], options);
+
+                    fitVals.INV_FA = x(4);
+                    fitVals.EXC_FA = x(3);
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+                case 2
+                    TI = params.TI;
+                    TR = params.TR;
+
+                    %    [constant, T1, EXC_FA]
+                    x0 = [1, 1000, 90];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_2, x0, [], [], options);
+
+                    fitVals.EXC_FA = x(3);
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+                
+                case 3
+                    TI = params.TI;
+                    TR = params.TR;
+
+                    %    [constant, T1]
+                    x0 = [1, 1000];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_3, x0, [], [], options);
+
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+                    
+                case 4
+                    TI = params.TI;
+                    %    [constant, T1]
+                    x0 = [1, 1000];
+
+                    options.Algorithm = 'levenberg-marquardt';
+                    options.Display = 'off';
+
+                    [x, resnorm] = lsqnonlin(@loss_func_4, x0, [], [], options);
+
+                    fitVals.T1 = x(2);
+                    fitVals.c = x(1);
+            end
+
+            
+            %% Loss functions for optimization
+            %
+
+            function lossVal = loss_func_1(x)
+                params.TI = TR;
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                params.EXC_FA = x(3);
+                params.INV_FA = x(4);
+
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 1) - data;
+            end
+            
+            function lossVal = loss_func_2(x)
+                params.TI = TR;
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                params.EXC_FA = x(3);
+
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 2) - data;
+            end
+            
+            function lossVal = loss_func_3(x)
+                params.TI = TR;
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 3) - data;
+            end
+            
+            function lossVal = loss_func_4(x)
+                params.TI = TI;
+                
+                params.constant = x(1);
+                params.T1 = x(2);
+                
+                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 4) - data;
+            end
+        end
+        
+    end
 end
