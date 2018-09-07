@@ -27,7 +27,7 @@ function [chiL2, chiL2pcg] = calcChiL2(phaseUnwrapped, lambdaL2, directionFlag, 
 
   %% L2-regularized solution with pre-conditionned magnitude weighting
 
-  if nargin>6 && exist('magnWeight', 'var') && nargout == 2
+  if exist('magnWeight', 'var') && nargout == 2
     %            (eps +     (A_frw)        )   - for better memory management
     A_inv = 1 ./ (eps + D2 + lambdaL2 * E2);
 
@@ -49,13 +49,6 @@ function [chiL2, chiL2pcg] = calcChiL2(phaseUnwrapped, lambdaL2, directionFlag, 
     chiL2pcg = real(ifftn(Chi)) .* mask;
     chiL2pcg = chiL2pcg(1+paddingSize(1):end-paddingSize(1),1+paddingSize(2):end-paddingSize(2),1+paddingSize(3):end-paddingSize(3));
 
-    %plotAxialSagittalCoronal(chi_L2pcg, [-.15,.15], 'L2 Magnitude Weighted')
-    %plotAxialSagittalCoronal(fftshift(abs(fftn(chi_L2pcg))).^.5, [0,20], 'L2 Magnitude Weighted k-space')
-
   end
-
-
-
-
 
 end
