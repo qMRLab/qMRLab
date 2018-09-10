@@ -23,7 +23,7 @@ classdef qsm_sb < AbstractModel
 %
 %
 %
-% Authors: Mathieu Boudreau and Agah Karakuzu
+% Authors: Agah Karakuzu
 %
 % References:
 %   Please cite the following if you use this module:
@@ -354,43 +354,6 @@ function FitResults = fit(obj,data)
   if not(isdeployed) && not(exist('OCTAVE_VERSION', 'builtin'))
       disp('Loading outputs to the GUI may take some time after fit has been completed.');
   end
-
-  % Some functions are added as nested functions here
-
-  function paddedVolume = padVolumeForSharp(inputVolume, padSize)
-    % Pads mask and wrapped phase volumes with zeros for SHARP convolutions.
-
-    paddedVolume = padarray(inputVolume, padSize);
-
-  end % fx: padVolumeForSharp (Nested)
-
-  function magnWeight = calcGradientMaskFromMagnitudeImage(magnVolume, maskSharp, padSize, direction)
-    % Calculates gradient masks from magnitude image using k-space gradients.
-
-
-    N = size(maskSharp);
-
-    [fdx, fdy, fdz] = calcFdr(N, direction);
-
-    magnPad = padarray(magnVolume, padSize) .* maskSharp;
-    magnPad = magnPad / max(magnPad(:));
-
-    Magn = fftn(magnPad);
-    magnGrad = cat(4, ifftn(Magn.*fdx), ifftn(Magn.*fdy), ifftn(Magn.*fdz));
-
-    magnWeight = zeros(size(magnGrad));
-
-    for s = 1:size(magnGrad,4)
-
-      magnUse = abs(magnGrad(:,:,:,s));
-
-      magnOrder = sort(magnUse(maskSharp==1), 'descend');
-      magnThreshold = magnOrder( round(length(magnOrder) * .3) );
-      magnWeight(:,:,:,s) = magnUse <= magnThreshold;
-
-    end
-
-  end % calcGradientMaskFromMagnitudeImage (Nested)
 
   % --------------------------------------------------------------------
 
