@@ -179,7 +179,7 @@ function FitResults = fit(obj,data)
 
     disp('Started   : SHARP background removal ...');
     [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
-    FitResults.maskSHARP = maskGlobal;
+    FitResults.maskSHARP = double(maskGlobal);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
