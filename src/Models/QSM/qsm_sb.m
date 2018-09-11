@@ -55,14 +55,14 @@ Prot = struct('Resolution',struct('Format',{{'VoxDim[1] (mm)' 'VoxDim[2] (mm)' '
 
 
 % Model options
-buttons = {'Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
-'L1 Regularized', false, 'L2 Regularized', false, 'Split-Bregman', false, 'No Regularization', false, ...
+buttons = {'Derivative Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
+'Split-Bregman', false,'L1 Regularized', false, 'L2 Regularized', false, 'No Regularization', false, ...
 'PANEL', 'L1 Panel',2, 'Lambda L1', 9.210553177e-04, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
 'PANEL', 'L2 Panel', 2, 'Lambda L2',0.0316228, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
 };
 
 % Tiptool descriptions
-tips = {'Direction','Direction of the differentiation. Global to the calculations of grad. mask, lambda L1 & L2 and chi maps.', ...
+tips = {'Derivative Direction','Direction of the differentiation. Global to the calculations of grad. mask, lambda L1 & L2 and chi maps.', ...
 'Magnitude Weighting', 'Calculates gradient masks from Magn data using k-space gradients and includes magn weighting in susceptibility maping.',...
 'Sharp Filtering', 'Enable/Disable SHARP background removal.', ...
 'Sharp Mode', 'Once: 9x9x9 kernel. Iterative: From 9x9x9 to 3x3x3 with the step size of -2x-2x-2.', ...
@@ -122,11 +122,12 @@ function obj = UpdateFields(obj)
   obj = linkGUIState(obj, 'ReOptimize Lambda L1', 'Lambda L1', 'enable_disable_button', 'active_0');
   obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'Lambda L2', 'enable_disable_button', 'active_0');
 
-  if not(getCheckBoxState(obj,'L2 Regularized')) && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman')) ...
-          && getCheckBoxState(obj,'L1 Regularized')
+  if not(getCheckBoxState(obj,'L2 Regularized')) && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman')) || ...
+     getCheckBoxState(obj,'L2 Regularized') && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman'))
 
       obj.options.RegularizationSelection_L1Regularized = false;
       obj = setPanelInvisible(obj,'L1 Panel', 1);
+      obj = setButtonDisabled(obj,'L1 Regularized', 1);
   end
 
 end %fx: UpdateFields (Member)
@@ -363,7 +364,7 @@ end % fx: fit (Member)
 function FitOpt = GetFitOpt(obj)
 
   FitOpt.padSize = obj.options.PaddingSize;
-  FitOpt.direction = obj.options.Direction;
+  FitOpt.direction = obj.options.DerivativeDirection;
   FitOpt.sharp_Flag = obj.options.SharpFiltering;
   FitOpt.sharpMode = obj.options.SharpMode;
 

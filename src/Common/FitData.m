@@ -140,14 +140,17 @@ if Model.voxelwise % process voxelwise
     end
 
 else % process entire volume
-    
+
+% AK: Commenting out this block. Modal window is actually annoying.
+    %{
     if exist('wait','var') && (wait) && not(isdeployed)
         hMSG = msgbox({'Fitting has been started. Please wait until this window disappears.'; ...
         ' '; 'You can follow outputs from the CommandWindow'});
-        commandwindow;
+
         set(hMSG,'WindowStyle','modal')
         set(hMSG,'pointer', 'watch'); drawnow;
     end
+    %}
 
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
