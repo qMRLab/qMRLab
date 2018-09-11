@@ -122,11 +122,11 @@ function obj = UpdateFields(obj)
   obj = linkGUIState(obj, 'ReOptimize Lambda L2', 'Lambda L2', 'enable_disable_button', 'active_0');
 
   if not(getCheckBoxState(obj,'L2 Regularized')) && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman')) || ...
-     getCheckBoxState(obj,'L2 Regularized') && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman'))
+    getCheckBoxState(obj,'L2 Regularized') && not(getCheckBoxState(obj,'No Regularization')) && not(getCheckBoxState(obj,'Split-Bregman'))
 
-      obj.options.RegularizationSelection_L1Regularized = false;
-      obj = setPanelInvisible(obj,'L1 Panel', 1);
-      obj = setButtonDisabled(obj,'L1 Regularized', 1);
+    obj.options.RegularizationSelection_L1Regularized = false;
+    obj = setPanelInvisible(obj,'L1 Panel', 1);
+    obj = setButtonDisabled(obj,'L1 Regularized', 1);
   end
 
 end %fx: UpdateFields (Member)
@@ -147,12 +147,12 @@ function FitResults = fit(obj,data)
   data.PhaseGRE(~data.Mask) = 0;
 
 
-   if not(FitOpt.noreg_Flag) && not(FitOpt.regL2_Flag) && not(FitOpt.regSB_Flag)
+  if not(FitOpt.noreg_Flag) && not(FitOpt.regL2_Flag) && not(FitOpt.regSB_Flag)
 
-      errordlg('Please make a regularization selection.');
-      error('Operation has exited.')
+    errordlg('Please make a regularization selection.');
+    error('Operation has exited.')
 
-   end
+  end
 
   % DEV Note:
   % No data change with these once they are assigned. Therefore setting
@@ -178,7 +178,7 @@ function FitResults = fit(obj,data)
 
     disp('Started   : SHARP background removal ...');
     [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
-    FitResults.maskOut = double(maskGlobal);
+
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
@@ -213,7 +213,6 @@ function FitResults = fit(obj,data)
 
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
-    FitResults.maskOut = double(magnWeight);
     disp('Completed : Calculation of gradient masks for magn weighting');
     disp('-----------------------------------------------');
 
@@ -233,17 +232,17 @@ function FitResults = fit(obj,data)
 
     if isempty(lambdaL2)
 
-        warning('Could not optimize lambda L2 with provided search interval. Setting default value instead.');
+      warning('Could not optimize lambda L2 with provided search interval. Setting default value instead.');
 
-        if not(isempty(FitOpt.LambdaL2))
+      if not(isempty(FitOpt.LambdaL2))
 
-            lambdaL2 = FitOpt.LambdaL2;
+        lambdaL2 = FitOpt.LambdaL2;
 
-        else
+      else
 
-            error('Cannot set lambda L2. Please enter a value or change range.')
+        error('Cannot set lambda L2. Please enter a value or change range.')
 
-        end
+      end
     end
 
     disp(['Completed   : Reoptimization of lamdaL2. Lambda L2: ' num2str(lambdaL2)]);
@@ -281,7 +280,7 @@ function FitResults = fit(obj,data)
     if FitOpt.magnW_Flag % MagnitudeWeighting is present | Lambdal2 known
 
       disp('Started   : Calculation of chi_L2 map with magnitude weighting...');
-      [FitResults.chiL2,FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
+      [FitResults.chiL2,FitResults.chiL2M] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
       disp('Completed   : Calculation of chi_L2 map with magnitude weighting.');
       disp('-----------------------------------------------');
 
@@ -307,19 +306,19 @@ function FitResults = fit(obj,data)
     disp(['Completed   : Reoptimization of lamda L1. Lambda L1: ' num2str(lambdaL1)]);
     disp('-----------------------------------------------');
 
-     if isempty(lambdaL1)
+    if isempty(lambdaL1)
 
-        warning('Could not optimize lambda L1 with provided search interval. Setting default value instead.');
+      warning('Could not optimize lambda L1 with provided search interval. Setting default value instead.');
 
-        if not(isempty(FitOpt.LambdaL1))
+      if not(isempty(FitOpt.LambdaL1))
 
-            lambdaL1 = FitOpt.LambdaL1;
+        lambdaL1 = FitOpt.LambdaL1;
 
-        else
+      else
 
-            error('Cannot set lambda L1. Please enter a value or change range.')
+        error('Cannot set lambda L1. Please enter a value or change range.')
 
-        end
+      end
     end
 
   elseif FitOpt.regL1_Flag && not(FitOpt.reoptL1_Flag)
@@ -332,7 +331,7 @@ function FitResults = fit(obj,data)
   if FitOpt.regSB_Flag && FitOpt.magnW_Flag
 
     disp('Started   : Calculation of chi_SB map with magnitude weighting.. ...');
-    FitResults.chiSB = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize, FitOpt.magnW_Flag, magnWeight);
+    FitResults.chiSBM = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize, FitOpt.magnW_Flag, magnWeight);
     disp('Completed   : Calculation of chi_SB map with magnitude weighting.');
     disp('-----------------------------------------------');
 
@@ -354,10 +353,24 @@ function FitResults = fit(obj,data)
 
 
   if not(isdeployed) && not(exist('OCTAVE_VERSION', 'builtin'))
-      disp('Loading outputs to the GUI may take some time after fit has been completed.');
+    disp('Loading outputs to the GUI may take some time after fit has been completed.');
   end
 
   % --------------------------------------------------------------------
+
+  if exist('magnWeight') == 1
+    FitResults.maskOut = double(magnWeight);
+  else
+    FitResults.maskOut = double(maskGlobal);
+  end
+
+  if isfield(FitResults, 'chiSBM')
+    FitResults = orderfields(FitResults, {'chiSBM','chiL2M','chiL2','maskOut'});
+  end
+
+  if isfield(FitResults, 'chiSB')
+    FitResults = orderfields(FitResults, {'chiSB','chiL2','maskOut'});
+  end
 
 end % fx: fit (Member)
 
