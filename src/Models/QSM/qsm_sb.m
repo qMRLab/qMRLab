@@ -41,8 +41,7 @@ properties
 MRIinputs = {'PhaseGRE', 'MagnGRE', 'Mask'};
 
 % --- Fitted parameters
-xnames = { 'chiSB','chiL2', 'maskSHARP',...
-'magnWeight'};
+xnames = { 'maskOut','chiSB','chiL2' };
 
 voxelwise = 0;
 
@@ -179,7 +178,7 @@ function FitResults = fit(obj,data)
 
     disp('Started   : SHARP background removal ...');
     [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
-    FitResults.maskSHARP = double(maskGlobal);
+    FitResults.maskOut = double(maskGlobal);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
@@ -214,7 +213,7 @@ function FitResults = fit(obj,data)
 
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
-    FitResults.magnWeight = magnWeight;
+    FitResults.maskOut = double(magnWeight);
     disp('Completed : Calculation of gradient masks for magn weighting');
     disp('-----------------------------------------------');
 
