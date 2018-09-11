@@ -41,8 +41,8 @@ properties
 MRIinputs = {'PhaseGRE', 'MagnGRE', 'Mask'};
 
 % --- Fitted parameters
-xnames = { 'chi_SB','chi_L2', 'mask_Sharp',...
-'magn_weight'};
+xnames = { 'chiSB','chiL2', 'maskSHARP',...
+'magnWeight'};
 
 voxelwise = 0;
 
@@ -179,6 +179,7 @@ function FitResults = fit(obj,data)
 
     disp('Started   : SHARP background removal ...');
     [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
+    FitResults.maskSHARP = maskGlobal;
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
@@ -213,6 +214,7 @@ function FitResults = fit(obj,data)
 
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
+    FitResults.magnWeight = magnWeight;
     disp('Completed : Calculation of gradient masks for magn weighting');
     disp('-----------------------------------------------');
 
@@ -280,7 +282,7 @@ function FitResults = fit(obj,data)
     if FitOpt.magnW_Flag % MagnitudeWeighting is present | Lambdal2 known
 
       disp('Started   : Calculation of chi_L2 map with magnitude weighting...');
-      [FitResults.chiL2,FitResults.chiL2pcg] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
+      [FitResults.chiL2,FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
       disp('Completed   : Calculation of chi_L2 map with magnitude weighting.');
       disp('-----------------------------------------------');
 
@@ -330,16 +332,16 @@ function FitResults = fit(obj,data)
 
   if FitOpt.regSB_Flag && FitOpt.magnW_Flag
 
-    disp('Started   : Calculation of chi_SBM map with magnitude weighting.. ...');
-    FitResults.chiSBM = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize, FitOpt.magnW_Flag, magnWeight);
-    disp('Completed   : Calculation of chi_SBM map with magnitude weighting.');
+    disp('Started   : Calculation of chi_SB map with magnitude weighting.. ...');
+    FitResults.chiSB = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize, FitOpt.magnW_Flag, magnWeight);
+    disp('Completed   : Calculation of chi_SB map with magnitude weighting.');
     disp('-----------------------------------------------');
 
   elseif FitOpt.regSB_Flag && not(FitOpt.magnW_Flag)
 
-    disp('Started   : Calculation of chi_SBM map without magnitude weighting.. ...');
-    FitResults.chiSBM = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize);
-    disp('Completed   : Calculation of chi_SBM map without magnitude weighting.');
+    disp('Started   : Calculation of chi_SB map without magnitude weighting.. ...');
+    FitResults.chiSB = qsmSplitBregman(phaseLUnwrap, maskGlobal, lambdaL1, lambdaL2, FitOpt.direction, imageResolution, padSize);
+    disp('Completed   : Calculation of chi_SB map without magnitude weighting.');
     disp('-----------------------------------------------');
 
   end

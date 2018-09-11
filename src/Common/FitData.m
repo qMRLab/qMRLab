@@ -157,7 +157,7 @@ else % process entire volume
     disp('...done');
 end
 % delete waitbar
-if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
+%if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
 
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
