@@ -3,8 +3,8 @@ classdef qsm_sb < AbstractModel
 % variation penalty and automatic regularization parameter selection.
 %
 % Inputs:
-%   PhaseGRe    3D GRE acquisition. Wrapped phase image.
-%   (MagnGRE)   3D GRE acquisition. Magnitude part of the image.
+%   PhaseGRE    3D GRE acquisition. << Wrapped phase image. >>
+%   (MagnGRE)   3D GRE acquisition. << Magnitude part of the image. >>
 %   Mask        Brain extraction mask.
 %
 % Assumptions:
@@ -12,10 +12,27 @@ classdef qsm_sb < AbstractModel
 % (2)
 %
 % Fitted Parameters:
-%    chi_SB
-%    chi_L2
-%    chi_L2pcg
-%    nfm
+%
+%    Case - Split-Bregman:
+%       i)  W/ magnitude weighting:  chiSBM, chiL2M, chiL2, unwrappedPhase, maskOut
+%       ii) W/O magnitude weighting: chiSM, chiL2, unwrappedPhase, maskOut
+%
+%    Case - L2 Regularization:
+%       i)  W/ magnitude weighting:  chiL2M, chiL2, unwrappedPhase, maskOut
+%       ii) W/O magnitude weighting: chiL2, unwrappedPhase, maskOut
+%
+%    Case - No Regularization:
+%       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
+%
+%    Explanation of all parameters:
+%       chiSBM
+%       chiSB
+%       chiL2M
+%       chiL2
+%       nfm
+%       unwrappedPhase
+%       maskOut (maskSharp, gradientMask or same as the input)
+%
 %
 % Options:
 %   To be listed.
@@ -40,22 +57,22 @@ properties
 % --- Inputs
 MRIinputs = {'PhaseGRE', 'MagnGRE', 'Mask'};
 
-% --- Fitted parameters
-xnames = { 'maskOut','chiSB','chiL2' };
+% --- Fitted parameters (please see the header for details)
+xnames = { 'chiSB','chiL2', 'unwrappedPhase','maskOut' };
 
 voxelwise = 0;
 
 % Protocols linked to the OSF data
-Prot = struct('Resolution',struct('Format',{{'VoxDim[1] (mm)' 'VoxDim[2] (mm)' 'VoxDim[3] (mm)'}},...
+Prot = struct('Resolution',struct('Format',{{'VoxDim_1 (mm)' 'VoxDim_2 (mm)' 'VoxDim_3 (mm)'}},...
 'Mat',  [0.6 0.6 0.6]),...
 'Timing',struct('Format',{{'TE (s)'}},...
 'Mat', 8.1e-3), ...
-'Magnetization', struct('Format', {{'Field Strength (T)' 'Central Freq. (MHz)'}}, 'Mat', [3 42.58]));
+'Magnetization', struct('Format', {{'FieldStrength (T)' 'CentralFreq (MHz)'}}, 'Mat', [3 42.58]));
 
 
 % Model options
 buttons = {'Derivative Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
-'Split-Bregman', false,'L1 Regularized', false, 'L2 Regularized', false, 'No Regularization', false, ...
+'Split-Bregman', false,'L1 Regularized', false, 'L2 Regularized', false, 'No Regularization', true, ...
 'PANEL', 'L1 Panel',2, 'Lambda L1', 9.210553177e-04, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
 'PANEL', 'L2 Panel', 2, 'Lambda L2',0.0316228, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
 };
@@ -81,7 +98,7 @@ end % Public properties
 
 properties (Hidden = true)
 
-onlineData_url = 'https://osf.io/rn572/download/';
+onlineData_url = 'https://osf.io/549ke/download/';
 
 end % Hidden public properties
 
@@ -357,6 +374,7 @@ function FitResults = fit(obj,data)
   end
 
   % --------------------------------------------------------------------
+  FitResults.unwrappedPhase = phaseLUnwrap;
 
   if exist('magnWeight') == 1
     FitResults.maskOut = double(magnWeight);
@@ -365,11 +383,11 @@ function FitResults = fit(obj,data)
   end
 
   if isfield(FitResults, 'chiSBM')
-    FitResults = orderfields(FitResults, {'chiSBM','chiL2M','chiL2','maskOut'});
+    FitResults = orderfields(FitResults, {'chiSBM','chiL2M','chiL2','unwrappedPhase','maskOut'});
   end
 
   if isfield(FitResults, 'chiSB')
-    FitResults = orderfields(FitResults, {'chiSB','chiL2','maskOut'});
+    FitResults = orderfields(FitResults, {'chiSB','chiL2','unwrappedPhase','maskOut'});
   end
 
 end % fx: fit (Member)
