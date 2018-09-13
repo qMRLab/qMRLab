@@ -135,13 +135,18 @@ function [Signal, Sigma] = MPdenoising(data, mask, kernel, sampling, centering)
 
     
     % Declare variables:
-    sigma = zeros(1, numel(x), 'like', data);
-    npars = zeros(1, numel(x), 'like', data);
-    signal = zeros(M, prod(kernel), numel(x), 'like', data);
+    if logical(exist('OCTAVE_VERSION', 'builtin')) % for Octave, zeros(..,'like',data) not implemented. replace with class(data).
+        zerosoption = {class(data)};
+    else
+        zerosoption = {'like', data};
+    end
+    sigma = zeros(1, numel(x), zerosoption{:});
+    npars = zeros(1, numel(x), zerosoption{:});
+    signal = zeros(M, prod(kernel), numel(x), zerosoption{:});
 
-    Sigma = zeros(sx, sy, sz, 'like', data);
-    Npars = zeros(sx, sy, sz, 'like', data);
-    Signal = zeros(sx, sy, sz, M, 'like', data);
+    Sigma = zeros(sx, sy, sz, zerosoption{:});
+    Npars = zeros(sx, sy, sz, zerosoption{:});
+    Signal = zeros(sx, sy, sz, M, zerosoption{:});
 
     
     % compute scaling factor for in case N<M

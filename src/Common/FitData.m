@@ -18,7 +18,7 @@ function Fit = FitData(data, Model, wait , Fittmp)
 %     Fit                        [struct] with fitted parameters
 %
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran?ois Cabana, 2016
+% Written by: Jean-Fran??ois Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 %
@@ -32,6 +32,8 @@ function Fit = FitData(data, Model, wait , Fittmp)
 Model.sanityCheck(data);
 
 tStart = tic;
+
+h=[];
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
@@ -77,7 +79,6 @@ if Model.voxelwise % process voxelwise
     
     %############################# FITTING LOOP ###############################
     % Create waitbar
-    h=[];
     if exist('wait','var') && (wait)
         h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
             'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
@@ -138,15 +139,20 @@ if Model.voxelwise % process voxelwise
         end
     end
     
-    % delete waitbar
-    if (~isempty(h));  delete(h); end
-    j_progress('...done')
-
 else % process entire volume
+    if exist('wait','var') && (wait)
+        h = msgbox('Fitting data... please wait');
+        set(h,'WindowStyle','modal')
+        set(h,'pointer', 'watch'); drawnow;
+    end
+
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
     disp('...done');
 end
+% delete waitbar
+if (~isempty(h));  delete(h); end
+
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
