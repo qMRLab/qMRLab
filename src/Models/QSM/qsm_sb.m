@@ -71,10 +71,10 @@ Prot = struct('Resolution',struct('Format',{{'VoxDim_1 (mm)' 'VoxDim_2 (mm)' 'Vo
 
 
 % Model options
-buttons = {'Derivative Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
-'Split-Bregman', false,'L1 Regularized', false, 'L2 Regularized', false, 'No Regularization', true, ...
-'PANEL', 'L1 Panel',2, 'Lambda L1', 9.210553177e-04, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
-'PANEL', 'L2 Panel', 2, 'Lambda L2',0.0316228, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
+buttons = {'Derivative Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',true,'PANEL', 'Regularization Selection', 4,...
+'Split-Bregman', true,'L1 Regularized', false, 'L2 Regularized', false, 'No Regularization', false, ...
+'PANEL', 'L1 Panel',2, 'Lambda L1', 9.210553177e-04, 'ReOptimize Lambda L1', true, 'L1 Range', [-4 -2.5 15], ...
+'PANEL', 'L2 Panel', 2, 'Lambda L2',0.0316228, 'ReOptimize Lambda L2', true, 'L2 Range', [-3 0 15]
 };
 
 % Tiptool descriptions
@@ -268,7 +268,7 @@ function FitResults = fit(obj,data)
     if  FitOpt.magnW_Flag % MagnitudeWeighting case | Lambdal2 reopted
 
       disp('Started   : Calculation of chi_L2 map with magnitude weighting...');
-      [FitResults.chiL2,FitResults.chiL2pcg] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
+      [FitResults.chiL2,FitResults.chiL2M] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize, magnWeight);
       disp('Completed   : Calculation of chi_L2 map with magnitude weighting.');
       disp('-----------------------------------------------');
 
