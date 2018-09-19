@@ -98,7 +98,7 @@ end % Public properties
 
 properties (Hidden = true)
 
-onlineData_url = 'https://osf.io/549ke/download/';
+onlineData_url = getLink(mfilename);
 
 end % Hidden public properties
 
