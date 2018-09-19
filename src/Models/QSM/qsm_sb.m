@@ -98,7 +98,7 @@ end % Public properties
 
 properties (Hidden = true)
 
-onlineData_url = getLink(mfilename);
+onlineData_url = getLink;
 
 end % Hidden public properties
 
