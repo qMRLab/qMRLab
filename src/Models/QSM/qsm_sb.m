@@ -146,6 +146,13 @@ function obj = UpdateFields(obj)
     obj = setButtonDisabled(obj,'L1 Regularized', 1);
   end
 
+  if getCheckBoxState(obj,'L2 Regularized') && getCheckBoxState(obj,'L1 Regularized') && getCheckBoxState(obj,'Split-Bregman')
+
+    obj = setButtonDisabled(obj,'L1 Regularized', 1);
+    obj = setButtonDisabled(obj,'L2 Regularized', 1);
+
+  end
+
 end %fx: UpdateFields (Member)
 
 function FitResults = fit(obj,data)
