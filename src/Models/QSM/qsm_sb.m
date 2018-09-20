@@ -73,8 +73,8 @@ Prot = struct('Resolution',struct('Format',{{'xDim (mm)' 'yDim (mm)' 'zDim (mm)'
 % Model options
 buttons = {'Derivative Direction',{'forward','backward'}, 'Sharp Filtering', true, 'Sharp Mode', {'once','iterative'}, 'Padding Size', [9 9 9],'Magnitude Weighting',false,'PANEL', 'Regularization Selection', 4,...
 'Split-Bregman', true,'L1 Regularized', false, 'L2 Regularized', false, 'No Regularization', false, ...
-'PANEL', 'L1 Panel',2, 'Lambda L1', 9.210553177e-04, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
-'PANEL', 'L2 Panel', 2, 'Lambda L2',0.0316228, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
+'PANEL', 'L1 Panel',3, 'Lambda L1', 9.210553177e-04, 'ReOptimize Lambda L1', false, 'L1 Range', [-4 -2.5 15], ...
+'PANEL', 'L2 Panel', 3, 'Lambda L2',0.0316228, 'ReOptimize Lambda L2', false, 'L2 Range', [-3 0 15]
 };
 
 % Tiptool descriptions
@@ -164,7 +164,7 @@ function obj = UpdateFields(obj)
     obj = setPanelInvisible(obj,'L1 Panel', 1);
 
   end
-  
+
 end %fx: UpdateFields (Member)
 
 function FitResults = fit(obj,data)
