@@ -190,7 +190,7 @@ end
 
 chld = allchild(handles.uipanel29);
 
-% FitOpt panel is not present  
+% FitOpt panel is not present
 
 if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.options))) && not(isempty(Model.Prot))
 
@@ -199,7 +199,7 @@ if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.opti
 
 end
 
-% FitOpt and protocol not present 
+% FitOpt and protocol not present
 if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.options))) && (isempty(Model.Prot) || isempty(fieldnames(Model.Prot)))
 
     set(chld(3),'Visible','off');
@@ -208,21 +208,13 @@ if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.opti
 
 end
 
-if ismember('equation',methods(Model)) && isempty(fieldnames(Model.options)) && (~isempty(Model.Prot) || ~isempty(fieldnames(Model.Prot)))
-
-    set(chld(1),'Visible','off');
-
-
-end
 
 
 
+% Nothing is present
 
-% Nothing is present 
+if (isempty(Model.Prot) || isempty(fieldnames(Model.Prot))) && not(ismember('equation',methods(Model)))
 
-if (isempty(Model.Prot) || isempty(fieldnames(Model.Prot))) && (isempty(Model.options) || isempty(fieldnames(Model.options))) && not(ismember('equation',methods(Model)))
-   
-    set(chld(1),'Visible','off');
     set(chld(2),'Visible','off');
     set(chld(3),'Visible','off');
 

@@ -153,6 +153,18 @@ function obj = UpdateFields(obj)
 
   end
 
+  if not(getCheckBoxState(obj,'L2 Regularized'))
+
+    obj = setPanelInvisible(obj,'L2 Panel', 1);
+
+  end
+
+  if not(getCheckBoxState(obj,'L1 Regularized'))
+
+    obj = setPanelInvisible(obj,'L1 Panel', 1);
+
+  end
+  
 end %fx: UpdateFields (Member)
 
 function FitResults = fit(obj,data)

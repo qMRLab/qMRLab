@@ -178,6 +178,10 @@ if ~isempty(opts)
 
                 npref = strcat('NoPanel',num2str(inp)); % NoPanel reference in the handle
 
+                if not(exist('tips','var'))
+                    tips = {};
+                end
+                
                 htmp = GenerateButtonsInPanels(opts(io:NumNoPanel(2,inp)),FakePanel(inp),[],tips);
 
                 f = fieldnames(htmp);
