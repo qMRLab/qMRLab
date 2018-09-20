@@ -432,8 +432,8 @@ function FitOpt = GetFitOpt(obj)
   FitOpt.reoptL1_Flag = obj.options.L1Panel_ReOptimizeLambdaL1;
   FitOpt.reoptL2_Flag = obj.options.L2Panel_ReOptimizeLambdaL2;
 
-  l1r = obj.options.L1Range;
-  l2r = obj.options.L2Range;
+  l1r = obj.options.L1Panel_L1Range;
+  l2r = obj.options.L2Panel_L2Range;
 
   FitOpt.lambdaL1Range = logspace(l1r(1),l1r(2),l1r(3));
   FitOpt.lambdaL2Range = logspace(l2r(1),l2r(2),l2r(3));
