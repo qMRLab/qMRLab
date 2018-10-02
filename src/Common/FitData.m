@@ -84,13 +84,16 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
     
-    if (isempty(h)), j_progress('Fitting voxel ',l); end
+    if (isempty(h)), 
+        %j_progress('Fitting voxel ',l); Shhh!
+    end
+
     for ii = 1:l
         vox = Voxels(ii);
         
         % Update waitbar
         if (isempty(h))
-            j_progress(ii)
+            % j_progress(ii) % Shhh!
 %            % fprintf('Fitting voxel %d/%d\r',ii,l); % Shhhh
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
