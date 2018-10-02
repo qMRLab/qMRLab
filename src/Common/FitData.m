@@ -91,7 +91,7 @@ if Model.voxelwise % process voxelwise
         % Update waitbar
         if (isempty(h))
             j_progress(ii)
-%            fprintf('Fitting voxel %d/%d\r',ii,l);
+%            % fprintf('Fitting voxel %d/%d\r',ii,l); % Shhhh
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
             waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
