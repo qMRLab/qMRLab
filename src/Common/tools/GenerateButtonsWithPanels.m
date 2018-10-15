@@ -148,7 +148,7 @@ if ~isempty(opts)
 
             case 'Panel' % Reel Panels
 
-                if strcmp(PanelTitle{ip}(1:min(end,3)),'##')
+                if strcmp(PanelTitle{ip}(1:min(end,2)),'##')
                    disablepanel = true;
                  else
                    disablepanel=false;
@@ -263,7 +263,7 @@ for ii = 1:N
     % special case: disable if ### in option name
     if strcmp(opts{2*ii-1}(1:2),'##')
 
-       opts{2*ii-1} = opts{2*ii-1}(4:end);
+       opts{2*ii-1} = opts{2*ii-1}(3:end);
        disable=true;
 
     else
@@ -274,7 +274,7 @@ for ii = 1:N
 
     if strcmp(opts{2*ii-1}(1:2),'**')
 
-       opts{2*ii-1} = opts{2*ii-1}(4:end);
+       opts{2*ii-1} = opts{2*ii-1}(3:end);
        noVis = true;
 
     else

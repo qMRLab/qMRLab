@@ -174,7 +174,7 @@ classdef (Abstract) AbstractModel
                 % There may be an attempt to sth
                 obj.buttons{idx} = ['**' buttonName];
 
-            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'**')
+            elseif not(state) && strcmp(obj.buttons{idx}(1:2),'**')
 
                 obj.buttons{idx} = buttonName;
 
@@ -194,11 +194,11 @@ classdef (Abstract) AbstractModel
 
             idx = getButtonIdx(obj,buttonName);
 
-            if state && not(strcmp(obj.buttons{idx}(1:3),'##'))
+            if state && not(strcmp(obj.buttons{idx}(1:2),'##'))
 
                 obj.buttons{idx} = ['##' buttonName];
 
-            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'##')
+            elseif not(state) && strcmp(obj.buttons{idx}(1:2),'##')
 
                 obj.buttons{idx} = buttonName;
 
@@ -226,7 +226,7 @@ classdef (Abstract) AbstractModel
 
                 obj.buttons{idx} = ['##' panelName];
 
-            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'##')
+            elseif not(state) && strcmp(obj.buttons{idx}(1:2),'##')
 
                 obj.buttons{idx} = panelName;
 
