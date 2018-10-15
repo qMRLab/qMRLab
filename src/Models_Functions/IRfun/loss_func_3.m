@@ -1,5 +1,5 @@
 function lossVal = loss_func_3(x, TR, TI, data)
-params.TI = TR;
+params.TR = TR;
 params.TI = TI;
 
 params.constant = x(1);
