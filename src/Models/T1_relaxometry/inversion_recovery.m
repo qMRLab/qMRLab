@@ -506,4 +506,17 @@ end
         end
         
     end
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % 2.0.10
+            if checkanteriorver(version,[2 0 10])
+                % Update buttons for simulation
+                snrValue = obj.Sim_Single_Voxel_Curve_buttons{2};
+                obj.Sim_Single_Voxel_Curve_buttons = {'SNR' snrValue 'T1' 600 'M0' 1000 'TR' 3000 'FAinv' 180 'FAexcite' 90 'Update input variables' 'pushbutton'};
+            end
+        end
+    end
+
 end
