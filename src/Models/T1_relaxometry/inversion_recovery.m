@@ -398,7 +398,6 @@ end
 
             switch approxFlag
                 case 1
-
                     TI = params.TI;
                     TR = params.TR;
 
