@@ -151,7 +151,7 @@ classdef (Abstract) AbstractModel
         % All prepended jokers must be included to this list.
         % Jokers should also be added to the src/Common/tools/genvarname_v2.m
 
-            idx = find(strcmp(obj.buttons,buttonName) | strcmp(obj.buttons,['###' buttonName]) | ...
+            idx = find(strcmp(obj.buttons,buttonName) | strcmp(obj.buttons,['##' buttonName]) | ...
                 strcmp(obj.buttons,['***' buttonName]));
 
 
@@ -194,11 +194,11 @@ classdef (Abstract) AbstractModel
 
             idx = getButtonIdx(obj,buttonName);
 
-            if state && not(strcmp(obj.buttons{idx}(1:3),'###'))
+            if state && not(strcmp(obj.buttons{idx}(1:3),'##'))
 
-                obj.buttons{idx} = ['###' buttonName];
+                obj.buttons{idx} = ['##' buttonName];
 
-            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'###')
+            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'##')
 
                 obj.buttons{idx} = buttonName;
 
@@ -224,9 +224,9 @@ classdef (Abstract) AbstractModel
 
             if state
 
-                obj.buttons{idx} = ['###' panelName];
+                obj.buttons{idx} = ['##' panelName];
 
-            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'###')
+            elseif not(state) && strcmp(obj.buttons{idx}(1:3),'##')
 
                 obj.buttons{idx} = panelName;
 
