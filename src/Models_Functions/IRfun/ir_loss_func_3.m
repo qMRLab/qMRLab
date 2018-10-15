@@ -1,4 +1,6 @@
-function lossVal = loss_func_3(x, TR, TI, data)
+function lossVal = ir_loss_func_3(x, TR, TI, data)
+% Objective loss function for fit_lm method of inversion_recovery model
+
 params.TR = TR;
 params.TI = TI;
 
