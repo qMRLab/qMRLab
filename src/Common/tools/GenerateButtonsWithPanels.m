@@ -261,7 +261,7 @@ for ii = 1:N
     val = opts{2*ii};
 
     % special case: disable if ### in option name
-    if strcmp(opts{2*ii-1}(1:3),'##')
+    if strcmp(opts{2*ii-1}(1:2),'##')
 
        opts{2*ii-1} = opts{2*ii-1}(4:end);
        disable=true;
