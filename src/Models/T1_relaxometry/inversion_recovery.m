@@ -395,9 +395,10 @@ end
             %         where only TI is needed)
             % approxFlag: Same flags numbering & equations as for the
             %             analytical_solution class method.
-            
+
             switch approxFlag
                 case 1
+
                     TI = params.TI;
                     TR = params.TR;
 
@@ -407,7 +408,7 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@loss_func_1, x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)loss_func_1(x, TR, TI, data), x0, [], [], options);
 
                     fitVals.INV_FA = x(4);
                     fitVals.EXC_FA = x(3);
@@ -423,7 +424,7 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@loss_func_2, x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)loss_func_2(x, TR, TI, data), x0, [], [], options);
 
                     fitVals.EXC_FA = x(3);
                     fitVals.T1 = x(2);
@@ -439,7 +440,7 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@loss_func_3, x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)loss_func_3(x, TR, TI, data), x0, [], [], options);
 
                     fitVals.T1 = x(2);
                     fitVals.c = x(1);
@@ -452,57 +453,12 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@loss_func_4, x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)loss_func_4(x, TI, data), x0, [], [], options);
 
                     fitVals.T1 = x(2);
                     fitVals.c = x(1);
             end
 
-            
-            %% Loss functions for optimization
-            %
-
-            function lossVal = loss_func_1(x)
-                params.TI = TR;
-                params.TI = TI;
-                
-                params.constant = x(1);
-                params.T1 = x(2);
-                params.EXC_FA = x(3);
-                params.INV_FA = x(4);
-
-                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 1) - data;
-            end
-            
-            function lossVal = loss_func_2(x)
-                params.TI = TR;
-                params.TI = TI;
-                
-                params.constant = x(1);
-                params.T1 = x(2);
-                params.EXC_FA = x(3);
-
-                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 2) - data;
-            end
-            
-            function lossVal = loss_func_3(x)
-                params.TI = TR;
-                params.TI = TI;
-                
-                params.constant = x(1);
-                params.T1 = x(2);
-                
-                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 3) - data;
-            end
-            
-            function lossVal = loss_func_4(x)
-                params.TI = TI;
-                
-                params.constant = x(1);
-                params.T1 = x(2);
-                
-                lossVal = inversion_recovery.analytical_solution(params, 'GRE-IR', 4) - data;
-            end
         end
         
     end
