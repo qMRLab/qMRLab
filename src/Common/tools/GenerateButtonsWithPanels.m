@@ -272,7 +272,7 @@ for ii = 1:N
 
     end
 
-    if strcmp(opts{2*ii-1}(1:3),'***')
+    if strcmp(opts{2*ii-1}(1:2),'**')
 
        opts{2*ii-1} = opts{2*ii-1}(4:end);
        noVis = true;
