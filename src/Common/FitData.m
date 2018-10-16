@@ -91,7 +91,7 @@ if Model.voxelwise % process voxelwise
 
         % Update waitbar
         if (isempty(h))
-            j_progress(ii)
+            % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
 %            fprintf('Fitting voxel %d/%d\r',ii,l);
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel

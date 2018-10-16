@@ -47,6 +47,9 @@ end
 function Sim_Single_Voxel_Curve_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
 
+Model = varargin{1}; 
+setappdata(0,'Model',Model);
+
 if ~isfield(handles,'opened')
     handles.output = hObject;
     handles.Model = varargin{1};
@@ -57,10 +60,25 @@ if ~isfield(handles,'opened')
         opts = {'SNR',50};
     end
     
+    % Generate Buttons
     handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
-    
-    
-    % fill Table
+       
+     % Create CALLBACK for buttons
+    ff = fieldnames(handles.options);
+    for ii=1:length(ff)
+        switch get(handles.options.(ff{ii}),'Style')
+%             case 'popupmenu'
+%                 val =  find(cell2mat(cellfun(@(x) strcmp(x,Model.options.(ff{ii})),get(handles.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
+%                 set(handles.OptionsPanel_handle.(ff{ii}),'Value',val);
+%             case 'checkbox'
+%                 set(handles.OptionsPanel_handle.(ff{ii}),'Value',Model.options.(ff{ii}));
+%             case 'edit'
+%                 set(handles.OptionsPanel_handle.(ff{ii}),'String',Model.options.(ff{ii}));
+            case 'togglebutton'
+                set(handles.options.(ff{ii}),'Callback',@(src,event) ModelSimOptions_Callback(handles));
+        end     
+    end
+
     Nparam = length(handles.Model.xnames);
     FitOptTable(:,1)=handles.Model.xnames(:);
     if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
@@ -80,8 +98,6 @@ end
 % Update handles structure
 guidata(hObject, handles);
 set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
-
-
 
 % --- Executes on button press in UpdatePlot.
 function UpdatePlot_Callback(hObject, eventdata, handles)
@@ -124,8 +140,16 @@ end
 set(handles.ParamTable,'Data',xtable);
 set(findobj('Name','Single Voxel Curve'),'pointer', 'arrow'); drawnow;
 
-
-
+% --- Executes on button press in Options panel.
+function ModelSimOptions_Callback(handles)
+xtable = get(handles.ParamTable,'Data');
+x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
+xnew = SimOpt(handles.Model,x,button_handle2opts(handles.options));
+if ~isempty(xnew) % update the ParamTable in the GUI
+    Nparam = length(handles.Model.xnames);
+    xtable(1:Nparam,2) = mat2cell(xnew',ones(Nparam,1));
+    set(handles.ParamTable,'Data',xtable);
+end
 
 
 % --- Outputs from this function are returned to the command line.

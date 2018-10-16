@@ -443,4 +443,20 @@ end % fx: GetFitOpt (member)
 
 end
 
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % 2.0.10
+            if checkanteriorver(version,[2 0 10])
+                % Update buttons for joker conversion from ###/*** to ##/**
+                obj.buttons{16} = '##L1 Regularized';
+                obj.buttons{18} = '##L2 Regularized';
+                obj.buttons{20} = '##No Regularization';
+                obj.buttons{29} = '**L1 Range';
+                obj.buttons{38} = '**L2 Range';
+            end
+        end
+    end
+
 end
