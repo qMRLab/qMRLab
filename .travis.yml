@@ -41,7 +41,11 @@ before_install:
 jobs:
   include:
   - stage: Send combined coveralls.io report
-    script: if aws s3 cp s3://qmrlab/1452/ /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/ --recursive --include "*.json"; || travis_terminate 1; else travis_terminate 1; fi
+    script: 
+    - if aws s3 cp s3://qmrlab/1452/ /home/travis/build/neuropoly/qMRLab/Test/MoxUnitCompatible/ --recursive --include "*.json";
+      then ls;
+      else travis_terminate 1;
+      fi
 
 after_failure:
   - sleep 10
