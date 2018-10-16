@@ -46,7 +46,7 @@ RUN apt-get update && \
 RUN cd $HOME/work;\
     pip install octave_kernel sos sos-notebook scipy plotly;\
     python -m sos_notebook.install;\
-    git clone https://github.com/neuropoly/qMRLab.git; \
+    git clone --single-branch -b ir-params https://github.com/neuropoly/qMRLab.git;  \
     chmod -R 777 $HOME/work/qMRLab; \
     octave --eval "cd qMRLab; \
                       startup; \
