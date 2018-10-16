@@ -407,7 +407,7 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@(x)loss_func_1(x, TR, TI, data), x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_1(x, TR, TI, data), x0, [], [], options);
 
                     fitVals.INV_FA = x(4);
                     fitVals.EXC_FA = x(3);
@@ -423,7 +423,7 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@(x)loss_func_2(x, TR, TI, data), x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_2(x, TR, TI, data), x0, [], [], options);
 
                     fitVals.EXC_FA = x(3);
                     fitVals.T1 = x(2);
@@ -439,7 +439,7 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@(x)loss_func_3(x, TR, TI, data), x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, data), x0, [], [], options);
 
                     fitVals.T1 = x(2);
                     fitVals.c = x(1);
@@ -452,7 +452,7 @@ end
                     options.Algorithm = 'levenberg-marquardt';
                     options.Display = 'off';
 
-                    [x, resnorm] = lsqnonlin(@(x)loss_func_4(x, TI, data), x0, [], [], options);
+                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_4(x, TI, data), x0, [], [], options);
 
                     fitVals.T1 = x(2);
                     fitVals.c = x(1);
