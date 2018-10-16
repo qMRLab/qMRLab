@@ -193,9 +193,9 @@ end
             
             disablelist = {'Fix R1f*T2f','R1f*T2f ='};
             for ll = 1:length(disablelist)
-                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
                 if ~any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
-                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
                 else
                     obj.buttons{indtodisable} = disablelist{ll};
                 end
@@ -217,9 +217,9 @@ end
                     disable = [true, true, true];
             end
             for ll = 1:length(disablelist)
-                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
                 if disable(ll)
-                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
                 else
                     obj.buttons{indtodisable} = [disablelist{ll}];
                 end
