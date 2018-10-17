@@ -15,6 +15,7 @@ classdef (Abstract) AbstractStat
         StatMask
         StatLabels
         StatMaskFolder
+        % Numerical vals should also be here 
         
         UsrLabels
         StatID
@@ -46,7 +47,41 @@ classdef (Abstract) AbstractStat
         
         
         function obj = getStatMask(obj,input)
-            % A stat mask can be a labeled mask or a binary mask.
+           % A stat mask can be a labeled mask or a binary mask.
+           % This function assigns StatMask property. 
+           %
+           % getStatMask method works with:
+           %
+           % i)   variable from workspace
+           % ii)  a file name 
+           % iii) a directory 
+           %
+           % getStatMask@AbstractStat call is different than calling it 
+           % directly. Note that this function is not hidden in the
+           % superclass. This is why wrapping is neccesary if one would
+           % like to keep its function but hide it from the user. 
+           % For other methods this is way more easier. For this one,
+           % please use following snippet in the target subclass: 
+           % 
+           % To hide this method in a subclass while keeping its function: 
+           % ---------------------------------------------------
+           %{
+           methods (Hidden)
+        
+           function obj = getStatMask(obj,input)
+           
+           W = evalin('caller','whos');
+           
+           if ~isempty(ismember(inputname(2),[W(:).name])) && all(ismember(inputname(2),[W(:).name]))
+               obj = getStatMask@AbstractStat(obj,input);
+           else
+               obj = getStatMask@AbstractStat(obj,eval('input'));
+           end
+           end 
+           end
+           %}
+           % ---------------------------------------------------
+
             W = evalin('caller','whos');
             
             if ~isempty(inputname(2)) && ~isempty(ismember(inputname(2),[W(:).name])) && all(ismember(inputname(2),[W(:).name])) % Var from workspace
@@ -79,6 +114,16 @@ classdef (Abstract) AbstractStat
         
         
         function obj = getProbmask(obj,input)
+            % Probability masks should be contained isolatedly from binary
+            % and labeled masks. 
+            % This functions assigns ProbMask property by
+            %     i) Passing a variable from workspace
+            %    ii) Reading a filename/complete path 
+            %   iii) Looking at a folder (single file) 
+            %
+            % External calls to this function is a bit tricky because of
+            % the option (i). Please see details in getStatMask above
+            % definition.
             
             W = evalin('caller','whos');
             
@@ -106,7 +151,33 @@ classdef (Abstract) AbstractStat
         
         
         function obj = loadByFitResults(obj,filename,varargin)
-            
+            % This function assigns following fields w.r.t. a given
+            % FitResults file: 
+            %    i)   obj.Map 
+            %    ii)  obj.MapNames 
+            %
+            % Assumptions:
+            %    i)   FitResults should include Model and Version 
+            %   ii)   xnames field contains entries that matches to the 
+            %         names of the quantitative maps FitResults encapsulate.
+            %         This is especially important if output maps are 
+            %         conditional. 
+            % Call:
+            %    i)  obj.loadByFitResults('FitResults.mat')
+            %    ii) obj.loadByFitResults('../FitResults.mat','T1')
+            %    iii) obj.loadByFitResults('../FitResults.mat','T1','ra'..)
+            %
+            %    (i)  Loads all the maps (as long as their name is present
+            %    in xnames) and assign their names to the obj.MapNames with
+            %    the matching order.
+            %    (ii) Certain maps can be loaded from a FitResults.
+            %    obj.MapName will be assigned w.r.t selection. Any number
+            %    of maps can be loaded e.g. (iii). 
+            %
+            % This function can be easily hidden from the users for classes 
+            % derived from this abstract base class:
+            % obj = getStatMask@loadByFitResults(obj,filename,varargin);
+        
             results = load(filename);
             fnames = fieldnames(results);
             
@@ -125,9 +196,7 @@ classdef (Abstract) AbstractStat
                 
             end
             
-            % You loaded mask, you should also load maps.
-            
-            if nargin==2 % load all maps
+            if nargin==2 % Load all maps case 
                 
                 
                 
@@ -156,7 +225,7 @@ classdef (Abstract) AbstractStat
                 
                 obj.Map = mapin;
                 
-            elseif nargin>2 % load selected maps
+            elseif nargin>2 % Load selected maps case
                 
                 tmp = results.(varargin{1});
                 obj.MapNames = varargin;
@@ -190,7 +259,18 @@ classdef (Abstract) AbstractStat
         
         
         function obj = getFitMask(obj)
-            
+        % Version of the loaded FitResults should be at least > 2 0 7
+        % Above statement requires further inspection. 
+        % This function to allow users to use the mask used during fitting
+        % process if available. There are certain assumptions: 
+        %    i)  (Mask) is a binary mask
+        %   ii)  FitResults object includes Files 
+        %   iii) Location indicated in ii is still a valid target. 
+        % (ii) is checked out by the loadByFitResults  
+        % This function can be easily hidden from the users for classes 
+        % derived from this abstract base class:
+        % obj = getStatMask@getFitMask(obj);
+        
             if isempty(obj.FitMaskName)
                 
                 error('qMRLab: FitResults is not loaded into statistics object yet, OR Mask is not present in the loaded FitResults.')
@@ -214,46 +294,59 @@ classdef (Abstract) AbstractStat
         end
         
         function obj = getDescriptiveStats(obj)
-            
+        % This function declares obj.DescriptiveStats property as a struct 
+        % and assignes outputs per quantitative parameter contained by the
+        % obj.Map property as a field. 
+        % Adapts output w.r.t to the combination of single/multi maps and
+        % mask labels (or binary masks). 
+        % Table format is kept the same for all combinations. 
+        % This function can be easily hidden from the users for classes 
+        % derived from this abstract base class:
+        % obj = getStatMask@AbstractStat(obj);
+        
             if isempty(obj.StatMask) && isempty(obj.Map);
                 error('qMRLab: Map and StatMask are both required');
             end
-            
-            
-            
+
             if length(obj.MapNames)>1 && length(obj.StatLabels)>1
                 
                 sz = size(obj.MapNames);
                 obj.DescriptiveStats = cell2struct(repmat({''},[sz(1),sz(2)]),obj.MapNames,2);
+                
                 tableBall = [];
                 for ii = 1:length(obj.MapNames)
                     for k = 1:length(obj.StatLabels)
+                        
                         curT = AbstractStat.getTable(obj.Map(:,:,ii),obj.StatMask,obj.MapNames{ii},obj.StatLabels{k},k);
                         tableBall = [tableBall;curT];
+                        
                     end
+                    
                     obj.DescriptiveStats.(obj.MapNames{ii}) = tableBall;
                     tableBall = [];
+                    
                 end
                 
             elseif length(obj.MapNames)==1 && (length(obj.StatLabels)==1 || isempty(obj.StatLabels) )
+               
                 obj.DescriptiveStats = struct();
                 obj.DescriptiveStats.(obj.MapNames{1}) = AbstractStat.getTable(obj.Map,obj.StatMask,obj.MapNames,obj.StatLabels);
                 
             elseif length(obj.MapNames)>1 && (length(obj.StatLabels)==1 || isempty(obj.StatLabels) )
+               
                 sz = size(obj.MapNames);
                 obj.DescriptiveStats = cell2struct(repmat({''},[sz(1),sz(2)]),obj.MapNames,2);
+                
                 for ii = 1:length(obj.MapNames)
+                    
                     obj.DescriptiveStats.(obj.MapNames{ii}) = AbstractStat.getTable(obj.Map(:,:,ii),obj.StatMask,obj.MapNames{ii},obj.StatLabels);
+                    
                 end
-                
-                
+
             end
             
-            
         end
-        
-        
-        
+
     end
     
     
@@ -264,7 +357,10 @@ classdef (Abstract) AbstractStat
         
         
         function fType = getInpFormat(fileName)
-            
+        % To extract format of the file provided as the whole dir 
+        % or filename only. 
+        % % External call: AbstractStat.getInpFormat. 
+        
             loc = max(strfind(fileName, '.'));
             
             frm = fileName(loc+1:end);
@@ -283,7 +379,11 @@ classdef (Abstract) AbstractStat
         
         
         function type = getMaskType(mask)
-            
+        % This function is to distinguish between binary and labeled masks
+        % by simply checking their distibution. 
+        % Terminates if uniform image is passed. 
+        % % External call: AbstractStat.getMaskType 
+        
             members = unique(mask(:));
             if length(members) > 2 % labeledmask
                 type = 'label';
@@ -321,13 +421,13 @@ classdef (Abstract) AbstractStat
         end
         
         
-        
-        
+
         
         function output = loadFile(input)
-            
-            
-            
+        % Load content of a file irrespective of its format. 
+        % Current formats: mat, nii, nii.gz 
+        % External call: AbstractStat.loadFile 
+        
             switch AbstractStat.getInpFormat(input)
                 
                 
@@ -358,12 +458,32 @@ classdef (Abstract) AbstractStat
         end
         
         function [out, label] = getFileContent(path)
+            % CHANGE THIS FUNCTIONS NAME TO getFolderContent
+            % This function is intended to read one/multiple masks from a
+            % given directory. 
+            %
+            % If mask directory contains only one file:
+            %     i)  Binary mask --> StatMask   | fname --> StatLabel 
+            %     ii) Labeled mask  --> StatMask | fname --> StatLabel
+            %
+            % If mask directory contains multiple files: 
+            %    i) Assumes that masks are not overlapping 
+            %   ii) Reads them in dir order
+            %  iii) Merges them within a single labeled mask. 
+            %   iv) StatLabel attains filenames for their corresponding 
+            %       regions in StatMask. 
+            %
+            % A mask folder can contain .nii and .nii.gz (NiFTI) 
+            % A mask folder can contain .mat. 
+            % A mask foler can't contain mat and NifTI formats simultaneously.
+            % Other files can sit in this dir, such as JSON. 
+            % External call: AbstractStat.getFileContent
             
             matList  = dir(fullfile(path,'*.mat'));
             niiList1 = dir(fullfile(path,'*.nii.gz'));
             niiList2 = dir(fullfile(path,'*.nii'));
             
-            if isempty(niiList1) && isempty(niiList2) && isempty(matList)
+            if isempty(niiList1) && isempty(niiList2) && isempty(matList) % No acceptable format 
                 
                 error('Directory does not contain any files with recognized formats (.mat, .nii.gz, .nii).');
                 
@@ -407,8 +527,12 @@ classdef (Abstract) AbstractStat
         
         
         function [out, label] = readUniFormat(readlist)
-            
-            
+        % Serves as a subfunction for getFolderContent. 
+        % Combines multiple masks into one mask by reading a list of 
+        % files of the same format. 
+        % Size of the mask is adapted to the # of dimensions of the maps. 
+        % External call: AbstractStat.readUniFormat
+        
             if length(readlist) == 1
                 
                 out = AbstractStat.loadFile(readlist{1});
@@ -439,6 +563,8 @@ classdef (Abstract) AbstractStat
                 for ii=1:length(readlist)
                     
                     curMask = AbstractStat.loadFile(readlist{ii});
+                    
+                    % Critical assignment here!
                     out(curMask==1) = ii;
                     label{ii} = AbstractStat.strapFileName(readlist{ii});
                     
@@ -451,7 +577,11 @@ classdef (Abstract) AbstractStat
         
         
         function  out = strapFileName(in)
-            
+        % Filenames are used as mask labels.
+        % This function is to extract filename from a filelist containing
+        % the filenames only. Not applicable for whole path. 
+        % Assumes one dat. Can be polished for nii.gz. 
+        % External call: AbstractStat.strapFieldName
             locpt = strfind(in, '.');
             out = in(1:(locpt-1));
             
@@ -459,7 +589,13 @@ classdef (Abstract) AbstractStat
         end
         
         function [vol, dim] = getEmptyVolume(sz,len)
-            
+        % AbstractStat is designed to keep quantitative maps generated by
+        % a fit session within the same matrix. e.g. 3D -> 4D | 2D -> 3D
+        % where 4D = 3DxN and 3D = 2DxN for N quantitative maps. 
+        % This function returns empty volume, which is to be filled out
+        % elsewhere. 
+        % External call: AbstractStat.getEmptyVolume
+        
             ln = length(sz);
             
             if ln == 2
@@ -478,7 +614,17 @@ classdef (Abstract) AbstractStat
         
         
         function t = getTable(im,mask,mapName,label,varargin)
-            
+        % Descriptive statistics are kept in table format for user's 
+        % convenience. 
+        % This function returns a table containing Mean, STD 5%, 50%, 95%
+        % of the masked data and NaNcontain that indicates if masked area
+        % contains any NaN value (IMPORTANT FOR REGRESSIONS). 
+        % Name of the map and label are also added to the table. 
+        % Stats are returned regarding the type of the mask (binary|label).
+        % Binary mask:  One call.
+        % Labeled mask: To be called per label. 
+        % External call: AbstractStat.getTable 
+        
             type = AbstractStat.getMaskType(mask);
             
             
@@ -515,7 +661,16 @@ classdef (Abstract) AbstractStat
         
         
         function [Mean, STD, prcnt5,prcnt50,prcnt95, NaNcontain] = getBasicStats(vec)
-            
+        % Descriptive statistics are kept in table format for user's 
+        % convenience. 
+        % This function returns following descriptive statistics:
+        % Mean, STD 5%, 50%, 95%
+        % NaNcontain indicates if masked area contains NaN
+        % Stats are returned regarding the type of the mask (binary|label).
+        % Binary mask:  One call.
+        % Labeled mask: To be called per label. 
+        % External call: AbstractStat.getTable 
+        
             NaNcontain = any(isnan(vec));
             
             if NaNcontain
@@ -532,10 +687,6 @@ classdef (Abstract) AbstractStat
         end
         
     end
-    
-    
-    
-    
-    
+       
     
 end

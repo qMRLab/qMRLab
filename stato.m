@@ -20,14 +20,7 @@ classdef stato < AbstractStat
         
        function obj = getStatMask(obj,input)
            
-           % Normally not this tricky. getStatMask method works with 
-           % i)   variable from workspace
-           % ii)  a file name 
-           % iii) a directory 
-           % getStatMask@AbstractStat call is different than calling it 
-           % directly. Note that this function is not hidden in the
-           % superclass. This is why wrapping is neccesary.
-           % For other methods this is way more easier. 
+           % Normally not this tricky. 
            
            W = evalin('caller','whos');
            
