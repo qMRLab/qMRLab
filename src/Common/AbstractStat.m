@@ -255,7 +255,7 @@ classdef (Abstract) AbstractStat
                 
             elseif length(members) == 2
                 
-                out = logical(obj.statMask);
+                out = logical(mask);
                 labels = [];
             
             end
@@ -272,7 +272,7 @@ classdef (Abstract) AbstractStat
             
             
             
-            switch getInpFormat(input)
+            switch AbstractStat.getInpFormat(input)
                 
                 
                 case 'nifti'
@@ -291,9 +291,8 @@ classdef (Abstract) AbstractStat
                     
                 case 'matlab'
                     
-                    load(input);
-                    dt = input(1:end-4);
-                    output = eval(dt);
+                    im = load(input);
+                    output = im.(cell2mat(fieldnames(im)));
                     
             end
             
@@ -308,7 +307,7 @@ classdef (Abstract) AbstractStat
         niiList1 = dir(fullfile(path,'*.nii.gz'));
         niiList2 = dir(fullfile(path,'*.nii'));
         
-        if isempty([niiList1 niiList2 matList])
+        if isempty(niiList1) && isempty(niiList2) && isempty(matList)
         
             error('Directory does not contain any files with recognized formats (.mat, .nii.gz, .nii).');
         
@@ -317,17 +316,17 @@ classdef (Abstract) AbstractStat
             if ~isempty(niiList1) && ~isempty(niiList2)
                 
                 readList = {niiList1.name niiList1.name};
-                [out, label] = readUniFormat(readList);
+                [out, label] = AbstractStat.readUniFormat(readList);
                 
             elseif ~isempty(niiList1)
                
                 readList = {niiList1.name};
-                [out, label] = readUniFormat(readList);
+                [out, label] = AbstractStat.readUniFormat(readList);
                 
             elseif ~isempty(niiList2)
                 
                 readList = {niiList2.name};
-                [out, label] = readUniFormat(readList);
+                [out, label] = AbstractStat.readUniFormat(readList);
                 
             else
                 
@@ -337,8 +336,8 @@ classdef (Abstract) AbstractStat
             
         elseif (isempty(niiList1) && isempty(niiList2)) && (~isempty(matList)) % mat masks   
            
-            readList = {matList2.name};
-            [out, label] = readUniFormat(readList);
+            readList = {matList.name};
+            [out, label] = AbstractStat.readUniFormat(readList);
             
         else
             
@@ -356,16 +355,16 @@ classdef (Abstract) AbstractStat
             
             if length(readlist) == 1 
                 
-                out = loadFile(readlist{1});
-                [out,label] = maskAssignByType(out);
+                out = AbstractStat.loadFile(readlist{1});
+                [out,label] = AbstractStat.maskAssignByType(out);
                 
                 if isempty(label)
-                    label = strapFileName(readlist{1});
+                    label = AbstractStat.strapFileName(readlist{1});
                 end
             
             else
                 
-            tmp = loadFile(readlist{1});
+            tmp = AbstractStat.loadFile(readlist{1});
             sz = size(tmp); 
             label = cell(length(readlist),1);
             
@@ -383,9 +382,9 @@ classdef (Abstract) AbstractStat
            
             for ii=1:length(readlist)
                  
-                 curMask = loadFile(readlist{ii});
+                 curMask = AbstractStat.loadFile(readlist{ii});
                  out(curMask==1) = ii;
-                 label{ii} = strapFileName(readlist{ii});
+                 label{ii} = AbstractStat.strapFileName(readlist{ii});
                  
              end
             
