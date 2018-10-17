@@ -1,9 +1,9 @@
 # qMRLab (beta)
-[![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/neuropoly/qMRLab?branch=master)![License](https://img.shields.io/github/license/mashape/apistatus.svg)
+[![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/neuropoly/qMRLab?branch=master)![License](https://img.shields.io/github/license/mashape/apistatus.svg)(https://opensource.org/licenses/MIT)
 
 Welcome to qMRLab, all your quantitative MRI needs under one umbrella! 
 
-![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/neuropoly/qMRLab/bids?filepath=qMRLab/mt_sat_example.ipynb)
+![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)(https://qmrlab.org)[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/neuropoly/qMRLab/bids?filepath=qMRLab/mt_sat_example.ipynb)
 [![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&label=Follow)](https://twitter.com/qmrlab)
 
 <a href="https://qmrlab.org" target="_blank"><img src="https://github.com/qMRLab/qmrlab.github.io/blob/master/assets/images/carousel2.gif" width = "1000" align="middle"></a>
