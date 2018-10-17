@@ -10,38 +10,38 @@ classdef (Abstract) AbstractStat
     
     properties
         
-        map
-        mapNames
-        numMaps
+        Map
+        MapNames
+        NumMaps
         
-        statMask
-        statLabels
-        statMaskFolder
+        StatMask
+        StatLabels
+        StatMaskFolder
         
-        usrLabels
-        statID
+        UsrLabels
+        StatID
         
-        fitMask
+        FitMask
         
-        probMask
-        probMaskFolder 
+        ProbMask
+        ProbMaskFolder 
         
-        modelName
-        modelVersion
-        statVersion
+        ModelName
+        ModelVersion
+        StatVersion
         
     end
     
     properties (Hidden=true)
         
-        fitMaskName
+        FitMaskName
         
     end
     
     methods
         
         function obj = AbstractStat()
-            obj.statVersion = qMRLabVer();
+            obj.StatVersion = qMRLabVer();
         end
         
         
@@ -50,21 +50,21 @@ classdef (Abstract) AbstractStat
             
             if ~isempty(inputname(1)) && exist(inputname(1),'var') ==1 % Var from workspace
                 
-                obj.statMask = evalin('base',inputname(1));
-                [obj.statMask,obj.statLabels] = AbstractStat.maskAssignByType(obj.statMask);
+                obj.StatMask = evalin('base',inputname(1));
+                [obj.StatMask,obj.StatLabels] = AbstractStat.maskAssignByType(obj.StatMask);
                 
             elseif exist(input,'file') == 2 % File
                 
-                obj.statMask = AbstractStat.loadFile(input);
-                [obj.statMask,obj.statLabels] = AbstractStat.maskAssignByType(msk);
+                obj.StatMask = AbstractStat.loadFile(input);
+                [obj.StatMask,obj.StatLabels] = AbstractStat.maskAssignByType(msk);
                 
             elseif exist(input,'file') == 7 % Folder
                 
                 % This folder should contain unified format.
                 % If len>2 all inputs should be binary.
                 
-                obj.statMaskFolder = input;
-                [obj.statMask, obj.statLabels] = AbstractStat.getFileContent(input);
+                obj.StatMaskFolder = input;
+                [obj.StatMask, obj.StatLabels] = AbstractStat.getFileContent(input);
                 
             else
                 
@@ -81,16 +81,16 @@ classdef (Abstract) AbstractStat
             
             if ~isempty(inputname(1)) && exist(inputname(1),'var') ==1 % Var from workspace
                 
-                obj.probMask = evalin('base',inputname(1));
+                obj.ProbMask = evalin('base',inputname(1));
                 
             elseif exist(input,'file') == 2 % File
                 
-                obj.probMask = AbstractStat.loadFile(input);
+                obj.ProbMask = AbstractStat.loadFile(input);
                 
             elseif exist(input,'file') == 7 % Folder
                                 
-                obj.probMaskFolder = input;
-                [obj.probMask, ~] = AbstractStat.getFileContent(input);
+                obj.ProbMaskFolder = input;
+                [obj.ProbMask, ~] = AbstractStat.getFileContent(input);
                 
             else
                 
@@ -113,12 +113,12 @@ classdef (Abstract) AbstractStat
                 
             end
             
-            obj.modelName = results.Model.ModelName;
-            obj.modelVersion = results.Version;
+            obj.ModelName = results.Model.ModelName;
+            obj.ModelVersion = results.Version;
             
             if ismember({'Files'},fieldnames(results)) && ismember('Mask',fieldnames(results.Files));
                 
-                obj.fitMaskName = results.Files.Mask;
+                obj.FitMaskName = results.Files.Mask;
                 
             end
             
@@ -129,49 +129,49 @@ classdef (Abstract) AbstractStat
                
                
                idx = ismember(results.Model.xnames,fnames);
-               obj.mapNames = results.Model.xnames(idx);
+               obj.MapNames = results.Model.xnames(idx);
                tmp = results.(results.Model.xnames{1});
                             
-               [mapin, dim] = AbstractStat.getEmptyVolume(size(tmp),length(obj.mapNames));
+               [mapin, dim] = AbstractStat.getEmptyVolume(size(tmp),length(obj.MapNames));
                
                if dim == 2
-               for ii=1:length(obj.mapNames)
+               for ii=1:length(obj.MapNames)
                    
-                  mapin(:,:,ii) = results.(obj.mapNames{ii});
+                  mapin(:,:,ii) = results.(obj.MapNames{ii});
                    
                end
                
                elseif dim ==3
                    
-                for ii=1:length(obj.mapNames)
+                for ii=1:length(obj.MapNames)
                    
-                  mapin(:,:,:,ii) = results.(obj.mapNames{ii});
+                  mapin(:,:,:,ii) = results.(obj.MapNames{ii});
                    
                end    
                    
                end
                
-               obj.map = mapin;
+               obj.Map = mapin;
                
             elseif nargin>2 % load selected maps 
                 
                 tmp = results.(results.Model.varargin{1});
-                obj.mapNames = varargin;
+                obj.MapNames = varargin;
                 
-               [mapin, dim] = AbstractStat.getEmptyVolume(size(tmp),length(obj.mapNames));
+               [mapin, dim] = AbstractStat.getEmptyVolume(size(tmp),length(obj.MapNames));
                
                if dim == 2
-               for ii=1:length(obj.mapNames)
+               for ii=1:length(obj.MapNames)
                    
-                  mapin(:,:,ii) = results.(obj.mapNames{ii});
+                  mapin(:,:,ii) = results.(obj.MapNames{ii});
                    
                end
                
                elseif dim ==3
                    
-                for ii=1:length(obj.mapNames)
+                for ii=1:length(obj.MapNames)
                    
-                  mapin(:,:,:,ii) = results.(obj.mapNames{ii});
+                  mapin(:,:,:,ii) = results.(obj.MapNames{ii});
                    
                end    
                    
@@ -179,7 +179,8 @@ classdef (Abstract) AbstractStat
                
             end
                 
-            obj.map = mapin; 
+            obj.Map = mapin; 
+            obj.NumMaps = length(obj.MapNames);
             
             
         end
@@ -187,7 +188,7 @@ classdef (Abstract) AbstractStat
         
         function obj = getFitMask(obj)
             
-            if isempty(obj.fitMaskName)
+            if isempty(obj.FitMaskName)
                 
                 error('FitResults is not loaded into statistics object yet, OR Mask is not present in the loaded FitResults.')
                 
@@ -195,10 +196,10 @@ classdef (Abstract) AbstractStat
             
             try
                 
-                % fitMask is always logical assumption here 
+                % FitMask is always logical assumption here 
                 % Change if one day someone is fitting with labeled masks. 
                 
-                obj.fitMask = logical(AbstractStat.loadFile(obj.fitMaskName));
+                obj.FitMask = logical(AbstractStat.loadFile(obj.FitMaskName));
                                 
             catch
                 
@@ -218,7 +219,7 @@ classdef (Abstract) AbstractStat
     
     
     
-    methods (Static)
+    methods (Static, Hidden=true)
         
         
         
