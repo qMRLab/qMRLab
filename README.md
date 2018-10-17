@@ -1,10 +1,11 @@
 # qMRLab (beta)
-[![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/neuropoly/qMRLab?branch=master)[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/neuropoly/qMRLab/bids?filepath=qMRLab/mt_sat_example.ipynb)
+[![Build Status](https://travis-ci.org/neuropoly/qMRLab.svg?branch=master)](https://travis-ci.org/neuropoly/qMRLab)[![Coverage Status](https://coveralls.io/repos/github/neuropoly/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/neuropoly/qMRLab?branch=master)[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/neuropoly/qMRLab/bids?filepath=qMRLab/mt_sat_example.ipynb)![License](https://img.shields.io/github/license/mashape/apistatus.svg)
 
 Welcome to qMRLab, all your quantitative MRI needs under one umbrella! 
 
+![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)
+[![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&label=Follow)](https://twitter.com/qmrlab)
 <img src="qMRLab-intro.png" width="1000">
-
 
 qMRLab is an open-source software for quantitative MR image analysis. The main goal
 is to provide the community with an intuitive tool for data fitting, plotting, simulation and protocol optimization for a myriad of different quantitative models.
@@ -17,7 +18,8 @@ If you are a developer, visit the ['Wiki page'](https://github.com/neuropoly/qMR
 
 
 Please report any bug or suggestions in [github](https://github.com/neuropoly/qMRLab/issues).
-    
+
+<img src="https://github.com/qMRLab/qmrlab.github.io/blob/master/assets/images/carousel2.gif" width = "400" align="middle">
 
 ## Citation
 
