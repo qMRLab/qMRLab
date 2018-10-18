@@ -289,7 +289,7 @@ end
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
-save(fullfile(handles.root,'src','Common','Parameters','DefaultMethod.mat'),'Method');
+save(handles.Default,'Method');
 
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
