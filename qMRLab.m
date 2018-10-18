@@ -52,8 +52,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
-    handles.root = qMRLabDir;
-    handles.methodfiles = '';
+    if isdeployed
+        handles.Default = fullfile(qMRLabDir,'DefaultMethod.mat');
+    else
+        handles.Default = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
+    end
     handles.CurrentData = [];
     handles.FitDataDim = [];
     handles.FitDataSize = [];
@@ -93,8 +96,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
     
     
     SetAppData(FileBrowserList);
-    
-    load(fullfile(handles.root,'src','Common','Parameters','DefaultMethod.mat'));
+    if exist(handles.Default,'file')
+        load(handles.Default);
+    else
+        Method = 'inversion_recovery';
+    end
 else
     Method = class(GetAppData('Model'));
 end
