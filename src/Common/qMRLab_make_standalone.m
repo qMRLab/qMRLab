@@ -1,4 +1,5 @@
 % get model list
+qMRdir = fileparts(which('qMRLab'));
 ModelDir = [fileparts(which('qMRLab')) filesep 'src' filesep 'Models'];
 [MethodList, pathmodels] = sct_tools_ls([ModelDir filesep '*.m'],0,0,2,1);
 pathmodels = cellfun(@(x) strrep(x,[ModelDir filesep],''), pathmodels,'UniformOutput',false);
@@ -12,5 +13,8 @@ fprintf(fid,'pathmodels = {%s};\n', ['''' strjoin(pathmodels,''' ''') '''']);
 fprintf(fid,'MethodList = {%s};\n', ['''' strjoin(MethodList,''' ''') '''']);
 fclose(fid);
 
-
-mcc -o qMRLab -W main:qMRLab -T link:exe -d /Users/Tanguy/code/qMRLab/src/Common/compiler/qMRLab/for_testing -v /Users/Tanguy/code/qMRLab/qMRLab.m -a /Users/Tanguy/code/qMRLab/External -a /Users/Tanguy/code/qMRLab/src 
+mkdir(fullfile(qMRdir,'/src/Common/compiler/qMRLab/for_testing'))
+mcc('-o', 'qMRLab', '-W', 'main:qMRLab', '-T', 'link:exe',...
+    '-d', fullfile(qMRdir,'/src/Common/compiler/qMRLab/for_testing'),...
+    '-v', fullfile(qMRdir, 'qMRLab.m'), '-a', fullfile(qMRdir, 'External'),...
+    '-a', fullfile(qMRdir, 'src')) 
