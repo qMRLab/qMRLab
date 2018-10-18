@@ -52,7 +52,9 @@ classdef CustomExample < AbstractModel % Name your Model
     
     methods
         function obj = CustomExample
-            dbstop in CustomExample.m at 58
+            if ~isdeployed
+            dbstop in CustomExample.m at 65
+            end
             obj.options = button2opts(obj.buttons); % converts buttons values to option structure
         end
         

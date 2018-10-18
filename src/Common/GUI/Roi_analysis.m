@@ -42,7 +42,6 @@ if ~isfield(handles,'opened') % qMRI already opened?
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
     handles.root = qMRLabDir;
-    handles.methodfiles = '';
     handles.CurrentData = [];
     handles.FitDataDim = [];
     handles.FitDataSize = [];
