@@ -119,12 +119,9 @@ if ~isempty(varargin)
 end
 
 % Set Menu to method
-methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
-i = 1;
-while ~strcmp(Method, methods{i})
-    i = i+1;
-end
-set(handles.MethodSelection, 'Value', i);
+MethodList = getappdata(0, 'MethodList');
+indice = find(strcmp(Method,MethodList));
+set(handles.MethodSelection, 'Value', indice);
 
 
 MethodMenu(hObject, eventdata, handles, Method);
@@ -184,6 +181,9 @@ function addModelMenu(hObject, eventdata, handles)
 % Display all the options in the popupmenu
 [MethodList, pathmodels] = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
 pathmodels = cellfun(@(x) strrep(x,[handles.ModelDir filesep],''), pathmodels,'UniformOutput',false);
+if isdeployed
+    [MethodList, pathmodels] = qMRLab_static_Models;
+end
 SetAppData(MethodList)
 maxlength = max(cellfun(@length,MethodList))+4;
 maxlengthpath = max(cellfun(@length,pathmodels))+2;
@@ -222,7 +222,6 @@ end
 SetAppData(Data);
 
 % Now create Simulation panel
-handles.methodfiles = fullfile(handles.root,'src','Models_Functions',[Method 'fun']);
 % find the Simulation functions of the selected Method
 Methodfun = methods(Method);
 Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
