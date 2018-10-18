@@ -7,16 +7,17 @@ Welcome to qMRLab, all your quantitative MRI needs under one umbrella!
 
 <a href="https://qmrlab.org" target="_blank"><img src="https://github.com/qMRLab/qmrlab.github.io/blob/master/assets/images/carousel2.gif" width = "1000" align="middle"></a>
 
-qMRLab is an open-source software for quantitative MR image analysis. The main goal
-is to provide the community with an intuitive tool for data fitting, plotting, simulation and protocol optimization for a myriad of different quantitative models.
+**qMRLab is an open-source software for quantitative MR image analysis.** The main goal
+is to provide the community with an intuitive tool for **data fitting**, **plotting**, **simulation** and **protocol optimization** for a myriad of different quantitative models.
 The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!
 
-qMRLab is a fork from the initial project ['qMTLab'](https://github.com/neuropoly/qMTLab).  
+For **documentation**, visit the [Documentation website](http://qmrlab.readthedocs.io/)
 
-For **documentation**, visit the ['Documentation website'](http://qmrlab.readthedocs.io/)
-If you are a developer, visit the ['Wiki page'](https://github.com/neuropoly/qMRLab/wiki). 
+If you are a **developer**, visit the [Wiki page](https://github.com/neuropoly/qMRLab/wiki). 
 
-Please report any bug or suggestions in [github](https://github.com/neuropoly/qMRLab/issues).
+Please report any **bug** or **suggestions** in [GitHub](https://github.com/neuropoly/qMRLab/issues).
+
+qMRLab is a fork from the initial project [qMTLab](https://github.com/neuropoly/qMTLab).  
 
 ## Citation
 
