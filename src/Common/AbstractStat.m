@@ -42,11 +42,12 @@ end
 methods
 
 function obj = AbstractStat()
+    
   obj.StatVersion = qMRLabVer();
 end
 
 
-function obj = getStatMask(obj,input)
+function obj = loadStatMask(obj,input)
   % A stat mask can be a labeled mask or a binary mask.
   % This function assigns StatMask property.
   %
@@ -113,7 +114,7 @@ end
 end
 
 
-function obj = getProbmask(obj,input)
+function obj = loadProbmask(obj,input)
   % Probability masks should be contained isolatedly from binary
   % and labeled masks.
   % This functions assigns ProbMask property by
@@ -258,7 +259,7 @@ function obj = loadByFitResults(obj,filename,varargin)
 end
 
 
-function obj = getFitMask(obj)
+function obj = loadFitMask(obj)
   % Version of the loaded FitResults should be at least > 2 0 7
   % Above statement requires further inspection.
   % This function to allow users to use the mask used during fitting
@@ -350,7 +351,7 @@ end
 end
 
 
-
+% STATIC FUNCTIONS ----------------------------------
 
 methods (Static, Hidden=true)
 
