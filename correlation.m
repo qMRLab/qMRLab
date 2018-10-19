@@ -7,10 +7,9 @@ classdef correlation < AbstractStat
         
     end
     
-    properties(SetAccess = private)
+    properties(SetAccess = protected)
         
-        PropHandle
-        PropValue
+       JointMask
         
     end
     
