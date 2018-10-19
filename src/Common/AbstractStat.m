@@ -33,10 +33,17 @@ classdef (Abstract) AbstractStat
         
     end
     
-    properties (Hidden=true)
+    properties (Hidden=true, SetAccess = protected, GetAccess=public)
         
         FitMaskName
         Compliance = struct();
+        MapDim
+        StatMaskDim
+        ActiveMapIdx = 1
+        
+        WarningHead = '-------------------------------- qMRLab Warning';
+        ErrorHead   = '----------------------------------------- qMRLab Error';
+        Tail = '\n-------------------------------------------------------|';
         
     end
     
@@ -110,7 +117,7 @@ end
                 
             end
             
-            
+            obj.StatMaskDim = length(squeeze(size(obj.StatMask)));
             
         end
         
@@ -255,8 +262,19 @@ end
             
             obj.Map = mapin;
             obj.NumMaps = length(obj.MapNames);
+            obj.ActiveMapIdx = 1;
+            szz = size(obj.Map);
             
-            
+            if obj.NumMaps >1
+                
+                
+                obj.MapDim = length(szz)-1;
+                
+            else
+                
+                obj.MapDim = length(szz);
+                
+            end
         end
         
         
@@ -349,9 +367,59 @@ end
             
         end
         
+        function obj = setActiveMap(obj,in)
+            % Objects instantantiated from classes derived from AbstractStat
+            % can have more than one quantitative maps in the obj.Map property.
+            % For certain operations, one would like to specify which one to
+            % include in a certain analysis.
+            %
+            % This function sets the ActiveMapIdx (Hidden) attribute w.r.t. the
+            % argument "in" passed. In can be either numeric or char, to set
+            % idx or to find corresponding idx from obj.MapNames then set it,
+            % respectively.
+            
+            if ~isempty(obj.MapNames)
+                ln = length(obj.MapNames);
+            else
+                error( [obj.ErrorHead...
+                    '\n>>>>>> Cannot set ActiveMap to %d. No maps are loaded.'...
+                    obj.Tail],in);
+            end
+            
+            if isnumeric(in)
+                
+                if in>ln
+                    
+                    error( [obj.ErrorHead...
+                        '\n>>>>>> Cannot set ActiveMap to %d. There are %d map(s) are available within this object.'...
+                        obj.Tail],in,ln);
+                else
+                    
+                    
+                    obj.ActiveMapIdx = in;
+                    
+                end
+                
+            elseif ischar(in)
+                
+                [bool,idx] = ismember({in},obj.MapNames);
+                
+                if bool
+                    obj.ActiveMapIdx = idx;
+                else
+                    error( [obj.ErrorHead...
+                        '\n>>>>>> Cannot find %s in the loaded maps.'...
+                        obj.Tail],in);
+                end
+                
+                
+            end
+            
+        end
+        
     end
     
-    % HIDDEN METHODS
+    % HIDDEN METHODS --------------------------------------------
     
     methods(Hidden)
         
@@ -364,18 +432,18 @@ end
                 
                 if ~obj(ii).Compliance.noMapFlag && ~obj(ii).Compliance.noMaskFlag
                     
-                szMap = size(obj(ii).Map);
-                szMask = size(obj(ii).StatMask);
-                
-            
-                if isequal(szMap,szMask) || isequal(szMap(1:end-1),szMask)
+                    szMap = size(obj(ii).Map);
+                    szMask = size(obj(ii).StatMask);
                     
-                    obj(ii).Compliance.szMismatchFlag  = 0;
                     
-                else
-                    obj(ii).Compliance.szMismatchFlag = 1;
-                end
-                
+                    if isequal(szMap,szMask) || isequal(szMap(1:end-1),szMask)
+                        
+                        obj(ii).Compliance.szMismatchFlag  = 0;
+                        
+                    else
+                        obj(ii).Compliance.szMismatchFlag = 1;
+                    end
+                    
                 else
                     
                     obj(ii).Compliance.szMismatchFlag = 1;
@@ -388,6 +456,23 @@ end
             
             
             
+            
+        end
+        
+        function map = getActiveMap(obj)
+            
+            % This function is to extract a certain map from the map stack
+            % contained in the obj.Map.
+            
+            if obj.MapDim == 2
+                
+                map = obj.Map(:,:,obj.ActiveMapIdx);
+                
+            elseif obj.MapDim == 3
+                
+                map = obj.Map(:,:,:,obj.ActiveMapIdx);
+                
+            end
             
         end
         
@@ -713,11 +798,12 @@ end
             % Labeled mask: To be called per label.
             % External call: AbstractStat.getTable
             
-            NaNcontain = any(isnan(vec));
+            NaNcontain = logical(any(isnan(vec)));
             
             if NaNcontain
                 Mean = nanmean(vec);
                 STD = nanstd(vec);
+                NaNcontain = length(find(isnan(vec)));
             else
                 Mean = mean(vec);
                 STD = std(vec);

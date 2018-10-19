@@ -7,11 +7,6 @@ classdef correlation < AbstractStat
         
     end
     
-    properties(SetAccess = protected)
-        
-       JointMask
-        
-    end
     
     methods
         
@@ -43,7 +38,7 @@ classdef correlation < AbstractStat
             
         end
         
-        
+     
         
     end
     

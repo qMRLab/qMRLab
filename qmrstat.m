@@ -42,16 +42,39 @@ classdef qmrstat
             
         end
         
-        % In correlation  class, there should be no NaN's under masked area
-        % if exists, vals should be removed from both vectors. 
+     
         
-        function obj = runPearsonCor(obj)
+        function obj = runPearsonCor(obj,crObj)
           
+          % Change first line wrt nargin
+          
+          obj.Object.Correlation = crObj;
           obj = validate(obj,'Correlation');
           
-          obj.Results.Correlation.Pearson.h = 1;
-          obj.Results.Correlation.Pearson.p = 1;
-          obj.Results.Correlation.Pearson.q = 1;
+          if obj.CorrelationValid
+          
+          %crObj = obj.Object.Correlation;
+          
+          % Mapnames can be multidim. 
+           
+          mp1 = crObj(1).getActiveMap();    
+          mp2 = crObj(2).getActiveMap(); 
+          VecX = mp1(obj.CorrelationJointMask);
+          VecY = mp2(obj.CorrelationJointMask);
+          
+          % In correlation  class, there should be no NaN's under masked area
+          % if exists, vals should be removed from both vectors. 
+          
+          [VecX,VecY] = qmrstat.cleanNan(VecX,VecY);
+          
+          [obj.Results.Correlation.Pearson.r, ...
+          obj.Results.Correlation.Pearson.t, ...
+          obj.Results.Correlation.Pearson.pval, ...
+          obj.Results.Correlation.Pearson.hboot, ...
+          obj.Results.Correlation.Pearson.CI] = ...
+          Pearson(VecX,VecY,crObj(1).MapNames(crObj(1).ActiveMapIdx),crObj(2).MapNames(crObj(2).ActiveMapIdx),1);
+          
+          end
           
         end
         
@@ -82,7 +105,7 @@ classdef qmrstat
         % This validation is for statistical methods those require spatial
         % correspondance. 
            
-            
+           
                     if isempty(obj.Object.(name))
                         
                         % In case user removes field by mistake
@@ -101,7 +124,9 @@ classdef qmrstat
                             obj.Object.(name)(ii) = obj.Object.(name)(ii).evalCompliance();
                             boolMap(ii) = obj.Object.(name)(ii).Compliance.noMapFlag;
                             boolMask(ii) = obj.Object.(name)(ii).Compliance.noMaskFlag;
+                            if ~isempty(obj.Object.(name)(ii).StatMask)
                             dimMis(ii) = obj.Object.(name)(ii).Compliance.szMismatchFlag;
+                            end
                         end
                         
                     end
@@ -187,7 +212,14 @@ classdef qmrstat
 
                     % If survived all these, then 
                     obj.([name 'Valid']) = 1;
-                    obj.([name 'JointMask']) = boolMask;
+                    midx = find(boolMask==1);
+                    obj.([name 'JointMask']) = obj.Object.(name)(midx).StatMask;
+                    
+                    % OPERATION BASED ON BOOLMASK INTRODUCES BUG HERE.
+                    % JUST RETURN THE ONE THAT IS NOT EMPTY. BECAUSE IDX
+                    % IS SKIPPED ABOVE
+                    
+                    
         end
         
         
@@ -196,7 +228,20 @@ classdef qmrstat
     end
     
     
-   
+   methods(Static, Hidden)
+       
+      
+       function [Vec1Out,Vec2Out] = cleanNan(Vec1, Vec2)
+          
+           joins = or(isnan(Vec1),isnan(Vec2));
+           Vec1Out = Vec1(not(joins));
+           Vec2Out = Vec2(not(joins));
+           
+           
+       end
+       
+       
+   end
     
     
 end
