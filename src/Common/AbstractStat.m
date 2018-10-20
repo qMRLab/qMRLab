@@ -56,15 +56,30 @@ classdef (Abstract) AbstractStat
         
         
         function obj = loadStatMask(obj,input)
-            % A stat mask can be a labeled mask or a binary mask.
-            % This function assigns StatMask property.
+            % This function assigns the StatMask property.
+            % StatMask can be a labeled mask or a binary mask.
             %
-            % getStatMask method works with:
+            % loadStatMask method accepts following inputs:
             %
-            % i)   variable from workspace
-            % ii)  a file name
-            % iii) a directory
+            % i)   variable from workspace (pass w/o single quotes)
+            % ii)  a file name (*.mat, *.nii, *.nii.gz)
+            % iii) a directory ('/../MaskFolder')
+            % 
+            % (i) and (ii) loads the target file containing a binary or a
+            % labeled mask.
             %
+            % (iii) loads the file (*.mat, *.nii, *.nii.gz) directly if it 
+            % is the only only file respecting the format. 
+            % If there are multiple files, (iii) assumes that the directory
+            % contains a collection of binary masks, reads them all and merges
+            % into a single labeled mask, where regions are labeled by the
+            % respective file names. 
+            % 
+            % Warning for (iii): Please make sure that binary masks have no
+            % overlapping regions, if multiple binary masks are going to be
+            % read. 
+
+            % Developers: 
             % getStatMask@AbstractStat call is different than calling it
             % directly. Note that this function is not hidden in the
             % superclass. This is why wrapping is neccesary if one would
@@ -72,22 +87,23 @@ classdef (Abstract) AbstractStat
             % For other methods this is way more easier. For this one,
             % please use following snippet in the target subclass:
             %
-            % To hide this method in a subclass while keeping its function:
+            % IMPORTANT --- 
+            % To hide/override this method in a subclass:
             % ---------------------------------------------------
             %{
-  methods (Hidden)
+            methods (Hidden)
 
-function obj = getStatMask(obj,input)
+            function obj = getStatMask(obj,input)
 
-    W = evalin('caller','whos');
+                W = evalin('caller','whos');
 
-    if ~isempty(ismember(inputname(2),[W(:).name])) && all(ismember(inputname(2),[W(:).name]))
-      obj = getStatMask@AbstractStat(obj,input);
-    else
-      obj = getStatMask@AbstractStat(obj,eval('input'));
-    end
-  end
-end
+                if ~isempty(ismember(inputname(2),[W(:).name])) && all(ismember(inputname(2),[W(:).name]))
+                  obj = loadStatMask@AbstractStat(obj,input);
+                else
+                  obj = loadStatMask@AbstractStat(obj,eval('input'));
+                end
+              end
+            end
             %}
             % ---------------------------------------------------
             
@@ -161,17 +177,18 @@ end
         
         function obj = loadByFitResults(obj,filename,varargin)
             % This function assigns following fields w.r.t. a given
-            % FitResults file:
-            %    i)   obj.Map
+            % FitResults file created by qMRLab:
+            %     i)  obj.Map
             %    ii)  obj.MapNames
             %
             % Assumptions:
             %    i)   FitResults should include Model and Version
             %   ii)   xnames field contains entries that matches to the
-            %         names of the quantitative maps FitResults encapsulate.
-            %         This is especially important if output maps are
-            %         conditional.
-            % Call:
+            %         names of the quantitative maps that are encapsulated
+            %         by the FitResults.This is especially important if 
+            %         output maps are conditional.
+            %
+            % Example Use:
             %    i)  obj.loadByFitResults('FitResults.mat')
             %    ii) obj.loadByFitResults('../FitResults.mat','T1')
             %    iii) obj.loadByFitResults('../FitResults.mat','T1','ra'..)
