@@ -1,4 +1,4 @@
-function [r,t,p,hboot,CI,H,pH] = bendcorr(X,Y,fig_flag,beta)
+function [r,t,p,hboot,CI,H,pH,hout] = bendcorr(X,Y,XLabel,YLabel,fig_flag,beta)
 
 % Computes the percentage bend correlation along with the bootstrap CI
 %
@@ -28,10 +28,11 @@ function [r,t,p,hboot,CI,H,pH] = bendcorr(X,Y,fig_flag,beta)
 %  Copyright (C) Corr_toolbox 2012
 
 %% data check
+PyVis = struct();
 
 if nargin<2
     error('two input vectors requested')
-elseif nargin>4
+elseif nargin>6
     eror('too many inputs')
 end
 
@@ -132,12 +133,23 @@ if fig_flag ~= 0
         answer = questdlg('plots all correlations','Plotting option','yes','no','yes');
     else
         if fig_flag == 1
-            figure('Name','Bend correlation');
-            set(gcf,'Color','w');
+             % #qmrstat ---- start
+            if nargout == 8
+                hout = figure('Name','Percentage bend correlation');
+                set(gcf,'Color','w');
+                set(hout,'Visible','off');
+                
+            else % When hout is not a nargout
+                
+                figure('Name','Percentage bend correlation');
+                set(gcf,'Color','w');
+                
+            end
+            % #qmrstat ---- start
         end
         
         if nargout >3
-            subplot(1,2,1);
+            
             M = sprintf('Bend corr r=%g \n %g%%CI [%g %g]',r,(1-level)*100,rb(low),rb(high));
         else
             M = sprintf('Bend corr r=%g \n p=%g',r,p);
@@ -146,18 +158,31 @@ if fig_flag ~= 0
         scatter(X(:,1),X(:,2),100,'filled');
         hold on; grid on;
         % plot 'outliers'
+        % Points weighted down in X 
         scatter(X(XX{1},1),X(XX{1},2),110,'r','LineWidth',3);
+        PyVis.WeightDownX = cell2mat(XX(1)) -1;
+        % Points weighted down in Y
         scatter(X(YY{1},1),X(YY{1},2),110,'g','LineWidth',3);
+        PyVis.WeightDownY = cell2mat(YY(1)) -1;
+        % Points weighted down in both
         scatter(X(intersect(XX{1},YY{1}),1),X(intersect(XX{1},YY{1}),2),110,'k','LineWidth',3);
-        xlabel('X bend','FontSize',12); ylabel('Y bend','FontSize',12);
+        PyVis.WeightDownBoth = intersect(XX{1},YY{1})-1;
+        xlabel([XLabel ' bend'],'FontSize',12); ylabel([YLabel ' bend'],'FontSize',12);
         title(M,'FontSize',16); 
         coef = pinv([X(:,1) ones(n,1)])*X(:,2);
         s = r / (std(X(:,1))/std(X(:,2)));
         h = refline(s,coef(2)); set(h,'Color','r','LineWidth',4);
+        
+        % #qmrstat -- start
+        PyVis.FitLine.X = get(h,'XData');
+        PyVis.FitLine.Y = get(h,'YData');
+        % #qmrstat -- start
+        
         box on;set(gca,'FontSize',14)
         
         if  nargout>3
             if sum(slope == 0) == 0
+            
                 y1 = refline(CIslope(1),CIintercept(1)); set(y1,'Color','r');
                 y2 = refline(CIslope(2),CIintercept(2)); set(y2,'Color','r');
                 y1 = get(y1); y2 = get(y2);
@@ -165,18 +190,36 @@ if fig_flag ~= 0
                 step1 = y1.YData(2)-y1.YData(1); step1 = step1 / (y1.XData(2)-y1.XData(1));
                 step2 = y2.YData(2)-y2.YData(1); step2 = step2 / (y2.XData(2)-y2.XData(1));
                 filled=[[y1.YData(1):step1:y1.YData(2)],[y2.YData(2):-step2:y2.YData(1)]];
-                hold on; fillhandle=fill(xpoints,filled,[1 0 0]);
-                set(fillhandle,'EdgeColor',[1 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
-                box on;set(gca,'FontSize',14)
+                
+                 % #qmrstat ---- start
+            PyVis.CILine1.X = [y1.XData(1),y1.XData(2)];
+            PyVis.CILine1.Y = [y1.YData(1),y1.YData(2)];
+            
+            PyVis.CILine2.X = [y2.XData(1),y2.XData(2)];
+            PyVis.CILine2.Y = [y2.YData(1),y2.YData(2)];
+            
+            
+            if min(CI)<0 && max(CI)>0
+                fillColor = [1,0,0];
+            else
+                fillColor = [0,1,0];
             end
             
-            subplot(1,2,2); k = round(1 + log2(length(rb))); hist(rb,k); grid on;
-            title({'Bootstrapped correlations';['h=' num2str(hboot)]},'FontSize',16); hold on
-            xlabel('boot correlations','FontSize',14);ylabel('frequency','FontSize',14)
-            plot(repmat(CI(1),max(hist(rb,k)),1),[1:max(hist(rb,k))],'r','LineWidth',4);
-            plot(repmat(CI(2),max(hist(rb,k)),1),[1:max(hist(rb,k))],'r','LineWidth',4);
-            axis tight; colormap([.4 .4 1])
-            box on;set(gca,'FontSize',14,'Layer','Top')
+            PyVis.fillColor = sprintf('rgb(%d,%d,%d)',255*fillColor(1),255*fillColor(2),255*fillColor(3));
+            
+            assignin('caller','PyVis',PyVis);
+            % #qmrstat ---- end
+                
+
+            hold on; fillhandle=fill(xpoints,filled,fillColor);
+            set(fillhandle,'EdgeColor',[1 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
+            box on;set(gca,'FontSize',14)
+
+            
+            
+            end
+            
+
         end
     end
     

@@ -432,6 +432,24 @@ classdef (Abstract) AbstractStat
                 
             end
             
+            
+            
+            
+        end
+        
+        function showActiveMap(obj)
+               
+            if length(obj) == 2
+             
+                error( [obj.ErrorHead...
+                        '\n>>>>>> %s method is to be called by individuals objects in an ojbject array.'...
+                        '\n>>>>>> Correct use: Correlation(1).showActiveMap'...
+                        '\n>>>>>> Wrong use:   Correlation.showActiveMap'...
+                        obj.Tail],'showActiveMap');
+                    
+            end
+                disp(obj.MapNames(obj.ActiveMapIdx));
+                
         end
         
     end

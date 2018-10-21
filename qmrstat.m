@@ -36,7 +36,9 @@ classdef qmrstat
         
     end
        
-% ===============================================================    
+% ===============================================================  
+
+% ===============================================================
     
     methods
         
@@ -168,7 +170,7 @@ classdef qmrstat
         
         function obj = runSkippedCor(obj,crObj)
         
-             % Developers: * qmrstat.getBivarCorInputs (Static)
+            % Developers: * qmrstat.getBivarCorInputs (Static)
             %               -- calls qmrstat.getBiVarCorVec (Private)
             %               ---- calls qmrstat.cleanNan (Private)
             %             * Pearson (External/robustcorrtool)
@@ -293,6 +295,64 @@ classdef qmrstat
             disp(t);
             obj.Results.Correlation.PreInspect.table = t;
             
+        end
+        
+        function obj = runPrcntgBendCor(obj,crObj)
+            
+              % Developers: * qmrstat.getBivarCorInputs (Static)
+            %               -- calls qmrstat.getBiVarCorVec (Private)
+            %               ---- calls qmrstat.cleanNan (Private)
+            %             * Pearson (External/robustcorrtool)
+            
+            % getBivarCorInputs includes validation step. Validation step
+            % is not specific to the object arrays with 2 objects. N>2 can
+            % be also validated by qmrstat.validate (private).
+            
+            % Fixed bend percent to 0.2
+            
+            [VecX,VecY,XLabel,YLabel,~] = qmrstat.getBivarCorInputs(obj,crObj);
+            
+            if strcmp(crObj(1).FigureOption,'osd')
+                
+                [r,t,p,hboot,CI,~,~] = bendcorr(VecX,VecY,XLabel,YLabel,1,0.2);
+                
+            elseif strcmp(crObj(1).FigureOption,'save')
+                
+                [r,t,p,hboot,CI,~,~,hout] = bendcorr(VecX,VecY,XLabel,YLabel,1,0.2);
+                obj.Results.Correlation.Bend.figure = hout;
+                
+            elseif strcmp(crObj(1).FigureOption,'disable')
+                
+                
+                [r,t,p,hboot,CI,~,~] = bendcorr(VecX,VecY,XLabel,YLabel,0,0.2);
+                
+            end
+            
+            
+            if obj.Export2Py
+               
+                PyVis.XLabel = XLabel;
+                PyVis.YLabel = YLabel;
+                PyVis.Stats.r = r;
+                PyVis.Stats.t = t;
+                PyVis.Stats.p = p;
+                PyVis.Stats.hboot = hboot;
+                PyVis.Stats.CI = CI;
+                obj.Results.Correlation.Bend.PyVis = PyVis;
+                
+            end
+          
+            
+            obj.Results.Correlation.Bend.r = r;
+            obj.Results.Correlation.Bend.t = t;
+            obj.Results.Correlation.Bend.hboot = hboot;
+            obj.Results.Correlation.Bend.CI = CI;
+            obj.Results.Correlation.Bend.p = p;
+            obj.Results.Correlation.Bend.Ph = pH;
+            obj.Results.Correlation.Bend.H = H;
+        
+            
+        
         end
         
         function obj = runCompareCor(obj,corob1,corob2)

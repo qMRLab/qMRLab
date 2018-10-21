@@ -127,13 +127,13 @@ if fig_flag ~= 0
         if fig_flag == 1
             % #qmrstat ---- start
             if nargout == 6
-                hout = figure('Name','Pearson correlation');
+                hout = figure('Name','Spearman correlation');
                 set(gcf,'Color','w');
                 set(hout,'Visible','off');
                 
             else % When hout is not a nargout
                 
-                figure('Name','Pearson correlation');
+                figure('Name','Spearman correlation');
                 set(gcf,'Color','w');
                 
             end
@@ -189,7 +189,7 @@ if fig_flag ~= 0
             assignin('caller','PyVis',PyVis);
             % #qmrstat ---- end
             
-            hold on; fillhandle=fill(xpoints,filled,[1 0 0]);
+            hold on; fillhandle=fill(xpoints,filled,fillColor);
             set(fillhandle,'EdgeColor',[1 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
             box on;set(gca,'FontSize',14)
             

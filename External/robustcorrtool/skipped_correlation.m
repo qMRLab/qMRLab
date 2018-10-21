@@ -371,7 +371,7 @@ if fig_flag ~= 0
             % #qmrstat ---- end
             
             
-            hold on; fillhandle=fill(xpoints,filled,[1 0 0]);
+            hold on; fillhandle=fill(xpoints,filled,fillColor);
             set(fillhandle,'EdgeColor',[1 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
             
  
