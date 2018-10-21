@@ -25,12 +25,7 @@ function results = robust_correlation(X,Y)
 % ---------------------------------
 %  Copyright (C) Corr_toolbox 2012
 
-disp(' ');
-disp('Correlation toolbox, Copyright (C) 2012. C. Pernet & G. Rousselet')
-disp('This program comes with ABSOLUTELY NO WARRANTY')
-disp('This is free software, and you are welcome to redistribute it')
-disp('under certain conditions; see http://www.gnu.org/licenses/ for details.')
-disp(' ');
+
 
 %% data check
 if size(X)~=size(Y)
@@ -51,7 +46,7 @@ level = 5/100;
 %% 1 - plot the data and generate univariate and bivariate histograms
 
 % figure 1 - histograms and scatter plot
-corr_normplot(X,Y);
+h1 = corr_normplot(X,Y);
 
 % figure 2 - Joint density 
 joint_density(X,Y,1)
@@ -78,25 +73,7 @@ fprintf('conditional variances = %g %g \n', results.conditional.variances)
 %% 5 - check for outliers based on the MAD median rule & the IQR rule
 results.outliers = detect_outliers(X,Y);
 
-%% 6 - Pearson correlation
-[r,t,pval,hboot,CI] = Pearson(X,Y);
-results.Pearson.r = r;
-results.Pearson.t = t;
-results.Pearson.p = pval;
-results.Pearson.CI = CI;
 
-disp(' ')
-if hboot == 1
-    fprintf('Pearson correlation is significant \n')
-    fprintf('r=%g p=%g CI=[%g %g] \n',r,pval,CI)
-    results.Pearson.result = 'Pearson correlation is significant';
-else
-    fprintf('Pearson correlation is not significant \n')
-    fprintf('r=%g CI=[%g %g] \n',r,CI)
-    results.Pearson.result = 'Pearson correlation is not significant';
-end
-
-clear r t pval hboot CI
 %% 6 - Bend correlation (remove effect of univariate outliers)
 
 [r_bend,t_bend,p_bend,h,CI] = bendcorr(X,Y); % use the default 20% triming
@@ -118,58 +95,4 @@ else
 end
 
 clear r_bend t_bend p_bend CI h
-%% 7 - performs Spearman
-
-[r,t,pval,hboot,CI] = Spearman(X,Y);
-results.Spearman.r = r;
-results.Spearman.t = t;
-results.Spearman.p = pval;
-results.Spearman.CI = CI;
-
-disp(' ')
-if hboot == 1
-    fprintf('Spearman correlation is significant \n')
-    fprintf('r=%g p=%g CI=[%g %g] \n',r,pval,CI)
-    results.Spearman.result = 'Spearman correlation is significant ';
-else
-    fprintf('Spearman correlation is not significant \n')
-    fprintf('r=%g CI=[%g %g] \n',r,CI)
-    results.Spearman.result = 'Spearman correlation is not significant ';
-end
-clear r t pval hboot CI
-
-%% 8 - skip correlation to remove effect of bivariate outliers
-
-[r,t,h,outliers,hboot,CI]=skipped_correlation(X,Y);
-results.Skipped_correlation.Pearson.r = r.Pearson;
-results.Skipped_correlation.Spearman.r = r.Spearman;
-results.Skipped_correlation.Pearson.t = t.Pearson;
-results.Skipped_correlation.Spearman.t = t.Spearman;
-results.Skipped_correlation.Pearson.CI = CI.Pearson;
-results.Skipped_correlation.Spearman.CI = CI.Spearman;
-results.Skipped_correlation.Pearson.h = h.Pearson;
-results.Skipped_correlation.Spearman.h = h.Spearman;
-
-disp(' ')
-if hboot.Pearson == 1
-    fprintf('Pearson Skipped correlation is significant \n')
-    fprintf('r=%g CI=[%g %g] \n',r.Pearson,CI.Pearson)
-    results.Skipped_correlation.Pearson.result = 'Skipped correlation is significant ';
-else
-    fprintf('Skipped correlation is not significant \n')
-    fprintf('r=%g CI=[%g %g]\n',r.Pearson,CI.Pearson)
-    results.Skipped_correlation.Pearson.result = 'Skipped correlation is not significant ';
-end
-
-if hboot.Spearman == 1
-    fprintf('Spearman Skipped correlation is significant \n')
-    fprintf('r=%g CI=[%g %g] \n',r.Spearman,CI.Spearman)
-    results.Skipped_correlation.Spearman.result = 'Skipped correlation is significant ';
-else
-    fprintf('Spearman Skipped correlation is not significant \n')
-    fprintf('r=%g CI=[%g %g] \n',r.Spearman,CI.Spearman)
-    results.Skipped_correlation.Spearman.result = 'Skipped correlation is not significant ';
-end
-
-clear h r t outliers CI
-
+\

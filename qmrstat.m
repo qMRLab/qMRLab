@@ -222,7 +222,26 @@ classdef qmrstat
         end % runSpearmanCor  ------------------------ end (Public)
         
         
+        function obj = runInspectCor(obj,crobj)
+           
+            % WRITE THEM IN A TABLE AND SAVE FIGURES
+            h1 = corr_normplot(X,Y);
+            joint_density(X,Y,1)
+            % 2 - performs the Henze- Zirkler test for normality
+            [results.normality.test_value,results.normality.p_value] = HZmvntest(X,Y,level);
+            [results.conditional.values,results.conditional.variances]=conditional(X,Y);
+            [h,results.heteroscedasticity.CI] = variance_homogeneity(X,Y,1);
+            results.outliers = detect_outliers(X,Y);
+
+            
+        end
         
+        function obj = runCompareCor(obj,corob1,corob2)
+            
+           % Compare correlations 
+            
+            
+        end
         
         function obj = pyExportEnable(obj)
            

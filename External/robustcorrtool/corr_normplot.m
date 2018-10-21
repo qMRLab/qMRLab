@@ -1,4 +1,4 @@
-function corr_normplot(x,y)
+function h = corr_normplot(x,y)
 
 % Plots univariate histograms, scatterplot, and joint histogram
 % for the bivariate data set defined by [x,y] 
@@ -24,9 +24,9 @@ elseif r > 1 && c > 1
 end
 
 
-figure('Name','Histograms and scatter plot')
+h = figure('Name','Histograms and scatter plot');
 set(gcf,'Color','w');
-
+set(h,'Visible','off');
 % 1st univariate histogram
 subplot(3,5,2:3);
 [nu,x1,h1,xp,yp]=univar(x); 
