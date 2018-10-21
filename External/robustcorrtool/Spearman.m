@@ -1,4 +1,4 @@
-function [r,t,pval,hboot,CI] = Spearman(X,Y,fig_flag,level)
+function [r,t,pval,hboot,CI,hout] = Spearman(X,Y,XLabel,YLabel,fig_flag,level)
 
 % Computes the Spearman correlation with its bootstrap CI.
 %
@@ -31,6 +31,8 @@ function [r,t,pval,hboot,CI] = Spearman(X,Y,fig_flag,level)
 %  Copyright (C) Corr_toolbox 2012
 
 %% data check
+% #qmrstat
+PyVis = struct();
 
 % if X a vector and Y a matrix, 
 % repmat X to perform multiple tests on Y (or the other around)
@@ -51,9 +53,10 @@ end
 if nargin < 2
     error('two inputs requested');
 elseif nargin == 2
-    fig_flag = 1;
+    % #qmrstat
     level = 5/100;
-elseif nargin == 3
+elseif nargin == 5
+    % #qmrstat
     level = 5/100;
 end
 
@@ -122,24 +125,44 @@ if fig_flag ~= 0
         answer = questdlg(['plots all ' num2str(p) ' correlations'],'Plotting option','yes','no','yes');
     else
         if fig_flag == 1
-            figure('Name','Spearman correlation');
-            set(gcf,'Color','w'); 
+            % #qmrstat ---- start
+            if nargout == 6
+                hout = figure('Name','Pearson correlation');
+                set(gcf,'Color','w');
+                set(hout,'Visible','off');
+                
+            else % When hout is not a nargout
+                
+                figure('Name','Pearson correlation');
+                set(gcf,'Color','w');
+                
+            end
+            % #qmrstat ---- start
         end
         
         if nargout>3
-            subplot(1,2,1);
+            % #qmrstat inline remove
             M = sprintf('Spearman corr r=%g \n %g%%CI [%g %g]',r,(1-level)*100,CI(1),CI(2));
         else
             M = sprintf('Spearman corr r=%g p=%g',r,pval);
         end
         
         scatter(xrank,yrank,100,'filled'); grid on
-        xlabel('X Rank','FontSize',14); ylabel('Y Rank','FontSize',14);
+        xlabel(XLabel,'FontSize',14); ylabel(YLabel,'FontSize',14);
         title(M,'FontSize',16); 
+        % #octaveIssue
         h=lsline; set(h,'Color','r','LineWidth',4);
         box on;set(gca,'FontSize',14,'Layer','Top')
         
+        % #qmrstat -- start
+        PyVis.XData = xrank;
+        PyVis.YData = yrank;
+        PyVis.FitLine.X = get(h,'XData');
+        PyVis.FitLine.Y = get(h,'YData');
+        % #qmrstat -- start
+        
         if nargout >3
+            % #octaveIssue
             y1 = refline(CIslope(1),CIintercept(1)); set(y1,'Color','r');
             y2 = refline(CIslope(2),CIintercept(2)); set(y2,'Color','r');
             y1 = get(y1); y2 = get(y2);
@@ -147,18 +170,30 @@ if fig_flag ~= 0
             step1 = y1.YData(2)-y1.YData(1); step1 = step1 / (y1.XData(2)-y1.XData(1));
             step2 = y2.YData(2)-y2.YData(1); step2 = step2 / (y2.XData(2)-y2.XData(1));
             filled=[[y1.YData(1):step1:y1.YData(2)],[y2.YData(2):-step2:y2.YData(1)]];
+            
+            % #qmrstat ---- start
+            PyVis.CILine1.X = [y1.XData(1),y1.XData(2)];
+            PyVis.CILine1.Y = [y1.YData(1),y1.YData(2)];
+            
+            PyVis.CILine2.X = [y2.XData(1),y2.XData(2)];
+            PyVis.CILine2.Y = [y2.YData(1),y2.YData(2)];
+            
+            
+            if min(CI)<0 && max(CI)>0
+                fillColor = [1,0,0];
+            else
+                fillColor = [0,1,0];
+            end
+            PyVis.fillColor = sprintf('rgb(%d,%d,%d)',255*fillColor(1),255*fillColor(2),255*fillColor(3));
+            
+            assignin('caller','PyVis',PyVis);
+            % #qmrstat ---- end
+            
             hold on; fillhandle=fill(xpoints,filled,[1 0 0]);
             set(fillhandle,'EdgeColor',[1 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
             box on;set(gca,'FontSize',14)
             
-            subplot(1,2,2); hold on
-            k = round(1 + log2(length(rb))); hist(rb,k); grid on;
-            title({'Bootstrapped correlations';['h=',num2str(hboot)]},'FontSize',16)
-            xlabel('boot correlations','FontSize',14);ylabel('frequency','FontSize',14)
-            plot(repmat(CI(1),max(hist(rb,k)),1),[1:max(hist(rb,k))],'r','LineWidth',4);
-            plot(repmat(CI(2),max(hist(rb,k)),1),[1:max(hist(rb,k))],'r','LineWidth',4);
-            axis tight; colormap([.4 .4 1])
-            box on;set(gca,'FontSize',14,'Layer','Top')
+  
         end
     end
     

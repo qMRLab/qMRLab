@@ -1,4 +1,4 @@
-function [r,t,h,outid,hboot,CI]=skipped_correlation(x,y,fig_flag)
+function [r,t,h,outid,hboot,CI,hout]=skipped_correlation(x,y,XLabel,YLabel,fig_flag,level)
 
 % performs a robust correlation using pearson/spearman correlation on
 % data cleaned up for bivariate outliers - that is after finding the
@@ -45,12 +45,14 @@ function [r,t,h,outid,hboot,CI]=skipped_correlation(x,y,fig_flag)
 %  Copyright (C) Corr_toolbox 2012
 
 %% data check
+% #qmrstat
+PyVis = struct();
 
 if nargin <2 
     error('not enough input arguments');
 elseif nargin == 2
-    fig_flag = 1;
-elseif nargin > 3
+    level = 5/100;
+elseif nargin > 6
     error('too many input arguments');
 end
 
@@ -80,9 +82,9 @@ if size(x) ~= size(y)
 elseif n < 10
     error('robust effects can''t be computed with less than 10 observations')
 elseif n > 200 && p < 10
-    warndlg('robust correlation and T value will be computed, but h is not validated for n>200')
+    warning('robust correlation and T value will be computed, but h is not validated for n>200')
 elseif p > 10
-    warndlg('the familly wise error correction for skipped correlation is not available for more than 10 correlations')
+    warning('the familly wise error correction for skipped correlation is not available for more than 10 correlations')
 end
 
 gval = sqrt(chi2inv(0.975,2)); % in fact depends on size(X,2) but here always = 2
@@ -105,7 +107,7 @@ for column = 1:p
         outid{column}=vec(flag);
     end
     keep=vec(~flag);
-    
+    PyVis.Outliers = flag;
     %% Pearson/Spearman correlation
     
     if  p == 1 % in the special case of a single test Pearson is valid too
@@ -182,7 +184,7 @@ if nargout > 4
     
     [n,p]=size(a);
     nboot = 1000;
-    level = 5/100;
+    
     if p > 1
         level = level / p;
     end
@@ -283,12 +285,22 @@ if fig_flag ~= 0
         answer = questdlg(['plots all ' num2str(p) ' correlations'],'Plotting option','yes','no','yes');
     else
         if fig_flag == 1
-            figure('Name','Skipped correlation');
-            set(gcf,'Color','w');
+             % #qmrstat
+            if nargout == 7
+                hout = figure('Name','Skipped correlation');
+                set(gcf,'Color','w');
+                set(hout,'Visible','off');
+                
+            else % When hout is not a nargout
+                
+                figure('Name','Skipped correlation');
+                set(gcf,'Color','w');
+                
+            end
         end
         
         if nargout>4
-            if ~isnan(r.Pearson); subplot(1,3,1); end
+
             M = sprintf('Skipped correlation \n Pearson r=%g CI=[%g %g] \n Spearman r=%g CI=[%g %g]',r.Pearson,CI.Pearson(1),CI.Pearson(2),r.Spearman,CI.Spearman(1),CI.Spearman(2));
         else
             M = sprintf('Skipped correlation \n Pearson r=%g h=%g \n Spearman r=%g h=%g',r.Pearson,h.Pearson,r.Spearman,h.Spearman);
@@ -297,20 +309,30 @@ if fig_flag ~= 0
         scatter(a{1},b{1},100,'b','fill');
         grid on; hold on;
         hh = lsline; set(hh,'Color','r','LineWidth',4);
-        try
-            [XEmin, YEmin] = ellipse(a{column},b{column});
-            plot(real(XEmin), real(YEmin),'LineWidth',2);
-            MM = [min(XEmin) max(XEmin) min(YEmin) max(YEmin)];
-        catch ME
-            text(min(x)+0.01*(min(x)),max(y),'no ellipse found','Fontsize',12)
-            MM = [];
-        end
-        xlabel('X','Fontsize',12); ylabel('Y','Fontsize',12);
+        
+        % #qmrstat -- start
+        PyVis.XData = x;
+        PyVis.YData = y;
+        PyVis.FitLine.X = get(hh,'XData');
+        PyVis.FitLine.Y = get(hh,'YData');
+        % #qmrstat -- start
+        
+        %try
+            %[XEmin, YEmin] = ellipse(a{column},b{column});
+            %plot(real(XEmin), real(YEmin),'LineWidth',2);
+            %MM = [min(XEmin) max(XEmin) min(YEmin) max(YEmin)];
+        %catch ME
+            %text(min(x)+0.01*(min(x)),max(y),'no ellipse found','Fontsize',12)
+            %MM = [];
+        %end
+        MM = [];
+        xlabel(XLabel,'Fontsize',12); ylabel(YLabel,'Fontsize',12);
         title(M,'Fontsize',16);
         
         % add outliers and scale axis
         scatter(x(outid{1}),y(outid{1}),100,'r','filled');
         MM2 = [min(x) max(x) min(y) max(y)];
+        
         if isempty(MM); MM = MM2; end
         A = floor(min([MM(:,1);MM2(:,1)]) - min([MM(:,1);MM2(:,1)])*0.01);
         B = ceil(max([MM(:,2);MM2(:,2)]) + max([MM(:,2);MM2(:,2)])*0.01);
@@ -328,27 +350,31 @@ if fig_flag ~= 0
             step1 = y1.YData(2)-y1.YData(1); step1 = step1 / (y1.XData(2)-y1.XData(1));
             step2 = y2.YData(2)-y2.YData(1); step2 = step2 / (y2.XData(2)-y2.XData(1));
             filled=[[y1.YData(1):step1:y1.YData(2)],[y2.YData(2):-step2:y2.YData(1)]];
+            
+             % #qmrstat ---- start
+            PyVis.CILine1.X = [y1.XData(1),y1.XData(2)];
+            PyVis.CILine1.Y = [y1.YData(1),y1.YData(2)];
+            
+            PyVis.CILine2.X = [y2.XData(1),y2.XData(2)];
+            PyVis.CILine2.Y = [y2.YData(1),y2.YData(2)];
+            
+            
+            if min(CI.Spearman)<0 && max(CI.Spearman)>0
+                fillColor = [1,0,0];
+            else
+                fillColor = [0,1,0];
+            end
+            
+            PyVis.fillColor = sprintf('rgb(%d,%d,%d)',255*fillColor(1),255*fillColor(2),255*fillColor(3));
+            
+            assignin('caller','PyVis',PyVis);
+            % #qmrstat ---- end
+            
+            
             hold on; fillhandle=fill(xpoints,filled,[1 0 0]);
             set(fillhandle,'EdgeColor',[1 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
             
-            % add histograms of bootstrap
-            subplot(1,3,2); k = round(1 + log2(length(rpb))); hist(rpb,k); grid on;
-            mytitle = sprintf('Bootstrapped \n Pearsons'' corr h=%g', hboot.Pearson);
-            title(mytitle,'FontSize',16); hold on
-            xlabel('boot correlations','FontSize',14);ylabel('frequency','FontSize',14)
-            plot(repmat(CI.Pearson(1),max(hist(rpb,k)),1),[1:max(hist(rpb,k))],'r','LineWidth',4);
-            plot(repmat(CI.Pearson(2),max(hist(rpb,k)),1),[1:max(hist(rpb,k))],'r','LineWidth',4);
-            axis tight; colormap([.4 .4 1])
-            box on;set(gca,'Fontsize',14)
-            
-            subplot(1,3,3); k = round(1 + log2(length(rsb))); hist(rsb,k); grid on;
-            mytitle = sprintf('Bootstrapped \n Spearmans'' corr h=%g', hboot.Spearman); 
-            title(mytitle,'FontSize',16); hold on
-            xlabel('boot correlations','FontSize',14);ylabel('frequency','FontSize',14)
-            plot(repmat(CI.Spearman(1),max(hist(rsb,k)),1),[1:max(hist(rsb,k))],'r','LineWidth',4);
-            plot(repmat(CI.Spearman(2),max(hist(rsb,k)),1),[1:max(hist(rsb,k))],'r','LineWidth',4);
-            axis tight; colormap([.4 .4 1])
-            box on;set(gca,'Fontsize',14)
+ 
         end
     end
     

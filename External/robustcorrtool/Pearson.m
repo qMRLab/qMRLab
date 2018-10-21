@@ -30,6 +30,7 @@ function [r,t,pval,hboot,CI,hout] = Pearson(X,Y,XLabel,YLabel,fig_flag,level)
 %  Copyright (C) Corr_toolbox 2012
 
 %% data check
+% #qmrstat
 PyVis = struct();
 
 
@@ -52,8 +53,10 @@ end
 if nargin < 2
     error('two inputs requested');
 elseif nargin == 2
+    % #qmrstat
     level = 5/100;
 elseif nargin == 5
+    % #qmrstat
     level = 5/100;
 end
 
@@ -134,6 +137,7 @@ if fig_flag ~= 0
     else
         if fig_flag == 1
             
+            % #qmrstat
             if nargout == 6
                 hout = figure('Name','Pearson correlation');
                 set(gcf,'Color','w');
@@ -149,6 +153,7 @@ if fig_flag ~= 0
         end
         
         if nargout>3
+            % #qmrstat
             % This is always the case with calls from qmrstat
             M = sprintf('Pearson corr r=%g \n %g%%CI [%g %g]',r,(1-level)*100,CI(1),CI(2));
         else
@@ -158,7 +163,9 @@ if fig_flag ~= 0
         scatter(X,Y,100,'filled'); grid on
         xlabel(XLabel,'FontSize',14); ylabel(YLabel,'FontSize',14);
         title(M,'FontSize',16);
+        % #octaveIssue
         h=lsline; set(h,'Color','r','LineWidth',4);
+        % #qmrstat
         PyVis.FitLine.X = get(h,'XData');
         PyVis.FitLine.Y = get(h,'YData');
         

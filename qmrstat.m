@@ -90,6 +90,11 @@ classdef qmrstat
                
                 PyVis.XData = VecX;
                 PyVis.YData = VecY;
+                PyVis.Stats.r = r;
+                PyVis.Stats.t = t;
+                PyVis.Stats.pval = pval;
+                PyVis.Stats.hboot = hboot;
+                PyVis.Stats.CI = CI;
                 PyVis.XLabel = XLabel;
                 PyVis.YLabel = YLabel;
                 obj.Results.Correlation.Pearson.PyVis = PyVis;
@@ -107,20 +112,112 @@ classdef qmrstat
         end % runPearsonCor  ------------------------ end (Public)
         
         
-        function obj = runSpearmanCor(obj)
+        function obj = runSpearmanCor(obj,crObj)
             
-            obj.Results.Correlation.Spearman.h = 1;
-            obj.Results.Correlation.Spearman.p = 1;
-            obj.Results.Correlation.Spearman.q = 1;
+            % Developers: * qmrstat.getBivarCorInputs (Static)
+            %               -- calls qmrstat.getBiVarCorVec (Private)
+            %               ---- calls qmrstat.cleanNan (Private)
+            %             * Pearson (External/robustcorrtool)
+            
+            % getBivarCorInputs includes validation step. Validation step
+            % is not specific to the object arrays with 2 objects. N>2 can
+            % be also validated by qmrstat.validate (private).
+            
+            [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,crObj);
+            
+            if strcmp(crObj(1).FigureOption,'osd')
+                
+                [r,t,pval,hboot,CI] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
+                
+            elseif strcmp(crObj(1).FigureOption,'save')
+                
+                [r,t,pval,hboot,CI,h] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
+                obj.Results.Correlation.Spearman.figure = h;
+                
+            elseif strcmp(crObj(1).FigureOption,'disable')
+                
+                
+                [r,t,pval,hboot,CI] = Spearman(VecX,VecY,XLabel,YLabel,0,sig);
+                
+            end
+            
+            % Corvis is assigned to caller (qmrstat.Pearson) workspace by
+            % the Pearson function.
+            % Other fields are filled by Pearson function.
+            
+            if obj.Export2Py
+                
+                PyVis.Stats.r = r;
+                PyVis.Stats.t = t;
+                PyVis.Stats.pval = pval;
+                PyVis.Stats.hboot = hboot;
+                PyVis.Stats.CI = CI;
+                PyVis.XLabel = XLabel;
+                PyVis.YLabel = YLabel;
+                obj.Results.Correlation.Spearman.PyVis = PyVis;
+                
+            end
+          
+            
+            obj.Results.Correlation.Spearman.r = r;
+            obj.Results.Correlation.Spearman.t = t;
+            obj.Results.Correlation.Spearman.pval =  pval;
+            obj.Results.Correlation.Spearman.hboot = hboot;
+            obj.Results.Correlation.Spearman.CI = CI;
         
         end % runSpearmanCor  ------------------------ end (Public) 
         
         
-        function obj = runRobustCor(obj)
+        function obj = runSkippedCor(obj,crObj)
         
-            obj.Results.Correlation.Robust.h = 1;
-            obj.Results.Correlation.Robust.p = 1;
-            obj.Results.Correlation.Spearman.q = 1;
+             % Developers: * qmrstat.getBivarCorInputs (Static)
+            %               -- calls qmrstat.getBiVarCorVec (Private)
+            %               ---- calls qmrstat.cleanNan (Private)
+            %             * Pearson (External/robustcorrtool)
+            
+            % getBivarCorInputs includes validation step. Validation step
+            % is not specific to the object arrays with 2 objects. N>2 can
+            % be also validated by qmrstat.validate (private).
+            
+            [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,crObj);
+            
+            if strcmp(crObj(1).FigureOption,'osd')
+                
+                [r,t,~,~,hboot,CI] = skipped_correlation(VecX,VecY,XLabel,YLabel,1,sig);
+                
+            elseif strcmp(crObj(1).FigureOption,'save')
+                
+                [r,t,~,~,hboot,CI,h] = skipped_correlation(VecX,VecY,XLabel,YLabel,1,sig);
+                obj.Results.Correlation.Skipped.figure = h;
+                
+            elseif strcmp(crObj(1).FigureOption,'disable')
+                
+                
+                [r,t,~,~,hboot,CI] = skipped_correlation(VecX,VecY,XLabel,YLabel,0,sig);
+                
+            end
+            
+            % Corvis is assigned to caller (qmrstat.Pearson) workspace by
+            % the Pearson function.
+            % Other fields are filled by Pearson function.
+            
+            if obj.Export2Py
+               
+                PyVis.XLabel = XLabel;
+                PyVis.YLabel = YLabel;
+                PyVis.Stats.r = r;
+                PyVis.Stats.t = t;
+                PyVis.Stats.hboot = hboot;
+                PyVis.Stats.CI = CI;
+                obj.Results.Correlation.Skipped.PyVis = PyVis;
+                
+            end
+          
+            
+            obj.Results.Correlation.Skipped.r = r;
+            obj.Results.Correlation.Skipped.t = t;
+            obj.Results.Correlation.Skipped.hboot = hboot;
+            obj.Results.Correlation.Skipped.CI = CI;
         
         end % runSpearmanCor  ------------------------ end (Public)
         
@@ -290,13 +387,13 @@ classdef qmrstat
         
         
         
-        function [VecX,VecY] = getBivarCorVec(obj,in,name)
+        function [VecX,VecY] = getBivarCorVec(obj,crObj,name)
             
             % The statement below errors if name passes is not a property of
             % qmrstat class. For example, name = 'Correlation' is for the
             % objects of qmrstat_correlation class.
             
-            obj.Object.(name) = in;
+            obj.Object.(name) = crObj;
             
             obj = validate(obj,name);
             
@@ -305,8 +402,11 @@ classdef qmrstat
                 
                 % Mapnames can be multidim.
                 
-                mp1 = in(1).getActiveMap();
-                mp2 = in(2).getActiveMap();
+                mp1 = crObj(1).getActiveMap();
+                mp2 = crObj(2).getActiveMap();
+                
+                % Learn mask type here. 
+                
                 VecX = mp1(obj.([name 'JointMask']));
                 VecY = mp2(obj.([name 'JointMask']));
                 
