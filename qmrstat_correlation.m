@@ -1,5 +1,5 @@
 classdef qmrstat_correlation < AbstractStat
-    
+    % Correlation family 
     
     properties
         

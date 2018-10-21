@@ -232,7 +232,7 @@ P = 1 - logncdf(HZ,pmu,psi);%P-value associated to the HZ statistic
 %(1-alpha)-quantile of the lognormal distribution
 %q = mu*(1+si2/mu^2)^(-1/2)*exp(norminv(1-alpha)*sqrt(log(1+si2/mu^2))); 
 HZmvntest = HZ;
-
+%{
 disp(' ')
 disp('Henze-Zirkler''s Multivariate Normality Test')
 disp('-------------------------------------------------------------------')
@@ -244,12 +244,13 @@ fprintf('Henze-Zirkler lognormal variance: %3.7f\n', psi);
 fprintf('Henze-Zirkler statistic: %3.7f\n', HZ);
 fprintf('P-value associated to the Henze-Zirkler statistic: %3.7f\n', P);
 fprintf('With a given significance = %3.3f\n', alpha);
-disp('-------------------------------------------------------------------')
+%}
+%disp('-------------------------------------------------------------------')
 if P >= alpha;
-    disp('Data analyzed have a normal distribution.');
+    %disp('Data analyzed have a normal distribution.');
 else
-    disp('Data analyzed do not have a normal distribution.');
+    %disp('Data analyzed do not have a normal distribution.');
 end
-disp('-------------------------------------------------------------------')
+%disp('-------------------------------------------------------------------')
 
 return,

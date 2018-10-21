@@ -44,4 +44,5 @@ catch ME  % this can happen to have an empty cell so loop
     flag(:,index:end) = [];
     flag = sum(flag,2);
 end
+end
 

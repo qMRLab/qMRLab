@@ -1,4 +1,4 @@
-function density = joint_density(x,y,flag)
+function [h,density] = joint_density(x,y,XLabel,YLabel)
 
 % simple routine to compute and plot the joint density histogram of x and y
 % 
@@ -15,9 +15,8 @@ function density = joint_density(x,y,flag)
 % -----------------------------
 % Copyright (C) Corr_toolbox 2012
 
-if nargin == 2
     flag = 1;
-end
+
 
 if size(x)~=size(y)
     error('X and Y must have the same size')
@@ -59,10 +58,11 @@ pdf = vu./(n*h1*h2); % normalize
  
 % plot
 if flag == 1
-    figure('Name','Joint density pdf'); set(gcf,'Color','w');
+    h =figure('Name','Joint density pdf'); set(gcf,'Color','w');
+    set(h,'Visible','off');
     subplot(1,2,1);
-    surfl(pdf-0.01); axis tight ; xlabel('X','FontSize',14);
-    ylabel('Y','FontSize',14); zlabel('density','FontSize',14);
+    surfl(pdf-0.01); axis tight ; xlabel(XLabel,'FontSize',14);
+    ylabel(YLabel,'FontSize',14); zlabel('density','FontSize',14);
     title('Joint density histogram','Fontsize',16); set(gcf,'renderer','opengl');
     set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
     set(gca,'FontSize',14,'Layer','Top')
@@ -72,12 +72,13 @@ if flag == 1
 else
     figure('Name','Isocontour of the joint pdf'); set(gcf,'Color','w');
 end
-contourf(pdf); axis tight ; xlabel('X','FontSize',14);
-ylabel('Y','FontSize',14);
+contourf(pdf); axis tight ; xlabel(XLabel,'FontSize',14);
+ylabel(YLabel,'FontSize',14);
 title('Isocontour of the joint density','Fontsize',16);
 set(gca,'FontSize',14,'Layer','Top')
 axis square
 
 if nargout > 0
     density = pdf;
+end
 end

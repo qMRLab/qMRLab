@@ -59,6 +59,7 @@ end
 
 
 % plot
+%{
 figure('Name','Heteroscedasticity test');
 set(gcf,'Color','w');
 k = round(1 + log2(nboot));
@@ -68,8 +69,10 @@ grid on; axis tight;
 ylabel('frequency','Fontsize',14); hold on
 plot(repmat(CI(1),max(hist(Diff,k)),1),[1:max(hist(Diff,k))],'r','LineWidth',4);
 plot(repmat(CI(2),max(hist(Diff,k)),1),[1:max(hist(Diff,k))],'r','LineWidth',4);
+%}
 if CI(1) < 0 && CI(2) > 0
     h = 0;
+    %{
     if condition == 1
         mytitle = sprintf('Test on conditional variances: \n data are homoscedastic 95%% CI [%g %g]',CI(1),CI(2));
         xlabel('differences of conditional variances between X and Y','Fontsize',14);
@@ -77,8 +80,10 @@ if CI(1) < 0 && CI(2) > 0
         mytitle = sprintf('Test on variances: \n data are homoscedastic 95%% CI [%g %g]',CI(1),CI(2));
         xlabel('differences of variances between X and Y','Fontsize',14);
     end
+    %}
 else
     h = 1;
+    %{
     if condition == 1
         mytitle = sprintf('Test on conditional variances: \n data are heteroscedastic 95%% CI [%g %g]',CI(1),CI(2));
         xlabel('differences of conditional variances between X and Y','Fontsize',14);
@@ -86,8 +91,9 @@ else
         mytitle = sprintf('Test on variances: \n data are heteroscedastic 95%% CI [%g %g]',CI(1),CI(2));
         xlabel('differences of variances between X and Y','Fontsize',14);
     end
+    %}
 end
-title(mytitle,'Fontsize',14)
-box on;set(gca,'Fontsize',14)
+%title(mytitle,'Fontsize',14)
+%box on;set(gca,'Fontsize',14)
 
-
+end
