@@ -10,14 +10,14 @@
 % This is the reason why this function will be used instead of 'help' 
 
 function varargout = qMRinfo(varargin)
-if ~moxunit_util_platform_is_octave
-    if nargin==0, varargin{1}='qMRinfo'; end
-    if isdeployed
-        varargout={''};
+if nargin==0, varargin{1}='Display Model headers (MR protocol, model detail, fitting parameters, options)'; end
+if moxunit_util_platform_is_octave || isdeployed
+    hh = load('iqmr_gethelp.mat');
+    if ischar(varargin{1})
+        varargout{1} = hh.(varargin{1});
     else
-    [varargout{1:nargout}] = help(varargin{:});        
+        varargout{1} = hh.(class(varargin{1}));
     end
 else
-    varargout{1} = 'Sorry, not implemented for Octave yet. Please contribute on github.com/neuropoly/qMRLab';
-	disp(varargout{1})
+        [varargout{1:nargout}] = help(varargin{:});        
 end
