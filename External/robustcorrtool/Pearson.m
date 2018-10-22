@@ -177,10 +177,10 @@ if fig_flag ~= 0
             y1 = refline(CIslope(1),CIintercept(1)); set(y1,'Color','r');
             y2 = refline(CIslope(2),CIintercept(2)); set(y2,'Color','r');
             y1 = get(y1); y2 = get(y2);
-            xpoints=[[y1.XData(1):y1.XData(2)],[y2.XData(2):-1:y2.XData(1)]];
+            xpoints=[y1.XData(1):y1.XData(2),y2.XData(2):-1:y2.XData(1)];
             step1 = y1.YData(2)-y1.YData(1); step1 = step1 / (y1.XData(2)-y1.XData(1));
             step2 = y2.YData(2)-y2.YData(1); step2 = step2 / (y2.XData(2)-y2.XData(1));
-            filled=[[y1.YData(1):step1:y1.YData(2)],[y2.YData(2):-step2:y2.YData(1)]];
+            filled=[y1.YData(1):step1:y1.YData(2),y2.YData(2):-step2:y2.YData(1)];
             
            
             PyVis.CILine1.X = [y1.XData(1),y1.XData(2)];
