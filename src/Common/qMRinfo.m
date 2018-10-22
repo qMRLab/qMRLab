@@ -19,5 +19,5 @@ if moxunit_util_platform_is_octave || isdeployed
         varargout{1} = hh.(class(varargin{1}));
     end
 else
-        [varargout{1:nargout}] = help(varargin{:});        
+    [varargout{1:nargout}] = help(varargin{:});
 end
