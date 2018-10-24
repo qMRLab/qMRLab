@@ -5,7 +5,7 @@ classdef (Abstract) AbstractStat
     %   save: save model object properties to a file as an struct.
     %   load: load model properties from a struct-file into the object.
     %   Written by: Agah Karakuzu (2018)
-    
+    % ===============================================================
     properties
         
         Map
@@ -14,6 +14,7 @@ classdef (Abstract) AbstractStat
         
         StatMask
         StatLabels
+        LabelIdx
         StatMaskFolder
         % Numerical vals should also be here
         
@@ -32,7 +33,7 @@ classdef (Abstract) AbstractStat
         DescriptiveStats
         
     end
-    
+    % ===============================================================
     properties (Hidden=true, SetAccess = protected, GetAccess=public)
         
         FitMaskName
@@ -46,15 +47,14 @@ classdef (Abstract) AbstractStat
         Tail = '\n-------------------------------------------------------|';
         
     end
-    
+    % ===============================================================
     methods
         
         function obj = AbstractStat()
             
             obj.StatVersion = qMRLabVer();
         end
-        
-        
+                
         function obj = loadStatMask(obj,input)
             % This function assigns the StatMask property.
             % StatMask can be a labeled mask or a binary mask.
@@ -125,8 +125,8 @@ classdef (Abstract) AbstractStat
                 % If len>2 all inputs should be binary.
                 
                 obj.StatMaskFolder = input;
-                [obj.StatMask, obj.StatLabels] = AbstractStat.getFileContent(obj.StatMaskFolder);
-                
+                %[obj.StatMask, obj.StatLabels] = AbstractStat.getFileContent(obj.StatMaskFolder);
+                obj = getFileContent(obj);
             else
                 
                 error('qMRLab: Provided input is NOT i) a variable in workspace, ii) a file or iii) a folder.');
@@ -136,7 +136,6 @@ classdef (Abstract) AbstractStat
             obj.StatMaskDim = length(squeeze(size(obj.StatMask)));
             
         end
-        
         
         function obj = loadProbmask(obj,input)
             % Probability masks should be contained isolatedly from binary
@@ -163,8 +162,8 @@ classdef (Abstract) AbstractStat
             elseif exist(input,'file') == 7 % Folder
                 
                 obj.ProbMaskFolder = input;
-                [obj.ProbMask, ~] = AbstractStat.getFileContent(input);
-                
+                %[obj.ProbMask, ~] = AbstractStat.getFileContent(input);
+                obj = getFileContent(obj);
             else
                 
                 error('qMRLab: Provided input is NOT i) a variable in workspace, ii) a file or iii) a folder.');
@@ -173,7 +172,6 @@ classdef (Abstract) AbstractStat
             
             
         end
-        
         
         function obj = loadByFitResults(obj,filename,varargin)
             % This function assigns following fields w.r.t. a given
@@ -293,7 +291,6 @@ classdef (Abstract) AbstractStat
                 
             end
         end
-        
         
         function obj = loadFitMask(obj)
             % Version of the loaded FitResults should be at least > 2 0 7
@@ -454,7 +451,7 @@ classdef (Abstract) AbstractStat
         
     end
     
-    % HIDDEN METHODS --------------------------------------------
+    % ===============================================================
     
     methods(Hidden)
         
@@ -511,8 +508,87 @@ classdef (Abstract) AbstractStat
             
         end
         
+        
+          function obj = getFileContent(obj,input)
+            % CHANGE THIS FUNCTIONS NAME TO getFolderContent
+            % This function is intended to read one/multiple masks from a
+            % given directory.
+            %
+            % If mask directory contains only one file:
+            %     i)  Binary mask --> StatMask   | fname --> StatLabel
+            %     ii) Labeled mask  --> StatMask | fname --> StatLabel
+            %
+            % If mask directory contains multiple files:
+            %    i) Assumes that masks are not overlapping
+            %   ii) Reads them in dir order
+            %  iii) Merges them within a single labeled mask.
+            %   iv) StatLabel attains filenames for their corresponding
+            %       regions in StatMask.
+            %
+            % A mask folder can contain .nii and .nii.gz (NiFTI)
+            % A mask folder can contain .mat.
+            % A mask foler can't contain mat and NifTI formats simultaneously.
+            % Other files can sit in this dir, such as JSON.
+            % External call: AbstractStat.getFileContent
+            if nargin ==1
+                path = obj.StatMaskFolder;
+            elseif nargin ==2
+                path = input;
+            end
+            
+            matList  = dir(fullfile(path,'*.mat'));
+            niiList1 = dir(fullfile(path,'*.nii.gz'));
+            niiList2 = dir(fullfile(path,'*.nii'));
+            
+            if isempty(niiList1) && isempty(niiList2) && isempty(matList) % No acceptable format
+                
+                error('Directory does not contain any files with recognized formats (.mat, .nii.gz, .nii).');
+                
+            elseif (~isempty(niiList1) || ~isempty(niiList2)) && (isempty(matList)) % Nifti masks
+                
+                if ~isempty(niiList1) && ~isempty(niiList2)
+                    
+                    readList = {niiList1.name niiList1.name};
+                    [obj.StatMask, obj.StatLabels, obj.LabelIdx] = AbstractStat.readUniFormat(readList);
+                    
+                elseif ~isempty(niiList1)
+                    
+                    readList = {niiList1.name};
+                    [obj.StatMask, obj.StatLabels, obj.LabelIdx] = AbstractStat.readUniFormat(readList);
+                    
+                elseif ~isempty(niiList2)
+                    
+                    readList = {niiList2.name};
+                    [obj.StatMask, obj.StatLabels, obj.LabelIdx] = AbstractStat.readUniFormat(readList);
+                    
+                else
+                    
+                    
+                    
+                end
+                
+            elseif (isempty(niiList1) && isempty(niiList2)) && (~isempty(matList)) % mat masks
+                
+                readList = {matList.name};
+                [obj.StatMask, obj.StatLabels, obj.LabelIdx] = AbstractStat.readUniFormat(readList);
+                
+            else
+                
+                error('Mask folder contents shoud share the same format.');
+                
+            end
+            
+            
+            
+        end
+        
+        
+        
+        
+        
     end
-    % STATIC FUNCTIONS ----------------------------------
+
+    % ===============================================================
     
     methods (Static, Hidden=true)
         
@@ -619,76 +695,10 @@ classdef (Abstract) AbstractStat
             
         end
         
-        function [out, label] = getFileContent(path)
-            % CHANGE THIS FUNCTIONS NAME TO getFolderContent
-            % This function is intended to read one/multiple masks from a
-            % given directory.
-            %
-            % If mask directory contains only one file:
-            %     i)  Binary mask --> StatMask   | fname --> StatLabel
-            %     ii) Labeled mask  --> StatMask | fname --> StatLabel
-            %
-            % If mask directory contains multiple files:
-            %    i) Assumes that masks are not overlapping
-            %   ii) Reads them in dir order
-            %  iii) Merges them within a single labeled mask.
-            %   iv) StatLabel attains filenames for their corresponding
-            %       regions in StatMask.
-            %
-            % A mask folder can contain .nii and .nii.gz (NiFTI)
-            % A mask folder can contain .mat.
-            % A mask foler can't contain mat and NifTI formats simultaneously.
-            % Other files can sit in this dir, such as JSON.
-            % External call: AbstractStat.getFileContent
-            
-            matList  = dir(fullfile(path,'*.mat'));
-            niiList1 = dir(fullfile(path,'*.nii.gz'));
-            niiList2 = dir(fullfile(path,'*.nii'));
-            
-            if isempty(niiList1) && isempty(niiList2) && isempty(matList) % No acceptable format
-                
-                error('Directory does not contain any files with recognized formats (.mat, .nii.gz, .nii).');
-                
-            elseif (~isempty(niiList1) || ~isempty(niiList2)) && (isempty(matList)) % Nifti masks
-                
-                if ~isempty(niiList1) && ~isempty(niiList2)
-                    
-                    readList = {niiList1.name niiList1.name};
-                    [out, label] = AbstractStat.readUniFormat(readList);
-                    
-                elseif ~isempty(niiList1)
-                    
-                    readList = {niiList1.name};
-                    [out, label] = AbstractStat.readUniFormat(readList);
-                    
-                elseif ~isempty(niiList2)
-                    
-                    readList = {niiList2.name};
-                    [out, label] = AbstractStat.readUniFormat(readList);
-                    
-                else
-                    
-                    
-                    
-                end
-                
-            elseif (isempty(niiList1) && isempty(niiList2)) && (~isempty(matList)) % mat masks
-                
-                readList = {matList.name};
-                [out, label] = AbstractStat.readUniFormat(readList);
-                
-            else
-                
-                error('Mask folder contents shoud share the same format.');
-                
-            end
-            
-            
-            
-        end
+      
         
         
-        function [out, label] = readUniFormat(readlist)
+        function [out, label, lblIdx] = readUniFormat(readlist)
             % Serves as a subfunction for getFolderContent.
             % Combines multiple masks into one mask by reading a list of
             % files of the same format.
@@ -701,7 +711,9 @@ classdef (Abstract) AbstractStat
                 [out,label] = AbstractStat.maskAssignByType(out);
                 
                 if isempty(label)
+                
                     label = AbstractStat.strapFileName(readlist{1});
+                
                 end
                 
             else
@@ -721,7 +733,7 @@ classdef (Abstract) AbstractStat
                     
                 end
                 
-                
+                lblIdx = zeros(length(readlist),1);
                 for ii=1:length(readlist)
                     
                     curMask = AbstractStat.loadFile(readlist{ii});
@@ -729,6 +741,14 @@ classdef (Abstract) AbstractStat
                     % Critical assignment here!
                     out(curMask==1) = ii;
                     label{ii} = AbstractStat.strapFileName(readlist{ii});
+                    
+                    % Just to show users why.
+                    
+                    if nargout ==3
+                       
+                        lblIdx(ii) = ii;
+                        
+                    end
                     
                 end
                 

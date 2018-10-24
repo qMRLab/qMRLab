@@ -11,14 +11,14 @@ end
 
 % ===============================================================
 
-properties (Access = public)
+properties (Access = private)
 
 CorrelationValid
 CorrelationJointMask
-LastMask
 MultipleCorrelation
 TestRetesValid
 Export2Py = false;
+OutputDir
 
 WarningHead = '-------------------------------- qMRLab Warning';
 ErrorHead   = '----------------------------------------- qMRLab Error';
@@ -68,42 +68,40 @@ function obj = runCorPearson(obj,crObj)
   % is not specific to the object arrays with 2 objects. N>2 can
   % be also validated by qmrstat.validate (private).
   
+  % Uniformity assumptions for qmrstat_correlation objects here:  
+  % LabelIdx
+  % StatLabels
+  % BOTH FIELDS ARE REQUIRED 
+  
   if nargin<2
+      
     crObj = obj.Object.Correlation;
+    
   elseif nargin == 2
+      
     obj.Object.Correlation = crObj;  
+  
   end
   
-  sz = size(crObj);
-
-  if sz(1) > 1
-    error( [obj.ErrorHead ...
-        '\n>>>>>> Object.%s for this method cannot have multiple object arrays of qmrstat_correlation class.'...
-        '\n>>>>>> Correct use: Object.Correlation = qmrstat_correlation(1,4)'...
-        '\n>>>>>> Wrong use  : Object.Correlation = qmrstat_correlation(2,4)'...
-        '\n>>>>>> Where Object.Correlation is passed to the qmrstat.runCorPearson method.'...
-        obj.Tail],'Correlation');
-  end
-
-  if sz(2) > 2 
-     
-      comb = nchoosek(1:sz(2),2);
-      obj.MultipleCorrelation = true;
-      crObj = crObj.setSignificanceLevel(crObj(1).SignificanceLevel/length(comb));
-      disp(['Significance level is adjusted to ' num2str(crObj(1).SignificanceLevel) ' for ' num2str(length(comb)) ' correlations.']);     
+  [comb, lbIdx] = qmrstat.corSanityCheck(crObj);
       
-  else
-      
-      comb = nchoosek(1:2,2);
- 
-  end
-      
-  for kk = 1:length(comb)
+  for kk = 1:length(comb) % Loop over correlation matrix combinations 
+  for zz = 1:lbIdx % Loope over labeled mask indexes (if available) 
   
   % Combine pairs 
   curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
+  
+  if lbIdx >1
       
-  [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj);
+      % If mask is labeled, masking will be done by the corresponding
+      % index, if index is passed as the third parameter.
+      [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj,curObj(1).LabelIdx(zz));
+  
+  else
+      % If mask is binary, then index won't be passed.
+      [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj);
+  
+  end
 
   if strcmp(crObj(1).FigureOption,'osd')
 
@@ -112,8 +110,17 @@ function obj = runCorPearson(obj,crObj)
   elseif strcmp(crObj(1).FigureOption,'save')
 
     [r,t,pval,hboot,CI,h] = Pearson(VecX,VecY,XLabel,YLabel,1,sig);
-    obj.Results.Correlation.Pearson.figure = h;
+    obj.Results.Correlation(zz,kk).Pearson.figure = h;
+    if lbIdx>1
 
+    obj.Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+
+    else
+        
+    obj.Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel];    
+    
+    end
+  
   elseif strcmp(crObj(1).FigureOption,'disable')
 
 
@@ -136,17 +143,17 @@ function obj = runCorPearson(obj,crObj)
     PyVis.Stats.CI = CI;
     PyVis.XLabel = XLabel;
     PyVis.YLabel = YLabel;
-    obj.Results.Correlation(kk).Pearson.PyVis = PyVis;
+    obj.Results.Correlation(zz,kk).Pearson.PyVis = PyVis;
 
   end
 
 
-  obj.Results.Correlation(kk).Pearson.r = r;
-  obj.Results.Correlation(kk).Pearson.t = t;
-  obj.Results.Correlation(kk).Pearson.pval =  pval;
-  obj.Results.Correlation(kk).Pearson.hboot = hboot;
-  obj.Results.Correlation(kk).Pearson.CI = CI;
-
+  obj.Results.Correlation(zz,kk).Pearson.r = r;
+  obj.Results.Correlation(zz,kk).Pearson.t = t;
+  obj.Results.Correlation(zz,kk).Pearson.pval =  pval;
+  obj.Results.Correlation(zz,kk).Pearson.hboot = hboot;
+  obj.Results.Correlation(zz,kk).Pearson.CI = CI;
+  end
   end
 
 end % runPearsonCor  ------------------------ end (Public)
@@ -163,7 +170,35 @@ function obj = runCorSpearman(obj,crObj)
   % be also validated by qmrstat.validate (private).
 
 
-  [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,crObj);
+  if nargin<2
+      
+    crObj = obj.Object.Correlation;
+    
+  elseif nargin == 2
+      
+    obj.Object.Correlation = crObj;  
+  
+  end
+  
+  [comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+      
+  for kk = 1:length(comb) % Loop over correlation matrix combinations 
+  for zz = 1:lbIdx % Loope over labeled mask indexes (if available) 
+  
+  % Combine pairs 
+  curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
+  
+  if lbIdx >1
+      
+      % If mask is labeled, masking will be done by the corresponding
+      % index, if index is passed as the third parameter.
+      [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj,curObj(1).LabelIdx(zz));
+  
+  else
+      % If mask is binary, then index won't be passed.
+      [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj);
+  
+  end
 
   if strcmp(crObj(1).FigureOption,'osd')
 
@@ -172,8 +207,18 @@ function obj = runCorSpearman(obj,crObj)
   elseif strcmp(crObj(1).FigureOption,'save')
 
     [r,t,pval,hboot,CI,h] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
-    obj.Results.Correlation.Spearman.figure = h;
+    obj.Results.Correlation(zz,kk).Spearman.figure = h;
+    
+    if lbIdx>1
 
+    obj.Results.Correlation(zz,kk).Spearman.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+
+    else
+        
+    obj.Results.Correlation(zz,kk).Spearman.figLabel = [XLabel '_' YLabel];    
+    
+    end
+    
   elseif strcmp(crObj(1).FigureOption,'disable')
 
 
@@ -194,17 +239,18 @@ function obj = runCorSpearman(obj,crObj)
     PyVis.Stats.CI = CI;
     PyVis.XLabel = XLabel;
     PyVis.YLabel = YLabel;
-    obj.Results.Correlation.Spearman.PyVis = PyVis;
+    obj.Results.Correlation(zz,kk).Spearman.PyVis = PyVis;
 
   end
 
 
-  obj.Results.Correlation.Spearman.r = r;
-  obj.Results.Correlation.Spearman.t = t;
-  obj.Results.Correlation.Spearman.pval =  pval;
-  obj.Results.Correlation.Spearman.hboot = hboot;
-  obj.Results.Correlation.Spearman.CI = CI;
-
+  obj.Results.Correlation(zz,kk).Spearman.r = r;
+  obj.Results.Correlation(zz,kk).Spearman.t = t;
+  obj.Results.Correlation(zz,kk).Spearman.pval =  pval;
+  obj.Results.Correlation(zz,kk).Spearman.hboot = hboot;
+  obj.Results.Correlation(zz,kk).Spearman.CI = CI;
+  end
+  end
 end % runSpearmanCor  ------------------------ end (Public)
 
 function obj = runCorSkipped(obj,crObj)
@@ -218,8 +264,36 @@ function obj = runCorSkipped(obj,crObj)
   % is not specific to the object arrays with 2 objects. N>2 can
   % be also validated by qmrstat.validate (private).
 
-  [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,crObj);
-
+   if nargin<2
+      
+    crObj = obj.Object.Correlation;
+    
+  elseif nargin == 2
+      
+    obj.Object.Correlation = crObj;  
+  
+  end
+  
+  [comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+      
+  for kk = 1:length(comb) % Loop over correlation matrix combinations 
+  for zz = 1:lbIdx % Loope over labeled mask indexes (if available) 
+  
+  % Combine pairs 
+  curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
+  
+  if lbIdx >1
+      
+      % If mask is labeled, masking will be done by the corresponding
+      % index, if index is passed as the third parameter.
+      [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj,curObj(1).LabelIdx(zz));
+  
+  else
+      % If mask is binary, then index won't be passed.
+      [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj);
+  
+  end
+  
   if strcmp(crObj(1).FigureOption,'osd')
 
     [r,t,~,~,hboot,CI] = skipped_correlation(VecX,VecY,XLabel,YLabel,1,sig);
@@ -227,8 +301,18 @@ function obj = runCorSkipped(obj,crObj)
   elseif strcmp(crObj(1).FigureOption,'save')
 
     [r,t,~,~,hboot,CI,h] = skipped_correlation(VecX,VecY,XLabel,YLabel,1,sig);
-    obj.Results.Correlation.Skipped.figure = h;
+    obj.Results.Correlation(zz,kk).Skipped.figure = h;
 
+    if lbIdx>1
+
+    obj.Results.Correlation(zz,kk).Skipped.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+
+    else
+        
+    obj.Results.Correlation(zz,kk).Skipped.figLabel = [XLabel '_' YLabel];    
+    
+    end
+    
   elseif strcmp(crObj(1).FigureOption,'disable')
 
 
@@ -248,21 +332,50 @@ function obj = runCorSkipped(obj,crObj)
     PyVis.Stats.t = t;
     PyVis.Stats.hboot = hboot;
     PyVis.Stats.CI = CI;
-    obj.Results.Correlation.Skipped.PyVis = PyVis;
+    obj.Results.Correlation(zz,kk).Skipped.PyVis = PyVis;
 
   end
 
 
-  obj.Results.Correlation.Skipped.r = r;
-  obj.Results.Correlation.Skipped.t = t;
-  obj.Results.Correlation.Skipped.hboot = hboot;
-  obj.Results.Correlation.Skipped.CI = CI;
-
+  obj.Results.Correlation(zz,kk).Skipped.r = r;
+  obj.Results.Correlation(zz,kk).Skipped.t = t;
+  obj.Results.Correlation(zz,kk).Skipped.hboot = hboot;
+  obj.Results.Correlation(zz,kk).Skipped.CI = CI;
+  end
+  end
 end % runSpearmanCor  ------------------------ end (Public)
 
 function obj = runCorInspect(obj,crObj)
 
-  [VecX,VecY,XLabel,YLabel] = qmrstat.getBivarCorInputs(obj,crObj);
+   if nargin<2
+      
+    crObj = obj.Object.Correlation;
+    
+  elseif nargin == 2
+      
+    obj.Object.Correlation = crObj;  
+  
+  end
+  
+  [comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+      
+  for kk = 1:length(comb) % Loop over correlation matrix combinations 
+  for zz = 1:lbIdx % Loope over labeled mask indexes (if available) 
+  
+  % Combine pairs 
+  curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
+  
+  if lbIdx >1
+      
+      % If mask is labeled, masking will be done by the corresponding
+      % index, if index is passed as the third parameter.
+      [VecX,VecY,XLabel,YLabel,~] = qmrstat.getBivarCorInputs(obj,curObj,curObj(1).LabelIdx(zz));
+  
+  else
+      % If mask is binary, then index won't be passed.
+      [VecX,VecY,XLabel,YLabel,~] = qmrstat.getBivarCorInputs(obj,curObj);
+  
+  end
 
   % Univariate histograms, scatterplot, and joint histogram
   h1 = corr_normplot(VecX,VecY,XLabel,YLabel);
@@ -290,10 +403,10 @@ function obj = runCorInspect(obj,crObj)
   [hetcedas, CI] = variance_homogeneity(VecX,VecY,1);
 
 
-  obj.Results.Correlation.PreInspect.figures.histograms = h1;
-  obj.Results.Correlation.PreInspect.figures.jointDensity = h2;
-  obj.Results.Correlation.PreInspect.density = density;
-  obj.Results.Correlation.PreInspect.heteroscedasticity.CI = CI;
+  obj.Results.Correlation(zz,kk).PreInspect.figures.histograms = h1;
+  obj.Results.Correlation(zz,kk).PreInspect.figures.jointDensity = h2;
+  obj.Results.Correlation(zz,kk).PreInspect.density = density;
+  obj.Results.Correlation(zz,kk).PreInspect.heteroscedasticity.CI = CI;
 
   % Independent variables are uncorrelated. But uncorrelated
   % variables does not ensure that they are independent.
@@ -330,10 +443,21 @@ function obj = runCorInspect(obj,crObj)
   flag = bivariate_outliers(comp);
   BiVarOutliers = length(find(flag~=0));
 
-  t = table(BiVarOutliers,JointNormality,Heteroscedasticity);
-  disp(t);
-  obj.Results.Correlation.PreInspect.table = t;
+    t = table(BiVarOutliers,JointNormality,Heteroscedasticity);
+    if lbIdx>1
 
+    disp([cell2mat(XLabel) '_' cell2mat(YLabel) ' at:' cell2mat(curObj(1).StatLabels(zz))]);
+
+    else
+        
+    disp([cell2mat(XLabel) '_' cell2mat(YLabel)]);    
+    
+    end
+    
+  disp(t);
+  obj.Results.Correlation(zz,kk).PreInspect.table = t;
+  end
+  end
 end
 
 function obj = runCorPrcntgBend(obj,crObj)
@@ -349,7 +473,35 @@ function obj = runCorPrcntgBend(obj,crObj)
 
   % Fixed bend percent to 0.2
 
-  [VecX,VecY,XLabel,YLabel,~] = qmrstat.getBivarCorInputs(obj,crObj);
+  if nargin<2
+      
+    crObj = obj.Object.Correlation;
+    
+  elseif nargin == 2
+      
+    obj.Object.Correlation = crObj;  
+  
+  end
+  
+  [comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+      
+  for kk = 1:length(comb) % Loop over correlation matrix combinations 
+  for zz = 1:lbIdx % Loope over labeled mask indexes (if available) 
+  
+  % Combine pairs 
+  curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
+  
+  if lbIdx >1
+      
+      % If mask is labeled, masking will be done by the corresponding
+      % index, if index is passed as the third parameter.
+      [VecX,VecY,XLabel,YLabel,~] = qmrstat.getBivarCorInputs(obj,curObj,curObj(1).LabelIdx(zz));
+  
+  else
+      % If mask is binary, then index won't be passed.
+      [VecX,VecY,XLabel,YLabel,~] = qmrstat.getBivarCorInputs(obj,curObj);
+  
+  end
 
   if strcmp(crObj(1).FigureOption,'osd')
 
@@ -358,8 +510,18 @@ function obj = runCorPrcntgBend(obj,crObj)
   elseif strcmp(crObj(1).FigureOption,'save')
 
     [r,t,p,hboot,CI,~,~,hout] = bendcorr(VecX,VecY,XLabel,YLabel,1,0.2);
-    obj.Results.Correlation.Bend.figure = hout;
+     obj.Results.Correlation(zz,kk).Bend.figure = hout;
 
+     if lbIdx>1
+
+    obj.Results.Correlation(zz,kk).Bend.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+
+    else
+        
+    obj.Results.Correlation(zz,kk).Bend.figLabel = [XLabel '_' YLabel];    
+    
+     end
+    
   elseif strcmp(crObj(1).FigureOption,'disable')
 
 
@@ -377,22 +539,66 @@ function obj = runCorPrcntgBend(obj,crObj)
     PyVis.Stats.p = p;
     PyVis.Stats.hboot = hboot;
     PyVis.Stats.CI = CI;
-    obj.Results.Correlation.Bend.PyVis = PyVis;
+    obj.Results.Correlation(zz,kk).Bend.PyVis = PyVis;
 
   end
 
 
-  obj.Results.Correlation.Bend.r = r;
-  obj.Results.Correlation.Bend.t = t;
-  obj.Results.Correlation.Bend.hboot = hboot;
-  obj.Results.Correlation.Bend.CI = CI;
-  obj.Results.Correlation.Bend.p = p;
-  obj.Results.Correlation.Bend.Ph = pH;
-  obj.Results.Correlation.Bend.H = H;
+  obj.Results.Correlation(zz,kk).Bend.r = r;
+  obj.Results.Correlation(zz,kk).Bend.t = t;
+  obj.Results.Correlation(zz,kk).Bend.hboot = hboot;
+  obj.Results.Correlation(zz,kk).Bend.CI = CI;
+  obj.Results.Correlation(zz,kk).Bend.p = p;
+  end
+  end
 
 
+end % runPrcntBendCor  ------------------------ end (Public)
 
-end
+function obj = saveStaticFigures(obj)
+   % To save figures if methods are run after enabling 'save' section. 
+   % If labeled mask to be used, both MaskLabel and MaskIdx should be available
+   
+    if isempty(obj.OutputDir)
+        mkdir([pwd filesep 'qmrstat_Figures']);
+        obj = obj.setOutputDir([pwd filesep 'qmrstat_Figures']);
+    end
+    
+    if ~isempty(fieldnames(obj.Results))
+        
+        namesFamily = fieldnames(obj.Results);
+        for ii = 1:length(namesFamily)
+            
+           familyStr = obj.Results.(namesFamily{ii}); % Pearson %Skipped 
+           sz = size(familyStr);
+           tests = fieldnames(familyStr);
+           
+           for k =1:sz(1)
+               for l=1:sz(2)
+                   for m=1:length(tests)
+                       
+                   crFig = familyStr(k,l).(tests{m}).figure;
+                   lbl = familyStr(k,l).(tests{m}).figLabel;
+                   
+                   if ~isempty(crFig)
+                       saveas(crFig, [obj.OutputDir filesep tests{m} '_' cell2mat(lbl) '.png']);    
+                   end
+              
+                   end
+               end
+           end
+        end
+        
+    else
+        error( [obj.ErrorHead ...
+    '\n>>>>>> qmrstat.%s field is empty'...
+    '\n>>>>>> No analysis has been performed.'...
+    '\n>>>>>> setFigureOption must be set to ''save'' for the qmrstat_statobj'...
+    obj.Tail],'Results'); 
+    end
+    
+    
+end      % saveStaticFigures ------------------------ end (Public) 
 
 function obj = runCompareCor(obj,corob1,corob2)
 
@@ -416,14 +622,32 @@ function obj = pyExportDisable(obj)
 
 end % pyExportEnable  ------------------------ end (Public)
 
+function obj = setOutputDir(obj,input)
+
+    if exist(input,'file') ~= 7 % Folder
+       
+        try
+        mkdir(input);
+        obj.OutputDir = input;
+        catch
+        error([obj.ErrorHead ...
+            '\n>>>>>> %s create directory:'...
+            '\n>>>>>> %s'...
+            obj.Tail],'Cannot',input);
+        end
+    else
+        obj.OutputDir = input;
+    end
+    
+end
+
 end
 
 % ===============================================================
 
 methods(Access=private)
 
-
-function obj = validate(obj,curObj,name)
+function obj = validate(obj,curObj,name,lblIdx)
 
   % This validation is for statistical methods those require spatial
   % correspondance.
@@ -546,8 +770,19 @@ function obj = validate(obj,curObj,name)
 
     if ~isempty(obj.Object.(name)(iter).StatMask)
 
-      obj.([name 'JointMask']) = obj.Object.(name)(iter).StatMask;
-      obj.LastMask = obj.([name 'JointMask']);
+      if nargin == 4 % Means labeled mask
+         
+          msk = obj.Object.(name)(iter).StatMask;
+          msk(msk~=lblIdx) = 0;
+          msk = logical(msk);
+          obj.([name 'JointMask']) = msk;
+      
+      else % Means logical mask
+          
+          obj.([name 'JointMask']) = obj.Object.(name)(iter).StatMask;
+      
+      end
+      
       inflag = 1;
 
     end
@@ -570,23 +805,23 @@ function obj = validate(obj,curObj,name)
 
 end % validate  ------------------------ end (Private)
 
-
-
-
-function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name)
+function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name,lblIdx)
 
   % The statement below errors if name passes is not a property of
   % qmrstat class. For example, name = 'Correlation' is for the
   % objects of qmrstat_correlation class.
 
-  % RETURN OBJ
-
-  obj = validate(obj,crObj,name);
+  if nargin ==4
+      obj = validate(obj,crObj,name,lblIdx);
+  else
+      obj = validate(obj,crObj,name);
+  end
 
   if obj.([name 'Valid'])
 
 
-    % Mapnames can be multidim.
+    % Mapnames can be multidim. This function is exclusive for bivariate
+    % operations. 
 
     mp1 = crObj(1).getActiveMap();
     mp2 = crObj(2).getActiveMap();
@@ -596,26 +831,15 @@ function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name)
     VecX = mp1(obj.([name 'JointMask']));
     VecY = mp2(obj.([name 'JointMask']));
     
-    if isempty(VecX)
-    
-    VecX = mp1(obj.LastMask);
-    VecY = mp2(obj.LastMask);
-        
-    end
 
     % In correlation  class, there should be no NaN's under masked area
     % if exists, vals should be removed from both vectors.
 
     [VecX,VecY] = qmrstat.cleanNan(VecX,VecY);
-    assignin('caller','obj',obj);
+
   end
 
 end % getBivarCorVec ------------------------ end (Private)
-
-
-
-
-
 
 end
 
@@ -634,11 +858,13 @@ function [Vec1Out,Vec2Out] = cleanNan(Vec1, Vec2)
 end
 
 
-function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj)
+function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 
-
+  if nargin == 3  
+  [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation',lblIdx);
+  else
   [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation');
-
+  end
   XLabel = crObj(1).MapNames(crObj(1).ActiveMapIdx);
   YLabel = crObj(2).MapNames(crObj(2).ActiveMapIdx);
 
@@ -679,7 +905,44 @@ function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj)
 
 end % end getBiVarCorOutputs
 
+function [comb, lbIdx] = corSanityCheck(crObj)
+   
+      sz = size(crObj);
+  
+  if sz(1) > 1
+    error( [crObj.ErrorHead ...
+        '\n>>>>>> Object.%s for this method cannot have multiple object arrays of qmrstat_correlation class.'...
+        '\n>>>>>> Correct use: Object.Correlation = qmrstat_correlation(1,4)'...
+        '\n>>>>>> Wrong use  : Object.Correlation = qmrstat_correlation(2,4)'...
+        '\n>>>>>> Where Object.Correlation is passed to the qmrstat.runCorPearson method.'...
+        crObj.Tail],'Correlation');
+  end
 
+  if sz(2) > 2 
+     
+      comb = nchoosek(1:sz(2),2);
+      obj.MultipleCorrelation = true;
+      crObj = crObj.setSignificanceLevel(crObj(1).SignificanceLevel/length(comb));
+      disp(['Significance level is adjusted to ' num2str(crObj(1).SignificanceLevel) ' for ' num2str(length(comb)) ' correlations.']);     
+      
+  else
+      
+      comb = nchoosek(1:2,2);
+ 
+  end
+  
+  if length(crObj(1).StatLabels)>1
+     
+      lbIdx = length(crObj(1).StatLabels);
+      
+  else
+      
+      lbIdx = 1;
+ 
+  end
+  
+    
+end
 
 end
 

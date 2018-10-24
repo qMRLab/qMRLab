@@ -67,7 +67,7 @@ function obj = loadStatMask(obj,input)
   % read.
 
   % Developers:
-  % Overridden superclass method to load StatMask into both
+  % Overridden superclass method to load StatMask into all
   % objects simultaneously if the whole object array is passed.
   %
   % Individual objects can load masks as well. qmrstat.validation
@@ -78,10 +78,11 @@ function obj = loadStatMask(obj,input)
   if ~isempty(ismember(inputname(2),[W(:).name])) && all(ismember(inputname(2),[W(:).name]))
 
 
-    if length(obj) ==2
-
-      obj(1) = loadStatMask@AbstractStat(obj(1),input);
-      obj(2) = loadStatMask@AbstractStat(obj(2),input);
+    if length(obj) >=2
+        
+      for ii = 1:length(obj)  
+      obj(ii) = loadStatMask@AbstractStat(obj(ii),input);
+      end
 
     elseif length(obj) ==1
 
@@ -91,10 +92,11 @@ function obj = loadStatMask(obj,input)
   else
 
 
-    if length(obj) ==2
-
-      obj(1) = loadStatMask@AbstractStat(obj(1),eval('input'));
-      obj(2) = loadStatMask@AbstractStat(obj(2),eval('input'));
+    if length(obj) >=2
+        
+      for ii = 1:length(obj)  
+      obj(ii) = loadStatMask@AbstractStat(obj(ii),eval('input'));
+      end
 
     elseif length(obj) ==1
 
