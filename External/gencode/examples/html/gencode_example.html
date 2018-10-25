@@ -1,0 +1,304 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>GENERATE CODE FOR VARIABLES</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2009-06-23"><meta name="m-file" content="gencode_example"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>GENERATE CODE FOR VARIABLES</h1><!--introduction--><p>This document demonstrates the usage of GENCODE, GENCODE_RVALUE and GENCODE_SUBSTRUCT to show and modify the contents of complicated MATLAB variables.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#2">A TEST VARIABLE</a></li><li><a href="#5">GENERATE CODE FOR RIGHT HAND SIDE OF ASSIGNMENTS</a></li><li><a href="#7">GENERATE CODE FOR TEST VARIABLE</a></li><li><a href="#9">USE GENERATED CODE TO RECREATE VARIABLE</a></li></ul></div><h2>A TEST VARIABLE<a name="2"></a></h2><p>The variable x is a struct with two fields: f1 and f2. f1 is a cell array of arbitrary items.</p><pre class="codeinput">x.f1        = {1 <span class="string">'somestring'</span> false};
+</pre><p>f2 is a struct array with 2 members and fields f21, f22, f23. The fields in f2(1) hold different numeric types.</p><pre class="codeinput">x.f2(1).f21 = diag([1 1 -Inf NaN]);
+x.f2(1).f22 = speye(5);
+x.f2(1).f23 = 17 * ones(5,6,2,<span class="string">'int8'</span>);
+</pre><p>The fields in f2(2) hold a cell string array, a logical array and a (anonymous) function handle.</p><pre class="codeinput">x.f2(2).f21 = {<span class="string">'string 1'</span>; <span class="string">'string 2'</span>; <span class="string">'A third string'</span>};
+x.f2(2).f22 = rand(5) &gt; .5;
+x.f2(2).f23 = @(x)mod(x,2);
+</pre><h2>GENERATE CODE FOR RIGHT HAND SIDE OF ASSIGNMENTS<a name="5"></a></h2><p>GENCODE uses GENCODE_RVALUE to generate code for the right hand side of assignments. This works for</p><div><ul><li>all scalar, vector, 2D data</li><li>cells with scalar, vector, 2D members</li><li>function handles</li></ul></div><pre class="codeinput">[str, sts] = gencode_rvalue(x.f1);
+display(sts)
+char(str)
+</pre><pre class="codeoutput">
+sts =
+
+     1
+
+
+ans =
+
+{           
+1           
+'somestring'
+false       
+}'          
+
+</pre><p>x.f2(1).f23 is a 3D array, therefore GENCODE_RVALUE does not work here - sts is false</p><pre class="codeinput">size(x.f2(1).f23)
+[str, sts] = gencode_rvalue(x.f2(1).f23);
+display(sts)
+char(str)
+</pre><pre class="codeoutput">
+ans =
+
+     5     6     2
+
+
+sts =
+
+     0
+
+
+ans =
+
+     ''
+
+
+</pre><h2>GENERATE CODE FOR TEST VARIABLE<a name="7"></a></h2><p>The simplest way to invoke GENCODE is with just the variable as input argument. Code for arrays with more than 2 dimensions is split up into code for 2D subarrays. Code for sparse matrices is generated using three temporary variables tmpi, tmpj and tmps.</p><pre class="codeinput">strx = gencode(x);
+char(strx)
+</pre><pre class="codeoutput">
+ans =
+
+x.f1 = {                                      
+        1                                     
+        'somestring'                          
+        false                                 
+        }';                                   
+x.f2(1).f21 = [1 0 0 0                        
+               0 1 0 0                        
+               0 0 -Inf 0                     
+               0 0 0 NaN];                    
+tmpi = [1                                     
+        2                                     
+        3                                     
+        4                                     
+        5];                                   
+tmpj = [1                                     
+        2                                     
+        3                                     
+        4                                     
+        5];                                   
+tmps = [1                                     
+        1                                     
+        1                                     
+        1                                     
+        1];                                   
+x.f2(1).f22 = sparse(tmpi, tmpj, tmps);       
+x.f2(1).f23(:, :, 1) = int8([17 17 17 17 17 17
+                        17 17 17 17 17 17     
+                        17 17 17 17 17 17     
+                        17 17 17 17 17 17     
+                        17 17 17 17 17 17]);  
+x.f2(1).f23(:, :, 2) = int8([17 17 17 17 17 17
+                        17 17 17 17 17 17     
+                        17 17 17 17 17 17     
+                        17 17 17 17 17 17     
+                        17 17 17 17 17 17]);  
+x.f2(2).f21 = {                               
+               'string 1'                     
+               'string 2'                     
+               'A third string'               
+               };                             
+x.f2(2).f22 = [true false false false true    
+               true false true false false    
+               false true true true true      
+               true true false true true      
+               true true true true true];     
+x.f2(2).f23 = @(x)mod(x,2);                   
+
+</pre><p>If the name of the variable should be different from the input variable name, GENCODE can be called with an alternative name. This can also be an struct reference (<tt>y.a</tt>) or cell entry (<tt>y{2}</tt>) or array index (<tt>y(1)</tt>).</p><pre class="codeinput">stry = gencode(x,<span class="string">'y.a'</span>);
+char(stry)
+</pre><pre class="codeoutput">
+ans =
+
+y.a.f1 = {                                      
+          1                                     
+          'somestring'                          
+          false                                 
+          }';                                   
+y.a.f2(1).f21 = [1 0 0 0                        
+                 0 1 0 0                        
+                 0 0 -Inf 0                     
+                 0 0 0 NaN];                    
+tmpi = [1                                       
+        2                                       
+        3                                       
+        4                                       
+        5];                                     
+tmpj = [1                                       
+        2                                       
+        3                                       
+        4                                       
+        5];                                     
+tmps = [1                                       
+        1                                       
+        1                                       
+        1                                       
+        1];                                     
+y.a.f2(1).f22 = sparse(tmpi, tmpj, tmps);       
+y.a.f2(1).f23(:, :, 1) = int8([17 17 17 17 17 17
+                          17 17 17 17 17 17     
+                          17 17 17 17 17 17     
+                          17 17 17 17 17 17     
+                          17 17 17 17 17 17]);  
+y.a.f2(1).f23(:, :, 2) = int8([17 17 17 17 17 17
+                          17 17 17 17 17 17     
+                          17 17 17 17 17 17     
+                          17 17 17 17 17 17     
+                          17 17 17 17 17 17]);  
+y.a.f2(2).f21 = {                               
+                 'string 1'                     
+                 'string 2'                     
+                 'A third string'               
+                 };                             
+y.a.f2(2).f22 = [true false false false true    
+                 true false true false false    
+                 false true true true true      
+                 true true false true true      
+                 true true true true true];     
+y.a.f2(2).f23 = @(x)mod(x,2);                   
+
+</pre><h2>USE GENERATED CODE TO RECREATE VARIABLE<a name="9"></a></h2><p>The generated code can be used to recreate the variable:</p><pre class="codeinput">clear <span class="string">x</span>
+eval(sprintf(<span class="string">'%s\n'</span>, strx{:}))
+display(x)
+</pre><pre class="codeoutput">
+x = 
+
+    f1: {[1]  'somestring'  [0]}
+    f2: [1x2 struct]
+
+</pre><p>Usually, one would write the code to a file using a sequence of commands like this:</p><p>
+<pre class="codeinput">
+fid = fopen('test.m','w');
+fprintf(fid, '%s\n', strx{:});
+fclose(fid)
+</pre>
+</p><p>This file can then be modified to recreate new instances of x.</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+%% GENERATE CODE FOR VARIABLES
+% This document demonstrates the usage of GENCODE, GENCODE_RVALUE and
+% GENCODE_SUBSTRUCT to show and modify the contents of complicated MATLAB
+% variables.
+%%
+%% A TEST VARIABLE
+% The variable x is a struct with two fields: f1 and f2. f1 is a cell array
+% of arbitrary items.
+x.f1        = {1 'somestring' false};
+%% 
+% f2 is a struct array with 2 members and fields f21, f22, f23. The fields
+% in f2(1) hold different numeric types.
+x.f2(1).f21 = diag([1 1 -Inf NaN]);
+x.f2(1).f22 = speye(5);
+x.f2(1).f23 = 17 * ones(5,6,2,'int8');
+%%
+% The fields in f2(2) hold a cell string array, a logical array and a
+% (anonymous) function handle.
+x.f2(2).f21 = {'string 1'; 'string 2'; 'A third string'};
+x.f2(2).f22 = rand(5) > .5;
+x.f2(2).f23 = @(x)mod(x,2);
+%% GENERATE CODE FOR RIGHT HAND SIDE OF ASSIGNMENTS
+% GENCODE uses GENCODE_RVALUE to generate code for the right hand side of
+% assignments. This works for 
+%
+% * all scalar, vector, 2D data
+% * cells with scalar, vector, 2D members
+% * function handles
+%
+[str, sts] = gencode_rvalue(x.f1);
+display(sts)
+char(str)
+%%
+% x.f2(1).f23 is a 3D array, therefore GENCODE_RVALUE does not work here -
+% sts is false
+size(x.f2(1).f23)
+[str, sts] = gencode_rvalue(x.f2(1).f23);
+display(sts)
+char(str)
+%% GENERATE CODE FOR TEST VARIABLE
+% The simplest way to invoke GENCODE is with just the variable as input
+% argument. Code for arrays with more than 2 dimensions is split up into
+% code for 2D subarrays.
+% Code for sparse matrices is generated using three temporary variables
+% tmpi, tmpj and tmps.
+strx = gencode(x);
+char(strx)
+%%
+% If the name of the variable should be different from the input variable
+% name, GENCODE can be called with an alternative name. This can also be an
+% struct reference (|y.a|) or cell entry (|y{2}|) or array index (|y(1)|).
+stry = gencode(x,'y.a');
+char(stry)
+%% USE GENERATED CODE TO RECREATE VARIABLE
+% The generated code can be used to recreate the variable:
+clear x
+eval(sprintf('%s\n', strx{:}))
+display(x)
+%%
+% Usually, one would write the code to a file using a sequence of commands
+% like this:
+%
+% <html>
+% <pre class="codeinput">
+% fid = fopen('test.m','w');
+% fprintf(fid, '%s\n', strx{:});
+% fclose(fid)
+% </pre>
+% </html>
+%
+% This file can then be modified to recreate new instances of x.
+
+##### SOURCE END #####
+--></body></html>
