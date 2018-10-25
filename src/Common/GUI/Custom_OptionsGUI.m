@@ -70,7 +70,12 @@ function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % INITIALIZE OPTIONSGUI PANEL
 % =======================================================================
 
-if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+if any(strcmp(varargin,'wait'))
+    wait=true;
+    varargin(strcmp(varargin,'wait'))=[];
+else
+    wait=false;
+end
 
 % Choose dedault command line output for OptionsGUI
 
