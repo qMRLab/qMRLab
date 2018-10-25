@@ -47,7 +47,7 @@ for pp=1:length(fx)
         for ii=1:length(Sens.x)
             x = st; x(pp)=Sens.x(ii);
             for N=1:runs
-                if waitbarcreate && (~isvalid(h) || getappdata(h,'canceling')); setappdata(0,'Cancel',1); break; end
+                if waitbarcreate && (~ishandle(h) || getappdata(h,'canceling')); setappdata(0,'Cancel',1); break; end
                 Fittmp = obj.Sim_Single_Voxel_Curve(x, Opts,0);
                 if ~isfield(Sens,'fit')
                     Sens.fit = Fittmp;
@@ -56,9 +56,9 @@ for pp=1:length(fx)
                         Sens.fit.(ff{1})(ii,N) = Fittmp.(ff{1})(1);
                     end
                 end
-                %if ~isvalid(h), return; end
+                %if ~ishandle(h), return; end
             end
-            if waitbarcreate && (~isvalid(h) || getappdata(h,'canceling')); break; end
+            if waitbarcreate && (~ishandle(h) || getappdata(h,'canceling')); break; end
             if waitbarcreate && ishandle(h)
                 waitbar(ii/length(Sens.x),h,sprintf('Data %0.0f/%0.0f',ii,length(Sens.x)));
             end
