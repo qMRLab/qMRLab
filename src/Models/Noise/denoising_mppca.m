@@ -74,4 +74,14 @@ classdef denoising_mppca < AbstractModel
         end
         
     end
+        
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            if checkanteriorver(version,[2 0 11])
+                obj.buttons{2} = obj.buttons{2}([2 1]); % old: '|G| (T/m)', new Gnorm (T/m)
+            end
+        end
+    end
+
 end
