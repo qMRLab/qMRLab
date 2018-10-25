@@ -2,24 +2,24 @@ classdef BrowserSet
     % BrowserSet - manage the file browser interface
     %   P.Beliveau 2017 - setup
     %   * manage the standard set of interface items in the browser
-    %   * Properties: 
-    %       uicontrols:     - NameText 
-    %                       - BrowserButton 
-    %                       - FileBox 
+    %   * Properties:
+    %       uicontrols:     - NameText
+    %                       - BrowserButton
+    %                       - FileBox
     %                       - ViewButton
     %       vars: - NameID: identifies the method
-    %             - FullFile: the path and file name displayed 
+    %             - FullFile: the path and file name displayed
     %                           and chosen by user
 
-    
+
     properties
-        
+
         NameID;         % Method
-        FullFile;       
-        
+        FullFile;
+
 
     end
-    
+
     properties(Hidden = true)
         NameText;
         BrowseBtn;
@@ -28,7 +28,7 @@ classdef BrowserSet
         ViewBtn;
         parent;
     end
-    
+
     methods
         %------------------------------------------------------------------
         % -- CONSTRUCTOR
@@ -43,28 +43,28 @@ classdef BrowserSet
                 InputOptional = varargin{3};
                 Location = varargin{4};
                 info = varargin{5};
-                
+
                 obj.NameID = {InputName};
-                
+
                 Position = [Location, 0.02, 0.1];
                 % add Info button
                 if ~isempty(info)
                     obj.InfoBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized','BackgroundColor',[0.94 0.94 0.94], ...
                         'String', '?','FontWeight','bold','TooltipString',info,'Position',Position,'Callback',@(hObj,eventdata,handles) helpdlg(info));
                 end
-                
+
                 % add Input Name
                 Position = [[Location+[0.03 0]], 0.10, 0.1];
                 obj.NameText = uicontrol(obj.parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6,'FontWeight','bold');
-                
+
                 % Set color to gray if optional
                 if InputOptional, set(obj.NameText,'ForegroundColor',[.5 .5 .5]); end
-                if InputOptional==2 
+                if InputOptional==2
                     set(obj.NameText,'FontWeight','normal');
                     set(obj.NameText,'String',['(' obj.NameID{:} ')']);
                 end
-                    
+
                 % add Browse button
                 Position = [Location + [0.14, 0], 0.1, 0.1];
                 obj.BrowseBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
@@ -74,12 +74,12 @@ classdef BrowserSet
                 Position = [Location + [0.27, 0], 0.58, 0.1];
                 obj.FileBox = uicontrol(obj.parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
                     'BackgroundColor', [1 1 1]);
-                
+
                 % add View button
                 Position = [Location + [0.87, 0], 0.10, 0.1];
                 obj.ViewBtn = uicontrol(obj.parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
                     'String', 'View', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
-                
+
                 % Set Callbacks
                 set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
                 set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
@@ -87,9 +87,9 @@ classdef BrowserSet
 
             end % testing varargin
         end % constructor end
-        
+
     end
-    
+
     methods
         %------------------------------------------------------------------
         % -- VISIBLE
@@ -101,18 +101,18 @@ classdef BrowserSet
             set(obj.ViewBtn, 'Visible', Visibility);
             set(obj.InfoBtn, 'Visible', Visibility);
         end
-        
+
         %------------------------------------------------------------------
         % -- GetFileName
         function FileName = GetFileName(obj)
             FileName = get(obj.FileBox, 'string');
         end
-        
-        
+
+
     end
-    
+
     methods
-        
+
         %------------------------------------------------------------------
         % -- DATA LOAD
         %   load data from file and make accessible to qMRLab fct
@@ -144,20 +144,20 @@ classdef BrowserSet
                     warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
                 end
             end
-            
+
             Data = getappdata(0, 'Data');
             Model = getappdata(0,'Model');
             Data.(class(Model)).(obj.NameID{1}) = double(tmp);
-            
+
             if exist('hdr','var')
-                Data.([class(Model) '_hdr']) = hdr; 
+                Data.([class(Model) '_hdr']) = hdr;
             elseif isfield(Data,[class(Model) '_hdr'])
                 Data = rmfield(Data,[class(Model) '_hdr']);
             end
 
-            setappdata(0, 'Data', Data); 
+            setappdata(0, 'Data', Data);
             set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
-            
+
             if warnmissing
                 ErrMsg = Model.sanityCheck(Data.(class(Model)));
                 hWarnBut = findobj(obj.parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
@@ -172,11 +172,11 @@ classdef BrowserSet
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
         % -- setPath
         % search for filenames that match the NameText
-        function setPath(obj, Path, fileList,warnmissing)    
+        function setPath(obj, Path, fileList,warnmissing)
             if ~exist('warnmissing','var'), warnmissing=true; end
             % clear previous file paths
             set(obj.FileBox, 'String', '');
@@ -184,15 +184,15 @@ classdef BrowserSet
             %Check for files and set fields automatically
             for ii = 1:length(fileList)
                 if strfind(fileList{ii}(1:end-4), DataName{1})
-                    obj.FullFile = fullfile(Path,fileList{ii});                    
+                    obj.FullFile = fullfile(Path,fileList{ii});
                     set(obj.FileBox, 'String', obj.FullFile);
                     obj.DataLoad(warnmissing);
                 end
             end
-            
+
         end
     end
-    
+
     methods(Static)
         %------------------------------------------------------------------
         % -- BROWSE BUTTONS
@@ -201,9 +201,9 @@ classdef BrowserSet
             if ~exist('FileName','var')
                 obj.FullFile = get(obj.FileBox, 'String');
                 if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz';'*.mat';'*.img'},'Select file');
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file');
                 else
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz';'*.mat';'*.img'},'Select file',obj.FullFile);
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file',obj.FullFile);
                 end
             else
                 PathName = '';
@@ -214,10 +214,10 @@ classdef BrowserSet
                 obj.FullFile = '';
             end
             set(obj.FileBox,'String',obj.FullFile);
-            
-            DataLoad(obj);            
+
+            DataLoad(obj);
         end
-        
+
         %------------------------------------------------------------------
         % -- VIEW BUTTONS
         %------------------------------------------------------------------
@@ -225,20 +225,19 @@ classdef BrowserSet
             dat = getappdata(0, 'Data');
             dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
             if isempty(dat), errordlg('"Browse" for your own MRI data or click on "download example" data.','empty data'); return; end
-            
+
             n = ndims(dat);
             Data.(obj.NameID{1,1}) = dat;
-            
+
             Data.fields = {obj.NameID{1,1}};
             handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
             DrawPlot(handles);
-            
+
             set(handles.RoiAnalysis,'Enable','on');
         end
-        
-        
-    end
-    
-end
 
+
+    end
+
+end

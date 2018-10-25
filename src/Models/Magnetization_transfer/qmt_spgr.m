@@ -193,9 +193,9 @@ end
             
             disablelist = {'Fix R1f*T2f','R1f*T2f ='};
             for ll = 1:length(disablelist)
-                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
                 if ~any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
-                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
                 else
                     obj.buttons{indtodisable} = disablelist{ll};
                 end
@@ -217,9 +217,9 @@ end
                     disable = [true, true, true];
             end
             for ll = 1:length(disablelist)
-                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
                 if disable(ll)
-                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
                 else
                     obj.buttons{indtodisable} = [disablelist{ll}];
                 end
@@ -286,6 +286,8 @@ end
             if nargin<2, x = obj.st; data.MTdata = []; end
             if isnumeric(x)
                 x=mat2struct(x,obj.xnames);
+                x.kf = x.F*x.kr;
+                x.resnorm = 0.0;
             end
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
@@ -303,7 +305,7 @@ end
             Sim.Opt.AddNoise = 0;
             SPGR_PlotSimCurve(data.MTdata, data.MTdata, Protocol, Sim, SimCurveResults);
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
-                x.F,x.R1f,x.R1r,x.T2f,x.T2r),...
+                x.F,x.kf,x.R1f,x.R1r,x.T2f,x.T2r,x.resnorm),...
                 'FontSize',10);
         end
 
