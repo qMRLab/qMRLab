@@ -12,7 +12,12 @@ if nargin < 5, arborescence=0; end
 
 % [list, path]=sct_tools_ls('*T.txt);
 list=dir(fname);
-[path,name,ext]= fileparts(fname); 
+if ~isempty(list)
+path = list(1).folder;
+else
+    path=['.'];
+end
+[~,name,ext]= fileparts(fname); 
 path=[path filesep]; name = [name ext];
 if strcmp(path,filesep)
     path=['.' filesep];

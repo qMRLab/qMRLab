@@ -99,7 +99,7 @@ elseif wantnorm==-3
   mn = 0;
   mx = 1;
 else
-  rng = prctile(m(:),[wantnorm 100-wantnorm]);
+  rng = range_outlier(m(:),wantnorm);
   if rng(2)==rng(1)
     m = zeros(size(m));  % avoid error from normalizerange.m
   else

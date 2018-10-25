@@ -905,15 +905,7 @@ txt = {['Source: ', Source],...
 function RefreshPlot(handles)
 if isempty(handles.CurrentData), return; end
 Current = GetCurrent(handles);
-xl = xlim;
-yl = ylim;
-% imagesc(flipdim(Current',1));
-imagesc(rot90(Current));
-axis equal off;
-RefreshColorMap(handles);
-xlim(xl);
-ylim(yl);
-drawnow;
+handles.tool.setImage(Current)
 
 
 
