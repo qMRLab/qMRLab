@@ -82,5 +82,10 @@ Noise
 .. toctree::
 	:maxdepth: 1
 
+	denoising_mppca_batch
+
+.. toctree::
+	:maxdepth: 1
+
 	noise_level_batch
 

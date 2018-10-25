@@ -15,6 +15,8 @@ dlmwrite([mainDir filesep 'tmp' filesep 'tmpDocDir.txt'],tmpDir,'delimiter','');
 % Navigate to the temporary (private) folder. 
 cd(tmpDir);
 setenv('ISTRAVIS','1')
+setenv('ISDOC','1')
+
 Modellist = list_models';
 for iModel = 1:length(Modellist)
     eval(['Model = ' Modellist{iModel}]);
@@ -24,11 +26,13 @@ for iModel = 1:length(Modellist)
     publish([Modellist{iModel} '_batch.m'])
     
     cd ..
+    close all
 end
 setenv('ISTRAVIS','')
+setenv('ISDOC','')
 
 %% Generate restructured text files (docs/source/.rst)
-cd(mainDir);
+cd(fileparts(which('qMRLab.m')));
 cd docs
 % delete old batch
 list = sct_tools_ls('source/*_batch.rst',1,1);
