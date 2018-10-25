@@ -49,7 +49,7 @@ classdef denoising_mppca < AbstractModel
         Prot  = struct(); % You can define a default protocol here.
         
         % Model options
-        buttons = {'sampling',{'full','fast'},'kernel',[5 5 5]};
+        buttons = {'sampling',{'fast','full'},'kernel',[5 5 5]};
         options= struct(); % structure filled by the buttons. Leave empty in the code
         
     end
@@ -74,4 +74,14 @@ classdef denoising_mppca < AbstractModel
         end
         
     end
+        
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            if checkanteriorver(version,[2 0 11])
+                obj.buttons{2} = obj.buttons{2}([2 1]); % old: '|G| (T/m)', new Gnorm (T/m)
+            end
+        end
+    end
+
 end

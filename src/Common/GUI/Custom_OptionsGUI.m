@@ -38,7 +38,6 @@ end
 
 
 function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
-
 % This function is called each time the Options Panel is opened.
 %
 % OptionsPanel is a non-modal window with the <uipanel29> ID in handles
@@ -71,7 +70,12 @@ function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % INITIALIZE OPTIONSGUI PANEL
 % =======================================================================
 
-if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+if any(strcmp(varargin,'wait'))
+    wait=true;
+    varargin(strcmp(varargin,'wait'))=[];
+else
+    wait=false;
+end
 
 % Choose dedault command line output for OptionsGUI
 
@@ -336,7 +340,10 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
+    if ~isempty(getenv('ISTRAVIS')) && isempty(getenv('ISDOC'))
+        warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.');
+        delete(findobj('Name','OptionsGUI'));
+    end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)

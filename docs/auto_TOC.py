@@ -28,11 +28,11 @@ class Model(object):
 category_list = []
 models = []
 #Retrieve the temporary folder containing Data files and batch examples from the text file
-with io.open('../tmp/tmpDocDir.txt','rb') as fpwdTemp:
+with io.open('../src/tmp/tmpDocDir.txt','rb') as fpwdTemp:
 	pwd = (fpwdTemp.readline()).rstrip('\n')
 fpwdTemp.close()
 
-for root, dirs, files in os.walk('../Models'):
+for root, dirs, files in os.walk('../src/Models'):
 	#Check the models that are there
 	for name in files:
 		if name.endswith('.m'):

@@ -19,7 +19,7 @@ classdef vfa_t1 < AbstractModel
 % Options:
 %   None
 %
-% Example of command line usage (see also <a href="matlab: showdemo vfa_t1_batch">showdemo vfa_t1_batch</a>):
+% Example of command line usage:
 %   Model = vfa_t1;  % Create class from model 
 %   Model.Prot.VFAData.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
 %   data = struct;  % Create data structure 
