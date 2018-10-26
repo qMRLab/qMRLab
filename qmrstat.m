@@ -47,14 +47,13 @@ methods
 
 function obj = qmrstat()
 
-  obj.Object.TestRetest =  test_retest({'Session-1','Session-2'});
   obj.Object.Correlation = qmrstat_correlation;
-  %obj.Object.Concordance = concordance;
+  obj.Object.Reliability = qmrstat_reliability;
 
 
 end % Constructor  ------------------------ end (Public)
 
-% ############################ CORRELATION FAMILY
+% ############################ ROBUST CORRELATION FAMILY
 
 function obj = runCorPearson(obj,crObj)
   %Explain for user here.
@@ -156,7 +155,7 @@ function obj = runCorPearson(obj,crObj)
   end
   end
 
-end % runPearsonCor  ------------------------ end (Public)
+end % Correlation
 
 function obj = runCorSpearman(obj,crObj)
 
@@ -251,7 +250,7 @@ function obj = runCorSpearman(obj,crObj)
   obj.Results.Correlation(zz,kk).Spearman.CI = CI;
   end
   end
-end % runSpearmanCor  ------------------------ end (Public)
+end % Correlation 
 
 function obj = runCorSkipped(obj,crObj)
 
@@ -343,7 +342,7 @@ function obj = runCorSkipped(obj,crObj)
   obj.Results.Correlation(zz,kk).Skipped.CI = CI;
   end
   end
-end % runSpearmanCor  ------------------------ end (Public)
+end % Correlation 
 
 function obj = runCorInspect(obj,crObj)
 
@@ -458,7 +457,7 @@ function obj = runCorInspect(obj,crObj)
   obj.Results.Correlation(zz,kk).PreInspect.table = t;
   end
   end
-end
+end % Correlation
 
 function obj = runCorPrcntgBend(obj,crObj)
 
@@ -553,7 +552,45 @@ function obj = runCorPrcntgBend(obj,crObj)
   end
 
 
-end % runPrcntBendCor  ------------------------ end (Public)
+end % Correlation
+
+% ############################ RELAIBILITY TEST FAMILY 
+
+
+
+
+% ############################# GENERIC METHODS
+
+function obj = pyExportEnable(obj)
+
+  obj.Export2Py = true;
+
+end % Generic 
+
+function obj = pyExportDisable(obj)
+
+  obj.Export2Py = false;
+
+end % Generic 
+
+function obj = setOutputDir(obj,input)
+
+    if exist(input,'file') ~= 7 % Folder
+       
+        try
+        mkdir(input);
+        obj.OutputDir = input;
+        catch
+        error([obj.ErrorHead ...
+            '\n>>>>>> %s create directory:'...
+            '\n>>>>>> %s'...
+            obj.Tail],'Cannot',input);
+        end
+    else
+        obj.OutputDir = input;
+    end
+    
+end % Generic 
 
 function obj = saveStaticFigures(obj)
    % To save figures if methods are run after enabling 'save' section. 
@@ -598,48 +635,7 @@ function obj = saveStaticFigures(obj)
     end
     
     
-end      % saveStaticFigures ------------------------ end (Public) 
-
-function obj = runCompareCor(obj,corob1,corob2)
-
-  % Compare correlations
-
-
-end
-
-
-% ############################# GENERIC METHODS
-
-function obj = pyExportEnable(obj)
-
-  obj.Export2Py = true;
-
-end % pyExportEnable  ------------------------ end (Public)
-
-function obj = pyExportDisable(obj)
-
-  obj.Export2Py = false;
-
-end % pyExportEnable  ------------------------ end (Public)
-
-function obj = setOutputDir(obj,input)
-
-    if exist(input,'file') ~= 7 % Folder
-       
-        try
-        mkdir(input);
-        obj.OutputDir = input;
-        catch
-        error([obj.ErrorHead ...
-            '\n>>>>>> %s create directory:'...
-            '\n>>>>>> %s'...
-            obj.Tail],'Cannot',input);
-        end
-    else
-        obj.OutputDir = input;
-    end
-    
-end
+end % Generic 
 
 end
 
@@ -803,7 +799,7 @@ function obj = validate(obj,curObj,name,lblIdx)
 
 
 
-end % validate  ------------------------ end (Private)
+end % Generic
 
 function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name,lblIdx)
 
@@ -839,7 +835,15 @@ function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name,lblIdx)
 
   end
 
-end % getBivarCorVec ------------------------ end (Private)
+end % Correlation
+
+% WIP: TO GET CORRELATION COMPARISON PAIRS, USE THIS ONE: 
+function [obj,PairX,PairY] = getComPairs(obj,rlObj,name,lblIdx)
+end
+
+
+
+
 
 end
 
@@ -855,8 +859,7 @@ function [Vec1Out,Vec2Out] = cleanNan(Vec1, Vec2)
   Vec2Out = Vec2(not(joins));
 
 
-end
-
+end % Generic 
 
 function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 
@@ -903,7 +906,7 @@ function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 
 
 
-end % end getBiVarCorOutputs
+end % Correlation
 
 function [comb, lbIdx] = corSanityCheck(crObj)
    
@@ -942,7 +945,7 @@ function [comb, lbIdx] = corSanityCheck(crObj)
   end
   
     
-end
+end % Correlation 
 
 end
 
