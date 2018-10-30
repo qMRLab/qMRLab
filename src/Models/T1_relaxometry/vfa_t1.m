@@ -205,4 +205,49 @@ end
 
 
     end
+    
+    % CLI-only implemented static methods. Can be called directly from
+    % class - no object needed.
+    methods(Static)
+        function Mz = analytical_solution(params)
+            %ANALYTICAL_SOLUTION  Analytical equations for the longitudinal magnetization of
+            %steady-state gradient echo experiments.
+            %
+            %   Reference: Stikov, N. , Boudreau, M. , Levesque, I. R.,
+            %   Tardif, C. L., Barral, J. K. and Pike, G. B. (2015), On the
+            %   accuracy of T1 mapping: Searching for common ground. Magn.
+            %   Reson. Med., 73: 514-522. doi:10.1002/mrm.25135
+            %
+            %   params: Struct.
+            %           Properties: T1, TR, EXC_FA, constant (optional)
+            %
+            
+            Mz = vfa_equation(params);
+            
+        end
+        
+        function signMaxAngle = ernst_angle(params)
+            %ERNST_ANGLE  Analytical equations for the longitudinal magnetization of
+            %steady-state gradient echo experiments.
+            %
+            %   Reference: Ernst, R. R. (1966). "Application of Fourier 
+            %   transform spectroscopy to magnetic resonance". Review of 
+            %   Scientific Instruments. 37: 93. doi:10.1063/1.171996
+            %
+            %   params: Struct.
+            %           Properties: T1, TR
+            %
+            
+            try
+                T1 = params.T1;
+                TR = params.TR;
+            catch
+                error('vfa_t1.ernst_equation: Incorrect parameters.  Run `help vfa_t1.ernst_angle` for more info.')
+            end
+
+            signMaxAngle = acosd(exp(-TR./T1));
+            
+        end
+    end
+    
 end
