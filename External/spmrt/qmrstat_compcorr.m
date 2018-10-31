@@ -1,4 +1,4 @@
-function [CIP,pP,CIC,pC]=spmrt_compcorr(X,Y,metric,figout,threshold,alpha_level)
+function [CIP,pP,CIC,pC]=qmrstat_compcorr(X,Y,XLabel,YLabel,metric,figout,alpha_level)
 
 % Implementation of a percentile bootstrap of the difference of correlation
 % for dependent measures - think of comparing the reliability (corr) of two MRI
@@ -37,6 +37,7 @@ CIP = [];
 CIC = [];
 nboot = 1000; % a thousand bootstraps
 
+nx = size(X,1);
 
 
 %% Pearson correlation
@@ -99,7 +100,7 @@ if figout == 1
     set(gcf,'Color','w','InvertHardCopy','off', 'units','normalized','outerposition',[0 0 1 1])
     
     % left plot
-    [rP1,CIP1,rC1,CIC1] = spmrt_corr(X,'both',0,alpha_level);
+    [rP1,CIP1,rC1,CIC1] = qmrstat_corr(X,'both',0,alpha_level);
     
     if strcmpi(metric,'Pearson')
         subplot(1,3,1); 
@@ -112,14 +113,15 @@ if figout == 1
         mytitle = sprintf('Pearson corr =%g \n CI [%g %g] \n Concordance corr =%g \n CI [%g %g]',rP1,CIP1(1),CIP1(2),rC1,CIC1(1),CIC1(2));
     end
     scatter(X(:,1),X(:,2),50); grid on % plot observations pair 1
-    xlabel('img1 pair1','FontSize',14); ylabel('img2 pair1','FontSize',14); % label
+    xlabel('pair1 img1','FontSize',14); ylabel('pair1 img2','FontSize',14); % label
     h=lsline; set(h,'Color','r','LineWidth',4); % add the least square line
     box on; set(gca,'Fontsize',12); axis square; hold on
-    v = axis; plot([v(1):[(v(2)-v(1))/10]:v(2)],[v(3):[(v(4)-v(3))/10]:v(4)],'r','LineWidth',2);  % add diagonal
+    v = axis; 
+    plot([v(1):[(v(2)-v(1))/100]:v(2)],[v(3):[(v(4)-v(3))/100]:v(4)],'k-.','LineWidth',2);  % add diagonal
     title(mytitle,'Fontsize',12)
         
     % right plot
-    [rP2,CIP2,rC2,CIC2] = spmrt_corr(Y,'both',0,alpha_level);
+    [rP2,CIP2,rC2,CIC2] = qmrstat_corr(Y,'both',0,alpha_level);
     if strcmpi(metric,'Pearson')
         subplot(1,3,3); 
         mytitle = sprintf('Pearson corr =%g \n CI [%g %g]',rP2,CIP2(1),CIP2(2));
@@ -132,10 +134,10 @@ if figout == 1
     end
     
     scatter(Y(:,1),Y(:,2),50); grid on % plot observations pair 1
-    xlabel('img1 pair2','FontSize',14); ylabel('img2 pair2','FontSize',14); % label
-    h=lsline; set(h,'Color','r','LineWidth',4); % add the least square line
+    xlabel('pair2 img1','FontSize',14); ylabel('pair2 img2','FontSize',14); % label
+    h=lsline(gca); set(h,'Color','r','LineWidth',4); % add the least square line
     box on; set(gca,'Fontsize',12); axis square; hold on
-    vv = axis; plot([vv(1):[(vv(2)-vv(1))/10]:vv(2)],[vv(3):[(vv(4)-vv(3))/10]:vv(4)],'r','LineWidth',2);  % add diagonal
+    vv = axis; plot([vv(1):[(vv(2)-vv(1))/100]:vv(2)],[vv(3):[(vv(4)-vv(3))/100]:vv(4)],'k-.','LineWidth',2);  % add diagonal
     title(mytitle,'Fontsize',12)
     
     % middle plot

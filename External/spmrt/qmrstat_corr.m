@@ -1,4 +1,4 @@
-function [rP,CIP,rC,CIC]=spmrt_corr(image1,image2,mask,metric,figout,threshold,alpha_level)
+function [rP,CIP,rC,CIC]=qmrstat_corr(X,metric,figout,alpha_level)
 
 % Computes the Pearson (vector-wise) and concordance correlations
 % between image1 and image2 for data included in the mask
@@ -35,30 +35,8 @@ rC = []; CIC = [];
 nboot = 1000; % a thousand bootstraps
 
 %% check inputs
-spm('defaults', 'FMRI');
-if nargin < 7; threshold = []; alpha_level = 5/100; end 
-if nargin < 5; figout = 0; end 
-if nargin < 4; metric = 'both'; end
 
-if nargin == 0
-    [image1,image2,mask]=spmrt_pickupfiles;
-    if size(mask,1) > 1
-        warning('only one mask image allowed, using the 1st frame only')
-        mask = mask(1,:);
-    end
-    figout = 1; % if user if prompt to enter data then return a figure
-end
-
-%% Get the data
-if exist('threshold','var') && ~isempty(threshold)
-    X = spmrt_getdata(image1,image2,mask,threshold);
-else
-    X = spmrt_getdata(image1,image2,mask);
-end
 n = size(X,1);
-if any(sum(X,1) == 0)
-    error('at least one image is empty')
-end
 
 
 %% Pearson correlation

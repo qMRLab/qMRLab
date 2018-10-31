@@ -104,6 +104,38 @@ for d=1:9
 end
 
 
+V1 = spm_vol(pair1(1,:)); A = spm_read_vols(V1); fnameA = V1.fname(1:end-4);
+V2 = spm_vol(pair1(1,:)); B = spm_read_vols(V2); 
+
+V3 = spm_vol(pair1(1,:)); C = spm_read_vols(V3); 
+V4 = spm_vol(pair1(1,:)); D = spm_read_vols(V4); fnameB = V2.fname(1:end-4);
+
+A = A - B;
+B = C - D;  
+
+mask = spm_read_vols(spm_vol(mask));
+
+for d=1:10
+    if d ==1
+        A2 = (A.*(A<=xd(d))).*mask;
+        B2 = (B.*(B<=yd(d))).*mask;
+    elseif d == 10
+        A2 = (A.*(A>xd(d-1))).*mask;
+        B2 = (B.*(B>yd(d-1))).*mask;
+    else
+        A2 = (A.*(A>xd(d-1)).*(A<=xd(d))).*mask;
+        B2 = (B.*(B>yd(d-1)).*(B<=yd(d))).*mask;
+    end
+    V1.fname = [fnameA '_decile_' num2str(d) '.nii'];
+    V1.descrip = [num2str(d) ' decile '];
+    spm_write_vol(V1,A2);
+    V2.fname = [fnameB '_decile_' num2str(d) '.nii'];
+    V2.descrip = [num2str(d) ' decile '];
+    spm_write_vol(V2,B2);
+end
+
+
+
 %% figure
 if strcmpi(plotshift,'yes')
     figure('Name','Shit function between image voxel values');set(gcf,'Color','w');

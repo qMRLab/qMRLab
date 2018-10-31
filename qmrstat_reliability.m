@@ -74,33 +74,41 @@ function obj = loadStatMask(obj,input)
   % will take care of it.
 
   W = evalin('caller','whos');
-
+  sz = size(obj);
   if ~isempty(ismember(inputname(2),[W(:).name])) && all(ismember(inputname(2),[W(:).name]))
 
 
-    if length(obj) >=2
+    if sz(1) >=2
         
-      for ii = 1:length(obj)  
-      obj(ii) = loadStatMask@AbstractStat(obj(ii),input);
+      for ii = 1:sz(1) 
+      
+      obj(ii,1) = loadStatMask@AbstractStat(obj(ii,1),input);
+      obj(ii,2) = loadStatMask@AbstractStat(obj(ii,2),input);
+      
       end
 
-    elseif length(obj) ==1
+    elseif sz(1) ==1
 
-      obj = loadStatMask@AbstractStat(obj,input);
+      obj(1,1) = loadStatMask@AbstractStat(obj(1,1),input);
+      obj(1,2) = loadStatMask@AbstractStat(obj(1,2),input);
+    
     end
 
   else
 
 
-    if length(obj) >=2
+    if sz(1) >=2
         
       for ii = 1:length(obj)  
-      obj(ii) = loadStatMask@AbstractStat(obj(ii),eval('input'));
+      obj(ii,1) = loadStatMask@AbstractStat(obj(ii,1),eval('input'));
+      obj(ii,2) = loadStatMask@AbstractStat(obj(ii,2),eval('input'));
+      
       end
 
-    elseif length(obj) ==1
+    elseif sz(1) ==1
 
-      obj = loadStatMask@AbstractStat(obj,eval('input'));
+      obj(1,2) = loadStatMask@AbstractStat(obj(1,2),eval('input'));
+      obj(1,2) = loadStatMask@AbstractStat(obj(1,2),eval('input'));
 
     end
 

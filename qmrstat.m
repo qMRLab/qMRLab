@@ -16,9 +16,13 @@ properties (Access = private)
 CorrelationValid
 CorrelationJointMask
 MultipleCorrelation
-TestRetesValid
+
 Export2Py = false;
 OutputDir
+
+ReliabilityValid
+ReliabilityJointMask
+MultipleReliability
 
 WarningHead = '-------------------------------- qMRLab Warning';
 ErrorHead   = '----------------------------------------- qMRLab Error';
@@ -556,7 +560,96 @@ end % Correlation
 
 % ############################ RELAIBILITY TEST FAMILY 
 
+function obj = runRelCompare(obj,rlObj)
+    
+  if nargin<2
+      
+    rlObj = obj.Object.Reliability;
+    
+  elseif nargin == 2
+      
+    obj.Object.Reliability = rlObj;  
+  
+  end
+  
+  [comb, lblN] = qmrstat.relSanityCheck(rlObj);
+  
+  for kk = 1:length(comb) % Loop over pair combinations 
+  for zz = 1:lblN % Loop over labeled mask indexes
+      
+  % Combine pairs 
+  curObj = [rlObj(comb(kk,1),:);rlObj(comb(kk,2),:)];
+  
+  if lblN >1
+      
+      % If mask is labeled, masking will be done by the corresponding
+      % index, if index is passed as the third parameter.
+      
+      [PairX,PairY,XLabel,YLabel,sig] = qmrstat.getReliabilityInputs(obj,curObj,curObj(1,1).LabelIdx(zz));
+  else
+      % If mask is binary, then index won't be passed.
+      [PairX,PairY,XLabel,YLabel,sig] = qmrstat.getReliabilityInputs(obj,curObj);
+  
+  end
+  
+ [CIP,pP,CIX,pC]=qmrstat_compcorr(PairX,PairY,XLabel,YLabel,'Both',1,sig);
+  
+  
+  
+  
+  
+  end
+  end
 
+
+
+end
+
+function obj = runRelBlandAltman(obj,rlObj)
+    
+    if nargin<2
+      
+    rlObj = obj.Object.Reliability;
+    
+  elseif nargin == 2
+      
+    obj.Object.Reliability = rlObj;  
+  
+  end
+  
+  [comb, lblN] = qmrstat.relSanityCheck(rlObj);
+  
+  for kk = 1:length(comb) % Loop over pair combinations 
+  for zz = 1:lblN % Loop over labeled mask indexes
+      
+  % Combine pairs 
+  curObj = [rlObj(comb(kk,1),:);rlObj(comb(kk,2),:)];
+  
+  if lblN >1
+      
+      % If mask is labeled, masking will be done by the corresponding
+      % index, if index is passed as the third parameter.
+      
+      [PairX,PairY,XLabel,YLabel,sig] = qmrstat.getReliabilityInputs(obj,curObj,curObj(1,1).LabelIdx(zz));
+  else
+      % If mask is binary, then index won't be passed.
+      [PairX,PairY,XLabel,YLabel,sig] = qmrstat.getReliabilityInputs(obj,curObj);
+  
+  end
+  
+     BlandAltman(PairX) 
+  end
+  end
+    
+end
+
+function obj = runRelCompConcordance()
+    
+end
+
+function obj = runRelShiftFunct()
+    
+end
 
 
 % ############################# GENERIC METHODS
@@ -837,9 +930,40 @@ function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name,lblIdx)
 
 end % Correlation
 
-% WIP: TO GET CORRELATION COMPARISON PAIRS, USE THIS ONE: 
-function [obj,PairX,PairY] = getComPairs(obj,rlObj,name,lblIdx)
-end
+function [obj,PairX,PairY] = getRelPairs(obj,rlObj,name,lblIdx)
+% 2XN qmrstat_relaibility object
+  
+  if nargin ==4
+      obj = validate(obj,rlObj,name,lblIdx);
+  else
+      obj = validate(obj,rlObj,name);
+  end
+
+  if obj.([name 'Valid'])
+
+
+    PairX1 = rlObj(1,1).getActiveMap();
+    PairX2 = rlObj(1,2).getActiveMap();
+    
+    PairY1 = rlObj(2,1).getActiveMap();
+    PairY2 = rlObj(2,2).getActiveMap();
+
+
+    VecX1 = PairX1(obj.([name 'JointMask']));
+    VecX2 = PairX2(obj.([name 'JointMask']));
+    
+    VecY1 = PairY1(obj.([name 'JointMask']));
+    VecY2 = PairY2(obj.([name 'JointMask']));
+    
+
+    % In correlation  class, there should be no NaN's under masked area
+    % if exists, vals should be removed from both vectors.
+    
+    [PairX,PairY] = qmrstat.cleanNanComp(VecX1, VecX2, VecY1, VecY2);
+
+  end
+  
+end % Reliability
 
 
 
@@ -857,6 +981,21 @@ function [Vec1Out,Vec2Out] = cleanNan(Vec1, Vec2)
   joins = or(isnan(Vec1),isnan(Vec2));
   Vec1Out = Vec1(not(joins));
   Vec2Out = Vec2(not(joins));
+
+
+end % Generic 
+% cleanNan functions can be written in a more smart way later. 
+function [Pair1Out,Pair2Out] = cleanNanComp(Vec1, Vec2, Vec3, Vec4)
+
+  joins1 = or(isnan(Vec1),isnan(Vec2));
+  joins2 = or(isnan(Vec3),isnan(Vec4));
+  joins = or(joins1,joins2);
+  
+  Pair1Out(:,1) = Vec1(not(joins));
+  Pair1Out(:,2) = Vec2(not(joins));
+  
+  Pair2Out(:,1) = Vec3(not(joins));
+  Pair2Out(:,2) = Vec4(not(joins));
 
 
 end % Generic 
@@ -908,10 +1047,70 @@ function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 
 end % Correlation
 
-function [comb, lbIdx] = corSanityCheck(crObj)
-   
+function [PairX,PairY,XLabel,YLabel,sig] = getReliabilityInputs(obj,rlObj,lblIdx) % Reliability 
+ 
+  if nargin == 3  
+  [obj,PairX,PairY] = obj.getRelPairs(rlObj,'Reliability',lblIdx);
+  else
+  [obj,PairX,PairY] = obj.getRelPairs(rlObj,'Reliability');
+  end
+  
+  XLabel = rlObj(1,1).MapNames(rlObj(1,1).ActiveMapIdx);
+  XLabel2 = rlObj(1,2).MapNames(rlObj(1,2).ActiveMapIdx);
+  
+  YLabel = rlObj(2,1).MapNames(rlObj(2,1).ActiveMapIdx);
+  YLabel2 = rlObj(2,2).MapNames(rlObj(2,2).ActiveMapIdx);
+  
+ % if ~isequal(XLabel,XLabel2) || ~isequal(YLabel,YLabel2)
+
+
+  %  error( [obj.ErrorHead...
+  %  '\n>>>>>> MapNames must be matched within pairs'...
+  %  '\n>>>>>> Reliability(N,1).ActiveMapIdx == Reliability(N,2).ActiveMapIdx'...
+  %  obj.Tail],'Reliability');
+
+ % end
+  
+  if ~isequal(rlObj(:,1).SignificanceLevel,rlObj(:,2).SignificanceLevel)
+
+
+    error( [obj.ErrorHead...
+    '\n>>>>>> SignificanceLevel property of Object.%s must be the same for all objects in the array'...
+    '\n>>>>>> Avoid assigning individual objects for this property.'...
+    '\n>>>>>> Correct use: Reliability.setSignificanceLevel(0.01).'...
+    '\n>>>>>> Wrong use  : Reliability(1,1).setSignificanceLevel(0.01).'...
+    obj.Tail],'Reliability');
+
+  end
+
+  if ~isequal(rlObj(:,1).FigureOption,rlObj(:,2).FigureOption) ...
+
+ 
+    error( [obj.ErrorHead...
+    '\n>>>>>> FigureOption property of Object.%s must be the same for all objects in the array'...
+    '\n>>>>>> Avoid assigning individual objects for this property.'...
+    '\n>>>>>> Correct use: Reliability.setFigureOption(''save'').'...
+    '\n>>>>>> Wrong use  : Reliability(1,1).setFigureOption(''save'').'...
+    obj.Tail],'Reliability');
+  end
+  
+  
+  
+  if rlObj(1).SignificanceLevel ~= 5/100
+    sig  = rlObj(1).SignificanceLevel;
+  else
+    sig = 5/100;
+  end
+  
+  end
+
+function [comb, lblN] = corSanityCheck(crObj)
+  % Important function, returns iteration indexes. 
+  % Consider renaming 
+  
       sz = size(crObj);
   
+      
   if sz(1) > 1
     error( [crObj.ErrorHead ...
         '\n>>>>>> Object.%s for this method cannot have multiple object arrays of qmrstat_correlation class.'...
@@ -936,16 +1135,55 @@ function [comb, lbIdx] = corSanityCheck(crObj)
   
   if length(crObj(1).StatLabels)>1
      
-      lbIdx = length(crObj(1).StatLabels);
+      lblN = length(crObj(1).StatLabels);
       
   else
       
-      lbIdx = 1;
+      lblN = 1;
  
   end
   
     
 end % Correlation 
+
+function [comb, lblN] = relSanityCheck(rlObj)   
+ 
+  sz = size(rlObj);
+  
+  if sz(2) < 2
+    error( [rlObj.ErrorHead ...
+        '\n>>>>>> Object.%s for this method must at least be: qmrstat_correlation(2,2) '...
+        '\n>>>>>> qmrstat_correlation(N,2) is allowed, where N dependent pairs will be compared in (N choose 2) combinations)'...
+        '\n>>>>>> Correct use: Object.Reliability = qmrstat_correlation(2,2)'...
+        '\n>>>>>> Wrong use  : Object.Reliability = qmrstat_correlation(2,1)'...
+        rlObj.Tail],'Reliability');
+  end
+
+  if sz(1) > 2 
+     
+      comb = nchoosek(1:sz(1),2);
+      obj.MultipleReliability = true;
+      rlObj = crObj.setSignificanceLevel(rlObj(1,1).SignificanceLevel/length(comb));
+      disp(['Significance level is adjusted to ' num2str(rlObj(1,1).SignificanceLevel) ' for ' num2str(length(comb)) ' correlations.']);     
+      
+  else
+      
+      comb = nchoosek(1:2,2);
+ 
+  end
+  
+  if length(rlObj(1,1).StatLabels)>1
+     
+      lblN = length(rlObj(1,1).StatLabels);
+      
+  else
+      
+      lblN = 1;
+ 
+  end
+
+end
+
 
 end
 
