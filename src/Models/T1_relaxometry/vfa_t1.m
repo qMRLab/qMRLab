@@ -173,13 +173,13 @@ end
 %             grid on
 %             saveas(gcf,['temp.jpg']);
        end
-       function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+       function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
            % Simulates Single Voxel
            %
            % :param x: [struct] fit parameters
            % :param Opt.SNR: [struct] signal to noise ratio to use
            % :param display: 1=display, 0=nodisplay
-           % :returns: [struct] FitResults
+            % :returns: [struct] FitResults, data (noisy dataset)
            
            if ~exist('display','var'), display = 1; end
            Smodel = equation(obj, x);
