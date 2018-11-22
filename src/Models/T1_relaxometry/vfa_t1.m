@@ -340,5 +340,52 @@ end
                 
             end
         end
+        
+        function EXC_FA = find_two_optimal_flip_angles(params, sigFigs)
+            %FIND_TWO_OPTIMAL_FLIP_ANGLES Calculate the two optimal flip
+            %angles (having signals 71% of the signal at the Ernst angle).
+            %
+            % Simulates 100 spins params. Nex repetitions of the IR pulse
+            % sequences.
+            %
+            % References:
+            %
+            % Deoni, S. C., Rutt, B. K. and Peters, T. M. (2003), Rapid 
+            % combined T1 and T2 mapping using gradient recalled 
+            % acquisition in the steady state. Magn. Reson. Med., 49: 
+            % 515-526. 
+            %
+            % Schabel, M.C. & Morrell, G.R., 2009. Uncertainty in T(1) 
+            % mapping using the variable flip angle method with two flip 
+            % angles. Physics in medicine and biology, 54(1), pp.N1?8.
+            
+            
+            if ~exist('sigFigs','var')
+                sigFigs = 0;
+            end
+            
+            % Set up search space of flip angle and signal values
+            flipAngleSearchSpace = 0:1*10^(-sigFigs):90;
+            
+            params.EXC_FA = flipAngleSearchSpace;
+            signals = vfa_t1.analytical_solution(params);
+            
+            % Get the Angle, find index in search space
+            maxAngle = vfa_t1.ernst_angle(params);
+            [~,maxRangeIndex] = min(abs(flipAngleSearchSpace-maxAngle));
+            
+            % Calculate signal at optimal flip angle values
+            optAngleSignal= 0.71*signals(maxRangeIndex);
+            
+            % Calculate indices of optimal flip angles (smaller and larger
+            % than the Ernst angle)
+            [~,optRangeIndex_small] = min(abs(signals(1:maxRangeIndex)-optAngleSignal));
+            [~,optRangeIndex_large_rel] = min(abs(signals(maxRangeIndex+1:end)-optAngleSignal));
+            optRangeIndex_large = maxRangeIndex+optRangeIndex_large_rel;
+            
+            % Output optimal flip angle values
+            EXC_FA = [flipAngleSearchSpace(optRangeIndex_small), flipAngleSearchSpace(optRangeIndex_large)];
+            
+        end
     end
 end

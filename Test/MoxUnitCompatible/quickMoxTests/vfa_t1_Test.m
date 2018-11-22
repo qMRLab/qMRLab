@@ -31,7 +31,7 @@ function test_analytical_solution_shape
                sign(dMz(eaIndex)) + sign(dMz(eaIndex - 1)) == 0 || ...
                sign(dMz(eaIndex)) + sign(dMz(eaIndex + 1)) == 0);
 
- % inversion_recovery.bloch_sim tests
+% vfa_t1.bloch_sim tests
 function test_bloch_sim_eq_analytical_at_steady_state
 
     params.EXC_FA = 1:90;
@@ -46,3 +46,16 @@ function test_bloch_sim_eq_analytical_at_steady_state
     Msig_blochSim = abs(Msig_blochSim); % Complex to magnitude
     
     assertTrue(all(abs(Mz_analytical-Msig_blochSim) < (10^-9))); % Give slightly more difference leeway due to more calculations in bloch_sim
+
+% vfa_t1.find_two_optimal_flip_angles tests
+function test_find_two_optimal_flip_angles_below_and_above_ernst_angle
+
+    params.T1 = 900; % ms
+    params.TR = 25; % ms
+    
+    ernstAngle = vfa_t1.ernst_angle(params);
+    
+    params.EXC_FA = vfa_t1.find_two_optimal_flip_angles(params);
+   
+    assertTrue(params.EXC_FA(1) < ernstAngle);
+    assertTrue(params.EXC_FA(2) > ernstAngle); 
