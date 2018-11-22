@@ -95,7 +95,7 @@ classdef (Abstract) AbstractModel
 
            % check if protocol matches data
            if ~isempty(obj.Prot)
-               if isfield(obj.Prot,obj.MRIinputs{1})
+               if isfield(obj.Prot,obj.MRIinputs{1}) && size(obj.Prot.(obj.MRIinputs{1}).Format,1)==1
                    nR = size(obj.Prot.(obj.MRIinputs{1}).Mat,1);
                    if (nT ~= size(obj.Prot.(obj.MRIinputs{1}).Mat,1) && ~isempty(obj.Prot))
                        txt=['Protocol has: ' num2str(nR) ' rows. And input volume ' obj.MRIinputs{1} ' has ' num2str(nT)  ' frames'];
