@@ -164,9 +164,50 @@ classdef DCE < AbstractModel % Name your Model
 end
 
 function PWInorm = pwiNorm(PWI)
-PWInorm = PWI/PWI(1);
+[T0,T0_mask] = BAT(PWI);
+BL = sum(PWI .* T0_mask)./sum((PWI .* T0_mask) ~= 0);
+PWInorm = PWI/BL;
 end
 
 function T2star = pwi2T2star(Snorm,TE)
 T2star = -1/TE*log(Snorm);
+end
+
+function [T0,T0_mask] = BAT(PWI)
+% function T0 = BAT(VOX,curve_type)
+% Compute Bolus Arrival Time
+%
+% INPUT :
+%
+% OUTPUTS :
+%
+% 13/03/2013 (Thomas Perret : <thomas.perret@grenoble-inp.fr>)
+% Last modified : 15/03/2013 (TP)
+
+% Parameters of algorithm
+window_size = 4;
+th = 2.0;
+
+Nvol = length(PWI);
+T0_mask = false(Nvol,1);
+moy = zeros(Nvol-window_size,1);
+ect = zeros(Nvol-window_size,1);
+for t = 1:Nvol-window_size
+    moy(t) = mean(PWI(t:t+window_size));
+    ect(t) = std(PWI(t:t+window_size));
+end
+Tlog = PWI(window_size+1:Nvol) < (moy - th.*ect);
+[~,T0] = max(Tlog);
+T0 = T0 + window_size - 1;
+T0(T0 == window_size) = 0;
+[~,TTP] = min(PWI);
+
+
+if T0 < TTP && T0 > window_size
+    T0_mask(2:T0-2) = true;
+else
+    T0_mask(2:window_size-2) = true;
+end
+
+    
 end
