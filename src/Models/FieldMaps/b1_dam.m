@@ -82,8 +82,9 @@ end
             % 2.0.12
             if checkanteriorver(version,[2 0 13])
                 % add B1factor
-                obj.buttons = {'B1 correction factor',   [0.4000]};
-                obj.options.B1correctionfactor=0.04;
+                obj.Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
+                obj.MRIinputs = {'SFalpha','SF2alpha'};
+            
             end
            
         end
