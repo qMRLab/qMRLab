@@ -5,8 +5,8 @@ classdef b1_dam < AbstractModel
 %   Compute a B1map using 2 SPGR images with 2 different flip angles (60, 120deg)
 %
 % Inputs:
-%   SF60            SPGR data at a flip angle of 60 degree
-%   SF120           SPGR data at a flip angle of 120 degree
+%   SFalpha            SPGR data at a flip angle of Alpha degree
+%   SF2alpha           SPGR data at a flip angle of AlphaX2 degree
 %
 % Outputs:
 %	B1map           Excitation (B1+) field map
@@ -19,10 +19,10 @@ classdef b1_dam < AbstractModel
 %
 % Example of command line usage:
 %   Model = b1_dam;% Create class from model 
-%   data.SF60 = double(load_nii_data('SF60.nii.gz')); %load data
-%   data.SF120  = double(load_nii_data('SF120.nii.gz'));
+%   data.SF60 = double(load_nii_data('SFalpha.nii.gz')); %load data
+%   data.SF120  = double(load_nii_data('SFalpha.nii.gz'));
 %   FitResults       = FitData(data,Model); % fit data
-%   FitResultsSave_nii(FitResults,'SF60.nii.gz'); %save nii file using SF60.nii.gz as template
+%   FitResultsSave_nii(FitResults,'SFalpha.nii.gz'); %save nii file using SFalpha.nii.gz as template
 %
 %   For more examples: <a href="matlab: qMRusage(b1_dam);">qMRusage(b1_dam)</a>
 %
