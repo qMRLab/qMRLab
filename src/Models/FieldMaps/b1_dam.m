@@ -44,14 +44,13 @@ properties (Hidden=true)
 end
 
     properties
-        MRIinputs = {'SF60','SF120'};
+        MRIinputs = {'SFalpha','SF2alpha'};
         xnames = {};
         voxelwise = 0; % 0, if the analysis is done matricially
                        % 1, if the analysis is done voxel per voxel
         
         % Protocol
-        ProtFormat ={};
-        Prot  = []; % You can define a default protocol here.
+        Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
         
         % Model options
         buttons = {};
@@ -64,13 +63,32 @@ methods (Hidden=true)
 end
     
     methods
+        
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
         end
         
         function FitResult = fit(obj,data)
-            FitResult.B1map = abs(acos(data.SF120./(2*data.SF60))./(60*pi/180));
+            FitResult.B1map = abs(acos(data.SF2alpha./(2*data.SFalpha))./(obj.Prot.Alpha.Mat*pi/180));
         end
         
     end
+    
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+           
+            % 2.0.12
+            if checkanteriorver(version,[2 0 13])
+                % add B1factor
+                obj.buttons = {'B1 correction factor',   [0.4000]};
+                obj.options.B1correctionfactor=0.04;
+            end
+           
+        end
+    end
+    
+    
+    
 end
