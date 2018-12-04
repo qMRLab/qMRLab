@@ -40,7 +40,7 @@ classdef b1_dam < AbstractModel
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/8ypzw/download/';
+    onlineData_url = 'https://osf.io/mw3sq/download?version=1';
 end
 
     properties
@@ -84,7 +84,7 @@ end
                 % add B1factor
                 obj.Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
                 obj.MRIinputs = {'SFalpha','SF2alpha'};
-            
+                
             end
            
         end
