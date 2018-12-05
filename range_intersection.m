@@ -65,3 +65,4 @@ while isempty(first)==0 && isempty(second)==0
 end
 % Remove the tails
 out=out1(1:k-1);
+end

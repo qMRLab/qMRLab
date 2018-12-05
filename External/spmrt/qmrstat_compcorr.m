@@ -123,7 +123,7 @@ if figout == 1
         mytitle = sprintf('Pearson corr =%g \n CI [%g %g] \n Concordance corr =%g \n CI [%g %g]',rP1,CIP1(1),CIP1(2),rC1,CIC1(1),CIC1(2));
     end
     scatter(X(:,1),X(:,2),50); grid on % plot observations pair 1
-    xlabel('pair1 img1','FontSize',14); ylabel('pair1 img2','FontSize',14); % label
+    xlabel(['pair1 ' XLabel],'FontSize',14); ylabel(['pair1 ' YLabel],'FontSize',14); % label
     h=lsline; set(h,'Color','b','LineWidth',4); % add the least square line
     box on; set(gca,'Fontsize',12); axis square; hold on
     %v = axis;
@@ -171,7 +171,7 @@ if figout == 1
     end
 
     scatter(Y(:,1),Y(:,2),50); grid on % plot observations pair 1
-    xlabel('pair2 img1','FontSize',14); ylabel('pair2 img2','FontSize',14); % label
+    xlabel(['pair2 ' XLabel],'FontSize',14); ylabel(['pair2 ' YLabel],'FontSize',14); % label
     h2=lsline(gca); set(h2,'Color','b','LineWidth',2); % add the least square line
     box on; set(gca,'Fontsize',12); axis square; hold on
     %vv = axis; plot([vv(1):[(vv(2)-vv(1))/100]:vv(2)],[vv(3):[(vv(4)-vv(3))/100]:vv(4)],'k-.','LineWidth',2);  % add diagonal
