@@ -130,15 +130,27 @@ if figout == 1
     %plot([v(1):[(v(2)-v(1))/100]:v(2)],[v(3):[(v(4)-v(3))/100]:v(4)],'k-.','LineWidth',2);  % add diagonal
 
     v = axis;
-    idxMax  = find(v==max(abs(v)));
-    idxMin  = find(v==min(abs(v)));
-    identity = v(idxMin):v(idxMax);
-    idplot = plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
+    intsect = range_intersection([v(1) v(2)],[v(3) v(4)]);
+    if ~isempty(intsect)
+
+        identity = intsect(1):intsect(2);
+        plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
+
+    else
+
+       disp('Concordance and identity lines cannot be drawn');
+       identity = [];
+
+    end
+    
     title(mytitle,'Fontsize',12)
 
     if strcmp(metric,'Concordance') || strcmp(metric,'both')
-      % See line 110
-      concplot = plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
+     
+      if ~isempty(identity)  
+          plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
+      end
+      
     end
 
 
@@ -152,10 +164,10 @@ if figout == 1
         mytitle = sprintf('Pearson corr (blue)=%g \n CI [%g %g]',rP2,CIP2(1),CIP2(2));
     elseif strcmpi(metric,'Concordance')
          subplot(1,3,3);
-        mytitle =  sprintf('Concordance corr (red) =%g \n CI [%g %g]',rC2,CIC2(1),CIC2(2));
+        mytitle =  sprintf('Concordance corr (red,if present) =%g \n CI [%g %g]',rC2,CIC2(1),CIC2(2));
     else
         subplot(4,3,[6 9]);
-        mytitle = sprintf('Pearson corr (blue) =%g \n CI [%g %g] \n Concordance corr (red) =%g \n CI [%g %g]',rP2,CIP2(1),CIP2(2),rC2,CIC2(1),CIC2(2));
+        mytitle = sprintf('Pearson corr (blue) =%g \n CI [%g %g] \n Concordance corr (red,if present) =%g \n CI [%g %g]',rP2,CIP2(1),CIP2(2),rC2,CIC2(1),CIC2(2));
     end
 
     scatter(Y(:,1),Y(:,2),50); grid on % plot observations pair 1
@@ -164,15 +176,27 @@ if figout == 1
     box on; set(gca,'Fontsize',12); axis square; hold on
     %vv = axis; plot([vv(1):[(vv(2)-vv(1))/100]:vv(2)],[vv(3):[(vv(4)-vv(3))/100]:vv(4)],'k-.','LineWidth',2);  % add diagonal
     vv = axis;
-    idxMax  = find(vv==max(abs(vv)));
-    idxMin  = find(vv==min(abs(vv)));
-    identity = vv(idxMin):vv(idxMax);
-    idplot = plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
+    intsect = range_intersection([vv(1) vv(2)],[vv(3) vv(4)]);
+    if ~isempty(intsect)
+
+        identity = intsect(1):intsect(2);
+        plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
+
+    else
+
+       disp('Concordance and identity lines cannot be drawn');
+       identity = [];
+
+    end
 
     if strcmp(metric,'Concordance') || strcmp(metric,'both')
       % See line 145
-      concplot = plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
+      if ~isempty(identity)  
+          plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
+      end
+      
     end
+    
     title(mytitle,'Fontsize',12)
 
     % middle plot

@@ -126,24 +126,39 @@ if figout == 1
     end
 
     if strcmp(metric,'Concordance') || strcmp(metric,'both')
-        idxMax  = find(v==max(abs(v)));
-        idxMin  = find(v==min(abs(v)));
-        identity = v(idxMin):v(idxMax);
-        idplot = plot(identity,identity,'k--','LineWidth',2);  % Identity line
-        concplot = plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
+    
+        intsect = range_intersection([v(1) v(2)],[v(3) v(4)]);
+        if ~isempty(intsect)
+        
+            identity = intsect(1):intsect(2);
+            idplot = plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
+            concplot = plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
+    
+        else
+            
+           disp('Concordance and identity lines cannot be drawn');
+           identity = [];
+           
+        end
+    
+    
     end
 
-        if strcmpi(metric,'Pearson')
+    if strcmpi(metric,'Pearson')
         title(['Pearson corr =' num2str(rP)],'FontSize',16);
         legend(h, ...
        {'Pearson'});
     elseif strcmpi(metric,'Concordance')
       title(['Concordance corr =' num2str(rC) 'Bias factor: ' num2str(biasFactorC)],'FontSize',16);
+      if ~isempty(identity)
       legend([idplot,concplot], ...
-     {'Identity Line', 'Concordance'});
+      {'Identity Line', 'Concordance'});
+      end
     else
       title(sprintf('Pearson corr =%g \n Concordance corr =%g Bias factor=%g ', rP,rC,biasFactorC),'FontSize',16);
+      if ~isempty(identity)
       legend([idplot,concplot,h], ...
      {'Identity Line', 'Concordance','Pearson'});
+      end
     end
 end
