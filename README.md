@@ -20,6 +20,23 @@ Please report any <b>bug</b> or <b>suggestions</b> in <a href="https://github.co
 <p align="center">
 qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/qMTLab">qMTLab</a>.</p>  
 
+## References
+
+**qMRLab**
+
+* [Duval et al. *Quantitative MRI made easy with qMRLab.* ISMRM 2018](http://archive.ismrm.org/2018/2288.html)
+* [Cabana et al. *Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization.* Concepts in Magn Reson 2015](https://onlinelibrary.wiley.com/doi/abs/10.1002/cmr.a.21357)
+
+**Applications**
+
+* [Barbieri et al. *Circumventing the Curse of Dimensionality in Magnetic Resonance Fingerprinting through a Deep Learning Approach.* arXiv:1811.11477](https://arxiv.org/abs/1811.11477)
+* [Varma et al. *Low duty-cycle pulsed irradiation reduces magnetization transfer and increases the inhomogeneous magnetization transfer effect.* J of Mag Res 2018](https://www.sciencedirect.com/science/article/abs/pii/S1090780718302088)
+* [Campbell et al. *Promise and pitfalls of g-ratio estimation with MRI.* NeuroImage 2018](https://www.sciencedirect.com/science/article/pii/S1053811917306857)
+* [Boudreau et al. *Sensitivity regularization of the Cramér‐Rao lower bound to minimize B1 nonuniformity effects in quantitative magnetization transfer imaging.* Mag Res Med 2018](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.27337)
+
+**Interactive Tutorials**
+
+* [Boudreau M. *Relaxometry Series: Inversion Recovery.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/10/23/T1-mapping-inversion-recovery.html)
 
 ## Citation
 
