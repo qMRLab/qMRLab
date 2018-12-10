@@ -69,7 +69,7 @@ end
         end
         
         function FitResult = fit(obj,data)
-            FitResult.B1map = abs(acos(data.SF2alpha./(2*data.SFalpha))./(obj.Prot.Alpha.Mat*pi/180));
+            FitResult.B1map = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
         end
         
     end
