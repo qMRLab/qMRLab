@@ -32,6 +32,7 @@ function Fit = FitData(data, Model, wait , Fittmp)
 Model.sanityCheck(data);
 
 tStart = tic;
+tsaved = 0;
 
 h=[];
 if ismethod(Model,'Precompute'), Model = Model.Precompute; end
@@ -125,11 +126,14 @@ if Model.voxelwise % process voxelwise
         end
 
         Fit.computed(vox) = 1;
-
-        %-- save temp file every 20 voxels
-        if(mod(ii,20) == 0)
+        
+        %  save temp file every 5min
+        telapsed = toc(tStart);
+       if (mod(floor(telapsed/60),5) == 0 && (telapsed-tsaved)/60>5) % 
+           tsaved = telapsed;
             save('FitTempResults.mat', '-struct','Fit');
         end
+
 
         if ISTRAVIS && ii>2
             try
