@@ -18,7 +18,7 @@ classdef b1_dam < AbstractModel
 %   NONE
 %
 % Example of command line usage:
-%   Model = b1_dam;% Create class from model 
+%   Model = b1_dam;% Create class from model
 %   data.SF60 = double(load_nii_data('SFalpha.nii.gz')); %load data
 %   data.SF120  = double(load_nii_data('SFalpha.nii.gz'));
 %   FitResults       = FitData(data,Model); % fit data
@@ -48,48 +48,48 @@ end
         xnames = {};
         voxelwise = 0; % 0, if the analysis is done matricially
                        % 1, if the analysis is done voxel per voxel
-        
+
         % Protocol
         Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
-        
+
         % Model options
         buttons = {};
         options = struct(); % structure filled by the buttons. Leave empty in the code
-        
+
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
+
     methods
-        
+
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
         end
-        
+
         function FitResult = fit(obj,data)
             FitResult.B1map = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
         end
-        
+
     end
-    
-    
+
+
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
-           
+
             % 2.0.12
-            if checkanteriorver(version,[2 0 13])
+            if checkanteriorver(version,[2 0 12])
                 % add B1factor
                 obj.Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
                 obj.MRIinputs = {'SFalpha','SF2alpha'};
-                
+
             end
-           
+
         end
     end
-    
-    
-    
+
+
+
 end
