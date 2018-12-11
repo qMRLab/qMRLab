@@ -40,7 +40,7 @@ classdef b1_dam < AbstractModel
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/mw3sq/download?version=1';
+    onlineData_url = 'https://osf.io/mw3sq/download?version=3';
 end
 
     properties
