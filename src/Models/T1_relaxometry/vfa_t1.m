@@ -173,13 +173,13 @@ end
 %             grid on
 %             saveas(gcf,['temp.jpg']);
        end
-       function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+       function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
            % Simulates Single Voxel
            %
            % :param x: [struct] fit parameters
            % :param Opt.SNR: [struct] signal to noise ratio to use
            % :param display: 1=display, 0=nodisplay
-           % :returns: [struct] FitResults
+            % :returns: [struct] FitResults, data (noisy dataset)
            
            if ~exist('display','var'), display = 1; end
            Smodel = equation(obj, x);
@@ -204,5 +204,188 @@ end
        end
 
 
+    end
+    
+    % CLI-only implemented static methods. Can be called directly from
+    % class - no object needed.
+    methods(Static)
+        function Mz = analytical_solution(params)
+            %ANALYTICAL_SOLUTION  Analytical equations for the longitudinal magnetization of
+            %steady-state gradient echo experiments.
+            %
+            %   Reference: Stikov, N. , Boudreau, M. , Levesque, I. R.,
+            %   Tardif, C. L., Barral, J. K. and Pike, G. B. (2015), On the
+            %   accuracy of T1 mapping: Searching for common ground. Magn.
+            %   Reson. Med., 73: 514-522. doi:10.1002/mrm.25135
+            %
+            %   params: Struct.
+            %           Properties: T1, TR, EXC_FA, constant (optional)
+            %
+            
+            Mz = vfa_equation(params);
+            
+        end
+        
+        function signMaxAngle = ernst_angle(params)
+            %ERNST_ANGLE  Analytical equations for the longitudinal magnetization of
+            %steady-state gradient echo experiments.
+            %
+            %   Reference: Ernst, R. R. (1966). "Application of Fourier 
+            %   transform spectroscopy to magnetic resonance". Review of 
+            %   Scientific Instruments. 37: 93. doi:10.1063/1.171996
+            %
+            %   params: Struct.
+            %           Properties: T1, TR
+            %
+            
+            try
+                T1 = params.T1;
+                TR = params.TR;
+            catch
+                error('vfa_t1.ernst_equation: Incorrect parameters.  Run `help vfa_t1.ernst_angle` for more info.')
+            end
+
+            signMaxAngle = acosd(exp(-TR./T1));
+            
+        end
+        
+        function [Mz, Msig] = bloch_sim(params)
+            %BLOCH_SIM Bloch simulations of the GRE-IR pulse sequence.
+            % Simulates 100 spins params. Nex repetitions of the IR pulse
+            % sequences.
+            %
+            % params: Struct with the following fields:
+            %   EXC_FA: Excitation pulse flip angle in degrees.
+            %   TI: Inversion time (ms).
+            %   TR: Repetition time (ms).
+            %   TE: Echo time (ms).
+            %   T1: Longitudinal relaxation time (ms).
+            %   T2: Transverse relaxation time (ms).
+            %   Nex: Number of excitations
+            %
+            %   (optional)
+            %       df: Off-resonance frequency of spins relative to excitation pulse (in Hz)
+            %       crushFlag: Numeric flag for perfect spoiling (1) or partial spoiling (2).
+            %       partialDephasingFlag: do partialDephasing (see below)
+            %       partialDephasing: Partial dephasing fraction (between [0, 1]). 1 = no dephasing, 0 = complete dephasing (sele
+            %       inc: Phase spoiling increment in degrees.
+            %
+            % Outputs:
+            %   Mz: Longitudinal magnetization at just prior to excitation pulse.
+            %   Msig: Complex signal produced by the transverse magnetization at time TE after excitation.
+            %
+            
+            %% Setup parameters
+            %
+            
+            alpha = deg2rad(params.EXC_FA);
+            TR = params.TR;
+            T1 = params.T1;
+            
+            TE = params.TE;
+            T2 = params.T2;
+            
+            Nex = params.Nex;
+            
+            %% Optional parameers
+            
+            if isfield(params, 'df')
+                df = params.df;
+            else
+                df = 0;
+            end
+            
+            if isfield(params, 'crushFlag')
+                crushFlag = params.crushFlag;
+            else
+                crushFlag = 1;
+            end
+            
+            if isfield(params, 'partialDephasingFlag')
+                partialDephasingFlag = params.partialDephasingFlag;
+            else
+                partialDephasingFlag = 0;
+            end
+            
+            if isfield(params, 'partialDephasing')
+                partialDephasing = params.partialDephasing;
+            else
+                partialDephasing = 1;
+            end
+            
+            if isfield(params, 'inc')
+                inc = deg2rad(params.inc);
+            else
+                inc = 0;
+            end
+            
+            %% Simulate for every flip angless
+            %
+            
+            for ii = 1:length(alpha)
+                
+                [Msig(ii), Mz(ii)] = vfa_blochsim(                  ...
+                    alpha(ii),            ...
+                    T1,                   ...
+                    T2,                   ...
+                    TE,                   ...
+                    TR,                   ...
+                    crushFlag,            ...
+                    partialDephasingFlag, ...
+                    partialDephasing,     ...
+                    df,                   ...
+                    Nex,                  ...
+                    inc                   ...
+                    );
+                
+            end
+        end
+        
+        function EXC_FA = find_two_optimal_flip_angles(params, sigFigs)
+            %FIND_TWO_OPTIMAL_FLIP_ANGLES Calculate the two optimal flip
+            %angles (having signals 71% of the signal at the Ernst angle).
+            %
+            % Simulates 100 spins params. Nex repetitions of the IR pulse
+            % sequences.
+            %
+            % References:
+            %
+            % Deoni, S. C., Rutt, B. K. and Peters, T. M. (2003), Rapid 
+            % combined T1 and T2 mapping using gradient recalled 
+            % acquisition in the steady state. Magn. Reson. Med., 49: 
+            % 515-526. 
+            %
+            % Schabel, M.C. & Morrell, G.R., 2009. Uncertainty in T(1) 
+            % mapping using the variable flip angle method with two flip 
+            % angles. Physics in medicine and biology, 54(1), pp.N1?8.
+            
+            
+            if ~exist('sigFigs','var')
+                sigFigs = 0;
+            end
+            
+            % Set up search space of flip angle and signal values
+            flipAngleSearchSpace = 0:1*10^(-sigFigs):90;
+            
+            params.EXC_FA = flipAngleSearchSpace;
+            signals = vfa_t1.analytical_solution(params);
+            
+            % Get the Angle, find index in search space
+            maxAngle = vfa_t1.ernst_angle(params);
+            [~,maxRangeIndex] = min(abs(flipAngleSearchSpace-maxAngle));
+            
+            % Calculate signal at optimal flip angle values
+            optAngleSignal= 0.71*signals(maxRangeIndex);
+            
+            % Calculate indices of optimal flip angles (smaller and larger
+            % than the Ernst angle)
+            [~,optRangeIndex_small] = min(abs(signals(1:maxRangeIndex)-optAngleSignal));
+            [~,optRangeIndex_large_rel] = min(abs(signals(maxRangeIndex+1:end)-optAngleSignal));
+            optRangeIndex_large = maxRangeIndex+optRangeIndex_large_rel;
+            
+            % Output optimal flip angle values
+            EXC_FA = [flipAngleSearchSpace(optRangeIndex_small), flipAngleSearchSpace(optRangeIndex_large)];
+            
+        end
     end
 end
