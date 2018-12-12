@@ -128,5 +128,15 @@ classdef CustomExample < AbstractModel % Name your Model
             end
         end
 
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+        end
+        
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
     end
 end
