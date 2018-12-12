@@ -40,7 +40,7 @@ classdef DCE < AbstractModel % Name your Model
         voxelwise = 1; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
         st           = [ 300        35       0.5  ]; % starting point
         lb            = [ 0       0       0   ]; % lower bound
-        ub           = [ inf      100       50  ]; % upper bound
+        ub           = [ 10000      100       50  ]; % upper bound
         fx            = [ 0       0        0  ]; % fix parameters
         
         % Protocol
@@ -49,9 +49,11 @@ classdef DCE < AbstractModel % Name your Model
                         'Mat', [1.5; 0.040; 40])); % provide a default protocol (Nx2 matrix)
         
         % Model options
-        buttons = {'SMS',true,'Model',{'simple','advanced'}};
+        buttons = {'GammaFit',false,'Arterial Input Function',{'Dirac','Deconvolution'}};
         options= struct();
         
+        % Arterial Input Function
+        AIF = [];
     end
     
     methods
@@ -59,7 +61,12 @@ classdef DCE < AbstractModel % Name your Model
             obj.options = button2opts(obj.buttons); % converts buttons values to option structure
         end
         
-        function T2star = equation(obj, x)
+        function obj = PrecomputeData(obj, data)
+            % compute AIF
+            [obj.AIF, score] = extraction_aif_volume(data.PWI,data.Mask);
+        end
+        
+        function R2star = equation(obj, x)
             % Compute the Signal Model based on parameters x. 
             % x can be both a structure (FieldNames based on xnames) or a
             % vector (same order as xnames).
@@ -72,7 +79,7 @@ classdef DCE < AbstractModel % Name your Model
             Nvol = obj.Prot.PWI.Mat(3);
             time = 0:TR:TR*(Nvol-1);
             time = time';
-            T2star = K*gampdf(time,n,a);% *time.^n.*exp(-a*time);
+            R2star = K*gampdf(time,n,a);% *time.^n.*exp(-a*time);
             
         end
         
@@ -81,9 +88,9 @@ classdef DCE < AbstractModel % Name your Model
             %  data is a structure. FieldNames are based on property
             %  MRIinputs. 
             
-            if obj.options.SMS
-                % buttons values can be access with obj.options
-            end
+%             if obj.options.SMS
+%                 % buttons values can be access with obj.options
+%             end
             
             % set the right value for 
             obj.Prot.PWI.Mat(3) = length(data.PWI);
@@ -98,15 +105,15 @@ classdef DCE < AbstractModel % Name your Model
             PWI = double(data.PWI);
             % normalization
             PWInorm = pwiNorm(PWI);
-            T2star = pwi2T2star(PWInorm,TE);
-            T2star = max(.1,T2star);
-            Smax = max(T2star);
-            T2star = T2star./Smax;
+            R2star = pwi2R2star(PWInorm,TE);
+            R2star = max(.1,R2star);
+            Smax = max(R2star);
+            R2star = R2star./Smax;
             % remove 0.7*T2star(tpic)
-            T2star(find(diff(T2star<0.4*max(T2star)),1,'last')+4:Nvol) = 0;
+            R2star(find(diff(R2star<0.4*max(R2star)),1,'last')+4:Nvol) = 0;
             opt = optimoptions('lsqcurvefit','Display','off');
             [xopt, resnorm] = lsqcurvefit(@(x,xdata) obj.equation(addfix(obj.st,x,obj.fx)),...
-                     obj.st(~obj.fx), [], T2star, obj.lb(~obj.fx), obj.ub(~obj.fx),opt);
+                     obj.st(~obj.fx), [], R2star, obj.lb(~obj.fx), obj.ub(~obj.fx),opt);
 %                  
             %  convert fitted vector xopt to a structure.
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
@@ -121,7 +128,7 @@ classdef DCE < AbstractModel % Name your Model
             if nargin<2, qMRusage(obj,'plotModel'), FitResults=obj.st; end
             
             %Get fitted Model signal
-            T2star = equation(obj, FitResults);
+            R2star = equation(obj, FitResults);
             
             %Get the varying acquisition parameter
             TR = obj.Prot.PWI.Mat(1);
@@ -130,34 +137,48 @@ classdef DCE < AbstractModel % Name your Model
             time = time';
             
             % Plot Fitted Model
-            plot(time,T2star,'b-')
+            plot(time,R2star,'b-')
             
             % Plot Data
             if exist('data','var')
                 TE = obj.Prot.PWI.Mat(2);
                 % norm
                 PWInorm = pwiNorm(data.PWI);
-                T2star = pwi2T2star(PWInorm,TE);
-                time = 0:TR:TR*(length(T2star)-1);
+                R2star = pwi2R2star(PWInorm,TE);
+                time = 0:TR:TR*(length(R2star)-1);
                 hold on
-                plot(time,T2star,'r+')
+                plot(time,R2star,'r+')
                 hold off
             end
+            ylabel('R2* (s^{-1})')
+            xlabel('time (s)')
             legend({'Model','Data'})
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
             % Compute Smodel
-            Smodel = equation(obj, x);
+            R2star = equation(obj, x);
+            TE = obj.Prot.PWI.Mat(2);
+            Smodel = exp(-TE*R2star);
             % add rician noise
             sigma = max(Smodel)/Opt.SNR;
-            data.Data4D = random('rician',Smodel,sigma);
+            data.PWI = random('rician',Smodel,sigma);
             % fit the noisy synthetic data
             FitResults = fit(obj,data);
             % plot
-            if display
+            if ~exist('display','var') || display
                 plotModel(obj, FitResults, data);
             end
+        end
+
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+        end
+        
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
     end
@@ -169,8 +190,8 @@ BL = sum(PWI .* T0_mask)./sum((PWI .* T0_mask) ~= 0);
 PWInorm = PWI/BL;
 end
 
-function T2star = pwi2T2star(Snorm,TE)
-T2star = -1/TE*log(Snorm);
+function R2star = pwi2R2star(Snorm,TE)
+R2star = -1/TE*log(Snorm);
 end
 
 function [T0,T0_mask] = BAT(PWI)
