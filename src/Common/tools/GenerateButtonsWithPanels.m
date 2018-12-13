@@ -111,6 +111,7 @@ if ~isempty(opts)
     if ~exist('ParentHandle','var'), ParentHandle = figure; end
     Position = getpixelposition(ParentHandle);
     PanelHeight = 35/Position(4);
+    PanelHeight = min(PanelHeight,1.85/nOpts);
     PanelGap = 0.02;
 % ----------------------------------------------------------------------------------------------------
 
