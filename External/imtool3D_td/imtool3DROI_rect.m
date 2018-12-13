@@ -482,6 +482,7 @@ switch get(source,'Label')
     case 'Export stats'
         stats = getMeasurements(ROI);
         name = inputdlg('Enter variable name');
+        if isempty(name); return; end
         name=name{1};
         assignin('base', name, stats)
     case 'Fix Aspect Ratio'

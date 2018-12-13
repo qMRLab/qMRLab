@@ -3,26 +3,23 @@ if nargin<2, qt=5; end
 % detect outliers based on 5 times the Interquartile Range
 x=x(:); x(isinf(x))=[]; x(isnan(x))=[]; 
 
-% STEP 1 - rank the data
-y = sort(x);
-
 % compute 25th percentile (first quartile)
-Q1L = y<median(y);
+Q1L = x<median(x);
 if ~any(Q1L)
-  Q(1)=min(y);
+  Q(1)=min(x);
   else
-  Q(1) = median(y(Q1L)); 
+  Q(1) = median(x(Q1L)); 
 end
 
 % compute 50th percentile (second quartile)
-Q(2) = median(y);
+Q(2) = median(x);
 
 % compute 75th percentile (third quartile)
-Q3L = y>median(y);
+Q3L = x>median(x);
 if ~any(Q3L)
-  Q(3)=max(y);
+  Q(3)=max(x);
   else
-  Q(3) = median(y(Q3L));
+  Q(3) = median(x(Q3L));
 
 end
 
@@ -30,8 +27,8 @@ end
 IQR = Q(3)-Q(1);
 
 % determine extreme Q1 outliers (e.g., x < Q1 - 3*IQR)
-xmin = max(min(y),Q(1)-qt*IQR);
-xmax = min(max(y),Q(3)+qt*IQR);
+xmin = max(min(x),Q(1)-qt*IQR);
+xmax = min(max(x),Q(3)+qt*IQR);
 
 if nargout<2
     xmin = [xmin xmax];

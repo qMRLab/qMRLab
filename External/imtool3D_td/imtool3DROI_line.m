@@ -78,7 +78,7 @@ classdef imtool3DROI_line < imtool3DROI
             
             %Define the context menu options (i.e., what happens when you
             %right click on the ROI)
-            menuLabels = {'Export stats','Plot profile','Hide Text','Delete'};
+            menuLabels = {'Export stats','Plot profile','Hide Text','Hide profile', 'Delete'};
             menuFunction = @contextMenuCallback;
             
             %create the ROI object from the superclass
@@ -87,6 +87,7 @@ classdef imtool3DROI_line < imtool3DROI
             %create the text object and line profile object
             [x,y] = findTextPosition(position,ROI.tbuff);
             ROI.textHandle = text(x,y,'text','Parent',parent,'Color','w','FontSize',10,'EdgeColor','w','BackgroundColor','k','HorizontalAlignment','Left','VerticalAlignment','top','Clipping','on');
+            hold on
             graphicsHandles(3) = plot(position(:,1),position(:,2)-ROI.pbuff,'-r','LineWidth',1.5,'Parent',parent);
             set(parent,'NextPlot',nextPlot);
             ROI.graphicsHandles = graphicsHandles;
@@ -110,6 +111,14 @@ classdef imtool3DROI_line < imtool3DROI
         
         function position = getPosition(ROI)
             position = ROI.position;
+        end
+        
+        function profileVisible(ROI,visible)
+            if visible
+                set(ROI.graphicsHandles(3),'Visible','on')
+            else
+                set(ROI.graphicsHandles(3),'Visible','off');
+            end
         end
         
         function newPosition(ROI,position)
@@ -276,7 +285,15 @@ switch get(source,'Label')
                 set(source,'Checked','off');
                 ROI.textVisible = true;
         end
-        
+    case 'Hide profile'
+        switch get(source,'Checked')
+            case 'off'
+                set(source,'Checked','on');
+                profileVisible(ROI,0)
+            case 'on'
+                set(source,'Checked','off');
+                profileVisible(ROI,1)
+        end
 end
 
 
