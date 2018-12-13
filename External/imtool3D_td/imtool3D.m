@@ -912,6 +912,16 @@ classdef imtool3D < handle
             set(tool.handles.I,'XData',[1 size(I,2)]);
             set(tool.handles.I,'YData',[1 size(I,1)]);
             
+            %update the mask cdata (in case it has changed size)
+            C=zeros(size(I,1),size(I,2),3);
+            C(:,:,1)=tool.maskColor(1); C(:,:,2)=tool.maskColor(2); C(:,:,3)=tool.maskColor(3);
+            set(tool.handles.mask,'CData',C);
+            
+            %Update the slider
+            setupSlider(tool)
+            
+            %Update the TIme
+            tool.Ntime = min(tool.Ntime,size(I,4));
             
             %Update the gridlines
             delete(tool.handles.grid)
@@ -938,16 +948,6 @@ classdef imtool3D < handle
             tool.handles.grid(end+1)=scatter(.5+size(I,2)/2,.5+size(I,1)/2,'r','filled','Parent',tool.handles.Axes);
             toggleGrid(tool.handles.Tools.Grid,[],tool)
             
-            %update the mask cdata (in case it has changed size)
-            C=zeros(size(I,1),size(I,2),3);
-            C(:,:,1)=tool.maskColor(1); C(:,:,2)=tool.maskColor(2); C(:,:,3)=tool.maskColor(3);
-            set(tool.handles.mask,'CData',C);
-            
-            %Update the slider
-            setupSlider(tool)
-            
-            %Update the TIme
-            tool.Ntime = min(tool.Ntime,size(I,4));
             %Show the first slice
             showSlice(tool)
             
