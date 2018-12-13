@@ -176,14 +176,19 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         warning('Problem with adding TooltipString');
 
     end
+else
+    set(handles.FitOptTable,'ColumnName',{'Variables'})
+    set(handles.FitOptTable,'ColumnFormat',{'char'})
+    set(handles.FitOptTable,'ColumnWidth',{100})
+    set(handles.FitOptTable,'Data',Model.xnames')
+    set(handles.FitOptEditPanel,'Title', 'Outputs')
+
 end
 
 % MODEL PROPERTY ADAPTIVE DYNAMIC SUBPANELS
 % ======================================================================
 
-% Hide FittingOptions panel if equation is not a member funciton.
-% Give the space to the Options initially. If there is no options, then
-% remove that one too and leave Protocol only.
+% Hide Protocol panel if no protocol
 
 % If there is no protocol neither then just close the whole thing :D
 
@@ -191,37 +196,14 @@ end
 % B1 dam has nothing.
 % vfa_t1 has no options.
 
-
-chld = allchild(handles.uipanel29);
-
-% FitOpt panel is not present
-
-if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.options))) && not(isempty(Model.Prot))
-
-    set(chld(3),'Visible','off');
-    set(handles.OptionsPanel, 'Position', [0.5140 0.0158 0.4667 0.9735]);
-
+% No protocol
+if (isempty(Model.Prot) || isempty(fieldnames(Model.Prot)))
+    set(handles.ProtEditPanel,'Visible','off');
 end
 
-% FitOpt and protocol not present
-if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.options))) && (isempty(Model.Prot) || isempty(fieldnames(Model.Prot)))
-
-    set(chld(3),'Visible','off');
-    set(chld(2),'Visible','off');
-    set(handles.OptionsPanel, 'Position', [0.5140 0.0158 0.4667 0.9735]);
-
-end
-
-
-
-
-% Nothing is present
-
-if (isempty(Model.Prot) || isempty(fieldnames(Model.Prot))) && not(ismember('equation',methods(Model)))
-
-    set(chld(2),'Visible','off');
-    set(chld(3),'Visible','off');
-
+% No options
+if isempty(Model.buttons)
+    set(handles.OptionsPanel,'Visible','off');
 end
 
 
@@ -368,7 +350,6 @@ function Model = SetOpt(handles)
 % READ FITTING TABLE
 fittingtable = get(handles.FitOptTable,'Data'); % Get options
 Model = getappdata(0,'Model');
-Model.xnames = fittingtable(:,1)';
 
 % Manage R1map and R1r in qmt_SPGR
     indR1map = cellfun(@(x) strcmp(x,'R1MAP'), fittingtable);
