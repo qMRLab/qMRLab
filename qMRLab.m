@@ -410,8 +410,6 @@ SetAppData(FileBrowserList);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
-set(handles.RoiAnalysis,'Enable','on');
-
 
 % FITRESULTSSAVE
 function FitResultsSave_Callback(hObject, eventdata, handles)
@@ -461,64 +459,15 @@ SetAppData(FileBrowserList);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
-set(handles.RoiAnalysis,'Enable','on');
 
 
 % #########################################################################
 %                            PLOT DATA
 % #########################################################################
 
-function ColorMapStyle_Callback(hObject, eventdata, handles)
-val  =  get(handles.ColorMapStyle, 'Value');
-maps =  get(handles.ColorMapStyle, 'String');
-colormap(maps{val});
-
-function Auto_Callback(hObject, eventdata, handles)
-GetPlotRange(handles);
-RefreshPlot(handles);
-
 % SOURCE
 function SourcePop_Callback(hObject, eventdata, handles)
-GetPlotRange(handles);
 RefreshPlot(handles);
-
-% MIN
-function MinValue_Callback(hObject, eventdata, handles)
-mini   =  str2double(get(hObject,'String'));
-maxi = str2double(get(handles.MaxValue, 'String'));
-
-lower =  mini - 0.25*abs(mini+maxi);
-set(handles.MinSlider, 'Value', mini);
-set(handles.MinSlider, 'min',   lower);
-caxis([mini maxi]);
-% RefreshColorMap(handles);
-
-
-function MinSlider_Callback(hObject, eventdata, handles)
-maxi = str2double(get(handles.MaxValue, 'String'));
-mini = min(get(hObject, 'Value'),maxi-eps);
-set(hObject,'Value',mini)
-set(handles.MinValue,'String',mini);
-caxis([mini maxi]);
-% RefreshColorMap(handles);
-
-% MAX
-function MaxValue_Callback(hObject, eventdata, handles)
-mini = str2double(get(handles.MinValue, 'String'));
-maxi = str2double(get(handles.MaxValue, 'String'));
-upper =  1.5 * maxi;
-set(handles.MaxSlider, 'Value', maxi)
-set(handles.MaxSlider, 'max',   upper);
-caxis([mini maxi]);
-% RefreshColorMap(handles);
-
-function MaxSlider_Callback(hObject, eventdata, handles)
-mini = str2double(get(handles.MinValue, 'String'));
-maxi = max(mini +eps,get(hObject, 'Value'));
-set(hObject,'Value',maxi)
-set(handles.MaxValue,'String',maxi);
-caxis([mini maxi]);
-% RefreshColorMap(handles);
 
 % VIEW
 function ViewPop_Callback(hObject, eventdata, handles)
@@ -526,43 +475,6 @@ UpdatePopUp(handles);
 RefreshPlot(handles);
 xlim('auto');
 ylim('auto');
-
-% SLICE
-function SliceValue_Callback(hObject, eventdata, handles)
-Slice = str2double(get(hObject,'String'));
-Slice = min(get(handles.SliceSlider,'Max'),Slice);
-Slice = max(1,Slice);
-set(hObject,'String',num2str(Slice));
-set(handles.SliceSlider,'Value',Slice);
-View =  get(handles.ViewPop,'Value');
-handles.FitDataSlice(View) = Slice;
-guidata(gcbf,handles);
-RefreshPlot(handles);
-
-function SliceSlider_Callback(hObject, eventdata, handles)
-Slice = get(hObject,'Value');
-Slice = max(1,round(Slice));
-set(handles.SliceSlider, 'Value', Slice);
-set(handles.SliceValue, 'String', Slice);
-View =  get(handles.ViewPop,'Value');
-handles.FitDataSlice(View) = Slice;
-guidata(gcbf,handles);
-RefreshPlot(handles);
-
-function TimeValue_Callback(hObject, eventdata, handles)
-Time = str2double(get(hObject,'String'));
-Time = min(get(handles.TimeSlider,'Max'),Time);
-Time = max(1,Time);
-set(hObject,'String',num2str(Time));
-set(handles.TimeSlider,'Value',Time);
-RefreshPlot(handles);
-
-function TimeSlider_Callback(hObject, eventdata, handles)
-Time = get(hObject,'Value');
-Time = max(1,round(Time));
-set(handles.TimeSlider, 'Value', Time);
-set(handles.TimeValue, 'String', Time);
-RefreshPlot(handles);
 
 % OPEN FIG
 function PopFig_Callback(hObject, eventdata, handles)
@@ -573,30 +485,16 @@ xlim(xl);
 ylim(yl);
 RefreshPlot(handles);
 
-% SAVE FIG
-function SaveFig_Callback(hObject, eventdata, handles)
-[FileName,PathName] = uiputfile(fullfile('.','NewFig.fig'));
-
-if PathName == 0, return; end
-xl = xlim;
-yl = ylim;
-h = figure();
-xlim(xl);
-ylim(yl);
-RefreshPlot(handles);
-savefig(fullfile(PathName,FileName));
-delete(h);
-
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
 Data =  getappdata(0,'Data');
 Model = class(GetAppData('Model')); % Get cur model name (string)
-Map = getimage(handles.FitDataAxe);
+Map = handles.tool.getImage;
 
 % Mask data
 if isfield(Data.(Model),'Mask')
     if ~isempty(Data.(Model).Mask)
-        Map(~rot90(Data.(Model).Mask)) = 0;
+        Map(~Data.(Model).Mask) = 0;
     end
 end
 
@@ -786,63 +684,66 @@ elseif ~isequal(Scurrent(1:3), S(1:3))
 
 else
     Model.sanityCheck(data);
-    info_dcm = getCursorInfo(handles.dcm_obj);
-    x = info_dcm.Position(1);
-    y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);
-    z = str2double(get(handles.SliceValue,'String'));
-    View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
-    switch View{get(handles.ViewPop,'Value')}
-        case 'Axial',    vox = [x,y,z]; 
-        case 'Coronal',  vox = [x,z,y]; 
-        case 'Sagittal', vox = [z,x,y]; 
-    end
-    
-    
-    for ii=1:length(Model.MRIinputs)
-        if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
-            data.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(vox(1),vox(2),vox(3),:));
+    info_dcm_all = getCursorInfo(handles.dcm_obj);
+    for ipix = 1:length(info_dcm_all)
+        info_dcm = info_dcm_all(ipix);
+        x = info_dcm.Position(1);
+        y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);
+        z = handles.tool.getCurrentSlice;
+        View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
+        switch View{get(handles.ViewPop,'Value')}
+            case 'Axial',    vox = [x,y,z];
+            case 'Coronal',  vox = [x,z,y];
+            case 'Sagittal', vox = [z,x,y];
         end
-    end
-    if isfield(data,'Mask'), data.Mask = []; end
-    
-    
-    % Create axe
-    figure(68)
-    h = findobj(68,'Style','checkbox','String','hold plot in order to compare voxels');
-    if isempty(h) || ~get(h,'Value')  % If a data fit check has already been run OR do not hold plot,
-            clf(68)        % clear the previous data from the figure plot
-            uicontrol('Style','checkbox','String','hold plot in order to compare voxels','Value',0,'Position',[0 0 210 20]);
-    end 
-                                  
-    set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
-    haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
-    
-    if ~isempty(haxes)
-        % turn gray old plots
-        for h=1:length(haxes) %might have subplots
-            haxe = get(haxes(h),'children');
-            set(haxe,'Color',[0.8 0.8 0.8]);
-            hAnnotation = get(haxe,'Annotation');
-            % remove their legends
-            for ih=1:length(hAnnotation)
-                if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
-                hLegendEntry = get(hAnnot,'LegendInformation');
-                set(hLegendEntry,'IconDisplayStyle','off');
+        
+        
+        for ii=1:length(Model.MRIinputs)
+            if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
+                datasqueeze.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(vox(1),vox(2),vox(3),:));
             end
         end
-    end
-    hold on;
-    
-    % Do the fitting
-    Model = getappdata(0,'Model');
-    if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
-    if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
-    Fit = Model.fit(data) % Display fitting results in command window
-    Model.plotModel(Fit,data);
-    
-    % update legend
-    if ~moxunit_util_platform_is_octave
-        legend('Location','best')
+        if isfield(datasqueeze,'Mask'), datasqueeze.Mask = []; end
+        
+        
+        % Create axe
+        figure(68)
+        h = findobj(68,'Style','checkbox','String','hold plot in order to compare voxels');
+        if ipix==1 && (isempty(h) || ~get(h,'Value'))  % If a data fit check has already been run OR do not hold plot,
+            clf(68)        % clear the previous data from the figure plot
+            uicontrol('Style','checkbox','String','hold plot in order to compare voxels','Value',0,'Position',[0 0 210 20]);
+        end
+        
+        set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
+        haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
+        
+        if ~isempty(haxes)
+            % turn gray old plots
+            for h=1:length(haxes) %might have subplots
+                haxe = get(haxes(h),'children');
+                set(haxe,'Color',[0.8 0.8 0.8]);
+                hAnnotation = get(haxe,'Annotation');
+                % remove their legends
+                for ih=1:length(hAnnotation)
+                    if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
+                    hLegendEntry = get(hAnnot,'LegendInformation');
+                    set(hLegendEntry,'IconDisplayStyle','off');
+                end
+            end
+        end
+        hold on;
+        
+        % Do the fitting
+        Model = getappdata(0,'Model');
+        if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
+        if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
+        Fit = Model.fit(datasqueeze) % Display fitting results in command window
+        Model.plotModel(Fit,datasqueeze);
+        
+        % update legend
+        if ~moxunit_util_platform_is_octave
+            legend('Location','best')
+        end
     end
 end
 
@@ -858,31 +759,11 @@ nii = make_nii(Data.(Source));
 save_nii(nii,file);
 nii_viewer(file);
 
-
-% PAN
-function PanBtn_Callback(hObject, eventdata, handles)
-pan;
-set(handles.ZoomBtn,'Value',0);
-set(handles.CursorBtn,'Value',0);
-zoom off;
-datacursormode off;
-
-% ZOOM
-function ZoomBtn_Callback(hObject, eventdata, handles)
-zoom;
-set(handles.PanBtn,'Value',0);
-set(handles.CursorBtn,'Value',0);
-pan off;
-datacursormode off;
-
 % CURSOR
 function CursorBtn_Callback(hObject, eventdata, handles)
 datacursormode;
-set(handles.ZoomBtn,'Value',0);
-set(handles.PanBtn,'Value',0);
-zoom off;
-pan off;
-fig = gcf;
+H = handles.tool.getHandles;
+fig = H.fig;
 handles.dcm_obj = datacursormode(fig);
 guidata(gcbf,handles);
 
@@ -890,14 +771,13 @@ set(handles.dcm_obj,'UpdateFcn',{@dataCursorUpdateFcn,handles})
 
 function txt = dataCursorUpdateFcn(h_PointDataTip,event_obj,handles)
 % Customizes text of data tips
-
 pos = get(event_obj,'Position');
-data = event_obj.Target.CData;
+data = handles.tool.getCurrentImageSlice;
 
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 
-sliceNum = str2double(get(handles.SliceValue,'String'));
+sliceNum = handles.tool.getCurrentSlice;
 
 txt = {['Source: ', Source],...
        ['[X,Y]: ', '[', num2str(pos(1)), ',', num2str(pos(2)), ']'],...
@@ -912,89 +792,14 @@ handles.tool.setImage(Current)
 
 
 % ######################## CREATE FUNCTIONS ##############################
-function SimVaryOptRuns_CreateFcn(hObject, eventdata, handles)
-function SimVaryPlotX_CreateFcn(hObject, eventdata, handles)
-function SimVaryPlotY_CreateFcn(hObject, eventdata, handles)
-function SimVaryOptTable_CellEditCallback(hObject, eventdata, handles)
-function SimRndOptVoxels_CreateFcn(hObject, eventdata, handles)
-function SimRndPlotX_CreateFcn(hObject, eventdata, handles)
-function SimRndPlotY_CreateFcn(hObject, eventdata, handles)
-function SimRndPlotType_CreateFcn(hObject, eventdata, handles)
-function CurrentFitId_CreateFcn(hObject, eventdata, handles)
-function ColorMapStyle_CreateFcn(hObject, eventdata, handles)
 function SourcePop_CreateFcn(hObject, eventdata, handles)
-function View_CreateFcn(hObject, eventdata, handles)
-function MinValue_CreateFcn(hObject, eventdata, handles)
-function MaxValue_CreateFcn(hObject, eventdata, handles)
-function MinSlider_CreateFcn(hObject, eventdata, handles)
-function MaxSlider_CreateFcn(hObject, eventdata, handles)
-function SliceSlider_CreateFcn(hObject, eventdata, handles)
-function SliceValue_CreateFcn(hObject, eventdata, handles)
 function ViewPop_CreateFcn(hObject, eventdata, handles)
 function FitDataAxe_CreateFcn(hObject, eventdata, handles)
-function edit35_Callback(hObject, eventdata, handles)
-function edit35_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function uibuttongroup1_SizeChangedFcn(hObject, eventdata, handles)
 function Method_Selection_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-function pushbutton173_Callback(hObject, eventdata, handles)
-function pushbutton174_Callback(hObject, eventdata, handles)
-function pushbutton175_Callback(hObject, eventdata, handles)
-function pushbutton170_Callback(hObject, eventdata, handles)
-function pushbutton171_Callback(hObject, eventdata, handles)
-function pushbutton172_Callback(hObject, eventdata, handles)
-function slider4_Callback(hObject, eventdata, handles)
-function slider4_CreateFcn(hObject, eventdata, handles)
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-function slider5_Callback(hObject, eventdata, handles)
-function slider5_CreateFcn(hObject, eventdata, handles)
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-function RoiDraw_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function RoiThreshMin_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function RoiThreshMax_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function MethodqMT_Callback(hObject, eventdata, handles)
 function ChooseMethod_Callback(hObject, eventdata, handles)
-
-function pushbutton169_Callback(hObject, eventdata, handles)
-function pushbutton168_Callback(hObject, eventdata, handles)
-function pushbutton167_Callback(hObject, eventdata, handles)
-function pushbutton166_Callback(hObject, eventdata, handles)
-function TimeValue_CreateFcn(hObject, eventdata, handles)
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-function TimeSlider_CreateFcn(hObject, eventdata, handles)
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-function RoiAnalysis_Callback(hObject, eventdata, handles)
-% hObject    handle to RoiAnalysis (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
- setappdata(0,'roidata',handles.CurrentData);
-if ~license('test', 'Image_Toolbox'), warndlg('Image Toolbox is not installed: ROI Analysis tool not available in the GUI;'); return; end
-
- tool = imtool3D(handles.CurrentData.(handles.SourcePop.String{handles.SourcePop.Value}));
-
 % roiGui = Roi_analysis(handles);
 % set(roiGui,'WindowStyle','modal') %If you want to "freeze" main GUI until secondary is closed.
 % uiwait(roiGui) %Wait for user to finish with secondary GUI.
