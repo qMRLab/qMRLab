@@ -841,7 +841,9 @@ else
     Model.plotModel(Fit,data);
     
     % update legend
-    legend('Location','NorthEast')
+    if ~moxunit_util_platform_is_octave
+        legend('Location','best')
+    end
 end
 
 

@@ -1,7 +1,8 @@
 function varargout = Custom_OptionsGUI(varargin)
 % Custom_OPTIONSGUI MATLAB code for Custom_OptionsGUI.fig
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran???is Cabana, 2016
+% Written by: Jean-Francis Cabana, 2016
+% Modified  : Agah Karakuzu, 2018
 % ----------------------------------------------------------------------------------------------------
 % If you use qMTLab in your work, please cite :
 
@@ -36,63 +37,217 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before Custom_OptionsGUI is made visible.
 function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
-% WAIT IF OUTPUTS
-if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+% This function is called each time the Options Panel is opened.
+%
+% OptionsPanel is a non-modal window with the <uipanel29> ID in handles
+% Note that what word "PANEL" refers to may be ambigious.
+%
+% handles.OptionsPanel is to access non-modal uipanel29 window. In this
+% window, there are 3 sub-windows for Protocol, FitOpt and Options located
+% on the left half, right half upper and right half lower, respectively.
+%
+% i.e. uipanel29 is the main options panel. It has 3 children (sub-panels):
+%
+% OptionsPanel (right half lower, by default)
+% ProtEditPanel (left half, by default)
+% FitOptEditPanel   (right half upper, by default)
+%
+% Whereas in the buttons context, a PANEL refers to a container object that
+% scopes multiple UIObjects (i.e. button groups).
+% See GenerateButtonsWithPanels.m for a beter understanding.
+%
+
+
+% varargin contians command line arguments to this UI.
+% i)  Should be containg the object for the first model on the dropdown list
+% ii) Should be contaning UIFigure object belonging to the main qMRLab window
+
+% Check if command line arguments contain wait command as the last one.
+% TRAVIS env triggers this. If this is the case, Options Panel
+% execution will be blocked. See if wait statement at the end of this fun.
+
+% INITIALIZE OPTIONSGUI PANEL
+% =======================================================================
+
+if any(strcmp(varargin,'wait'))
+    wait=true;
+    varargin(strcmp(varargin,'wait'))=[];
+else
+    wait=false;
+end
+
+% Choose dedault command line output for OptionsGUI
 
 handles.output = hObject;
-handles.root = fileparts(which(mfilename()));
-handles.caller = [];            % Handle to caller GUI
 
-if (length(varargin)>1 && ~isempty(varargin{2}) && ~isfield(handles,'opened'))         % If called from GUI, set position to dock left
+% Get root dir for where this script is located
+
+handles.root = fileparts(which(mfilename()));
+
+% Handle to caller GUI
+
+handles.caller = [];
+
+% If called from GUI, set position to dock left
+
+if (length(varargin)>1 && ~isempty(varargin{2}) && ~isfield(handles,'opened'))
+
     handles.caller = varargin{2};
+
     CurrentPos = get(hObject, 'Position');
+
     CallerPos = get(handles.caller, 'Position');
+
     NewPos = [CallerPos(1)+CallerPos(3), CallerPos(2)+CallerPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
+
     set(hObject, 'Position', NewPos);
 end
+
 handles.opened = 1;
 
-% POPULATE FITTING PANEL
-% Load model parameters
-if isempty(varargin), Model = getappdata(0,'Model');
+% GET/SET MODEL
+% =======================================================================
+
+% Retrieve model parameters from the shared data scope of UIs, if varargin
+% does not contain any command line arguments.
+
+% If it contains, the first argument must be a Model as assigned by mainApp
+% (inversion_recovery as for Aug 2018).
+
+if isempty(varargin)
+
+    Model = getappdata(0,'Model');
+
 else
+
     Model = varargin{1};
+
 end
+
+% Assign this model to the shared data scope of UIs.
 setappdata(0,'Model',Model);
+
+
+% Assign OptionsGUI title with the Model name
 set(handles.uipanel29,'Title',[strrep(Model.ModelName, '_', ' ') ' options'])
+
+% POPULATE FITOPTEDIT SUB-PANEL
+% ======================================================================
+
+% Note that this panel and equation member function are codependent.
+
+% Get the length of the fitted parameters
+
 Nparam = length(Model.xnames);
 
+% FitOptTable related conditional block
+
 if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
+
     FitOptTable(:,1) = Model.xnames(:);
+
     if isprop(Model,'fx') && ~isempty(Model.fx), FitOptTable(:,2) = mat2cell(logical(Model.fx(:)),ones(Nparam,1)); end
-    if isprop(Model,'st') && ~isempty(Model.st),
+
+    if isprop(Model,'st') && ~isempty(Model.st)
+
         FitOptTable(:,3) = mat2cell(Model.st(:),ones(Nparam,1));
+
     end
+
     if isprop(Model,'lb') && ~isempty(Model.lb) && isprop(Model,'ub') && ~isempty(Model.ub)
+
         FitOptTable(:,4) = mat2cell(Model.lb(:),ones(Nparam,1));
         FitOptTable(:,5) = mat2cell(Model.ub(:),ones(Nparam,1));
+
     end
+
     set(handles.FitOptTable,'Data',FitOptTable)
-    
+
     % Add TooltipString
     try
+
         modelheader=iqmr_header.header_parse(which(Model.ModelName));
         modelheader=modelheader.output';
         set(handles.FitOptTable,'TooltipString', sprintf('%-10s: %s\n',modelheader{:}));
+
+    catch
+
+        warning('Problem with adding TooltipString');
+
     end
 end
 
-% POPULATE OPTIONS PANEL
+% MODEL PROPERTY ADAPTIVE DYNAMIC SUBPANELS
+% ======================================================================
+
+% Hide FittingOptions panel if equation is not a member funciton.
+% Give the space to the Options initially. If there is no options, then
+% remove that one too and leave Protocol only.
+
+% If there is no protocol neither then just close the whole thing :D
+
+% Denoising, noise level: No Protocol
+% B1 dam has nothing.
+% vfa_t1 has no options.
+
+
+chld = allchild(handles.uipanel29);
+
+% FitOpt panel is not present
+
+if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.options))) && not(isempty(Model.Prot))
+
+    set(chld(3),'Visible','off');
+    set(handles.OptionsPanel, 'Position', [0.5140 0.0158 0.4667 0.9735]);
+
+end
+
+% FitOpt and protocol not present
+if not(ismember('equation',methods(Model))) && not(isempty(fieldnames(Model.options))) && (isempty(Model.Prot) || isempty(fieldnames(Model.Prot)))
+
+    set(chld(3),'Visible','off');
+    set(chld(2),'Visible','off');
+    set(handles.OptionsPanel, 'Position', [0.5140 0.0158 0.4667 0.9735]);
+
+end
+
+
+
+
+% Nothing is present
+
+if (isempty(Model.Prot) || isempty(fieldnames(Model.Prot))) && not(ismember('equation',methods(Model)))
+
+    set(chld(2),'Visible','off');
+    set(chld(3),'Visible','off');
+
+end
+
+
+% POPULATE OPTIONSPANEL
+% =======================================================================
+
 if ~isempty(Model.buttons)
-    % delete old buttons
+
+    % Delete UIObjects from the previous instance
     delete(findobj('Parent',handles.OptionsPanel,'Type','uipanel'))
-    % Generate Buttons
-    handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel);
-    
+
+    % Generate UIObjects for options panel based on the "buttons" attribute
+    % of the current model in the scope. Below function passes OptionsPanel
+    % handle, and retrives the updated one with buttons (if present) on it.
+
+    if isprop(Model,'tips')
+        handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel, Model.tips);
+    else
+        handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel, []);
+
+    end
+
     % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
+
     ff = fieldnames(handles.OptionsPanel_handle);
+
     for ii=1:length(ff)
         if strcmp(get(handles.OptionsPanel_handle.(ff{ii}),'type'),'uitable')
             set(handles.OptionsPanel_handle.(ff{ii}),'CellEditCallback',@(src,event) ModelOptions_Callback(handles));
@@ -110,25 +265,37 @@ if ~isempty(Model.buttons)
             end
         end
     end
+    % Noted some concerns @ issue #253
     SetOpt(handles);
 end
 
 % POPULATE PROTOCOL PANEL
+% =======================================================================
+
 if ~isempty(Model.Prot)
+
     fields = fieldnames(Model.Prot); fields = fields(end:-1:1);
+
     N = length(fields);
+
     for ii = 1:N
+
         handles.(fields{ii}).CellSelect = [];
+
         % Create PANEL
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-        
+
         % Create TABLE
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
+
         % add Callbacks
+
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));
+
         set(handles.(fields{ii}).table,'CellSelectionCallback', @(hObject, eventdata) SeqTable_CellSelectionCallback(hObject, eventdata, handles, fields{ii}));
+
         set(handles.(fields{ii}).table,'ColumnEditable', true);
-        
+
         if size(Model.Prot.(fields{ii}).Format,1) > 1
             set(handles.(fields{ii}).table,'RowName', Model.Prot.(fields{ii}).Format);
             set(handles.(fields{ii}).table,'ColumnName','');
@@ -160,15 +327,18 @@ uiwait(hObject)
 end
 
 
-    
 
 
-    
-function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles) 
+
+
+function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
+    if ~isempty(getenv('ISTRAVIS')) && isempty(getenv('ISDOC'))
+        warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.');
+        delete(findobj('Name','OptionsGUI'));
+    end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)

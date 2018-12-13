@@ -30,6 +30,9 @@ for im = 1:length(MethodList)
    newProps = rmfield(newProps,'version');
    
    % TEST MISMATCH OF PROPERTIES:
+   savedProps = rmfield(savedProps,'options');
+   newProps = rmfield(newProps,'options');
+  
    MSG=evalc('[~,LoadedModelextra,NewModelextra] = comp_struct(savedProps,newProps,3,0,inf);');
    
    % REPORT MISMATCH
