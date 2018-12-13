@@ -1,4 +1,4 @@
-classdef b1_dam < AbstractModel
+classdef b1_dam < AbstractModel & FilterClass
 % b1_dam map:  Double-Angle Method for B1+ mapping
 %
 % Assumptions:
@@ -53,7 +53,12 @@ end
         Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
 
         % Model options
-        buttons = {};
+        buttons ={'PANEL','Smoothing filter',5,...
+            'Type',{'gaussian','median'},...
+            'Dimension',{'3D','2D'},...
+            'FWHM x',3,...
+            'FWHM y',3,...
+            'FWHM z',3};
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
     end
@@ -67,9 +72,34 @@ end
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
         end
-
+        function obj = UpdateFields(obj)
+          
+            % Disable/enable some options --> Add ### to the button
+            % Name you want to disable
+            disablelist = {'FWHM z'};
+            switch  obj.options.Smoothingfilter_Dimension
+                case {'2D'}
+                    disable = true; 
+                    obj.options.Smoothingfilter_FWHMz=0;
+                otherwise
+                    disable = false;
+            end
+            for ll = 1:length(disablelist)
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
+                if disable(ll)
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
+                else
+                    obj.buttons{indtodisable} = [disablelist{ll}];
+                end
+            end
+        end
+        
         function FitResult = fit(obj,data)
-            FitResult.B1map = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
+            FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
+            switch obj.options.Smoothingfilter_Type
+                case {'gaussian'}
+                    FitResult.B1map=obj.gaussFilt(FitResult.B1map,[obj.options.Smoothingfilter_FWHMx,obj.options.Smoothingfilter_FWHMy,obj.options.Smoothingfilter_FWHMz]); %smoothed
+            end
         end
 
     end
