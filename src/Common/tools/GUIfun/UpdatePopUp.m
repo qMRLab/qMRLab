@@ -1,9 +1,4 @@
 function UpdatePopUp(handles)
-if ishandle(handles.FitDataAxe)
-    axes(handles.FitDataAxe);
-else
-    handles.FitDataAxe = axes(handles.uipanel46);
-end
 Data   =  handles.CurrentData;
 fields =  Data.fields;
 set(handles.SourcePop, 'String', fields);
