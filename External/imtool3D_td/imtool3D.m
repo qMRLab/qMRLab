@@ -1618,7 +1618,9 @@ n=get(hObject,'Value');
 maps=get(hObject,'String');
 h = tool.getHandles;
 colormap(h.Axes,maps{n})
-colormap(h.HistImageAxes,maps{n})
+if isfield(h,'HistImageAxes')
+    colormap(h.HistImageAxes,maps{n})
+end
 end
 
 function WindowLevel_callback(hobject,evnt,tool)
