@@ -106,9 +106,11 @@ if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
     handles.Model = Model_new;
 end
 set(findobj('Name','Single Voxel Curve'),'pointer', 'watch'); drawnow;
-if isgraphics(handles.SimCurveAxe)
-    axes(handles.SimCurveAxe)
-end
+
+% delete old plots
+childs = get(handles.uipanel_curve,'Children');
+delete(childs(~strcmp(get(childs,'Type'),'uicontrol')))
+axes(handles.uipanel_curve)
 
 xtable = get(handles.ParamTable,'Data');
 x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
