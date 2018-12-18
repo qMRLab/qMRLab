@@ -55,9 +55,6 @@ if ~isfield(handles,'opened') % qMRI already opened?
     handles.root = qMRLabDir;
     handles.methodfiles = '';
     handles.CurrentData = [];
-    handles.FitDataDim = [];
-    handles.FitDataSize = [];
-    handles.FitDataSlice = [];
     handles.dcm_obj = [];
     MethodList = {}; SetAppData(MethodList);
     guidata(hObject, handles);
@@ -71,6 +68,9 @@ if ~isfield(handles,'opened') % qMRI already opened?
     set(gcf, 'Position', NewPos);
     if ispc , set(findobj(handles.FitResultsPlotPanel,'Type','uicontrol'),'FontSize',7); end % everything is bigger on windows or linux
     
+    % Create viewer
+    handles.tool = imtool3D(0,[0.12 0 .88 1],handles.FitResultsPlotPanel);
+        
     % Fill Menu with models
     handles.ModelDir = [qMRLabDir filesep 'src/Models'];
     guidata(hObject, handles);
@@ -467,35 +467,83 @@ DrawPlot(handles);
 
 % SOURCE
 function SourcePop_Callback(hObject, eventdata, handles)
-RefreshPlot(handles);
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
+handles.tool.setNvol(get(handles.SourcePop,'Value'));
 
 % VIEW
 function ViewPop_Callback(hObject, eventdata, handles)
-UpdatePopUp(handles);
-RefreshPlot(handles);
-xlim('auto');
-ylim('auto');
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
 
-% OPEN FIG
-function PopFig_Callback(hObject, eventdata, handles)
-xl = xlim;
-yl = ylim;
-figure();
-xlim(xl);
-ylim(yl);
-RefreshPlot(handles);
+UpdateSlice(handles)
+if isempty(handles.CurrentData), return; end
+% Apply View
+View = get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
+View = View{get(handles.ViewPop,'Value')};
+Data = ApplyView(handles.CurrentData, View);
+% Set Mask back to origninal orientation and set to new orientation
+Mask = handles.tool.getMask(1);
+oldView = get(handles.ViewPop,'String'); if ~iscell(oldView), oldView = {oldView}; end
+oldView = oldView{get(handles.ViewPop,'UserData')};
+switch oldView
+    case 'Axial';  Mask = permute(Mask,[1 2 3 4 5]);
+    case 'Coronal';  Mask = permute(Mask,[1 3 2 4 5]);
+    case 'Sagittal';  Mask = permute(Mask,[3 1 2 4 5]);
+end
+set(handles.ViewPop,'UserData',get(handles.ViewPop,'Value'))
+Mask = ApplyView(Mask, View);
+
+for ff = 1:length(Data.fields)
+    Current{ff} = Data.(Data.fields{ff});
+end
+
+% Get previous setup
+Nvol = handles.tool.getNvol;
+Climits = handles.tool.getClimits;
+[W, L] = handles.tool.getWindowLevel;
+Climits = handles.tool.getClimits;
+% New Image
+handles.tool.setImage(Current,[],[],Climits,[],Mask);
+% Set previous setup back
+handles.tool.setClimits(Climits)
+handles.tool.setWindowLevel(W,L);
+handles.tool.setNvol(Nvol);
+handles.tool.setCurrentSlice(round(size(Current{Nvol},3)/2));
+
+% Set Pixel size
+H = getHandles(handles.tool);
+if isfield(handles.CurrentData,'hdr')
+    PixDim = handles.CurrentData.hdr.hdr.dime.pixdim;
+    switch View
+        case 'Axial';  PixDim = PixDim([2 3 4]);
+        case 'Coronal';  PixDim = PixDim([2 4 3]);
+        case 'Sagittal';  PixDim = PixDim([3 4 2]);
+    end
+    set(H.Axes,'DataAspectRatio',PixDim)
+else
+    set(H.Axes,'DataAspectRatio',[1 1 1])
+end
+
+
 
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
-Data =  getappdata(0,'Data');
-Model = class(GetAppData('Model')); % Get cur model name (string)
-Map = handles.tool.getImage;
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
+[Map, Mask] = GetCurrent(handles);
 
 % Mask data
-if isfield(Data.(Model),'Mask')
-    if ~isempty(Data.(Model).Mask)
-        Map(~Data.(Model).Mask) = 0;
-    end
+if ~isempty(Mask)
+    Map(~Mask) = 0;
 end
 
 ii = find(Map);
@@ -663,6 +711,11 @@ function [] = norm_call(varargin)
 
 % PLOT DATA FIT
 function ViewDataFit_Callback(hObject, eventdata, handles)
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
 % Get data
 data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
 Model = GetAppData('Model');
@@ -750,17 +803,44 @@ end
 
 % OPEN VIEWER
 function Viewer_Callback(hObject, eventdata, handles)
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 file = fullfile(handles.root,strcat(Source,'.nii'));
 if isempty(handles.CurrentData), return; end
 Data = handles.CurrentData;
-nii = make_nii(Data.(Source));
-save_nii(nii,file);
-nii_viewer(file);
+if isfield(handles.CurrentData,'hdr')
+    nii = handles.CurrentData.hdr;
+    nii.img = Data.(Source);
+    nii.hdr.file_name = Source;
+    for ff = fieldnames(nii.hdr.dime)'
+        nii.hdr.(ff{1}) = nii.hdr.dime.(ff{1});
+    end
+    for ff = fieldnames(nii.hdr.hist)'
+        nii.hdr.(ff{1}) = nii.hdr.hist.(ff{1});
+    end
+    for ff = fieldnames(nii.hdr.hk)'
+        nii.hdr.(ff{1}) = nii.hdr.hk.(ff{1});
+    end
+     if nii.hdr.sform_code == 0 && nii.hdr.qform_code==0
+         nii.hdr.sform_code = 1;
+     end
+else
+    nii = make_nii(Data.(Source));
+end
+nii_viewer(nii);
 
 % CURSOR
 function CursorBtn_Callback(hObject, eventdata, handles)
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
 datacursormode;
 H = handles.tool.getHandles;
 fig = H.fig;
@@ -786,8 +866,16 @@ txt = {['Source: ', Source],...
 
 function RefreshPlot(handles)
 if isempty(handles.CurrentData), return; end
-Current = GetCurrent(handles);
-handles.tool.setImage(Current)
+% Apply View
+View = get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
+View = View{get(handles.ViewPop,'Value')};
+Data = ApplyView(handles.CurrentData, View);
+% Display
+if isfield(Data,'Mask'), Mask = Data.Mask; else Mask = []; end
+for ff = 1:length(Data.fields)
+    Current{ff} = Data.(Data.fields{ff});
+end
+handles.tool.setImage(Current,[],[],[],[],Mask);
 
 
 

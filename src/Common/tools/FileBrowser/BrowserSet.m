@@ -222,17 +222,23 @@ classdef BrowserSet
         % -- VIEW BUTTONS
         %------------------------------------------------------------------
         function ViewBtn_callback(obj,src, event)
-            dat = getappdata(0, 'Data');
-            Data.(obj.NameID{1,1}) = dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
+            dat  = getappdata(0, 'Data');
+            Data = dat.(class(getappdata(0,'Model')));
             if isempty(Data.(obj.NameID{1,1})), errordlg('"Browse" for your own MRI data or click on "download example" data.','empty data'); return; end
-
-            Data.fields = {obj.NameID{1,1}};
+            fieldstmp = fieldnames(Data);
+            for ff = 1:length(fieldstmp)
+                if isempty(Data.(fieldstmp{ff}))
+                    Data = rmfield(Data,fieldstmp{ff});
+                end
+            end
+            Data.fields = fieldnames(Data);
+            
             try
                 Data.hdr=dat.([class(getappdata(0,'Model')) '_hdr']);
             end
             handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
-            DrawPlot(handles);
+            DrawPlot(handles,obj.NameID{1,1});
         end
 
 

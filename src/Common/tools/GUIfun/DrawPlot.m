@@ -1,23 +1,57 @@
-function DrawPlot(handles)
-set(handles.SourcePop, 'Value',  1);
-set(handles.ViewPop,   'Value',  1);
-UpdatePopUp(handles);
-Current = GetCurrent(handles);
-% imagesc(flipdim(Current',1));
-if isfield(handles,'tool')
-    handles.tool.setImage(Current)
+function DrawPlot(handles,CurrentName)
+if ~exist('CurrentName','Var')
+    set(handles.SourcePop, 'Value',  1);
 else
-    handles.tool = imtool3D(Current,[0.12 0 .88 1],handles.FitResultsPlotPanel);
+    set(handles.SourcePop, 'Value',  find(strcmp(handles.CurrentData.fields,CurrentName)));
 end
-    
+set(handles.ViewPop,   'Value',  1);
+set(handles.ViewPop,   'UserData',  1);
+
+UpdatePopUp(handles);
+
+View = get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
+View = View{get(handles.ViewPop,'Value')};
+Data = ApplyView(handles.CurrentData, View);
+if isfield(Data,'Mask'), Mask = Data.Mask; else Mask = []; end
+for ff = 1:length(Data.fields)
+    Current{ff} = Data.(Data.fields{ff});
+end
+Mask = ApplyView(Mask, View);
+handles.tool.setImage(Current,[],[],[],[],Mask);
+
+% Set Volume Number
+if exist('CurrentName','Var')
+    setNvol(handles.tool,find(strcmp(handles.CurrentData.fields,CurrentName)))
+end
+% Set Slice Number
+handles.tool.setCurrentSlice(round(size(Current{1},3)/2))
+
+% Set Pixel size
 H = getHandles(handles.tool);
 if isfield(handles.CurrentData,'hdr')
     set(H.Axes,'DataAspectRatio',handles.CurrentData.hdr.hdr.dime.pixdim(2:4))
+else
+    set(H.Axes,'DataAspectRatio',[1 1 1])
 end
 
 % Change save as NIFTI function
 set(H.Tools.Save,'Callback',@(hObject,evnt)saveMask(handles))
+% Use Shortcut to Source button
+set(findobj('Name','qMRLab'),'Windowkeypressfcn', @(hobject, event) shortcutCallback(hobject, event,handles))
+
 guidata(findobj('Name','qMRLab'), handles);
+
+function shortcutCallback(hobject, event,handles)
+switch event.Key
+    case 'uparrow'
+        setNvol(handles.tool,handles.tool.getNvol-1)
+        set(handles.SourcePop, 'Value',  handles.tool.getNvol);
+    case 'downarrow'
+        setNvol(handles.tool,handles.tool.getNvol+1)   
+        set(handles.SourcePop, 'Value',  handles.tool.getNvol);
+    otherwise
+        handles.tool.shortcutCallback(event)
+end
 
 function saveMask(handles)
 tool = handles.tool;
