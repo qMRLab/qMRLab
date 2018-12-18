@@ -380,6 +380,8 @@ classdef imtool3D < handle
             %Create image axis
             tool.handles.Axes           =   axes('Position',[0 0 1 1],'Parent',tool.handles.Panels.Image,'Color','none');
             tool.handles.I              =   imshow(I(:,:,round(end/2),tool.getNtime,tool.getNvol),range,'Parent',tool.handles.Axes); hold on; set(tool.handles.I,'Clipping','off')
+            set(tool.handles.I,'XData',[1 max(2,size(I,2))])
+            set(tool.handles.I,'YData',[1 max(2,size(I,1))])
             view(tool.handles.Axes,-90,90);
             set(tool.handles.Axes,'XLimMode','manual','YLimMode','manual','Clipping','off');
             
@@ -724,6 +726,7 @@ classdef imtool3D < handle
             tool.maskSelected = islct;
             set(tool.handles.Tools.maskSelected(islct),'FontWeight','bold','FontSize',12,'ForegroundColor',[1 1 1]);
             set(tool.handles.Tools.maskSelected(setdiff(1:5,islct)),'FontWeight','normal','FontSize',9,'ForegroundColor',[0 0 0]);
+            notify(tool,'maskChanged')
         end
         
         function setmaskstatistics(tool,current_object)
@@ -852,13 +855,11 @@ classdef imtool3D < handle
                 I = I2;
                 clear I2;
             end
-            I = double(I);
             
             if islogical(I)
-                I=double(I);
                 range = [0 1];
             end
-
+            I = double(I);
 
             if iscell(range)
                 tool.range = range;
@@ -881,26 +882,26 @@ classdef imtool3D < handle
             end
             
             tool.I=I;
-            tool.mask=mask;
+            tool.mask=uint8(mask);
             
-            
+            tool.Nvol = 1;
+
             %Update the histogram
             if isfield(tool.handles,'HistAxes')
-            im=tool.I(:,:,1,1,1);
-            tool.Nvol = 1;
-            tool.centers=linspace(min(I(isfinite(I))),max(I(isfinite(I))),256);
-            nelements=hist(im(im>min(im(:)) & im<max(im(:))),tool.centers); nelements=nelements./max(nelements);
-            set(tool.handles.HistLine,'XData',tool.centers,'YData',nelements);
-            centers=linspace(double(min(I(:))),double(max(I(:))),256);
-            cmap = get(tool.handles.HistImage,'CData');
-            set(tool.handles.HistImage,'CData',repmat(centers,[size(cmap,1) 1]));
-           
-            try
-                xlim(tool.handles.HistAxes,[tool.centers(1) tool.centers(end)])
-            catch
-                xlim(tool.handles.HistAxes,[tool.centers(1) tool.centers(end)+.1])
-            end
-            axis fill
+                im=I(:,:,:,:,tool.Nvol); 
+                im = im(unique(round(linspace(1,numel(im),min(5000,numel(im)))))); 
+                im = im(im>min(im) & im<max(im));
+                tool.centers=linspace(range(1)-diff(range)*0.05,range(2)+diff(range)*0.05,256);
+                nelements=hist(im(im~=min(im(:)) & im~=max(im(:))),tool.centers); nelements=nelements./max(nelements);
+                set(tool.handles.HistLine,'XData',tool.centers,'YData',nelements);
+                cmap = get(tool.handles.HistImage,'CData');
+                set(tool.handles.HistImage,'CData',repmat(tool.centers,[size(cmap,1) 1]));
+                try
+                    xlim(tool.handles.HistAxes,[tool.centers(1) tool.centers(end)])
+                catch
+                    xlim(tool.handles.HistAxes,[tool.centers(1) tool.centers(end)+.1])
+                end
+                axis fill
             end
             %Update the window and level
             setWL(tool,diff(range),mean(range))
@@ -909,8 +910,8 @@ classdef imtool3D < handle
             %set(tool.handles.I,'CData',im)
             xlim(tool.handles.Axes,[0 size(I,2)])
             ylim(tool.handles.Axes,[0 size(I,1)])
-            set(tool.handles.I,'XData',[1 size(I,2)]);
-            set(tool.handles.I,'YData',[1 size(I,1)]);
+            set(tool.handles.I,'XData',[1 max(2,size(I,2))]);
+            set(tool.handles.I,'YData',[1 max(2,size(I,1))]);
             
             %update the mask cdata (in case it has changed size)
             C=zeros(size(I,1),size(I,2),3);
@@ -966,12 +967,34 @@ classdef imtool3D < handle
             Nvol=tool.Nvol;
         end
 
+        function setNvol(tool,Nvol)
+            % save window and level
+            tool.setClimits(get(tool.handles.Axes,'Clim'))
+            % change Volume
+            tool.Nvol = max(1,min(Nvol,size(tool.I,5)));
+            % load new window and level
+            NewRange = tool.Climits{tool.Nvol};
+            W=NewRange(2)-NewRange(1); L=mean(NewRange);
+            tool.setWL(W,L);
+            % apply xlim to histogram
+            range = tool.range{tool.Nvol};
+            tool.centers = linspace(range(1)-diff(range)*0.05,range(2)+diff(range)*0.05,256);
+            if isfield(tool.handles,'HistAxes')
+                set(tool.handles.HistAxes,'Xlim',range)
+            end
+            showSlice(tool);
+        end
+
         function r = getrange(tool)
             r=diff(tool.range{tool.Nvol});
         end
 
         function setClimits(tool,range)
-            tool.Climits{tool.getNvol} = range;
+            if iscell(range)
+                tool.Climits = range;
+            else
+                tool.Climits{tool.getNvol} = range;
+            end
         end
 
         function Climits = getClimits(tool)
@@ -1189,37 +1212,9 @@ classdef imtool3D < handle
                     tool.Ntime = min(tool.Ntime+1,size(tool.I,4));
                     showSlice(tool);
                 case 'uparrow'
-                    % save window and level
-                    tool.setClimits(get(tool.handles.Axes,'Clim'))
-                    % change volume
-                    tool.Nvol = min(tool.Nvol+1,size(tool.I,5));
-                    % load new window and level
-                    NewRange = tool.Climits{tool.getNvol};
-                    W=NewRange(2)-NewRange(1); L=mean(NewRange);
-                    tool.setWL(W,L);
-                    % apply xlim to histogram
-                    range = tool.range{tool.Nvol};
-                    tool.centers = linspace(range(1),range(2),256);
-                    if isfield(tool.handles,'HistAxes')
-                        set(tool.handles.HistAxes,'Xlim',range)
-                    end
-                    showSlice(tool);
+                    setNvol(tool,tool.Nvol+1)
                 case 'downarrow'
-                    % save window and level
-                    tool.setClimits(get(tool.handles.Axes,'Clim'))
-                    % change volume
-                    tool.Nvol = max(tool.Nvol-1,1);
-                    % load new window and level
-                    NewRange = tool.Climits{tool.getNvol};
-                    W=NewRange(2)-NewRange(1); L=mean(NewRange);
-                    tool.setWL(W,L);
-                    % apply xlim to histogram
-                    range = tool.range{tool.Nvol};
-                    tool.centers = linspace(range(1),range(2),256);
-                    if isfield(tool.handles,'HistAxes') 
-                        set(tool.handles.HistAxes,'Xlim',range)
-                    end
-                    showSlice(tool);
+                    setNvol(tool,tool.Nvol-1)
                  otherwise
                     switch evnt.Character
                         case '1'
@@ -1336,6 +1331,8 @@ classdef imtool3D < handle
 
             if isfield(tool.handles.Tools,'Hist') && get(tool.handles.Tools.Hist,'value')
                 im=tool.I(:,:,n,tool.Ntime,tool.Nvol);
+                range = tool.range{tool.Nvol};
+                im(im<range(1) | im>range(2)) = [];
                 err = (max(im(:)) - min(im(:)))*1e-10;
                 nelements=hist(im(im>(min(im(:))+err) & im<max(im(:)-err)),tool.centers); nelements=nelements./max(nelements);
                 set(tool.handles.HistLine,'YData',nelements);
@@ -1614,6 +1611,11 @@ end
 end
 
 function changeColormap(hObject,eventdata,tool)
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
 n=get(hObject,'Value');
 maps=get(hObject,'String');
 h = tool.getHandles;
@@ -1775,7 +1777,7 @@ end
 setWL(tool,W,L)
 end
 
-function adjustZoomMouse(src,evnt,bp,hObject,tool,xlims,ylims,bpA)
+function adjustZoomMouse(src,~,bp,hObject,tool,xlims,ylims,bpA)
 
 %get the zoom factor
 cp = get(0,'PointerLocation');
@@ -1947,6 +1949,11 @@ function icon = makeToolbarIconFromPNG(filename)
 end
 
 function ShowHistogram(hObject,evnt,tool,w,h)
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
     hh = tool.getHandles;
 set(hh.Panels.Large,'Units','Pixels')
 pos=get(hh.Panels.Large,'Position');

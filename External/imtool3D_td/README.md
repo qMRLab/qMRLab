@@ -13,6 +13,17 @@ imtool3D is used heavily by several other RAI labs projects:
 # Dependencies
 * Matlab's image processing toolbox
 
+# what is new in this fork? 
+* Support for 5D volumes (scroll through time and volumeS with arrows)
+* Keyboard shortcut
+* Multi-label mask
+* Save mask
+* NIFTI files (.nii) support (double click on a. nii file in Matlab filebrowser) 
+* New tools for mask (interpolate slices, active contour...)
+* Convert Mask2poly and poly2mask
+* splines in polygons (double click a circle)
+* 3 planes view
+
 # Authors
 Justin Solomon (Original release)  
 Tanguy Duval (4D (time) and 5D (different contrast); multi-label mask; active_contour, undo button, mask2poly, poly2mask, shortcuts)  

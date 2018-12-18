@@ -110,8 +110,16 @@ classdef imtool3DROI_ellipse < imtool3DROI_rect
             stats = getMeasurements(ROI);
             
             %set the textbox
+            V = get(gca,'View');
+            if V(1)==-90
+                x = pos(1) + pos(3) + ROI.tbuff;
+            else
+                x = pos(1);
+            end
+            y = pos(2)-ROI.tbuff;
+            
             str = {['Mean: ' num2str(stats.mean,'%+.2f')], ['STD:     ' num2str(stats.STD,'%.2f')]};
-            set(ROI.textHandle,'String',str,'Position',[pos(1) pos(2)-ROI.tbuff]);
+            set(ROI.textHandle,'String',str,'Position',[x y]);
             
             %notify a new position
             notify(ROI,'newROIPosition');
