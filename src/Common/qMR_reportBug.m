@@ -25,7 +25,7 @@ if any(~cellfun(@isempty,qmrexcep))
     buggyfiles = exception.stack;
     for ii=1:length(buggyfiles)
         if ~isempty(qmrexcep{ii})
-            buggyfiles(ii).file = strrep(buggyfiles(ii).file,qMRLabDir,'qMRLabDir');
+            buggyfiles(ii).file = [strrep(strrep(buggyfiles(ii).file,qMRLabDir,'https://github.com/qMRLab/qMRLab/blob/master'),filesep,'/') '#L' num2str(buggyfiles(ii).line)];
         else
             [~,buggyfiles(ii).file] = fileparts(buggyfiles(ii).file); 
         end
@@ -36,7 +36,7 @@ if any(~cellfun(@isempty,qmrexcep))
     errortext.identifier = exception.identifier;
     errortext.stack = buggyfiles;
     txt = savejson(errortext);
-    
+    txt = strrep(txt,'\/','/');
     Questions = {sprintf('OUPS... A BUG OCCURED\n\n1- Your Email (optional):') '2- Name / GitHub username (optional)' '3- Describe what happened (optional)' '4- Bug Content'};
     txt2send = inputdlg(Questions,'Report the following bug to the qMRLab dev team?',[1 30; 1 30; 10 200; 10 200],{'' '' sprintf('I was trying to ...\n\n...when the bug happened') [sprintf('qMRLab version: v%i.%i.%i\nMatlab version: %s\n\n',qMRLabVer,version) txt]});
     
@@ -81,6 +81,7 @@ if any(~cellfun(@isempty,qmrexcep))
             
             % SEND MAIL
             sendmail('tanguy.duval@polymtl.ca','qMRLab issue',txt);
+            disp('Error reported... Thanks!')
             
             % Set back original pref
             for ils=1:length(list2store)
