@@ -73,4 +73,17 @@ end
         end
         
     end
+    
+    
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % 2.0.10
+            if checkanteriorver(version,[2 0 12])
+                obj.xnames      = {'B1map'};
+            end
+        end
+        
+    end
+    
 end
