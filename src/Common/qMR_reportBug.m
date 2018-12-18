@@ -10,7 +10,7 @@ persistent err
 if isempty(err), err={}; end
 knownerror = cell2mat(cellfun(@(x) isequal(exception,x),err,'uni',0));
 if any(knownerror)
-    disp('error already reported. return.')
+    disp('error already reported. return. (''clear all'' variables to reset error history)')
     return;
 else
     err{end+1} = exception;
@@ -70,12 +70,17 @@ if any(~cellfun(@isempty,qmrexcep))
             setpref('Internet','SMTP_Server','mail.smtp2go.com')
             
             props.setProperty('mail.smtp.auth','true');
-            
+            props.setProperty('mail.smtp.timeout', '2000');
+            props.setProperty('mail.smtp.connectiontimeout', '2000');
+            props.setProperty('mail.smtp.port','2525');
+            props.setProperty('mail.smtp.socketFactory.class','javax.net.ssl.SSLSocketFactory');
+            props.setProperty('mail.smtp.socketFactory.port','465');
+
             setpref('Internet','SMTP_Username','qMRLabBugReport');
             setpref('Internet','SMTP_Password','E3dUgoH4101M');
             
             % SEND MAIL
-            sendmail('qmrlab_developers@googlegroups.com','qMRLab issue',txt);
+            sendmail('tanguy.duval@polymtl.ca','qMRLab issue',txt);
             
             % Set back original pref
             for ils=1:length(list2store)
