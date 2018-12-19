@@ -19,12 +19,13 @@ classdef (Abstract) FilterClass
     end
     properties
         % Model options
-        buttons ={'PANEL','Smoothing filter',5,...
-            'Type',{'gaussian','median','spline'},...
+        buttons ={'PANEL','Smoothing filter',6,...
+            'Type',{'gaussian','median','spline','polynomial'},...
             'Dimension',{'3D','2D'},...
             'size x',3,...
             'size y',3,...
-            'size z',3};
+            'size z',3,...
+            'order',12};
         options = struct(); % structure filled by the buttons. Leave empty in the code
     end
     
@@ -38,17 +39,22 @@ classdef (Abstract) FilterClass
           
             % Disable/enable some options --> Add ### to the button
             % Name you want to disable
-            disablelist = {'size x','size y','size z'};
+            disablelist = {'size x','size y','size z','order'};
             switch  obj.options.Smoothingfilter_Dimension
                 case {'2D'}
-                    disable = [false false true]; 
+                    disable = [false false true true]; 
                     obj.options.Smoothingfilter_sizez=0;
                 otherwise
-                   disable = [false false false]; 
+                   disable = [false false false true]; 
             end
             % for spline, only 1 value for the amount of smoothness and 3D
             if strcmp(obj.options.Smoothingfilter_Type,{'spline'})
-                disable = [false true true]; 
+                disable = [false true true true]; 
+            end
+            % for polynomial, set order and only works in 2D for now
+            if strcmp(obj.options.Smoothingfilter_Type,{'polynomial'})
+                disable = [true true true false];
+                obj.options.Smoothingfilter_Dimension={'2D'};
             end
             
             for ll = 1:length(disablelist)
@@ -69,6 +75,8 @@ classdef (Abstract) FilterClass
                     FitResult.Filtered=obj.medianFilt(data,size); %smoothed
                 case {'spline'}
                     FitResult.Filtered=obj.splineFilt(data,size); %smoothed
+                case {'polynomial'}
+                    FitResult.Filtered=obj.polyFilt(data,obj.options.Smoothingfilter_order); %smoothed
             end
         end
         % Gaussian filter
@@ -120,6 +128,20 @@ classdef (Abstract) FilterClass
                 
             %filtered = smoothn(data,'robust');            
         end
+        
+        %Polynomial folter
+        function filtered=polyFilt(obj,data,order)
+            % Apply a polynomial fit of the specified order (in 2D)
+            if(ndims(data)==2) %if a 2D volume
+                filtered = poly_fit(data,order);
+            else %if a 3D volume, do each slice separately
+                filtered=zeros(size(data));
+                for i=1:size(data,3)
+                    filtered(:,:,i)=poly_fit(data(:,:,i),order);
+                end
+            end
+        end
+        
     end
     
     

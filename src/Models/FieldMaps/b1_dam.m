@@ -91,12 +91,16 @@ end
             end
             FitResult.Spurious = double(FitResult.B1map_raw<0.5);
             B1map_nospur = FitResult.B1map_raw;
-            B1map_nospur(B1map_nospur<0.6)=1; %set 'spurious' values to 1
+            B1map_nospur(B1map_nospur<0.6 | isnan(B1map_nospur))=0.6; %set 'spurious' values to 0.6
             
             % call the superclass (FilterClass) fit function
             FitResult.B1map=struct2array(fit@FilterClass(obj,B1map_nospur,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
+            % re-apply the mask
+            if isfield(data,'Mask') && ~isempty(data.Mask)
+                FitResult.B1map = data.Mask .* FitResult.B1map;
+            end
         end
-
+        
     end
 
 
