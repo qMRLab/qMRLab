@@ -33,7 +33,8 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 **Interactive Tutorials**
 
-* [Boudreau M. *Relaxometry Series: Inversion Recovery.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/10/23/T1-mapping-inversion-recovery.html)
+* [Boudreau M. *Relaxometry Series: Inversion Recovery T<sub>1</sub> Mapping.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/10/23/T1-mapping-inversion-recovery.html)
+* [Boudreau M. *Relaxometry Series: Variable Flip Angle T<sub>1</sub> Mapping.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/12/11/T1-mapping-variable-flip-angle.html)
 
 ## Citation
 
