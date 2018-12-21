@@ -1,4 +1,4 @@
- classdef qmrstat_correlation < AbstractStat
+    classdef qmrstat_correlation < AbstractStat
 % Correlation family
 % ===============================================================
 properties
