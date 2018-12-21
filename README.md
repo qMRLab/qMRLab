@@ -4,7 +4,7 @@
 <p align="center"><b>Welcome to qMRLab, all your quantitative MRI needs under one umbrella!</b></p>
 
 
-<a href="https://qmrlab.org" target="_blank"><img src="https://github.com/qMRLab/qmrlab.github.io/blob/master/assets/images/carousel2.gif" width = "1000" align="middle"></a>
+<a href="https://qmrlab.org" target="_blank"><img src="https://github.com/qMRLab/qMRLab/blob/new_Readme/docs/logo/page_header.png?raw=true" width = "1000" align="middle"></a>
 
 <p align="center"><strong> qMRLab is an open-source software for quantitative MR image analysis.</strong></p>
 
