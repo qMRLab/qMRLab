@@ -31,7 +31,7 @@ function [r,t,pval,hboot,CI,hout] = Pearson(X,Y,XLabel,YLabel,fig_flag,level)
 
 %% data check
 % #qmrstat
-PyVis = struct();
+svds = struct();
 
 
 % if X a vector and Y a matrix,
@@ -165,8 +165,8 @@ if fig_flag ~= 0
         % #octaveIssue
         h=lsline; set(h,'Color','r','LineWidth',4);
         % #qmrstat
-        PyVis.FitLine.X = get(h,'XData');
-        PyVis.FitLine.Y = get(h,'YData');
+        svds.Optional.fitLine = [get(h,'XData'),get(h,'YData')];
+        
 
         box on;set(gca,'Fontsize',14)
 
@@ -182,11 +182,8 @@ if fig_flag ~= 0
             filled=[y1.YData(1):step1:y1.YData(2),y2.YData(2):-step2:y2.YData(1)];
 
 
-            PyVis.CILine1.X = [y1.XData(1),y1.XData(2)];
-            PyVis.CILine1.Y = [y1.YData(1),y1.YData(2)];
-
-            PyVis.CILine2.X = [y2.XData(1),y2.XData(2)];
-            PyVis.CILine2.Y = [y2.YData(1),y2.YData(2)];
+            svds.Optional.CILine1 = [y1.XData(1),y1.XData(2),y1.YData(1),y1.YData(2)];
+            svds.Optional.CILine2 = [y2.XData(1),y2.XData(2),y2.YData(1),y2.YData(2)];
 
 
             if min(CI)<0 && max(CI)>0

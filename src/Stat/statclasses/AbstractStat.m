@@ -12,11 +12,13 @@ classdef (Abstract) AbstractStat
         MapNames
         NumMaps
         
+        FigureOption = 'osd';
+        SignificanceLevel = 5/100;
+
         StatMask
         StatLabels
         LabelIdx
         StatMaskFolder
-        % Numerical vals should also be here
         
         UsrLabels
         StatID
@@ -32,8 +34,10 @@ classdef (Abstract) AbstractStat
         
         DescriptiveStats
         
+        svds = struct('Tag',[],'Required',[],'Optional',[]);
+        
     end
-    % ===============================================================
+    % //////////////////////////////////////////////////////////////
     properties (Hidden=true, SetAccess = protected, GetAccess=public)
         
         FitMaskName
@@ -47,12 +51,13 @@ classdef (Abstract) AbstractStat
         Tail = '\n-------------------------------------------------------|';
         
     end
-    % ===============================================================
+    % //////////////////////////////////////////////////////////////
     methods
         
         function obj = AbstractStat()
             
             obj.StatVersion = qMRLabVer();
+            
         end
                 
         function obj = loadStatMask(obj,input)
@@ -449,9 +454,38 @@ classdef (Abstract) AbstractStat
                 
         end
         
-    end
+        function obj = setStaticFigureOption(obj,in)
+
+            if ~isequal(in,'osd') && ~isequal(in,'save') && ~isequal(in,'disable')
+                
+                error( [obj.ErrorHead...
+                    '\n>>>>>> FigureOption must be one of the following'...
+                    '\n>>>>>> ''osd''     : On screen display mode.'...
+                    '\n>>>>>> ''save''    : Saves figure in Results.figure '...
+                    '\n>>>>>> ''disable'' : Nothing will be displayed.'...
+                    obj.Tail],'Correlation');
+                
+                
+            end
+            
+            [obj(:).FigureOption] = deal({in});
+            
+            
+        end
+        
+        function obj = setSignificanceLevel(obj,in)
+
+
+          args = num2cell(in);
+          [obj(:).SignificanceLevel] = deal(args{:});
+
+
+        end
+
+        
+     end
     
-    % ===============================================================
+    % //////////////////////////////////////////////////////////////
     
     methods(Hidden)
         
@@ -507,9 +541,8 @@ classdef (Abstract) AbstractStat
             end
             
         end
-        
-        
-          function obj = getFileContent(obj,input)
+
+        function obj = getFileContent(obj,input)
             % CHANGE THIS FUNCTIONS NAME TO getFolderContent
             % This function is intended to read one/multiple masks from a
             % given directory.
@@ -582,17 +615,11 @@ classdef (Abstract) AbstractStat
             
         end
         
-        
-        
-        
-        
     end
 
-    % ===============================================================
+    % //////////////////////////////////////////////////////////////
     
     methods (Static, Hidden=true)
-        
-        
         
         function fType = getInpFormat(fileName)
             % To extract format of the file provided as the whole dir
@@ -614,7 +641,6 @@ classdef (Abstract) AbstractStat
             end
             
         end
-        
         
         function type = getMaskType(mask)
             % This function is to distinguish between binary and labeled masks
@@ -657,10 +683,7 @@ classdef (Abstract) AbstractStat
             
             
         end
-        
-        
-        
-        
+
         function output = loadFile(input)
             % Load content of a file irrespective of its format.
             % Current formats: mat, nii, nii.gz
@@ -694,9 +717,6 @@ classdef (Abstract) AbstractStat
             
             
         end
-        
-      
-        
         
         function [out, label, lblIdx] = readUniFormat(readlist)
             % Serves as a subfunction for getFolderContent.
@@ -756,8 +776,7 @@ classdef (Abstract) AbstractStat
             end
             
         end
-        
-        
+
         function  out = strapFileName(in)
             % Filenames are used as mask labels.
             % This function is to extract filename from a filelist containing
@@ -793,7 +812,6 @@ classdef (Abstract) AbstractStat
             
             
         end
-        
         
         function t = getTable(im,mask,mapName,label,varargin)
             % Descriptive statistics are kept in table format for user's
@@ -840,8 +858,6 @@ classdef (Abstract) AbstractStat
             
         end
         
-        
-        
         function [Mean, STD, prcnt5,prcnt50,prcnt95, NaNcontain] = getBasicStats(vec)
             % Descriptive statistics are kept in table format for user's
             % convenience.
@@ -870,6 +886,5 @@ classdef (Abstract) AbstractStat
         end
         
     end
-    
     
 end

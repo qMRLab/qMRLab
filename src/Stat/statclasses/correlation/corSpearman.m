@@ -1,5 +1,4 @@
-function obj = corPearson(obj,crObj)
-%Explain for user here.
+function obj = corSpearman(obj,crObj)
 
 % Developers: * qmrstat.getBivarCorInputs (Static)
 %               -- calls qmrstat.getBiVarCorVec (Private)
@@ -10,10 +9,6 @@ function obj = corPearson(obj,crObj)
 % is not specific to the object arrays with 2 objects. N>2 can
 % be also validated by qmrstat.validate (private).
 
-% Uniformity assumptions for qmrstat_correlation objects here:
-% LabelIdx
-% StatLabels
-% BOTH FIELDS ARE REQUIRED
 
 if nargin<2
 
@@ -29,7 +24,7 @@ end
 
 szcomb = size(comb);
 for kk = 1:szcomb(1) % Loop over correlation matrix combinations
-for zz = 1:lbIdx % Loop over labeled mask indexes (if available)
+for zz = 1:lbIdx % Loope over labeled mask indexes (if available)
 
 % Combine pairs
 curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
@@ -48,26 +43,27 @@ end
 
 if strcmp(crObj(1).FigureOption,'osd')
 
-  [r,t,pval,hboot,CI] = Pearson(VecX,VecY,XLabel,YLabel,1,sig);
+  [r,t,pval,hboot,CI] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
 
 elseif strcmp(crObj(1).FigureOption,'save')
 
-  [r,t,pval,hboot,CI,h] = Pearson(VecX,VecY,XLabel,YLabel,1,sig);
-  obj.Results.Correlation(zz,kk).Pearson.figure = h;
+  [r,t,pval,hboot,CI,h] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
+  obj.Results.Correlation(zz,kk).Spearman.figure = h;
+
   if lbIdx>1
 
-  obj.Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+  obj.Results.Correlation(zz,kk).Spearman.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
 
   else
 
-  obj.Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel];
+  obj.Results.Correlation(zz,kk).Spearman.figLabel = [XLabel '_' YLabel];
 
   end
 
 elseif strcmp(crObj(1).FigureOption,'disable')
 
 
-  [r,t,pval,hboot,CI] = Pearson(VecX,VecY,XLabel,YLabel,0,sig);
+  [r,t,pval,hboot,CI] = Spearman(VecX,VecY,XLabel,YLabel,0,sig);
 
 end
 
@@ -76,32 +72,24 @@ end
 % Other fields are filled by Pearson function.
 
 if obj.Export2Py
-  
-  svds = struct();
-  svds.Tag = 'Bivariate::Pearson';
-  svds.Required.xData = VecX;
-  svds.Required.yData = VecY;
-  svds.Required.rPearson = r;
-  svds.Required.xLabel = XLabel;
-  svds.Required.yLabel = YLabel;
-  
-  svds.Optional.pval = pval;
-  svds.Optional.h = hboot;
-  svds.Optional.CI = CI;
 
-  obj.Results.Correlation(zz,kk).Pearson.SVDS = svds;
+  PyVis.Stats.r = r;
+  PyVis.Stats.t = t;
+  PyVis.Stats.pval = pval;
+  PyVis.Stats.hboot = hboot;
+  PyVis.Stats.CI = CI;
+  PyVis.XLabel = XLabel;
+  PyVis.YLabel = YLabel;
+  obj.Results.Correlation(zz,kk).Spearman.PyVis = PyVis;
 
 end
 
 
-obj.Results.Correlation(zz,kk).Pearson.r = r;
-obj.Results.Correlation(zz,kk).Pearson.t = t;
-obj.Results.Correlation(zz,kk).Pearson.pval =  pval;
-obj.Results.Correlation(zz,kk).Pearson.hboot = hboot;
-obj.Results.Correlation(zz,kk).Pearson.CI = CI;
-
+obj.Results.Correlation(zz,kk).Spearman.r = r;
+obj.Results.Correlation(zz,kk).Spearman.t = t;
+obj.Results.Correlation(zz,kk).Spearman.pval =  pval;
+obj.Results.Correlation(zz,kk).Spearman.hboot = hboot;
+obj.Results.Correlation(zz,kk).Spearman.CI = CI;
 end
 end
-
-end % Correlation
-
+end
