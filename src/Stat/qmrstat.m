@@ -11,6 +11,7 @@ classdef qmrstat
 properties
 
 Object
+Export2Py = false;
 
 end
 
@@ -20,9 +21,8 @@ properties (Access = private)
 
 CorrelationValid
 CorrelationJointMask
-MultipleCorrelation
 
-Export2Py = false;
+
 OutputDir
 
 ReliabilityValid
@@ -47,6 +47,7 @@ end
 
 % ////////////////////////////////////////////////////////////////
 
+
 methods
 
 
@@ -60,27 +61,82 @@ end % Constructor  ------------------------ end (Public)
 
 % ############################ ROBUST CORRELATION FAMILY
 
+function obj = corWrapper(obj,crObj,method)
+    
+     if not(isequal(crObj.MapLoadFormat,crObj.MaskLoadFormat))
+        
+     warning( [obj.WarningHead...
+    '\n>>>>>> %s are not loaded from the same type of data.'...
+    '\n>>>>>> This may be causing map/mask misalignment due to orientation'...
+    '\n>>>>>> differences between MATLAB and NIFTI files.'...
+    '\n>>>>>> Ignore this warning if you are ensured that maps/masks are aligned after loading.'...
+    obj.Tail],'Maps and StatMask ');
+         
+     end
+    
+     if isequal(crObj(1).FigureOption,{'save'})
+     
+      c = get(groot,'Children');
+      nOpenFig = length(c);
+    
+     end
+     
+     switch method
+        
+         case 'Pearson'
+             
+             obj.Results = corPearson(obj,crObj);
+         
+         case 'Skipped'
+             
+             obj.Results = corSkipped(obj,crObj);
+         
+         case 'Inspect'
+             
+             obj.Results = corInspect(obj,crObj);
+             
+         case 'Bend'
+             
+             obj = corPrcntgBend(obj,crObj);
+         
+         case 'Concordance'
+             
+             obj = corConcordance(obj,crObj);
+     end
+         
+     if isequal(crObj(1).FigureOption,{'save'})
+         disp(['Saving static figures to: ' obj.OutputDir]); 
+         obj.saveStaticFigures;
+         disp('Static figures have been saved.')
+         c = get(groot,'Children');
+         delete(c(nOpenFig+1:end));
+     end  
+    
+end
+
+
+
 function obj = runCorPearson(obj,crObj)
-
-  obj = corPearson(obj,crObj);
-
-end % Correlation
+  
+  obj = corWrapper(obj,crObj,'Pearson');
+  
+end 
 
 function obj = runCorSkipped(obj,crObj)
 
-  obj = corSkipped(obj,crObj);
+  obj = corWrapper(obj,crObj,'Skipped');
 
-end % Correlation
+end 
 
 function obj = runCorInspect(obj,crObj)
 
-  obj = corInspect(obj,crObj);
+  obj = corWrapper(obj,crObj,'Inspect');
 
 end % Correlation
 
 function obj = runCorPrcntgBend(obj,crObj)
 
-  obj = corPrcntgBend(obj,crObj);
+  obj = corWrapper(obj,crObj,'Bend');
 
 end % Correlation
 
@@ -88,8 +144,8 @@ end % Correlation
 
 function obj = runCorConcordance(obj,crObj)
 
-  obj = corConcordance(obj,crObj);
-
+  obj = corWrapper(obj,crObj,'Concordance');
+  
 end
 
 
@@ -201,6 +257,7 @@ function obj = saveStaticFigures(obj)
 
             if ~isempty(crFig)
               saveas(crFig, [obj.OutputDir filesep tests{m} '_' cell2mat(lbl) '.png']);
+              close(crFig);
             end
 
           end
@@ -227,9 +284,6 @@ methods(Access = private)
 
 function obj = validate(obj,curObj,name,lblIdx)
 
-  % This validation is for statistical methods those require spatial
-  % correspondance.
-
 
   if isempty(obj.Object.(name))
 
@@ -244,14 +298,19 @@ function obj = validate(obj,curObj,name,lblIdx)
     boolMap = zeros(length(curObj),1);
     boolMask = boolMap;
     dimMis = [];
+    
     for ii = 1:length(curObj)
 
       curObj(ii) = curObj(ii).evalCompliance();
       boolMap(ii) = curObj(ii).Compliance.noMapFlag;
       boolMask(ii) = curObj(ii).Compliance.noMaskFlag;
+      
       if ~isempty(curObj(ii).StatMask)
-        dimMis = [dimMis curObj(ii).Compliance.szMismatchFlag];
+      
+          dimMis = [dimMis curObj(ii).Compliance.szMismatchFlag];
+      
       end
+      
     end
 
   end
@@ -261,14 +320,17 @@ function obj = validate(obj,curObj,name,lblIdx)
   % mask.
 
   % Should all Maps match in size?
+  %
   % - Yes.
+  %
   % But, for example I have a volumetric VFA T1 map, and
   % a single slice MWF. I want to see how they correlate.
-  % Then this dimension mismatch won't allow me to do it.
+  % Then this dimension mismatch won't allow me to do it...
+  %
   % - MWF must be a subset of that VFA-T1 volume. Extract
   % the corresponding VFA-T1 subset both for Map and
   % StatMask. The images should have been resolution
-  % matched already.
+  % matched anyways.
 
   if any(boolMap)
 
@@ -313,7 +375,7 @@ function obj = validate(obj,curObj,name,lblIdx)
   end
 
 
-  % More than one masks are loaded, but one they are not
+  % More than one masks are loaded, but they are not
   % identical. Assume that both masks have equal numbers
   % of foreground voxels located in diferent positions.
   % The comparison would be invalid (at least for cors).
@@ -379,8 +441,6 @@ function obj = validate(obj,curObj,name,lblIdx)
   end
 
 
-
-
 end % Generic
 
 function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name,lblIdx)
@@ -408,11 +468,14 @@ function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name,lblIdx)
 
     VecX = mp1(obj.([name 'JointMask']));
     VecY = mp2(obj.([name 'JointMask']));
-
-
+    
     % In correlation  class, there should be no NaN's under masked area
-    % if exists, vals should be removed from both vectors.
-
+    % If there is a NaN under the masked area, Matlab goes quantum. One
+    % voxel attains multiple (symmetrical) appereances. Even one or two
+    % values can have detrimental effects on non-robust measures of linear 
+    % correlations, such as Pearson. 
+    % Therefore, if exists, NaN vals should be removed.
+    
     [VecX,VecY] = qmrstat.cleanNan(VecX,VecY);
 
   end
@@ -445,9 +508,6 @@ function [obj,PairX,PairY] = getRelPairs(obj,rlObj,name,lblIdx)
     VecY2 = PairY2(obj.([name 'JointMask']));
 
 
-    % In correlation  class, there should be no NaN's under masked area
-    % if exists, vals should be removed from both vectors.
-
     [PairX,PairY] = qmrstat.cleanNanComp(VecX1, VecX2, VecY1, VecY2);
 
   end
@@ -455,10 +515,7 @@ function [obj,PairX,PairY] = getRelPairs(obj,rlObj,name,lblIdx)
 end % Reliability
 
 
-
-
-
-end
+end % End of provate methods 
 
 % ////////////////////////////////////////////////////////////////
 
@@ -466,36 +523,28 @@ methods(Static, Hidden)
 
 
 function [Vec1Out,Vec2Out] = cleanNan(Vec1, Vec2)
-
+  % Remove NaN entries from all, if present in any of them. 
+  % I mean corresponding pairs. 
+  
   joins = or(isnan(Vec1),isnan(Vec2));
   Vec1Out = Vec1(not(joins));
   Vec2Out = Vec2(not(joins));
 
 
-end % Generic
-% cleanNan functions can be written in a more smart way later.
-function [Pair1Out,Pair2Out] = cleanNanComp(Vec1, Vec2, Vec3, Vec4)
-
-  joins1 = or(isnan(Vec1),isnan(Vec2));
-  joins2 = or(isnan(Vec3),isnan(Vec4));
-  joins = or(joins1,joins2);
-
-  Pair1Out(:,1) = Vec1(not(joins));
-  Pair1Out(:,2) = Vec2(not(joins));
-
-  Pair2Out(:,1) = Vec3(not(joins));
-  Pair2Out(:,2) = Vec4(not(joins));
-
-
-end % Generic
+end % Generic bivariate
 
 function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 
   if nargin == 3
-    [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation',lblIdx);
+    
+     [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation',lblIdx);
+  
   else
-    [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation');
+      
+     [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation');
+ 
   end
+  
   XLabel = crObj(1).MapNames(crObj(1).ActiveMapIdx);
   YLabel = crObj(2).MapNames(crObj(2).ActiveMapIdx);
 
@@ -535,6 +584,99 @@ function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 
 
 end % Correlation
+
+function [comb, lblN, sig] = corInit(crObj)
+  % Important function for correlation tests.  
+  % Returns iteration indexes for correlation pairs where N > 2 (or 2).
+  % Adjusts significance level using bonferonni correction. 
+  % Returns number of regions by controlling StatsLabels. 
+  
+  if length(crObj(1).StatLabels)>1
+
+    lblN = length(crObj(1).StatLabels);
+
+  else
+
+    lblN = 1;
+
+  end
+  
+  sz = size(crObj);
+ 
+  if sz(2) > 2 || lblN == 1
+
+    comb = nchoosek(1:sz(2),2);
+    szc = size(comb);
+    sig = crObj(1).SignificanceLevel/szc(1);
+    disp(['Significance level is adjusted to ' num2str(sig) ' for ' num2str(szc(1)) ' correlation pairs.']);
+
+  elseif sz(2) == 2 || lblN > 1
+
+    comb = nchoosek(1:2,2);
+    sig = crObj(1).SignificanceLevel/lblN;
+    disp(['Significance level is adjusted to ' num2str(sig) ' for ' num2str(lblN) ' regions.']);
+    
+ 
+  elseif sz(2) > 2 || lblN > 1
+  
+  comb = nchoosek(1:sz(2),2);
+  szc = size(comb);
+  sig = crObj(1).SignificanceLevel/lblN/szc(1);
+  disp(['Significance level is adjusted to ' num2str(sig) ' for ' num2str(lblN) ' regions and ' num2str(szc(1)) ' correlatoin pairs.']);
+  
+  end
+
+  if sz(1) > 1
+    error( [crObj.ErrorHead ...
+    '\n>>>>>> Object.%s for this method cannot have multiple object arrays of qmrstat_correlation class.'...
+    '\n>>>>>> Correct use: Object.Correlation = qmrstat_correlation(1,4)'...
+    '\n>>>>>> Wrong use  : Object.Correlation = qmrstat_correlation(2,4)'...
+    '\n>>>>>> Where Object.Correlation is passed to the qmrstat.runCorPearson method.'...
+    crObj.Tail],'Correlation');
+  end
+
+
+end
+
+% ---------------------------------------------------- Relaibility ----- 
+
+function [comb, lblN] = relSanityCheck(rlObj)
+
+  sz = size(rlObj);
+
+  if sz(2) < 2
+    error( [rlObj.ErrorHead ...
+    '\n>>>>>> Object.%s for this method must at least be: qmrstat_correlation(2,2) '...
+    '\n>>>>>> qmrstat_correlation(N,2) is allowed, where N dependent pairs will be compared in (N choose 2) combinations)'...
+    '\n>>>>>> Correct use: Object.Reliability = qmrstat_correlation(2,2)'...
+    '\n>>>>>> Wrong use  : Object.Reliability = qmrstat_correlation(2,1)'...
+    rlObj.Tail],'Reliability');
+  end
+
+  if sz(1) > 2
+
+    comb = nchoosek(1:sz(1),2);
+    obj.MultipleReliability = true;
+    rlObj = crObj.setSignificanceLevel(rlObj(1,1).SignificanceLevel/length(comb));
+    disp(['Significance level is adjusted to ' num2str(rlObj(1,1).SignificanceLevel) ' for ' num2str(length(comb)) ' correlations.']);
+
+  else
+
+    comb = nchoosek(1:2,2);
+
+  end
+
+  if length(rlObj(1,1).StatLabels)>1
+
+    lblN = length(rlObj(1,1).StatLabels);
+
+  else
+
+    lblN = 1;
+
+  end
+
+end
 
 function [PairX,PairY,XLabel,YLabel,sig] = getReliabilityInputs(obj,rlObj,lblIdx) % Reliability
 
@@ -593,88 +735,23 @@ function [PairX,PairY,XLabel,YLabel,sig] = getReliabilityInputs(obj,rlObj,lblIdx
 
 end
 
-function [comb, lblN] = corSanityCheck(crObj)
-  % Important function, returns iteration indexes.
-  % Consider renaming
+function [Pair1Out,Pair2Out] = cleanNanComp(Vec1, Vec2, Vec3, Vec4)
+  % Remove NaN entries from all 4, if present in any of them.  
+  
+  joins1 = or(isnan(Vec1),isnan(Vec2));
+  joins2 = or(isnan(Vec3),isnan(Vec4));
+  joins = or(joins1,joins2);
 
-  sz = size(crObj);
+  Pair1Out(:,1) = Vec1(not(joins));
+  Pair1Out(:,2) = Vec2(not(joins));
 
-
-  if sz(1) > 1
-    error( [crObj.ErrorHead ...
-    '\n>>>>>> Object.%s for this method cannot have multiple object arrays of qmrstat_correlation class.'...
-    '\n>>>>>> Correct use: Object.Correlation = qmrstat_correlation(1,4)'...
-    '\n>>>>>> Wrong use  : Object.Correlation = qmrstat_correlation(2,4)'...
-    '\n>>>>>> Where Object.Correlation is passed to the qmrstat.runCorPearson method.'...
-    crObj.Tail],'Correlation');
-  end
-
-  if sz(2) > 2
-
-    comb = nchoosek(1:sz(2),2);
-    obj.MultipleCorrelation = true;
-    crObj = crObj.setSignificanceLevel(crObj(1).SignificanceLevel/length(comb));
-    disp(['Significance level is adjusted to ' num2str(crObj(1).SignificanceLevel) ' for ' num2str(length(comb)) ' correlations.']);
-
-  else
-
-    comb = nchoosek(1:2,2);
-
-  end
-
-  if length(crObj(1).StatLabels)>1
-
-    lblN = length(crObj(1).StatLabels);
-
-  else
-
-    lblN = 1;
-
-  end
+  Pair2Out(:,1) = Vec3(not(joins));
+  Pair2Out(:,2) = Vec4(not(joins));
 
 
-end % Correlation
+end % Generic
 
-function [comb, lblN] = relSanityCheck(rlObj)
-
-  sz = size(rlObj);
-
-  if sz(2) < 2
-    error( [rlObj.ErrorHead ...
-    '\n>>>>>> Object.%s for this method must at least be: qmrstat_correlation(2,2) '...
-    '\n>>>>>> qmrstat_correlation(N,2) is allowed, where N dependent pairs will be compared in (N choose 2) combinations)'...
-    '\n>>>>>> Correct use: Object.Reliability = qmrstat_correlation(2,2)'...
-    '\n>>>>>> Wrong use  : Object.Reliability = qmrstat_correlation(2,1)'...
-    rlObj.Tail],'Reliability');
-  end
-
-  if sz(1) > 2
-
-    comb = nchoosek(1:sz(1),2);
-    obj.MultipleReliability = true;
-    rlObj = crObj.setSignificanceLevel(rlObj(1,1).SignificanceLevel/length(comb));
-    disp(['Significance level is adjusted to ' num2str(rlObj(1,1).SignificanceLevel) ' for ' num2str(length(comb)) ' correlations.']);
-
-  else
-
-    comb = nchoosek(1:2,2);
-
-  end
-
-  if length(rlObj(1,1).StatLabels)>1
-
-    lblN = length(rlObj(1,1).StatLabels);
-
-  else
-
-    lblN = 1;
-
-  end
-
-end
-
-
-end
+end % End of static methods 
 
 % ////////////////////////////////////////////////////////////////
 

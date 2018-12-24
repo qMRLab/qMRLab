@@ -4,8 +4,7 @@ classdef qmrstat_reliability < AbstractStat
 properties
 
 VariableID
-SignificanceLevel = 5/100;
-FigureOption = 'osd';
+
 
 end
 % ===============================================================

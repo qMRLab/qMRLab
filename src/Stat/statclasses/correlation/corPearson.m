@@ -1,4 +1,4 @@
-function obj = corPearson(obj,crObj)
+function Results = corPearson(obj,crObj)
 %Explain for user here.
 
 % Developers: * qmrstat.getBivarCorInputs (Static)
@@ -15,6 +15,8 @@ function obj = corPearson(obj,crObj)
 % StatLabels
 % BOTH FIELDS ARE REQUIRED
 
+Results = struct(); 
+
 if nargin<2
 
   crObj = obj.Object.Correlation;
@@ -25,7 +27,8 @@ elseif nargin == 2
 
 end
 
-[comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+[comb, lbIdx, sig] = qmrstat.corInit(crObj);
+crObj = crObj.setSignificanceLevel(sig);
 
 szcomb = size(comb);
 for kk = 1:szcomb(1) % Loop over correlation matrix combinations
@@ -52,15 +55,17 @@ if strcmp(crObj(1).FigureOption,'osd')
 
 elseif strcmp(crObj(1).FigureOption,'save')
 
-  [r,t,pval,hboot,CI,h] = Pearson(VecX,VecY,XLabel,YLabel,1,sig);
-  obj.Results.Correlation(zz,kk).Pearson.figure = h;
+  [r,t,pval,hboot,CI,Results.Correlation(zz,kk).Pearson.figure] = ...
+      Pearson(VecX,VecY,XLabel,YLabel,1,sig);
+  
+  
   if lbIdx>1
 
-  obj.Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+  Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel '_' num2str(curObj(1).StatLabels{zz})];
 
   else
 
-  obj.Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel];
+  Results.Correlation(zz,kk).Pearson.figLabel = [XLabel '_' YLabel];
 
   end
 
@@ -71,13 +76,13 @@ elseif strcmp(crObj(1).FigureOption,'disable')
 
 end
 
-% Corvis is assigned to caller (qmrstat.Pearson) workspace by
+% Developer: 
+% svds is assigned to caller (qmrstat.Pearson) workspace by
 % the Pearson function.
-% Other fields are filled by Pearson function.
+% Other fields are filled out here below. 
 
 if obj.Export2Py
   
-  svds = struct();
   svds.Tag = 'Bivariate::Pearson';
   svds.Required.xData = VecX;
   svds.Required.yData = VecY;
@@ -87,18 +92,21 @@ if obj.Export2Py
   
   svds.Optional.pval = pval;
   svds.Optional.h = hboot;
-  svds.Optional.CI = CI;
+  
+  if not(isempty(CI))
+    svds.Optional.CI = CI;
+  end
 
-  obj.Results.Correlation(zz,kk).Pearson.SVDS = svds;
+  Results.Correlation(zz,kk).Pearson.SVDS = svds;
 
 end
 
 
-obj.Results.Correlation(zz,kk).Pearson.r = r;
-obj.Results.Correlation(zz,kk).Pearson.t = t;
-obj.Results.Correlation(zz,kk).Pearson.pval =  pval;
-obj.Results.Correlation(zz,kk).Pearson.hboot = hboot;
-obj.Results.Correlation(zz,kk).Pearson.CI = CI;
+ Results.Correlation(zz,kk).Pearson.r = r;
+ Results.Correlation(zz,kk).Pearson.t = t;
+ Results.Correlation(zz,kk).Pearson.pval =  pval;
+ Results.Correlation(zz,kk).Pearson.hboot = hboot;
+ Results.Correlation(zz,kk).Pearson.CI = CI;
 
 end
 end

@@ -3,7 +3,7 @@
 % ===============================================================
 properties
 
-
+VariableID
 
 end
 % ===============================================================
@@ -33,7 +33,7 @@ function obj = qmrstat_correlation(m,n)
       end
     end
 
-  elseif nargin == 0 && ~(ismember('m',[W(:).name]) || ismember('m',[W(:).name]))
+  elseif nargin == 0 && ~(ismember('m',[W(:).name]) || ismember('n',[W(:).name]))
 
     obj = qmrstat_correlation(1,2);
 

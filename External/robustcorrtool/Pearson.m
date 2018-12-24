@@ -1,31 +1,21 @@
 function [r,t,pval,hboot,CI,hout] = Pearson(X,Y,XLabel,YLabel,fig_flag,level)
-
-% compute the Pearson correlation along with the bootstrap CI
+% Compute the Pearson correlation along with the bootstraped CI
 %
-% FORMAT:  [r,t,p] = Pearson(X,Y)
-%          [r,t,p] = Pearson(X,Y,fig_flag,level)
-%          [r,t,p,hboot,CI] = Pearson(X,Y,fig_flag,level)
-%
-% INPUTS:  X and Y are 2 vectors or matrices, in the latter case,
-%          correlations are computed column-wise
+% INPUTS:  X and Y are 2 vectors.
+%          XLabel and YLabel are nametags of the vectors.  
 %          fig_flag indicates to plot (default = 1) the data or not (0)
 %          level is the desired alpha level (default = 5%)
 %
-% OUTPUTS: r is the Pearson correlation
+% OUTPUTS: r is the Pearson correlation coefficient
 %          t is the associated t value
 %          pval is the corresponding p value
+%          hboot 1/0 declares the test significance based on the CI
+%          CI is the percentile bootstrapped confidence interval
 %
-%          optional:
+%          optional: hout (outputs figure handle)
 %
-%          hboot 1/0 declares the test significant based on CI
-%          CI is the percentile bootstrap confidence interval
-%
-% If X and Y are matrices of size [n p], p correlations are computed
-% consequently, the CI are adjusted at a level alpha/p (Bonferonni
-% correction) and hboot is based on these adjusted CI (pval remain
-% uncorrected)
-
 % Cyril Pernet v1
+% Modified by Agah Karakuzu for qmrstat (2018). 
 % ---------------------------------
 %  Copyright (C) Corr_toolbox 2012
 
@@ -60,17 +50,24 @@ elseif nargin == 5
     level = 5/100;
 end
 
-[n p] = size(X);
+[n ~] = size(X);
+
+% This is modified. Benferooni mcc is performed within qmrstat framework. 
+% To deduce if p<1 or not, we can simply divie 0.05 to provided level. 
+
+p = 0.05/level;
+
 
 %% basic Pearson
 
 % compute r
 r = sum(detrend(X,'constant').*detrend(Y,'constant')) ./ ...
     (sum(detrend(X,'constant').^2).*sum(detrend(Y,'constant').^2)).^(1/2);
+% compute t
 t = r.*sqrt((n-2)./(1-r.^2));
+% compute pval 
 pval = 2*tcdf(-abs(t),n-2);
 
-if nargout > 3
     % adjust boot parameters
     if p == 1
         nboot = 599;
@@ -89,24 +86,37 @@ if nargout > 3
 
     else
         nboot = 1000;
-        level = level / p;
+        
+        %level = level / p;
         % Bonferonni correction
+        % Already corrected for qmrstat
+  
         low = round((level*nboot)/2);
+        
         if low == 0
-            error('adjusted CI cannot be computed, too many tests for the number of observations')
+            warning('adjusted CI cannot be computed, too many tests for the number of observations!')
+            CI = [];
         else
             high = nboot - low;
         end
+        
     end
-    % compute hboot and CI
+    
+    if not(isempty(CI))
+    % Bootstrapping table 
     table = randi(n,n,nboot);
+    
     for B=1:nboot
+       
         rb(B,:) = sum(detrend(X(table(:,B),:),'constant').*detrend(Y(table(:,B),:),'constant')) ./ ...
             (sum(detrend(X(table(:,B),:),'constant').^2).*sum(detrend(Y(table(:,B),:),'constant').^2)).^(1/2);
+       
         for c=1:size(X,2)
+           
             b = pinv([X(table(:,B),c) ones(n,1)])*Y(table(:,B),c);
             slope(B,c) = b(1);
             intercept(B,c) = b(2,:);
+       
         end
     end
 
@@ -122,24 +132,23 @@ if nargout > 3
     adj_high = adj_nboot - adj_low;
 
     for c=1:size(X,2)
+        
         CI(:,c) = [rb(adj_low(c),c) ; rb(adj_high(c),c)];
         hboot(c) = (rb(adj_low(c),c) > 0) + (rb(adj_high(c),c) < 0);
         CIslope(:,c) = [slope(adj_low(c),c) ; slope(adj_high(c),c)];
         CIintercept(:,c) = [intercept(adj_low(c),c) ; intercept(adj_high(c),c)];
+    
     end
-end
+    end
 
 %% plots
 if fig_flag ~= 0
-    answer = [];
-    if p > 1
-        answer = questdlg(['plots all ' num2str(p) ' correlations'],'Plotting option','yes','no','yes');
-    else
 
             % #qmrstat
             if nargout == 6
+                
                 hout = figure('Name','Pearson correlation');
-                set(gcf,'Color','w');
+                set(hout,'Color','w');
                 set(hout,'Visible','off');
 
             else % When hout is not a nargout
@@ -151,12 +160,14 @@ if fig_flag ~= 0
 
 
 
-        if nargout>3
-            % #qmrstat
-            % This is always the case with calls from qmrstat
+        if not(isempty(CI))
+            
             M = sprintf('Pearson corr r=%g \n %g%%CI [%g %g]',r,(1-level)*100,CI(1),CI(2));
+            
         else
+            
             M = sprintf('Pearson corr r=%g \n p=%g',r,pval);
+            
         end
 
         scatter(X,Y,100,'filled'); grid on
@@ -164,6 +175,7 @@ if fig_flag ~= 0
         title(M,'FontSize',16);
         % #octaveIssue
         h=lsline; set(h,'Color','r','LineWidth',4);
+        
         % #qmrstat
         svds.Optional.fitLine = [get(h,'XData'),get(h,'YData')];
         
@@ -172,10 +184,13 @@ if fig_flag ~= 0
 
         % REFLINE AND LSLINE ARE NOT AVAILABLE FOR OCTAVE.
 
-        if nargout>3 % if bootstrap done plot CI
+        if not(isempty(CI))
+
             y1 = refline(CIslope(1),CIintercept(1)); set(y1,'Color','r');
             y2 = refline(CIslope(2),CIintercept(2)); set(y2,'Color','r');
+            
             y1 = get(y1); y2 = get(y2);
+            
             xpoints=[y1.XData(1):y1.XData(2),y2.XData(2):-1:y2.XData(1)];
             step1 = y1.YData(2)-y1.YData(1); step1 = step1 / (y1.XData(2)-y1.XData(1));
             step2 = y2.YData(2)-y2.YData(1); step2 = step2 / (y2.XData(2)-y2.XData(1));
@@ -191,14 +206,17 @@ if fig_flag ~= 0
             else
                 fillColor = [0,1,0];
             end
-            PyVis.fillColor = sprintf('rgb(%d,%d,%d)',255*fillColor(1),255*fillColor(2),255*fillColor(3));
+            
 
-            assignin('caller','PyVis',PyVis);
+            
 
             hold on; fillhandle=fill(xpoints,filled,fillColor);
             set(fillhandle,'EdgeColor',[0 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
 
         end
-    end
-
+      
+        
+end
+            assignin('caller','svds',svds);
+            
 end

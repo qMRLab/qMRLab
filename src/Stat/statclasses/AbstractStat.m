@@ -13,12 +13,12 @@ classdef (Abstract) AbstractStat
         NumMaps
         
         FigureOption = 'osd';
-        SignificanceLevel = 5/100;
+        SignificanceLevel = 5/100; 
 
         StatMask
         StatLabels
         LabelIdx
-        StatMaskFolder
+        StatMaskInfo
         
         UsrLabels
         StatID
@@ -34,6 +34,9 @@ classdef (Abstract) AbstractStat
         
         DescriptiveStats
         
+        % Statistics visualization data structure. 
+        % This may become an object in the future. 
+        
         svds = struct('Tag',[],'Required',[],'Optional',[]);
         
     end
@@ -45,6 +48,8 @@ classdef (Abstract) AbstractStat
         MapDim
         StatMaskDim
         ActiveMapIdx = 1
+        MapLoadFormat
+        MaskLoadFormat
         
         WarningHead = '-------------------------------- qMRLab Warning';
         ErrorHead   = '----------------------------------------- qMRLab Error';
@@ -118,20 +123,39 @@ classdef (Abstract) AbstractStat
                 
                 obj.StatMask = input;
                 [obj.StatMask,obj.StatLabels] = AbstractStat.maskAssignByType(obj.StatMask);
+                obj.LabelIdx = cell2mat(obj.StatLabels);
+                obj.StatMaskInfo = ['Workspace variable: ' input];
+                obj.MaskLoadFormat = 'var';
                 
             elseif exist(input,'file') == 2 % File
                 
                 obj.StatMask = AbstractStat.loadFile(input);
                 [obj.StatMask,obj.StatLabels] = AbstractStat.maskAssignByType(obj.StatMask);
+                obj.LabelIdx = cell2mat(obj.StatLabels);
+                obj.StatMaskInfo = input;
+                switch AbstractStat.getInpFormat(input)
+                
+                    case 'matlab'
+                    obj.MaskLoadFormat = 'matlab';
+                    case 'nifti'
+                    obj.MaskLoadFormat = 'nifti';
+                    
+                end
                 
             elseif exist(input,'file') == 7 % Folder
                 
                 % This folder should contain unified format.
                 % If len>2 all inputs should be binary.
                 
-                obj.StatMaskFolder = input;
-                %[obj.StatMask, obj.StatLabels] = AbstractStat.getFileContent(obj.StatMaskFolder);
-                obj = getFileContent(obj);
+                obj.StatMaskInfo = input;
+                obj = setMasksFromFolder(obj);
+                if not(isempty(dir(fullfile(pwd, '*.mat'))))
+                    obj.MaskLoadFormat = 'matlab';
+                elseif not(isempty(dir(fullfile(pwd, '*.nii'))))
+                    obj.MaskLoadFormat = 'nifti';
+                elseif not(isempty(dir(fullfile(pwd, '*.nii.gz'))))
+                    obj.MaskLoadFormat = 'nifti';
+                end
             else
                 
                 error('qMRLab: Provided input is NOT i) a variable in workspace, ii) a file or iii) a folder.');
@@ -167,8 +191,8 @@ classdef (Abstract) AbstractStat
             elseif exist(input,'file') == 7 % Folder
                 
                 obj.ProbMaskFolder = input;
-                %[obj.ProbMask, ~] = AbstractStat.getFileContent(input);
-                obj = getFileContent(obj);
+                obj = setMasksFromFolder(obj);
+                
             else
                 
                 error('qMRLab: Provided input is NOT i) a variable in workspace, ii) a file or iii) a folder.');
@@ -209,6 +233,7 @@ classdef (Abstract) AbstractStat
             
             results = load(filename);
             fnames = fieldnames(results);
+            obj.MapLoadFormat = 'matlab';
             
             if ~all(ismember({'Model','Version'},fnames))
                 
@@ -295,6 +320,61 @@ classdef (Abstract) AbstractStat
                 obj.MapDim = length(szz);
                 
             end
+        end
+        
+        function obj = loadMap(obj,input)
+            % This function assigns following fields w.r.t. a given
+            % .mat ot a .nii file, containing a quantitative map:
+            %     i)  obj.Map      (Just one, in this case)
+            %    ii)  obj.MapNames (Just one, in this case)
+            %
+            %
+            % Example Use:
+            %
+            % This function can be easily hidden from the users for classes
+            % derived from this abstract base class:
+            % obj = getStatMask@loadByFitResults(obj,filename,varargin);
+            
+            
+            W = evalin('caller','whos');
+            
+            if ~isempty(inputname(2)) && ~isempty(ismember(inputname(2),[W(:).name])) && all(ismember(inputname(2),[W(:).name])) % Var from workspace
+                
+                obj.Map = input;
+                obj.MapNames = {inputname(2)};
+                obj.NumMaps = 1;
+                obj = setActiveMap(obj,1);
+                sz = size(obj.Map);
+                obj.MapDim = length(sz);
+                obj.MapLoadFormat = 'var';
+                
+            elseif exist(input,'file') == 2 % File
+                
+                obj.Map = AbstractStat.loadFile(input);
+                obj.MapNames = {AbstractStat.strapFileNamePath(input)}; 
+                obj.NumMaps = 1;
+                obj = setActiveMap(obj,1);
+                sz = size(obj.Map);
+                obj.MapDim = length(sz);
+                switch AbstractStat.getInpFormat(input)
+                
+                    case 'matlab'
+                    obj.MapLoadFormat = 'matlab';
+                    case 'nifti'
+                    obj.MapLoadFormat = 'nifti';
+                end
+                
+            elseif exist(input,'file') == 7 % Folder
+                
+                error('qMRLab: Provided input is NOT i) a variable in workspace or ii) a file.');
+                
+            else
+                
+                error('qMRLab: Provided input is NOT i) a variable in workspace or ii) a file.');
+                
+            end
+            
+            
         end
         
         function obj = loadFitMask(obj)
@@ -441,7 +521,7 @@ classdef (Abstract) AbstractStat
         
         function showActiveMap(obj)
                
-            if length(obj) == 2
+            if length(obj) >= 2
              
                 error( [obj.ErrorHead...
                         '\n>>>>>> %s method is to be called by individuals objects in an ojbject array.'...
@@ -450,7 +530,8 @@ classdef (Abstract) AbstractStat
                         obj.Tail],'showActiveMap');
                     
             end
-                disp(obj.MapNames(obj.ActiveMapIdx));
+                
+            disp(obj.MapNames(obj.ActiveMapIdx));
                 
         end
         
@@ -467,6 +548,7 @@ classdef (Abstract) AbstractStat
                 
                 
             end
+            
             
             [obj(:).FigureOption] = deal({in});
             
@@ -542,8 +624,7 @@ classdef (Abstract) AbstractStat
             
         end
 
-        function obj = getFileContent(obj,input)
-            % CHANGE THIS FUNCTIONS NAME TO getFolderContent
+        function obj = setMasksFromFolder(obj,input)
             % This function is intended to read one/multiple masks from a
             % given directory.
             %
@@ -562,9 +643,9 @@ classdef (Abstract) AbstractStat
             % A mask folder can contain .mat.
             % A mask foler can't contain mat and NifTI formats simultaneously.
             % Other files can sit in this dir, such as JSON.
-            % External call: AbstractStat.getFileContent
+            % External call: AbstractStat.setMasksFromFolder
             if nargin ==1
-                path = obj.StatMaskFolder;
+                path = obj.StatMaskInfo;
             elseif nargin ==2
                 path = input;
             end
@@ -637,6 +718,10 @@ classdef (Abstract) AbstractStat
             elseif strcmp(frm,'mat')
                 
                 fType = 'matlab';
+                
+            else
+                
+                fType = 'invalid';
                 
             end
             
@@ -719,7 +804,7 @@ classdef (Abstract) AbstractStat
         end
         
         function [out, label, lblIdx] = readUniFormat(readlist)
-            % Serves as a subfunction for getFolderContent.
+            % Serves as a subfunction for setMasksFromFolder.
             % Combines multiple masks into one mask by reading a list of
             % files of the same format.
             % Size of the mask is adapted to the # of dimensions of the maps.
@@ -729,13 +814,8 @@ classdef (Abstract) AbstractStat
                 
                 out = AbstractStat.loadFile(readlist{1});
                 [out,label] = AbstractStat.maskAssignByType(out);
-                
-                if isempty(label)
-                
-                    label = AbstractStat.strapFileName(readlist{1});
-                
-                end
-                
+                lblIdx = cell2mat(label);
+                               
             else
                 
                 tmp = AbstractStat.loadFile(readlist{1});
@@ -785,6 +865,46 @@ classdef (Abstract) AbstractStat
             % External call: AbstractStat.strapFieldName
             locpt = strfind(in, '.');
             out = in(1:(locpt-1));
+            
+            
+        end
+        
+        function out = strapFileNamePath(in)
+            % This function  is to extract filename from the absolute path
+            % pointing to a MATLAB or nifti file. 
+            
+            locsep = max(strfind(in,filesep));
+            if isempty(locsep), locsep = 0; end
+            
+            switch AbstractStat.getInpFormat(in)
+                
+                
+                case 'nifti'
+                    
+                    locpt = strfind(in, '.nii.gz');
+                    
+                    if isempty(locpt)
+                     
+                        locpt = strfind(in, '.nii');
+                       
+                    end
+                    
+                    
+                    out = in((locsep+1):(locpt-1));
+                    
+                case 'matlab'
+                
+                     locpt = strfind(in, '.mat');
+                     out = in((locsep+1):(locpt-1));
+                
+                otherwise
+                    
+                    error(['----------------------------------------- qMRLab Error'...
+                        '\n>>>>>> %s file format is not recognized.'...
+                        '\n>>>>>> Available formats: MATLAB (*.mat) & NIFTI (*.nii, *.nii.gz)'...
+                        '\n--------------------------------------------'],in);
+                    
+            end
             
             
         end
