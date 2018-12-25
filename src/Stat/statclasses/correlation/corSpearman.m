@@ -1,4 +1,4 @@
-function obj = corSpearman(obj,crObj)
+function Correlation = corSpearman(obj,crObj)
 
 % Developers: * qmrstat.getBivarCorInputs (Static)
 %               -- calls qmrstat.getBiVarCorVec (Private)
@@ -20,9 +20,11 @@ elseif nargin == 2
 
 end
 
-[comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+[comb, lbIdx, sig] = qmrstat.corInit(crObj);
+crObj = crObj.setSignificanceLevel(sig);
 
 szcomb = size(comb);
+Correlation = repmat(struct(), [lbIdx szcomb(1)]);
 for kk = 1:szcomb(1) % Loop over correlation matrix combinations
 for zz = 1:lbIdx % Loope over labeled mask indexes (if available)
 
@@ -45,18 +47,24 @@ if strcmp(crObj(1).FigureOption,'osd')
 
   [r,t,pval,hboot,CI] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
 
+  if lbIdx>1
+
+        svds.Tag.SegmentID = curObj(1).StatLabels(zz);
+
+  end
+
 elseif strcmp(crObj(1).FigureOption,'save')
 
-  [r,t,pval,hboot,CI,h] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
-  obj.Results.Correlation(zz,kk).Spearman.figure = h;
+  [r,t,pval,hboot,CI,Correlation(zz,kk).figure] = Spearman(VecX,VecY,XLabel,YLabel,1,sig);
 
   if lbIdx>1
 
-  obj.Results.Correlation(zz,kk).Spearman.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+    Correlation(zz,kk).figLabel = [XLabel '_' YLabel '_' num2str(curObj(1).StatLabels{zz})];
+    svds.Tag.SegmentID = curObj(1).StatLabels(zz);
 
   else
 
-  obj.Results.Correlation(zz,kk).Spearman.figLabel = [XLabel '_' YLabel];
+  Correlation(zz,kk).figLabel = [XLabel '_' YLabel];
 
   end
 
@@ -67,29 +75,35 @@ elseif strcmp(crObj(1).FigureOption,'disable')
 
 end
 
-% Corvis is assigned to caller (qmrstat.Pearson) workspace by
-% the Pearson function.
-% Other fields are filled by Pearson function.
+% Developer:
+% svds is assigned to caller (qmrstat.Spearman) workspace by
+% the Spearman function.
+% Other fields are filled out here below.
 
 if obj.Export2Py
 
-  PyVis.Stats.r = r;
-  PyVis.Stats.t = t;
-  PyVis.Stats.pval = pval;
-  PyVis.Stats.hboot = hboot;
-  PyVis.Stats.CI = CI;
-  PyVis.XLabel = XLabel;
-  PyVis.YLabel = YLabel;
-  obj.Results.Correlation(zz,kk).Spearman.PyVis = PyVis;
+  svds.Tag.Class = 'Bivariate::Spearman';
+  svds.Required.rSpearman = r;
+  svds.Required.xLabel = XLabel';
+  svds.Required.yLabel = YLabel';
+
+  svds.Optional.pval = pval;
+  svds.Optional.h = hboot;
+
+ if not(isempty(CI))
+   svds.Optional.CI = CI';
+   Correlation(zz,kk).CI = CI;
+ end
+
+  Correlation(zz,kk).SVDS = svds;
 
 end
 
+Correlation(zz,kk).r = r;
+Correlation(zz,kk).t = t;
+Correlation(zz,kk).pval =  pval;
+Correlation(zz,kk).hboot = hboot;
 
-obj.Results.Correlation(zz,kk).Spearman.r = r;
-obj.Results.Correlation(zz,kk).Spearman.t = t;
-obj.Results.Correlation(zz,kk).Spearman.pval =  pval;
-obj.Results.Correlation(zz,kk).Spearman.hboot = hboot;
-obj.Results.Correlation(zz,kk).Spearman.CI = CI;
 end
 end
 end

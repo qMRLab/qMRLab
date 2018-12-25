@@ -98,6 +98,7 @@ pval = 2*tcdf(-abs(t),n-2);
             CI = [];
         else
             high = nboot - low;
+            CI = zeros(2,1);
         end
         
     end
@@ -138,6 +139,14 @@ pval = 2*tcdf(-abs(t),n-2);
         CIslope(:,c) = [slope(adj_low(c),c) ; slope(adj_high(c),c)];
         CIintercept(:,c) = [intercept(adj_low(c),c) ; intercept(adj_high(c),c)];
     
+    end
+    
+    else 
+        
+    if pval < level
+        hboot = 1;
+    else
+        hboot = 0;
     end
     end
 

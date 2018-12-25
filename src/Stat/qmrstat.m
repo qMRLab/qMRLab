@@ -4,7 +4,7 @@ classdef qmrstat
 %
 %      i)   Orchestrate objects instantiated from qmrstat_sub classes
 %     ii)   Validate objects for statistical tests
-%    iii)   Perform statistical tests 
+%    iii)   Perform statistical tests
 %     iv)   Store and export results
 
 
@@ -12,6 +12,7 @@ properties
 
 Object
 Export2Py = false;
+OutputDir
 
 end
 
@@ -21,9 +22,6 @@ properties (Access = private)
 
 CorrelationValid
 CorrelationJointMask
-
-
-OutputDir
 
 ReliabilityValid
 ReliabilityJointMask
@@ -37,9 +35,9 @@ end
 
 % ////////////////////////////////////////////////////////////////
 
-properties (SetAccess = private, GetAccess=public)
-% Results property of the qmrstat cannot be modified outside. 
-% However, can be accessed. 
+properties (SetAccess = public, GetAccess=public)
+% Results property of the qmrstat cannot be modified outside.
+% However, can be accessed.
 
 Results = struct();
 
@@ -50,6 +48,19 @@ end
 
 methods
 
+    function obj = mountCorOut(obj,inp,name)
+        % Matlab and Octave togethernes...
+        sz = size(inp);
+
+        for ii = 1:sz(1)
+            for jj = 1:sz(2)
+
+            obj.Results.Correlation(ii,jj).(name) = inp(ii,jj);
+
+            end
+        end
+    end
+
 
 function obj = qmrstat()
 
@@ -59,74 +70,76 @@ function obj = qmrstat()
 
 end % Constructor  ------------------------ end (Public)
 
+
 % ############################ ROBUST CORRELATION FAMILY
 
 function obj = corWrapper(obj,crObj,method)
-    
+
      if not(isequal(crObj.MapLoadFormat,crObj.MaskLoadFormat))
-        
+
      warning( [obj.WarningHead...
     '\n>>>>>> %s are not loaded from the same type of data.'...
     '\n>>>>>> This may be causing map/mask misalignment due to orientation'...
     '\n>>>>>> differences between MATLAB and NIFTI files.'...
     '\n>>>>>> Ignore this warning if you are ensured that maps/masks are aligned after loading.'...
     obj.Tail],'Maps and StatMask ');
-         
+
      end
-    
-     if isequal(crObj(1).FigureOption,{'save'})
-     
-      c = get(groot,'Children');
-      nOpenFig = length(c);
-    
-     end
-     
+
+
+
      switch method
-        
+
          case 'Pearson'
-             
-             obj.Results = corPearson(obj,crObj);
-         
+
+             inp = corPearson(obj,crObj);
+             obj = mountCorOut(obj,inp,'Pearson');
+
          case 'Skipped'
-             
-             obj.Results = corSkipped(obj,crObj);
-         
+
+             [obj.Results.Correlation(:)] = corSkipped(obj,crObj);
+
          case 'Inspect'
-             
-             obj.Results = corInspect(obj,crObj);
-             
+
+             [obj.Results.Correlation(:)] = corInspect(obj,crObj);
+
          case 'Bend'
-             
-             obj = corPrcntgBend(obj,crObj);
-         
+
+             [obj.Results.Correlation(:)] = corPrcntgBend(obj,crObj);
+
          case 'Concordance'
-             
-             obj = corConcordance(obj,crObj);
+
+             [obj.Results.Correlation(:)] = corConcordance(obj,crObj);
+
+         case 'Spearman'
+
+             inp = corSpearman(obj,crObj);
+             obj = mountCorOut(obj,inp,'Spearman');
      end
-         
-     if isequal(crObj(1).FigureOption,{'save'})
-         disp(['Saving static figures to: ' obj.OutputDir]); 
-         obj.saveStaticFigures;
-         disp('Static figures have been saved.')
-         c = get(groot,'Children');
-         delete(c(nOpenFig+1:end));
-     end  
-    
+
+
 end
 
 
 
 function obj = runCorPearson(obj,crObj)
-  
+
   obj = corWrapper(obj,crObj,'Pearson');
-  
-end 
+
+end
+
+function obj = runCorSpearman(obj,crObj)
+
+  obj = corWrapper(obj,crObj,'Spearman');
+
+end
+
 
 function obj = runCorSkipped(obj,crObj)
 
   obj = corWrapper(obj,crObj,'Skipped');
 
-end 
+end
 
 function obj = runCorInspect(obj,crObj)
 
@@ -145,7 +158,7 @@ end % Correlation
 function obj = runCorConcordance(obj,crObj)
 
   obj = corWrapper(obj,crObj,'Concordance');
-  
+
 end
 
 
@@ -199,13 +212,13 @@ end
 
 % ############################# GENERIC METHODS
 
-function obj = pyExportEnable(obj)
+function obj = enableSVDSExport(obj)
 
   obj.Export2Py = true;
 
 end % Generic
 
-function obj = pyExportDisable(obj)
+function obj = disableSVDSExport(obj)
 
   obj.Export2Py = false;
 
@@ -230,51 +243,75 @@ function obj = setOutputDir(obj,input)
 
 end % Generic
 
-function obj = saveStaticFigures(obj)
-  % To save figures if methods are run after enabling 'save' section.
-  % If labeled mask to be used, both MaskLabel and MaskIdx should be available
 
-  if isempty(obj.OutputDir)
+function obj = saveStaticFigures(obj)
+
+         disp(['Saving static figures to: ' obj.OutputDir]);
+         try
+             N = qmrstat.saveStaticFiguresSub(obj);
+         catch
+             error([obj.ErrorHead ...
+              '\n>>>>>> %s save static figures.'...
+              obj.Tail],'Cannot');
+         end
+         disp([num2str(N) ' static figures have been saved.'])
+
+
+
+end
+
+function saveSVDS(obj)
+
+
+if isempty(obj.Results) || not(obj.Export2Py)
+
+    error([obj.ErrorHead ...
+      '\n>>>>>> %s due to at least one of the following:'...
+      '\n>>>>>> i)  A test has not been run e.g. qmrstat.runPearsonCor(qmrstat_correlation)'...
+      '\n>>>>>> ii) Export SVDS feature has not been enabled. Please see qmrstat.enableSVDSExport'...
+      obj.Tail],'Cannot export SVDS');
+
+end
+
+if isempty(obj.OutputDir)
+    warning('OutputDir was not set. Creating an output folder named qmrstat_Figures.')
     mkdir([pwd filesep 'qmrstat_Figures']);
     obj = obj.setOutputDir([pwd filesep 'qmrstat_Figures']);
-  end
+end
 
-  if ~isempty(fieldnames(obj.Results))
 
-    namesFamily = fieldnames(obj.Results);
-    for ii = 1:length(namesFamily)
+res = obj.Results;
 
-      familyStr = obj.Results.(namesFamily{ii}); % Pearson %Skipped
-      sz = size(familyStr);
-      tests = fieldnames(familyStr);
+fnames = fieldnames(res);
+lnfnames = length(fnames);
 
-      for k =1:sz(1)
-        for l=1:sz(2)
-          for m=1:length(tests)
+for ii = 1:lnfnames
 
-            crFig = familyStr(k,l).(tests{m}).figure;
-            lbl = familyStr(k,l).(tests{m}).figLabel;
+    curStr = res.(fnames{ii});
 
-            if ~isempty(crFig)
-              saveas(crFig, [obj.OutputDir filesep tests{m} '_' cell2mat(lbl) '.png']);
-              close(crFig);
-            end
+    if strcmp(fnames{ii},'Correlation')
 
-          end
+        corNames = fieldnames(curStr);
+        szStr = size(curStr);
+        curStr = reshape(curStr,[szStr(1)*szStr(2) 1]);
+
+        for jj = 1:length(corNames)
+
+            subStr = [curStr(:).(corNames{jj})];
+            curSVDS = [subStr(:).SVDS];
+            curSVDS = orderfields(curSVDS,{'Tag','Required','Optional'});
+            disp(['Saving ' corNames{jj} '.json to the output directory.']);
+            savejson('qmrlab_stat',curSVDS,[obj.OutputDir filesep corNames{jj} '.json']);
+
         end
-      end
+
     end
 
-  else
-    error( [obj.ErrorHead ...
-    '\n>>>>>> qmrstat.%s field is empty'...
-    '\n>>>>>> No analysis has been performed.'...
-    '\n>>>>>> setFigureOption must be set to ''save'' for the qmrstat_statobj'...
-    obj.Tail],'Results');
-  end
+end
+
+end % saveSVDS
 
 
-end % Generic
 
 end
 
@@ -298,19 +335,19 @@ function obj = validate(obj,curObj,name,lblIdx)
     boolMap = zeros(length(curObj),1);
     boolMask = boolMap;
     dimMis = [];
-    
+
     for ii = 1:length(curObj)
 
       curObj(ii) = curObj(ii).evalCompliance();
       boolMap(ii) = curObj(ii).Compliance.noMapFlag;
       boolMask(ii) = curObj(ii).Compliance.noMaskFlag;
-      
+
       if ~isempty(curObj(ii).StatMask)
-      
+
           dimMis = [dimMis curObj(ii).Compliance.szMismatchFlag];
-      
+
       end
-      
+
     end
 
   end
@@ -468,14 +505,14 @@ function [obj,VecX,VecY] = getBivarCorVec(obj,crObj,name,lblIdx)
 
     VecX = mp1(obj.([name 'JointMask']));
     VecY = mp2(obj.([name 'JointMask']));
-    
+
     % In correlation  class, there should be no NaN's under masked area
     % If there is a NaN under the masked area, Matlab goes quantum. One
     % voxel attains multiple (symmetrical) appereances. Even one or two
-    % values can have detrimental effects on non-robust measures of linear 
-    % correlations, such as Pearson. 
+    % values can have detrimental effects on non-robust measures of linear
+    % correlations, such as Pearson.
     % Therefore, if exists, NaN vals should be removed.
-    
+
     [VecX,VecY] = qmrstat.cleanNan(VecX,VecY);
 
   end
@@ -507,7 +544,6 @@ function [obj,PairX,PairY] = getRelPairs(obj,rlObj,name,lblIdx)
     VecY1 = PairY1(obj.([name 'JointMask']));
     VecY2 = PairY2(obj.([name 'JointMask']));
 
-
     [PairX,PairY] = qmrstat.cleanNanComp(VecX1, VecX2, VecY1, VecY2);
 
   end
@@ -515,17 +551,64 @@ function [obj,PairX,PairY] = getRelPairs(obj,rlObj,name,lblIdx)
 end % Reliability
 
 
-end % End of provate methods 
+end % End of provate methods
 
 % ////////////////////////////////////////////////////////////////
 
 methods(Static, Hidden)
 
+function N = saveStaticFiguresSub(obj)
+  % To save figures if methods are run after enabling 'save' section.
+  % If labeled mask to be used, both MaskLabel and MaskIdx should be available
 
+  if isempty(obj.OutputDir)
+    warning('OutputDir was not set. Creating an output folder named qmrstat_Figures.')
+    mkdir([pwd filesep 'qmrstat_Figures']);
+    obj = obj.setOutputDir([pwd filesep 'qmrstat_Figures']);
+  end
+
+  if ~isempty(fieldnames(obj.Results))
+
+    namesFamily = fieldnames(obj.Results);
+    for ii = 1:length(namesFamily)
+
+      familyStr = obj.Results.(namesFamily{ii}); % Pearson %Skipped
+      sz = size(familyStr);
+      tests = fieldnames(familyStr);
+
+      for k =1:sz(1)
+        for l=1:sz(2)
+          for m=1:length(tests)
+
+            crFig = familyStr(k,l).(tests{m}).figure;
+            lbl = familyStr(k,l).(tests{m}).figLabel;
+
+            if ~isempty(crFig)
+              saveas(crFig, [obj.OutputDir filesep tests{m} '_' cell2mat(lbl) '.png']);
+              close(crFig);
+            end
+
+          end
+        end
+      end
+    end
+
+  else
+    error( [obj.ErrorHead ...
+    '\n>>>>>> qmrstat.%s field is empty'...
+    '\n>>>>>> No analysis has been performed.'...
+    '\n>>>>>> setFigureOption must be set to ''save'' for the qmrstat_statobj'...
+    obj.Tail],'Results');
+  end
+
+  N = sz(1)*sz(2)*length(tests);
+
+end % Generic
+% ---------------------------------------------------------------------
 function [Vec1Out,Vec2Out] = cleanNan(Vec1, Vec2)
-  % Remove NaN entries from all, if present in any of them. 
-  % I mean corresponding pairs. 
-  
+  % Remove NaN entries from all, if present in any of them.
+  % I mean corresponding pairs.
+
   joins = or(isnan(Vec1),isnan(Vec2));
   Vec1Out = Vec1(not(joins));
   Vec2Out = Vec2(not(joins));
@@ -536,15 +619,15 @@ end % Generic bivariate
 function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 
   if nargin == 3
-    
+
      [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation',lblIdx);
-  
+
   else
-      
+
      [obj,VecX,VecY] = obj.getBivarCorVec(crObj,'Correlation');
- 
+
   end
-  
+
   XLabel = crObj(1).MapNames(crObj(1).ActiveMapIdx);
   YLabel = crObj(2).MapNames(crObj(2).ActiveMapIdx);
 
@@ -586,11 +669,11 @@ function [VecX,VecY,XLabel,YLabel,sig] = getBivarCorInputs(obj,crObj,lblIdx)
 end % Correlation
 
 function [comb, lblN, sig] = corInit(crObj)
-  % Important function for correlation tests.  
+  % Important function for correlation tests.
   % Returns iteration indexes for correlation pairs where N > 2 (or 2).
-  % Adjusts significance level using bonferonni correction. 
-  % Returns number of regions by controlling StatsLabels. 
-  
+  % Adjusts significance level using bonferonni correction.
+  % Returns number of regions by controlling StatsLabels.
+
   if length(crObj(1).StatLabels)>1
 
     lblN = length(crObj(1).StatLabels);
@@ -600,30 +683,30 @@ function [comb, lblN, sig] = corInit(crObj)
     lblN = 1;
 
   end
-  
+
   sz = size(crObj);
- 
-  if sz(2) > 2 || lblN == 1
+
+  if sz(2) > 2 && lblN == 1
 
     comb = nchoosek(1:sz(2),2);
     szc = size(comb);
     sig = crObj(1).SignificanceLevel/szc(1);
     disp(['Significance level is adjusted to ' num2str(sig) ' for ' num2str(szc(1)) ' correlation pairs.']);
 
-  elseif sz(2) == 2 || lblN > 1
+  elseif sz(2) == 2 && lblN > 1
 
     comb = nchoosek(1:2,2);
     sig = crObj(1).SignificanceLevel/lblN;
     disp(['Significance level is adjusted to ' num2str(sig) ' for ' num2str(lblN) ' regions.']);
-    
- 
-  elseif sz(2) > 2 || lblN > 1
-  
+
+
+  elseif sz(2) > 2 && lblN > 1
+
   comb = nchoosek(1:sz(2),2);
   szc = size(comb);
   sig = crObj(1).SignificanceLevel/lblN/szc(1);
-  disp(['Significance level is adjusted to ' num2str(sig) ' for ' num2str(lblN) ' regions and ' num2str(szc(1)) ' correlatoin pairs.']);
-  
+  disp(['Significance level is adjusted to ' num2str(sig) ' for ' num2str(lblN) ' regions and ' num2str(szc(1)) ' correlation pairs.']);
+
   end
 
   if sz(1) > 1
@@ -638,7 +721,7 @@ function [comb, lblN, sig] = corInit(crObj)
 
 end
 
-% ---------------------------------------------------- Relaibility ----- 
+% ---------------------------------------------------- Relaibility -----
 
 function [comb, lblN] = relSanityCheck(rlObj)
 
@@ -736,8 +819,8 @@ function [PairX,PairY,XLabel,YLabel,sig] = getReliabilityInputs(obj,rlObj,lblIdx
 end
 
 function [Pair1Out,Pair2Out] = cleanNanComp(Vec1, Vec2, Vec3, Vec4)
-  % Remove NaN entries from all 4, if present in any of them.  
-  
+  % Remove NaN entries from all 4, if present in any of them.
+
   joins1 = or(isnan(Vec1),isnan(Vec2));
   joins2 = or(isnan(Vec3),isnan(Vec4));
   joins = or(joins1,joins2);
@@ -751,9 +834,9 @@ function [Pair1Out,Pair2Out] = cleanNanComp(Vec1, Vec2, Vec3, Vec4)
 
 end % Generic
 
-end % End of static methods 
+end % End of static methods
 
 % ////////////////////////////////////////////////////////////////
 
 % ------------------------------------------------------------ END --
-end 
+end
