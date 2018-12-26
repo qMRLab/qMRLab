@@ -4,7 +4,8 @@ y = struct();
 oldy = get(axsh,'ylim');
 y.XData = get(axsh,'xlim');
 y.YData = intercept + slope.*xl;
-plot(y.xData,y.yData,color,'LineWidth',wdth);
+hold on
+plot(y.XData,y.YData,color,'LineWidth',wdth);
 set(axsh,'xlim',y.XData);
 set(axsh,'ylim',oldy);
 
