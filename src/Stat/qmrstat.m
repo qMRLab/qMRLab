@@ -581,7 +581,7 @@ function N = saveStaticFiguresSub(obj)
       familyStr = obj.Results.(namesFamily{ii}); % Pearson %Skipped
       sz = size(familyStr);
       tests = fieldnames(familyStr);
-
+      disp([ num2str(sz(1)*sz(2)*length(tests)) ' figures will be saved for ' namesFamily{ii}]);
       for k =1:sz(1)
         for l=1:sz(2)
           for m=1:length(tests)
