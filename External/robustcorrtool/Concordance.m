@@ -95,10 +95,10 @@ function [rC,biasFactorC,hboot,CIC,hout] = Concordance(X,Y,XLabel,YLabel,fig_fla
         if ~isempty(intsect)
 
             identity = intsect(1):intsect(2);
-            plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
-            plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
-            svds.Required.identityLine = [identity,identity];
-            svds.Required.shiftedLine = [identity,identity*scaleC + shiftC];
+            plot([identity(1),identity(end)],[identity(1),identity(end)],'k--','LineWidth',2);
+            h=lsline; set(h,'Color','r','LineWidth',2);
+            svds.Required.identityLine = [identity(1),identity(end),identity(1),identity(end)];
+            svds.Required.shiftedLine = [get(h,'XData'),get(h,'YData')];
 
         else
 
