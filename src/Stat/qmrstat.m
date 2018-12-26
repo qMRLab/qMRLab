@@ -7,15 +7,19 @@ classdef qmrstat
 %    iii)   Perform statistical tests
 %     iv)   Store and export results
 
-
 properties
 
-Object
-Export2Py = false;
-OutputDir
+Object % Contains default objects for each stat family 
+Results = struct(); % Contains results for all tests performed 
 
 end
 
+properties (Hidden)
+    
+Export2Py = false; % Svds option 
+OutputDir          % Directory where outputs will be saved 
+
+end
 % ////////////////////////////////////////////////////////////////
 
 properties (Access = private)
@@ -35,36 +39,8 @@ end
 
 % ////////////////////////////////////////////////////////////////
 
-properties (SetAccess = public, GetAccess=public)
-% Results property of the qmrstat cannot be modified outside.
-% However, can be accessed.
-
-Results = struct();
-
-end
-
-% ////////////////////////////////////////////////////////////////
-
-
 methods
-
-    function obj = disperseResults(obj,inp,name,family)
-        % Matlab and Octave togethernes...
-        % Make this one Hidden
-        sz = size(inp);
-
-        for ii = 1:sz(1)
-            for jj = 1:sz(2)
-
-            if strcmp(family,'Correlation')
-            obj.Results.Correlation(ii,jj).(name) = inp(ii,jj);
-            end
-
-            end
-        end
-    end
-
-
+   
 function obj = qmrstat()
 
   obj.Object.Correlation = qmrstat_correlation;
@@ -73,60 +49,7 @@ function obj = qmrstat()
 
 end % Constructor  ------------------------ end (Public)
 
-
 % ############################ ROBUST CORRELATION FAMILY
-
-function obj = corWrapper(obj,crObj,method)
-     % Make this one Hidden
-
-     if not(isequal(crObj.MapLoadFormat,crObj.MaskLoadFormat))
-
-     warning( [obj.WarningHead...
-    '\n>>>>>> %s are not loaded from the same type of data.'...
-    '\n>>>>>> This may be causing map/mask misalignment due to orientation'...
-    '\n>>>>>> differences between MATLAB and NIFTI files.'...
-    '\n>>>>>> Ignore this warning if you are ensured that maps/masks are aligned after loading.'...
-    obj.Tail],'Maps and StatMask ');
-
-     end
-
-     switch method
-
-         case 'Pearson'
-
-             tmp = corPearson(obj,crObj);
-             obj = disperseResults(obj,tmp,'Pearson','Correlation');
-
-         case 'Skipped'
-
-             tmp = corSkipped(obj,crObj);
-             obj = disperseResults(obj,tmp,'Skipped','Correlation');
-
-         case 'Inspect'
-
-             tmp = corInspect(obj,crObj);
-             obj = disperseResults(obj,tmp,'Inspect','Correlation');
-
-         case 'Bend'
-
-           tmp = corPrcntgBend(obj,crObj);
-           obj = disperseResults(obj,tmp,'Bend','Correlation');
-
-         case 'Concordance'
-
-              tmp = corConcordance(obj,crObj);
-              obj = disperseResults(obj,tmp,'Concordance','Correlation');
-
-         case 'Spearman'
-
-             tmp = corSpearman(obj,crObj);
-             obj = disperseResults(obj,tmp,'Spearman','Correlation');
-     end
-
-
-end
-
-
 
 function obj = runCorPearson(obj,crObj)
 
@@ -139,7 +62,6 @@ function obj = runCorSpearman(obj,crObj)
   obj = corWrapper(obj,crObj,'Spearman');
 
 end
-
 
 function obj = runCorSkipped(obj,crObj)
 
@@ -166,7 +88,6 @@ function obj = runCorConcordance(obj,crObj)
   obj = corWrapper(obj,crObj,'Concordance');
 
 end
-
 
 % ############################ RELAIBILITY TEST FAMILY
 
@@ -215,20 +136,19 @@ function obj = runRelCompare(obj,rlObj)
 
 end
 
-
 % ############################# GENERIC METHODS
 
-function obj = enableSVDSExport(obj)
+function obj = setSVDS_On(obj)
 
   obj.Export2Py = true;
 
-end % Generic
+end 
 
-function obj = disableSVDSExport(obj)
+function obj = setSVDS_Off(obj)
 
   obj.Export2Py = false;
 
-end % Generic
+end 
 
 function obj = setOutputDir(obj,input)
 
@@ -247,10 +167,9 @@ function obj = setOutputDir(obj,input)
     obj.OutputDir = input;
   end
 
-end % Generic
+end 
 
-
-function obj = saveStaticFigures(obj)
+function saveStaticFigures(obj)
 
          disp(['Saving static figures to: ' obj.OutputDir]);
          try
@@ -315,9 +234,7 @@ for ii = 1:lnfnames
 
 end
 
-end % saveSVDS
-
-
+end
 
 end
 
@@ -556,8 +473,72 @@ function [obj,PairX,PairY] = getRelPairs(obj,rlObj,name,lblIdx)
 
 end % Reliability
 
+function obj = disperseResults(obj,inp,name,family)
+        % Matlab and Octave togethernes...
+        % Make this one Hidden
+        sz = size(inp);
 
-end % End of provate methods
+        for ii = 1:sz(1)
+            for jj = 1:sz(2)
+
+            if strcmp(family,'Correlation')
+            obj.Results.Correlation(ii,jj).(name) = inp(ii,jj);
+            end
+
+            end
+        end
+end
+
+function obj = corWrapper(obj,crObj,method)
+
+     if not(isequal(crObj.MapLoadFormat,crObj.MaskLoadFormat))
+
+     warning( [obj.WarningHead...
+    '\n>>>>>> %s are not loaded from the same type of data.'...
+    '\n>>>>>> This may be causing map/mask misalignment due to orientation'...
+    '\n>>>>>> differences between MATLAB and NIFTI files.'...
+    '\n>>>>>> Ignore this warning if you are ensured that maps/masks are aligned after loading.'...
+    obj.Tail],'Maps and StatMask ');
+
+     end
+
+     switch method
+
+         case 'Pearson'
+
+             tmp = corPearson(obj,crObj);
+             obj = disperseResults(obj,tmp,'Pearson','Correlation');
+
+         case 'Skipped'
+
+             tmp = corSkipped(obj,crObj);
+             obj = disperseResults(obj,tmp,'Skipped','Correlation');
+
+         case 'Inspect'
+
+             tmp = corInspect(obj,crObj);
+             obj = disperseResults(obj,tmp,'Inspect','Correlation');
+
+         case 'Bend'
+
+           tmp = corPrcntgBend(obj,crObj);
+           obj = disperseResults(obj,tmp,'Bend','Correlation');
+
+         case 'Concordance'
+
+              tmp = corConcordance(obj,crObj);
+              obj = disperseResults(obj,tmp,'Concordance','Correlation');
+
+         case 'Spearman'
+
+             tmp = corSpearman(obj,crObj);
+             obj = disperseResults(obj,tmp,'Spearman','Correlation');
+     end
+
+
+end
+
+end % End of private methods
 
 % ////////////////////////////////////////////////////////////////
 
