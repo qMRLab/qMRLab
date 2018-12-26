@@ -200,29 +200,28 @@ if fig_flag ~= 0
 
         if not(isempty(CI))
 
+            if moxunit_util_platform_is_octave
+            y1 = refline_octave(CIslope(1),CIintercept(1),gca(),'r',2);
+            y2 = refline_octave(CIslope(2),CIintercept(2),gca(),'r',2);
+            else
             y1 = refline(CIslope(1),CIintercept(1)); set(y1,'Color','r');
             y2 = refline(CIslope(2),CIintercept(2)); set(y2,'Color','r');
-
             y1 = get(y1); y2 = get(y2);
+            end
 
             xpoints=[y1.XData(1):y1.XData(2),y2.XData(2):-1:y2.XData(1)];
             step1 = y1.YData(2)-y1.YData(1); step1 = step1 / (y1.XData(2)-y1.XData(1));
             step2 = y2.YData(2)-y2.YData(1); step2 = step2 / (y2.XData(2)-y2.XData(1));
             filled=[y1.YData(1):step1:y1.YData(2),y2.YData(2):-step2:y2.YData(1)];
 
-
             svds.Optional.CILine1 = [y1.XData(1),y1.XData(2),y1.YData(1),y1.YData(2)];
             svds.Optional.CILine2 = [y2.XData(1),y2.XData(2),y2.YData(1),y2.YData(2)];
-
 
             if min(CI)<0 && max(CI)>0
                 fillColor = [1,0,0];
             else
                 fillColor = [0,1,0];
             end
-
-
-
 
             hold on; fillhandle=fill(xpoints,filled,fillColor);
             set(fillhandle,'EdgeColor',[0 0 0],'FaceAlpha',0.2,'EdgeAlpha',0.8);%set edge color
