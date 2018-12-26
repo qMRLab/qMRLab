@@ -183,17 +183,13 @@ if fig_flag ~= 0
         % #octaveIssue
 
         if ~moxunit_util_platform_is_octave
-
           scatter(X,Y,10,'filled'); grid on;
-          [x_bfl,y_bfl] = lsline_octave(X,Y,gca());
+          [x_bfl,y_bfl] = lsline_octave(X,Y,gca(),'r',4);
           svds.Optional.fitLine = [x_bfl,y_bfl];
-
         else
-
           scatter(X,Y,100,'filled'); grid on
           h=lsline; set(h,'Color','r','LineWidth',4);
           svds.Optional.fitLine = [get(h,'XData'),get(h,'YData')];
-
         end
 
         xlabel(XLabel,'FontSize',14); ylabel(YLabel,'FontSize',14);

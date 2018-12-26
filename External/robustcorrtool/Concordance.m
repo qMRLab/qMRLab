@@ -79,7 +79,13 @@ function [rC,biasFactorC,hboot,CIC,hout] = Concordance(X,Y,XLabel,YLabel,fig_fla
 
         end
 
-        scatter(X,Y,100,'filled'); grid on; hold on;
+        if moxunit_util_platform_is_octave
+        scatter(X,Y,10,'filled');
+        else
+        scatter(X,Y,100,'filled');
+        end
+
+        grid on; hold on;
         xlabel(XLabel,'FontSize',14); ylabel(YLabel,'FontSize',14);
         title(['Concordance corr =' num2str(rC) ' Bias factor: ' num2str(biasFactorC)],'FontSize',16);
 
@@ -95,10 +101,21 @@ function [rC,biasFactorC,hboot,CIC,hout] = Concordance(X,Y,XLabel,YLabel,fig_fla
         if ~isempty(intsect)
 
             identity = intsect(1):intsect(2);
-            plot([identity(1),identity(end)],[identity(1),identity(end)],'k--','LineWidth',2);
-            h=lsline; set(h,'Color','r','LineWidth',2);
+            plot([identity(1),identity(end)],[identity(1),identity(end)],'k--','LineWidth',3);
+
+            if moxunit_util_platform_is_octave
+
+              [x_bfl,y_bfl] = lsline_octave(X,Y,gca(),'r',2);
+              svds.Required.shiftedLine = [x_bfl,y_bfl];
+
+            else
+
+              h=lsline; set(h,'Color','r','LineWidth',2);
+
+              svds.Required.shiftedLine = [get(h,'XData'),get(h,'YData')];
+            end
+
             svds.Required.identityLine = [identity(1),identity(end),identity(1),identity(end)];
-            svds.Required.shiftedLine = [get(h,'XData'),get(h,'YData')];
 
         else
 
