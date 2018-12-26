@@ -1,4 +1,4 @@
-function obj = corConcordance(obj,crObj)
+function Correlation = corConcordance(obj,crObj)
 
 if nargin<2
 
@@ -10,9 +10,12 @@ elseif nargin == 2
 
 end
 
-[comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+[comb, lbIdx, sig] = qmrstat.corInit(crObj);
+crObj = crObj.setSignificanceLevel(sig);
 
 szcomb = size(comb);
+
+Correlation = repmat(struct(), [lbIdx szcomb(1)]);
 for kk = 1:szcomb(1) % Loop over correlation matrix combinations
 for zz = 1:lbIdx % Loope over labeled mask indexes (if available)
 
@@ -37,16 +40,16 @@ if strcmp(crObj(1).FigureOption,'osd')
 
 elseif strcmp(crObj(1).FigureOption,'save')
 
-  [rC,biasFactorC,hboot,CI,h] = Concordance(VecX,VecY,XLabel,YLabel,1,sig);
-  obj.Results.Correlation(zz,kk).Concordance.figure = h;
+  [rC,biasFactorC,hboot,CI,Correlation(zz,kk).figure] = Concordance(VecX,VecY,XLabel,YLabel,1,sig);
+
 
   if lbIdx>1
 
-  obj.Results.Correlation(zz,kk).Concordance.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+  Correlation(zz,kk).figLabel = [XLabel '_' YLabel '_' num2str(curObj(1).StatLabels{zz})];
 
   else
 
-  obj.Results.Correlation(zz,kk).Concordance.figLabel = [XLabel '_' YLabel];
+  Correlation(zz,kk).figLabel = [XLabel '_' YLabel];
 
   end
 
@@ -57,27 +60,37 @@ elseif strcmp(crObj(1).FigureOption,'disable')
 
 end
 
-% Corvis is assigned to caller (qmrstat.Pearson) workspace by
-% the Pearson function.
-% Other fields are filled by Pearson function.
+% Developer:
+% svds is assigned to caller (qmrstat.Concordance) workspace by
+% the Concordance function.
+% Other fields are filled out here below.
+
 
 if obj.Export2Py
 
-  PyVis.XData = VecX;
-  PyVis.YData = VecY;
-  PyVis.Stats.r = rC;
-  PyVis.Stats.bias = biasFactorC;
-  PyVis.Stats.hboot = hboot;
-  PyVis.Stats.CI = CI;
-  PyVis.XLabel = XLabel;
-  PyVis.YLabel = YLabel;
-  obj.Results.Correlation(zz,kk).Concordance.PyVis = PyVis;
+  svds.Tag.Class = 'Bivariate::Concordance';
+  svds.Required.xData = VecX';
+  svds.Required.yData = VecY';
+  svds.Required.rConcordance = rC;
+  svds.Required.xLabel = XLabel';
+  svds.Required.yLabel = YLabel';
+
+  svds.Optional.biasFactor = biasFactorC;
+  svds.Optional.CI = CI';
+  svds.Optional.CILevel = 1 - sig;
+  svds.Optional.h = hboot;
+
+  Correlation(zz,kk).SVDS = svds;
 
 end
 
 
-obj.Results.Correlation(zz,kk).Concordance.r = rC;
-obj.Results.Correlation(zz,kk).Concordance.bias = biasFactorC;
-obj.Results.Correlation(zz,kk).Concordance.hboot = hboot;
-obj.Results.Correlation(zz,kk).Concordance.CI = CI;
+Correlation(zz,kk).r = rC;
+Correlation(zz,kk).bias = biasFactorC;
+Correlation(zz,kk).hboot = hboot;
+Correlation(zz,kk).CI = CI;
+
+end
+end
+
 end

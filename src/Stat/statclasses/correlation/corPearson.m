@@ -54,25 +54,25 @@ end
 if strcmp(crObj(1).FigureOption,'osd')
 
   [r,t,pval,hboot,CI] = Pearson(VecX,VecY,XLabel,YLabel,1,sig);
-  
+
   if lbIdx>1
-   
+
       svds.Tag.SegmentID = curObj(1).StatLabels(zz);
-      
+
   end
 
 elseif strcmp(crObj(1).FigureOption,'save')
 
   [r,t,pval,hboot,CI,Correlation(zz,kk).figure] = ...
       Pearson(VecX,VecY,XLabel,YLabel,1,sig);
-  
-  
+
+
   if lbIdx>1
-  
+
   Correlation(zz,kk).figLabel = [XLabel '_' YLabel '_' num2str(curObj(1).StatLabels{zz})];
-  % Attach segment ID only if labels are available. 
+  % Attach segment ID only if labels are available.
   svds.Tag.SegmentID = curObj(1).StatLabels(zz);
-  
+
   else
 
   Correlation(zz,kk).figLabel = [XLabel '_' YLabel];
@@ -86,26 +86,27 @@ elseif strcmp(crObj(1).FigureOption,'disable')
 
 end
 
-% Developer: 
+% Developer:
 % svds is assigned to caller (qmrstat.Pearson) workspace by
 % the Pearson function.
-% Other fields are filled out here below. 
+% Other fields are filled out here below.
 
 if obj.Export2Py
-  
+
   svds.Tag.Class = 'Bivariate::Pearson';
   svds.Required.xData = VecX';
   svds.Required.yData = VecY';
   svds.Required.rPearson = r;
   svds.Required.xLabel = XLabel';
   svds.Required.yLabel = YLabel';
-  
+
   svds.Optional.pval = pval;
   svds.Optional.h = hboot;
-  
+
   if not(isempty(CI))
     svds.Optional.CI = CI';
     Correlation(zz,kk).CI = CI;
+    svds.Optional.CILevel = 1 - sig;
   end
 
     Correlation(zz,kk).SVDS = svds;
@@ -117,10 +118,9 @@ Correlation(zz,kk).r = r;
 Correlation(zz,kk).t = t;
 Correlation(zz,kk).pval =  pval;
 Correlation(zz,kk).hboot = hboot;
- 
+
 
 end
 end % loop
 
 end % Correlation
-

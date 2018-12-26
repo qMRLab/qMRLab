@@ -1,5 +1,7 @@
 function [rC,biasFactorC,hboot,CIC,hout] = Concordance(X,Y,XLabel,YLabel,fig_flag,alpha_level)
 
+  svds = struct();
+
   nboot = 1000;
 
   if size(X,1) == 1 && size(X,2) > 1; X = X'; end
@@ -27,7 +29,7 @@ function [rC,biasFactorC,hboot,CIC,hout] = Concordance(X,Y,XLabel,YLabel,fig_fla
       end
 
       Z = [X,Y];
-      [n p] = size(Z);
+      [n ~] = size(Z);
 
       S = cov(Z,1);
       ybar = mean(Z);
@@ -83,30 +85,6 @@ function [rC,biasFactorC,hboot,CIC,hout] = Concordance(X,Y,XLabel,YLabel,fig_fla
 
         v = axis;
         intsect = range_intersection([v(1) v(2)],[v(3) v(4)]);
-        if ~isempty(intsect)
-        
-            identity = intsect(1):intsect(2);
-            plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
-            plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
-            PyVis.ConcLine.X = identity;
-            PyVis.ConcLine.Y = identity;
-            PyVis.IdentityLine.X = identity;
-            PyVis.IdentityLine.Y = identity*scaleC + shiftC;
-        
-        else
-            
-           disp(['Concordance and identity lines cannot be drawn: ' cell2mat(XLabel) ' vs ' cell2mat(YLabel)]);
-           PyVis.ConcLine.X = [];
-           PyVis.ConcLine.Y = [];
-           PyVis.IdentityLine.X = [];
-           PyVis.IdentityLine.Y = [];
-           
-        end
-
-
-       
-
-        
 
         if min(CIC)<0 && max(CIC)>0
             hboot = 0;
@@ -114,9 +92,26 @@ function [rC,biasFactorC,hboot,CIC,hout] = Concordance(X,Y,XLabel,YLabel,fig_fla
             hboot = 1;
         end
 
+        if ~isempty(intsect)
+
+            identity = intsect(1):intsect(2);
+            plot(identity,identity,'k--','LineWidth',2);  % Identity line % add diagonal
+            plot(identity,identity*scaleC + shiftC,'r','LineWidth',4);
+            svds.Required.identityLine = [identity,identity];
+            svds.Required.shiftedLine = [identity,identity*scaleC + shiftC];
+
+        else
+
+           disp(['Concordance and identity lines cannot be drawn: ' cell2mat(XLabel) ' vs ' cell2mat(YLabel)]);
+           svds.Required.identityLine = [];
+           svds.Required.shiftedLine  = [];
+
+        end
+
+
 
 
       end
 
-      assignin('caller','PyVis',PyVis);
+      assignin('caller','svds',svds);
 end

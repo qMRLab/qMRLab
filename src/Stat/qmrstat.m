@@ -48,14 +48,17 @@ end
 
 methods
 
-    function obj = mountCorOut(obj,inp,name)
+    function obj = disperseResults(obj,inp,name,family)
         % Matlab and Octave togethernes...
+        % Make this one Hidden
         sz = size(inp);
 
         for ii = 1:sz(1)
             for jj = 1:sz(2)
 
+            if strcmp(family,'Correlation')
             obj.Results.Correlation(ii,jj).(name) = inp(ii,jj);
+            end
 
             end
         end
@@ -74,6 +77,7 @@ end % Constructor  ------------------------ end (Public)
 % ############################ ROBUST CORRELATION FAMILY
 
 function obj = corWrapper(obj,crObj,method)
+     % Make this one Hidden
 
      if not(isequal(crObj.MapLoadFormat,crObj.MaskLoadFormat))
 
@@ -86,35 +90,37 @@ function obj = corWrapper(obj,crObj,method)
 
      end
 
-
-
      switch method
 
          case 'Pearson'
 
-             inp = corPearson(obj,crObj);
-             obj = mountCorOut(obj,inp,'Pearson');
+             tmp = corPearson(obj,crObj);
+             obj = disperseResults(obj,tmp,'Pearson','Correlation');
 
          case 'Skipped'
 
-             [obj.Results.Correlation(:)] = corSkipped(obj,crObj);
+             tmp = corSkipped(obj,crObj);
+             obj = disperseResults(obj,tmp,'Skipped','Correlation');
 
          case 'Inspect'
 
-             [obj.Results.Correlation(:)] = corInspect(obj,crObj);
+             tmp = corInspect(obj,crObj);
+             obj = disperseResults(obj,tmp,'Inspect','Correlation');
 
          case 'Bend'
 
-             [obj.Results.Correlation(:)] = corPrcntgBend(obj,crObj);
+           tmp = corPrcntgBend(obj,crObj);
+           obj = disperseResults(obj,tmp,'Bend','Correlation');
 
          case 'Concordance'
 
-             [obj.Results.Correlation(:)] = corConcordance(obj,crObj);
+              tmp = corConcordance(obj,crObj);
+              obj = disperseResults(obj,tmp,'Concordance','Correlation');
 
          case 'Spearman'
 
-             inp = corSpearman(obj,crObj);
-             obj = mountCorOut(obj,inp,'Spearman');
+             tmp = corSpearman(obj,crObj);
+             obj = disperseResults(obj,tmp,'Spearman','Correlation');
      end
 
 

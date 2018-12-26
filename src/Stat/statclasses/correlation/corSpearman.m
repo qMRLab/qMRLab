@@ -93,6 +93,8 @@ if obj.Export2Py
  if not(isempty(CI))
    svds.Optional.CI = CI';
    Correlation(zz,kk).CI = CI;
+   svds.Optional.CILevel = 1 - sig;
+   
  end
 
   Correlation(zz,kk).SVDS = svds;
