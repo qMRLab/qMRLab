@@ -71,7 +71,7 @@ if obj.Export2Py
   svds.Tag.Class = 'Bivariate::Concordance';
   svds.Required.xData = VecX';
   svds.Required.yData = VecY';
-  svds.Required.rConcordance = rC;
+  svds.Required.rhoConcordance = rC;
   svds.Required.xLabel = XLabel';
   svds.Required.yLabel = YLabel';
 

@@ -52,7 +52,7 @@ end
 
 [n ~] = size(X);
 
-% This is modified. Benferooni mcc is performed within qmrstat framework.
+% This is modified. Mcc is dealt by qmrstat framework.
 % To deduce if p<1 or not, we can simply divie 0.05 to provided level.
 
 p = 0.05/level;
@@ -182,7 +182,7 @@ if fig_flag ~= 0
 
         % #octaveIssue
 
-        if ~moxunit_util_platform_is_octave
+        if moxunit_util_platform_is_octave
           scatter(X,Y,10,'filled'); grid on;
           [x_bfl,y_bfl] = lsline_octave(X,Y,gca(),'r',4);
           svds.Optional.fitLine = [x_bfl,y_bfl];

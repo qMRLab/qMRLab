@@ -22,6 +22,7 @@ function obj = corSkipped(obj,crObj)
   [comb, lbIdx] = qmrstat.corSanityCheck(crObj);
 
   szcomb = size(comb);
+  Correlation = repmat(struct(), [lbIdx szcomb(1)]);
   for kk = 1:szcomb(1) % Loop over correlation matrix combinations
     for zz = 1:lbIdx % Loope over labeled mask indexes (if available)
 
@@ -46,16 +47,15 @@ function obj = corSkipped(obj,crObj)
 
       elseif strcmp(crObj(1).FigureOption,'save')
 
-        [r,t,~,~,hboot,CI,h] = skipped_correlation(VecX,VecY,XLabel,YLabel,1,sig);
-        obj.Results.Correlation(zz,kk).Skipped.figure = h;
+        [r,t,~,~,hboot,CI,Correlation(zz,kk).figure] = skipped_correlation(VecX,VecY,XLabel,YLabel,1,sig);
 
         if lbIdx>1
 
-          obj.Results.Correlation(zz,kk).Skipped.figLabel = [XLabel '_' YLabel '_' curObj(1).StatLabels(zz)];
+        Correlation(zz,kk).figLabel = [XLabel '_' YLabel '_' num2str(curObj(1).StatLabels{zz})];
 
         else
 
-          obj.Results.Correlation(zz,kk).Skipped.figLabel = [XLabel '_' YLabel];
+        Correlation(zz,kk).figLabel = [XLabel '_' YLabel];
 
         end
 
@@ -66,27 +66,37 @@ function obj = corSkipped(obj,crObj)
 
       end
 
-      % Corvis is assigned to caller (qmrstat.Pearson) workspace by
-      % the Pearson function.
-      % Other fields are filled by Pearson function.
+      % Developer:
+      % svds is assigned to caller (qmrstat.Concordance) workspace by
+      % the Concordance function.
+      % Other fields are filled out here below.
 
       if obj.Export2Py
 
-        PyVis.XLabel = XLabel;
-        PyVis.YLabel = YLabel;
-        PyVis.Stats.r = r;
-        PyVis.Stats.t = t;
-        PyVis.Stats.hboot = hboot;
-        PyVis.Stats.CI = CI;
-        obj.Results.Correlation(zz,kk).Skipped.PyVis = PyVis;
+        svds.Tag.Class = 'Bivariate::Skipped';
+        svds.Required.xData = VecX';
+        svds.Required.yData = VecY';
+        svds.Required.rSpearman = r.Spearman;
+        svds.Required.rPearson = r.Pearson;
+        svds.Required.xLabel = XLabel';
+        svds.Required.yLabel = YLabel';
 
+        svds.Optional.CISpearman = CI.Spearman';
+        svds.Optional.CIPearson =  CI.pearson';
+        svds.Optional.CILevel = 1 - sig;
+        svds.Optional.hSpearman = hboot.Spearman;
+        svds.Optional.hPearson = hboot.Pearson;
+        Correlation(zz,kk).SVDS = svds;
+        
       end
 
 
-      obj.Results.Correlation(zz,kk).Skipped.r = r;
-      obj.Results.Correlation(zz,kk).Skipped.t = t;
-      obj.Results.Correlation(zz,kk).Skipped.hboot = hboot;
-      obj.Results.Correlation(zz,kk).Skipped.CI = CI;
+      Correlation(zz,kk).rSpearman = r.Spearman;
+      Correlation(zz,kk).rPearson = r.Pearson;
+      Correlation(zz,kk).t = t;
+      Correlation(zz,kk).hboot = hboot;
+      Correlation(zz,kk).CI = CI;
+
     end
   end
 end % Correlation

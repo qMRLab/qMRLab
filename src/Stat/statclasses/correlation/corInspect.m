@@ -73,9 +73,6 @@ obj.Results.Correlation(zz,kk).PreInspect.heteroscedasticity.CI = CI;
 [jointNormality.test_value,jointNormality.p_value] = ...
 HZmvntest(VecX,VecY,5/100);
 
-
-
-
 % Seems counterintuitive at first sight, (significant when pval
 % is bigger than threshold). But this is the case with
 % HZmnvtest. See HZmnvtest line 249.
