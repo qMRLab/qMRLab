@@ -155,11 +155,11 @@ if fig_flag ~= 0
         if moxunit_util_platform_is_octave
           scatter(xrank,yrank,10,'filled'); grid on;
           [x_bfl,y_bfl] = lsline_octave(X,Y,gca(),'r',4);
-          svds.Optional.fitLine = [x_bfl,y_bfl];
+          svds.Required.fitLine = [x_bfl,y_bfl];
         else
           scatter(xrank,yrank,100,'filled'); grid on
           h=lsline; set(h,'Color','r','LineWidth',4);
-          svds.Optional.fitLine = [get(h,'XData'),get(h,'YData')];
+          svds.Required.fitLine = [get(h,'XData'),get(h,'YData')];
         end
 
         xlabel(XLabel,'FontSize',14); ylabel(YLabel,'FontSize',14);

@@ -94,7 +94,7 @@ if obj.Export2Py
    svds.Optional.CI = CI';
    Correlation(zz,kk).CI = CI;
    svds.Optional.CILevel = 1 - sig;
-   
+
  end
 
   Correlation(zz,kk).SVDS = svds;
@@ -103,7 +103,7 @@ end
 
 Correlation(zz,kk).r = r;
 Correlation(zz,kk).t = t;
-Correlation(zz,kk).pval =  pval;
+Correlation(zz,kk).pVal =  pval;
 Correlation(zz,kk).hboot = hboot;
 
 end
