@@ -9,15 +9,15 @@ classdef qmrstat
 
 properties
 
-Object % Contains default objects for each stat family 
-Results = struct(); % Contains results for all tests performed 
+Object % Contains default objects for each stat family
+Results = struct(); % Contains results for all tests performed
 
 end
 
 properties (Hidden)
-    
-Export2Py = false; % Svds option 
-OutputDir          % Directory where outputs will be saved 
+
+Export2Py = false; % Svds option
+OutputDir          % Directory where outputs will be saved
 
 end
 % ////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ end
 % ////////////////////////////////////////////////////////////////
 
 methods
-   
+
 function obj = qmrstat()
 
   obj.Object.Correlation = qmrstat_correlation;
@@ -142,13 +142,13 @@ function obj = setSVDS_On(obj)
 
   obj.Export2Py = true;
 
-end 
+end
 
 function obj = setSVDS_Off(obj)
 
   obj.Export2Py = false;
 
-end 
+end
 
 function obj = setOutputDir(obj,input)
 
@@ -167,7 +167,7 @@ function obj = setOutputDir(obj,input)
     obj.OutputDir = input;
   end
 
-end 
+end
 
 function saveStaticFigures(obj)
 
@@ -224,15 +224,23 @@ for ii = 1:lnfnames
 
             subStr = [curStr(:).(corNames{jj})];
             curSVDS = [subStr(:).SVDS];
+
+            if ismember('Optional',fieldnames(curSVDS))
             curSVDS = orderfields(curSVDS,{'Tag','Required','Optional'});
+            else
+            curSVDS = orderfields(curSVDS,{'Tag','Required'});
+            end
+
             disp(['Saving ' corNames{jj} '.json to the output directory.']);
-            savejson('qmrlab_stat',curSVDS,[obj.OutputDir filesep corNames{jj} '.json']);
+            savejson('',curSVDS,[obj.OutputDir filesep corNames{jj} '.json']);
 
         end
 
     end
 
 end
+           disp('Saving SVDS_Origin.json to the output directory.');  
+           savejson('',get_svds_origin,[obj.OutputDir filesep 'SVDS_Origin.json']);  
 
 end
 
