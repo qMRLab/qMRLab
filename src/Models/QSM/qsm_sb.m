@@ -450,11 +450,8 @@ end
             % 2.0.10
             if checkanteriorver(version,[2 0 10])
                 % Update buttons for joker conversion from ###/*** to ##/**
-                obj.buttons{16} = '##L1 Regularized';
-                obj.buttons{18} = '##L2 Regularized';
-                obj.buttons{20} = '##No Regularization';
-                obj.buttons{29} = '**L1 Range';
-                obj.buttons{38} = '**L2 Range';
+                obj.buttons = cellfun(@(x) strrep(x,'###','##'),obj.buttons,'uni',0);
+                obj.buttons = cellfun(@(x) strrep(x,'***','**'),obj.buttons,'uni',0);
             end
         end
     end
