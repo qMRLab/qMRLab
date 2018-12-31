@@ -282,12 +282,14 @@ end
         end
         
         function plotModel(obj, x, data)
-            if nargin<2, x = obj.st; data.MTdata = []; end
+            if nargin<2, x = obj.st; end
+            if nargin<3,  data.MTdata = []; end
             if isnumeric(x)
                 x=mat2struct(x,obj.xnames);
-                x.kf = x.F*x.kr;
-                x.resnorm = 0.0;
             end
+            if ~isfield(x,'resnorm'), x.resnorm = 0.0; end
+            x.kf = x.F*x.kr;
+            
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data
