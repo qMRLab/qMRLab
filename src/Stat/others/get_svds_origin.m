@@ -1,7 +1,7 @@
 function Origin = get_svds_origin
 
 Origin = struct();
-Origin.os = computer; 
+Origin.operationSystem = computer; 
 Origin.softwareName = 'qMRLab';
 Origin.softwareVersion = qMRLabVer(); 
 if moxunit_util_platform_is_octave
