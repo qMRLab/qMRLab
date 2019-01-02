@@ -1,5 +1,5 @@
 function DrawPlot(handles,CurrentName)
-if ~exist('CurrentName','Var')
+if ~exist('CurrentName','var')
     set(handles.SourcePop, 'Value',  1);
 else
     set(handles.SourcePop, 'Value',  find(strcmp(handles.CurrentData.fields,CurrentName)));
@@ -20,7 +20,7 @@ Mask = ApplyView(Mask, View);
 handles.tool.setImage(Current,[],[],[],[],Mask);
 
 % Set Volume Number
-if exist('CurrentName','Var')
+if exist('CurrentName','var')
     setNvol(handles.tool,find(strcmp(handles.CurrentData.fields,CurrentName)))
 end
 % Set Slice Number
