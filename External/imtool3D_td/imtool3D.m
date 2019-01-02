@@ -354,7 +354,8 @@ classdef imtool3D < handle
             w=30; %Pixel width of the side panels
             h=110; %Pixel height of the histogram panel
             wbutt=20; %Pixel size of the buttons
-            tool.handles.Panels.Large   =   uipanel(tool.handles.parent,'Position',position,'Title','','Tag','imtool3D'); set(tool.handles.Panels.Large,'Units','Pixels'); pos=get(tool.handles.Panels.Large,'Position'); set(tool.handles.Panels.Large,'Units','normalized');
+            tool.handles.Panels.Large   =   uipanel(tool.handles.parent,'Units','normalized','Position',position,'Title','','Tag','imtool3D'); 
+            pos=getpixelposition(tool.handles.parent); pos(1) = pos(1)+position(1)*pos(3); pos(2) = pos(2)+position(2)*pos(4); pos(3) = pos(3)*position(3); pos(4) = pos(4)*position(4); 
             tool.handles.Panels.Hist   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w pos(4)-w-h pos(3)-2*w h],'Title','');
             tool.handles.Panels.Image   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w w pos(3)-2*w pos(4)-2*w],'Title','');
             tool.handles.Panels.Tools   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[0 pos(4)-w pos(3) w],'Title','');
@@ -417,6 +418,7 @@ classdef imtool3D < handle
             if ~exist('nohist','var')
                 tool.handles.HistAxes           =   axes('Position',[.025 .15 .95 .55],'Parent',tool.handles.Panels.Hist);
                 im=I(:,:,:,tool.getNtime,tool.getNvol); im = im(im>min(im(:)) & im<max(im(:)));
+                if isempty(im), im=0; end
                 centers=linspace(range(1)-diff(range)*0.05,range(2)+diff(range)*0.05,256);
                 nelements=hist(im(im~=min(im(:)) & im~=max(im(:))),centers); nelements=nelements./max(nelements);
                 tool.handles.HistLine=plot(centers,nelements,'-w','LineWidth',1);
