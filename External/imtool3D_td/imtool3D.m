@@ -982,7 +982,13 @@ classdef imtool3D < handle
             range = tool.range{tool.Nvol};
             tool.centers = linspace(range(1)-diff(range)*0.05,range(2)+diff(range)*0.05,256);
             if isfield(tool.handles,'HistAxes')
-                set(tool.handles.HistAxes,'Xlim',range)
+                try
+                    xlim(tool.handles.HistAxes,[tool.centers(1) tool.centers(end)])
+                catch
+                    xlim(tool.handles.HistAxes,[tool.centers(1) tool.centers(end)+.1])
+                end
+                set(tool.handles.HistImageAxes,'Units','Pixels'); pos=get(tool.handles.HistImageAxes,'Position'); set(tool.handles.HistImageAxes,'Units','Normalized');
+                set(tool.handles.HistImage,'CData',repmat(tool.centers,[round(pos(4)) 1]));
             end
             showSlice(tool);
         end
@@ -1841,16 +1847,19 @@ current_object = hittest;
 setmaskstatistics(tool,current_object)
 
 h = tool.getHandles;
+if ~isequal(h.Axes,current_object) && ~isequal(h.I,current_object)
+    set(h.Info,'String','(x,y) val')
+    return
+end
+
 pos=round(get(h.Axes,'CurrentPoint'));
 pos=pos(1,1:2);
-Xlim=get(h.Axes,'Xlim');
-Ylim=get(h.Axes,'Ylim');
 n=round(get(h.Slider,'value'));
 if n==0
     n=1;
 end
 
-if pos(1)>0 && pos(1)<=size(tool.I,2) && pos(1)>=Xlim(1) && pos(1) <=Xlim(2) && pos(2)>0 && pos(2)<=size(tool.I,1) && pos(2)>=Ylim(1) && pos(2) <=Ylim(2)
+if pos(1)>0 && pos(1)<=size(tool.I,2) && pos(2)>0 && pos(2)<=size(tool.I,1)
     set(h.Info,'String',['(' num2str(pos(1)) ',' num2str(pos(2)) ') ' num2str(tool.I(pos(2),pos(1),n,tool.Ntime,tool.Nvol))])
     notify(tool,'newMousePos')
 else

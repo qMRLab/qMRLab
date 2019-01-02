@@ -5,12 +5,15 @@ dat = setviewplane(dat,'axial');
 mask = setviewplane(mask,'axial');
 tool = imtool3D(dat,[],[],[],[],mask,[]);
 range = tool.getClimits;
+CB_Motion1 = get(gcf,'WindowButtonMotionFcn');
 datsag = setviewplane(dat,'sagittal');
 masksag = setviewplane(mask,'sagittal');
 tool(2) = imtool3D(datsag,[],tool(1).getHandles.fig,range,[],masksag,[]);
+CB_Motion2 = get(gcf,'WindowButtonMotionFcn');
 datcor = setviewplane(dat,'coronal');
 maskcor = setviewplane(mask,'coronal');
 tool(3) = imtool3D(datcor,[],tool(1).getHandles.fig,range,[],maskcor,[]);
+CB_Motion3 = get(gcf,'WindowButtonMotionFcn');
 
 tool(1).setPosition([0 0 0.33 1])
 tool(2).setPosition([0.33 0 0.33 1])
@@ -20,11 +23,39 @@ for ii=1:3
 set(tool(ii).getHandles.Panels.ROItools,'Visible','off')
 set(tool(ii).getHandles.Tools.Save,'Visible','off')
 set(tool(ii).getHandles.Tools.SaveOptions,'Visible','off')
+% hide pixel info
+if ii>1
+  set(tool(ii).getHandles.Panels.Tools,'Visible','off')
+end
+end
+
+% tool of first block transfert to all
+controls1 = findobj(tool(1).getHandles.Panels.Tools,'Type','uicontrol');
+controls2 = findobj(tool(2).getHandles.Panels.Tools,'Type','uicontrol');
+controls3 = findobj(tool(3).getHandles.Panels.Tools,'Type','uicontrol');
+for ic = 1:length(controls1)
+    CB = get(controls1(ic),'Callback');
+    CB2 = get(controls2(ic),'Callback');
+    CB3 = get(controls3(ic),'Callback');
+    if ~isempty(CB)
+        switch nargin(CB)
+            case 1
+                set(controls1(ic),'Callback', @(a) Callback3(CB,CB2,CB3,a))
+            case 2
+                set(controls1(ic),'Callback', @(a,b) Callback3(CB,CB2,CB3,a,b))
+            case 3
+                set(controls1(ic),'Callback', @(a,b,c) Callback3(CB,CB2,CB3,a,b,c))
+        end
+    end
 end
 
 h = tool(1).getHandles.fig;
 set(h,'WindowScrollWheelFcn',@(src, evnt) scrollWheel(src, evnt, tool) )
 set(h,'Windowkeypressfcn', @(hobject, event) shortcutCallback(hobject, event,tool))
+set(h,'WindowButtonMotionFcn',@(src,evnt) Callback3(CB_Motion1,CB_Motion2,CB_Motion3,src,evnt))
+
+addlistener(tool(1).getHandles.Tools.L,'String','PostSet',@(x,y) setWL(tool));
+addlistener(tool(1).getHandles.Tools.U,'String','PostSet',@(x,y) setWL(tool));
 
 % Make 3 times larger
 set(h,'Units','Pixels');
@@ -32,18 +63,27 @@ pos = get(tool(1).getHandles.fig,'Position');
 pos(3)=3*pos(3);
 screensize = get(0,'ScreenSize');
 pos(3) = min(pos(3),screensize(3));
+pos(4) = min(pos(4),screensize(4));
+
 pos(1) = ceil((screensize(3)-pos(3))/2);
 pos(2) = ceil((screensize(4)-pos(4))/2);
 set(h,'Position',pos)
 set(h,'Units','normalized');
 
 % add help
-H = tool(3).getHandles;
+H = tool(1).getHandles;
 pos = get(H.Tools.ViewRestore,'Position'); w = pos(3); buff = pos(2);
 pos = get(H.Panels.Tools,'Position');
 H.Tools.Help             =   uicontrol(H.Panels.Tools,'Style','pushbutton','String','?','Position',[pos(3)-w-buff buff w w],'TooltipString','Help with imtool3D');
 fun=@(hObject,evnt) displayHelp;
 set(H.Tools.Help,'Callback',fun)
+
+function setWL(tool)
+L=str2num(get(tool(1).getHandles.Tools.L,'String'));
+U=str2num(get(tool(1).getHandles.Tools.U,'String'));
+for ii=1:3
+    tool(ii).setDisplayRange([L U]);
+end
 
 function displayHelp
 msg = {'imtool3D, written by Justin Solomon',...
@@ -96,7 +136,7 @@ switch event.Key
             end
         end
     case {'leftarrow', 'rightarrow', 'uparrow', 'downarrow', 'space'}
-        for ii=1:length(tool)
+        for ii=length(tool):-1:1
             tool(ii).shortcutCallback(event)
         end
         
@@ -104,4 +144,8 @@ switch event.Key
         tool(end).shortcutCallback(event)
 end
 
+function Callback3(CB1,CB2,CB3,varargin)
+CB1(varargin{:})
+CB2(varargin{:})
+CB3(varargin{:})
 
