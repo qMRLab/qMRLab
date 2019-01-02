@@ -68,7 +68,7 @@ end
 
 if obj.Export2Py
 
-  svds.Tag.Class = 'Bivariate::Concordance';
+  svds.Tag.Class = 'Correlation::Concordance';
   svds.Required.xData = VecX';
   svds.Required.yData = VecY';
   svds.Required.rhoConcordance = rC;

@@ -82,11 +82,12 @@ end
 
 if obj.Export2Py
 
-  svds.Tag.Class = 'Bivariate::Spearman';
+  svds.Tag.Class = 'Correlation::Spearman';
+  
   svds.Required.rSpearman = r;
   svds.Required.xLabel = XLabel';
   svds.Required.yLabel = YLabel';
-
+  
   svds.Optional.pval = pval;
   svds.Optional.h = hboot;
 
