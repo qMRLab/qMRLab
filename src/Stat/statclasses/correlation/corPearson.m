@@ -28,7 +28,12 @@ elseif nargin == 2
 end
 
 [comb, lbIdx, sig] = qmrstat.corInit(crObj);
-crObj = crObj.setSignificanceLevel(sig);
+
+if not(moxunit_util_platform_is_octave)
+    crObj = crObj.setSignificanceLevel(sig);
+else
+    crObj = qmrstat_correlation.objDeal(crObj,'setSignificanceLevel',sig);
+end
 
 szcomb = size(comb);
 
@@ -37,12 +42,20 @@ for kk = 1:szcomb(1) % Loop over correlation matrix combinations
 for zz = 1:lbIdx % Loop over labeled mask indexes (if available)
 
 % Combine pairs
-curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
+if not(moxunit_util_platform_is_octave)
+    curObj = [crObj(1,comb(kk,1)),crObj(1,comb(kk,2))];
+else
+    curObj = qmrstat_correlation.objArray(1,2);
+    curObj(1,1) = crObj(1,comb(kk,1));
+    curObj(1,2) = crObj(1,comb(kk,2));
+    whos
+end
 
 if lbIdx >1
 
     % If mask is labeled, masking will be done by the corresponding
     % index, if index is passed as the third parameter.
+    
     [VecX,VecY,XLabel,YLabel,sig] = qmrstat.getBivarCorInputs(obj,curObj,curObj(1).LabelIdx(zz));
 
 else
@@ -93,7 +106,7 @@ end
 
 if obj.Export2Py
 
-  svds.Tag.Class = 'Bivariate::Pearson';
+  svds.Tag.Class = 'Correlation::Pearson';
   svds.Required.xData = VecX';
   svds.Required.yData = VecY';
   svds.Required.rPearson = r;

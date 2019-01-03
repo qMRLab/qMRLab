@@ -13,7 +13,9 @@ methods
 function obj = qmrstat_correlation(m,n)
 
   W = evalin('caller','whos');
-
+  
+  if not(moxunit_util_platform_is_octave)
+  
   if nargin ~= 0
 
     % Row index identifies number of qmrstat_correlation objects
@@ -37,6 +39,12 @@ function obj = qmrstat_correlation(m,n)
 
     obj = qmrstat_correlation(1,2);
 
+  end
+  
+  else % Octave 
+  
+  % For obj arrays, static method qmrstat_correlation.objArray 
+  
   end
 
 end
@@ -90,4 +98,32 @@ end
 
 end % END PUBLIC METHODS
 % ===============================================================
+
+methods (Static)
+    
+    
+     function obj = objArray(m,n)
+     
+         if m > 1
+             error('qmrstat_correlation object arrays are 1XN');
+         end
+         
+         obj(1)= qmrstat_correlation;
+         
+         if n>=2
+            
+             for ii = 2:n
+                 obj(1,ii) = qmrstat_correlation;
+             end
+             
+         end
+         
+     end
+         
+    
+    
+    
+    
+    
+end
 end % END CLASSDEF

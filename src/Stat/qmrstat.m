@@ -43,8 +43,13 @@ methods
 
 function obj = qmrstat()
 
+  if not(moxunit_util_platform_is_octave)  
   obj.Object.Correlation = qmrstat_correlation;
   obj.Object.Reliability = qmrstat_reliability;
+  else
+  obj.Object.Correlation = qmrstat_correlation.objArray(1,2);
+ 
+  end
 
 
 end % Constructor  ------------------------ end (Public)
@@ -239,8 +244,8 @@ for ii = 1:lnfnames
     end
 
 end
-           disp('Saving SVDS_Origin.json to the output directory.');  
-           savejson('',get_svds_origin,[obj.OutputDir filesep 'SVDS_Origin.json']);  
+           disp('Saving Origin.json to the output directory.');  
+           savejson('Origin',get_svds_origin,[obj.OutputDir filesep 'Origin.json']);  
 
 end
 
@@ -268,10 +273,11 @@ function obj = validate(obj,curObj,name,lblIdx)
     dimMis = [];
 
     for ii = 1:length(curObj)
-
-      curObj(ii) = curObj(ii).evalCompliance();
-      boolMap(ii) = curObj(ii).Compliance.noMapFlag;
-      boolMask(ii) = curObj(ii).Compliance.noMaskFlag;
+      disp('hass');  
+      curObj(1,ii) = curObj(1,ii).evalCompliance;
+      disp('pass');
+      boolMap(ii) = curObj(1,ii).Compliance.noMapFlag;
+      boolMask(ii) = curObj(1,ii).Compliance.noMaskFlag;
 
       if ~isempty(curObj(ii).StatMask)
 

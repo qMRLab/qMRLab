@@ -1,4 +1,4 @@
-function obj = corSkipped(obj,crObj)
+function Correlation = corSkipped(obj,crObj)
 
   % Developers: * qmrstat.getBivarCorInputs (Static)
   %               -- calls qmrstat.getBiVarCorVec (Private)
@@ -19,7 +19,8 @@ function obj = corSkipped(obj,crObj)
 
   end
 
-  [comb, lbIdx] = qmrstat.corSanityCheck(crObj);
+  [comb, lbIdx, sig] = qmrstat.corInit(crObj);
+  crObj = crObj.setSignificanceLevel(sig);
 
   szcomb = size(comb);
   Correlation = repmat(struct(), [lbIdx szcomb(1)]);
@@ -73,7 +74,7 @@ function obj = corSkipped(obj,crObj)
 
       if obj.Export2Py
 
-        svds.Tag.Class = 'Bivariate::Skipped';
+        svds.Tag.Class = 'Correlation::Skipped';
         svds.Required.xData = VecX';
         svds.Required.yData = VecY';
         svds.Required.rSpearman = r.Spearman;

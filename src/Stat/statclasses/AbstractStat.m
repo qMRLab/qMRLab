@@ -41,10 +41,13 @@ classdef (Abstract) AbstractStat
         
     end
     % //////////////////////////////////////////////////////////////
+    properties (Hidden=true)
+    Compliance = struct('noMapFlag',[],'noMaskFlag',[],'szMismatchFlag',[]);
+    end
     properties (Hidden=true, SetAccess = protected, GetAccess=public)
         
         FitMaskName
-        Compliance = struct();
+        
         MapDim
         StatMaskDim
         ActiveMapIdx = 1
@@ -549,17 +552,26 @@ classdef (Abstract) AbstractStat
                 
             end
             
-            
-            [obj(:).FigureOption] = deal({in});
+            if moxunit_util_platform_is_octave
+                
+                
+                   obj.FigureOption = in; 
+                
+            else
+                [obj(:).FigureOption] = deal({in});
+            end
             
             
         end
         
         function obj = setSignificanceLevel(obj,in)
 
-
+          if not(moxunit_util_platform_is_octave)
           args = num2cell(in);
           [obj(:).SignificanceLevel] = deal(args{:});
+          else
+          obj.SignificanceLevel = in;    
+          end
 
 
         end
@@ -573,6 +585,8 @@ classdef (Abstract) AbstractStat
         
         function obj = evalCompliance(obj)
             
+            disp('Lelelelelelele');
+            disp(length(obj));
             for ii = 1:length(obj)
                 
                 obj(ii).Compliance.noMapFlag   = isempty(obj(ii).Map);
@@ -1004,6 +1018,35 @@ classdef (Abstract) AbstractStat
             prcnt50 = prctile(vec,50);
             prcnt95 = prctile(vec,95);
         end
+        
+    end
+    
+    methods(Static)
+        
+        function obj = objDeal(obj,method,in)
+        % Octave can't perform indexing operation on object arrays. 
+        % For some of the funtion, this is needed. 
+        
+            sz = size(obj);
+            
+            for i = 1:sz(1)
+                for j = 1:sz(2)
+             
+             if ~isnumeric(in)       
+                 eval(['obj(i,j) = obj(i,j).' method '(''' in ''');']);
+             else
+                 eval(['obj(i,j) = obj(i,j).' method '(' num2str(in) ');']);
+             end
+                    
+                end
+            end
+                
+            
+        end
+        
+        
+        
+        
         
     end
     

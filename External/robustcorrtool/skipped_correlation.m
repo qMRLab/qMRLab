@@ -76,7 +76,10 @@ elseif size(y,2) == 1 && size(x,2) > 1
     hypothesis = 2;
 end
 
-[n,p] = size(x);
+[n,~] = size(x);
+
+p = level/.05;
+
 if size(x) ~= size(y)
     error('x and y are of different sizes')
 elseif n < 10
@@ -84,7 +87,7 @@ elseif n < 10
 elseif n > 200 && p < 10
     warning('robust correlation and T value will be computed, but h is not validated for n>200')
 elseif p > 10
-    warning('the familly wise error correction for skipped correlation is not available for more than 10 correlations')
+    warning('Family wise error correction for skipped correlation is not available for more than 10 correlations')
 end
 
 gval = sqrt(chi2inv(0.975,2)); % in fact depends on size(X,2) but here always = 2
@@ -126,11 +129,13 @@ for column = 1:p
         r.Spearman = rs; t.Spearman = ts;
 
     else % multiple tests, only use Spearman to control type 1 error
+       
         a{column} = x(keep,column); xrank = tiedrank(a{column},0);
         b{column} = y(keep,column); yrank = tiedrank(b{column},0);
         r(column) = sum(detrend(xrank,'constant').*detrend(yrank,'constant')) ./ ...
             (sum(detrend(xrank,'constant').^2).*sum(detrend(yrank,'constant').^2)).^(1/2);
         t(column) = r(column)*sqrt((n-2)/(1-r(column).^2));
+    
     end
 end
 
@@ -177,6 +182,7 @@ if p>1 && p<=10
     end
 
    h = abs(t) >= q;
+
 end
 
 
@@ -186,9 +192,7 @@ if nargout > 4
     [n,p]=size(a);
     nboot = 1000;
 
-    if p > 1
-        level = level / p;
-    end
+
     low = round((level*nboot)/2);
     if low == 0
         error('adjusted CI cannot be computed, too many tests for the number of observations')
@@ -281,40 +285,40 @@ end
 
 %% plot
 if fig_flag ~= 0
-    answer = [];
-    if p > 1
-        answer = questdlg(['plots all ' num2str(p) ' correlations'],'Plotting option','yes','no','yes');
-    else
-        if fig_flag == 1
-             % #qmrstat
-            if nargout == 7
-                hout = figure('Name','Skipped correlation');
-                set(gcf,'Color','w');
-                set(hout,'Visible','off');
+  
+      
+        if nargout == 7
+            hout = figure('Name','Skipped correlation');
+            set(gcf,'Color','w');
+            set(hout,'Visible','off');
 
-            else % When hout is not a nargout
+        else % When hout is not a nargout
 
-                figure('Name','Skipped correlation');
-                set(gcf,'Color','w');
+            figure('Name','Skipped correlation');
+            set(gcf,'Color','w');
 
-            end
         end
 
         if nargout>4
-
+   
             M = sprintf('Skipped correlation \n Pearson r=%g CI=[%g %g] \n Spearman r=%g CI=[%g %g]',r.Pearson,CI.Pearson(1),CI.Pearson(2),r.Spearman,CI.Spearman(1),CI.Spearman(2));
         else
+            
             M = sprintf('Skipped correlation \n Pearson r=%g h=%g \n Spearman r=%g h=%g',r.Pearson,h.Pearson,r.Spearman,h.Spearman);
         end
 
         if moxunit_util_platform_is_octave
+        
           scatter(a{1},b{1},10,'b','fill'); grid on; hold on;
           [x_bfl,y_bfl] = lsline_octave(a{1},b{1},gca(),'r',4);
           svds.Optional.fitLine = [x_bfl,y_bfl];
+        
         else
+            
           scatter(a{1},b{1},100,'b','fill'); grid on; hold on;
           h=lsline; set(h,'Color','r','LineWidth',4);
           svds.Optional.fitLine = [get(h,'XData'),get(h,'YData')];
+          
         end
 
         MM = [];
@@ -353,8 +357,8 @@ if fig_flag ~= 0
             step2 = y2.YData(2)-y2.YData(1); step2 = step2 / (y2.XData(2)-y2.XData(1));
             filled=[[y1.YData(1):step1:y1.YData(2)],[y2.YData(2):-step2:y2.YData(1)]];
 
-             svds.Optional.CILine1 = [y1.XData(1),y1.XData(2),y1.YData(1),y1.YData(2)];
-             svds.Optional.CILine2 = [y2.XData(1),y2.XData(2),y2.YData(1),y2.YData(2)];
+            svds.Optional.CILine1 = [y1.XData(1),y1.XData(2),y1.YData(1),y1.YData(2)];
+            svds.Optional.CILine2 = [y2.XData(1),y2.XData(2),y2.YData(1),y2.YData(2)];
 
 
             if min(CI.Spearman)<0 && max(CI.Spearman)>0
@@ -373,7 +377,11 @@ if fig_flag ~= 0
 
         end
 
-        assignin('caller','svds',svds);
+        
 
 
-    end
+end
+    
+
+    assignin('caller','svds',svds);
+end
