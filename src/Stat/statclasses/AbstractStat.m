@@ -585,35 +585,32 @@ classdef (Abstract) AbstractStat
         
         function obj = evalCompliance(obj)
             
-            disp('Lelelelelelele');
-            disp(length(obj));
-            for ii = 1:length(obj)
                 
-                obj(ii).Compliance.noMapFlag   = isempty(obj(ii).Map);
-                obj(ii).Compliance.noMaskFlag  = isempty(obj(ii).StatMask);
+                obj.Compliance.noMapFlag   = isempty(obj.Map);
+                obj.Compliance.noMaskFlag  = isempty(obj.StatMask);
                 
-                if ~obj(ii).Compliance.noMapFlag && ~obj(ii).Compliance.noMaskFlag
+                if ~obj.Compliance.noMapFlag && ~obj.Compliance.noMaskFlag
                     
-                    szMap = size(obj(ii).Map);
-                    szMask = size(obj(ii).StatMask);
+                    szMap = size(obj.Map);
+                    szMask = size(obj.StatMask);
                     
                     
                     if isequal(szMap,szMask) || isequal(szMap(1:end-1),szMask)
                         
-                        obj(ii).Compliance.szMismatchFlag  = 0;
+                        obj.Compliance.szMismatchFlag  = 0;
                         
                     else
-                        obj(ii).Compliance.szMismatchFlag = 1;
+                        obj.Compliance.szMismatchFlag = 1;
                     end
                     
                 else
                     
-                    obj(ii).Compliance.szMismatchFlag = 1;
+                    obj.Compliance.szMismatchFlag = 1;
                     
                 end
                 
                 
-            end
+  
             
             
             

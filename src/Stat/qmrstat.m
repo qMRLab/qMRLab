@@ -273,9 +273,7 @@ function obj = validate(obj,curObj,name,lblIdx)
     dimMis = [];
 
     for ii = 1:length(curObj)
-      disp('hass');  
       curObj(1,ii) = curObj(1,ii).evalCompliance;
-      disp('pass');
       boolMap(ii) = curObj(1,ii).Compliance.noMapFlag;
       boolMask(ii) = curObj(1,ii).Compliance.noMaskFlag;
 

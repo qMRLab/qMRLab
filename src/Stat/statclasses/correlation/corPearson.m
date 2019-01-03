@@ -48,7 +48,6 @@ else
     curObj = qmrstat_correlation.objArray(1,2);
     curObj(1,1) = crObj(1,comb(kk,1));
     curObj(1,2) = crObj(1,comb(kk,2));
-    whos
 end
 
 if lbIdx >1
