@@ -45,7 +45,7 @@ end
 
     properties
         MRIinputs = {'SF60','SF120'};
-        xnames = {'B1map'};
+        xnames = {};
         voxelwise = 0; % 0, if the analysis is done matricially
                        % 1, if the analysis is done voxel per voxel
         
