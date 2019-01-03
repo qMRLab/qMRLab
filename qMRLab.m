@@ -741,13 +741,13 @@ else
     for ipix = 1:length(info_dcm_all)
         info_dcm = info_dcm_all(ipix);
         x = info_dcm.Position(1);
-        y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);
+        y = info_dcm.Position(2);
         z = handles.tool.getCurrentSlice;
         View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
         switch View{get(handles.ViewPop,'Value')}
-            case 'Axial',    vox = [x,y,z];
-            case 'Coronal',  vox = [x,z,y];
-            case 'Sagittal', vox = [z,x,y];
+            case 'Axial',    vox = [y,x,z];
+            case 'Coronal',  vox = [y,z,x];
+            case 'Sagittal', vox = [z,y,x];
         end
         
         
