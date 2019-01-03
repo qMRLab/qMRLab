@@ -144,16 +144,49 @@ if Model.voxelwise % process voxelwise
 
 
         if ISTRAVIS && ii>2
+            
             try
                 Fit = load(fullfile('.','FitResults','FitResults.mat'));
             end
-            break;
+            break; % Exit fitting here and return origFit as results
+            
+        elseif ISTRAVIS && ii<=2
+            
+            if ii==1; origFit = load(fullfile('.','FitResults','FitResults.mat')); end;
+            
+            % Test if fitted ones are equal to the expected value (origFit)
+            for k=1:length(origFit.fields)
+                
+                crField = origFit.fields{k};
+                crMask = Fit.computed;
+                expected = origFit.(crField);
+                calculated = Fit.(crField);
+                
+                if ~isequal(size(expected),size(calculated))
+                    message = ['Exception in ' Model.ModelName ' ' crField];
+                    whatswrong='inputs are not of the same size';
+                    error_id='assertEqual:nonEqual';
+                    full_message=moxunit_util_input2str(message,whatswrong,expected,calculated);
+                    % Assuming ISTRAVIS is always Octave for now.
+                    error(error_id,'%s',full_message);
+                end
+                
+                % Allow 5% difference
+                assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),...
+                    'relative',0.05);
+                
+                
+            end
+            
+            disp([Model.ModelName ' fitted vs loaded : PASS']);
+            
         end
+        
     end
 
 else % process entire volume
-
-% AK: Commenting out this block. Modal window is actually annoying.
+    
+    % AK: Commenting out this block. Modal window is actually annoying.
     %{
     if exist('wait','var') && (wait) && not(isdeployed)
         hMSG = msgbox({'Fitting has been started. Please wait until this window disappears.'; ...
@@ -163,10 +196,23 @@ else % process entire volume
         set(hMSG,'pointer', 'watch'); drawnow;
     end
     %}
-
-    Fit = Model.fit(data);
-    Fit.fields = fieldnames(Fit);
-    disp('...done');
+    
+    if ISTRAVIS
+        
+        origFit  =load(fullfile('.','FitResults','FitResults.mat'));
+        Fit = Model.fit(data);
+        
+        %Compare here.
+        disp('TRAVIS ...done')
+    else
+        
+        Fit = Model.fit(data);
+        Fit.fields = fieldnames(Fit);
+        disp('...done');
+        
+    end
+    
+    
 end
 % delete waitbar
 %if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
