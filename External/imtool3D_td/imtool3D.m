@@ -961,8 +961,13 @@ classdef imtool3D < handle
             
         end
         
-        function I = getImage(tool)
-            I=tool.I(:,:,:,tool.Ntime,tool.Nvol);
+        function I = getImage(tool,all)
+            if nargin<2, all=false; end
+            if all
+                I=tool.I;
+            else
+                I=tool.I(:,:,:,tool.Ntime,tool.Nvol);
+            end
         end
 
         function Nvol = getNvol(tool)
@@ -1847,7 +1852,7 @@ current_object = hittest;
 setmaskstatistics(tool,current_object)
 
 h = tool.getHandles;
-if ~isequal(h.Axes,current_object) && ~isequal(h.I,current_object)
+if ~isequal(h.Axes,current_object) && ~isequal(h.I,current_object) && ~isequal(h.mask,current_object)
     set(h.Info,'String','(x,y) val')
     return
 end
