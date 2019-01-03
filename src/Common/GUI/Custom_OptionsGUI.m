@@ -177,12 +177,9 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
 
     end
 else
-    set(handles.FitOptTable,'ColumnName',{'Variables'})
-    set(handles.FitOptTable,'ColumnFormat',{'char'})
-    set(handles.FitOptTable,'ColumnWidth',{100})
-    set(handles.FitOptTable,'Data',Model.xnames')
-    set(handles.FitOptEditPanel,'Title', 'Outputs')
-
+    PosOption = get(handles.OptionsPanel,'Position');
+    PosOption(4) = 1-PosOption(2)-.01;
+    set(handles.OptionsPanel,'Position',PosOption)
 end
 
 % MODEL PROPERTY ADAPTIVE DYNAMIC SUBPANELS
