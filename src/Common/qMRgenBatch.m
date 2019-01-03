@@ -4,7 +4,7 @@
 % Input
 %   Model        [qMRLab object]
 %  (path)        [String]
-%  (nodwnld)     [logical] download example dataset? 0 --> generate batch only
+%  (nodwnld)     [logical] download example dataset? 1 --> generate batch only
 %
 % Example
 %  qMRgenBatch(inversion_recovery)
@@ -135,10 +135,6 @@ newScript = replaceJoker(varNames.jokerDemoDir,demoDir,newScript,1);
 
 newScript = replaceJoker(saveJoker,saveCommand,newScript,1);
 
-newScript = replaceJoker(explainTexts.jokerProt,explainTexts.protExplain,newScript,2); % Prot Exp
-
-newScript = replaceJoker(commandTexts.jokerProt,commandTexts.protCommands,newScript,2); % Prot Code
-
 newScript = replaceJoker(explainTexts.jokerData,explainTexts.dataExplain,newScript,2); % Data Exp
 
 newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScript,2); % Data Code
@@ -175,17 +171,15 @@ end
 
 function [explain] = cell2Explain(str,modelName,itemName)
 
-explain = cell(length(str)+2,1);
+explain = cell(length(str)+1,1);
 
-fs1 = ['%% ' modelName ' object needs %d ' itemName ' to be assigned:\n \n'];
+fs1 = ['%%           |- ' modelName ' object needs %d ' itemName ' to be assigned:'];
 exp1 = sprintf(fs1,length(str));
 explain(1) = {exp1};
 
 for i = 1:length(str)
-    explain(i+1) = {['% ' str{i}]};
+    explain(i+1) = {['%           |-   ' str{i}]};
 end
-
-explain(length(str)+2) = {'% --------------'};
 
 end
 

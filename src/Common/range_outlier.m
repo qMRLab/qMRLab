@@ -1,5 +1,6 @@
 function [xmin, xmax] = range_outlier(x,qt)
-if nargin<2, qt=5; end
+if nargin<2, qt=1; end
+
 % detect outliers based on 5 times the Interquartile Range
 x=x(:); x(isinf(x))=[]; x(isnan(x))=[]; 
 
@@ -30,6 +31,7 @@ end
 IQR = Q(3)-Q(1);
 
 % determine extreme Q1 outliers (e.g., x < Q1 - 3*IQR)
+
 xmin = max(min(y),Q(1)-qt*IQR);
 xmax = min(max(y),Q(3)+qt*IQR);
 

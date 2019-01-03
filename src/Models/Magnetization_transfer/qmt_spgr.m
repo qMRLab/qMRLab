@@ -100,7 +100,6 @@ classdef qmt_spgr < AbstractModel
 %
 % Command line usage:
 %   <a href="matlab: qMRusage(qmt_spgr);">qMRusage(qmt_spgr</a>
-%   <a href="matlab: showdemo qmt_spgr_batch">showdemo qmt_spgr_batch</a>
 %
 % Author: Ian Gagnon, 2017
 %
@@ -193,9 +192,9 @@ end
             
             disablelist = {'Fix R1f*T2f','R1f*T2f ='};
             for ll = 1:length(disablelist)
-                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
                 if ~any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
-                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
                 else
                     obj.buttons{indtodisable} = disablelist{ll};
                 end
@@ -217,9 +216,9 @@ end
                     disable = [true, true, true];
             end
             for ll = 1:length(disablelist)
-                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['###' disablelist{ll}]));
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
                 if disable(ll)
-                    obj.buttons{indtodisable} = ['###' disablelist{ll}];
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
                 else
                     obj.buttons{indtodisable} = [disablelist{ll}];
                 end
@@ -283,12 +282,14 @@ end
         end
         
         function plotModel(obj, x, data)
-            if nargin<2, x = obj.st; data.MTdata = []; end
+            if nargin<2, x = obj.st; end
+            if nargin<3,  data.MTdata = []; end
             if isnumeric(x)
                 x=mat2struct(x,obj.xnames);
-                x.kf = x.F*x.kr;
-                x.resnorm = 0.0;
             end
+            if ~isfield(x,'resnorm'), x.resnorm = 0.0; end
+            x.kf = x.F*x.kr;
+            
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data

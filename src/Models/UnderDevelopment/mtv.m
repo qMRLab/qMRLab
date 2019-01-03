@@ -27,7 +27,7 @@ classdef mtv < AbstractModel
 % Options:
 %   NONE
 %
-% Example of command line usage (see also <a href="matlab: showdemo mtv_batch">showdemo mtv_batch</a>):
+% Example of command line usage:
 %   For more examples: <a href="matlab: qMRusage(mtv);">qMRusage(mtv)</a>
 %
 % Author: Ian Gagnon, 2017

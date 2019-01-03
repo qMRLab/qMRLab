@@ -32,9 +32,18 @@ function Fit = FitData(data, Model, wait , Fittmp)
 Model.sanityCheck(data);
 
 tStart = tic;
+tsaved = 0;
 
 h=[];
-if ismethod(Model,'Precompute'), Model = Model.Precompute; end
+if moxunit_util_platform_is_octave % ismethod not working properly on Octave
+    try, Model = Model.Precompute; end
+    try, Model = Model.PrecomputeData(data); end
+
+else
+    if ismethod(Model,'Precompute'), Model = Model.Precompute; end
+    if ismethod(Model,'PrecomputeData'), Model = Model.PrecomputeData(data); end
+end
+
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
     % Get dimensions
@@ -91,7 +100,7 @@ if Model.voxelwise % process voxelwise
 
         % Update waitbar
         if (isempty(h))
-            j_progress(ii)
+            % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
 %            fprintf('Fitting voxel %d/%d\r',ii,l);
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
@@ -125,11 +134,14 @@ if Model.voxelwise % process voxelwise
         end
 
         Fit.computed(vox) = 1;
-
-        %-- save temp file every 20 voxels
-        if(mod(ii,20) == 0)
+        
+        %  save temp file every 5min
+        telapsed = toc(tStart);
+       if (mod(floor(telapsed/60),5) == 0 && (telapsed-tsaved)/60>5) % 
+           tsaved = telapsed;
             save('FitTempResults.mat', '-struct','Fit');
         end
+
 
         if ISTRAVIS && ii>2
             try
