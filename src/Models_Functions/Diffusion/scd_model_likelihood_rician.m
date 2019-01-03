@@ -7,7 +7,10 @@ if ~exist('robust','var'), robust = 0; end
 logp = inf;
 SNR = max(Sdata)/sigma_noise;
 while sum(isinf(logp)) % avoid infinite value by reducing the SNR
-    logp = log(pdf('rician',Sdata,Smodel,sigma_noise));
+    sumsqsc = (Smodel.^2 + Sdata.^2)./(2*sigma_noise.^2);
+    scp = Sdata.*Smodel./(sigma_noise.^2);
+    lb0 = logbesseli0(scp);
+    logp = - 2*log(sigma_noise) - sumsqsc + log(Smodel) + lb0;
     % robust fitting
     if robust
         disp( sum(-logp>median(-logp)+5*std(logp)))
