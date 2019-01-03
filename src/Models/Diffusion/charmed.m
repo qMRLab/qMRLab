@@ -205,7 +205,11 @@ end
             
             %% FITTING (with rician assumption)
             if ~moxunit_util_platform_is_octave
-                [xopt, residue] = fmincon(@(x) double(-2*sum(scd_model_likelihood_rician(datadif,max(eps,S0.*equation(obj, addfixparameters(obj.st,x,fixedparam))), SigmaNoise))), double(obj.st(~fixedparam)), [], [], [],[],double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),[],optimoptions('fmincon','MaxIter',20,'display','off','DiffMinChange',0.03));
+                h=optimset('Algorithm', 'active-set', 'Display', 'iter', 'MaxIter',100,...
+           'MaxFunEvals',20000,'TolX',1e-6,...
+           'TolFun',1e-6,'GradObj','off', 'Hessian', 'off', 'FunValCheck',...
+           'on', 'Display', 'off');%,'DerivativeCheck','on');
+                [xopt, residue] = fmincon(@(x) double(-2*sum(scd_model_likelihood_rician(datadif,max(eps,S0.*equation(obj, addfixparameters(obj.st,x,fixedparam))), SigmaNoise))), double(obj.st(~fixedparam)), [], [], [],[],double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),[],h);
                 obj.st(~fixedparam) = xopt; xopt = obj.st;
             end
             %% OUTPUTS

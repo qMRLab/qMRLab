@@ -182,7 +182,12 @@ end
                 
                 
                 if ~moxunit_util_platform_is_octave && SigmaNoise
-                    [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03,'Algorithm','quasi-newton'));
+                    h=optimset('Algorithm', 'quasi-newton', 'Display', 'iter', 'MaxIter',100,...
+                        'MaxFunEvals',20000,'TolX',1e-6,...
+                        'TolFun',1e-6,'GradObj','off', 'Hessian', 'off', 'FunValCheck',...
+                        'on', 'Display', 'off');%,'DerivativeCheck','on');
+
+                    [xopt, residue] = fminsearch(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), h);
                     D(:)=xopt;
                 end
             end
