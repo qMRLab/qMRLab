@@ -152,12 +152,16 @@ if Model.voxelwise % process voxelwise
             
         elseif ISTRAVIS && ii<=2
             
-            if ii==1; origFit = load(fullfile('.','FitResults','FitResults.mat')); end;
+            if ii==1
+                origFit = load(fullfile('.','FitResults','FitResults.mat'));
+                intrFields = intersect(origFit.fields,Fit.fields);
+            end
             
             % Test if fitted ones are equal to the expected value (origFit)
-            for k=1:length(origFit.fields)
+            
+            for k=1:length(intrFields)
                 
-                crField = origFit.fields{k};
+                crField = intrFields{k};
                 crMask = Fit.computed;
                 expected = origFit.(crField);
                 calculated = Fit.(crField);
@@ -197,17 +201,29 @@ else % process entire volume
     end
     %}
     
+    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
+
     if ISTRAVIS
         
         origFit  =load(fullfile('.','FitResults','FitResults.mat'));
+
         Fit = Model.fit(data);
+        Fit.fields = fieldnames(Fit);
         
-        %Compare here.
-        disp('TRAVIS ...done')
+        intrFields = intersect(origFit.fields,Fit.fields);
+        
+        for k = 1:length(intrFields)
+            crField = intrFields{k};    
+            assertElementsAlmostEqual(origFit.(crField),Fit.(crField),'relative',0.5)
+        end
+        
+        disp([Model.ModelName ' fitted vs loaded : PASS'])
+        
+        
     else
         
         Fit = Model.fit(data);
-        Fit.fields = fieldnames(Fit);
+        
         disp('...done');
         
     end
