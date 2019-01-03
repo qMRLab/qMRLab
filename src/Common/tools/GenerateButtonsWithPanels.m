@@ -110,9 +110,9 @@ if ~isempty(opts)
 %   PANELS DISPLAY
     if ~exist('ParentHandle','var'), ParentHandle = figure; end
     Position = getpixelposition(ParentHandle);
-    PanelHeight = 35/Position(4);
-    PanelHeight = min(PanelHeight,1.85/nOpts);
-    PanelGap = 0.02;
+    PanelHeightmax = 35/Position(4);
+    PanelGap = 0.0;
+    PanelHeight = min(PanelHeightmax,1/(nOpts/2+nPanel+PanelGap));
 % ----------------------------------------------------------------------------------------------------
 
     while io < nOpts
@@ -124,7 +124,7 @@ if ~isempty(opts)
             location = 'Panel';
             x = 0.05;
             Width = 0.905;
-            Height = PanelHeight*PanelnElements(ip);
+            Height = PanelHeight*(PanelnElements(ip)+1);
             y = yPrev - PanelGap - Height;
 
         elseif find(NumNoPanel(1,:)==io)
@@ -334,8 +334,8 @@ for ii = 1:N
             'Parent',PanelHandle,'Units','normalized','HorizontalAlignment','left','Position',[0.05 y(ii) Width Height]);
              
              % table itself 
-             handle.(tag) = uitable(PanelHandle,'Data',opts{2*ii},'Units','normalized','Position',[0.45 y(ii) Width Height*1.1]);
-             
+             handle.(tag) = uitable(PanelHandle,'Data',opts{2*ii},'Units','normalized','Position',[0.45 y(ii) Width Height*1.3]);
+
              % table assingment options till the next elseif 
              set(handle.(tag),'ColumnEditable',true(1,size(opts{2*ii},2)));
 
@@ -343,9 +343,10 @@ for ii = 1:N
 
              if size(opts{2*ii},1)<5, set(handle.(tag),'RowName',''); end
 
-             widthpx = getpixelposition(PanelHandle)*Width; widthpx = floor(widthpx(3))-2; % ?
+             widthpx = getpixelposition(PanelHandle)*Width; 
+             widthpx = floor(widthpx(3))-2; % ?
 
-             if size(opts{2*ii},2)<5, set(handle.(tag),'ColumnName',''); set(handle.(tag),'ColumnWidth',repmat({widthpx/size(opts{2*ii},2)},[1 size(opts{2*ii},2)])); end
+             if size(opts{2*ii},2)<5, set(handle.(tag),'ColumnName',''); set(handle.(tag),'ColumnWidth',repmat({max(20,widthpx/(size(opts{2*ii},2)+1))},[1 size(opts{2*ii},2)])); end
 
     elseif strcmp(opts{2*ii},'pushbutton') % This creates a button.
 
