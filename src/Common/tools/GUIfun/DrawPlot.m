@@ -13,10 +13,14 @@ View = get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
 View = View{get(handles.ViewPop,'Value')};
 Data = ApplyView(handles.CurrentData, View);
 if isfield(Data,'Mask'), Mask = Data.Mask; Data.fields(strcmp(Data.fields,'Mask'))=[]; else Mask = []; end
-for ff = 1:length(Data.fields)
-    Current{ff} = Data.(Data.fields{ff});
-end
 Mask = ApplyView(Mask, View);
+if length(Data.fields)
+    for ff = 1:length(Data.fields)
+        Current{ff} = Data.(Data.fields{ff});
+    end
+else
+    Current{1} = Mask;
+end
 handles.tool.setImage(Current,[],[],[],[],Mask);
 
 % Set Volume Number
