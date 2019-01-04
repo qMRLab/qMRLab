@@ -530,7 +530,44 @@ else
     set(H.Axes,'DataAspectRatio',[1 1 1])
 end
 
+% STATS Table
+function Stats_Callback(hObject, eventdata, handles)
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
 
+I = handles.tool.getImage(1);
+Iraw = handles.CurrentData;
+I = I(:,:,:,:,~strcmp(Iraw.fields,'Mask'));
+Iraw.fields = setdiff(Iraw.fields,'Mask')';
+Maskall = handles.tool.getMask(1);
+values = unique(Maskall(Maskall>0))';
+yprev = 1;
+if isempty(values), values = 0; end
+f=figure('Position', [100 100 700 400], 'Name', 'Statistics');
+for Selected = values
+    Mask = Maskall==Selected;
+    Stats = cell(length(Iraw.fields),7);
+    for iii=1:length(Iraw.fields)
+        datiii = I(:,:,:,:,length(Iraw.fields)+1-iii);
+        datiii = nanmean(datiii,4); % average 4D data along time
+        datiii = datiii(Mask);
+        Stats{iii,1} = mean(datiii);
+        Stats{iii,2} = median(datiii);
+        Stats{iii,3} = std(datiii);
+        Stats{iii,4} = min(datiii);
+        Stats{iii,5} = max(datiii);
+        [Stats{iii,6}, Stats{iii,7}] = range_outlier(datiii,0);
+        Stats{iii,8} = Stats{iii,7} - Stats{iii,6};
+    end
+    Color = handles.tool.getMaskColor;
+    uitable(f,'Units','normalized','Position',[0,yprev - 1/length(values),1,1/length(values)],'Data',Stats,...
+              'ColumnName',{'mean', 'median', 'std','min','max','1st quartile', '3rd quartile', 'Interquartile Range (IQR)'},...
+              'ColumnFormat',{'numeric', 'numeric', 'numeric','numeric','numeric','numeric','numeric','numeric'},...
+              'ColumnEditable',[false false false false false false false false false],...
+              'RowName',Iraw.fields','BackgroundColor',Color(Selected+1,:).*[.4 .4 .4]+1-[.4 .4 .4])
+    yprev = yprev - 1/length(values);
+end
 
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)
@@ -538,63 +575,78 @@ function Histogram_Callback(hObject, eventdata, handles)
 set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
-
-[Map, Mask] = GetCurrent(handles);
-
-% Mask data
-if ~isempty(Mask)
-    Map(~Mask) = 0;
-end
-
-ii = find(Map);
-nVox = length(ii);
-data = reshape(Map(ii),1,nVox);
-
 % Plot figure
-f=figure('Position', [0 0 700 400], 'Resize', 'Off');
+f=figure('Position', [100 100 700 400], 'Resize', 'Off','Name','Histogram');
 
-% Matlab < R2014b
+Map = handles.tool.getImage;
 MatlabVer = version;
 if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
-defaultNumBins = max(5,round(length(data)/100));
-hist(data, defaultNumBins); 
-% Label axes
-SourceFields = cellstr(get(handles.SourcePop,'String'));
-Source = SourceFields{get(handles.SourcePop,'Value')};
-xlabel(Source);
-ylabel('Counts');
-return;
+    Maskall = uint8(handles.tool.getMask);
+else
+    Maskall = handles.tool.getMask(1);
+    h_plot = subplot(1,2,2); % Use subplot to give space for GUI elements
+    h_plot.OuterPosition = [0.3 0 0.7 1.0];
 end
 
-% Matlab >= R2014b
-h_plot = subplot(1,2,2); % Use subplot to give space for GUI elements
-h_plot.OuterPosition = [0.3 0 0.7 1.0];
+% loop over mask
+values = unique(Maskall(Maskall>0))';
+if isempty(values), values = 0; end
+for ic = 1:length(values)   
+    Selected = values(ic);
+    Mask = Maskall == Selected;
+    
+    ii = find(Mask);
+    nVox = length(ii);
+    data = reshape(Map(ii),1,nVox);
+    
+    % Matlab < R2014b
+    MatlabVer = version;
+    if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+        defaultNumBins = max(5,round(length(data)/100));
+        hist(data, defaultNumBins);
+        % Label axes
+        SourceFields = cellstr(get(handles.SourcePop,'String'));
+        Source = SourceFields{get(handles.SourcePop,'Value')};
+        xlabel(Source);
+        ylabel('Counts');
+        return;
+    end
+    
+    % Matlab >= R2014b
+    hold on
+    h_hist(ic)=histogram(data);
+    BinWidth(ic) = h_hist.BinWidth;
 
-h_hist=histogram(data);
-defaultNumBins = h_hist.NumBins;
+    hold off
+    Color = handles.tool.getMaskColor;
+    set(h_hist(ic),'FaceColor',Color(Selected+1,:),'FaceAlpha',0.3)
+end
+
+% set BinWidth
+BinWidth = median(BinWidth);
+for ic = 1:length(h_hist)
+    h_hist(ic).BinWidth = BinWidth;
+end
+
 % Label axes
 SourceFields = cellstr(get(handles.SourcePop,'String'));
 Source = SourceFields{get(handles.SourcePop,'Value')};
 xlabel(Source);
 h_ylabel = ylabel('Counts');
 
-% Statistics (mean and standard deviation)
-Stats = sprintf('Mean: %4.3g \n Median: %4.3g \n   Std: %4.3g',mean(data(~isinf(data) & ~isnan(data))),median(data(~isinf(data) & ~isnan(data))),std(data(~isinf(data) & ~isnan(data))));
-h_stats=text(0.10,0.90,Stats,'Units','normalized','FontWeight','bold','FontSize',12,'Color','black');
-
 % No. of bins GUI objects
 h_text_bin = uicontrol(f,'Style','text',...
-                     'String', 'Number of bins:',...
+                     'String', 'Width of bins:',...
                      'FontSize', 14,...
                      'Position',[5 20+300 140 34]);
 h_edit_bin = uicontrol(f,'Style','edit',...
-                     'String', defaultNumBins,...
+                     'String', BinWidth,...
                      'FontSize', 14,...
-                     'Position',[135 25+300 34 34]);
+                     'Position',[135 25+300 70 34]);
 h_slider_bin = uicontrol(f,'Style','slider',...
-                       'Min',1,'Max',100,'Value',defaultNumBins,...
+                       'Min',BinWidth/10,'Max',BinWidth*10,'Value',BinWidth,...
                        'SliderStep',[1/(100-1) 1/(100-1)],...
-                       'Position',[185 26+300 0 30],...
+                       'Position',[205 26+300 10 30],...
                        'Callback',{@sl_call,{h_hist h_edit_bin}});
 h_edit_bin.Callback = {@ed_call,{h_hist h_slider_bin}};
 
@@ -603,23 +655,24 @@ h_text_min = uicontrol(f,'Style','text',...
                       'String', 'Min',...
                       'FontSize', 14,...
                       'Position',[0 20+200 140 34]);
+BinLimits = cat(1,h_hist.BinLimits);
 h_edit_min = uicontrol(f,'Style','edit',...
-                     'String', h_hist.BinLimits(1),...
+                     'String', min(BinLimits(:,1)),...
                      'FontSize', 14,...
                      'Position', [35 20+180 70 34]);
 h_text_max = uicontrol(f,'Style','text',...
                       'String', 'Max',...
                       'FontSize', 14,...
-                      'Position',[135 20+200 34 34]);
+                      'Position',[130 20+200 40 34]);
 h_edit_max = uicontrol(f,'Style','edit',...
-                     'String', h_hist.BinLimits(2),...
+                     'String', max(BinLimits(:,2)),...
                      'FontSize', 14,...
                      'Position', [116 20+180 70 34]);
 h_button_minmax = uicontrol(f,'Style','pushbutton',...
                               'String', 'Recalculate',...
                               'FontSize', 14,...
                               'Position', [65 20+140 100 34],...
-                              'Callback',{@minmax_call,{h_hist h_edit_min h_edit_max data h_stats}});
+                              'Callback',{@minmax_call,{h_hist h_edit_min h_edit_max data}});
 
 % Normalization GUI objects
 h_text_min = uicontrol(f,'Style','text',...
@@ -636,15 +689,17 @@ h_popup_norm = uicontrol(f,'Style','popupmenu',...
                            'Position', [30 20+20 180 34],...
                            'Callback',{@norm_call,{h_hist h_ylabel}});
 
+
 % Histogram GUI callbacks
 function [] = sl_call(varargin)
     % Callback for the histogram slider.
     [h_slider_bin,h_cell] = varargin{[1,3]};
     h_hist = h_cell{1};
     h_edit_bin = h_cell{2};
-
-    h_hist.NumBins = round(h_slider_bin.Value);
-    h_edit_bin.String = round(h_slider_bin.Value);
+    for ic = 1:length(h_hist)
+        h_hist(ic).BinWidth = h_slider_bin.Value;
+    end
+    h_edit_bin.String = h_slider_bin.Value;
 
 function [] = ed_call(varargin)
     % Callback for the histogram edit box.
@@ -652,7 +707,9 @@ function [] = ed_call(varargin)
     h_hist = h_cell{1};
     h_slider_bin = h_cell{2};
 
-    h_hist.NumBins = round(str2double(h_edit_bin.String));
+    for ic=1:length(h_hist)
+    h_hist(ic).BinWidth = max(eps,str2double(h_edit_bin.String));
+    end
     h_slider_bin.Value = round(str2double(h_edit_bin.String));
 
 function [] = minmax_call(varargin)
@@ -661,30 +718,14 @@ function [] = minmax_call(varargin)
     h_hist = h_cell{1};
     h_min = h_cell{2};
     h_max = h_cell{3};
-    data = h_cell{4};
-    h_stats = h_cell{5};
 
     % Mask data out of range of min-max
     minVal = str2double(h_min.String);
-    maxVal = str2double(h_max.String);
-    data(data>maxVal) = [];
-    data(data<minVal) = [];
+    maxVal = max(minVal,str2double(h_max.String));
 
-    h_hist.Data=data;
-
-    % Small hack to refresh histogram object/fig.
-    numBins = h_hist.NumBins;
-    if numBins == 100
-        h_hist.NumBins = numBins-1;
-        h_hist.NumBins = numBins;
-    else
-        h_hist.NumBins = numBins+1;
-        h_hist.NumBins = numBins;
+    for ic = 1:length(h_hist)
+        h_hist(ic).BinLimits = [minVal maxVal];
     end
-
-    % Update stats on fig
-    Stats = sprintf('Mean: %4.3g \n Median: %4.3g \n   Std: %4.3g',mean(data(~isinf(data) & ~isnan(data))),median(data(~isinf(data) & ~isnan(data))),std(data(~isinf(data) & ~isnan(data))));
-    set(h_stats,'String',Stats);
     
 function [] = norm_call(varargin)
     % Callback for the histogram edit box.
@@ -694,19 +735,20 @@ function [] = norm_call(varargin)
 
     menu_status = h_popup_norm.String{h_popup_norm.Value};
 
-    switch menu_status
-        case 'Count'
-            h_hist.Normalization = 'count';
-        case 'Cumulative count'
-            h_hist.Normalization = 'cumcount';
-        case 'Probability'
-            h_hist.Normalization = 'probability';
-        case 'PDF'
-            h_hist.Normalization = 'pdf';
-        case 'CDF'
-            h_hist.Normalization = 'cdf';
+    for ic=1:length(h_hist)
+        switch menu_status
+            case 'Count'
+                h_hist(ic).Normalization = 'count';
+            case 'Cumulative count'
+                h_hist(ic).Normalization = 'cumcount';
+            case 'Probability'
+                h_hist(ic).Normalization = 'probability';
+            case 'PDF'
+                h_hist(ic).Normalization = 'pdf';
+            case 'CDF'
+                h_hist(ic).Normalization = 'cdf';
+        end
     end
-
     h_ylabel.String = menu_status;
 
 % PLOT DATA FIT
@@ -741,13 +783,13 @@ else
     for ipix = 1:length(info_dcm_all)
         info_dcm = info_dcm_all(ipix);
         x = info_dcm.Position(1);
-        y = 1 + size(info_dcm.Target.CData,1)-info_dcm.Position(2);
+        y = info_dcm.Position(2);
         z = handles.tool.getCurrentSlice;
         View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
         switch View{get(handles.ViewPop,'Value')}
-            case 'Axial',    vox = [x,y,z];
-            case 'Coronal',  vox = [x,z,y];
-            case 'Sagittal', vox = [z,x,y];
+            case 'Axial',    vox = [y,x,z];
+            case 'Coronal',  vox = [y,z,x];
+            case 'Sagittal', vox = [z,y,x];
         end
         
         
@@ -888,8 +930,4 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 function ChooseMethod_Callback(hObject, eventdata, handles)
-% roiGui = Roi_analysis(handles);
-% set(roiGui,'WindowStyle','modal') %If you want to "freeze" main GUI until secondary is closed.
-% uiwait(roiGui) %Wait for user to finish with secondary GUI.
-% guidata(hObject, handles);
 %----------------------------------------- END ------------------------------------------%
