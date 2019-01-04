@@ -2,7 +2,7 @@ classdef vfa_t1 < AbstractModel
 % vfa_t1: Compute a T1 map using Variable Flip Angle
 %
 % Assumptions:
-% 
+%
 % Inputs:
 %   VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
 %   (B1map)         excitation (B1+) fieldmap. Used to correct flip angles. (optional)
@@ -20,9 +20,9 @@ classdef vfa_t1 < AbstractModel
 %   None
 %
 % Example of command line usage:
-%   Model = vfa_t1;  % Create class from model 
+%   Model = vfa_t1;  % Create class from model
 %   Model.Prot.VFAData.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
-%   data = struct;  % Create data structure 
+%   data = struct;  % Create data structure
 %   data.VFAData = load_nii_data('VFAData.nii.gz');
 %   data.B1map = load_nii_data('B1map.nii.gz');
 %   FitResults = FitData(data,Model); %fit data
@@ -30,7 +30,7 @@ classdef vfa_t1 < AbstractModel
 %
 %   For more examples: <a href="matlab: qMRusage(vfa_t1);">qMRusage(vfa_t1)</a>
 %
-% 
+%
 % Author: Ian Gagnon, 2017
 %
 % References:
@@ -47,14 +47,14 @@ classdef vfa_t1 < AbstractModel
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
- onlineData_url = 'https://osf.io/7wcvh/download/';  
+ onlineData_url = 'https://osf.io/7wcvh/download?version=3';  
 end
 
     properties
         MRIinputs = {'VFAData','B1map','Mask'};
         xnames = {'M0','T1'};
         voxelwise = 1;
-        
+
         % Protocol
         Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...
                                          'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
@@ -64,26 +64,26 @@ end
         lb           = [0   0.00001]; % lower bound
         ub           = [6000   5]; % upper bound
         fx           = [0     0]; % fix parameters
-                                     
+
         % Model options
         buttons = {};
         options= struct(); % structure filled by the buttons. Leave empty in the code
-        
+
         % Simulation Options
         Sim_Single_Voxel_Curve_buttons = {'SNR',50};
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
+
     methods
-        
+
         function obj = vfa_t1()
             obj.options = button2opts(obj.buttons);
         end
-        
+
         function Smodel = equation(obj,x)
             % Generates a VFA signal based on input parameters
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
@@ -93,10 +93,9 @@ end
             TR = obj.Prot.VFAData.Mat(:,2)';
             E = exp(-TR/x.T1);
             Smodel = x.M0*sin(flipAngles/180*pi).*(1-E)./(1-E.*cos(flipAngles/180*pi));
-            
         end
-        
-       function FitResult = fit(obj,data)           
+
+       function FitResult = fit(obj,data)
             % T1 and M0
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
             TR = obj.Prot.VFAData.Mat(:,2)';
@@ -113,9 +112,9 @@ end
             FitResult.T1 = t1;
             FitResult.M0 = m0;
 
-       
+
        end
-       
+
        function plotModel(obj,x,data)
            if nargin<2 || isempty(x), x = obj.st; end
            x = mat2struct(x,obj.xnames);
@@ -123,6 +122,7 @@ end
            Smodel = equation(obj,x);
 
            flipAngles = obj.Prot.VFAData.Mat(:,1)';
+
            TR = obj.Prot.VFAData.Mat(:,2)';
            if length(unique(TR))==1
                TR = TR(1);
@@ -183,6 +183,7 @@ end
                set(gca,'FontSize',12)
                rotate3d on
            end
+
 %             h = plot( fitresult, xData, yData,'+');
 %             set(h,'MarkerSize',30)
 %             legend( h, 'y vs. x', 'untitled fit 1', 'Location', 'NorthEast' );
@@ -202,8 +203,8 @@ end
            % :param x: [struct] fit parameters
            % :param Opt.SNR: [struct] signal to noise ratio to use
            % :param display: 1=display, 0=nodisplay
-            % :returns: [struct] FitResults, data (noisy dataset)
-           
+           % :returns: [struct] FitResults, data (noisy dataset)
+
            if ~exist('display','var'), display = 1; end
            Smodel = equation(obj, x);
            sigma = max(abs(Smodel))/Opt.SNR;
@@ -215,12 +216,12 @@ end
                plotModel(obj, FitResults, data);
            end
        end
-       
+
        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
            % SimVaryGUI
            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
        end
-       
+
        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
            % SimVaryGUI
            SimRndResults = SimRnd(obj, RndParam, Opt);
