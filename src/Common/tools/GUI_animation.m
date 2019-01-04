@@ -69,7 +69,7 @@ for ii = 1:length(txt)
 end
 
 
-
+fprintf('\n');
 
 end 
 
