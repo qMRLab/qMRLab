@@ -56,16 +56,16 @@ for vox=1:dims(1)*dims(2)*dims(3)
             % Flip Angle Correction - Liberman, et al.
             y = squeeze(squeeze(data(ii,jj,kk, :)))./sin(flipAngles/180*pi*b1Map(vox))';
             x = squeeze(squeeze(data(ii,jj,kk, :)))./tan(flipAngles/180*pi*b1Map(vox))';
-            
+
             % fit data
             param = polyfit(x,y,1);
 %             fitresult = LinearFit(x, y, verbose);
 %             param = coeffvalues(fitresult); % slope and intercept of the fitting
             param(isnan(param))=0;
-            
+
 %             ci = confint(fitresult,0.682); % confidence interval of the fitting (returns the slope and intercept of the lines framing the fit) -- corresponding to 2*sigma
 %             ci(isnan(ci)) = 0;
-%            
+%
             % compute PD and T1
             [~,T1(vox)]=getT1(param,TR);
         else
@@ -74,18 +74,18 @@ for vox=1:dims(1)*dims(2)*dims(3)
         end
         %% Get M0
         [FA,iFA]=min(flipAngles);
-        
+
         M0(vox)=getM0fromT1(T1(vox),TR(1),data(ii,jj,kk,iFA),FA*b1Map(vox));
         % add length of the confidence interval at 68.2% in the fourth
         % dimension
-        
+
         if ~fixT1
 %             [~,t1_min]=getT1(ci(1,:),TR);
 %             [~,t1_max]=getT1(ci(2,:),TR);
 %             M02(vox)=abs(getM0fromT1(t1_max,TR,data(ii,jj,kk,ialpha),alpha)-getM0fromT1(t1_min,TR,data(ii,jj,kk,ialpha),alpha));
 %             T12(vox)=abs(t1_max-t1_min);
         end
-        
+
     end
 end
 if ~fixT1
@@ -122,7 +122,7 @@ ft = fittype( 'poly1' );
 
 % Plot fit with data.
 if verbose && max(xData~=0) && max(yData~=0)
-    
+
     figure(100)
     h = plot( fitresult, xData, yData,'+');
     set(h,'MarkerSize',30)
@@ -153,6 +153,6 @@ M0 = b/(1-exp(-TR/T1));
 function M0=getM0fromT1(T1,TR,S,FA)
 % Volz, S., N�th, U., Deichmann, R., 2012. Correction of systematic errors in quantitative proton density mapping. Magn. Reson. Med. 68, 74?85.
 % Steady state
-ST=(1-exp(-TR./T1))./(1-cos(FA*pi/180).*exp(-TR./T1)).*sin(FA*pi/180);
+ST=(1+exp(-TR./T1))./(1-cos(FA*pi/180).*exp(-TR./T1)).*sin(FA*pi/180);
 % M0=RP*PD (RP=Receiver Profile)
 M0=S/ST;
