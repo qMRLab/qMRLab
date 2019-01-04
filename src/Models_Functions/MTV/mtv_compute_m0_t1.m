@@ -147,7 +147,7 @@ if a>0
 else  % due to noise or bad fitting
     T1 = 0.000000000000001;
 end
-M0 = b/(1-exp(-TR/T1));
+M0 = b/(1+exp(-TR/T1));
 
 
 function M0=getM0fromT1(T1,TR,S,FA)
