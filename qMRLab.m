@@ -47,7 +47,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
     
-    opening_animation;
+    GUI_animation;
     
     handles.opened = 1;
     % startup;

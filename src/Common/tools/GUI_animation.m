@@ -1,4 +1,4 @@
-function opening_animation
+function GUI_animation
 
 clc;
 
