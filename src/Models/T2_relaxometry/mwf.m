@@ -48,8 +48,8 @@ classdef mwf < AbstractModel
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/bes6f/download/';
-    
+    onlineData_url = 'https://osf.io/bes6f/download?version=3';
+
 end
 
     properties
@@ -79,11 +79,11 @@ end
     end
 
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
-    
-    
+
+
+
     methods
 
         function obj = mwf
