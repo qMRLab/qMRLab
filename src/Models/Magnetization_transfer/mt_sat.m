@@ -14,11 +14,11 @@ classdef mt_sat < AbstractModel
 %
 % Outputs:
 %	  MTSAT         MT saturation map (%), T1-corrected
-%     T1            T1 map (s)    
+%     T1            T1 map (s)
 %
 % Options:
 %     B1 correction factor     Correction factor (empirical) for the transmit RF. Only
-%                               corrects MTSAT, not T1. 
+%                               corrects MTSAT, not T1.
 %                               Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
 %
 % Protocol:
@@ -50,7 +50,7 @@ classdef mt_sat < AbstractModel
 
 
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/c5wdb/download/';
+        onlineData_url = 'https://osf.io/c5wdb/download?version=3';
     end
 
     properties
@@ -82,15 +82,15 @@ classdef mt_sat < AbstractModel
             PDparams = obj.Prot.PDw.Mat;
 
             T1params = obj.Prot.T1w.Mat;
-            
+
             B1params = obj.options.B1correctionfactor;
-            
+
             [FitResult.MTSAT, R1] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
             FitResult.T1 = 1./R1;
         end
 
     end
-    
+
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
@@ -100,14 +100,14 @@ classdef mt_sat < AbstractModel
                 obj.buttons = {'B1 correction factor',   [0.4000]};
                 obj.options.B1correctionfactor=0.04;
             end
-            
+
             % 2.0.7 --> rename MT PD T1 (to MTw PDw T1w)
             if checkanteriorver(version,[2 0 7])
                 obj.MRIinputs = {'MTw'    'T1w'    'PDw'    'B1map'    'Mask'}; % add B1map
                 obj.Prot.MTw = obj.Prot.MT; obj.Prot = rmfield(obj.Prot,'MT');
                 obj.Prot.T1w = obj.Prot.T1; obj.Prot = rmfield(obj.Prot,'T1');
                 obj.Prot.PDw = obj.Prot.PD; obj.Prot = rmfield(obj.Prot,'PD');
-                
+
                 if size(obj.Prot.MTw.Format,2)>2
                     obj.Prot.MTw.Format(3) = []; % remove offset
                     obj.Prot.MTw.Mat(:,3)  = [];
