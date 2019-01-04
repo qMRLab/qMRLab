@@ -14,7 +14,7 @@ View = View{get(handles.ViewPop,'Value')};
 Data = ApplyView(handles.CurrentData, View);
 if isfield(Data,'Mask'), Mask = Data.Mask; Data.fields(strcmp(Data.fields,'Mask'))=[]; else Mask = []; end
 Mask = ApplyView(Mask, View);
-if length(Data.fields)
+if ~isempty(Data.fields)
     for ff = 1:length(Data.fields)
         Current{ff} = Data.(Data.fields{ff});
     end
