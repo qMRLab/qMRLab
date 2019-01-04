@@ -175,9 +175,9 @@ if Model.voxelwise % process voxelwise
                     error(error_id,'%s',full_message);
                 end
                 
-                % Allow 5% difference
+                % Allow 10% difference
                 assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),...
-                    'relative',0.05);
+                    'relative',0.1);
                 
                 
             end
@@ -214,7 +214,7 @@ else % process entire volume
         
         for k = 1:length(intrFields)
             crField = intrFields{k};    
-            assertElementsAlmostEqual(origFit.(crField),Fit.(crField),'relative',0.5)
+            assertElementsAlmostEqual(origFit.(crField),Fit.(crField),'relative',0.05)
         end
         
         disp([Model.ModelName ' fitted vs loaded : PASS'])
