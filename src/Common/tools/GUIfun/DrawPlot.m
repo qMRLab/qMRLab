@@ -12,7 +12,7 @@ UpdatePopUp(handles);
 View = get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
 View = View{get(handles.ViewPop,'Value')};
 Data = ApplyView(handles.CurrentData, View);
-if isfield(Data,'Mask'), Mask = Data.Mask; else Mask = []; end
+if isfield(Data,'Mask'), Mask = Data.Mask; Data.fields(strcmp(Data.fields,'Mask'))=[]; else Mask = []; end
 for ff = 1:length(Data.fields)
     Current{ff} = Data.(Data.fields{ff});
 end
