@@ -1,19 +1,22 @@
-# qMRLab (beta)
+# [qMRLab (beta)](https://qmrlab.org)
 [![Build Status](https://travis-ci.org/qMRLab/qMRLab.svg?branch=master)](https://travis-ci.org/qMRLab/qMRLab) [![Coverage Status](https://coveralls.io/repos/github/qMRLab/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/qMRLab/qMRLab?branch=master) [![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=latest)](https://qmrlab.readthedocs.io/en/master/?version=latest) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/MIT) [![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)](https://qmrlab.org) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/neuropoly/qMRLab/bids?filepath=qMRLab/mt_sat_example.ipynb) [![DockerHub](https://img.shields.io/badge/DockerHub-qmrlab-blue.svg)](https://hub.docker.com/r/neuropoly/qmrlab/) [![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&label=Follow)](https://twitter.com/qmrlab)
 
-<a href="https://qmrlab.org" target="_blank"><img src="https://github.com/qMRLab/qMRLab/blob/master/docs/logo/page_header.png?raw=true" width = "1000" height="650" align="middle"></a>
+![hdr](/docs/logo/page_header.png)
 
-<p align="center"><h2> qMRLab is an open-source software for quantitative MR image analysis.</h2></p>
+<h2>qMRLab is an open-source software for quantitative MR image analysis.</h2>
 
 <p align="center">The main goal is to provide the community with an intuitive tool for <b>data fitting</b>, <b>plotting</b>, <b>simulation</b> and <b>protocol optimization</b> for a myriad of different quantitative models.
 The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!</p>
 
 <p align="center">
 For <b>documentation</b>, visit the <a href="http://qmrlab.readthedocs.io/">Documentation website</a>.</p>
+
 <p align="center">
-If you are a <b>developer</b>, visit the <a href="https://github.com/neuropoly/qMRLab/wiki">Wiki page<a>.</p>
+If you are a <b>developer</b>, please visit the <a href="https://github.com/neuropoly/qMRLab/wiki">Wiki page<a>.</p>
+
 <p align="center">
 Please report any <b>bug</b> or <b>suggestions</b> in <a href="https://github.com/neuropoly/qMRLab/issues">GitHub</a>.</p>
+
 <p align="center">
 qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/qMTLab">qMTLab</a>.</p>  
 
