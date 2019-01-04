@@ -42,13 +42,13 @@ end
 % --- Executes just before qMRLab is made visible.
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
 if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+opening_animation;
 if ~isfield(handles,'opened') % qMRI already opened?
     % Add qMRLab to path
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
 
     handles.opened = 1;
-    clc;
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
