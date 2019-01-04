@@ -871,10 +871,10 @@ if isfield(handles.CurrentData,'hdr')
      if nii.hdr.sform_code == 0 && nii.hdr.qform_code==0
          nii.hdr.sform_code = 1;
      end
+     nii_viewer(nii);
 else
-    nii = make_nii(Data.(Source));
+    imtool3D_3planes(Data.(Source))
 end
-nii_viewer(nii);
 
 % CURSOR
 function CursorBtn_Callback(hObject, eventdata, handles)
