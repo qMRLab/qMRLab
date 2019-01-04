@@ -254,18 +254,21 @@ classdef imtool3D < handle
             end
             
             if iscell(I)
-                I2 = nan(max(cell2mat(cellfun(@(x) size(x,1), I, 'uni', false))),...
-                    max(cell2mat(cellfun(@(x) size(x,2), I, 'uni', false))),...
-                    max(cell2mat(cellfun(@(x) size(x,3), I, 'uni', false))),...
-                    max(cell2mat(cellfun(@(x) size(x,4), I, 'uni', false))),...
-                    length(I));
-                for iii = 1:length(I)
-                    I2(1:size(I{iii},1),1:size(I{iii},2),1:size(I{iii},3),1:size(I{iii},4),iii)=I{iii};
+                if length(I)>1
+                    I2 = nan(max(cell2mat(cellfun(@(x) size(x,1), I, 'uni', false))),...
+                        max(cell2mat(cellfun(@(x) size(x,2), I, 'uni', false))),...
+                        max(cell2mat(cellfun(@(x) size(x,3), I, 'uni', false))),...
+                        max(cell2mat(cellfun(@(x) size(x,4), I, 'uni', false))),...
+                        length(I));
+                    for iii = 1:length(I)
+                        I2(1:size(I{iii},1),1:size(I{iii},2),1:size(I{iii},3),1:size(I{iii},4),iii)=I{iii};
+                    end
+                    I = I2;
+                    clear I2;
+                else
+                    I = I{1};
                 end
-                I = I2;
-                clear I2;
             end
-            I = double(I);
             
             if islogical(I)
                 I=double(I);
@@ -278,8 +281,12 @@ classdef imtool3D < handle
                 range = range{1};
             else
                 for ivol = 1:size(I,5)
-                    Ivol = I(:,:,:,:,ivol);
-                    tool.range{ivol}=range_outlier(Ivol(:),5);
+                    if size(I,5)>1
+                        Ivol = I(:,:,:,:,ivol);
+                    else % no need to copy variable
+                        Ivol = I;
+                    end
+                    tool.range{ivol}=double(range_outlier(Ivol(:),5));
                 end
             end
             tool.Climits = tool.range;
@@ -754,7 +761,7 @@ classdef imtool3D < handle
                     mask_ii = tool.mask==ii;
                     I_ii = I(mask_ii);
                     mean_ii = mean(I_ii);
-                    std_ii  = std(I_ii);
+                    std_ii  = std(double(I_ii));
                     area_ii = sum(mask_ii(:));
                     str = [sprintf('%-12s%.2f\n','Mean:',mean_ii), ...
                         sprintf('%-12s%.2f\n','STD:',std_ii),...
@@ -846,6 +853,7 @@ classdef imtool3D < handle
             end
             
             if iscell(I)
+                if length(I)>1
                 I2 = nan(max(cell2mat(cellfun(@(x) size(x,1), I, 'uni', false))),...
                     max(cell2mat(cellfun(@(x) size(x,2), I, 'uni', false))),...
                     max(cell2mat(cellfun(@(x) size(x,3), I, 'uni', false))),...
@@ -856,20 +864,26 @@ classdef imtool3D < handle
                 end
                 I = I2;
                 clear I2;
+                else
+                    I = I{1};
+                end
             end
             
             if islogical(I)
                 range = [0 1];
             end
-            I = double(I);
 
             if iscell(range)
                 tool.range = range;
                 range = range{1};
             else
                 for ivol = 1:size(I,5)
-                    Ivol = I(:,:,:,:,ivol);
-                    tool.range{ivol}=range_outlier(Ivol(:),5);
+                    if size(I,5)>1
+                        Ivol = I(:,:,:,:,ivol);
+                    else % no need to copy variable
+                        Ivol = I;
+                    end
+                    tool.range{ivol}=double(range_outlier(Ivol(:),5));
                 end
             end
             tool.Climits = tool.range;
@@ -890,11 +904,15 @@ classdef imtool3D < handle
 
             %Update the histogram
             if isfield(tool.handles,'HistAxes')
-                im=I(:,:,:,:,tool.Nvol); 
-                im = im(unique(round(linspace(1,numel(im),min(5000,numel(im)))))); 
-                im = im(im>min(im) & im<max(im));
+                if size(I,5)>1
+                    Ivol=I(:,:,:,:,tool.Nvol);
+                else
+                    Ivol = I;
+                end
+                Ivol = Ivol(unique(round(linspace(1,numel(Ivol),min(5000,numel(Ivol)))))); 
+                Ivol = Ivol(Ivol>min(Ivol) & Ivol<max(Ivol));
                 tool.centers=linspace(range(1)-diff(range)*0.05,range(2)+diff(range)*0.05,256);
-                nelements=hist(im(im~=min(im(:)) & im~=max(im(:))),tool.centers); nelements=nelements./max(nelements);
+                nelements=hist(Ivol(Ivol~=min(Ivol(:)) & Ivol~=max(Ivol(:))),tool.centers); nelements=nelements./max(nelements);
                 set(tool.handles.HistLine,'XData',tool.centers,'YData',nelements);
                 cmap = get(tool.handles.HistImage,'CData');
                 set(tool.handles.HistImage,'CData',repmat(tool.centers,[size(cmap,1) 1]));
