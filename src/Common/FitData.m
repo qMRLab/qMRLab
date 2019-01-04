@@ -177,7 +177,7 @@ if Model.voxelwise % process voxelwise
                 
                 % Allow 10% difference
                 assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),...
-                    'relative',0.1);
+                    'relative',0.01);
                 
                 
             end
