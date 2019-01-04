@@ -70,11 +70,15 @@ switch S{get(H.Tools.SaveOptions,'value')}
         end
         
         [FileName,PathName, ext] = uiputfile({'*.nii.gz';'*.mat'},'Save Mask','Mask');
+        FileName = strrep(FileName,'.gz','.nii.gz');
+        FileName = strrep(FileName,'.nii.nii','.nii');
         if ext==1 % .nii.gz
             if isfield(handles.CurrentData,'hdr')
                 handles.CurrentData.hdr.original.img = unxform_nii(handles.CurrentData.hdr,Mask);
                 handles.CurrentData.hdr.shdr.dime.datatype=8;
                 handles.CurrentData.hdr.hdr.dime.bitpix=32;
+                handles.CurrentData.hdr.original.hdr.dime.dim(1)=3;
+                handles.CurrentData.hdr.original.hdr.dime.dim(5:end)=1;
                 save_nii(handles.CurrentData.hdr.original,fullfile(PathName,FileName))
             else
                 save_nii(make_nii(uint8(Mask)),fullfile(PathName,FileName))
