@@ -793,6 +793,7 @@ classdef imtool3D < handle
                 end
                 Ivol = Ivol(unique(round(linspace(1,numel(Ivol),min(5000,numel(Ivol)))))); 
                 Ivol = Ivol(Ivol>min(Ivol) & Ivol<max(Ivol));
+                if isempty(Ivol), Ivol=0; end
                 tool.centers=linspace(range(1)-diff(range)*0.05,range(2)+diff(range)*0.05,256);
                 nelements=hist(Ivol(Ivol~=min(Ivol(:)) & Ivol~=max(Ivol(:))),tool.centers); nelements=nelements./max(nelements);
                 set(tool.handles.HistLine,'XData',tool.centers,'YData',nelements);
