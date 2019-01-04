@@ -5,8 +5,8 @@ classdef b1_dam < AbstractModel
 %   Compute a B1map using 2 SPGR images with 2 different flip angles (60, 120deg)
 %
 % Inputs:
-%   SF60            SPGR data at a flip angle of 60 degree
-%   SF120           SPGR data at a flip angle of 120 degree
+%   SFalpha            SPGR data at a flip angle of Alpha degree
+%   SF2alpha           SPGR data at a flip angle of AlphaX2 degree
 %
 % Outputs:
 %	B1map           Excitation (B1+) field map
@@ -18,11 +18,11 @@ classdef b1_dam < AbstractModel
 %   NONE
 %
 % Example of command line usage:
-%   Model = b1_dam;% Create class from model 
-%   data.SF60 = double(load_nii_data('SF60.nii.gz')); %load data
-%   data.SF120  = double(load_nii_data('SF120.nii.gz'));
+%   Model = b1_dam;% Create class from model
+%   data.SF60 = double(load_nii_data('SFalpha.nii.gz')); %load data
+%   data.SF120  = double(load_nii_data('SFalpha.nii.gz'));
 %   FitResults       = FitData(data,Model); % fit data
-%   FitResultsSave_nii(FitResults,'SF60.nii.gz'); %save nii file using SF60.nii.gz as template
+%   FitResultsSave_nii(FitResults,'SFalpha.nii.gz'); %save nii file using SFalpha.nii.gz as template
 %
 %   For more examples: <a href="matlab: qMRusage(b1_dam);">qMRusage(b1_dam)</a>
 %
@@ -40,37 +40,56 @@ classdef b1_dam < AbstractModel
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/8ypzw/download/';
+    onlineData_url = 'https://osf.io/mw3sq/download?version=3';
 end
 
     properties
-        MRIinputs = {'SF60','SF120'};
+        MRIinputs = {'SFalpha','SF2alpha'};
         xnames = {};
         voxelwise = 0; % 0, if the analysis is done matricially
                        % 1, if the analysis is done voxel per voxel
-        
+
         % Protocol
-        ProtFormat ={};
-        Prot  = []; % You can define a default protocol here.
-        
+        Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
+
         % Model options
         buttons = {};
         options = struct(); % structure filled by the buttons. Leave empty in the code
-        
+
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
+
     methods
+
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
         end
-        
+
         function FitResult = fit(obj,data)
-            FitResult.B1map = abs(acos(data.SF120./(2*data.SF60))./(60*pi/180));
+            FitResult.B1map = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
         end
-        
+
     end
+
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+
+            % 2.0.12
+            if checkanteriorver(version,[2 0 12])
+                % add B1factor
+                obj.Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
+                obj.MRIinputs = {'SFalpha','SF2alpha'};
+
+            end
+
+        end
+    end
+
+
+
 end
