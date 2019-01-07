@@ -79,7 +79,7 @@ classdef (Abstract) AbstractModel
 
            % check if all input data is sampled the same as qData input
            qDataIdx=find((strcmp(obj.MRIinputs{1},MRIinputs')));
-           qData = double(data.(MRIinputs{qDataIdx}));
+           qData = data.(MRIinputs{qDataIdx});
            x = 1; y = 1; z = 1;
            [x,y,z,nT] = size(qData);
            for ii=1:length(MRIinputs)
