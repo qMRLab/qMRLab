@@ -20,6 +20,7 @@ classdef b1_dam < AbstractModel & FilterClass
 %	NONE
 %
 % Options:
+%   (inherited from FilterClass)
 %   Smoothing Filter
 %     Type                 Type of filter
 %                              - gaussian
@@ -32,8 +33,8 @@ classdef b1_dam < AbstractModel & FilterClass
 %
 % Example of command line usage:
 %   Model = b1_dam;% Create class from model
-%   data.SF60 = double(load_nii_data('SFalpha.nii.gz')); %load data
-%   data.SF120  = double(load_nii_data('SFalpha.nii.gz'));
+%   data.SFalpha = double(load_nii_data('SFalpha.nii.gz')); %load data
+%   data.SF2alpha  = double(load_nii_data('SF2alpha.nii.gz'));
 %   FitResults       = FitData(data,Model); % fit data
 %   FitResultsSave_nii(FitResults,'SFalpha.nii.gz'); %save nii file using SFalpha.nii.gz as template
 %

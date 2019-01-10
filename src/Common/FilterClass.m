@@ -8,15 +8,6 @@ classdef (Abstract) FilterClass
     %   medianFilt: median filtering (2D or 3D)
     %
     
-    properties (Access = private)
-        MRIinputs = {'Raw','Mask'};
-        xnames = {};
-        voxelwise = 0; % 0, if the analysis is done matricially
-        % 1, if the analysis is done voxel per voxel
-        
-        % Protocol
-        %Prot = ();
-    end
     properties
         % Model options
         buttons ={'PANEL','Smoothing filter',6,...
@@ -32,8 +23,6 @@ classdef (Abstract) FilterClass
     methods
         % Constructor
         function obj = FilterClass()
-            obj.version = qMRLabVer();
-            obj.ModelName = class(obj);
         end
         function obj = UpdateFields(obj)
           

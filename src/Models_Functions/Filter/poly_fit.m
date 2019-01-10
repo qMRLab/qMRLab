@@ -9,12 +9,12 @@ function [out] =  poly_fit(data, order)
 N = size(data);
 [x,y] = meshgrid( linspace(-1,1,N(2)), linspace(-1,1,N(1)) );
 
-valid_idx = find(data);
-img = data(valid_idx);
+v_idx = find(data);
+img = data(v_idx);
 x_all_idx = x(1:end)';
 y_all_idx = y(1:end)';
-x_idx = x_all_idx(valid_idx);
-y_idx = y_all_idx(valid_idx);
+x_idx = x_all_idx(v_idx);
+y_idx = y_all_idx(v_idx);
 
 % List of all the orders
 if(max(size(order))==1)
@@ -27,17 +27,17 @@ end
 % Combination of all orders
 Col = 1;
 for ii = 1:length(order_list)
-    for jj = 1:(length(order_list)+1-ii)
+    for jj = 1:length(order_list)
         Col = Col+1;
     end
 end
 
 % Regressors
 col = 1;
-A = zeros(length(valid_idx), Col);
+A = zeros(length(v_idx), Col);
 
 for ii = 1:length(order_list)
-    for jj = 1:(length(order_list)+1-ii)
+    for jj = 1:length(order_list)
         x_order = order_list(ii);
         y_order = order_list(jj);
 
@@ -51,4 +51,4 @@ out = zeros(N);
 coeffs = (pinv(A'*A)*A'*img);
 
 fit = A * coeffs;
-out(valid_idx) = fit;
+out(v_idx) = fit;
