@@ -110,8 +110,8 @@ classdef qmt_spgr < AbstractModel
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
  properties (Hidden=true)
-    onlineData_url = 'https://osf.io/pzqyn/download/';
-    
+    onlineData_url = 'https://osf.io/pzqyn/download?version=2';
+
 end
     properties
         MRIinputs = {'MTdata','R1map','B1map','B0map','Mask'}; % input data required
@@ -159,9 +159,9 @@ end
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
 
     methods
@@ -189,7 +189,7 @@ end
             if obj.options.fittingconstraints_FixR1fT2f && any(strcmp(obj.options.Model,{'Yarnykh', 'Ramani'}))
                 obj.fx(5)=true;
             end
-            
+
             disablelist = {'Fix R1f*T2f','R1f*T2f ='};
             for ll = 1:length(disablelist)
                 indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
@@ -199,7 +199,7 @@ end
                     obj.buttons{indtodisable} = disablelist{ll};
                 end
             end
-            
+
             % Disable/enable some MT pulse options --> Add ### to the button
             % Name you want to disable
             disablelist = {'Fermi transition (a)','Bandwidth','Sinc TBW'};
@@ -224,22 +224,22 @@ end
                 end
             end
         end
-    
+
         function optionalInputs = get_MRIinputs_optional(obj)
             optionalInputs = get_MRIinputs_optional@AbstractModel(obj);
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 optionalInputs(strcmp(obj.MRIinputs,'R1map')) = false;
             end
         end
-        
+
         function obj = Precompute(obj)
             if isempty(obj.ProtSfTable)
                 obj.ProtSfTable = CacheSf(GetProt(obj));
             else
                 obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
-            end     
+            end
         end
-        
+
         function mz = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x = struct2mat(x,obj.xnames);
@@ -280,14 +280,16 @@ end
             % fit data
             FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
         end
-        
+
         function plotModel(obj, x, data)
-            if nargin<2, x = obj.st; data.MTdata = []; end
+            if nargin<2, x = obj.st; end
+            if nargin<3,  data.MTdata = []; end
             if isnumeric(x)
                 x=mat2struct(x,obj.xnames);
-                x.kf = x.F*x.kr;
-                x.resnorm = 0.0;
             end
+            if ~isfield(x,'resnorm'), x.resnorm = 0.0; end
+            x.kf = x.F*x.kr;
+            
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data
@@ -325,7 +327,7 @@ end
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
         end
-        
+
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
@@ -337,7 +339,7 @@ end
 %             nV         = Opt.Nofvolumes;
 %             popSize    = Opt.Populationsize;
 %             migrations = Opt.Nofmigrations;
-%             
+%
 %             sigma  = .05;
 %             Anglemax = 700;
 %             Offsetmax = 20000;
@@ -346,7 +348,7 @@ end
 %                        -1  0  Anglemax         % Anglemax  -  Angle > 0
 %                        0   1  -100             % Offset    -    100 > 0
 %                        0  -1  Offsetmax];      % Offsetmax - Offset > 0
-%             
+%
 %             LSP = meshgrid_polyhedron(planes);
 %             GenerateRandFunction = @() LSP(randi(size(LSP,1),nV,1),:);
 %             CheckProtInBoundFunc = @(Prot) checkInBoundsAndUptade(Prot,LSP,planes);
@@ -357,13 +359,13 @@ end
 %             % TODO: Precompute SPGR_Prepare outputs on LSP... currently too slow
 %             % Optimize Protocol
 %             [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,Prot,xvalues,sigma)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, CurrentProt);
-%             
+%
 %             % Generate Rest
 %             schemeLEADER = retVal.schemeLEADER;
 %             schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
-%             
+%
 %             fprintf('SOMA HAS FINISHED \n')
-%             
+%
 %         end
 
         function plotProt(obj)
