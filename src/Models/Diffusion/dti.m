@@ -11,7 +11,7 @@ classdef dti < AbstractModel
 %   (Mask)              Binary mask to accelerate the fitting
 %
 % Outputs:
-%   D                   [Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Difffusion Tensor
+%   D                   [Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Diffusion Tensor
 %   L1                  1rst eigenvalue of D
 %   L2                  2nd eigenvalue of D
 %   L3                  3rd eigenvalue of D
