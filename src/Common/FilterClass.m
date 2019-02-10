@@ -40,10 +40,11 @@ classdef (Abstract) FilterClass
             if strcmp(obj.options.Smoothingfilter_Type,{'spline'})
                 disable = [false true true true]; 
             end
-            % for polynomial, set order and only works in 2D for now
+            % for polynomial, now polynomial fitting works for both 2D and
+            % 3D cases
             if strcmp(obj.options.Smoothingfilter_Type,{'polynomial'})
                 disable = [true true true false];
-                obj.options.Smoothingfilter_Dimension={'2D'};
+%                 obj.options.Smoothingfilter_Dimension={'2D'};
             end
             
             for ll = 1:length(disablelist)
@@ -118,15 +119,22 @@ classdef (Abstract) FilterClass
             %filtered = smoothn(data,'robust');            
         end
         
-        %Polynomial folter
+        %Polynomial filter
         function filtered=polyFilt(obj,data,order)
             % Apply a polynomial fit of the specified order (in 2D)
             if(ndims(data)==2) %if a 2D volume
                 filtered = poly_fit(data,order);
-            else %if a 3D volume, do each slice separately
+            % if a 3D volume, use 2D or 3D fit according to the selection of dimension:
+            % 1. Perform each slice separately in 2D poly fit; OR
+            % 2. Perform 3D poly fit
+            else
                 filtered=zeros(size(data));
-                for i=1:size(data,3)
-                    filtered(:,:,i)=poly_fit(data(:,:,i),order);
+                if strcmp(obj.options.Smoothingfilter_Dimension,'{2D}')
+                    for i = 1:size(data,3)
+                        filtered(:,:,i) = poly_fit(data(:,:,i),order);
+                    end
+                else
+                    filtered = polyfit_3D(data(:,:,i),order);
                 end
             end
         end
