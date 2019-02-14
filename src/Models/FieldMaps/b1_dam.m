@@ -21,15 +21,6 @@ classdef b1_dam < AbstractModel & FilterClass
 %
 % Options:
 %   (inherited from FilterClass)
-%   Smoothing Filter
-%     Type                 Type of filter
-%                              - gaussian
-%                              - median
-%     Dimension            In which dimensions to apply the filter
-%                               -2D
-%                               -3D
-%     size(x,y,z)          Extent of filter in # of voxels
-%                               For gaussian, it's FWHM
 %
 % Example of command line usage:
 %   Model = b1_dam;% Create class from model
