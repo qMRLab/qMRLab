@@ -16,21 +16,12 @@ classdef filter_map < AbstractModel & FilterClass
 %
 % Options: 
 %   (inherited from FilterClass)
-%   Smoothing Filter
-%     Type                 Type of filter
-%                              - gaussian
-%                              - median
-%     Dimension            In which dimensions to apply the filter
-%                               -2D
-%                               -3D
-%     size(x,y,z)          Extent of filter in # of voxels
-%                               For gaussian, it's FWHM
 %
 % Example of command line usage:
 %
 %   For more examples: <a href="matlab: qMRusage(filter_map);">qMRusage(filter_map)</a>
 %
-% Author: Ian Gagnon, 2017
+% Author: Ilana Leppert Dec 2018
 %
 % References:
 %   Please cite the following if you use this module:
