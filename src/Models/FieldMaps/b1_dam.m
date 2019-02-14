@@ -56,7 +56,7 @@ end
 
         % Protocol
         Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
-
+        
         % Inherit these from public properties of FilterClass 
 %         % Model options
 %         buttons ={};
@@ -72,8 +72,7 @@ end
 
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
-        end
-       
+        end     
         
         function FitResult = fit(obj,data)
             FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
@@ -92,7 +91,6 @@ end
                 FitResult.B1map = data.Mask .* FitResult.B1map;
             end
         end
-        
     end
 
 
@@ -110,7 +108,6 @@ end
 
         end
     end
-
 
 
 end

@@ -35,7 +35,15 @@ tStart = tic;
 tsaved = 0;
 
 h=[];
-if ismethod(Model,'Precompute'), Model = Model.Precompute; end
+if moxunit_util_platform_is_octave % ismethod not working properly on Octave
+    try, Model = Model.Precompute; end
+    try, Model = Model.PrecomputeData(data); end
+
+else
+    if ismethod(Model,'Precompute'), Model = Model.Precompute; end
+    if ismethod(Model,'PrecomputeData'), Model = Model.PrecomputeData(data); end
+end
+
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
     % Get dimensions
