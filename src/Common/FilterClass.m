@@ -1,12 +1,19 @@
 
 classdef (Abstract) FilterClass
-    % FilterClass:  Methods for filtering data which can be inherited by
-    % models
-    %
-    %   *Methods*
-    %   gaussFilt: gaussian filtering (2D or 3D)
-    %   medianFilt: median filtering (2D or 3D)
-    %
+% FilterClass:  Methods for filtering data which can be inherited by other models
+% Options:
+%   Smoothing Filter
+%     Type                 Type of filter
+%                              - gaussian
+%                              - median
+%                              - spline
+%                              - polynomial
+%     Dimension            In which dimensions to apply the filter
+%                               -2D
+%                               -3D
+%     size(x,y,z)          Extent of filter in # of voxels
+%                               For gaussian, it's FWHM
+%     order                Order of the polynomial fitting
     
     properties
         % Model options
