@@ -155,15 +155,3 @@ function M0=getM0fromT1(T1,TR,S,FA)
 ST=(1-exp(-TR./T1))./(1-cos(FA*pi/180).*exp(-TR./T1)).*sin(FA*pi/180);
 % M0=RP*PD (RP=Receiver Profile)
 M0=S/ST;
-
-function [fittedSlope, fittedIntercept] = crudeLinear(x,y)
-assert(size(x)==size(y), 'Size of x and y must match')
-assert(isvector(x), 'Linear fit can only be performed on two vectors');
-% Compute covariances, i.e. cov(x,y) and cov(x,x)
-numerator = sum(x.*y) - sum(x).*sum(y) / length(x);
-denominator = sum(x.^2) - sum(x).^2 / length(x);
-% Slope is cov(x,y)/cov(x,x)
-fittedSlope = numerator ./ denominator;
-% Line of best fit has to pass through point (meanX, meanY)
-% Use this fact to get intecept
-fittedIntercept = mean(y) - fitterSlope .* mean(x);

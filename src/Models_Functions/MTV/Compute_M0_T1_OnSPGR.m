@@ -1,7 +1,7 @@
 function [M0, T1] = Compute_M0_T1_OnSPGR(data, flipAngles, TR, b1Map, roi, verbose)
 %Perform a simple linear-least squares data fit on variable flip angle SPGR data 
 %
-% function function [M0, T1] = Compute_M0_T1_OnSPGR(data, flipAngles, TR [, b1Map, roi, verbose])
+% function [M0, T1] = Compute_M0_T1_OnSPGR(data, flipAngles, TR [, b1Map, roi, verbose])
 % -----------------------------------------------------------
 % INPUTS:
 %   data: width x length x slices x flipAngles matrix
@@ -68,11 +68,10 @@ function [fittedSlope, fittedIntercept] = LinLeastSquares(x,y)
 % The second dimension could be different samples (e.g. voxels)
 
 if size(x)~=size(y), error('X and Y must have same size for linear fitting'); end
-% Compute covariances, i.e. cov(x,y) and cov(x,x)
+% Use the fact that slope = cov(x,y) / cov(x,x)
 lengthX = size(x,1);
 numerator = sum(x.*y) - sum(x).*sum(y) / lengthX;
 denominator = sum(x.^2) - sum(x).^2 / lengthX;
-% Slope is cov(x,y)/cov(x,x)
 fittedSlope = numerator ./ denominator;
 % Line of best fit has to pass through point (meanX, meanY)
 % Use this fact to get intecept
