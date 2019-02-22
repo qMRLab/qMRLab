@@ -102,7 +102,7 @@ end
             if (length(unique(TR))~=1), error('VFA data must have same TR'); end
             if ~isfield(data, 'B1map'), data.B1map = []; end
             if ~isfield(data, 'Mask'), data.Mask = []; end
-            [FitResult.M0, FitResult.T1] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+            [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
        end
 
        function plotModel(obj,x,data)

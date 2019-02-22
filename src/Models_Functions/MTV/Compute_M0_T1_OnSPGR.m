@@ -1,4 +1,4 @@
-function [M0, T1] = Compute_M0_T1_OnSPGR(data, flipAngles, TR, b1Map, roi, verbose)
+function [T1, M0] = Compute_M0_T1_OnSPGR(data, flipAngles, TR, b1Map, roi, verbose)
 %Perform a simple linear-least squares data fit on variable flip angle SPGR data 
 %
 % function [M0, T1] = Compute_M0_T1_OnSPGR(data, flipAngles, TR [, b1Map, roi, verbose])
