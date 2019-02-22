@@ -1,6 +1,6 @@
 function [M0, T1] = mtv_compute_m0_t1(data, flipAngles, TR, b1Map, roi, fixT1, verbose)
 
-% function function [M0 T1] = fitData_MTV (data, flipAngles, TR [, b1Map, roi, fixT1, verbose])
+% function function [M0 T1] = mtv_compute_m0_t1 (data, flipAngles, TR [, b1Map, roi, fixT1, verbose])
 % -----------------------------------------------------------
 % This function performs a weighted-least squares data fit
 % on SPGR T1-weighted data set
@@ -18,13 +18,12 @@ function [M0, T1] = mtv_compute_m0_t1(data, flipAngles, TR, b1Map, roi, fixT1, v
 %
 
 if ndims(data)<3, data = permute(data(:),[2 3 4 1]); end
+dataSize = size(data);
 if (nargin < 4) || isempty(b1Map)
-    dataSize = size(data);
     b1Map = ones([dataSize(1:end-1) 1]);
 end
 
 if nargin<5 || isempty(roi)
-    dataSize = size(data);
     roi = ones(dataSize(1:end-1));
 end
 
@@ -39,8 +38,8 @@ end
 if max(size(b1Map) ~= dataSize(1:length(size(b1Map)))), error('B1 size is different from data size'); end
 
 dims = size(data);
-T1 = zeros([dims(1:end-1)]);
-M0 = zeros([dims(1:end-1)]);
+T1 = zeros(dims(1:end-1));
+M0 = zeros(dims(1:end-1));
 
 warning('off');
 %sprintf('%s\n\n\n','loop over voxels...')
@@ -156,3 +155,15 @@ function M0=getM0fromT1(T1,TR,S,FA)
 ST=(1-exp(-TR./T1))./(1-cos(FA*pi/180).*exp(-TR./T1)).*sin(FA*pi/180);
 % M0=RP*PD (RP=Receiver Profile)
 M0=S/ST;
+
+function [fittedSlope, fittedIntercept] = crudeLinear(x,y)
+assert(size(x)==size(y), 'Size of x and y must match')
+assert(isvector(x), 'Linear fit can only be performed on two vectors');
+% Compute covariances, i.e. cov(x,y) and cov(x,x)
+numerator = sum(x.*y) - sum(x).*sum(y) / length(x);
+denominator = sum(x.^2) - sum(x).^2 / length(x);
+% Slope is cov(x,y)/cov(x,x)
+fittedSlope = numerator ./ denominator;
+% Line of best fit has to pass through point (meanX, meanY)
+% Use this fact to get intecept
+fittedIntercept = mean(y) - fitterSlope .* mean(x);
