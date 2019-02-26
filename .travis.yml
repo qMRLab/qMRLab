@@ -213,14 +213,16 @@ jobs:
   - stage: Test (no coverage)
     script: travis_wait $WAIT_TIME octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_bssfp.m');exit(~res);"
   - stage: Send combined coveralls.io report
-    if: fork = true
     script: 
     - |
-      aws s3 cp s3://qmrlab/$TRAVIS_BUILD_NUMBER/ $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/ --recursive --include "*.json"
-      octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/'); \
-        startup; \
-        mocov_combine('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/','coverage_combined.json')"
-      aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_combined.json s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_combined.json
-      curl --verbose -F json_file=@$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_combined.json https://coveralls.io/api/v1/jobs
+      if [ "${TRAVIS_REPO_SLUG%%/*}" =  "qMRLab" ] 
+      then
+        aws s3 cp s3://qmrlab/$TRAVIS_BUILD_NUMBER/ $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/ --recursive --include "*.json"
+        octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/'); \
+          startup; \
+          mocov_combine('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/','coverage_combined.json')"
+        aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_combined.json s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_combined.json
+        curl --verbose -F json_file=@$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_combined.json https://coveralls.io/api/v1/jobs
+      fi
 after_failure:
   - sleep 10
