@@ -30,7 +30,7 @@ if ~exist('verbose', 'var')
 end
  
 if length(b1Map) ~= length(data(:,:,:,1)), error('B1 size is different from data size'); end
-if ~islogical(roi), roi = roi>0; end
+if ~islogical(roi), roi = logical(roi); end
 
 % Reshape data into 2D array so that future steps are simpler
 data = reshape(data,[nVox nFlip])'; % Transpose because MATLAB is column-major
