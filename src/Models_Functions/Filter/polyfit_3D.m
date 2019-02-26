@@ -19,14 +19,12 @@ end
 
 if nargin < 4
     bound_factor = 1;
-    if N_raw ~= size(mask)
-        error('Size of the input raw map should be equal to that of mask.');
-    end
 end
 
 if nargin < 3
     mask = ones(N_raw);
 end
+
 
 if nargin < 2      
     order = 5;

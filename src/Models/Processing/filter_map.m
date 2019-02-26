@@ -2,7 +2,7 @@
 classdef filter_map < AbstractModel & FilterClass
 % filter_map:   Applies spatial filtering (2D or 3D)
 %
-% Assumptions:
+% Assumptions: If a 3D volume is provided and 2D filtering is requested, each slice will be processsed independently
 %  
 % Inputs:
 %   Raw                Input data to be filtered
@@ -52,7 +52,6 @@ classdef filter_map < AbstractModel & FilterClass
         
         function FitResult = fit(obj,data)
             % call the superclass (FilterClass) fit function
-            data = data.Raw;
             FitResult.Filtered=struct2array(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
         end
     
