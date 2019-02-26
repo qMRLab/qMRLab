@@ -53,7 +53,7 @@ end
     properties
         MRIinputs = {'VFAData','B1map','Mask'};
         xnames = {'M0','T1'};
-        voxelwise = 0; % Fits are still voxelwise even when this is zero
+        voxelwise = 1; % New implementation detail: The fit isn't done voxel-by-voxel anymore, but we need to keep this flag true so that we can view the fit of a single voxel in the GUI. `voxelwise` definition, naming, and implementation need to be refactored.
 
         % Protocol
         Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...
