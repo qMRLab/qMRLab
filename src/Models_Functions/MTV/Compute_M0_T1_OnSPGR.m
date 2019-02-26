@@ -43,21 +43,25 @@ alpha = deg2rad(flipAngles);
 if isrow(alpha), alpha = alpha'; end
 alpha = repmat(alpha,[1 nVox]) .* repmat(b1Map(roi(:))', [nFlip 1]);
 
-% Do the linear least squares fit
+% Do the linear least squares fit and estimate M0 & T1
 y = data ./ sin(alpha);
 x = data ./ tan(alpha);
 [fittedSlope, fittedIntercept] = LinLeastSquares(x,y);
+estM0 = fittedIntercept ./ (1-fittedSlope);
+estT1 = -TR./log(fittedSlope);
 
-% Assign arbitrary T1 value if fitted value in unphysical. 
+% Assign arbitrary M0 & T1 value if fitted value is unphysical. 
 % Might be better to set this to NaN so users can identify voxels where fit fails
-arbitraryT1 = 0.000000000000001; % Arbitrary value in case fit fails
-fittedSlope(isnan(fittedSlope)) = arbitraryT1; 
-fittedIntercept(isnan(fittedIntercept)) = arbitraryT1;
-fittedSlope(fittedSlope<0) = arbitraryT1;
+failedFit = isnan(fittedSlope)      | fittedSlope<0     | ...
+            isnan(fittedIntercept)  | fittedIntercept<0 ;
+failedFitValue = 0;
+estM0(failedFit) = failedFitValue;
+estT1(failedFit) = failedFitValue;
 
+% Assign estimated M0 and T1 values to correct voxel 
 [T1, M0] = deal(zeros(nX,nY,nZ));
-M0(roi(:)) = fittedIntercept ./ (1-fittedSlope);
-T1(roi(:)) = real(-TR./log(fittedSlope));
+M0(roi(:)) = estM0;
+T1(roi(:)) = estT1;
 end % END OF Compute_M0_T1_OnSPGR
 
 function [fittedSlope, fittedIntercept] = LinLeastSquares(x,y)
