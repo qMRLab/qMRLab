@@ -53,7 +53,7 @@ end
     properties
         MRIinputs = {'VFAData','B1map','Mask'};
         xnames = {'M0','T1'};
-        voxelwise = 1;
+        voxelwise = 0; % Fits are still voxelwise even when this is zero
 
         % Protocol
         Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...
@@ -93,19 +93,16 @@ end
             TR = obj.Prot.VFAData.Mat(1,2);
             E = exp(-TR/x.T1);
             Smodel = x.M0*sin(flipAngles/180*pi)*(1-E)./(1-E*cos(flipAngles/180*pi));
-
         end
 
        function FitResult = fit(obj,data)
             % T1 and M0
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
             TR = obj.Prot.VFAData.Mat(:,2);
-            if ~isfield(data,'B1map'), data.B1map=1; end
-            [m0, t1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
-            FitResult.T1 = t1;
-            FitResult.M0 = m0;
-
-
+            if (length(unique(TR))~=1), error('VFA data must have same TR'); end
+            if ~isfield(data, 'B1map'), data.B1map = []; end
+            if ~isfield(data, 'Mask'), data.Mask = []; end
+            [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
        end
 
        function plotModel(obj,x,data)
