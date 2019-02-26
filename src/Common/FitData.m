@@ -94,7 +94,7 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
 
-    if (isempty(h)), fprintf('Fitting %d voxels.\n',numVox); end
+    if (isempty(h)), j_progress('Fitting voxel ',l); end
     for ii = 1:numVox
         vox = Voxels(ii);
 
