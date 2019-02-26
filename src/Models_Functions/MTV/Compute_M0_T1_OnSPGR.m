@@ -54,7 +54,7 @@ estT1 = -TR./log(fittedSlope);
 % Might be better to set this to NaN so users can identify voxels where fit fails
 failedFit = isnan(fittedSlope)      | fittedSlope<0     | ...
             isnan(fittedIntercept)  | fittedIntercept<0 ;
-failedFitValue = 0;
+failedFitValue = NaN;
 estM0(failedFit) = failedFitValue;
 estT1(failedFit) = failedFitValue;
 
