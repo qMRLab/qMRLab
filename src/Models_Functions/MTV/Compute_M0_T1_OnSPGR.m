@@ -17,15 +17,15 @@ if ndims(data)<3, data = permute(data(:),[2 3 4 1]); end
 [nX, nY, nZ, nFlip] = size(data);
 nVox = nX*nY*nZ;
 
-if (nargin < 4) || isempty(b1Map)
+if ~exist('b1Map', 'var') || isempty(b1Map)
     b1Map = ones(nX, nY, nZ);
 end
 
-if nargin<5 || isempty(roi)
+if ~exist('roi', 'var') || isempty(roi)
     roi = true(nX, nY, nZ);
 end
 
-if nargin<6
+if ~exist('verbose', 'var')
     verbose = 0;
 end
  
