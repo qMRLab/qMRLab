@@ -1,4 +1,4 @@
-classdef DCE < AbstractModel % Name your Model
+classdef DCE < AbstractModel
 % DCE :  Dynamic Contrast Enhanced
 %<a href="matlab: figure, imshow CustomExample.png ;">Pulse Sequence Diagram</a>
 %
@@ -143,11 +143,12 @@ classdef DCE < AbstractModel % Name your Model
             if exist('data','var')
                 TE = obj.Prot.PWI.Mat(2);
                 % norm
-                PWInorm = pwiNorm(data.PWI);
+                [PWInorm, T0] = pwiNorm(data.PWI);
                 R2star = pwi2R2star(PWInorm,TE);
                 time = 0:TR:TR*(length(R2star)-1);
                 hold on
                 plot(time,R2star,'r+')
+                plot([time(T0) time(T0)],[0 max(R2star)],'k--')
                 hold off
             end
             ylabel('R2* (s^{-1})')
@@ -184,14 +185,14 @@ classdef DCE < AbstractModel % Name your Model
     end
 end
 
-function PWInorm = pwiNorm(PWI)
+function [PWInorm, T0] = pwiNorm(PWI)
 [T0,T0_mask] = BAT(PWI);
 BL = sum(PWI .* T0_mask)./sum((PWI .* T0_mask) ~= 0);
 PWInorm = PWI/BL;
 end
 
 function R2star = pwi2R2star(Snorm,TE)
-R2star = -1/TE*log(Snorm);
+R2star = -1/TE*log(max(Snorm,eps));
 end
 
 function [T0,T0_mask] = BAT(PWI)
@@ -217,10 +218,10 @@ for t = 1:Nvol-window_size
     moy(t) = mean(PWI(t:t+window_size));
     ect(t) = std(PWI(t:t+window_size));
 end
+ect = sort(ect); ect = median(ect(1:4));
 Tlog = PWI(window_size+1:Nvol) < (moy - th.*ect);
 [~,T0] = max(Tlog);
 T0 = T0 + window_size - 1;
-T0(T0 == window_size) = 0;
 [~,TTP] = min(PWI);
 
 
