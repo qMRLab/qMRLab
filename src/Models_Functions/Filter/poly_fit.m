@@ -1,16 +1,23 @@
-function [out] =  poly_fit(data, order)
+function [out] =  poly_fit(data, order, mask)
 %% Fit polynomials to a surface
 %
 % data = 2D data
 % oder = maximum order or list of orders to fit to
+% mask = ROI in which the fit makes sense (don't want to fit noise)
 %%%%%%%%%%%%%%%%%%
 % Adapted from poly_sensitivty_fit.m
 
 N = size(data);
+if nargin < 3
+    mask = ones(N);
+end
+
 [x,y] = meshgrid( linspace(-1,1,N(2)), linspace(-1,1,N(1)) );
 
-v_idx = find(data);
+v_idx = find(mask);
+
 img = data(v_idx);
+
 x_all_idx = x(1:end)';
 y_all_idx = y(1:end)';
 x_idx = x_all_idx(v_idx);
