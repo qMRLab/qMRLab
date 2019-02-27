@@ -30,6 +30,9 @@ classdef filter_map < AbstractModel & FilterClass
 %     Stikov N. (2016), Quantitative magnetization transfer imaging made
 %     easy with qMTLab: Software for data simulation, analysis, and
 %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+properties (Hidden=true)
+    onlineData_url = 'https://osf.io/c7tzv/download?version=1';
+end
 
     properties 
         MRIinputs = {'Raw','Mask'};
@@ -48,6 +51,7 @@ classdef filter_map < AbstractModel & FilterClass
         % Constructor
         function obj = filter_map()
             obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
         end
         
         function FitResult = fit(obj,data)
