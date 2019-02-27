@@ -13,7 +13,7 @@ classdef b1_dam < AbstractModel & FilterClass
 %
 % Outputs:
 %	B1map_raw          Excitation (B1+) field map
-%   B1map              Smoothed B1+ field map using Gaussian or Median filter
+%   B1map_filtered     Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter
 %   Spurious           Map of datapoints that were set to 1 prior to smoothing
 %
 % Protocol:
@@ -26,6 +26,11 @@ classdef b1_dam < AbstractModel & FilterClass
 %   Model = b1_dam;% Create class from model
 %   data.SFalpha = double(load_nii_data('SFalpha.nii.gz')); %load data
 %   data.SF2alpha  = double(load_nii_data('SF2alpha.nii.gz'));
+%   Model.Smoothingfilter_Type = 'gaussian'; %apply gaussian smoothing in 3D with fwhm=3
+%   Model.Smoothingfilter_Type = '3D';
+%   Model.Smoothingfilter_sizex = 3;
+%   Model.Smoothingfilter_sizey = 3;
+%   Model.Smoothingfilter_sizez = 3;
 %   FitResults       = FitData(data,Model); % fit data
 %   FitResultsSave_nii(FitResults,'SFalpha.nii.gz'); %save nii file using SFalpha.nii.gz as template
 %
@@ -77,19 +82,13 @@ end
         function FitResult = fit(obj,data)
             FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
             %remove 'spurious' points to reduce edge effects
-            if isfield(data,'Mask') && ~isempty(data.Mask)
-                FitResult.B1map_raw = data.Mask .* FitResult.B1map_raw;
-            end
             FitResult.Spurious = double(FitResult.B1map_raw<0.5);
             B1map_nospur = FitResult.B1map_raw;
             B1map_nospur(B1map_nospur<0.6 | isnan(B1map_nospur))=0.6; %set 'spurious' values to 0.6
             
             % call the superclass (FilterClass) fit function
-            FitResult.B1map=struct2array(fit@FilterClass(obj,B1map_nospur,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
-            % re-apply the mask
-            if isfield(data,'Mask') && ~isempty(data.Mask)
-                FitResult.B1map = data.Mask .* FitResult.B1map;
-            end
+            data.Raw = B1map_nospur;
+            FitResult.B1map_filtered=struct2array(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
         end
     end
 
