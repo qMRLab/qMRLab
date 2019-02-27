@@ -104,6 +104,11 @@ end
                 obj.MRIinputs = {'SFalpha','SF2alpha'};
 
             end
+            % 2.0.13
+            if checkanteriorver(version,[2 0 13])
+                % add mask and add filtered and raw(un-filtered) output (don't need a patch for this)
+                obj.MRIinputs = {'SFalpha','SF2alpha','Mask'};
+            end
 
         end
     end
