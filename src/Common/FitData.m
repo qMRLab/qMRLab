@@ -82,7 +82,6 @@ if Model.voxelwise % process voxelwise
         Voxels = find(~computed)';
     end
     l = length(Voxels);
-    
     % Travis?
     if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
     
@@ -93,7 +92,7 @@ if Model.voxelwise % process voxelwise
             'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
         setappdata(h,'canceling',0)
     end
-    
+
     if (isempty(h)), j_progress('Fitting voxel ',l); end
     for ii = 1:l
         vox = Voxels(ii);
@@ -102,9 +101,10 @@ if Model.voxelwise % process voxelwise
         if (isempty(h))
             % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
             %            fprintf('Fitting voxel %d/%d\r',ii,l);
+
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
-            waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
+            waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d', ii, numVox));
         end
         
         % Get current voxel data
