@@ -1,40 +1,40 @@
 
 classdef filter_map < AbstractModel & FilterClass
-% filter_map:   Applies spatial filtering (2D or 3D)
-%
-% Assumptions: If a 3D volume is provided and 2D filtering is requested, each slice will be processsed independently
-%  
-% Inputs:
-%   Raw                Input data to be filtered
-%   (Mask)             Binary mask to exclude voxels from smoothing
-%
-% Outputs:
-%	Filtered           Filtered output map
-%
-% Protocol:
-%	NONE
-%
-% Options: 
-%   (inherited from FilterClass)
-%
-% Example of command line usage:
-%
-%   For more examples: <a href="matlab: qMRusage(filter_map);">qMRusage(filter_map)</a>
-%
-% Author: Ilana Leppert Dec 2018
-%
-% References:
-%   Please cite the following if you use this module:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
-%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
-%     Stikov N. (2016), Quantitative magnetization transfer imaging made
-%     easy with qMTLab: Software for data simulation, analysis, and
-%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-properties (Hidden=true)
-    onlineData_url = 'https://osf.io/c7tzv/download?version=1';
-end
-
-    properties 
+    % filter_map:   Applies spatial filtering (2D or 3D)
+    %
+    % Assumptions: If a 3D volume is provided and 2D filtering is requested, each slice will be processsed independently
+    %
+    % Inputs:
+    %   Raw                Input data to be filtered
+    %   (Mask)             Binary mask to exclude voxels from smoothing
+    %
+    % Outputs:
+    %	Filtered           Filtered output map (see FilterClass.m for more info)
+    %
+    % Protocol:
+    %	NONE
+    %
+    % Options:
+    %   (inherited from FilterClass)
+    %
+    % Example of command line usage:
+    %
+    %   For more examples: <a href="matlab: qMRusage(filter_map);">qMRusage(filter_map)</a>
+    %
+    % Author: Ilana Leppert Dec 2018
+    %
+    % References:
+    %   Please cite the following if you use this module:
+    %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
+    %     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
+    %     Stikov N. (2016), Quantitative magnetization transfer imaging made
+    %     easy with qMTLab: Software for data simulation, analysis, and
+    %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+    properties (Hidden=true)
+        onlineData_url = 'https://osf.io/c7tzv/download?version=1';
+    end
+    
+    properties
         MRIinputs = {'Raw','Mask'};
         xnames = {};
         voxelwise = 0; % 0, if the analysis is done matricially
@@ -53,13 +53,19 @@ end
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
-        
         function FitResult = fit(obj,data)
             % call the superclass (FilterClass) fit function
             FitResult.Filtered=struct2array(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
         end
-    
+        
+    end
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            
+        end
+        
     end
     
 end
-
+    

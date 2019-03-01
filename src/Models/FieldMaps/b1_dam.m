@@ -13,7 +13,7 @@ classdef b1_dam < AbstractModel & FilterClass
 %
 % Outputs:
 %	B1map_raw          Excitation (B1+) field map
-%   B1map_filtered     Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter
+%   B1map_filtered     Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)
 %   Spurious           Map of datapoints that were set to 1 prior to smoothing
 %
 % Protocol:
@@ -77,7 +77,8 @@ end
 
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
-        end     
+            obj = UpdateFields(obj);
+        end
         
         function FitResult = fit(obj,data)
             FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));

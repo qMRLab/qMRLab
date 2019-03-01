@@ -1,19 +1,20 @@
 
 classdef (Abstract) FilterClass
-% FilterClass:  Methods for filtering data which can be inherited by other models
-% Options:
-%   Smoothing Filter
-%     Type                 Type of filter
-%                              - gaussian
-%                              - median
-%                              - spline
-%                              - polynomial
-%     Dimension            In which dimensions to apply the filter
-%                               -2D
-%                               -3D
-%     size(x,y,z)          Extent of filter in # of voxels
-%                               For gaussian, it's FWHM
-%     order                Order of the polynomial fitting
+    % FilterClass:  Methods for filtering data which can be inherited by other models
+    % Options:
+    %   Smoothing Filter
+    %     Type                 Type of filter
+    %                              - gaussian
+    %                              - median
+    %                              - spline
+    %                              - polynomial
+    %     Dimension            In which dimensions to apply the filter
+    %                               -2D
+    %                               -3D
+    %     size(x,y,z)          Extent of filter in # of voxels
+    %                               For gaussian, it's FWHM
+    %                               For median, it's number of voxels
+    %     order                Order of the polynomial fitting and the 'amount of smoothness' for spline fitting
     
     properties
         % Model options
@@ -31,27 +32,27 @@ classdef (Abstract) FilterClass
         % Constructor
         function obj = FilterClass()
         end
-        function obj = UpdateFields(obj)
-          
+
+        function  obj = UpdateFields(obj)
             % Disable/enable some options --> Add ### to the button
             % Name you want to disable
             disablelist = {'size x','size y','size z','order'};
             switch  obj.options.Smoothingfilter_Dimension
                 case {'2D'}
-                    disable = [false false true true]; 
+                    disable = [false false true true];
                     obj.options.Smoothingfilter_sizez=0;
                 otherwise
-                   disable = [false false false true]; 
+                    disable = [false false false true];
             end
-            % for spline, only 1 value for the amount of smoothness and 3D
+            % for spline, only 1 value for the amount of smoothness  (user 'order' field) and 3D
             if strcmp(obj.options.Smoothingfilter_Type,{'spline'})
-                disable = [false true true true]; 
+                disable = [true true true false];
             end
             % for polynomial, now polynomial fitting works for both 2D and
             % 3D cases
             if strcmp(obj.options.Smoothingfilter_Type,{'polynomial'})
                 disable = [true true true false];
-    
+                
             end
             
             for ll = 1:length(disablelist)
@@ -64,6 +65,7 @@ classdef (Abstract) FilterClass
             end
         end
         
+        
         function FitResult = fit(obj,data,size)
             switch obj.options.Smoothingfilter_Type
                 case {'gaussian'}
@@ -71,7 +73,7 @@ classdef (Abstract) FilterClass
                 case {'median'}
                     FitResult.Filtered=obj.medianFilt(data.Raw,size); %smoothed
                 case {'spline'}
-                    FitResult.Filtered=obj.splineFilt(data.Raw,size); %smoothed
+                    FitResult.Filtered=obj.splineFilt(data.Raw,obj.options.Smoothingfilter_order); %smoothed
                 case {'polynomial'}
                     FitResult.Filtered=obj.polyFilt(data,obj.options.Smoothingfilter_order); %smoothed
             end
@@ -122,8 +124,8 @@ classdef (Abstract) FilterClass
             else
                 filtered = smoothn(data,s);
             end
-                
-            %filtered = smoothn(data,'robust');            
+            
+            %filtered = smoothn(data,'robust');
         end
         
         %% Polynomial filter
