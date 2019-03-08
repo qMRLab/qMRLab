@@ -759,90 +759,111 @@ set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
 
-% Get data
-data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
-Model = GetAppData('Model');
-
-% Get selected voxel
-S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
-Data = handles.CurrentData;	
-selected = get(handles.SourcePop,'Value');	
-Scurrent = [size(Data.(Data.fields{selected}),1) size(Data.(Data.fields{selected}),2) size(Data.(Data.fields{selected}),3)];
 if isempty(handles.dcm_obj) || isempty(getCursorInfo(handles.dcm_obj))
     helpdlg('Select a voxel in the image using cursor')
-elseif sum(S)==0
-    helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
-
-elseif ~isequal(Scurrent(1:3), S(1:3))
-    Sstr = sprintf('%ix',S);
-    Scurstr = sprintf('%ix',Scurrent);
-    helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' Data.fields{selected} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
-
-else
-    Model.sanityCheck(data);
-    info_dcm_all = getCursorInfo(handles.dcm_obj);
-    for ipix = 1:length(info_dcm_all)
-        info_dcm = info_dcm_all(ipix);
-        x = info_dcm.Position(1);
-        y = info_dcm.Position(2);
-        z = handles.tool.getCurrentSlice;
-        View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
-        switch View{get(handles.ViewPop,'Value')}
-            case 'Axial',    vox = [y,x,z];
-            case 'Coronal',  vox = [y,z,x];
-            case 'Sagittal', vox = [z,y,x];
-        end
-        
-        
-        for ii=1:length(Model.MRIinputs)
-            if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
-                datasqueeze.(Model.MRIinputs{ii}) = squeeze(data.(Model.MRIinputs{ii})(vox(1),vox(2),vox(3),:));
-            end
-        end
-        if isfield(datasqueeze,'Mask'), datasqueeze.Mask = []; end
-        
-        
-        % Create axe
-        figure(68)
-        h = findobj(68,'Style','checkbox','String','hold plot in order to compare voxels');
-        if ipix==1 && (isempty(h) || ~get(h,'Value'))  % If a data fit check has already been run OR do not hold plot,
-            clf(68)        % clear the previous data from the figure plot
-            uicontrol('Style','checkbox','String','hold plot in order to compare voxels','Value',0,'Position',[0 0 210 20]);
-        end
-        
-        set(68,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
-        haxes = get(68,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
-        
-        if ~isempty(haxes)
-            % turn gray old plots
-            for h=1:length(haxes) %might have subplots
-                haxe = get(haxes(h),'children');
-                set(haxe,'Color',[0.8 0.8 0.8]);
-                hAnnotation = get(haxe,'Annotation');
-                % remove their legends
-                for ih=1:length(hAnnotation)
-                    if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
-                    hLegendEntry = get(hAnnot,'LegendInformation');
-                    set(hLegendEntry,'IconDisplayStyle','off');
-                end
-            end
-        end
-        hold on;
-        
-        % Do the fitting
-        Model = getappdata(0,'Model');
-        if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
-        if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
-        Fit = Model.fit(datasqueeze) % Display fitting results in command window
-        Model.plotModel(Fit,datasqueeze);
-        
-        % update legend
-        if ~moxunit_util_platform_is_octave
-            legend('Location','best')
-        end
-    end
+    return;
 end
 
+info_dcm_all = getCursorInfo(handles.dcm_obj);
+for ipix = 1:length(info_dcm_all)
+    info_dcm = info_dcm_all(ipix);
+    x = info_dcm.Position(1);
+    y = info_dcm.Position(2);
+    z = handles.tool.getCurrentSlice;
+    S = handles.tool.getImageSize;
+    vox{ipix} = sub2ind(S,y,x,z);
+end
+hh = plotfit(handles,vox);
+if ~isempty(hh)
+    set(hh,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
+end
+
+function ViewROIFit_Callback(hObject, eventdata, handles)
+% unselect button to prevent activation with spacebar
+set(hObject, 'Enable', 'off');
+drawnow;
+set(hObject, 'Enable', 'on');
+
+Mask = handles.tool.getMask(1);
+if isempty(Mask) || ~any(Mask(:))
+    helpdlg('Draw a roi in the image using the brush tools')
+    return;
+end
+
+labels = unique(Mask(Mask>0));
+for ipix = 1:length(labels)
+    vox{ipix} = find(Mask == labels(ipix));
+end
+hh = plotfit(handles,vox);
+if ~isempty(hh)
+    set(hh,'Name',['Fitting results of roi #' num2str(labels(ipix))],'NumberTitle','off');
+end
+
+function hh = plotfit(handles,vox)
+Model = GetAppData('Model');
+% Get data
+data = handles.tool.getImage(1);
+datafields = get(handles.SourcePop,'String');
+
+if ~all(ismember(datafields,Model.MRIinputs))
+    helpdlg(sprintf(['Current files in the viewer (' strjoin(datafields,', ') ') are inconsistent with ' Model.ModelName ' model inputs (' strjoin(Model.MRIinputs,', ') ').\nPlease click on ''view'' in the FileBrowser to replace the data in the viewer.']))
+    hh = [];
+    return;
+end
+data = cell2struct(data,datafields,2);
+
+Model.sanityCheck(data);
+
+for ipix = 1:length(vox)    
+    
+    for ii=1:length(Model.MRIinputs)
+        if isfield(data,(Model.MRIinputs{ii})) && ~isempty(data.(Model.MRIinputs{ii}))
+            voltmp = reshape2D(data.(Model.MRIinputs{ii}),4);
+            datasqueeze.(Model.MRIinputs{ii}) = nanmean(voltmp(:,vox{ipix}),2);
+        end
+    end
+    if isfield(datasqueeze,'Mask'), datasqueeze.Mask = 1; end
+    
+    
+    % Create axe
+    hh = 68;
+    figure(hh)
+    h = findobj(hh,'Style','checkbox','String','hold plot in order to compare voxels');
+    if ipix==1 && (isempty(h) || ~get(h,'Value'))  % If a data fit check has already been run OR do not hold plot,
+        clf(hh)        % clear the previous data from the figure plot
+        uicontrol('Style','checkbox','String','hold plot in order to compare voxels','Value',0,'Position',[0 0 210 20]);
+    end
+    
+    haxes = get(hh,'children'); haxes = haxes(strcmp(get(haxes,'Type'),'axes'));
+    
+    if ~isempty(haxes)
+        % turn gray old plots
+        for h=1:length(haxes) %might have subplots
+            haxe = get(haxes(h),'children');
+            set(haxe,'Color',[0.8 0.8 0.8]);
+            hAnnotation = get(haxe,'Annotation');
+            % remove their legends
+            for ih=1:length(hAnnotation)
+                if iscell(hAnnotation), hAnnot = hAnnotation{ih}; else hAnnot = hAnnotation; end
+                hLegendEntry = get(hAnnot,'LegendInformation');
+                set(hLegendEntry,'IconDisplayStyle','off');
+            end
+        end
+    end
+    hold on;
+    
+    % Do the fitting
+    if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
+    if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
+    Fit = Model.fit(datasqueeze) % Display fitting results in command window
+    Model.plotModel(Fit,datasqueeze);
+    
+    % update legend
+    if ~moxunit_util_platform_is_octave
+        legend('Location','best')
+    end
+
+end
 
 % OPEN VIEWER
 function Viewer_Callback(hObject, eventdata, handles)
