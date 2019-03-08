@@ -127,7 +127,7 @@ classdef imtool3DROI_rect < imtool3DROI
             position = ROI.position;
         end
         
-        function newPosition(ROI,position)
+        function newPosition(ROI,position, notifoff)
             
             %Adjust the position if the aspect ratio should be fixed
             if ROI.fixedAspectRatio
@@ -164,7 +164,9 @@ classdef imtool3DROI_rect < imtool3DROI
             set(ROI.textHandle,'String',str,'Position',[pos(1) pos(2)-ROI.tbuff]);
             
             %notify a new position
-            notify(ROI,'newROIPosition');
+            if ~exist('notifoff','var') || ~notifoff
+                notify(ROI,'newROIPosition');
+            end
             
             
         end
@@ -502,7 +504,7 @@ switch get(source,'Label')
                 ROI.textVisible = true;
         end
     case 'poly2mask'
-        mask = tool.getMask;
+        mask = tool.getCurrentMaskSlice;
         
         [x, y] = getPoly(ROI);
         
@@ -515,9 +517,9 @@ switch get(source,'Label')
         y = y*m/ROI.imageHandle.YData(2);
         
         masknew = poly2mask(x,y,m,n);
-        mask(:,:,tool.getCurrentSlice) = mask(:,:,tool.getCurrentSlice) | masknew;
-        tool.setMask(mask)
-
+        combine = true;
+        tool.setCurrentMaskSlice(masknew,combine);
+        notify(tool,'maskChanged')
 end
 
 

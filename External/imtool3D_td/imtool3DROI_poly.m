@@ -153,8 +153,16 @@ classdef imtool3DROI_poly < imtool3DROI
                 for iblock = 1:length(indcurv)
                     indi = indcurv{iblock};
                     index = [min(indi)-1; indi; 1+mod(max(indi)+1-1,Npts)];
-                    pp = spline(linspace(0,1,length(indi)+2),markerPos(:,index));
-                    yy = ppval(pp, unique([linspace(0,1,50) linspace(0,1,length(indi)+2)]));
+                    % COMPUTE SPLINE
+                    % use the distance between markers as the parameter of
+                    % the parametric curve
+                    markerDist = sqrt(sum((circshift(markerPos(:,index),-1,2)-markerPos(:,index)).^2,1));
+                    markerDist = markerDist(1:(end-1));
+                    markerDistnorm = markerDist./sum(markerDist);
+                    tt = [0 cumsum(markerDistnorm)];
+                    pp = spline(tt,markerPos(:,index));
+                    yy = ppval(pp, unique([linspace(0,1,max(10,sum(markerDist)/3)) tt]));
+                    
                     if iblock>1
                         start = max(indcurv{iblock-1})+1;
                     else, start = 1;
@@ -165,9 +173,14 @@ classdef imtool3DROI_poly < imtool3DROI
                 ROI.position = positiontmp(:,[1:end 1])';
 
             elseif all(ROI.curveindex)
-                xx = linspace(0,1,3*Npts);
-                pp = spline(xx,cat(2,markerPos,markerPos,markerPos));
-                ROI.position = ppval(pp, unique([linspace(xx(Npts+1),xx(2*Npts+1),100) xx(Npts+1:2*Npts+1)]))';
+                markerDist = sqrt(sum((circshift(markerPos,-1,2)-markerPos).^2,1));
+                markerDist = [markerDist markerDist markerDist];
+                markerDist = markerDist(1:(end-1));
+                markerDistnorm = markerDist./sum(markerDist);
+                tt = [0 cumsum(markerDistnorm)];
+                
+                pp = spline(tt,cat(2,markerPos,markerPos,markerPos));
+                ROI.position = ppval(pp, unique([linspace(tt(Npts+1),tt(2*Npts+1),sum(markerDist)/3/3) tt(Npts+1:2*Npts+1)]))';
             else
                 ROI.position = markerPosition;
             end
@@ -432,7 +445,7 @@ switch get(source,'Label')
                 ROI.textVisible = true;
         end
     case 'poly2mask'
-         mask = tool.getMask;
+         mask = tool.getCurrentMaskSlice;
          %get the position
          position = ROI.position;
          x=position(:,1);
@@ -447,8 +460,9 @@ switch get(source,'Label')
          y = y*m/ROI.imageHandle.YData(2);
          
          masknew = poly2mask(x,y,m,n);
-         mask(:,:,tool.getCurrentSlice) = mask(:,:,tool.getCurrentSlice) | masknew;
-         tool.setMask(mask)
+         combine = true;
+         tool.setCurrentMaskSlice(masknew,combine)
+         notify(tool,'maskChanged')
 end
 
 

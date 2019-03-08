@@ -25,7 +25,7 @@ classdef maskPaintBrush < handle
             
             %get the mouse location
             cp = get(brush.handles.parent,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
-            position = [cp(1,1) cp(1,2) 5];
+            position = [cp(1,1) cp(1,2) brush.handles.tool.brushsize];
              
             %Create the circle object
             pos = [position(1)-position(3) position(2)-position(3) 2*position(3) 2*position(3)];
@@ -39,7 +39,7 @@ classdef maskPaintBrush < handle
             brush.oldPTR.CData = get(brush.handles.fig,'PointerShapeCData');
             
             %Make the pointer invisible
-            set(brush.handles.fig,'Pointer','custom','PointerShapeCData',nan(16))
+            %set(brush.handles.fig,'Pointer','custom','PointerShapeCData',nan(16))
             
             %Set the new window button motion function
             fun = @(src,evnt) ButtonMotionFunction(src,evnt,brush,'No Click',[]);
@@ -139,6 +139,8 @@ function ButtonMotionFunction(src,evnt,brush,tag,data)
 
 switch tag
     case 'No Click'
+        if ~isvalid(brush), return; end
+        if isempty(brush.position), return; end
         brush.oldWBMF(src,evnt)
 
         cp = get(brush.handles.parent,'CurrentPoint'); cp=[cp(1,1) cp(1,2)];
@@ -199,6 +201,7 @@ switch tag
         end
         
         brush.position(3)=rnew;
+        brush.handles.tool.brushsize = rnew;
         
 end
 

@@ -5,13 +5,14 @@ classdef maskSmartBrush < maskPaintBrush
     end
     
     properties (SetAccess = private, GetAccess = private)
-        smartinvert = [];
+        smartinvert = false;
     end
     
     methods
         function brush = maskSmartBrush(tool) %constructor
             %contruct the brush
             brush@maskPaintBrush(tool)
+            set(brush.handles.circle,'EdgeColor','y');
             
             %Set the mouse click function
             fun=@(hObject,eventdata) buttonDownFunction(hObject,eventdata,brush);
@@ -21,23 +22,35 @@ classdef maskSmartBrush < maskPaintBrush
 end
 
 function buttonUpFunction(hObject,eventdata,WBMF_old,WBUF_old,brush)
-brush.smartinvert = [];
 set(hObject,'WindowButtonMotionFcn',WBMF_old,'WindowButtonUpFcn',WBUF_old);
 notify(brush.handles.tool,'maskChanged')
 
 end
 
 function buttonDownFunction(hObject,eventdata,brush)
-
+persistent chk
 WBMF_old = get(brush.handles.fig,'WindowButtonMotionFcn');
 WBUF_old = get(brush.handles.fig,'WindowButtonUpFcn');
 switch get(brush.handles.fig,'SelectionType')
     case 'normal'   %left click (paint on the mask)
+        chk = 1;
+        if strcmp(get(brush.handles.fig,'SelectionType'),'open'); end
         fun = @(src,evnt) ButtonMotionFunction(src,evnt,brush,'Left Click',[]);
         fun2=@(src,evnt) buttonUpFunction(src,evnt,WBMF_old,WBUF_old,brush);
         set(brush.handles.fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2)
-        fun([],[]);     
-        
+        fun([],[]);
+        pause(0.5)
+        if isempty(chk)
+            brush.handles.tool.maskUndo;
+        end
+    case 'open'
+        chk = [];
+        brush.smartinvert = ~brush.smartinvert;
+        if brush.smartinvert
+            set(brush.handles.circle,'LineStyle','--');
+        else
+            set(brush.handles.circle,'LineStyle','-');
+        end
     case 'alt'      %right click
         fun = @(src,evnt) ButtonMotionFunction(src,evnt,brush,'Right Click',[]);
         fun2=@(src,evnt) buttonUpFunction(src,evnt,WBMF_old,WBUF_old,brush);
@@ -95,7 +108,7 @@ switch tag
         end
         
         brush.position(3)=rnew;
-        
+        brush.handles.tool.brushsize = rnew;
 end
 
 end

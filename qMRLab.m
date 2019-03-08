@@ -539,7 +539,7 @@ set(hObject, 'Enable', 'on');
 
 I = handles.tool.getImage(1);
 Iraw = handles.CurrentData;
-I = I(:,:,:,:,~strcmp(Iraw.fields,'Mask'));
+I = I(~strcmp(Iraw.fields,'Mask'));
 Iraw.fields = setdiff(Iraw.fields,'Mask')';
 Maskall = handles.tool.getMask(1);
 values = unique(Maskall(Maskall>0))';
@@ -550,7 +550,7 @@ for Selected = values
     Mask = Maskall==Selected;
     Stats = cell(length(Iraw.fields),7);
     for iii=1:length(Iraw.fields)
-        datiii = I(:,:,:,:,length(Iraw.fields)+1-iii);
+        datiii = I{length(Iraw.fields)+1-iii};
         datiii = nanmean(datiii,4); % average 4D data along time
         datiii = datiii(Mask);
         Stats{iii,1} = mean(datiii);

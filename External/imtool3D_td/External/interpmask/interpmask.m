@@ -74,7 +74,7 @@ BWout = reshape((interp1(X, D, Xq, varargin{interp1ArgInds}) >= 0)', prevSize);
 
 % Undo permute if interpDim wasn't last dimension
 if interpDim~=maxDim
-    BWout = ipermute(D, dimPerm);
+    BWout = ipermute(BWout, dimPerm);
 end
 
 
