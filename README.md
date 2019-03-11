@@ -29,6 +29,7 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 **Applications**
 
+* [Michálek et al.  *Fast and accurate compensation of signal offset for T<sub>2</sub> mapping* Magn Reson Mater Phy 2019](https://link.springer.com/article/10.1007/s10334-019-00737-3)
 * [Barbieri et al. *Circumventing the Curse of Dimensionality in Magnetic Resonance Fingerprinting through a Deep Learning Approach.* arXiv:1811.11477](https://arxiv.org/abs/1811.11477)
 * [Varma et al. *Low duty-cycle pulsed irradiation reduces magnetization transfer and increases the inhomogeneous magnetization transfer effect.* J of Mag Res 2018](https://www.sciencedirect.com/science/article/abs/pii/S1090780718302088)
 * [Campbell et al. *Promise and pitfalls of g-ratio estimation with MRI.* NeuroImage 2018](https://www.sciencedirect.com/science/article/pii/S1053811917306857)
