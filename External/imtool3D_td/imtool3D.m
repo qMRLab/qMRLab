@@ -1,3 +1,4 @@
+
 classdef imtool3D < handle
     %This is a image slice viewer with built in scroll, contrast, zoom and
     %ROI tools. 
@@ -1128,7 +1129,7 @@ classdef imtool3D < handle
         end
         
         function S = getImageSize(tool,withVP)
-            if ~exist('VP','var'), withVP = true; end
+            if ~exist('withVP','var'), withVP = true; end
             
             S=size(tool.I{tool.Nvol});
             if length(S)<3, S(3) = 1; end
@@ -1405,15 +1406,23 @@ classdef imtool3D < handle
             end
         end
         
-        function loadMask(tool,hObject)
+        function loadMask(tool,hObject,hdr)
             % unselect button to prevent activation with spacebar
             set(hObject, 'Enable', 'off');
             drawnow;
             set(hObject, 'Enable', 'on');
-
-            [FileName,PathName, ext] = uigetfile({'*.nii.gz','NIFTI file (*.nii.gz)';'*.mat','MATLAB File (*.mat)';'*.tif','Image Stack (*.tif)'},'Load Mask','Mask.nii.gz');
+            if exist('hdr','var')
+                path=fullfile(hdr.file_name,'Mask.nii.gz');
+            else
+                path = 'Mask.nii.gz';
+            end
+            [FileName,PathName, ext] = uigetfile({'*.nii.gz','NIFTI file (*.nii.gz)';'*.mat','MATLAB File (*.mat)';'*.tif','Image Stack (*.tif)'},'Load Mask',path);
             if ext==1 % .nii.gz
-                Mask = load_nii_datas(fullfile(PathName,FileName));
+                if exist('hdr','var')
+                    Mask = load_nii_datas([{hdr.original} fullfile(PathName,FileName)]);
+                else
+                    Mask = load_nii_datas(fullfile(PathName,FileName));
+                end
                 Mask = Mask{1};
             elseif ext==2 % .mat
                 load(fullfile(PathName,FileName));
