@@ -71,7 +71,10 @@ if ~isfield(handles,'opened') % qMRI already opened?
     
     % Create viewer
     handles.tool = imtool3D(0,[0.12 0 .88 1],handles.FitResultsPlotPanel);
-        
+    H = handles.tool.getHandles;
+    set(H.Tools.ViewPlane,'Visible','off')
+    set(H.Tools.maskStats,'Visible','off')
+    
     % Fill Menu with models
     handles.ModelDir = [qMRLabDir filesep 'src/Models'];
     guidata(hObject, handles);
@@ -402,7 +405,7 @@ for ii = 1:length(FitResults.fields)
     if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
-        save_nii_v2(FitResults.(map),fullfile(outputdir,file),hdr,64);
+        save_nii_datas(FitResults.(map),hdr,fullfile(outputdir,file));
     end
 end
 
@@ -483,53 +486,8 @@ drawnow;
 set(hObject, 'Enable', 'on');
 
 UpdateSlice(handles)
-if isempty(handles.CurrentData), return; end
-% Apply View
-View = get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
-View = View{get(handles.ViewPop,'Value')};
-Data = ApplyView(handles.CurrentData, View);
-% Set Mask back to origninal orientation and set to new orientation
-Mask = handles.tool.getMask(1);
-oldView = get(handles.ViewPop,'String'); if ~iscell(oldView), oldView = {oldView}; end
-oldView = oldView{get(handles.ViewPop,'UserData')};
-switch oldView
-    case 'Axial';  Mask = permute(Mask,[1 2 3 4 5]);
-    case 'Coronal';  Mask = permute(Mask,[1 3 2 4 5]);
-    case 'Sagittal';  Mask = permute(Mask,[3 1 2 4 5]);
-end
-set(handles.ViewPop,'UserData',get(handles.ViewPop,'Value'))
-Mask = ApplyView(Mask, View);
-
-for ff = 1:length(Data.fields)
-    Current{ff} = Data.(Data.fields{ff});
-end
-
-% Get previous setup
-Nvol = handles.tool.getNvol;
-Climits = handles.tool.getClimits;
-[W, L] = handles.tool.getWindowLevel;
-Climits = handles.tool.getClimits;
-% New Image
-handles.tool.setImage(Current,[],[],Climits,[],Mask);
-% Set previous setup back
-handles.tool.setClimits(Climits)
-handles.tool.setWindowLevel(W,L);
-handles.tool.setNvol(Nvol);
-handles.tool.setCurrentSlice(round(size(Current{Nvol},3)/2));
-
-% Set Pixel size
-H = getHandles(handles.tool);
-if isfield(handles.CurrentData,'hdr')
-    PixDim = handles.CurrentData.hdr.hdr.dime.pixdim;
-    switch View
-        case 'Axial';  PixDim = PixDim([2 3 4]);
-        case 'Coronal';  PixDim = PixDim([2 4 3]);
-        case 'Sagittal';  PixDim = PixDim([3 4 2]);
-    end
-    set(H.Axes,'DataAspectRatio',PixDim)
-else
-    set(H.Axes,'DataAspectRatio',[1 1 1])
-end
+View = get(handles.ViewPop,'String');
+handles.tool.setviewplane(View{get(handles.ViewPop,'Value')})
 
 % STATS Table
 function Stats_Callback(hObject, eventdata, handles)
@@ -872,31 +830,19 @@ set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
 
-SourceFields = cellstr(get(handles.SourcePop,'String'));
-Source = SourceFields{get(handles.SourcePop,'Value')};
-file = fullfile(handles.root,strcat(Source,'.nii'));
-if isempty(handles.CurrentData), return; end
-Data = handles.CurrentData;
+I = handles.tool.getImage(1);
+Mask = handles.tool.getMask(1);
 if isfield(handles.CurrentData,'hdr')
-    nii = handles.CurrentData.hdr;
-    nii.img = Data.(Source);
-    nii.hdr.file_name = Source;
-    for ff = fieldnames(nii.hdr.dime)'
-        nii.hdr.(ff{1}) = nii.hdr.dime.(ff{1});
-    end
-    for ff = fieldnames(nii.hdr.hist)'
-        nii.hdr.(ff{1}) = nii.hdr.hist.(ff{1});
-    end
-    for ff = fieldnames(nii.hdr.hk)'
-        nii.hdr.(ff{1}) = nii.hdr.hk.(ff{1});
-    end
-     if nii.hdr.sform_code == 0 && nii.hdr.qform_code==0
-         nii.hdr.sform_code = 1;
-     end
-     nii_viewer(nii);
+    tool = imtool3D_nii_3planes(I,Mask,handles.CurrentData.hdr);
 else
-    imtool3D_3planes(Data.(Source))
+    tool = imtool3D_3planes(I,Mask);
 end
+clims = handles.tool.getClimits;
+for ii=1:3
+    tool(ii).setNvol(handles.tool.getNvol);
+    tool(ii).setClimits(clims);
+end
+
 
 % CURSOR
 function CursorBtn_Callback(hObject, eventdata, handles)

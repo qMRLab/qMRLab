@@ -443,15 +443,13 @@ classdef imtool3D < handle
             lp=lp+3.5*w+buff;
             
             %Create save button
-            tool.handles.Tools.SaveOptions    =   uicontrol(tool.handles.Panels.Tools,'Style','popupmenu','String',{'Mask','Image'},'Position',[lp buff 3*w w]);
-            lp=lp+3*w;
             tool.handles.Tools.Save           =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','','Position',[lp buff w w]);
             lp=lp+w+buff;
             icon_save = makeToolbarIconFromPNG([MATLABdir '/file_save.png']);
             set(tool.handles.Tools.Save,'CData',icon_save);
-            fun=@(hObject,evnt) saveImage(tool);
+            fun=@(hObject,evnt) saveImage(tool,hObject);
             set(tool.handles.Tools.Save,'Callback',fun)
-            set(tool.handles.Tools.Save,'TooltipString','Save Mask or Image')
+            set(tool.handles.Tools.Save,'TooltipString','Save Image')
             
             %Create viewplane button
             tool.handles.Tools.ViewPlane    =   uicontrol(tool.handles.Panels.Tools,'Style','popupmenu','String',{'Axial','Sagittal','Coronal'},'Position',[lp buff 3.5*w w],'Value',4-tool.viewplane);
@@ -459,6 +457,12 @@ classdef imtool3D < handle
             fun=@(hObject,evnt) setviewplane(tool,hObject);
             set(tool.handles.Tools.ViewPlane,'Callback',fun)
             
+            %Create Help Button
+            pos = get(tool.handles.Panels.Tools,'Position');
+            tool.handles.Tools.Help             =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','?','Position',[pos(3)-w-buff buff w w],'TooltipString','Help with imtool3D');
+            fun=@(hObject,evnt) displayHelp(hObject,evnt,tool);
+            set(tool.handles.Tools.Help,'Callback',fun)
+
             %Create mask2poly button
             tool.handles.Tools.mask2poly             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff w w],'TooltipString','Mask2Poly');
             icon_profile = makeToolbarIconFromPNG([MATLABdir '/linkproduct.png']);
@@ -545,32 +549,43 @@ classdef imtool3D < handle
 %             fun=@(hObject,evnt) CropImageCallback(hObject,evnt,tool);
 %             set(tool.handles.Tools.mask2poly ,'Callback',fun)
 
-            %Create Help Button
             pos=get(tool.handles.Panels.ROItools,'Position');
-            tool.handles.Tools.Help             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','?','Position',[buff pos(4)-w-buff w w],'TooltipString','Help with imtool3D');
-            fun=@(hObject,evnt) displayHelp(hObject,evnt,tool);
-            set(tool.handles.Tools.Help,'Callback',fun)
-            
             % mask selection
             for islct=1:5
-                tool.handles.Tools.maskSelected(islct)        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String',num2str(islct),'Position',[buff pos(4)-w-buff-islct*w w w],'Tag','MaskSelected');
+                tool.handles.Tools.maskSelected(islct)        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String',num2str(islct),'Position',[buff pos(4)-islct*w w w],'Tag','MaskSelected');
                 set(tool.handles.Tools.maskSelected(islct) ,'Cdata',repmat(permute(tool.maskColor(islct+1,:)*tool.alpha+(1-tool.alpha)*[.4 .4 .4],[3 1 2]),w,w))
                 set(tool.handles.Tools.maskSelected(islct) ,'Callback',@(hObject,evnt) setmaskSelected(tool,islct))
             end
             
             % lock mask
-            tool.handles.Tools.maskLock        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-w-buff-(islct+1)*w w w], 'Value', 1, 'TooltipString', 'Lock all colors except selected one');
+            tool.handles.Tools.maskLock        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-(islct+1)*w w w], 'Value', 1, 'TooltipString', 'Lock all colors except selected one');
             icon_profile = makeToolbarIconFromPNG('icon_lock.png');
             set(tool.handles.Tools.maskLock ,'Cdata',icon_profile)
             set(tool.handles.Tools.maskLock ,'Callback',@(hObject,evnt) setlockMask(tool))
 
             % mask statistics
-            tool.handles.Tools.maskStats        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-w-buff-(islct+2)*w w w], 'Value', 1, 'TooltipString', 'Statistics');
+            tool.handles.Tools.maskStats        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-(islct+2)*w w w], 'Value', 1, 'TooltipString', 'Statistics');
             icon_hist = makeToolbarIconFromPNG([MATLABdir '/plottype-histogram.png']);
             icon_hist = min(1,max(0,imresize(icon_hist,[16 16])));
             set(tool.handles.Tools.maskStats ,'Cdata',icon_hist)
             set(tool.handles.Tools.maskStats ,'Callback',@(hObject,evnt) StatsCallback(hObject,evnt,tool))
             
+            % mask save
+            tool.handles.Tools.maskSave        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-(islct+3)*w w w], 'Value', 1, 'TooltipString', 'Save mask');
+            icon_save = makeToolbarIconFromPNG([MATLABdir '/file_save.png']);
+            icon_save = min(1,max(0,imresize(icon_save,[16 16])));
+            set(tool.handles.Tools.maskSave ,'Cdata',icon_save)
+            fun=@(hObject,evnt) saveMask(tool,hObject);
+            set(tool.handles.Tools.maskSave ,'Callback',fun)
+
+            % mask load
+            tool.handles.Tools.maskLoad        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-(islct+4)*w w w], 'Value', 1, 'TooltipString', 'Load mask');
+            icon_load = makeToolbarIconFromPNG([MATLABdir '/file_open.png']);
+            icon_load = min(1,max(0,imresize(icon_load,[16 16])));
+            set(tool.handles.Tools.maskLoad ,'Cdata',icon_load)
+            fun=@(hObject,evnt) loadMask(tool,hObject);
+            set(tool.handles.Tools.maskLoad ,'Callback',fun)
+
             %Set font size of all the tool objects
             try
                 set(cell2mat(struct2cell(tool.handles.Tools)),'FontSize',9,'Units','Pixels')
@@ -792,7 +807,11 @@ classdef imtool3D < handle
                 tool.Climits{1} = range;
             end
             range = tool.Climits{1};
-                        
+               
+            if ~isempty(mask) && (size(mask,1)~=size(I{1},1) || size(mask,2)~=size(I{1},2) || size(mask,3)~=size(I{1},3))
+                warning(sprintf('Mask (%dx%dx%d) is inconsistent with Image (%dx%dx%d)',size(mask,1),size(mask,2),size(mask,3),size(I{1},1),size(I{1},2),size(I{1},3)))
+                mask = [];
+            end
             if isempty(mask) && (isempty(tool.mask) || size(tool.mask,1)~=size(I{1},1) || size(tool.mask,2)~=size(I{1},2) || size(tool.mask,3)~=size(I{1},3))
                 tool.mask=zeros([size(I{1},1) size(I{1},2) size(I{1},3)],'uint8');
             elseif ~isempty(mask)
@@ -910,8 +929,10 @@ classdef imtool3D < handle
 
         function setClimits(tool,range)
             if iscell(range)
+                tool.setDisplayRange(range{tool.getNvol})
                 tool.Climits = range;
             else
+                tool.setDisplayRange(range)
                 tool.Climits{tool.getNvol} = range;
             end
         end
@@ -1106,14 +1127,18 @@ classdef imtool3D < handle
             alpha = tool.alpha;
         end
         
-        function S = getImageSize(tool)
+        function S = getImageSize(tool,withVP)
+            if ~exist('VP','var'), withVP = true; end
+            
             S=size(tool.I{tool.Nvol});
             if length(S)<3, S(3) = 1; end
-            switch tool.viewplane
-                case 1
-                    S = S([2 3 1]);
-                case 2
-                    S = S([1 3 2]);
+            if withVP
+                switch tool.viewplane
+                    case 1
+                        S = S([2 3 1]);
+                    case 2
+                        S = S([1 3 2]);
+                end
             end
         end
         
@@ -1262,56 +1287,76 @@ classdef imtool3D < handle
             %      disp(evnt.Key)
         end
         
-        function saveImage(tool)
+        function saveImage(tool,hObject)
+            % unselect button to prevent activation with spacebar
+            set(hObject, 'Enable', 'off');
+            drawnow;
+            set(hObject, 'Enable', 'on');
+            
             h = tool.getHandles;
             cmap = colormap(h.Tools.Color.String{h.Tools.Color.Value});
-            S = get(h.Tools.SaveOptions,'String');
-            switch S{get(h.Tools.SaveOptions,'value')}
-                case 'Image' %Save just the current slice
-                    imformats = {'*.tif';'*.jpg';'*.bmp';'*.gif';'*.hdf'; ...
-                        '*.jp2';'*.pbm';'*.pcx';'*.pgm'; ...
-                        '*.pnm';'*.ppm';'*.ras';'*.xwd'};
-                    imformats = cat(2,imformats,cellfun(@(X) sprintf('Current slice (%s)',X),imformats,'uni',0));
-                    imformats = cat(1,{'*.png','Current slice (*.png)';
-                        '*.tif','Whole stack (*.tif)'},imformats);
-                    [FileName,PathName, ext] = uiputfile(imformats,'Save Image');
+            
+            imformats = {'*.tif';'*.jpg';'*.bmp';'*.gif';'*.hdf'; ...
+                '*.jp2';'*.pbm';'*.pcx';'*.pgm'; ...
+                '*.pnm';'*.ppm';'*.ras';'*.xwd'};
+            imformats = cat(2,imformats,cellfun(@(X) sprintf('Current slice (%s)',X),imformats,'uni',0));
+            imformats = cat(1,{'*.png','Current slice (*.png)';
+                '*.tif','Whole stack (*.tif)'},imformats);
+            [FileName,PathName, ext] = uiputfile(imformats,'Save Image');
+            if isequal(FileName,0)
+                return;
+            end
+            if ext ~= 2 % Current slice
+                I=get(h.I,'CData');
+                viewtype = get(tool.handles.Axes,'View');
+                if viewtype(1)==-90, I=rot90(I);  end
+                lims=get(h.Axes,'CLim');
+                I=gray2ind(mat2gray(I,lims),size(cmap,1));
+                
+                if FileName == 0
+                else
+                    imwrite(cat(2,I,repmat(round(linspace(size(cmap,1),0,size(I,1)))',[1 round(size(I,2)/50)])),cmap,[PathName FileName])
+                end
+            else
+                lims=get(h.Axes,'CLim');
+                
+                if FileName == 0
+                else
+                    I = tool.getImage;
+                    viewtype = get(tool.handles.Axes,'View');
+                    if viewtype(1)==-90, I=rot90(I);  end
                     
-                    if ext ~= 2 % Current slice
-                        I=get(h.I,'CData');
-                        viewtype = get(tool.handles.Axes,'View');
-                        if viewtype(1)==-90, I=rot90(I);  end
-                        lims=get(h.Axes,'CLim');
-                        I=gray2ind(mat2gray(I,lims),size(cmap,1));
-                        
-                        if FileName == 0
-                        else
-                            imwrite(cat(2,I,repmat(round(linspace(size(cmap,1),0,size(I,1)))',[1 round(size(I,2)/50)])),cmap,[PathName FileName])
+                    for z=1:size(I,tool.viewplane)
+                        switch tool.viewplane
+                            case 1
+                                Iz = I(z,:,:);
+                            case 2
+                                Iz = I(:,z,:);
+                            case 3
+                                Iz = I(:,:,z);
                         end
-                    else
-                        lims=get(h.Axes,'CLim');
-                        
-                        if FileName == 0
-                        else
-                            I = tool.getImage;
-                            viewtype = get(tool.handles.Axes,'View');
-                            if viewtype(1)==-90, I=rot90(I);  end
-                            
-                            for z=1:size(I,tool.viewplane)
-                                switch tool.viewplane
-                                    case 1
-                                        Iz = I(z,:,:);
-                                    case 2
-                                        Iz = I(:,z,:);
-                                    case 3
-                                        Iz = I(:,:,z);
-                                end
-                                imwrite(gray2ind(mat2gray(Iz,lims),size(cmap,1)),cmap, [PathName FileName], 'WriteMode', 'append',  'Compression','none');
-                            end
-                        end
+                        imwrite(gray2ind(mat2gray(Iz,lims),size(cmap,1)),cmap, [PathName FileName], 'WriteMode', 'append',  'Compression','none');
                     end
-                case 'Mask'
-                    [FileName,PathName, ext] = uiputfile({'*.nii.gz','NIFTI file (*.nii.gz)';'*.mat','MATLAB File (*.mat)';'*.tif','Image Stack (*.tif)'},'Save Mask','Mask');
-                    if ext==1 % .nii.gz
+                end
+            end
+        end
+        
+        function saveMask(tool,hObject,hdr)
+            % unselect button to prevent activation with spacebar
+            set(hObject, 'Enable', 'off');
+            drawnow;
+            set(hObject, 'Enable', 'on');
+            
+            Mask = tool.getMask(1);
+            if any(Mask(:))
+                [FileName,PathName, ext] = uiputfile({'*.nii.gz';'*.mat';'*.tif'},'Save Mask','Mask.nii.gz');
+                if isequal(FileName,0)
+                    return;
+                end
+                FileName = strrep(FileName,'.gz','.nii.gz');
+                FileName = strrep(FileName,'.nii.nii','.nii');
+                if ext==1 % .nii.gz
+                    if ~exist('hdr','var')
                         err=1;
                         while(err)
                             answer = inputdlg2({'save as:','browse reference scan'},'save mask',[1 50],{fullfile(PathName,FileName), ''});
@@ -1332,25 +1377,63 @@ classdef imtool3D < handle
                                 end
                             end
                         end
-                    elseif ext==2 % .mat
-                        Mask = tool.getMask(1);
-                        save(fullfile(PathName,FileName),'Mask');
-                    elseif ext==3 % .tif
-                        Mask = tool.getMask(1);
-                        for z=1:size(Mask,tool.viewplane)
-                            switch tool.viewplane
-                                case 1
-                                    Maskz = Mask(z,:,:);
-                                case 2
-                                    Maskz = Mask(:,z,:);
-                                case 3
-                                    Maskz = Mask(:,:,z);
-                            end
-                            imwrite(Maskz, [PathName FileName], 'WriteMode', 'append',  'Compression','none');
+                    else
+                        save_nii_datas(Mask,hdr,fullfile(PathName,FileName))
+                    end
+                elseif ext==2 % .mat
+                    save(fullfile(PathName,FileName),'Mask');
+                elseif ext==3 % .tif
+                    Mask = tool.getMask(1);
+                    for z=1:size(Mask,tool.viewplane)
+                        switch tool.viewplane
+                            case 1
+                                Maskz = Mask(z,:,:);
+                            case 2
+                                Maskz = Mask(:,z,:);
+                            case 3
+                                Maskz = Mask(:,:,z);
+                        end
+                        if z==1
+                            imwrite(uint8(Maskz), [PathName FileName], 'WriteMode', 'overwrite',  'Compression','none');
+                        else
+                            imwrite(uint8(Maskz), [PathName FileName], 'WriteMode', 'append',  'Compression','none');
                         end
                     end
+                end
+            else
+                warndlg('Mask empty... Draw a mask using the brush tools on the right')
             end
         end
+        
+        function loadMask(tool,hObject)
+            % unselect button to prevent activation with spacebar
+            set(hObject, 'Enable', 'off');
+            drawnow;
+            set(hObject, 'Enable', 'on');
+
+            [FileName,PathName, ext] = uigetfile({'*.nii.gz','NIFTI file (*.nii.gz)';'*.mat','MATLAB File (*.mat)';'*.tif','Image Stack (*.tif)'},'Load Mask','Mask.nii.gz');
+            if ext==1 % .nii.gz
+                Mask = load_nii_datas(fullfile(PathName,FileName));
+                Mask = Mask{1};
+            elseif ext==2 % .mat
+                load(fullfile(PathName,FileName));
+            elseif ext==3 % .tif
+                info = imfinfo(fullfile(PathName,FileName));
+                num_images = numel(info);
+                for k = 1:num_images
+                    Mask(:,:,k) = imread(fullfile(PathName,FileName), k);
+                end
+            else
+                return
+            end
+            S = tool.getImageSize(0);
+            if ~isequal([size(Mask,1) size(Mask,2) size(Mask,3)],S(1:3))
+                errordlg(sprintf('Inconsistent Mask size (%dx%dx%d). Please select a mask of size %dx%dx%d',size(Mask,1),size(Mask,2),size(Mask,3),S(1),S(2),S(3)))
+                return;
+            end
+            tool.setMask(uint8(Mask));
+        end
+
     end
     
     methods (Access = private)
@@ -2080,15 +2163,19 @@ function panelResizeFunction(hObject,events,tool,w,h,wbutt)
     set(hh.Panels.Info,'Position',[0 0 pos(3) w])
     axis(hh.Axes,'fill');
     buff=(w-wbutt)/2;
-    pos=get(hh.Panels.ROItools,'Position');
-    set(hh.Tools.Help,'Position',[buff pos(4)-wbutt-buff wbutt wbutt]);
     
+    pos = get(tool.handles.Panels.Tools,'Position');
+    set(hh.Tools.Help,'Position',[pos(3)-wbutt-buff buff wbutt wbutt]);
+
+    pos=get(hh.Panels.ROItools,'Position');    
     for islct=1:5
-        set(hh.Tools.maskSelected(islct),'Position',[buff pos(4)-wbutt-buff-islct*wbutt wbutt wbutt]);
+        set(hh.Tools.maskSelected(islct),'Position',[buff pos(4)-buff-islct*wbutt wbutt wbutt]);
     end
     
-    set(hh.Tools.maskLock,'Position',[buff pos(4)-wbutt-buff-(islct+1)*wbutt wbutt wbutt]);
-    set(hh.Tools.maskStats,'Position',[buff pos(4)-wbutt-buff-(islct+2)*wbutt wbutt wbutt]);
+    set(hh.Tools.maskLock,'Position',[buff pos(4)-buff-(islct+1)*wbutt wbutt wbutt]);
+    set(hh.Tools.maskStats,'Position',[buff pos(4)-buff-(islct+2)*wbutt wbutt wbutt]);
+    set(hh.Tools.maskSave,'Position',[buff pos(4)-buff-(islct+3)*wbutt wbutt wbutt]);
+    set(hh.Tools.maskLoad,'Position',[buff pos(4)-buff-(islct+4)*wbutt wbutt wbutt]);
 
     set(hh.Axes,'XLimMode','manual','YLimMode','manual');
 

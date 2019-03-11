@@ -15,19 +15,16 @@ function UpdateSlice(handles)
 View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
 switch View{get(handles.ViewPop,'Value')}
     case 'Axial'
-        x = 3;
         set(handles.txt_OrientL,  'String', 'L');
         set(handles.txt_OrientR,  'String', 'R');
         set(handles.txt_OrientS,  'String', 'A');
         set(handles.txt_OrientI,  'String', 'P');
     case 'Coronal'
-        x = 2;
         set(handles.txt_OrientL,  'String', 'L');
         set(handles.txt_OrientR,  'String', 'R');
         set(handles.txt_OrientS,  'String', 'S');
         set(handles.txt_OrientI,  'String', 'I');
     case 'Sagittal'
-        x = 1;
         set(handles.txt_OrientL,  'String', 'P');
         set(handles.txt_OrientR,  'String', 'A');
         set(handles.txt_OrientS,  'String', 'S');

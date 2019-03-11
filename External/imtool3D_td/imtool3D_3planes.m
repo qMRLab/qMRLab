@@ -20,7 +20,6 @@ tool(3).setPosition([0.66 0 0.33 1])
 for ii=2:3
 %set(tool(ii).getHandles.Panels.ROItools,'Visible','off')
 set(tool(ii).getHandles.Tools.Save,'Visible','off')
-set(tool(ii).getHandles.Tools.SaveOptions,'Visible','off')
 % hide pixel info
 set(tool(ii).getHandles.Panels.Tools,'Visible','off')
 end
@@ -43,13 +42,17 @@ set(tool(1).getHandles.Tools.maskSelected,'Visible','off')
 set(tool(2).getHandles.Tools.maskSelected,'Visible','off')
 set(tool(1).getHandles.Tools.maskLock,'Visible','off')
 set(tool(2).getHandles.Tools.maskLock,'Visible','off')
-set(tool(1).getHandles.Tools.Help,'Visible','off')
-set(tool(2).getHandles.Tools.Help,'Visible','off')
 set(tool(1).getHandles.Tools.maskStats,'Visible','off')
 set(tool(2).getHandles.Tools.maskStats,'Visible','off')
+set(tool(1).getHandles.Tools.maskSave,'Visible','off')
+set(tool(2).getHandles.Tools.maskSave,'Visible','off')
+set(tool(1).getHandles.Tools.maskLoad,'Visible','off')
+set(tool(2).getHandles.Tools.maskLoad,'Visible','off')
 
 for ic = 1:length(controls1)
     if ~isempty(controls1(ic).Callback) && contains(func2str(controls1(ic).Callback),'saveImage'), continue; end % save Mask only once!
+    if ~isempty(controls1(ic).Callback) && contains(func2str(controls1(ic).Callback),'displayHelp'), continue; end % Display Help only once!
+
     CB = get(controls1(ic),'Callback');
     CB2 = get(controls2(ic),'Callback');
     CB3 = get(controls3(ic),'Callback');
@@ -174,7 +177,7 @@ for ii=1:length(tool)
     if ismember(currentobj,findobj(tool(ii).getHandles.Axes))
         newSlice=tool(ii).getCurrentSlice-evnt.VerticalScrollCount;
         dim = tool(ii).getImageSize;
-        if newSlice>=1 && newSlice <=dim(3)
+        if newSlice>=1 && newSlice <=dim(4-ii)
             tool(ii).setCurrentSlice(newSlice);
         end
         
