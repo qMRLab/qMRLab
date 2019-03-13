@@ -556,6 +556,9 @@ classdef imtool3D < handle
                 tool.handles.Tools.maskSelected(islct)        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String',num2str(islct),'Position',[buff pos(4)-islct*w w w],'Tag','MaskSelected');
                 set(tool.handles.Tools.maskSelected(islct) ,'Cdata',repmat(permute(tool.maskColor(islct+1,:)*tool.alpha+(1-tool.alpha)*[.4 .4 .4],[3 1 2]),w,w))
                 set(tool.handles.Tools.maskSelected(islct) ,'Callback',@(hObject,evnt) setmaskSelected(tool,islct))
+                c = uicontextmenu;
+                set(tool.handles.Tools.maskSelected(islct),'UIContextMenu',c)
+                uimenu('Parent',c,'Label','delete','Callback',@(hObject,evnt) maskClean(tool,islct))
             end
             
             % lock mask
@@ -677,6 +680,11 @@ classdef imtool3D < handle
                 set(tool.handles.Tools.undoMask, 'Enable', 'off')
             end
             notify(tool,'maskUndone')
+        end
+        
+        function maskClean(tool,islct)
+            tool.mask(tool.mask==islct)=0;
+            notify(tool,'maskChanged')
         end
         
         function setmaskSelected(tool,islct)
