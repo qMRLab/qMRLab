@@ -55,7 +55,10 @@ classdef filter_map < AbstractModel & FilterClass
         end
         function FitResult = fit(obj,data)
             % call the superclass (FilterClass) fit function
-            FitResult.Filtered=struct2array(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
+            %tmp_struct = fit@FilterClass(obj,data,[obj.tesoptions.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]);
+            
+            %FitResult.Filtered=struct2array(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
+            FitResult.Filtered=cell2mat(struct2cell(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez])));
         end
         
     end
