@@ -31,7 +31,7 @@ classdef filter_map < AbstractModel & FilterClass
     %     easy with qMTLab: Software for data simulation, analysis, and
     %     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/c7tzv/download?version=1';
+        onlineData_url = 'https://osf.io/d8p4h/download?version=1';
     end
     
     properties
