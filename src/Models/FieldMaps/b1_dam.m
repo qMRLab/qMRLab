@@ -89,7 +89,8 @@ end
             
             % call the superclass (FilterClass) fit function
             data.Raw = B1map_nospur;
-            FitResult.B1map_filtered=struct2array(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez]));
+            FitResult.B1map_filtered=cell2mat(struct2cell(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez])));
+            % note: can't use struct2array because dne for octave...
         end
     end
 
