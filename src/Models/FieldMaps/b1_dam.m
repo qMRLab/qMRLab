@@ -109,7 +109,7 @@ end
             if checkanteriorver(version,[2 0 13])
                 % add mask and add options/buttons for smoothing
                 obj.MRIinputs = {'SFalpha','SF2alpha','Mask'};
-                obj.options.Smoothingfilter_Type='gaussian';
+                obj.options.Smoothingfilter_Type='polynomial';
                 obj.options.Smoothingfilter_Dimension='3D';
                 obj.options.Smoothingfilter_sizex='3';
                 obj.options.Smoothingfilter_sizex='3';
@@ -117,12 +117,12 @@ end
                 obj.options.Smoothingfilter_sizez='3';
                 obj.options.Smoothingfilter_order='5';
                 obj.buttons ={'PANEL','Smoothing filter',6,...
-                    'Type',{'gaussian','median','spline','polynomial'},...
+                    'Type',{'polynomial','gaussian','median','spline'},...
                     'Dimension',{'3D','2D'},...
                     'size x',3,...
                     'size y',3,...
                     'size z',3,...
-                    'order',5};
+                    'order',6};
             end
             
         end
