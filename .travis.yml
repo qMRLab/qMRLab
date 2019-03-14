@@ -115,6 +115,20 @@ jobs:
     - |
       travis_wait $WAIT_TIME \
       octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible'); \
+      res=moxunit_runtests('BatchExample_filter_map_test.m','-with_coverage','-cover','$TRAVIS_BUILD_DIR/src','-cover_exclude','*GUI*','-cover_json_file','coverage_BatchExample_filter_map_test.json'); \
+      exit(~res);" 
+      if [ "$?" != "0" ]; then travis_terminate 1; fi
+      if [ "${TRAVIS_REPO_SLUG%%/*}" =  "qMRLab" ] 
+      then 
+        aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_BatchExample_filter_map_test.json \
+        s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_BatchExample_filter_map_test.json; 
+        if [ "$?" != "0" ]; then travis_terminate 1; fi
+      fi
+  - stage: Test
+    script: 
+    - |
+      travis_wait $WAIT_TIME \
+      octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible'); \
       res=moxunit_runtests('SimTest_charmed.m','-with_coverage','-cover','$TRAVIS_BUILD_DIR/src','-cover_exclude','*GUI*','-cover_json_file','coverage_SimTest_charmed.json'); \
       exit(~res);"
       if [ "$?" != "0" ]; then travis_terminate 1; fi
