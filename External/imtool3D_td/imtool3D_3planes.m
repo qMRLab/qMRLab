@@ -13,9 +13,29 @@ CB_Motion3 = get(gcf,'WindowButtonMotionFcn');
 setviewplane(tool(2),'sagittal');
 setviewplane(tool(3),'coronal');
 
+% Set each plane position
+  % horizontal config
 tool(1).setPosition([0 0 0.33 1])
 tool(2).setPosition([0.33 0 0.33 1])
 tool(3).setPosition([0.66 0 0.33 1])
+  % square config
+% tool(1).setPosition([0 0.5 0.5 0.5])
+% tool(2).setPosition([0.5 0.5 0.5 0.5])
+% tool(3).setPosition([0 0 0.5 0.5])
+
+% Make figure 3 times larger
+h = tool(1).getHandles.fig;
+set(h,'Units','Pixels');
+pos = get(tool(1).getHandles.fig,'Position');
+pos(3)=3*pos(3);
+screensize = get(0,'ScreenSize');
+pos(3) = min(pos(3),screensize(3)-100);
+pos(4) = min(pos(4),screensize(4)-100);
+pos(1) = ceil((screensize(3)-pos(3))/2);
+pos(2) = ceil((screensize(4)-pos(4))/2);
+set(h,'Position',pos)
+set(h,'Units','normalized');
+
 
 for ii=2:3
 set(tool(ii).getHandles.Tools.Save,'Visible','off')
@@ -109,21 +129,8 @@ setappdata(h,'HoldX',1)
 addlistener(tool(1).getHandles.Tools.L,'String','PostSet',@(x,y) setWL(tool));
 addlistener(tool(1).getHandles.Tools.U,'String','PostSet',@(x,y) setWL(tool));
 
-% Make 3 times larger
-set(h,'Units','Pixels');
-pos = get(tool(1).getHandles.fig,'Position');
-pos(3)=3*pos(3);
-screensize = get(0,'ScreenSize');
-pos(3) = min(pos(3),screensize(3));
-pos(4) = min(pos(4),screensize(4));
-
-pos(1) = ceil((screensize(3)-pos(3))/2);
-pos(2) = ceil((screensize(4)-pos(4))/2);
-set(h,'Position',pos)
-set(h,'Units','normalized');
-
 % add help
-H = tool(3).getHandles;
+H = tool(1).getHandles;
 fun=@(hObject,evnt) displayHelp;
 set(H.Tools.Help,'Callback',fun)
 

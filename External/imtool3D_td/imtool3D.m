@@ -556,7 +556,7 @@ classdef imtool3D < handle
                 tool.handles.Tools.maskSelected(islct)        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String',num2str(islct),'Position',[buff pos(4)-islct*w w w],'Tag','MaskSelected');
                 set(tool.handles.Tools.maskSelected(islct) ,'Cdata',repmat(permute(tool.maskColor(islct+1,:)*tool.alpha+(1-tool.alpha)*[.4 .4 .4],[3 1 2]),w,w))
                 set(tool.handles.Tools.maskSelected(islct) ,'Callback',@(hObject,evnt) setmaskSelected(tool,islct))
-                c = uicontextmenu;
+                c = uicontextmenu(tool.handles.fig);
                 set(tool.handles.Tools.maskSelected(islct),'UIContextMenu',c)
                 uimenu('Parent',c,'Label','delete','Callback',@(hObject,evnt) maskClean(tool,islct))
             end
@@ -633,17 +633,29 @@ classdef imtool3D < handle
         end
         
         function setMask(tool,mask)
-            if islogical(mask)
-                maskOld = tool.mask;
-                maskOld(maskOld==tool.maskSelected)=0;
-                if tool.lockMask
-                    maskOld(mask & maskOld==0) = tool.maskSelected;
-                else
-                    maskOld(mask) = tool.maskSelected;
-                end
-                mask=maskOld;
+            % 4D mask --> indice along 4th dim
+            if ndims(mask)>3, [~,masktmp] = max(uint8(mask(:,:,:,:)),[],4); mask = uint8(masktmp).*uint8(any(mask(:,:,:,:),4)); end
+            if ~isempty(mask) && (size(mask,1)~=size(tool.I{1},1) || size(mask,2)~=size(tool.I{1},2) || size(mask,3)~=size(tool.I{1},3))
+                warning(sprintf('Mask (%dx%dx%d) is inconsistent with Image (%dx%dx%d)',size(mask,1),size(mask,2),size(mask,3),size(tool.I{1},1),size(tool.I{1},2),size(tool.I{1},3)))
+                mask = [];
             end
-            tool.mask=mask;
+            if isempty(mask) && (isempty(tool.mask) || size(tool.mask,1)~=size(tool.I{1},1) || size(tool.mask,2)~=size(tool.I{1},2) || size(tool.mask,3)~=size(tool.I{1},3))
+                tool.mask=zeros([size(tool.I{1},1) size(tool.I{1},2) size(tool.I{1},3)],'uint8');
+            elseif ~isempty(mask)
+                if islogical(mask)
+                    maskOld = tool.mask;
+                    maskOld(maskOld==tool.maskSelected)=0;
+                    if tool.lockMask
+                        maskOld(mask & maskOld==0) = tool.maskSelected;
+                    else
+                        maskOld(mask) = tool.maskSelected;
+                    end
+                    tool.mask=maskOld;
+                else
+                    tool.mask=uint8(mask);
+                end
+            end            
+
             showSlice(tool)
             notify(tool,'maskChanged')
         end
@@ -684,6 +696,7 @@ classdef imtool3D < handle
         
         function maskClean(tool,islct)
             tool.mask(tool.mask==islct)=0;
+            showSlice(tool)
             notify(tool,'maskChanged')
         end
         
@@ -817,17 +830,9 @@ classdef imtool3D < handle
             end
             range = tool.Climits{1};
                
-            if ~isempty(mask) && (size(mask,1)~=size(I{1},1) || size(mask,2)~=size(I{1},2) || size(mask,3)~=size(I{1},3))
-                warning(sprintf('Mask (%dx%dx%d) is inconsistent with Image (%dx%dx%d)',size(mask,1),size(mask,2),size(mask,3),size(I{1},1),size(I{1},2),size(I{1},3)))
-                mask = [];
-            end
-            if isempty(mask) && (isempty(tool.mask) || size(tool.mask,1)~=size(I{1},1) || size(tool.mask,2)~=size(I{1},2) || size(tool.mask,3)~=size(I{1},3))
-                tool.mask=zeros([size(I{1},1) size(I{1},2) size(I{1},3)],'uint8');
-            elseif ~isempty(mask)
-                tool.mask=uint8(mask);
-            end
-                        
             tool.I=I;
+            
+            tool.setMask(mask);
             
             tool.Nvol = 1;
 
@@ -1270,10 +1275,18 @@ classdef imtool3D < handle
                 case 'l'
                     setlockMask(tool)
                 case 'leftarrow'
-                    tool.Ntime = max(tool.Ntime-1,1);
+                    if isprop(evnt,'Modifier') && ~isempty(evnt.Modifier) && strcmp(evnt.Modifier,'shift')
+                        tool.Ntime = max(tool.Ntime-10,1);
+                    else
+                        tool.Ntime = max(tool.Ntime-1,1);
+                    end
                     showSlice(tool);
                 case 'rightarrow'
-                    tool.Ntime = min(tool.Ntime+1,size(tool.I{tool.Nvol},4));
+                    if isprop(evnt,'Modifier') && ~isempty(evnt.Modifier) && strcmp(evnt.Modifier,'shift')
+                        tool.Ntime = min(tool.Ntime+10,size(tool.I{tool.Nvol},4));
+                    else
+                        tool.Ntime = min(tool.Ntime+1,size(tool.I{tool.Nvol},4));
+                    end
                     showSlice(tool);
                 case 'uparrow'
                     setNvol(tool,tool.Nvol+1)
@@ -1358,7 +1371,13 @@ classdef imtool3D < handle
             
             Mask = tool.getMask(1);
             if any(Mask(:))
-                [FileName,PathName, ext] = uiputfile({'*.nii.gz';'*.mat';'*.tif'},'Save Mask','Mask.nii.gz');
+                if ~exist('hdr','var')
+                    maskfname = 'Mask.nii.gz';
+                else
+                    path = fileparts(hdr.file_name);
+                    maskfname = fullfile(path,'Mask.nii.gz');
+                end
+                [FileName,PathName, ext] = uiputfile({'*.nii.gz';'*.mat';'*.tif'},'Save Mask',maskfname);
                 if isequal(FileName,0)
                     return;
                 end
@@ -1448,7 +1467,7 @@ classdef imtool3D < handle
                 errordlg(sprintf('Inconsistent Mask size (%dx%dx%d). Please select a mask of size %dx%dx%d',size(Mask,1),size(Mask,2),size(Mask,3),S(1),S(2),S(3)))
                 return;
             end
-            tool.setMask(uint8(Mask));
+            tool.setMask(Mask);
         end
 
     end
@@ -1469,7 +1488,7 @@ classdef imtool3D < handle
             end
             
             if n < 1
-                n=1;
+                n=round(size(tool.I{tool.Nvol},tool.viewplane)/2);
             end
             
             if n > size(tool.I{tool.Nvol},tool.viewplane)

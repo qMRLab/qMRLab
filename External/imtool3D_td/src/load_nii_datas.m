@@ -90,8 +90,7 @@ for iii=1:length(list)
         hdr = nii.hdr;
     end
     nii = nii.img;
-    
-    dat(end+1:end+size(nii,5)) = mat2cell(nii,size(nii,1),size(nii,2),size(nii,3),size(nii,4),ones(1,size(nii,5)));
+    dat(end+1:end+size(nii(:,:,:,:,:),5)) = mat2cell(nii(:,:,:,:,:),size(nii,1),size(nii,2),size(nii,3),size(nii,4),ones(1,size(nii(:,:,:,:,:),5)));
 end
 
 % delete resliced images

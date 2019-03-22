@@ -26,23 +26,6 @@ setviewplane(tool,viewplane);
 H = getHandles(tool);
 view(H.Axes,-90,90)
 
-if iscell(filename), filename = filename{1}; end
-set(H.Tools.Save,'Callback',@(hObject,evnt)saveImagenii(tool, filename))
-
-function saveImagenii(tool, fname)
-if exist(fname,'file')
-h = tool.getHandles;
-S = get(h.Tools.SaveOptions,'String');
-switch S{get(h.Tools.SaveOptions,'value')}
-    case 'Mask'
-        [FileName,PathName] = uiputfile({'*.nii.gz'},'Save Mask',fullfile(fileparts(fname),'Mask'));
-        save_nii_v2(tool.getMask(1),fullfile(PathName,FileName),fname,8);
-    otherwise
-        tool.saveImage;
-end
-else
-    tool.saveImage;
-end
-
-
+set(H.Tools.maskSave,'Callback',@(hObject,evnt)saveMask(tool,hObject,hdr))
+set(H.Tools.maskLoad,'Callback',@(hObject,evnt)loadMask(tool,hObject,hdr))
 

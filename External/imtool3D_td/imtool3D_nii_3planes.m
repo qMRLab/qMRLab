@@ -47,6 +47,23 @@ fun=@(hObject,evnt) loadImage(hObject,tool,hdr,path);
 set(Loadbut,'Callback',fun)
 set(Loadbut,'TooltipString','Load Image')
 
+% add LPI labels
+annotation(tool(1).getHandles.Panels.Image,'textbox','EdgeColor','none','String','L','Position',[0 0.5 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(1).getHandles.Panels.Image,'textbox','EdgeColor','none','String','R','Position',[1-0.05 0.5 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(1).getHandles.Panels.Image,'textbox','EdgeColor','none','String','A','Position',[0.5 1-0.05 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(1).getHandles.Panels.Image,'textbox','EdgeColor','none','String','P','Position',[0.5 0 0.05 0.05],'Color',[1 1 1]);
+
+annotation(tool(2).getHandles.Panels.Image,'textbox','EdgeColor','none','String','P','Position',[0 0.5 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(2).getHandles.Panels.Image,'textbox','EdgeColor','none','String','A','Position',[1-0.05 0.5 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(2).getHandles.Panels.Image,'textbox','EdgeColor','none','String','S','Position',[0.5 1-0.05 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(2).getHandles.Panels.Image,'textbox','EdgeColor','none','String','I','Position',[0.5 0 0.05 0.05],'Color',[1 1 1]);
+
+annotation(tool(3).getHandles.Panels.Image,'textbox','EdgeColor','none','String','L','Position',[0 0.5 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(3).getHandles.Panels.Image,'textbox','EdgeColor','none','String','R','Position',[1-0.05 0.5 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(3).getHandles.Panels.Image,'textbox','EdgeColor','none','String','S','Position',[0.5 1-0.05 0.05 0.05],'Color',[1 1 1]);
+annotation(tool(3).getHandles.Panels.Image,'textbox','EdgeColor','none','String','I','Position',[0.5 0 0.05 0.05],'Color',[1 1 1]);
+
+
 function loadImage(hObject,tool,hdr,path)
 % unselect button to prevent activation with spacebar
 set(hObject, 'Enable', 'off');
