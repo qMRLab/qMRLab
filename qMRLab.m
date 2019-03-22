@@ -263,11 +263,14 @@ end
 FileBrowserList(MethodNum).Visible('on');
 
 % enable/disable viewdatafit
-if Model.voxelwise
+if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
+set(handles.ViewROIFit,'Enable','on')
 set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
+set(handles.ViewROIFit,'TooltipString','View fit in a region of interest')
 else
 set(handles.ViewDataFit,'Enable','off')
+set(handles.ViewROIFit,'Enable','off')
 set(handles.ViewDataFit,'TooltipString','No voxel-wise fitting for this qMR Method (Volume based method)')
 end
 guidata(hObject, handles);
@@ -811,7 +814,6 @@ for ipix = 1:length(vox)
     hold on;
     
     % Do the fitting
-    if Model.voxelwise==0,  warndlg('Not a voxelwise model'); return; end
     if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
     Fit = Model.fit(datasqueeze) % Display fitting results in command window
     Model.plotModel(Fit,datasqueeze);
