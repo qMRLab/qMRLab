@@ -5,6 +5,7 @@ else
     set(handles.SourcePop, 'Value',  find(strcmp(handles.CurrentData.fields,CurrentName)));
 end
 set(handles.ViewPop,   'Value',  1);
+handles.tool.setviewplane(3);
 set(handles.ViewPop,   'UserData',  1);
 
 UpdatePopUp(handles);

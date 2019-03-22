@@ -490,6 +490,7 @@ set(hObject, 'Enable', 'on');
 
 UpdateSlice(handles)
 View = get(handles.ViewPop,'String');
+if ~iscell(View), View = {View}; end
 handles.tool.setviewplane(View{get(handles.ViewPop,'Value')})
 
 % STATS Table
