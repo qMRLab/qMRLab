@@ -267,7 +267,7 @@ if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
 set(handles.ViewROIFit,'Enable','on')
 set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
-set(handles.ViewROIFit,'TooltipString','View fit in a region of interest')
+set(handles.ViewROIFit,'TooltipString','View fit in currently selected label')
 else
 set(handles.ViewDataFit,'Enable','off')
 set(handles.ViewROIFit,'Enable','off')
@@ -738,6 +738,7 @@ end
 hh = plotfit(handles,vox);
 if ~isempty(hh)
     set(hh,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
+    set(hh,'Color',[.94 .94 .94])
 end
 
 function ViewROIFit_Callback(hObject, eventdata, handles)
@@ -746,19 +747,18 @@ set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
 
-Mask = handles.tool.getMask(1);
+Mask = handles.tool.getMask();
 if isempty(Mask) || ~any(Mask(:))
-    helpdlg('Draw a roi in the image using the brush tools')
+    helpdlg('Draw a mask for current label using the brush tools')
     return;
 end
 
-labels = unique(Mask(Mask>0));
-for ipix = 1:length(labels)
-    vox{ipix} = find(Mask == labels(ipix));
-end
+vox{1} = find(Mask);
 hh = plotfit(handles,vox);
 if ~isempty(hh)
-    set(hh,'Name',['Fitting results of roi #' num2str(labels(ipix))],'NumberTitle','off');
+    set(hh,'Name',['Fitting results in current label #' num2str(handles.tool.getmaskSelected())],'NumberTitle','off');
+    C = handles.tool.getMaskColor();
+    set(hh,'Color',[1 1 1]*.8+.2*C(handles.tool.getmaskSelected()+1,:))
 end
 
 function hh = plotfit(handles,vox)

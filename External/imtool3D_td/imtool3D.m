@@ -660,6 +660,10 @@ classdef imtool3D < handle
             notify(tool,'maskChanged')
         end
         
+        function label = getmaskSelected(tool)
+            label = tool.maskSelected;
+        end
+        
         function mask = getMask(tool,all)
             if nargin<2, all=false; end
             if all
