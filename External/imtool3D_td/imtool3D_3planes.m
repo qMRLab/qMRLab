@@ -18,7 +18,6 @@ tool(2).setPosition([0.33 0 0.33 1])
 tool(3).setPosition([0.66 0 0.33 1])
 
 for ii=2:3
-%set(tool(ii).getHandles.Panels.ROItools,'Visible','off')
 set(tool(ii).getHandles.Tools.Save,'Visible','off')
 % hide pixel info
 set(tool(ii).getHandles.Panels.Tools,'Visible','off')
@@ -38,16 +37,6 @@ controls3 = findobj(tool(3).getHandles.Panels.Tools,'Type','uicontrol');
 controls1 = cat(1,controls1,tool(3).getHandles.Tools.maskSelected',tool(3).getHandles.Tools.maskLock);
 controls2 = cat(1,controls2,tool(1).getHandles.Tools.maskSelected',tool(1).getHandles.Tools.maskLock);
 controls3 = cat(1,controls3,tool(2).getHandles.Tools.maskSelected',tool(2).getHandles.Tools.maskLock);
-set(tool(1).getHandles.Tools.maskSelected,'Visible','off')
-set(tool(2).getHandles.Tools.maskSelected,'Visible','off')
-set(tool(1).getHandles.Tools.maskLock,'Visible','off')
-set(tool(2).getHandles.Tools.maskLock,'Visible','off')
-set(tool(1).getHandles.Tools.maskStats,'Visible','off')
-set(tool(2).getHandles.Tools.maskStats,'Visible','off')
-set(tool(1).getHandles.Tools.maskSave,'Visible','off')
-set(tool(2).getHandles.Tools.maskSave,'Visible','off')
-set(tool(1).getHandles.Tools.maskLoad,'Visible','off')
-set(tool(2).getHandles.Tools.maskLoad,'Visible','off')
 
 for ic = 1:length(controls1)
     if ~isempty(controls1(ic).Callback) && contains(func2str(controls1(ic).Callback),'saveImage'), continue; end % save Mask only once!
@@ -67,6 +56,18 @@ for ic = 1:length(controls1)
         end
     end
 end
+
+% hide buttons with repeated functionalities
+set(tool(1).getHandles.Tools.maskSelected,'Visible','off')
+set(tool(2).getHandles.Tools.maskSelected,'Visible','off')
+set(tool(1).getHandles.Tools.maskLock,'Visible','off')
+set(tool(2).getHandles.Tools.maskLock,'Visible','off')
+set(tool(1).getHandles.Tools.maskStats,'Visible','off')
+set(tool(2).getHandles.Tools.maskStats,'Visible','off')
+set(tool(1).getHandles.Tools.maskSave,'Visible','off')
+set(tool(2).getHandles.Tools.maskSave,'Visible','off')
+set(tool(1).getHandles.Tools.maskLoad,'Visible','off')
+set(tool(2).getHandles.Tools.maskLoad,'Visible','off')
 
 % Add crosses
 H = tool(1).getHandles;

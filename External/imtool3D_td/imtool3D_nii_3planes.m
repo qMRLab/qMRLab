@@ -30,10 +30,11 @@ set(tool(1).getHandles.fig,'NumberTitle','off');
 for ii=1:3
 tool(ii).setAspectRatio(hdr.pixdim(2:4));
 end
-% save Mask
+
+% add header to save/load Mask
 H = tool(3).getHandles;
 set(H.Tools.maskSave,'Callback',@(hObject,evnt)saveMask(tool(3),hObject,hdr))
-set(H.Tools.maskLoad,'Callback',@(hObject,evnt)loadMask(tool(3),hObject,hdr,path))
+set(H.Tools.maskLoad,'Callback',@(hObject,evnt)loadMask(tool(3),hObject,hdr))
 
 % add load Image features
 Pos = get(tool(1).getHandles.Tools.Save,'Position');
@@ -67,33 +68,6 @@ for ii=1:3
     tool(ii).setImage([I(:)',dat(:)'])
     tool(ii).setNvol(1+length(I));
 end
-
-function loadMask(tool,hObject,hdr,path)
-% unselect button to prevent activation with spacebar
-set(hObject, 'Enable', 'off');
-drawnow;
-set(hObject, 'Enable', 'on');
-
-[FileName,PathName, ext] = uigetfile({'*.nii.gz','NIFTI file (*.nii.gz)';'*.mat','MATLAB File (*.mat)';'*.tif','Image Stack (*.tif)'},'Load Mask',fullfile(path,'Mask.nii.gz'));
-if ext==1 % .nii.gz
-    Mask = load_nii_datas([{hdr.original} fullfile(PathName,FileName)]);
-    Mask = Mask{1};
-elseif ext==2 % .mat
-    load(fullfile(PathName,FileName));
-elseif ext==3 % .tif
-    info = imfinfo(fullfile(PathName,FileName));
-    num_images = numel(info);
-    for k = 1:num_images
-        Mask(:,:,k) = imread(fullfile(PathName,FileName), k);
-    end
-else
-    return
-end
-S = tool.getImageSize(0);
-if ~isequal([size(Mask,1) size(Mask,2) size(Mask,3)],S(1:3))
-    errordlg(sprintf('Inconsistent Mask size (%dx%dx%d). Please select a mask of size %dx%dx%d',size(Mask,1),size(Mask,2),size(Mask,3),S(1),S(2),S(3)))
-end
-tool.setMask(uint8(Mask));
 
 function icon = makeToolbarIconFromPNG(filename)
 % makeToolbarIconFromPNG  Creates an icon with transparent

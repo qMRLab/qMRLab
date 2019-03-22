@@ -40,7 +40,9 @@ end
 
 % Change save as NIFTI function
 H = handles.tool.getHandles;
-set(H.Tools.Save,'Callback',@(hObject,evnt)saveMask(handles))
+set(H.Tools.maskSave,'Callback',@(hObject,evnt)saveMask(handles.tool,hObject,handles.CurrentData.hdr))
+set(H.Tools.maskLoad,'Callback',@(hObject,evnt)loadMask(handles.tool,hObject,handles.CurrentData.hdr))
+
 % Use Shortcut to Source button
 set(findobj('Name','qMRLab'),'Windowkeypressfcn', @(hobject, event) shortcutCallback(hobject, event,handles))
 
@@ -56,30 +58,4 @@ switch event.Key
         set(handles.SourcePop, 'Value',  handles.tool.getNvol);
     otherwise
         handles.tool.shortcutCallback(event)
-end
-
-function saveMask(handles)
-tool = handles.tool;
-Mask = tool.getMask(1);
-if any(Mask(:))    
-    [FileName,PathName, ext] = uiputfile({'*.nii.gz';'*.mat'},'Save Mask','Mask');
-    FileName = strrep(FileName,'.gz','.nii.gz');
-    FileName = strrep(FileName,'.nii.nii','.nii');
-    if ext==1 % .nii.gz
-        if isfield(handles.CurrentData,'hdr')
-            handles.CurrentData.hdr.original.img = unxform_nii(handles.CurrentData.hdr,Mask);
-            handles.CurrentData.hdr.shdr.dime.datatype=8;
-            handles.CurrentData.hdr.hdr.dime.bitpix=32;
-            handles.CurrentData.hdr.original.hdr.dime.dim(1)=3;
-            handles.CurrentData.hdr.original.hdr.dime.dim(5:end)=1;
-            save_nii(handles.CurrentData.hdr.original,fullfile(PathName,FileName))
-        else
-            save_nii(make_nii(uint8(Mask)),fullfile(PathName,FileName))
-        end
-    elseif ext==2 % .mat
-        save(fullfile(PathName,FileName),'Mask');
-    end
-    
-else
-    warndlg('Mask empty... Draw a mask using the brush tools on the right')
 end

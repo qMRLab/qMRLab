@@ -1,3 +1,4 @@
+
 classdef imtool3D < handle
     %This is a image slice viewer with built in scroll, contrast, zoom and
     %ROI tools. 
@@ -555,6 +556,9 @@ classdef imtool3D < handle
                 tool.handles.Tools.maskSelected(islct)        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String',num2str(islct),'Position',[buff pos(4)-islct*w w w],'Tag','MaskSelected');
                 set(tool.handles.Tools.maskSelected(islct) ,'Cdata',repmat(permute(tool.maskColor(islct+1,:)*tool.alpha+(1-tool.alpha)*[.4 .4 .4],[3 1 2]),w,w))
                 set(tool.handles.Tools.maskSelected(islct) ,'Callback',@(hObject,evnt) setmaskSelected(tool,islct))
+                c = uicontextmenu;
+                set(tool.handles.Tools.maskSelected(islct),'UIContextMenu',c)
+                uimenu('Parent',c,'Label','delete','Callback',@(hObject,evnt) maskClean(tool,islct))
             end
             
             % lock mask
@@ -676,6 +680,11 @@ classdef imtool3D < handle
                 set(tool.handles.Tools.undoMask, 'Enable', 'off')
             end
             notify(tool,'maskUndone')
+        end
+        
+        function maskClean(tool,islct)
+            tool.mask(tool.mask==islct)=0;
+            notify(tool,'maskChanged')
         end
         
         function setmaskSelected(tool,islct)
@@ -1128,7 +1137,7 @@ classdef imtool3D < handle
         end
         
         function S = getImageSize(tool,withVP)
-            if ~exist('VP','var'), withVP = true; end
+            if ~exist('withVP','var'), withVP = true; end
             
             S=size(tool.I{tool.Nvol});
             if length(S)<3, S(3) = 1; end
@@ -1405,15 +1414,23 @@ classdef imtool3D < handle
             end
         end
         
-        function loadMask(tool,hObject)
+        function loadMask(tool,hObject,hdr)
             % unselect button to prevent activation with spacebar
             set(hObject, 'Enable', 'off');
             drawnow;
             set(hObject, 'Enable', 'on');
-
-            [FileName,PathName, ext] = uigetfile({'*.nii.gz','NIFTI file (*.nii.gz)';'*.mat','MATLAB File (*.mat)';'*.tif','Image Stack (*.tif)'},'Load Mask','Mask.nii.gz');
+            if exist('hdr','var')
+                path=fullfile(hdr.file_name,'Mask.nii.gz');
+            else
+                path = 'Mask.nii.gz';
+            end
+            [FileName,PathName, ext] = uigetfile({'*.nii.gz','NIFTI file (*.nii.gz)';'*.mat','MATLAB File (*.mat)';'*.tif','Image Stack (*.tif)'},'Load Mask',path);
             if ext==1 % .nii.gz
-                Mask = load_nii_datas(fullfile(PathName,FileName));
+                if exist('hdr','var')
+                    Mask = load_nii_datas([{hdr.original} fullfile(PathName,FileName)]);
+                else
+                    Mask = load_nii_datas(fullfile(PathName,FileName));
+                end
                 Mask = Mask{1};
             elseif ext==2 % .mat
                 load(fullfile(PathName,FileName));
