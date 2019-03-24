@@ -764,15 +764,20 @@ end
 function hh = plotfit(handles,vox)
 Model = GetAppData('Model');
 % Get data
-data = handles.tool.getImage(1);
+data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
+S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
+Data = handles.tool.getImage(0);
+Scurrent = [size(Data,1) size(Data,2) size(Data,3)];
 datafields = get(handles.SourcePop,'String');
 
-if ~all(ismember(datafields,Model.MRIinputs))
-    helpdlg(sprintf(['Current files in the viewer (' strjoin(datafields,', ') ') are inconsistent with ' Model.ModelName ' model inputs (' strjoin(Model.MRIinputs,', ') ').\nPlease click on ''view'' in the FileBrowser to replace the data in the viewer.']))
-    hh = [];
+if sum(S)==0
+    helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
+elseif ~isequal(Scurrent(1:3), S(1:3))
+    Sstr = sprintf('%ix',S);
+    Scurstr = sprintf('%ix',Scurrent);
+    helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' datafields{get(handles.SourcePop,'Value')} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
     return;
 end
-data = cell2struct(data,datafields,2);
 
 Model.sanityCheck(data);
 
