@@ -38,7 +38,7 @@ h=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
     try, Model = Model.Precompute; end
     try, Model = Model.PrecomputeData(data); end
-    
+
 else
     if ismethod(Model,'Precompute'), Model = Model.Precompute; end
     if ismethod(Model,'PrecomputeData'), Model = Model.PrecomputeData(data); end
@@ -54,7 +54,7 @@ if Model.voxelwise % process voxelwise
     qData = double(data.(MRIinputs{qDataIdx}));
     x = 1; y = 1; z = 1;
     [x,y,z,nT] = size(qData);
-    
+
     % Arrange voxels into a column
     nV = x*y*z;     % number of voxels
     for ii = 1:length(MRIinputs)
@@ -64,7 +64,7 @@ if Model.voxelwise % process voxelwise
             data.(MRIinputs{ii}) = reshape(data.(MRIinputs{ii}),nV,1);
         end
     end
-    
+
     % Load FitTempResults
     if exist('Fittmp','var')
         Fit = load(Fittmp);
@@ -73,18 +73,19 @@ if Model.voxelwise % process voxelwise
     else
         computed = false(nV,1);
     end
-    
-    
+
+
     % Find voxels that are not empty
     if isfield(data,'Mask') && (~isempty(data.Mask))
         Voxels = find(all(data.Mask & ~computed,2));
     else
         Voxels = find(~computed)';
     end
-    l = length(Voxels);
+    numVox = length(Voxels);
+    
     % Travis?
     if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
-    
+
     %############################# FITTING LOOP ###############################
     % Create waitbar
     if exist('wait','var') && (wait)
@@ -93,8 +94,8 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
 
-    if (isempty(h)), j_progress('Fitting voxel ',l); end
-    for ii = 1:l
+    if (isempty(h)), fprintf('Starting to fit data.\n'); end
+    for ii = 1:numVox
         vox = Voxels(ii);
         
         % Update waitbar
@@ -106,7 +107,7 @@ if Model.voxelwise % process voxelwise
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
             waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d', ii, numVox));
         end
-        
+
         % Get current voxel data
         for iii = 1:length(MRIinputs)
             M.(MRIinputs{iii}) = data.(MRIinputs{iii})(vox,:)';
@@ -115,24 +116,24 @@ if Model.voxelwise % process voxelwise
         % Fit data
         tempFit = Model.fit(M);
         if isempty(tempFit), Fit=[]; return; end
-        
+
         % initialize the outputs
         if ii==1 && ~exist('Fittmp','var')
             fields =  fieldnames(tempFit)';
-            
+
             for ff = 1:length(fields)
                 Fit.(fields{ff}) = zeros(x,y,z,length(tempFit.(fields{ff})));
             end
             Fit.fields = fields;
             Fit.computed = zeros(x,y,z);
         end
-        
+
         % Assign current voxel fitted values
         for ff = 1:length(fields)
             [xii,yii,zii] = ind2sub([x,y,z],vox);
             Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
         end
-        
+
         Fit.computed(vox) = 1;
         
         %  save temp file every 5min
