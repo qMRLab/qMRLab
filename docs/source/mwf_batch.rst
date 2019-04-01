@@ -116,7 +116,7 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
    </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = mwf;
    </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
             |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   </pre><img src="_static/mwf_batch_01.png" vspace="5" hspace="5" style="width:569px;height:833px;" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- mwf object needs 2 data input(s) to be assigned:
+   </pre><img src="_static/mwf_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- mwf object needs 2 data input(s) to be assigned:
             |-   MET2data
             |-   Mask</pre><pre class="codeinput">data = struct();
    
@@ -127,10 +127,17 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
     data.MET2data= double(MET2data);
     data.Mask= double(Mask);
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
-   </pre><pre class="codeoutput">Fitting voxel     3/2540
+   </pre><pre class="codeoutput">Starting to fit data.
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/mwf_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <img src="_static/mwf_batch_03.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+   </pre><pre class="codeoutput error">Undefined function 'range_outlier' for input arguments of type 'double'.
+   
+   Error in qMRshowOutput (line 36)
+   [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
+   
+   Error in mwf_batch (line 52)
+   qMRshowOutput(FitResults,data,Model);
+   </pre><h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
@@ -143,12 +150,14 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
          x.MWF = 50.0001;
          x.T2MW = 20.0001;
          x.T2IEW = 120;
-         <span class="comment">% Get all possible options</span>
-         Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
-         <span class="comment">% run simulation using options `Opt(1)`</span>
+         <span class="comment">% Set simulation options</span>
+         Opt.SNR = 200;
+         Opt.T2Spectrumvariance_Myelin = 5;
+         Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20;
+         <span class="comment">% run simulation</span>
          figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
-         FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
-   </pre><img src="_static/mwf_batch_04.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+         FitResult = Model.Sim_Single_Voxel_Curve(x,Opt);
+   </pre><h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs</pre><pre class="codeinput">      <span class="comment">%              MWF           T2MW          T2IEW</span>
@@ -156,10 +165,13 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
          OptTable.fx = [0             1             1]; <span class="comment">%vary MWF...</span>
          OptTable.lb = [0.0001        0.0001        40]; <span class="comment">%...from 0.0001</span>
          OptTable.ub = [1e+02         40            2e+02]; <span class="comment">%...to 100</span>
-         <span class="comment">% Get all possible options</span>
-         Opt = button2opts([Model.Sim_Single_Voxel_Curve_buttons, Model.Sim_Sensitivity_Analysis_buttons],1);
-         <span class="comment">% run simulation using options `Opt(1)`</span>
-         SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         <span class="comment">% Set simulation options</span>
+         Opt.SNR = 200;
+         Opt.T2Spectrumvariance_Myelin = 5;
+         Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20;
+         Opt.Nofrun = 5;
+         <span class="comment">% run simulation</span>
+         SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt);
          figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'MWF'</span> ,<span class="string">'MWF'</span> );
-   </pre><img src="_static/mwf_batch_05.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2016b</a><br ></p></div>
+   </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018b</a><br ></p></div>

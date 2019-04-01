@@ -1,5 +1,5 @@
-denoising_mppca :  4d image denoising and noise map estimation by exploiting
-============================================================================
+qsm_sb :  Fast reconstruction quantitative susceptibility maps with total
+=========================================================================
 
 .. raw:: html
 
@@ -49,86 +49,140 @@ denoising_mppca :  4d image denoising and noise map estimation by exploiting
        background-color: rgba(0,0,0,.5);
        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
       }
-   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(denoising_mppca)</span>
+   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(qsm_sb)</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
    <span class="comment">%</span>
    <span class="comment">% Please execute this m-file section by section to get familiar with batch</span>
-   <span class="comment">% processing for denoising_mppca on CLI.</span>
+   <span class="comment">% processing for qsm_sb on CLI.</span>
    <span class="comment">%</span>
-   <span class="comment">% Demo files are downloaded into denoising_mppca_data folder.</span>
+   <span class="comment">% Demo files are downloaded into qsm_sb_data folder.</span>
    <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'denoising_mppca'</span>); <span class="comment">% Describe the model</span>
-   </pre><pre class="codeoutput">  denoising_mppca :  4d image denoising and noise map estimation by exploiting
-                          data redundancy in the PCA domain using universal properties 
-                          of the eigenspectrum of random covariance matrices, 
-                          i.e. Marchenko Pastur distribution
-    
-     Assumptions:
-       Noise follows a rician distribution
-       image bounderies are not processed
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'qsm_sb'</span>); <span class="comment">% Describe the model</span>
+   </pre><pre class="codeoutput">  qsm_sb :  Fast reconstruction quantitative susceptibility maps with total
+     variation penalty and automatic regularization parameter selection.
     
      Inputs:
-       Data4D              4D data (any modality)
-      (Mask)                Binary mask with region-of-interest
+       PhaseGRE    3D GRE acquisition.  Wrapped phase image. 
+       (MagnGRE)   3D GRE acquisition.  Magnitude part of the image. 
+       Mask        Brain extraction mask.
     
-     Outputs:
-       Data4D_denoised     denoised 4D data
-       sigma_g               standard deviation of the rician noise
+     Assumptions:
+     (1)
+     (2)
+    
+     Fitted Parameters:
+    
+        Case - Split-Bregman:
+           i)  W/ magnitude weighting:  chiSBM, chiL2M, chiL2, unwrappedPhase, maskOut
+           ii) W/O magnitude weighting: chiSM, chiL2, unwrappedPhase, maskOut
+    
+        Case - L2 Regularization:
+           i)  W/ magnitude weighting:  chiL2M, chiL2, unwrappedPhase, maskOut
+           ii) W/O magnitude weighting: chiL2, unwrappedPhase, maskOut
+    
+        Case - No Regularization:
+           i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
+    
+        Explanation of all parameters:
+           chiSBM
+           chiSB
+           chiL2M
+           chiL2
+           nfm
+           unwrappedPhase
+           maskOut (maskSharp, gradientMask or same as the input)
+    
     
      Options:
-    	sampling
-       	'full'          sliding window
-           'fast'          block processing (warning: undersampled noise map will be returned)
-       kernel              window size, typically in order of [5 x 5 x 5]
+       To be listed.
     
-     Example of command line usage:
-       Model = denoising_mppca;  % Create class from model
-       data.Data4D = load_nii_data('Data4D.nii.gz');  % Load data
-       FitResults = FitData(data,Model,1);  % Fit each voxel within mask
-       FitResultsSave_nii(FitResults,'Data4D.nii.gz');  % Save in local folder: FitResults/
     
-     Author: Tanguy Duval, 2016
+    
+    
+     Authors: Agah Karakuzu
     
      References:
        Please cite the following if you use this module:
-         Veraart, J.; Fieremans, E.  Novikov, D.S. Diffusion MRI noise mapping using random matrix theory Magn. Res. Med., 2016, early view, doi:10.1002/mrm.26059
+    
+         Bilgic et al. (2014), Fast quantitative susceptibility mapping with
+         L1-regularization and automatic parameter selection. Magn. Reson. Med.,
+         72: 1444-1459. doi:10.1002/mrm.25029
+    
        In addition to citing the package:
          Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
    
        Reference page in Doc Center
-          doc denoising_mppca
+          doc qsm_sb
    
    
-   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = denoising_mppca;
+   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = qsm_sb;
    </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
             |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   </pre><img src="_static/denoising_mppca_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- denoising_mppca object needs 2 data input(s) to be assigned:
-            |-   Data4D
+   </pre><img src="_static/qsm_sb_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- qsm_sb object needs 3 data input(s) to be assigned:
+            |-   PhaseGRE
+            |-   MagnGRE
             |-   Mask</pre><pre class="codeinput">data = struct();
-   <span class="comment">% Data4D.nii.gz contains [70   70    4  197] data.</span>
-   data.Data4D=double(load_nii_data(<span class="string">'denoising_mppca_data/Data4D.nii.gz'</span>));
+   
+   <span class="comment">% PhaseGRE.mat contains [384  336  224] data.</span>
+    load(<span class="string">'qsm_sb_data/PhaseGRE.mat'</span>);
+   <span class="comment">% MagnGRE.mat contains [384  336  224] data.</span>
+    load(<span class="string">'qsm_sb_data/MagnGRE.mat'</span>);
+   <span class="comment">% Mask.mat contains [384  336  224] data.</span>
+    load(<span class="string">'qsm_sb_data/Mask.mat'</span>);
+    data.PhaseGRE= double(PhaseGRE);
+    data.MagnGRE= double(MagnGRE);
+    data.Mask= double(Mask);
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
-   </pre><pre class="codeoutput">Warning: undersampled noise map will be returned 
+   </pre><pre class="codeoutput">Started   : Laplacian phase unwrapping ...
+   Completed : Laplacian phase unwrapping
+   -----------------------------------------------
+   Started   : SHARP background removal ...
+   Completed : SHARP background removal
+   -----------------------------------------------
+   Skipping reoptimization of Lambda L2.
+   Started   : Calculation of chi_L2 map without magnitude weighting...
+   Elapsed time is 1.362057 seconds.
+   Completed  : Calculation of chi_L2 map without magnitude weighting.
+   -----------------------------------------------
+   Started   : Calculation of chi_SB map without magnitude weighting.. ...
+   Iteration  1  -  Change in Chi: 100 %
+   Iteration  2  -  Change in Chi: 32.9625 %
+   Iteration  3  -  Change in Chi: 16.0905 %
+   Iteration  4  -  Change in Chi: 8.9158 %
+   Iteration  5  -  Change in Chi: 5.6542 %
+   Iteration  6  -  Change in Chi: 3.9374 %
+   Iteration  7  -  Change in Chi: 2.9382 %
+   Iteration  8  -  Change in Chi: 2.3033 %
+   Iteration  9  -  Change in Chi: 1.8629 %
+   Iteration  10  -  Change in Chi: 1.5414 %
+   Iteration  11  -  Change in Chi: 1.2958 %
+   Iteration  12  -  Change in Chi: 1.1032 %
+   Iteration  13  -  Change in Chi: 0.9489 %
+   Elapsed time is 89.841784 seconds.
+   Elapsed time is 90.874469 seconds.
+   Completed   : Calculation of chi_SB map without magnitude weighting.
+   -----------------------------------------------
+   Loading outputs to the GUI may take some time after fit has been completed.
    ...done
-   </pre><img src="_static/denoising_mppca_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
+   </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
    </pre><pre class="codeoutput error">Undefined function 'range_outlier' for input arguments of type 'double'.
    
    Error in qMRshowOutput (line 36)
    [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
    
-   Error in denoising_mppca_batch (line 48)
+   Error in qsm_sb_batch (line 56)
    qMRshowOutput(FitResults,data,Model);
    </pre><h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
-                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'denoising_mppca_data/Data4D.nii.gz'</span>);
-   Model.saveObj(<span class="string">'denoising_mppca_Demo.qmrlab.mat'</span>);
-   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for denoising_mppca.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults);
+   Model.saveObj(<span class="string">'qsm_sb_Demo.qmrlab.mat'</span>);
+   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for qsm_sb.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
                  (3) fit and plot curve</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>

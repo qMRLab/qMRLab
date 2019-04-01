@@ -76,11 +76,11 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
     
      Outputs:
     	  MTSAT         MT saturation map (%), T1-corrected
-         T1            T1 map (s)    
+         T1            T1 map (s)
     
      Options:
          B1 correction factor     Correction factor (empirical) for the transmit RF. Only
-                                   corrects MTSAT, not T1. 
+                                   corrects MTSAT, not T1.
                                    Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
     
      Protocol:
@@ -117,7 +117,7 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = mt_sat;
    </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
             |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   </pre><img src="_static/mt_sat_batch_01.png" vspace="5" hspace="5" style="width:569px;height:833px;" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- mt_sat object needs 5 data input(s) to be assigned:
+   </pre><img src="_static/mt_sat_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- mt_sat object needs 5 data input(s) to be assigned:
             |-   MTw
             |-   T1w
             |-   PDw
@@ -133,7 +133,14 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
    </pre><pre class="codeoutput">...done
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/mt_sat_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+   </pre><pre class="codeoutput error">Undefined function 'range_outlier' for input arguments of type 'double'.
+   
+   Error in qMRshowOutput (line 36)
+   [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
+   
+   Error in mt_sat_batch (line 55)
+   qMRshowOutput(FitResults,data,Model);
+   </pre><h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
@@ -147,4 +154,4 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2016b</a><br ></p></div>
+   </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018b</a><br ></p></div>

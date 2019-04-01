@@ -1,4 +1,4 @@
-vfa_t1: Compute a T1 map using Variable Flip Angle
+filter_map:   Applies spatial filtering (2D or 3D)
 ==================================================
 
 .. raw:: html
@@ -49,67 +49,43 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
        background-color: rgba(0,0,0,.5);
        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
       }
-   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(vfa_t1)</span>
+   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(filter_map)</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
    <span class="comment">%</span>
    <span class="comment">% Please execute this m-file section by section to get familiar with batch</span>
-   <span class="comment">% processing for vfa_t1 on CLI.</span>
+   <span class="comment">% processing for filter_map on CLI.</span>
    <span class="comment">%</span>
-   <span class="comment">% Demo files are downloaded into vfa_t1_data folder.</span>
+   <span class="comment">% Demo files are downloaded into filter_map_data folder.</span>
    <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'vfa_t1'</span>); <span class="comment">% Describe the model</span>
-   </pre><pre class="codeoutput">Contents of vfa_t1:
-   
-   vfa_blochsim                   - IR_BLOCHSIM Bloch simulations of the GRE-IR pulse sequence.
-   vfa_equation                   - S Analytical equations for the longitudinal magnetization of
-   
-   
-   vfa_t1 is both a directory and a function.
-   
-     vfa_t1: Compute a T1 map using Variable Flip Angle
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'filter_map'</span>); <span class="comment">% Describe the model</span>
+   </pre><pre class="codeoutput">  filter_map:   Applies spatial filtering (2D or 3D)
     
-     Assumptions:
+     Assumptions: If a 3D volume is provided and 2D filtering is requested, each slice will be processsed independently
     
      Inputs:
-       VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
-       (B1map)         excitation (B1+) fieldmap. Used to correct flip angles. (optional)
-       (Mask)          Binary mask to accelerate the fitting (optional)
+       Raw                Input data to be filtered
+       (Mask)             Binary mask to exclude voxels from smoothing
     
      Outputs:
-       T1              Longitudinal relaxation time [s]
-       M0              Equilibrium magnetization
+    	Filtered           Filtered output map (see FilterClass.m for more info)
     
      Protocol:
-       VFAData Array [nbFA x 2]:
-           [FA1 TR1; FA2 TR2;...]      flip angle [degrees] TR [s]
+    	NONE
     
      Options:
-       None
+       (inherited from FilterClass)
     
      Example of command line usage:
-       Model = vfa_t1;  % Create class from model
-       Model.Prot.VFAData.Mat=[3 0.015; 20 0.015]; %Protocol: 2 different FAs
-       data = struct;  % Create data structure
-       data.VFAData = load_nii_data('VFAData.nii.gz');
-       data.B1map = load_nii_data('B1map.nii.gz');
-       FitResults = FitData(data,Model); %fit data
-       FitResultsSave_mat(FitResults);
     
-       For more examples: a href="matlab: qMRusage(vfa_t1);"qMRusage(vfa_t1)/a
+       For more examples: a href="matlab: qMRusage(filter_map);"qMRusage(filter_map)/a
     
-    
-     Author: Ian Gagnon, 2017
+     Author: Ilana Leppert Dec 2018
     
      References:
        Please cite the following if you use this module:
-         Fram, E.K., Herfkens, R.J., Johnson, G.A., Glover, G.H., Karis, J.P.,
-         Shimakawa, A., Perkins, T.G., Pelc, N.J., 1987. Rapid calculation of
-         T1 using variable flip angle gradient refocused imaging. Magn. Reson.
-         Imaging 5, 201?208
-       In addition to citing the package:
          Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
          Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
          Stikov N. (2016), Quantitative magnetization transfer imaging made
@@ -117,22 +93,19 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
          visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
    
        Reference page in Doc Center
-          doc vfa_t1
+          doc filter_map
    
    
-   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = vfa_t1;
+   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = filter_map;
    </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
             |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   </pre><img src="_static/vfa_t1_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- vfa_t1 object needs 3 data input(s) to be assigned:
-            |-   VFAData
-            |-   B1map
+   </pre><img src="_static/filter_map_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- filter_map object needs 2 data input(s) to be assigned:
+            |-   Raw
             |-   Mask</pre><pre class="codeinput">data = struct();
-   <span class="comment">% VFAData.nii.gz contains [128  128    1    2] data.</span>
-   data.VFAData=double(load_nii_data(<span class="string">'vfa_t1_data/VFAData.nii.gz'</span>));
-   <span class="comment">% B1map.nii.gz contains [128  128] data.</span>
-   data.B1map=double(load_nii_data(<span class="string">'vfa_t1_data/B1map.nii.gz'</span>));
-   <span class="comment">% Mask.nii.gz contains [128  128] data.</span>
-   data.Mask=double(load_nii_data(<span class="string">'vfa_t1_data/Mask.nii.gz'</span>));
+   <span class="comment">% Raw.nii.gz contains [128  128   35] data.</span>
+   data.Raw=double(load_nii_data(<span class="string">'filter_map_data/Raw.nii.gz'</span>));
+   <span class="comment">% Mask.nii.gz contains [128  128   35] data.</span>
+   data.Mask=double(load_nii_data(<span class="string">'filter_map_data/Mask.nii.gz'</span>));
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">...done
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
@@ -142,15 +115,15 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
    Error in qMRshowOutput (line 36)
    [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
    
-   Error in vfa_t1_batch (line 53)
+   Error in filter_map_batch (line 50)
    qMRshowOutput(FitResults,data,Model);
    </pre><h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
-                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'vfa_t1_data/VFAData.nii.gz'</span>);
-   Model.saveObj(<span class="string">'vfa_t1_Demo.qmrlab.mat'</span>);
-   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for vfa_t1.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'filter_map_data/Raw.nii.gz'</span>);
+   Model.saveObj(<span class="string">'filter_map_Demo.qmrlab.mat'</span>);
+   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for filter_map.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
                  (3) fit and plot curve</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
