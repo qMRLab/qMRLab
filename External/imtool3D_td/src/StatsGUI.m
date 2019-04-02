@@ -58,13 +58,20 @@ switch ext
     case 1
         fid = fopen(fullfile(path,file),'w');
         for ival=values
+            fprintf(fid,'Label: %d\n',ival);
             Header = Stats_all{ival+1}(1,:);
             fprintf(fid,'%s\t',Header{:});
             fprintf(fid,'\n');
             for iline = 2:size(Stats_all{ival+1},1)
                 Valiline = Stats_all{ival+1}(iline,:);
-                fprintf(fid,'%s\t',Valiline{:});
-                fprintf(fid,'\n');
+                for icol = 1:size(Stats_all{ival+1},2)
+                    if isnumeric(Valiline{icol})
+                        fprintf(fid,'%g\t',Valiline{icol});
+                    else
+                        fprintf(fid,'%s\t',Valiline{icol});
+                    end
+                end
+                fprintf(fid,'\n\n');
             end
         end
         fclose(fid);
