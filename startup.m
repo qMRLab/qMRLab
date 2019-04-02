@@ -1,4 +1,5 @@
-addpath(genpath(pwd))
+if ~isdeployed
+addpath(genpath(fileparts(mfilename('fullpath'))))
 
 
 % Remove temp temp dir from path if it exists
@@ -56,4 +57,5 @@ catch
             warning('NODDI IS SLOW: Cannot compile External/Faddeeva_MATLAB.m, a fast function used by NODDI (in NODDI_erfi.m). Plz install a compiler (https://fr.mathworks.com/support/compilers.html) and run startup.m again.')
         end
     end
+end
 end
