@@ -317,6 +317,9 @@ position_old = getMarkerPosition(ROI);
 
 %get the type of click
 click = get(ROI.figureHandle,'SelectionType');
+if strcmp(click,'alt') %  right click to get menu
+    return
+end
 
 %set the default ind
 ind=0;
