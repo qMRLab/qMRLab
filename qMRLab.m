@@ -501,36 +501,11 @@ set(hObject, 'Enable', 'on');
 
 I = handles.tool.getImage(1);
 Iraw = handles.CurrentData;
-I = I(~strcmp(Iraw.fields,'Mask'));
-Iraw.fields = setdiff(Iraw.fields,'Mask')';
+fields = setdiff(Iraw.fields,'Mask')';
 Maskall = handles.tool.getMask(1);
-values = unique(Maskall(Maskall>0))';
-yprev = 1;
-if isempty(values), values = 0; end
-f=figure('Position', [100 100 700 400], 'Name', 'Statistics');
-for Selected = values
-    Mask = Maskall==Selected;
-    Stats = cell(length(Iraw.fields),7);
-    for iii=1:length(Iraw.fields)
-        datiii = I{length(Iraw.fields)+1-iii};
-        datiii = nanmean(datiii,4); % average 4D data along time
-        datiii = datiii(Mask);
-        Stats{iii,1} = mean(datiii);
-        Stats{iii,2} = median(datiii);
-        Stats{iii,3} = std(datiii);
-        Stats{iii,4} = min(datiii);
-        Stats{iii,5} = max(datiii);
-        [Stats{iii,6}, Stats{iii,7}] = range_outlier(datiii,0);
-        Stats{iii,8} = Stats{iii,7} - Stats{iii,6};
-    end
-    Color = handles.tool.getMaskColor;
-    uitable(f,'Units','normalized','Position',[0,yprev - 1/length(values),1,1/length(values)],'Data',Stats,...
-              'ColumnName',{'mean', 'median', 'std','min','max','1st quartile', '3rd quartile', 'Interquartile Range (IQR)'},...
-              'ColumnFormat',{'numeric', 'numeric', 'numeric','numeric','numeric','numeric','numeric','numeric'},...
-              'ColumnEditable',[false false false false false false false false false],...
-              'RowName',Iraw.fields','BackgroundColor',Color(Selected+1,:).*[.4 .4 .4]+1-[.4 .4 .4])
-    yprev = yprev - 1/length(values);
-end
+Color = handles.tool.getMaskColor;
+StatsGUI(I,Maskall, fields, Color);
+
 
 % HISTOGRAM FIG
 function Histogram_Callback(hObject, eventdata, handles)

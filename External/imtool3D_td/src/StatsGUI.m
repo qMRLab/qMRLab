@@ -48,12 +48,28 @@ end
 uimenu(f,'Text','export statistics','Callback',@(src,evnt) exportStats(Stats_all,values))
 
 function exportStats(Stats_all,values)
-[file,path] = uiputfile('*.xls','Excel file');
+[file,path,ext] = uiputfile({'.txt','(.txt) Tabulated text file';'*.xls','(.xls) Excel file'});
 
 if isnumeric(file)
     return;
 end
 
-for ival=values
-    xlswrite(fullfile(path,file),Stats_all{ival+1},['Label' num2str(ival)])
+switch ext
+    case 1
+        fid = fopen(fullfile(path,file),'w');
+        for ival=values
+            Header = Stats_all{ival+1}(1,:);
+            fprintf(fid,'%s\t',Header{:});
+            fprintf(fid,'\n');
+            for iline = 2:size(Stats_all{ival+1},1)
+                Valiline = Stats_all{ival+1}(iline,:);
+                fprintf(fid,'%s\t',Valiline{:});
+                fprintf(fid,'\n');
+            end
+        end
+        fclose(fid);
+    case 2
+        for ival=values
+            xlswrite(fullfile(path,file),Stats_all{ival+1},['Label' num2str(ival)])
+        end
 end
