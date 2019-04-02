@@ -60,7 +60,7 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b1_dam'</span>); <span class="comment">% Describe the model</span>
+   </pre><h2 >I- DESCRIPTION<a name="2"></a></h2><pre class="codeinput">qMRinfo(<span class="string">'b1_dam'</span>); <span class="comment">% Describe the model</span>
    </pre><pre class="codeoutput">  b1_dam map:  Double-Angle Method for B1+ mapping
     
      Assumptions:
@@ -111,14 +111,12 @@ b1_dam map:  Double-Angle Method for B1+ mapping
          easy with qMTLab: Software for data simulation, analysis, and
          visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
    
-       Reference page in Doc Center
-          doc b1_dam
+       Reference page for b1_dam
    
-   
-   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = b1_dam;
-   </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
+   </pre><h2 >II- MODEL PARAMETERS<a name="3"></a></h2><h2 >a- create object<a name="4"></a></h2><pre class="codeinput">Model = b1_dam;
+   </pre><h2 >b- modify options<a name="5"></a></h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
             |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   </pre><img src="_static/b1_dam_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- b1_dam object needs 3 data input(s) to be assigned:
+   </pre><img src="_static/b1_dam_batch_01.png" vspace="5" hspace="5" style="width:488px;height:694px;" alt=""> <h2 >III- FIT EXPERIMENTAL DATASET<a name="6"></a></h2><h2 >a- load experimental data<a name="7"></a></h2><pre >         |- b1_dam object needs 3 data input(s) to be assigned:
             |-   SFalpha
             |-   SF2alpha
             |-   Mask</pre><pre class="codeinput">data = struct();
@@ -126,29 +124,23 @@ b1_dam map:  Double-Angle Method for B1+ mapping
    data.SFalpha=double(load_nii_data(<span class="string">'b1_dam_data/SFalpha.nii.gz'</span>));
    <span class="comment">% SF2alpha.nii.gz contains [64  64] data.</span>
    data.SF2alpha=double(load_nii_data(<span class="string">'b1_dam_data/SF2alpha.nii.gz'</span>));
-   </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
+   </pre><h2 >b- fit dataset<a name="8"></a></h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">...done
-   </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
+   </pre><h2 >c- show fitting results<a name="9"></a></h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
-   </pre><pre class="codeoutput error">Undefined function 'range_outlier' for input arguments of type 'double'.
-   
-   Error in qMRshowOutput (line 36)
-   [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
-   
-   Error in b1_dam_batch (line 51)
-   qMRshowOutput(FitResults,data,Model);
-   </pre><h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+   </pre><img src="_static/b1_dam_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 >d- Save results<a name="10"></a></h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
                  own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'b1_dam_data/SFalpha.nii.gz'</span>);
    Model.saveObj(<span class="string">'b1_dam_Demo.qmrlab.mat'</span>);
-   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for b1_dam.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
+   </pre><h2 >V- SIMULATIONS<a name="11"></a></h2><pre >   |- This section can be executed to run simulations for b1_dam.</pre><h2 >a- Single Voxel Curve<a name="12"></a></h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
                  (3) fit and plot curve</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   </pre><h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+   </pre><h2 >b- Sensitivity Analysis<a name="13"></a></h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018b</a><br ></p></div>
+   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2015b</a><br ></p></div>
