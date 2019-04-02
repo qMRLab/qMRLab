@@ -82,7 +82,7 @@ if Model.voxelwise % process voxelwise
         Voxels = find(~computed)';
     end
     numVox = length(Voxels);
-
+    
     % Travis?
     if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
 
@@ -97,11 +97,12 @@ if Model.voxelwise % process voxelwise
     if (isempty(h)), fprintf('Starting to fit data.\n'); end
     for ii = 1:numVox
         vox = Voxels(ii);
-
+        
         % Update waitbar
         if (isempty(h))
             % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
-%            fprintf('Fitting voxel %d/%d\r',ii,numVox);
+            %            fprintf('Fitting voxel %d/%d\r',ii,l);
+
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
             waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d', ii, numVox));
@@ -137,12 +138,12 @@ if Model.voxelwise % process voxelwise
         
         %  save temp file every 5min
         telapsed = toc(tStart);
-       if (mod(floor(telapsed/60),5) == 0 && (telapsed-tsaved)/60>5) % 
-           tsaved = telapsed;
+        if (mod(floor(telapsed/60),5) == 0 && (telapsed-tsaved)/60>5) %
+            tsaved = telapsed;
             save('FitTempResults.mat', '-struct','Fit');
         end
-
-
+        
+        
         if ISTRAVIS && ii>2
             try
                 Fit = load(fullfile('.','FitResults','FitResults.mat'));
@@ -150,10 +151,10 @@ if Model.voxelwise % process voxelwise
             break;
         end
     end
-
+    
 else % process entire volume
-
-% AK: Commenting out this block. Modal window is actually annoying.
+    
+    % AK: Commenting out this block. Modal window is actually annoying.
     %{
     if exist('wait','var') && (wait) && not(isdeployed)
         hMSG = msgbox({'Fitting has been started. Please wait until this window disappears.'; ...
@@ -163,7 +164,14 @@ else % process entire volume
         set(hMSG,'pointer', 'watch'); drawnow;
     end
     %}
-
+    
+    % Mask data before fitting
+    if isfield(data,'Mask') && (~isempty(data.Mask))
+        fields =  fieldnames(data);
+        for ff = 1:length(fields)
+            data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+        end
+    end
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
     disp('...done');

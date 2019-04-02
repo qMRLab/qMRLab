@@ -55,7 +55,7 @@ if ~exist('nodwnld','var') || ~nodwnld
 else
     demoDir = path;
 end
-
+if isempty(demoDir), return; end
 
 sep = filesep;
 % Directory definition ====================== END

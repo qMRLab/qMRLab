@@ -54,7 +54,7 @@ Load the raw data in qMRLab by selecting *Browse* next to *Work Dir*. Select the
 .. figure:: _static/load-data.png
    :scale: 45 %
 
-For a more detailed description of what the input data should look like, please refer to :ref:`3.1	Data format`
+For a more detailed description of what the input data should look like, please refer to :ref:`4.1	Data format`
 
 7. View the data
 -------------------------
@@ -63,17 +63,17 @@ You can look at your data by clicking *View* next to the name of the file:
 .. figure:: _static/view-data.png
    :scale: 45 %
 
-You can browse through slices or volumes of the data files by using the sliding bars on the left-hand side of the image.
+You can browse through slices or volumes of the data files by using arrows and mouse controls.  
+Please refer to :ref:`3.	Data Viewer`.
 
 8. Set up the protocol
 ------------------------
 For this dataset, the protocol will be set up by default with the flip angles and TRs: 
 
-
 .. figure:: _static/protocol.png
    :scale: 55 %
 
-For your own acquisition, you will have to use an external txt file to load the parameters, please refer to :ref:`5.1 Protocol`. 
+For your own acquisition, you will have to use an external txt file to load the parameters, please refer to :ref:`6.1 Protocol`. 
 
 9. View the data fit in 1 voxel
 -----------------------------------
