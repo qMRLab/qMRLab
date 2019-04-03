@@ -1,4 +1,4 @@
-function imtool3D_3planes_crop(tool)
+function RECTS = imtool3D_3planes_rect(tool)
 % imtool3D_3planes_crop(tool) adds a synchronized rectangle to the imtool
 % object created by imtool3D_3planes
 %
@@ -23,6 +23,8 @@ addlistener(RECT2,'newROIPosition',@(src,evnt) syncPos(RECT1,RECT2,RECT3,2));
 addlistener(RECT3,'newROIPosition',@(src,evnt) syncPos(RECT1,RECT2,RECT3,3));
 
 tool(1).getHandles.fig
+
+RECTS = cat(1,RECT1,RECT2,RECT3);
 
 
 
