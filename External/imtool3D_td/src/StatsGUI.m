@@ -39,10 +39,10 @@ for Selected = values
               'ColumnName',{'Volume (pixels)','mean', 'median', 'std','min','max','1st quartile', '3rd quartile', 'Interquartile Range (IQR)'},...
               'ColumnFormat',{'numeric','numeric', 'numeric', 'numeric','numeric','numeric','numeric','numeric','numeric'},...
               'ColumnEditable',[false false false false false false false false false false],...
-              'RowName',fields','BackgroundColor',Color(Selected+1,:).*[.4 .4 .4]+1-[.4 .4 .4]);
+              'RowName',fields(:),'BackgroundColor',Color(Selected+1,:).*[.4 .4 .4]+1-[.4 .4 .4]);
     yprev = yprev - 1/length(values);
     
-    Stats_all{Selected+1} = cat(2,[{'Volume'} fields]',cat(1,{'Volume (pixels)','mean', 'median', 'std','min','max','1st quartile', '3rd quartile', 'Interquartile Range (IQR)'},Stats));
+    Stats_all{Selected+1} = cat(2,[{'Volume'} fields(:)']',cat(1,{'Volume (pixels)','mean', 'median', 'std','min','max','1st quartile', '3rd quartile', 'Interquartile Range (IQR)'},Stats));
 end
 
 uimenu(f,'Label','export statistics','Callback',@(src,evnt) exportStats(Stats_all,values))
