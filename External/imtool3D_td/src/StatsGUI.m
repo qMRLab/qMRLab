@@ -45,7 +45,7 @@ for Selected = values
     Stats_all{Selected+1} = cat(2,[{'Volume'} fields]',cat(1,{'Volume (pixels)','mean', 'median', 'std','min','max','1st quartile', '3rd quartile', 'Interquartile Range (IQR)'},Stats));
 end
 
-uimenu(f,'Text','export statistics','Callback',@(src,evnt) exportStats(Stats_all,values))
+uimenu(f,'Label','export statistics','Callback',@(src,evnt) exportStats(Stats_all,values))
 
 function exportStats(Stats_all,values)
 [file,path,ext] = uiputfile({'.txt','(.txt) Tabulated text file';'*.xls','(.xls) Excel file'});
@@ -58,7 +58,7 @@ switch ext
     case 1
         fid = fopen(fullfile(path,file),'w');
         for ival=values
-            fprintf(fid,'Label: %d\n',ival);
+            fprintf(fid,'#Label: %d\n',ival);
             Header = Stats_all{ival+1}(1,:);
             fprintf(fid,'%s\t',Header{:});
             fprintf(fid,'\n');
@@ -71,7 +71,7 @@ switch ext
                         fprintf(fid,'%s\t',Valiline{icol});
                     end
                 end
-                fprintf(fid,'\n\n');
+                fprintf(fid,'\n');
             end
         end
         fclose(fid);
