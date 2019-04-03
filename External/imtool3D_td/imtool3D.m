@@ -1814,7 +1814,7 @@ function [I, position, h, range, tools, mask, enableHist] = parseinputs(varargin
 end
 
 function measureImageCallback(hObject,evnt,tool,type)
-
+removeBrushObject(tool)
 switch type
     case 'ellipse'
         h = getHandles(tool);
