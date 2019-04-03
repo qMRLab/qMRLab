@@ -393,8 +393,8 @@ classdef imtool3D < handle
             
             %Create view restore button
             tool.handles.Tools.ViewRestore           =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','','Position',[lp buff w w],'TooltipString',sprintf('Reset Pan and Zoom\n(Right Click (Ctrl+Click) to Pan and Middle (Shift+Click) Click to zoom)'));
-            [iptdir, MATLABdir] = ipticondir;
-            icon_save = makeToolbarIconFromPNG([iptdir '/overview_zoom_in.png']);
+            MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+            icon_save = makeToolbarIconFromPNG('overview_zoom_in.png');
             set(tool.handles.Tools.ViewRestore,'CData',icon_save);
             fun=@(hobject,evnt) resetViewCallback(hobject,evnt,tool);
             set(tool.handles.Tools.ViewRestore,'Callback',fun)
@@ -569,7 +569,7 @@ classdef imtool3D < handle
 
             % mask statistics
             tool.handles.Tools.maskStats        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-(islct+2)*w w w], 'Value', 1, 'TooltipString', 'Statistics');
-            icon_hist = makeToolbarIconFromPNG([MATLABdir '/plottype-histogram.png']);
+            icon_hist = makeToolbarIconFromPNG('plottype-histogram.png');
             icon_hist = min(1,max(0,imresize(icon_hist,[16 16])));
             set(tool.handles.Tools.maskStats ,'Cdata',icon_hist)
             set(tool.handles.Tools.maskStats ,'Callback',@(hObject,evnt) StatsCallback(hObject,evnt,tool))
@@ -613,7 +613,12 @@ classdef imtool3D < handle
             
             % set Image
             setImage(tool, varargin{:})
-
+            
+            % disable ROI tools if no image processing toolbox
+            result = license('test','image processing toolbox');
+            if result==0
+                warning('Image processing toolbox is missing... ROI tools will not work')
+            end
         end
         
         function setPosition(tool,position)
@@ -834,11 +839,11 @@ classdef imtool3D < handle
             end
             range = tool.Climits{1};
                
+            tool.Nvol = 1;
+            
             tool.I=I;
             
             tool.setMask(mask);
-            
-            tool.Nvol = 1;
 
             %Update the histogram
             if isfield(tool.handles,'HistAxes')
@@ -1814,7 +1819,7 @@ function [I, position, h, range, tools, mask, enableHist] = parseinputs(varargin
 end
 
 function measureImageCallback(hObject,evnt,tool,type)
-
+removeBrushObject(tool)
 switch type
     case 'ellipse'
         h = getHandles(tool);

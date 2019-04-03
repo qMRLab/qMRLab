@@ -211,15 +211,16 @@ position_old = getPosition(ROI);
 %get the type of click
 click = get(ROI.figureHandle,'SelectionType');
 
-%get the point that was clicked
-dist = sqrt((position_old(:,1)-op(1)).^2 + (position_old(:,2)-op(2)).^2 );
-[~, ind] = min(dist);
-
-%set the new window button motion function and button up function of the figure
-fun = @(src,evnt) ButtonMotionFunction(src,evnt,ROI,n,op,position_old,ind);
-fun2=@(src,evnt)  ButtonUpFunction(src,evnt,ROI,WBMF_old,WBUF_old);
-set(fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2);
-
+if strcmp(click,'normal')
+    %get the point that was clicked
+    dist = sqrt((position_old(:,1)-op(1)).^2 + (position_old(:,2)-op(2)).^2 );
+    [~, ind] = min(dist);
+    
+    %set the new window button motion function and button up function of the figure
+    fun = @(src,evnt) ButtonMotionFunction(src,evnt,ROI,n,op,position_old,ind);
+    fun2=@(src,evnt)  ButtonUpFunction(src,evnt,ROI,WBMF_old,WBUF_old);
+    set(fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2);
+end
 end
 
 function ButtonMotionFunction(src,evnt,ROI,n,op,position_old,ind)

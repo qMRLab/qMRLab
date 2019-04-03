@@ -277,15 +277,19 @@ function ButtonDownFunction(hObject,evnt,ROI,n)
 %get the parent figure handle
 fig = ROI.figureHandle;
 
-%get the current button motion and button up functions of the figure
-WBMF_old = get(fig,'WindowButtonMotionFcn');
-WBUF_old = get(fig,'WindowButtonUpFcn');
+%get the type of click
+click = get(fig,'SelectionType');
 
-%set the new window button motion function and button up function of the figure
-fun = @(src,evnt) ButtonMotionFunction(src,evnt,ROI,n);
-fun2=@(src,evnt)  ButtonUpFunction(src,evnt,ROI,WBMF_old,WBUF_old);
-set(fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2);
-
+if strcmp(click,'normal')
+    %get the current button motion and button up functions of the figure
+    WBMF_old = get(fig,'WindowButtonMotionFcn');
+    WBUF_old = get(fig,'WindowButtonUpFcn');
+    
+    %set the new window button motion function and button up function of the figure
+    fun = @(src,evnt) ButtonMotionFunction(src,evnt,ROI,n);
+    fun2=@(src,evnt)  ButtonUpFunction(src,evnt,ROI,WBMF_old,WBUF_old);
+    set(fig,'WindowButtonMotionFcn',fun,'WindowButtonUpFcn',fun2);
+end
 end
 
 function ButtonMotionFunction(src,evnt,ROI,n)
