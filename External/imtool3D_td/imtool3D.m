@@ -393,8 +393,8 @@ classdef imtool3D < handle
             
             %Create view restore button
             tool.handles.Tools.ViewRestore           =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','','Position',[lp buff w w],'TooltipString',sprintf('Reset Pan and Zoom\n(Right Click (Ctrl+Click) to Pan and Middle (Shift+Click) Click to zoom)'));
-            [iptdir, MATLABdir] = ipticondir;
-            icon_save = makeToolbarIconFromPNG([iptdir '/overview_zoom_in.png']);
+            MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+            icon_save = makeToolbarIconFromPNG('overview_zoom_in.png');
             set(tool.handles.Tools.ViewRestore,'CData',icon_save);
             fun=@(hobject,evnt) resetViewCallback(hobject,evnt,tool);
             set(tool.handles.Tools.ViewRestore,'Callback',fun)
@@ -613,7 +613,12 @@ classdef imtool3D < handle
             
             % set Image
             setImage(tool, varargin{:})
-
+            
+            % disable ROI tools if no image processing toolbox
+            result = license('test','image processing toolbox');
+            if result==0
+                warning('Image processing toolbox is missing... ROI tools will not work')
+            end
         end
         
         function setPosition(tool,position)
