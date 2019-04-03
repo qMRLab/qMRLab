@@ -59,8 +59,8 @@ controls2 = cat(1,controls2,tool(1).getHandles.Tools.maskSelected',tool(1).getHa
 controls3 = cat(1,controls3,tool(2).getHandles.Tools.maskSelected',tool(2).getHandles.Tools.maskLock);
 
 for ic = 1:length(controls1)
-    if ~isempty(controls1(ic).Callback) && contains(func2str(controls1(ic).Callback),'saveImage'), continue; end % save Mask only once!
-    if ~isempty(controls1(ic).Callback) && contains(func2str(controls1(ic).Callback),'displayHelp'), continue; end % Display Help only once!
+    if ~isempty(controls1(ic).Callback) && ~isempty(strfind(func2str(controls1(ic).Callback),'saveImage')), continue; end % save Mask only once!
+    if ~isempty(controls1(ic).Callback) && ~isempty(strfind(func2str(controls1(ic).Callback),'displayHelp')), continue; end % Display Help only once!
 
     CB = get(controls1(ic),'Callback');
     CB2 = get(controls2(ic),'Callback');
