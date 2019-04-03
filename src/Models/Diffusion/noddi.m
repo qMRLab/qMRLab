@@ -286,16 +286,6 @@ end
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
             obj.Prot.DiffusionData.Format{4}='Gnorm'; % old: '|G| (T/m)'
-
-            if checkanteriorver(version,[2 0 13])
-
-              obj.tabletip = struct('table_name',{'DiffusionData'},'tip', ...
-              {sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
-              'delta (s): Diffusion duration\nTE (s): Echo time.\nPlease visit our documentation for the computation of Delta and delta.\nRelevant issue #299 on GitHub (qMRLab / qMRLab).'])});
-              
-            end
-
-
         end
     end
 
