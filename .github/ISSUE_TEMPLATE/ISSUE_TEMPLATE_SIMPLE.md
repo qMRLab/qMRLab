@@ -1,3 +1,11 @@
+---
+name: Basic template
+about: Describe your problem using a basic template
+title: ''
+labels: ''
+assignees: ''
+
+---
 ## Expected Behavior
 
 
