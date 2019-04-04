@@ -1,3 +1,11 @@
+---
+name: Bug report - Q&A
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
 ## *Who* is the bug affecting?
 <!-- Ex. All supervisors, Sally Supervisor, Level 1 CCs -->
 
