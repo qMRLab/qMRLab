@@ -84,7 +84,10 @@ classdef BrowserSet
                 set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
                 set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
                 set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
-
+                
+                if strcmp(InputName,'Mask')
+                    delete(obj.ViewBtn);
+                end
             end % testing varargin
         end % constructor end
 
@@ -98,7 +101,9 @@ classdef BrowserSet
             set(obj.NameText, 'Visible', Visibility);
             set(obj.BrowseBtn, 'Visible', Visibility);
             set(obj.FileBox, 'Visible', Visibility);
-            set(obj.ViewBtn, 'Visible', Visibility);
+            if ~strcmp(obj.NameID{1},'Mask')
+                set(obj.ViewBtn, 'Visible', Visibility);
+            end
             set(obj.InfoBtn, 'Visible', Visibility);
         end
 
