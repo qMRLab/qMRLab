@@ -4,11 +4,7 @@ if ~exist('CurrentName','var') || strcmp(CurrentName,'Mask')
 else
     set(handles.SourcePop, 'Value',  find(strcmp(handles.CurrentData.fields,CurrentName)));
 end
-set(handles.ViewPop,   'Value',  1);
-handles.tool.setviewplane(3);
-set(handles.ViewPop,   'UserData',  1);
 
-UpdatePopUp(handles);
 
 Data = handles.CurrentData;
 if isfield(Data,'Mask'), Mask = Data.Mask; Data.fields(strcmp(Data.fields,'Mask'))=[]; else Mask = []; end
@@ -20,6 +16,7 @@ else
     Current{1} = Mask;
 end
 handles.tool.setImage(Current,[],[],[],[],Mask);
+UpdatePopUp(handles);
 
 % Set Volume Number
 if exist('CurrentName','var')

@@ -169,7 +169,30 @@ else % process entire volume
     if isfield(data,'Mask') && (~isempty(data.Mask))
         fields =  fieldnames(data);
         for ff = 1:length(fields)
-            data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+             
+             % Developer note: 
+             % Keeping this verbose statement as an example of how 
+             % previous matlab versions can fail to produce the 
+             % expected functionality. Issue #331. 
+                
+             if ~moxunit_util_platform_is_octave
+                 
+                 if verLessThan('matlab','9.0')
+                     
+                     % Introduced in R2007a
+                     data.(fields{ff}) = bsxfun(@times, data.(fields{ff}),double(data.Mask>0));
+                     
+                 else
+                      % Introduced in 2016
+                     data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 end
+                 
+             else % If Octave 
+                 
+                 data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 
+             end
+             
         end
     end
     Fit = Model.fit(data);
