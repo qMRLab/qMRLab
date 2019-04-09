@@ -25,21 +25,24 @@ classdef qsm_sb < AbstractModel
 %       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
 %
 %    Explanation of all parameters:
-%       chiSBM
-%       chiSB
-%       chiL2M
-%       chiL2
-%       nfm
-%       unwrappedPhase
-%       maskOut (maskSharp, gradientMask or same as the input)
+%       chiSBM  Susceptibility map created using Split-Bregman method with magnitude weighting 
+%       chiSB   Susceptibility map created using Split-Bregman method without magnitude weighting.
+%       chiL2M  Susceptibility map created using L2 regularization with magnitude weighting
+%       chiL2   Susceptibility map created using L2 regularization without magnitude weighting
+%       nfm     Susceptibility map created without regularization
+%       unwrappedPhase  Unwrapped phase image using Laplacian-based method
+%       maskOut (maskSharp, gradientMask or same as the input) Binary mask
 %
 %
 % Options:
 %   To be listed.
-%
-%
-%
-%
+%       Derivative direction (Direction: forward/backward [char])
+%       Sharp Filtering (State: true/false [bool], Sharp Mode: once/iterative [char],Padding Size [1X3 int], Magnitude Weighting: on/off [bool])
+%       L1-Regularization (Lambda-L1 [double], L1-Range [double], Reoptimize L1 parameters [bool])
+%       L2-Regularization (Lambda-L2 [double], L2-Range [double], Reoptimize L2 parameters [bool])
+%       Split-Bregman Method (State: true/false [bool])
+%       Use Magnitude Weighting (State: true/false [bool])
+%       
 % Authors: Agah Karakuzu
 %
 % References:
@@ -297,7 +300,7 @@ function FitResults = fit(obj,data)
       [FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize);
       disp('Completed  : Calculation of chi_L2 map without magnitude weighting.');
       disp('-----------------------------------------------');
-
+      genBatch_
     end
 
   elseif FitOpt.regL2_Flag && not(FitOpt.reoptL2_Flag ) % || DO NOT reopt Lambda L2 case chi_L2 generation
