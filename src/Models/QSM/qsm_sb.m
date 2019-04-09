@@ -1,59 +1,68 @@
 classdef qsm_sb < AbstractModel
-% qsm_sb :  Fast reconstruction quantitative susceptibility maps with total
-% variation penalty and automatic regularization parameter selection.
-%
-% Inputs:
-%   PhaseGRE    3D GRE acquisition. << Wrapped phase image. >>
-%   (MagnGRE)   3D GRE acquisition. << Magnitude part of the image. >>
-%   Mask        Brain extraction mask.
+% qsm_sb: Compute a T1 map using Variable Flip Angle
 %
 % Assumptions:
-% (1)
-% (2)
-%
-% Fitted Parameters:
-%
-%    Case - Split-Bregman:
+% Type/number of outputs will depend on the selected options. 
+% (1) Case - Split-Bregman:
 %       i)  W/ magnitude weighting:  chiSBM, chiL2M, chiL2, unwrappedPhase, maskOut
 %       ii) W/O magnitude weighting: chiSM, chiL2, unwrappedPhase, maskOut
-%
-%    Case - L2 Regularization:
+% (2) Case - L2 Regularization:
 %       i)  W/ magnitude weighting:  chiL2M, chiL2, unwrappedPhase, maskOut
 %       ii) W/O magnitude weighting: chiL2, unwrappedPhase, maskOut
-%
-%    Case - No Regularization:
+% (3) Case - No Regularization: 
 %       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
+% Inputs:
+%   PhaseGRE      3D GRE acquisition. <<Wrapped phase image>>
+%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>>
+%   Mask          Brain extraction mask.
 %
-%    Explanation of all parameters:
-%       chiSBM  Susceptibility map created using Split-Bregman method with magnitude weighting 
-%       chiSB   Susceptibility map created using Split-Bregman method without magnitude weighting.
-%       chiL2M  Susceptibility map created using L2 regularization with magnitude weighting
-%       chiL2   Susceptibility map created using L2 regularization without magnitude weighting
-%       nfm     Susceptibility map created without regularization
-%       unwrappedPhase  Unwrapped phase image using Laplacian-based method
-%       maskOut (maskSharp, gradientMask or same as the input) Binary mask
-%
+% Outputs:
+%   chiSBM          Susceptibility map created using Split-Bregman method with magnitude weighting 
+%   chiSB           Susceptibility map created using Split-Bregman method without magnitude weighting.
+%   chiL2M          Susceptibility map created using L2 regularization with magnitude weighting
+%   chiL2           Susceptibility map created using L2 regularization without magnitude weighting
+%   nfm             Susceptibility map created without regularization
+%   unwrappedPhase  Unwrapped phase image using Laplacian-based method
+%   maskOut         Binary mask (maskSharp, gradientMask or same as the input)
 %
 % Options:
-%   To be listed.
-%       Derivative direction (Direction: forward/backward [char])
-%       Sharp Filtering (State: true/false [bool], Sharp Mode: once/iterative [char],Padding Size [1X3 int], Magnitude Weighting: on/off [bool])
-%       L1-Regularization (Lambda-L1 [double], L1-Range [double], Reoptimize L1 parameters [bool])
-%       L2-Regularization (Lambda-L2 [double], L2-Range [double], Reoptimize L2 parameters [bool])
-%       Split-Bregman Method (State: true/false [bool])
-%       Use Magnitude Weighting (State: true/false [bool])
-%       
-% Authors: Agah Karakuzu
+%   Derivative direction               Direction of the derivation 
+%                                        - forward 
+%                                        - backward
+%   SHARP Filtering                    Sophisticated harmonic artifact reduction for phase data
+%                                        - State: true/false
+%                                        - Mode: once/iterative 
+%                                        - Padding Size: [1X3 array]
+%                                        - Magnitude Weighting: on/off
+%   L1-Regularization                  Apply L1-regularization 
+%                                        - State: true/false
+%                                        - Reoptimize parameters:
+%                                        true/false
+%                                        - Lambda-L1: [double]
+%                                        - L1-Range:  [1X2 array]
+%   L2-Regularization                  Apply L2-regularization 
+%                                        - State: true/false
+%                                        - Reoptimize parameters:
+%                                        true/false
+%                                        - Lambda-L2: [double]
+%                                        - L2-Range:  [1X2 array]
+%   Split-Bregman                       Apply Split-Bregman method 
+%                                        - State: true/false
+%                                        - Reoptimize parameters:
+%
+% Authors: Agah Karakuzu, 2018
 %
 % References:
 %   Please cite the following if you use this module:
-%
 %     Bilgic et al. (2014), Fast quantitative susceptibility mapping with
 %     L1-regularization and automatic parameter selection. Magn. Reson. Med.,
 %     72: 1444-1459. doi:10.1002/mrm.25029
-%
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, 
+%     Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging 
+%     made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. 
+%     Reson.. doi: 10.1002/cmr.a.21357
+
 
 properties
 
