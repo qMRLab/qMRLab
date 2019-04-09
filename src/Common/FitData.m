@@ -95,6 +95,7 @@ if Model.voxelwise % process voxelwise
     end
 
     if (isempty(h)), fprintf('Starting to fit data.\n'); end
+    fitFailedCounter = 0;
     for ii = 1:numVox
         vox = Voxels(ii);
         
@@ -105,7 +106,7 @@ if Model.voxelwise % process voxelwise
 
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
-            waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d', ii, numVox));
+            waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d (%d errors)', ii, numVox, fitFailedCounter));
         end
 
         % Get current voxel data
@@ -114,26 +115,36 @@ if Model.voxelwise % process voxelwise
         end
         if isfield(data,'hdr'), M.hdr = data.hdr; end
         % Fit data
-        tempFit = Model.fit(M);
+        try
+            tempFit = Model.fit(M);
+            fitFailed = false;
+        catch err
+            [xii,yii,zii] = ind2sub([x y z],vox);
+            fprintf(2, 'Error in voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+            fitFailed = true;
+            fitFailedCounter = fitFailedCounter + 1;
+        end
         if isempty(tempFit), Fit=[]; return; end
 
         % initialize the outputs
-        if ii==1 && ~exist('Fittmp','var')
+        if ~exist('Fit','var') && ~fitFailed
             fields =  fieldnames(tempFit)';
 
             for ff = 1:length(fields)
-                Fit.(fields{ff}) = zeros(x,y,z,length(tempFit.(fields{ff})));
+                Fit.(fields{ff}) = nan(x,y,z,length(tempFit.(fields{ff})));
             end
             Fit.fields = fields;
             Fit.computed = zeros(x,y,z);
         end
 
         % Assign current voxel fitted values
-        for ff = 1:length(fields)
-            [xii,yii,zii] = ind2sub([x,y,z],vox);
-            Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
+        if ~fitFailed
+            for ff = 1:length(fields)
+                [xii,yii,zii] = ind2sub([x,y,z],vox);
+                Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
+            end 
         end
-
+        
         Fit.computed(vox) = 1;
         
         %  save temp file every 5min
