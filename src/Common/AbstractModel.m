@@ -139,9 +139,12 @@ classdef (Abstract) AbstractModel
             objectProperties = fieldnames(objStruct);
             %Loop through all object properties
             for propIndex = 1:length(objectProperties)
-
+                  
                 % Assign object property value to identically named struct field.
+                if ismember(objectProperties{propIndex},fieldnames(loadedStruct))
                 obj.(objectProperties{propIndex}) = loadedStruct.(objectProperties{propIndex});
+                end
+           
             end
 
         end
