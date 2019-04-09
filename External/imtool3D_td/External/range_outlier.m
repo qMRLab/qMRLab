@@ -2,9 +2,7 @@ function [xmin, xmax] = range_outlier(x,qt)
 if nargin<2, qt=5; end
 % detect outliers based on 5 times the Interquartile Range
 x=x(unique(round(linspace(1,numel(x),min(5000,numel(x)))))); x(isinf(x))=[]; x(isnan(x))=[]; 
-xmin = x==min(x); xmax= x==max(x); 
-xmin(find(xmin,1))=false; xmax(find(xmax,1))=false;
-x(xmin | xmax)=[];
+x = unique(x);
 if isempty(x)
     xmin=nan; xmax=nan;
     if nargout<2
