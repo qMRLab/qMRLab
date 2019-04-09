@@ -618,7 +618,7 @@ classdef imtool3D < handle
             setImage(tool, varargin{:})
             
             % disable ROI tools if no image processing toolbox
-            result = license('test','image processing toolbox');
+            result = license('test','image_toolbox');
             if result==0
                 warning('Image processing toolbox is missing... ROI tools will not work')
             end
