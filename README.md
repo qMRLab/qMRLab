@@ -1,4 +1,4 @@
-# [qMRLab (beta)](https://qmrlab.org)
+# [qMRLab](https://qmrlab.org)
 [![Build Status](https://travis-ci.org/qMRLab/qMRLab.svg?branch=master)](https://travis-ci.org/qMRLab/qMRLab) [![Coverage Status](https://coveralls.io/repos/github/qMRLab/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/qMRLab/qMRLab?branch=master) [![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=latest)](https://qmrlab.readthedocs.io/en/master/?version=latest) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/MIT) [![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)](https://qmrlab.org) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/neuropoly/qMRLab/bids?filepath=qMRLab/mt_sat_example.ipynb) [![DockerHub](https://img.shields.io/badge/DockerHub-qmrlab-blue.svg)](https://hub.docker.com/r/neuropoly/qmrlab/) [![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&label=Follow)](https://twitter.com/qmrlab)
 
 ![hdr](/docs/logo/page_header.png)
@@ -29,10 +29,12 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 **Applications**
 
+* [Romero and Sinha.  *Magnetization Transfer Saturation Imaging of Human Calf Muscle: Reproducibility and Sensitivity to Regional and Sex Differences* J Magn Reson Imaging 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/jmri.26694)
+* [Michálek et al.  *Fast and accurate compensation of signal offset for T<sub>2</sub> mapping* Magn Reson Mater Phy 2019](https://link.springer.com/article/10.1007/s10334-019-00737-3)
 * [Barbieri et al. *Circumventing the Curse of Dimensionality in Magnetic Resonance Fingerprinting through a Deep Learning Approach.* arXiv:1811.11477](https://arxiv.org/abs/1811.11477)
 * [Varma et al. *Low duty-cycle pulsed irradiation reduces magnetization transfer and increases the inhomogeneous magnetization transfer effect.* J of Mag Res 2018](https://www.sciencedirect.com/science/article/abs/pii/S1090780718302088)
 * [Campbell et al. *Promise and pitfalls of g-ratio estimation with MRI.* NeuroImage 2018](https://www.sciencedirect.com/science/article/pii/S1053811917306857)
-* [Boudreau et al. *Sensitivity regularization of the Cramér‐Rao lower bound to minimize B1 nonuniformity effects in quantitative magnetization transfer imaging.* Mag Res Med 2018](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.27337)
+* [Boudreau and Pike. *Sensitivity regularization of the Cramér‐Rao lower bound to minimize B1 nonuniformity effects in quantitative magnetization transfer imaging.* Mag Res Med 2018](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.27337)
 
 **Interactive Tutorials**
 
