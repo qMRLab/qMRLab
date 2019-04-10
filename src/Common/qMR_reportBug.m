@@ -5,15 +5,18 @@ function qMR_reportBug(exception)
 %
 % example:
 %   qMR_reportBug(MException.last)
-
-persistent err
+if ~ispref('qMRLab','err')
+    addpref('qMRLab','err',{});
+end
+err = getpref('qMRLab','err');
 if isempty(err), err={}; end
 knownerror = cell2mat(cellfun(@(x) isequal(exception,x),err,'uni',0));
 if any(knownerror)
-    disp('error already reported. return. (''clear all'' variables to reset error history)')
+    disp('error already reported. return.')
     return;
 else
     err{end+1} = exception;
+    setpref('qMRLab','err',err);
 end
 
 if nargin<1, help('qMR_reportBug'); return; end
