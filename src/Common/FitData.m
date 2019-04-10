@@ -179,22 +179,22 @@ if Model.voxelwise % process voxelwise
                 calculated = Fit.(crField);
                 
                 if ~isequal(size(expected),size(calculated))
-                    message = ['Exception in ' Model.ModelName ' ' crField];
-                    whatswrong='inputs are not of the same size';
+                    message = ['FAILED assertion at 5% : ' crField '--->' Model.ModelName]; 
+                    whatswrong='Inputs are not of the same size.';
                     error_id='assertEqual:nonEqual';
                     full_message=moxunit_util_input2str(message,whatswrong,expected,calculated);
                     % Assuming ISTRAVIS is always Octave for now.
                     error(error_id,'%s',full_message);
                 end
                 
-                % Allow 10% difference
+                % Allow 5% difference
                 assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),...
-                    'relative',0.001);
+                    'relative',0.05,['FAILED assertion at 5% : ' crField '--->' Model.ModelName]);
                 
                 
             end
             
-            disp([Model.ModelName ' fitted vs loaded : PASS']);
+            disp(['PASSED assertion at 5% : ' Model.ModelName])
             
         end
         
