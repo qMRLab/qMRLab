@@ -40,7 +40,7 @@ function  link = getLink(modelName)
   case 'dti'
 
     if ISTRAVIS
-      link = 'https://osf.io/w2efg/download?version=1'; % Octave output
+      link = 'https://osf.io/w2efg/download?version=2'; % Octave output
     else
       link = 'https://osf.io/qh87b/download?version=4'; % Matlab output
     end
