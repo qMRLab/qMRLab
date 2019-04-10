@@ -11,7 +11,7 @@ classdef dti < AbstractModel
 %   (Mask)              Binary mask to accelerate the fitting
 %
 % Outputs:
-%   D                   [Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Difffusion Tensor
+%   D                   [Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Diffusion Tensor
 %   L1                  1rst eigenvalue of D
 %   L2                  2nd eigenvalue of D
 %   L3                  3rd eigenvalue of D
@@ -33,7 +33,7 @@ classdef dti < AbstractModel
 %     TE (s)            Echo time
 %
 % Options:
-%   fitting type                    
+%   fitting type
 %     'linear'                              Solves the linear problem (ln(S/S0) = -bD)
 %     'non-linear (Rician Likelihood)'      Add an additional fitting step,
 %                                            using the Rician Likelihood.
@@ -60,54 +60,54 @@ classdef dti < AbstractModel
 %      FitResults = FitData(data,Model);
 %      % SAVE results to NIFTI
 %      FitResultsSave_nii(FitResults,'DiffusionData.nii.gz'); % use header from 'DiffusionData.nii.gz'
-%          
+%
 %   For more examples: <a href="matlab: qMRusage(dti);">qMRusage(dti)</a>
 %
 % Author: Tanguy Duval, 2016
 %
 % References:
 %   Please cite the following if you use this module:
-%     Basser, P.J., Mattiello, J., LeBihan, D., 1994. MR diffusion tensor spectroscopy and imaging. Biophys. J. 66, 259?267.   
+%     Basser, P.J., Mattiello, J., LeBihan, D., 1994. MR diffusion tensor spectroscopy and imaging. Biophys. J. 66, 259?267.
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/qh87b/download/';
+    onlineData_url = 'https://osf.io/qh87b/download?version=4';
 end
 
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'};
         xnames = {'L1','L2','L3'};
         voxelwise = 1;
-        
+
         % fitting options
         st           = [ 2      0.7     0.7]; % starting point
         lb           = [ 0       0       0 ]; % lower bound
         ub           = [ 5       5       5 ]; % upper bound
         fx           = [ 0       0        0]; % fix parameters
-        
+
         % Protocol
         Prot = struct('DiffusionData',...
                     struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
                             'Mat', txt2mat('NODDIProtocol.txt','InfoLevel',0))); % You can define a default protocol here.
-        
+
         % Model options
         buttons = {'fitting type',{'non-linear (Rician Likelihood)','linear'},'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10};
         options = struct();
-        
+
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
+
     methods
         function obj = dti
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
         function obj = UpdateFields(obj)
-            obj.fx = [0 0 0]; 
+            obj.fx = [0 0 0];
             Prot = obj.Prot.DiffusionData.Mat;
             Prot(Prot(:,4)==0,1:6) = 0;
             [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
@@ -123,7 +123,7 @@ end
             elseif isempty(obj.options.Riciannoisebias_value)
                 obj.options.Riciannoisebias_value=10;
             end
-            
+
             % disable Rician noise panel if linear
             if strcmp(obj.options.fittingtype,'linear')
                 obj.buttons{strcmp(obj.buttons,'Rician noise bias') | strcmp(obj.buttons,'###Rician noise bias')} = '###Rician noise bias';
@@ -142,28 +142,28 @@ end
             D      = zeros(3,3);
             % parse input
             if isfield(x,'D'), D(:) = x.D; % full tensor
-            else D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3; 
+            else D(1,1) = x.L1; D(2,2) = x.L2; D(3,3) = x.L3;
             end
-            
+
             % equation
             Smodel = exp(-bvalue.*diag(bvec*D*bvec'));
-            
+
             % compute Fiber Direction
             [V,L] = eig(D);
             [L,I] = max(diag(L));
             fiberdirection = V(:,I);
         end
-        
+
         function FitResults = fit(obj,data)
             if isempty(obj.Prot.DiffusionData.Mat) || size(obj.Prot.DiffusionData.Mat,1) ~= length(data.DiffusionData(:)), errordlg('Load a valid protocol'); FitResults = []; return; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
             % normalize with respect to b0
             S0 = scd_preproc_getS0(data.DiffusionData,Prot);
-            
+
             % Detect negative values
             if min(data.DiffusionData)<0
-                %warning('Negative values detected in DiffusionData. threshold to 0.'); 
-                data.DiffusionData = max(0,data.DiffusionData); 
+                %warning('Negative values detected in DiffusionData. threshold to 0.');
+                data.DiffusionData = max(0,data.DiffusionData);
             end
 
             % fit
@@ -179,8 +179,8 @@ end
                 else
                     SigmaNoise = obj.options.Riciannoisebias_value;
                 end
-                
-                
+
+
                 if ~moxunit_util_platform_is_octave && SigmaNoise
                     [xopt, residue] = fminunc(@(x) double(-2*sum(scd_model_likelihood_rician(data.DiffusionData,max(eps,S0.*equation(obj, x)), SigmaNoise))), D(:), optimoptions('fminunc','MaxIter',20,'display','off','DiffMinChange',0.03,'Algorithm','quasi-newton'));
                     D(:)=xopt;
@@ -202,22 +202,22 @@ end
             end
 
         end
-        
+
         function plotModel(obj, FitResults, data)
             % plotModel(obj, FitResults, data)
-            % EXAMPLE: 
+            % EXAMPLE:
             %   A = DTI;
             %   L1 = 1; L2 = 1; L3 = 3;
             %   A.plotModel([L1 L2 L3]);
-            
+
             if nargin<2, FitResults=obj.st; end
 
             % Prepare inputs
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
-            
+
             % compute model
             [Smodel, fiberdirection] = equation(obj, FitResults);
-                        
+
             % plot
             if exist('data','var')
                 data = data.DiffusionData;
@@ -234,11 +234,11 @@ end
                     end
                 end
             end
-            
+
             % plot fitting curves
             scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'none','-');
         end
-        
+
         function plotProt(obj)
             % round bvalue
             Prot      = obj.Prot.DiffusionData.Mat;
@@ -260,7 +260,7 @@ end
             [V,L] = eig(D);
             [L,I] = max(diag(L));
             fiberdirection = V(:,I);
-            
+
             if display
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
                 h = scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'o','none');
@@ -277,19 +277,19 @@ end
                 plotModel(obj, FitResults, data);
             end
         end
-        
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
-            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);            
+            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
         end
-        
+
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
-        
+
     end
-    
+
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
@@ -299,7 +299,7 @@ end
                obj.buttons(index:(index+1)) = [];
                obj.options = rmfield(obj.options, 'ComputeSigmapervoxel');
             end
-            
+
             % New fitting method
             if checkanteriorver(version,[2 0 9])
                 obj.buttons = ['fitting type',{{'non-linear (Rician Likelihood)','linear'}}, obj.buttons];

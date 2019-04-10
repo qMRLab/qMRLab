@@ -93,7 +93,7 @@ noise_level :  Noise histogram fitting within a noise mask
    </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = noise_level;
    </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
             |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   </pre><img src="_static/noise_level_batch_01.png" vspace="5" hspace="5" style="width:569px;height:833px;" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- noise_level object needs 2 data input(s) to be assigned:
+   </pre><img src="_static/noise_level_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- noise_level object needs 2 data input(s) to be assigned:
             |-   Data4D
             |-   NoiseMask</pre><pre class="codeinput">data = struct();
    <span class="comment">% Data4D.nii.gz contains [70   70    4  197] data.</span>
@@ -102,17 +102,24 @@ noise_level :  Noise histogram fitting within a noise mask
    data.NoiseMask=double(load_nii_data(<span class="string">'noise_level_data/NoiseMask.nii.gz'</span>));
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">     N        eta      sigma_g
-       1.0000    0.0000    7.8648
+       1.0000    0.0000    7.8621
    
    ...done
-   </pre><img src="_static/noise_level_batch_02.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
-            |- If available, a graph will be displayed to show fitting in a voxel.</pre><pre class="codeinput">qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/noise_level_batch_03.png" vspace="5" hspace="5" style="width:560px;height:420px;" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+   </pre><img src="_static/noise_level_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
+            |- If available, a graph will be displayed to show fitting in a voxel.
+            |- To make documentation generation and our CI tests faster for this model,
+               we used a subportion of the data (40X40X40) in our testing environment.
+            |- Therefore, this example will use FitResults that comes with OSF data for display purposes.
+            |- Users will get the whole dataset (384X336X224) and the script that uses it for demo
+               via qMRgenBatch(qsm_sb) command.</pre><pre class="codeinput">FitResults_old = load(<span class="string">'FitResults/FitResults.mat'</span>);
+   qMRshowOutput(FitResults_old,data,Model);
+   </pre><img src="_static/noise_level_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
                  own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'noise_level_data/Data4D.nii.gz'</span>);
    Model.saveObj(<span class="string">'noise_level_Demo.qmrlab.mat'</span>);
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for noise_level.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
@@ -121,4 +128,4 @@ noise_level :  Noise histogram fitting within a noise mask
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2016b</a><br ></p></div>
+   </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>
