@@ -21,79 +21,36 @@ qMRLabDir = fileparts(which('qMRLab.m'));
 qmrexcep = strfind({exception.stack.file},qMRLabDir);
 if any(~cellfun(@isempty,qmrexcep))
     warning('qMRLab error detected');
-    % remove directory
     buggyfiles = exception.stack;
+    % keep only qMRLab errors
+    buggyfiles = buggyfiles(logical(cell2mat(qmrexcep)));
+    % remove directory
+
     for ii=1:length(buggyfiles)
-        if ~isempty(qmrexcep{ii})
-            buggyfiles(ii).file = [strrep(strrep(buggyfiles(ii).file,qMRLabDir,'https://github.com/qMRLab/qMRLab/blob/master'),filesep,'/') '#L' num2str(buggyfiles(ii).line)];
-        else
-            [~,buggyfiles(ii).file] = fileparts(buggyfiles(ii).file); 
-        end
+        buggyfiles(ii).file = [strrep(strrep(buggyfiles(ii).file,qMRLabDir,'https://github.com/qMRLab/qMRLab/blob/master'),filesep,'/') '#L' num2str(buggyfiles(ii).line)];
     end
     
     % create structure to be sent
-    errortext.message = exception.message;
-    errortext.identifier = exception.identifier;
-    errortext.stack = buggyfiles;
-    txt = savejson(errortext);
-    txt = strrep(txt,'\/','/');
-    Questions = {sprintf('OUPS... A BUG OCCURED\n\n1- Your Email (optional):') '2- Name / GitHub username (optional)' '3- Describe what happened (optional)' '4- Bug Content'};
-    txt2send = inputdlg(Questions,'Report the following bug to the qMRLab dev team?',[1 30; 1 30; 10 200; 10 200],{'' '' sprintf('I was trying to ...\n\n...when the bug happened') [sprintf('qMRLab version: v%i.%i.%i\nMatlab version: %s\n\n',qMRLabVer,version) txt]});
+    message = exception.message;
+    stack = sprintf('%s\n',buggyfiles.file);
+    stack = strrep(stack,'\/','/');
+    body  = sprintf(['qMRLab version: v%i.%i.%i\n',...
+                     'Matlab version: %s\n\n',...
+                     'Error message:\n',...
+                     '`%s`\n',...
+                     '\nStack:\n',...
+                     '%s\n'],...
+                     qMRLabVer,version,message,stack);
+    body = urlencode(body);
+    title = '[USER]';
     
-    if ~isempty(txt2send)
-        txt2send = Interleave(Questions,txt2send);
-        txt=cellfun(@cellstr,txt2send,'uni',false)
-        txt = cat(1,txt{:});
-        txt = sprintf('%s\n',txt{:});
-        disp('sending...')
-        disp(txt)
+    % report
+    answer = questdlg('Report Bug on GitHub?','OUPS... A BUG OCCURED','Yes','No','Yes');    
+    if strcmp(answer,'Yes')
         try
-            % send error
-            
-            % Store pref
-            list2store = {'E_mail','SMTP_Server','SMTP_Username','SMTP_Password'};
-            storeprefcontent = {};
-            for ils=1:length(list2store)
-                if ispref('Internet',list2store{ils})
-                    storeprefcontent{ils} = getpref('Internet',list2store{ils});
-                else
-                    storeprefcontent{ils} = '';
-                end
-            end
-            props = java.lang.System.getProperties;
-            try
-                auth = props.getProperty('mail.smtp.auth');
-            end
-            
-            % Set pref
-            setpref('Internet','E_mail','qMRLabbugreport@company.com')
-            setpref('Internet','SMTP_Server','mail.smtp2go.com')
-            
-            props.setProperty('mail.smtp.auth','true');
-            props.setProperty('mail.smtp.timeout', '2000');
-            props.setProperty('mail.smtp.connectiontimeout', '2000');
-            props.setProperty('mail.smtp.port','2525');
-            props.setProperty('mail.smtp.socketFactory.class','javax.net.ssl.SSLSocketFactory');
-            props.setProperty('mail.smtp.socketFactory.port','465');
-
-            setpref('Internet','SMTP_Username','qMRLabBugReport');
-            setpref('Internet','SMTP_Password','E3dUgoH4101M');
-            
-            % SEND MAIL
-            sendmail('tanguy.duval@polymtl.ca','qMRLab issue',txt);
-            disp('Error reported... Thanks!')
-            
-            % Set back original pref
-            for ils=1:length(list2store)
-                setpref('Internet',list2store{ils},storeprefcontent{ils});
-            end
-            try
-                props.setProperty('mail.smtp.auth',auth);
-            end
-            
+            web(['https://github.com/qMRLab/qMRLab/issues/new?assignees=&labels=bug&body=' body '&title=' title], '-browser')
         catch ME2
-            warning('Notifier:SendmailError','Sendmail threw an error. Check sendmail before running again.');
-            warning('Nofifier:SendmailError',ME2.message);
+            warning('Nofifier:webError','%s',ME2.message);
         end
     else
         disp('not reporting error...')
