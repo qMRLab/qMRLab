@@ -256,11 +256,12 @@ else % process entire volume
         intrFields = intersect(origFit.fields,Fit.fields);
         
         for k = 1:length(intrFields)
-            crField = intrFields{k};    
-            assertElementsAlmostEqual(origFit.(crField),Fit.(crField),'relative',0.05)
+            crField = intrFields{k};
+            msg = ['FAILED assertion at 5% : ' crField '--->' Model.ModelName];    
+            assertElementsAlmostEqual(origFit.(crField),Fit.(crField),'relative',0.05,msg);
         end
         
-        disp([Model.ModelName ' fitted vs loaded : PASS'])
+        disp(['PASSED assertion at 5% : ' Model.ModelName])
         
         
     else
