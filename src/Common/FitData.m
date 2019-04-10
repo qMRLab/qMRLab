@@ -81,8 +81,8 @@ if Model.voxelwise % process voxelwise
     else
         Voxels = find(~computed)';
     end
-    l = length(Voxels);
-
+    numVox = length(Voxels);
+    
     % Travis?
     if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
 
@@ -94,17 +94,19 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
 
-    if (isempty(h)), j_progress('Fitting voxel ',l); end
-    for ii = 1:l
+    if (isempty(h)), fprintf('Starting to fit data.\n'); end
+    fitFailedCounter = 0;
+    for ii = 1:numVox
         vox = Voxels(ii);
-
+        
         % Update waitbar
         if (isempty(h))
             % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
-%            fprintf('Fitting voxel %d/%d\r',ii,l);
+            %            fprintf('Fitting voxel %d/%d\r',ii,l);
+
         else
             if getappdata(h,'canceling');  break;  end  % Allows user to cancel
-            waitbar(ii/l, h, sprintf('Fitting voxel %d/%d', ii, l));
+            waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d (%d errors)', ii, numVox, fitFailedCounter));
         end
 
         % Get current voxel data
@@ -113,36 +115,46 @@ if Model.voxelwise % process voxelwise
         end
         if isfield(data,'hdr'), M.hdr = data.hdr; end
         % Fit data
-        tempFit = Model.fit(M);
+        try
+            tempFit = Model.fit(M);
+            fitFailed = false;
+        catch err
+            [xii,yii,zii] = ind2sub([x y z],vox);
+            fprintf(2, 'Error in voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+            fitFailed = true;
+            fitFailedCounter = fitFailedCounter + 1;
+        end
         if isempty(tempFit), Fit=[]; return; end
 
         % initialize the outputs
-        if ii==1 && ~exist('Fittmp','var')
+        if ~exist('Fit','var') && ~fitFailed
             fields =  fieldnames(tempFit)';
 
             for ff = 1:length(fields)
-                Fit.(fields{ff}) = zeros(x,y,z,length(tempFit.(fields{ff})));
+                Fit.(fields{ff}) = nan(x,y,z,length(tempFit.(fields{ff})));
             end
             Fit.fields = fields;
             Fit.computed = zeros(x,y,z);
         end
 
         % Assign current voxel fitted values
-        for ff = 1:length(fields)
-            [xii,yii,zii] = ind2sub([x,y,z],vox);
-            Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
+        if ~fitFailed
+            for ff = 1:length(fields)
+                [xii,yii,zii] = ind2sub([x,y,z],vox);
+                Fit.(fields{ff})(xii,yii,zii,:) = tempFit.(fields{ff});
+            end 
         end
-
+        
         Fit.computed(vox) = 1;
         
         %  save temp file every 5min
         telapsed = toc(tStart);
-       if (mod(floor(telapsed/60),5) == 0 && (telapsed-tsaved)/60>5) % 
-           tsaved = telapsed;
+        if (mod(floor(telapsed/60),5) == 0 && (telapsed-tsaved)/60>5) %
+            tsaved = telapsed;
             save('FitTempResults.mat', '-struct','Fit');
         end
-
-
+        
+        
         if ISTRAVIS && ii>2
             
             try
@@ -187,7 +199,7 @@ if Model.voxelwise % process voxelwise
         end
         
     end
-
+    
 else % process entire volume
     
     % AK: Commenting out this block. Modal window is actually annoying.
@@ -200,6 +212,37 @@ else % process entire volume
         set(hMSG,'pointer', 'watch'); drawnow;
     end
     %}
+    
+    % Mask data before fitting
+    if isfield(data,'Mask') && (~isempty(data.Mask))
+        fields =  fieldnames(data);
+        for ff = 1:length(fields)
+             
+             % Developer note: 
+             % Keeping this verbose statement as an example of how 
+             % previous matlab versions can fail to produce the 
+             % expected functionality. Issue #331. 
+                
+             if ~moxunit_util_platform_is_octave
+                 
+                 if verLessThan('matlab','9.0')
+                     
+                     % Introduced in R2007a
+                     data.(fields{ff}) = bsxfun(@times, data.(fields{ff}),double(data.Mask>0));
+                     
+                 else
+                      % Introduced in 2016
+                     data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 end
+                 
+             else % If Octave 
+                 
+                 data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 
+             end
+             
+        end
+    end
     
     if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
 
@@ -223,7 +266,7 @@ else % process entire volume
     else
         
         Fit = Model.fit(data);
-        
+        Fit.fields = fieldnames(Fit);
         disp('...done');
         
     end

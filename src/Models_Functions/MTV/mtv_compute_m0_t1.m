@@ -1,6 +1,6 @@
 function [M0, T1] = mtv_compute_m0_t1(data, flipAngles, TR, b1Map, roi, fixT1, verbose)
 
-% function function [M0 T1] = fitData_MTV (data, flipAngles, TR [, b1Map, roi, fixT1, verbose])
+% function function [M0 T1] = mtv_compute_m0_t1 (data, flipAngles, TR [, b1Map, roi, fixT1, verbose])
 % -----------------------------------------------------------
 % This function performs a weighted-least squares data fit
 % on SPGR T1-weighted data set
@@ -18,13 +18,12 @@ function [M0, T1] = mtv_compute_m0_t1(data, flipAngles, TR, b1Map, roi, fixT1, v
 %
 
 if ndims(data)<3, data = permute(data(:),[2 3 4 1]); end
+dataSize = size(data);
 if (nargin < 4) || isempty(b1Map)
-    dataSize = size(data);
     b1Map = ones([dataSize(1:end-1) 1]);
 end
 
 if nargin<5 || isempty(roi)
-    dataSize = size(data);
     roi = ones(dataSize(1:end-1));
 end
 
@@ -39,8 +38,8 @@ end
 if max(size(b1Map) ~= dataSize(1:length(size(b1Map)))), error('B1 size is different from data size'); end
 
 dims = size(data);
-T1 = zeros([dims(1:end-1)]);
-M0 = zeros([dims(1:end-1)]);
+T1 = zeros(dims(1:end-1));
+M0 = zeros(dims(1:end-1));
 
 warning('off');
 %sprintf('%s\n\n\n','loop over voxels...')

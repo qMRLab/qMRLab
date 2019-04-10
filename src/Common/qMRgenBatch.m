@@ -55,7 +55,7 @@ if ~exist('nodwnld','var') || ~nodwnld
 else
     demoDir = path;
 end
-
+if isempty(demoDir), return; end
 
 sep = filesep;
 % Directory definition ====================== END
@@ -119,11 +119,23 @@ end
 % Replace jokers ====================== START
 
 % Read template line by line into cell array
-fid = fopen('genBatch.qmr');
-allScript = textscan(fid,'%s','Delimiter','\n');
-fclose(fid);
-allScript = allScript{1}; % This is a cell aray that contains template
+% Developer note: 
+% Depending on the model, modifications to the standard template may be
+% neccesary. If other model specific templates are needed for auto batch
+% generation, please account for that here. To name this file:
+%
+% Please do not use underscores or any other special chars.
+% foo_model --> genBatchfoomodel.qmr
 
+if ~isempty(getenv('ISTRAVIS')) % TEST ENV
+    if str2double(getenv('ISTRAVIS')) || strcmp(varNames.modelName,'qsm_sb')   
+        allScript = getTemplateFile('genBatchqsm.qmr');   
+    else
+        allScript = getTemplateFile('genBatch.qmr'); 
+    end    
+else % USER 
+   allScript = getTemplateFile('genBatch.qmr'); 
+end
 
 % Recursively update newScript.
 % Indexed structure arrays can be generated to reduce this section into a
@@ -484,4 +496,12 @@ C = strsplit(inStr,'\n');
 C = C';
 Cnew = C(~cellfun(@isempty, C));
 Cnew = Cnew(2:end);
+end
+
+function allScript = getTemplateFile(fileName)
+    fid = fopen(fileName);
+    allScript = textscan(fid,'%s','Delimiter','\n');
+    fclose(fid);
+    allScript = allScript{1}; % This is a cell aray that contains template
+
 end
