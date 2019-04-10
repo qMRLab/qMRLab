@@ -88,7 +88,7 @@ classdef charmed < AbstractModel
 
 properties (Hidden=true)
 % Hidden proprties goes here.
-    onlineData_url = 'https://osf.io/u8n56/download?version=3';
+    onlineData_url = getLink('charmed');
     onlineData_filename = 'charmed.zip';
 end
 

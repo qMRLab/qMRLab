@@ -110,7 +110,7 @@ end % Public properties
 
 properties (Hidden = true)
 
-onlineData_url = getLink;
+onlineData_url = getLink('qsm_sb');
 
 end % Hidden public properties
 
