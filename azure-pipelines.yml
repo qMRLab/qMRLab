@@ -9,6 +9,24 @@ pool:
 variables:
   imageName: 'neuropoly/qmrlab2:$(build.buildId)'
 
+trigger:
+  branches:
+    include:
+    - master
+    - tristano_azure
+
+checkout:
+  submodules: false
+
+jobs:
+- job: QuickMox 
+  steps:
+  script: 
+    - |
+      octave --no-gui --eval "bootstrapTestAzure;cd('Test/MoxUnitCompatible/quickMoxTests'); \
+      res=moxunit_runtests('-recursive'); \
+      exit(~res);" 
+
 steps:
 - script: echo $HOME
   displayName: 'foo'
