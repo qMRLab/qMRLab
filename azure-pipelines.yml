@@ -14,16 +14,13 @@ trigger:
     include:
     - master
     - tristano_azure
-
-jobs:
-- job: QuickMox 
-  steps:
-  script: 
+stages:
+- stage: CI
+  jobs:
+  - job: Moxquick
+    steps:
+    script: 
     - |
       octave --no-gui --eval "bootstrapTestAzure;cd('Test/MoxUnitCompatible/quickMoxTests'); \
       res=moxunit_runtests('-recursive'); \
       exit(~res);" 
-
-steps:
-- script: echo $HOME
-  displayName: 'foo'
