@@ -19,6 +19,6 @@ steps:
 - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
   clean: false
   fetchDepth: 2
-- script: octave --no-gui --eval "bootstrapTestAzure; disp(pwd); ls;" 
+- script: octave --no-gui --eval "disp(pwd); ls;" 
 
 
