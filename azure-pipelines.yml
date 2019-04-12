@@ -19,7 +19,6 @@ steps:
 - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
   clean: false
   fetchDepth: 2
-- script: octave --no-gui --eval "bootstrapTestAzure;cd('Test/MoxUnitCompatible/quickMoxTests'); \
-          res=moxunit_runtests('-recursive'); \
-          exit(~res);" 
+- script: octave --no-gui --eval "bootstrapTestAzure;cd('Test/MoxUnitCompatible/quickMoxTests'); res=moxunit_runtests('-recursive'); exit(~res);" 
+
 
