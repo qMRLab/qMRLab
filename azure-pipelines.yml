@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/vsts/pipelines/languages/docker
 
 pool:
-  vmImage: 'default'
+  name: 'default'
 
 variables:
   imageName: 'neuropoly/qmrlab2:$(build.buildId)'
