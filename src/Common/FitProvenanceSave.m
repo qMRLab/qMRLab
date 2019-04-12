@@ -35,7 +35,7 @@ function details = getOSDetails
         
         if ~isempty(strfind(type,'apple')) % OSX Octave 
             
-            [st,out] = unix('cat /etc/os-release');
+            [st,out] = unix('system_profiler SPSoftwareDataType');
             
             if ~st
                 details = out;
@@ -47,7 +47,8 @@ function details = getOSDetails
         
         if ~isempty(strfind(type,'linux')) % GNU Linux Octave 
             
-            [st,out] = unix('system_profiler SPSoftwareDataType');
+            
+            [st,out] = unix('cat /etc/os-release');
             
             if ~st
                 details = out;
