@@ -15,9 +15,6 @@ trigger:
     - master
     - tristano_azure
 
-checkout:
-  submodules: false
-
 jobs:
 - job: QuickMox 
   steps:
