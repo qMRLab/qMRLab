@@ -1,8 +1,6 @@
 
 addpath(genpath(pwd));
 
-----------
-
 if moxunit_util_platform_is_octave
     
         more off;
