@@ -32,7 +32,7 @@ function  link = getLink(modelName)
   case 'qmt_sirfse'
     
     if ISTRAVIS
-      link = 'https://osf.io/v2k7q/download?version=1'; % Octave output
+      link = 'https://osf.io/v2k7q/download?version=2'; % Octave output
     else
       link  = 'https://osf.io/fk2nd/download?version=2'; % Matlab output
     end    
@@ -44,6 +44,16 @@ function  link = getLink(modelName)
     else
       link = 'https://osf.io/qh87b/download?version=4'; % Matlab output
     end
+
+
+  case 'noddi'
+
+    if TRAVIS
+      link = 'https://osf.io/9s2px/download?version=1'; 
+    else
+      link = 'https://osf.io/4s6rf/download?version=4';
+    end
+    
   end
 
 end

@@ -34,6 +34,8 @@ Model.sanityCheck(data);
 tStart = tic;
 tsaved = 0;
 
+FitProvenanceSave;
+
 h=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
     try, Model = Model.Precompute; end
