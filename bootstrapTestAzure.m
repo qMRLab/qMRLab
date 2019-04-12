@@ -1,5 +1,6 @@
 
 addpath(genpath(pwd));
+crDir = pwd;
 
 if moxunit_util_platform_is_octave
     
@@ -42,6 +43,7 @@ if moxunit_util_platform_is_octave
             error('Lsqcurvefit could not be loaded properly');
         end
         
+        cd(crDir);
     
 end
 
