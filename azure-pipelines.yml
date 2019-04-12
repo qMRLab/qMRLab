@@ -4,11 +4,11 @@
 # https://docs.microsoft.com/vsts/pipelines/languages/docker
 
 pool:
-  vmImage: 'Ubuntu 16.04'
+  vmImage: 'default'
 
 variables:
   imageName: 'neuropoly/qmrlab2:$(build.buildId)'
 
 steps:
-- script: docker build -f Dockerfile -t $(imageName) .
-  displayName: 'docker build'
+- script: echo $HOME
+  displayName: 'foo'
