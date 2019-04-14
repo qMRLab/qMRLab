@@ -13,7 +13,7 @@ trigger:
     - tristano_azure
     
 jobs:
-  - job: 'Test-1'
+  - job: 'Test1'
     pool:
       name: 'default'
     steps:
@@ -23,7 +23,7 @@ jobs:
       - script: octave --no-gui --eval "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible/quickMoxTests'); res=moxunit_runtests('-recursive'); exit(~res);"
         displayName: QuickMox
       
-  - job: 'Test-2'
+  - job: 'Test2'
     pool:
       name: 'default'
     steps:
