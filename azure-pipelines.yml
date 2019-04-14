@@ -3,9 +3,6 @@
 # Add steps that use Docker Compose, tag images, push to a registry, run an image, and more:
 # https://docs.microsoft.com/vsts/pipelines/languages/docker
 
-pool:
-  name: 'default'
-
 variables:
   imageName: 'neuropoly/qmrlab2:$(build.buildId)'
 
@@ -15,10 +12,24 @@ trigger:
     - master
     - tristano_azure
     
-steps:
-- checkout: self  # self represents the repo where the initial Pipelines YAML file was found
-  clean: false
-  fetchDepth: 2
-- script: octave --no-gui --eval "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible/quickMoxTests'); res=moxunit_runtests('-recursive'); exit(~res);" 
-
+jobs:
+  - job: 'Test-1'
+    pool:
+      name: 'default'
+    steps:
+      - checkout: self
+        clean: false
+        fetchDepth: 2
+      - script: | 
+        octave --no-gui --eval "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible/quickMoxTests'); res=moxunit_runtests('-recursive'); exit(~res);"
+        displayName: 'QuickMox'
+      
+  - job: 'Test-2'
+      pool:
+        name: 'default'
+      steps:
+        - script: |
+          octave --no-gui --eval "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible'); res=moxunit_runtests('BatchExample_qmt_sirfse_test.m'); exit(~res);"
+          displayName: 'qmt_sirfse'
+      
 
