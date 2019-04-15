@@ -1,3 +1,15 @@
+# This Dockerfile is intended for creating an image that contains: 
+#   - Jupyter
+#   - Octave and SOS kernel 
+#   - Interactive plotting (e.g. plotly)
+# 
+# Upon successful built, /home/jovyan/work/qMRLab will contain the qMRLab with the version described
+# in the Tag of the built Docker images. Please see build.sh for details. 
+# 
+# For usage instructions, please visit qMRLab's DockerHub organization. 
+#
+# Author: Agah Karakuzu, 2019
+
 FROM jupyter/base-notebook:8ccdfc1da8d5
 
 # PASSED ENV VARS: 
@@ -18,6 +30,7 @@ COPY . /tmp/
 # Install SOS kernel 
 # Pull qMRLab for deployment 
 
+# Following argument is neccesary. Please see build.sh. 
 ARG TAG 
 
 COPY requirements.txt /tmp/
