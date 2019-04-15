@@ -32,8 +32,7 @@ zip -r qMRLab_$version.zip /tmp/qMRLab
 # OSF_USERNAME and OSF_PASSWORD variables are set by the release pipeline
 
 projectID=tmdfu 
-osf -p $projectID -u $OSF_USERNAME upload /tmp/qMRLab_$version.zip Standalone/Ubuntu/qMRLab_$version.zip
-
+osf -p $projectID -u $OSF_USERNAME upload $AGENT_RELEASEDIRECTORY/qMRLab_$version.zip Standalone/Ubuntu/qMRLab_$version.zip
 
 fi
 
