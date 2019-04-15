@@ -17,7 +17,7 @@ echo "Compiling for version: $version"
 mkdir -p /tmp/qMRLab
 
 # Compile 
-mx "disp($AGENT_RELEASEDIRECTORY); cd($AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS); startup; qMRLab_make_standalone('/tmp/qMRLab');"
+mx "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
 
 if [ -z "$(ls -A /tmp/qMRLab)" ]; then
    echo "Empty, not zipping anything"
