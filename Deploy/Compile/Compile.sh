@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Assumptions: 
-# 1) /usr/local/bin/mx is responsible for routing matlab tasks to an existing session named matlab, running on tmux (tmux ls)
+# 1) /usr/local/bin/mx can route asynchronous matlab tasks to an existing session named matlab, running on tmux (tmux ls)
 # 2) Local machine has MATLAB installed and added it to the system path
 # 3) Local machine has Docker installed 
 # 4) Local machine has Azure agent set as described in https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops
@@ -17,7 +17,10 @@ echo "Compiling for version: $version"
 mkdir -p /tmp/qMRLab
 
 # Compile 
-mx "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
+# This will do it async, cannot manage flow. 
+# mx "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
+
+matlab -nojvm -nodisplay -nosplash -r "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
 
 if [ -z "$(ls -A /tmp/qMRLab)" ]; then
    echo "Empty, not zipping anything"
