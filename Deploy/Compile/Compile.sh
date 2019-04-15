@@ -9,14 +9,15 @@
 # 6) /tmp folder will be used for intermediary file exhange 
 
 # Get version name from the repo (forked by Azure or another service)
-ls
-version=`cat version.txt`
+
+version=`cat $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/version.txt`
 echo "Compiling for version: $version"
 
 # Crate tmp directory for compiling 
 mkdir -p /tmp/qMRLab
 
 # Compile 
+cd $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
 mx "startup; qMRLab_make_standalone('/tmp/qMRLab');"
 
 # Zip compiled files 
