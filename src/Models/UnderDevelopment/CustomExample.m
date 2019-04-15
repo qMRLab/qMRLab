@@ -17,8 +17,8 @@ classdef CustomExample < AbstractModel % Name your Model
 %   Q-space regularization      
 %       Smooth q-space data per shell prior fitting
 %
-% Example of command line usage (see also <a href="matlab: showdemo Custom_batch">showdemo Custom_batch</a>):
-%   For more examples: <a href="matlab: qMRusage(Custom);">qMRusage(Custom)</a>
+% Example of command line usage:
+%   For more examples: <a href="matlab: qMRusage(CustomExample);">qMRusage(CustomExample)</a>
 %
 % Author: 
 %
@@ -42,7 +42,7 @@ classdef CustomExample < AbstractModel % Name your Model
         % Protocol
         Prot = struct('Data4D',... % Creates a Panel Data4D Protocol in Model Options menu
                         struct('Format',{{'TE' 'TR'}},... % columns name
-                        'Mat', [rand(64,1) ones(64,1)])); % provide a default DKI protocol (Nx4 matrix)
+                        'Mat', [rand(64,1) ones(64,1)])); % provide a default protocol (Nx2 matrix)
         
         % Model options
         buttons = {'SMS',true,'Model',{'simple','advanced'}};
@@ -52,9 +52,7 @@ classdef CustomExample < AbstractModel % Name your Model
     
     methods
         function obj = CustomExample
-            if ~isdeployed
-            dbstop in CustomExample.m at 65
-            end
+            dbstop in CustomExample.m at 66
             obj.options = button2opts(obj.buttons); % converts buttons values to option structure
         end
         
@@ -96,25 +94,35 @@ classdef CustomExample < AbstractModel % Name your Model
         function plotModel(obj, FitResults, data)
             %  Plot the Model and Data.
             if nargin<2, qMRusage(obj,'plotModel'), FitResults=obj.st; end
-
+            
+            %Get fitted Model signal
             Smodel = equation(obj, FitResults);
-            Tvec = obj.Prot.Data4D.Mat(:,1:2); 
+            
+            %Get the varying acquisition parameter
+            Tvec = obj.Prot.Data4D.Mat(:,1); 
             [Tvec,Iorder] = sort(Tvec);
+            
+            % Plot Fitted Model
             plot(Tvec,Smodel(Iorder),'b-')
-            if exist('data','var');
+            
+            % Plot Data
+            if exist('data','var')
                 hold on
-                plot(Tvec(:,1),data.Data4D(Iorder),'r+')
+                plot(Tvec,data.Data4D(Iorder),'r+')
                 hold off
             end
             legend({'Model','Data'})
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
-            % Compute Smodel and plot
+            % Compute Smodel
             Smodel = equation(obj, x);
+            % add rician noise
             sigma = max(Smodel)/Opt.SNR;
             data.Data4D = random('rician',Smodel,sigma);
+            % fit the noisy synthetic data
             FitResults = fit(obj,data);
+            % plot
             if display
                 plotModel(obj, FitResults, data);
             end

@@ -2,11 +2,11 @@ classdef qmt_sirfse < AbstractModel
 % qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
 %<a href="matlab: figure, imshow qmt_sirfse.png ;">Pulse Sequence Diagram</a>
 %
-% ASSUMPTIONS: 
+% ASSUMPTIONS:
 % (1) FILL
-% (2) 
-% (3) 
-% (4) 
+% (2)
+% (3)
+% (4)
 %
 % Inputs:
 %   MTdata              Magnetization Transfert data
@@ -14,34 +14,34 @@ classdef qmt_sirfse < AbstractModel
 %   (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
-%   F                   Ratio of number of restricted pool to free pool, defined 
+%   F                   Ratio of number of restricted pool to free pool, defined
 %                         as F = M0r/M0f = kf/kr.
-%   kr                  Exchange rate from the free to the restricted pool 
-%                         (note that kf and kr are related to one another via the 
-%                         definition of F. Changing the value of kf will change kr 
+%   kr                  Exchange rate from the free to the restricted pool
+%                         (note that kf and kr are related to one another via the
+%                         definition of F. Changing the value of kf will change kr
 %                         accordingly, and vice versa).
-%   R1f                 Longitudinal relaxation rate of the free pool 
+%   R1f                 Longitudinal relaxation rate of the free pool
 %                         (R1f = 1/T1f).
-%   R1r                 Longitudinal relaxation rate of the restricted pool 
+%   R1r                 Longitudinal relaxation rate of the restricted pool
 %                         (R1r = 1/T1r).
-%   Sf                  Instantaneous fraction of magnetization after vs. before 
+%   Sf                  Instantaneous fraction of magnetization after vs. before
 %                         the pulse in the free pool. Starting point is computed using Block
 %                         simulation.
-%   Sr                  Instantaneous fraction of magnetization after vs. before 
+%   Sr                  Instantaneous fraction of magnetization after vs. before
 %                         the pulse in the restricted pool. Starting point is computed using block
 %                         simulation.
-%   M0f                 Equilibrium value of the free pool longitudinal 
+%   M0f                 Equilibrium value of the free pool longitudinal
 %                         magnetization.
-%   (M0r)               Equilibrium value of the restricted pool longitudinal 
-%                         magnetization. Computed using M0f = M0r * F. 
-%   (kf)                Exchange rate from the restricted to the free pool. 
+%   (M0r)               Equilibrium value of the restricted pool longitudinal
+%                         magnetization. Computed using M0f = M0r * F.
+%   (kf)                Exchange rate from the restricted to the free pool.
 %                         Computed using kf = kr * F.
 %   (resnorm)           Fitting residual.
 %
 % Protocol:
 %   MTdata
 %     Ti                Inversion times (s)
-%     Td                Delay times (s)   
+%     Td                Delay times (s)
 %
 %   FSEsequence
 %     Trf               Duration of the pulses in the FSE sequence (s)
@@ -62,21 +62,21 @@ classdef qmt_sirfse < AbstractModel
 %     Duration          Duration of the inversion pulse (s)
 %
 %   Fitting
-%     Use R1map to      By checking this box, you tell the fitting 
+%     Use R1map to      By checking this box, you tell the fitting
 %     constrain R1f       algorithm to check for an observed R1map and use
-%                         its value to constrain R1f. Checking this box 
-%                         will automatically set the R1f fix box to true in            
-%                         the Fit parameters table.                
+%                         its value to constrain R1f. Checking this box
+%                         will automatically set the R1f fix box to true in
+%                         the Fit parameters table.
 %     Fix R1r = R1f     By checking this box, you tell the fitting
-%                         algorithm to fix R1r equal to R1f. Checking this 
-%                         box will automatically set the R1r fix box to 
+%                         algorithm to fix R1r equal to R1f. Checking this
+%                         box will automatically set the R1r fix box to
 %                         true in the Fit parameters table.
 %
 %   Sr Calculation
 %     Lineshape         The absorption lineshape of the restricted pool. Available lineshapes are: Gaussian, Lorentzian and SuperLorentzian.
 %     T2r               Transverse relaxation time of the restricted pool (T2r = 1/R2r)
 %
-% Example of command line usage (see also <a href="matlab: showdemo qmt_sirfse_batch">showdemo qmt_sirfse_batch</a>):
+% Example of command line usage:
 %   For more examples: <a href="matlab: qMRusage(qmt_sirfse);">qMRusage(qmt_sirfse)</a>
 %
 % Author: Ian Gagnon, 2017
@@ -88,36 +88,36 @@ classdef qmt_sirfse < AbstractModel
 %       Magn Reson Med, 64(2), 491500.
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-    
+
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/fk2nd/download/';
-    
+    onlineData_url = 'https://osf.io/fk2nd/download?version=2';
+
 end
 
     properties
         MRIinputs = {'MTdata','R1map','Mask'}; % input data required
         xnames = {'F','kr','R1f','R1r','Sf','Sr','M0f'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
-        
+
         % fitting options
         st           = [ 0.1    30      1        1     -0.9     0.6564    1  ]; % starting point
         lb           = [ 0.0001       0.0001      0.05     0.05   -1       0.0001         0.0001]; % lower bound
         ub           = [ 1     100     10       10       0       1         2 ]; % upper bound
         fx           = [ 0       0      0        1       0       1         0 ]; % fix parameters
-        
+
         % Protocol
         % You can define a default protocol here.
         Prot = struct('MTdata',...
                                struct('Format',{{'Ti' 'Td'}},...
-                                      'Mat', [0.0030 3.5; 0.0037 3.5; 0.0047 3.5; 0.0058 3.5; 0.0072 3.5 
+                                      'Mat', [0.0030 3.5; 0.0037 3.5; 0.0047 3.5; 0.0058 3.5; 0.0072 3.5
                                               0.0090 3.5; 0.0112 3.5; 0.0139 3.5; 0.0173 3.5; 0.0216 3.5
-                                              0.0269 3.5; 0.0335 3.5; 0.0417 3.5; 0.0519 3.5; 0.0646 3.5 
+                                              0.0269 3.5; 0.0335 3.5; 0.0417 3.5; 0.0519 3.5; 0.0646 3.5
                                               0.0805 3.5; 0.1002 3.5; 0.1248 3.5; 0.1554 3.5; 0.1935 3.5
                                               0.2409 3.5; 0.3000 3.5; 1.0000 3.5; 2.0000 3.5; 10.0000 3.5]),...
                       'FSEsequence',...
                                struct('Format',{{'Trf (s)'; 'Tr (s)'; 'Npulse'}},...
-                                      'Mat',[0.001; 0.01; 16])); 
-                                           
+                                      'Mat',[0.001; 0.01; 16]));
+
         % Model options
         buttons = {'PANEL','Inversion_Pulse',2,...
                    'Shape',{'hard','gaussian','gausshann','sinc','sinchann','sincgauss','fermi'},'Duration (s)',0.001,...
@@ -125,51 +125,51 @@ end
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'PANEL','Sr_Calculation',2,...
-                   'T2r',1e-05,...       
+                   'T2r',1e-05,...
                    'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'}};
         options = struct(); % structure filled by the buttons. Leave empty in the code
-        
+
         % Simulations Default options
         Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'T2f (Used in Block equation)',0.040};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100};
 
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
+
     methods
         function obj = qmt_sirfse
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
-        
+
         function obj = UpdateFields(obj)
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 obj.fx(3) = true;
             end
-            
+
             if obj.options.fittingconstraints_FixR1rR1f
                 obj.fx(4) = true;
             end
-            
+
             SrParam = GetSrParam(obj);
             SrProt = GetSrProt(obj);
             [obj.st(6),obj.st(5)] = computeSr(SrParam,SrProt);
         end
-        
+
         function mz = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             Sim.Param = mat2struct(x,obj.xnames);
             Protocol = GetProt(obj);
             if strcmp(Opt.Method,'Block equation assuming M=0 after Tr (full recovery) (slow)')
                 Sim.Opt.method = 'FastSim';
-                Opt.Method = 'Block equation'; 
+                Opt.Method = 'Block equation';
             elseif strcmp(Opt.Method,'Block equation with full FSE (very slow)')
                 Sim.Opt.method = 'FullSim';
-                Opt.Method = 'Block equation'; 
+                Opt.Method = 'Block equation';
             end
             switch Opt.Method
                 case 'Block equation'
@@ -187,15 +187,15 @@ end
                     mz = SimCurveResults.curve;
             end
         end
-        
-        function FitResults = fit(obj,data)            
-            Protocol = GetProt(obj);       
+
+        function FitResults = fit(obj,data)
+            Protocol = GetProt(obj);
             FitOpt = GetFitOpt(obj,data);
             FitResults = SIRFSE_fit(data.MTdata/max(eps,max(data.MTdata)),Protocol,FitOpt);
             FitResults.M0f = FitResults.M0f*max(data.MTdata);
             FitResults.Sf = - FitResults.Sf;
         end
-        
+
         function plotModel(obj, x, data)
             if nargin<2, x = obj.st; end
             if nargin<3, data.MTdata = []; end
@@ -213,7 +213,7 @@ end
                 x.F,x.kf,x.R1f,x.R1r,-x.Sf,x.Sr,x.M0f,x.resnorm), ...
                 'FontSize',10);
         end
-        
+
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
@@ -226,18 +226,18 @@ end
                 plotModel(obj, FitResults, data);
             end
         end
-        
+
         function plotProt(obj)
             Prot = GetProt(obj);
             subplot(2,1,1)
             plot(Prot.ti(2:end),diff(Prot.ti))
-            
+
             hold on
             minti = min(Prot.ti); maxti = max(Prot.ti);
             tilin=linspace(minti,maxti,length(Prot.ti));
-            plot(tilin(2:end),diff(tilin),'--')     
+            plot(tilin(2:end),diff(tilin),'--')
             tilog=logspace(log10(minti),log10(maxti),length(Prot.ti));
-            plot(tilog(2:end),diff(tilog),'--')     
+            plot(tilog(2:end),diff(tilog),'--')
             ylabel('\Delta ti')
             xlabel('ti')
             ylim([min(diff(Prot.ti)),max(diff(Prot.ti))])
@@ -247,13 +247,13 @@ end
             imshow qmt_sirfse.png
             title('Pulse sequence diagram')
         end
-        
-          
+
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
         end
-        
+
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
@@ -273,7 +273,7 @@ end
 %             figure();
 %             ViewPulse(Pulse,'b1');
 %         end
-%         
+%
 
 
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
@@ -291,23 +291,23 @@ end
             % Optimize Protocol
             td = 3.5;
             [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,[Prot ones(size(Prot,1),1)*td],xvalues,sigma)), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, obj.Prot.MTdata.Mat(:,1));
-            
+
             % Generate Rest
             schemeLEADER = retVal.schemeLEADER;
             schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
-            
+
             fprintf('SOMA HAS FINISHED \n')
-            
+
         end
 
-        function Prot = GetProt(obj)  
+        function Prot = GetProt(obj)
             Prot.ti = obj.Prot.MTdata.Mat(:,1);
             Prot.td = obj.Prot.MTdata.Mat(:,2);
             Prot.Trf = obj.Prot.FSEsequence.Mat(1);
             Prot.Tr = obj.Prot.FSEsequence.Mat(2);
-            Prot.Npulse = obj.Prot.FSEsequence.Mat(3);  
+            Prot.Npulse = obj.Prot.FSEsequence.Mat(3);
         end
-        
+
         function FitOpt = GetFitOpt(obj,data)
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
@@ -320,25 +320,25 @@ end
             FitOpt.ub = obj.ub;
             FitOpt.R1reqR1f = obj.options.fittingconstraints_FixR1rR1f;
         end
-        
-        function SrParam = GetSrParam(obj)           
+
+        function SrParam = GetSrParam(obj)
             SrParam.F = 0.1;
             SrParam.kf = 3;
             SrParam.kr = SrParam.kf/SrParam.F;
             SrParam.R1f = 1;
             SrParam.R1r = 1;
             SrParam.T2f = 0.04;
-            SrParam.T2r = obj.options.Sr_Calculation_T2r; 
+            SrParam.T2r = obj.options.Sr_Calculation_T2r;
             SrParam.M0f = 1;
             SrParam.M0r = SrParam.F*SrParam.M0f;
             SrParam.lineshape = obj.options.Sr_Calculation_Lineshape;
         end
-        
+
         function SrProt = GetSrProt(obj)
             SrProt.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
         end
-        
+
         function optionalInputs = get_MRIinputs_optional(obj)
             optionalInputs = get_MRIinputs_optional@AbstractModel(obj);
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
@@ -347,7 +347,7 @@ end
         end
 
     end
-    
+
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);

@@ -12,12 +12,12 @@ classdef charmed < AbstractModel
 %   Diffusion properties:
 %     intra-axonal                      restricted in cylinder with Gaussian
 %                                        Phase approximation
-%      diffusion coefficient (Dr)       fixed by default. this assumption should have 
-%                                                          little impact if the average 
+%      diffusion coefficient (Dr)       fixed by default. this assumption should have
+%                                                          little impact if the average
 %                                                          propagator is larger than
 %                                                          axonal diameter (sqrt(2*Dr*Delta)>8?m).
 %     extra-axonal                      Gaussian
-%      diffusion coefficient (Dh)       Constant by default. Time dependence (lc) 
+%      diffusion coefficient (Dh)       Constant by default. Time dependence (lc)
 %                                                             can be added
 %
 % Inputs:
@@ -67,7 +67,7 @@ classdef charmed < AbstractModel
 %     'Burcaw 2015'                 XXX
 %     'Ning MRM 2016'               XXX
 %
-% Example of command line usage (see <a href="matlab: showdemo charmed_batch">showdemo charmed_batch</a>):
+% Example of command line usage:
 %   Model = charmed;  % Create class from model
 %   Model.Prot.DiffusionData.Mat = txt2mat('Protocol.txt');  % Load protocol
 %   data = struct;  % Create data structure
@@ -75,7 +75,7 @@ classdef charmed < AbstractModel
 %   data.Mask=load_nii_data('Mask.nii.gz');  % Load mask
 %   FitResults = FitData(data,Model,1);  % Fit each voxel within mask
 %   FitResultsSave_nii(FitResults,'DiffusionData.nii.gz');  % Save in local folder: FitResults/
-%          
+%
 %   For more examples: <a href="matlab: qMRusage(charmed);">qMRusage(charmed)</a>
 %
 % Author: Tanguy Duval, 2016
@@ -87,28 +87,28 @@ classdef charmed < AbstractModel
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-% Hidden proprties goes here.    
-    onlineData_url = 'https://osf.io/u8n56/download/';
+% Hidden proprties goes here.
+    onlineData_url = 'https://osf.io/u8n56/download?version=3';
     onlineData_filename = 'charmed.zip';
-end 
+end
 
     properties
         MRIinputs = {'DiffusionData','SigmaNoise','Mask'}; % input data required
         xnames = {'fr','Dh','diameter_mean','fcsf','lc','Dcsf','Dintra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
-        
+
         % fitting options
         st           = [ 0.5    0.7     6      0      0      3      1.4 ]; % starting point
         lb           = [ 0      0.3     3      0      0      1      0.3 ]; % lower bound
         ub           = [ 1      3      10      1      8      4      3   ]; % upper bound
         fx           = [ 0      0       0      1      1      1      1   ]; % fix parameters
-        
+
         % Protocol
         Prot = struct('DiffusionData',...
             struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}},...
             'Mat',  txt2mat('CHARMEDProtocol.txt','InfoLevel',0))...
             ); % You can define a default protocol here.
-        
+
         % Model options
         buttons = {'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10,...
             'Display Type',{'q-value','b-value'},...
@@ -119,18 +119,18 @@ end
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100,'Gmax',80*1e-3};
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
+
     methods
         % -------------CONSTRUCTOR-------------------------------------------------------------------------
         function obj = charmed
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
-        
+
         function obj = UpdateFields(obj)
             Prot = obj.Prot.DiffusionData.Mat;
             Prot(Prot(:,4)==0,1:6) = 0;
@@ -142,17 +142,17 @@ end
             elseif cmax<5
                 warning('Your dataset doesn''t have 5 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately. Specify a fixed Sigma Noise in the option panel instead. See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.')
             end
-            
+
             if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 obj.options.Riciannoisebias_value  = 'auto';
             elseif isempty(obj.options.Riciannoisebias_value)
                 obj.options.Riciannoisebias_value=10;
             end
-            
+
         end
-        
+
         % -------------CHARMED EQUATION-------------------------------------------------------------------------
-        
+
         function [Smodel, x] = equation(obj, x)
             if isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
@@ -160,23 +160,23 @@ end
                 end
                 x = xtmp;
             end
-            
+
             x = [x(1:3) 0 x(4:end)]; % add diameter STD parameter (used in the original AxCaliber model)
             opt = obj.options;
             opt.scheme = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0);
             Smodel = scd_model_CHARMED(x,opt);
             x(4)=[];
         end
-        
+
         % -------------DATA FITTING-------------------------------------------------------------------------
         function FitResults = fit(obj,data)
-            
+
             % Prepare data
             datadif = max(eps,double(data.DiffusionData)); nT = length(datadif);
             if nT ~= size(obj.Prot.DiffusionData.Mat,1), errordlg(['Error: your diffusion dataset has ' num2str(nT) ' volumes while your schemefile has ' num2str(size(obj.Prot.DiffusionData.Mat,1)) ' rows.']); end
-            
+
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0);
-            
+
             switch obj.options.S0normalization
                 case 'Single T2 compartment'
                     [S0,T2,obj.st(2)] = scd_preproc_getS0_T2(Prot,datadif,0,1000);
@@ -184,14 +184,14 @@ end
                 case 'Use b=0'
                     S0 = scd_preproc_getS0(datadif,Prot);
             end
-            
+
             %% FITTING
             % initiate with Gaussian noise assumption --> more stable fitting
             fixedparam = obj.fx;
             optoptim.MaxIter = 20; optoptim.Display = 'off';
             [xopt, residue] = lsqcurvefit(@(x,scheme) S0.*equation(obj, addfixparameters(obj.st,x,fixedparam)),obj.st(~fixedparam),Prot,double(datadif),double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),optoptim);
             obj.st(~fixedparam) = xopt; xopt = obj.st;
-            
+
             %% RICIAN NOISE
             % use Rician noise and fix b=0
             if isfield(data,'SigmaNoise') && ~isempty(data.SigmaNoise)
@@ -202,7 +202,7 @@ end
             else
                 SigmaNoise = obj.options.Riciannoisebias_value;
             end
-            
+
             %% FITTING (with rician assumption)
             if ~moxunit_util_platform_is_octave
                 [xopt, residue] = fmincon(@(x) double(-2*sum(scd_model_likelihood_rician(datadif,max(eps,S0.*equation(obj, addfixparameters(obj.st,x,fixedparam))), SigmaNoise))), double(obj.st(~fixedparam)), [], [], [],[],double(obj.lb(~fixedparam)),double(obj.ub(~fixedparam)),[],optimoptions('fmincon','MaxIter',20,'display','off','DiffMinChange',0.03));
@@ -233,11 +233,11 @@ end
             end
             % convert to structure
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
-            
-            
-            
+
+
+
         end
-        
+
         % -------------PLOT EQUATION-------------------------------------------------------------------------
         function plotModel(obj, x, data)
             % u.plotModel(u.st)
@@ -267,7 +267,7 @@ end
                     end
                 end
             end
-            
+
             % plot fitting curves
             if ~isempty(x)
                 Smodel = Smodel.*S0;
@@ -276,7 +276,7 @@ end
             hold off
             title(strrep(strrep(cell2str_v2(Interleave(obj.xnames,repmat('=',1,length(obj.xnames)),x)),''', ''='',',' ='),'''',''),'FontSize',8)
         end
-        
+
         % -------------PLOT DIFFUSION PROTOCOL-------------------------------------------------------------------------
         function plotProt(obj)
             % round bvalue
@@ -287,8 +287,8 @@ end
             subplot(2,2,4)
             scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1))
         end
-        
-        
+
+
         % -------------SIMULATIONS-------------------------------------------------------------------------
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
             if ~exist('display','var'), display=1; end
@@ -314,17 +314,17 @@ end
                 plotModel(obj, FitResults, data);
             end
         end
-        
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
         end
-        
+
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
-        
+
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
@@ -342,23 +342,23 @@ end
                 0   0   1  -deltamin % delta - deltamin>0
                 1   0   0  0         % G>0
                 -1   0   0  Gmax    ];% Gmax - |G| > 0
-            
+
             LSP = meshgrid_polyhedron(planes);
-            
+
             T2     = 40*1e-3;
             TE0    = 40*1e-3;
             sigma0 =.05; %SNR=20 at TE0
             sigma  = @(Prot) sigma0*exp(((Prot(:,2)+Prot(:,3)+Treadout)-TE0)/T2);
-            
+
             GenerateRandFunction = @() LSP(randi(size(LSP,1),nV,1),:);
             CheckProtInBoundFunc = @(Prot) checkInBoundsAndUptade(Prot,LSP,planes);
             %% Optimize Protocol
             [retVal] = soma_all_to_one(@(Prot) mean(SimCRLB(obj,[zeros(size(Prot,1),2) ones(size(Prot,1),1) Prot],xvalues,sigma(Prot))), GenerateRandFunction, CheckProtInBoundFunc, migrations, popSize, nV, obj.Prot.DiffusionData.Mat(:,4:6));
-            
+
             %% Generate Rest
             schemeLEADER = retVal.schemeLEADER;
             schemeLEADER = [ones(nV,1) zeros(nV,2) schemeLEADER];
-            
+
             % keep 5 different delta / DELTA and sort different acquisition
             schemeLEADER=discrete_delta_Delta(schemeLEADER,5);
             % add b=0
@@ -367,10 +367,10 @@ end
                 schemeLEADER = cat(1,schemeLEADER(1:addb0(ib0),:), [0 0 1 0 schemeLEADER(addb0(ib0),5:end)] ,schemeLEADER(addb0(ib0)+1:end,:));
             end
             fprintf('SOMA HAS FINISHED \n')
-            
+
         end
     end
-    
+
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);

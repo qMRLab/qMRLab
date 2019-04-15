@@ -49,7 +49,7 @@ b0_dem map :  Dual Echo Method for B0 mapping
        background-color: rgba(0,0,0,.5);
        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
       }
-   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
+   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(b0_dem)</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
    <span class="comment">%</span>
@@ -58,10 +58,9 @@ b0_dem map :  Dual Echo Method for B0 mapping
    <span class="comment">%</span>
    <span class="comment">% Demo files are downloaded into b0_dem_data folder.</span>
    <span class="comment">%</span>
-   <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b0_dem'</span>); <span class="comment">% Display help</span>
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'b0_dem'</span>); <span class="comment">% Describe the model</span>
    </pre><pre class="codeoutput">  b0_dem map :  Dual Echo Method for B0 mapping
     
      Assumptions:
@@ -76,19 +75,19 @@ b0_dem map :  Dual Echo Method for B0 mapping
     
      Protocol:
        TimingTable
-           deltaTE     Difference in TE between 2 images [ms]            
+           deltaTE     Difference in TE between 2 images [ms]
     
      Options:
        Magn thresh     relative threshold for the magnitude (phase is undefined in the background
     
-     Example of command line usage (see also a href="matlab: showdemo b0_dem_batch"showdemo b0_dem_batch/a):
-       Model = b0_dem;  % Create class from model 
+     Example of command line usage:
+       Model = b0_dem;  % Create class from model
        Model.Prot.TimingTable.Mat = 1.92e-3; % deltaTE [s]
        data.Phase = double(load_nii_data('Phase.nii.gz'));%Load 4D data, 2 frames with different TE
        data.Magn  = double(load_nii_data('Magn.nii.gz'));
        FitResults       = FitData(data,Model);
        FitResultsSave_nii(FitResults,'Phase.nii.gz'); %save nii file using Phase.nii.gz as template
-        
+    
        For more examples: a href="matlab: qMRusage(b0_dem);"qMRusage(b0_dem)/a
     
      Author: Ian Gagnon, 2017
@@ -111,67 +110,39 @@ b0_dem map :  Dual Echo Method for B0 mapping
           doc b0_dem
    
    
-   </pre><h2 id="3">II- INITIALIZE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><h2 id="4">A- CREATE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><pre class="codeinput">Model = b0_dem;
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="5">B- MODIFY OPTIONS</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
-            |- Octave is not GUI compatible. Modify Model.options directly.
-   -------------------------------------------------------------------------</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><img src="_static/b0_dem_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">b0_dem.</span>
-   -------------------------------------------------------------------------
-   </pre><pre class="codeinput"><span class="comment">% b0_dem object needs 1 protocol field(s) to be assigned:</span>
-   
-   
-   <span class="comment">% TimingTable</span>
-   <span class="comment">% --------------</span>
-   <span class="comment">% deltaTE is a vector of [1X1]</span>
-   deltaTE = [0.0019];
-   Model.Prot.TimingTable.Mat = [ deltaTE];
-   <span class="comment">% -----------------------------------------</span>
-   </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by b0_dem.
-   -------------------------------------------------------------------------
-   b0_dem object needs 2 data input(s) to be assigned:</pre><pre class="codeinput"><span class="comment">% Phase</span>
-   <span class="comment">% Magn</span>
-   <span class="comment">% --------------</span>
-   
-   data = struct();
+   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = b0_dem;
+   </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
+            |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
+   </pre><img src="_static/b0_dem_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- b0_dem object needs 2 data input(s) to be assigned:
+            |-   Phase
+            |-   Magn</pre><pre class="codeinput">data = struct();
    <span class="comment">% Phase.nii.gz contains [64  64   1   8] data.</span>
    data.Phase=double(load_nii_data(<span class="string">'b0_dem_data/Phase.nii.gz'</span>));
    <span class="comment">% Magn.nii.gz contains [64  64   1   8] data.</span>
    data.Magn=double(load_nii_data(<span class="string">'b0_dem_data/Magn.nii.gz'</span>));
-   
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="9">B- FIT DATASET</h2><pre >           |- This section will fit data.
-   -------------------------------------------------------------------------</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
-   
-   FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
+   </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">...done
-   </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   
-   qMRshowOutput(FitResults,data,Model);
-   </pre><img src="_static/b0_dem_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'b0_dem_Demo.qmrlab.mat'</span>);
-   FitResultsSave_nii(FitResults, <span class="string">'b0_dem_data/Phase.nii.gz'</span>);
-   
-   <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
+            |- If available, a graph will be displayed to show fitting in a voxel.
+            |- To make documentation generation and our CI tests faster for this model,
+               we used a subportion of the data (40X40X40) in our testing environment.
+            |- Therefore, this example will use FitResults that comes with OSF data for display purposes.
+            |- Users will get the whole dataset (384X336X224) and the script that uses it for demo
+               via qMRgenBatch(qsm_sb) command.</pre><pre class="codeinput">FitResults_old = load(<span class="string">'FitResults/FitResults.mat'</span>);
+   qMRshowOutput(FitResults_old,data,Model);
+   </pre><img src="_static/b0_dem_batch_02.png" vspace="5" hspace="5" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+                 that can be loaded in qMRLab graphical user interface
+            |-  Model object stores all the options and protocol.
+                 It can be easily shared with collaborators to fit their
+                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'b0_dem_data/Phase.nii.gz'</span>);
+   Model.saveObj(<span class="string">'b0_dem_Demo.qmrlab.mat'</span>);
    </pre><pre class="codeoutput">Warning: Directory already exists. 
-   </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'b0_dem.
-   -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for b0_dem.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
-                 (3) fit and plot curve
-   -------------------------------------------------------------------------</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+                 (3) fit and plot curve</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
+   </pre><h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
-                   (3) Compute mean and std across runs
-   -------------------------------------------------------------------------</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
-   </pre><p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>
+                   (3) Compute mean and std across runs</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
+   </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>

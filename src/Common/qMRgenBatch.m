@@ -4,7 +4,7 @@
 % Input
 %   Model        [qMRLab object]
 %  (path)        [String]
-%  (nodwnld)     [logical] download example dataset? 0 --> generate batch only
+%  (nodwnld)     [logical] download example dataset? 1 --> generate batch only
 %
 % Example
 %  qMRgenBatch(inversion_recovery)
@@ -55,7 +55,7 @@ if ~exist('nodwnld','var') || ~nodwnld
 else
     demoDir = path;
 end
-
+if isempty(demoDir), return; end
 
 sep = filesep;
 % Directory definition ====================== END
@@ -119,11 +119,23 @@ end
 % Replace jokers ====================== START
 
 % Read template line by line into cell array
-fid = fopen('genBatch.qmr');
-allScript = textscan(fid,'%s','Delimiter','\n');
-fclose(fid);
-allScript = allScript{1}; % This is a cell aray that contains template
+% Developer note: 
+% Depending on the model, modifications to the standard template may be
+% neccesary. If other model specific templates are needed for auto batch
+% generation, please account for that here. To name this file:
+%
+% Please do not use underscores or any other special chars.
+% foo_model --> genBatchfoomodel.qmr
 
+if ~isempty(getenv('ISTRAVIS')) % TEST ENV
+    if str2double(getenv('ISTRAVIS')) || strcmp(varNames.modelName,'qsm_sb')   
+        allScript = getTemplateFile('genBatchqsm.qmr');   
+    else
+        allScript = getTemplateFile('genBatch.qmr'); 
+    end    
+else % USER 
+   allScript = getTemplateFile('genBatch.qmr'); 
+end
 
 % Recursively update newScript.
 % Indexed structure arrays can be generated to reduce this section into a
@@ -134,10 +146,6 @@ newScript = replaceJoker(varNames.jokerModel,varNames.modelName,allScript,1); % 
 newScript = replaceJoker(varNames.jokerDemoDir,demoDir,newScript,1);
 
 newScript = replaceJoker(saveJoker,saveCommand,newScript,1);
-
-newScript = replaceJoker(explainTexts.jokerProt,explainTexts.protExplain,newScript,2); % Prot Exp
-
-newScript = replaceJoker(commandTexts.jokerProt,commandTexts.protCommands,newScript,2); % Prot Code
 
 newScript = replaceJoker(explainTexts.jokerData,explainTexts.dataExplain,newScript,2); % Data Exp
 
@@ -175,17 +183,15 @@ end
 
 function [explain] = cell2Explain(str,modelName,itemName)
 
-explain = cell(length(str)+2,1);
+explain = cell(length(str)+1,1);
 
-fs1 = ['%% ' modelName ' object needs %d ' itemName ' to be assigned:\n \n'];
+fs1 = ['%%           |- ' modelName ' object needs %d ' itemName ' to be assigned:'];
 exp1 = sprintf(fs1,length(str));
 explain(1) = {exp1};
 
 for i = 1:length(str)
-    explain(i+1) = {['% ' str{i}]};
+    explain(i+1) = {['%           |-   ' str{i}]};
 end
-
-explain(length(str)+2) = {'% --------------'};
 
 end
 
@@ -490,4 +496,12 @@ C = strsplit(inStr,'\n');
 C = C';
 Cnew = C(~cellfun(@isempty, C));
 Cnew = Cnew(2:end);
+end
+
+function allScript = getTemplateFile(fileName)
+    fid = fopen(fileName);
+    allScript = textscan(fid,'%s','Delimiter','\n');
+    fclose(fid);
+    allScript = allScript{1}; % This is a cell aray that contains template
+
 end

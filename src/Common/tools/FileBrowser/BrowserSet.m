@@ -84,7 +84,10 @@ classdef BrowserSet
                 set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
                 set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
                 set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
-
+                
+                if strcmp(InputName,'Mask')
+                    delete(obj.ViewBtn);
+                end
             end % testing varargin
         end % constructor end
 
@@ -98,7 +101,9 @@ classdef BrowserSet
             set(obj.NameText, 'Visible', Visibility);
             set(obj.BrowseBtn, 'Visible', Visibility);
             set(obj.FileBox, 'Visible', Visibility);
-            set(obj.ViewBtn, 'Visible', Visibility);
+            if ~strcmp(obj.NameID{1},'Mask')
+                set(obj.ViewBtn, 'Visible', Visibility);
+            end
             set(obj.InfoBtn, 'Visible', Visibility);
         end
 
@@ -128,7 +133,7 @@ classdef BrowserSet
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
                 elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img')
-                    [tmp, hdr] = load_nii_data(obj.FullFile);
+                    [tmp, hdr] = load_nii_datas(obj.FullFile); tmp = tmp{1};
                 elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
                     TiffInfo = imfinfo(obj.FullFile);
                     NbIm = numel(TiffInfo);
@@ -222,19 +227,23 @@ classdef BrowserSet
         % -- VIEW BUTTONS
         %------------------------------------------------------------------
         function ViewBtn_callback(obj,src, event)
-            dat = getappdata(0, 'Data');
-            dat=dat.(class(getappdata(0,'Model'))).(obj.NameID{1,1});
-            if isempty(dat), errordlg('"Browse" for your own MRI data or click on "download example" data.','empty data'); return; end
-
-            n = ndims(dat);
-            Data.(obj.NameID{1,1}) = dat;
-
-            Data.fields = {obj.NameID{1,1}};
+            dat  = getappdata(0, 'Data');
+            Data = dat.(class(getappdata(0,'Model')));
+            if isempty(Data.(obj.NameID{1,1})), errordlg('"Browse" for your own MRI data or click on "download example" data.','empty data'); return; end
+            fieldstmp = fieldnames(Data);
+            for ff = 1:length(fieldstmp)
+                if isempty(Data.(fieldstmp{ff}))
+                    Data = rmfield(Data,fieldstmp{ff});
+                end
+            end
+            Data.fields = fieldnames(Data);
+            
+            try
+                Data.hdr=dat.([class(getappdata(0,'Model')) '_hdr']);
+            end
             handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
-            DrawPlot(handles);
-
-            set(handles.RoiAnalysis,'Enable','on');
+            DrawPlot(handles,obj.NameID{1,1});
         end
 
 

@@ -66,5 +66,5 @@ tmp/
 # Coveralls.io reports
 reports/
 *coverage*
-src/Common/compiler/qMRLab
-src/Common/compiler/qMRLab_resources
+src/Common/compiler
+docs/source/.doctrees

@@ -49,7 +49,7 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
        background-color: rgba(0,0,0,.5);
        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
       }
-   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- INITIALIZE MODEL OBJECT</a></li><li ><a href="#4">A- CREATE MODEL OBJECT</a></li><li ><a href="#5">B- MODIFY OPTIONS</a></li><li ><a href="#6">C- LOAD PROTOCOL</a></li><li ><a href="#7">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#8">A- LOAD EXPERIMENTAL DATA</a></li><li ><a href="#9">B- FIT DATASET</a></li><li ><a href="#10">C- SHOW FITTING RESULTS</a></li><li ><a href="#11">IV- SAVE MAPS AND OBJECT</a></li><li ><a href="#12">V- SIMULATIONS</a></li><li ><a href="#13">A- Single Voxel Curve</a></li><li ><a href="#14">B- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated.</span>
+   </style><div class="content"><h2 >Contents</h2><div ><ul ><li ><a href="#2">I- DESCRIPTION</a></li><li ><a href="#3">II- MODEL PARAMETERS</a></li><li ><a href="#4">a- create object</a></li><li ><a href="#5">b- modify options</a></li><li ><a href="#6">III- FIT EXPERIMENTAL DATASET</a></li><li ><a href="#7">a- load experimental data</a></li><li ><a href="#8">b- fit dataset</a></li><li ><a href="#9">c- show fitting results</a></li><li ><a href="#10">d- Save results</a></li><li ><a href="#11">V- SIMULATIONS</a></li><li ><a href="#12">a- Single Voxel Curve</a></li><li ><a href="#13">b- Sensitivity Analysis</a></li></ul></div><pre class="codeinput"><span class="comment">% This m-file has been automatically generated using qMRgenBatch(qmt_spgr)</span>
    <span class="comment">% Command Line Interface (CLI) is well-suited for automatization</span>
    <span class="comment">% purposes and Octave.</span>
    <span class="comment">%</span>
@@ -58,10 +58,9 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
    <span class="comment">%</span>
    <span class="comment">% Demo files are downloaded into qmt_spgr_data folder.</span>
    <span class="comment">%</span>
-   <span class="comment">%</span>
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
-   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'qmt_spgr'</span>); <span class="comment">% Display help</span>
+   </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'qmt_spgr'</span>); <span class="comment">% Describe the model</span>
    </pre><pre class="codeoutput"> qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)
     a href="matlab: figure, imshow qmt_spgr.png ;"Pulse Sequence Diagram/a
     
@@ -162,7 +161,6 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
     
      Command line usage:
        a href="matlab: qMRusage(qmt_spgr);"qMRusage(qmt_spgr/a
-       a href="matlab: showdemo qmt_spgr_batch"showdemo qmt_spgr_batch/a
     
      Author: Ian Gagnon, 2017
     
@@ -176,46 +174,15 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
           doc qmt_spgr
    
    
-   </pre><h2 id="3">II- INITIALIZE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><h2 id="4">A- CREATE MODEL OBJECT</h2><p >-------------------------------------------------------------------------</p><pre class="codeinput">Model = qmt_spgr;
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="5">B- MODIFY OPTIONS</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
-            |- Octave is not GUI compatible. Modify Model.options directly.
-   -------------------------------------------------------------------------</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
-   
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><img src="_static/qmt_spgr_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">C- LOAD PROTOCOL</h2><pre class="language-matlab">	   |- Respective command <span class="string">lines</span> <span class="string">appear</span> <span class="string">if</span> <span class="string">required</span> <span class="string">by</span> <span class="string">qmt_spgr.</span>
-   -------------------------------------------------------------------------
-   </pre><pre class="codeinput"><span class="comment">% qmt_spgr object needs 2 protocol field(s) to be assigned:</span>
-   
-   
-   <span class="comment">% MTdata</span>
-   <span class="comment">% TimingTable</span>
-   <span class="comment">% --------------</span>
-   <span class="comment">% Angle is a vector of [10X1]</span>
-   Angle = [142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000; 142.0000; 426.0000];
-   <span class="comment">% Offset is a vector of [10X1]</span>
-   Offset = [443.0000; 443.0000; 1088.0000; 1088.0000; 2732.0000; 2732.0000; 6862.0000; 6862.0000; 17235.0000; 17235.0000];
-   Model.Prot.MTdata.Mat = [ Angle Offset];
-   <span class="comment">% -----------------------------------------</span>
-   Tmt  = 0.0102;
-   Ts  = 0.003;
-   Tp  = 0.0018;
-   Tr  = 0.01;
-   TR  = 0.025;
-   Model.Prot.TimingTable.Mat = [ Tmt  Ts  Tp  Tr  TR ];
-   <span class="comment">% -----------------------------------------</span>
-   </pre><h2 id="7">III- FIT EXPERIMENTAL DATASET</h2><p >-------------------------------------------------------------------------</p><h2 id="8">A- LOAD EXPERIMENTAL DATA</h2><pre >         |- Respective command lines appear if required by qmt_spgr.
-   -------------------------------------------------------------------------
-   qmt_spgr object needs 5 data input(s) to be assigned:</pre><pre class="codeinput"><span class="comment">% MTdata</span>
-   <span class="comment">% R1map</span>
-   <span class="comment">% B1map</span>
-   <span class="comment">% B0map</span>
-   <span class="comment">% Mask</span>
-   <span class="comment">% --------------</span>
-   
-   data = struct();
+   </pre><h2 id="3">II- MODEL PARAMETERS</h2><h2 id="4">a- create object</h2><pre class="codeinput">Model = qmt_spgr;
+   </pre><h2 id="5">b- modify options</h2><pre >         |- This section will pop-up the options GUI. Close window to continue.
+            |- Octave is not GUI compatible. Modify Model.options directly.</pre><pre class="codeinput">Model = Custom_OptionsGUI(Model); <span class="comment">% You need to close GUI to move on.</span>
+   </pre><img src="_static/qmt_spgr_batch_01.png" vspace="5" hspace="5" alt=""> <h2 id="6">III- FIT EXPERIMENTAL DATASET</h2><h2 id="7">a- load experimental data</h2><pre >         |- qmt_spgr object needs 5 data input(s) to be assigned:
+            |-   MTdata
+            |-   R1map
+            |-   B1map
+            |-   B0map
+            |-   Mask</pre><pre class="codeinput">data = struct();
    
    <span class="comment">% MTdata.mat contains [88  128    1   10] data.</span>
     load(<span class="string">'qmt_spgr_data/MTdata.mat'</span>);
@@ -232,69 +199,67 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
     data.B1map= double(B1map);
     data.B0map= double(B0map);
     data.Mask= double(Mask);
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><h2 id="9">B- FIT DATASET</h2><pre >           |- This section will fit data.
-   -------------------------------------------------------------------------</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
-   
-   FitResults.Model = Model; <span class="comment">% qMRLab output.</span>
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   </pre><pre class="codeoutput">Fitting voxel     1/4101
-   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
-   that MTData are already nor   2/4101
-   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
-   that MTData are already nor   3/4101
+   </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
+   </pre><pre class="codeoutput">Starting to fit data.
    Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
    that MTData are already normalized. 
-   ...done   0%
-   </pre><h2 id="10">C- SHOW FITTING RESULTS</h2><pre >         |- Output map will be displayed.</pre><pre class="codeinput"><span class="comment">%			|- If available, a graph will be displayed to show fitting in a voxel.</span>
-   <span class="comment">% -------------------------------------------------------------------------</span>
-   
-   qMRshowOutput(FitResults,data,Model);
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
+            |- If available, a graph will be displayed to show fitting in a voxel.
+            |- To make documentation generation and our CI tests faster for this model,
+               we used a subportion of the data (40X40X40) in our testing environment.
+            |- Therefore, this example will use FitResults that comes with OSF data for display purposes.
+            |- Users will get the whole dataset (384X336X224) and the script that uses it for demo
+               via qMRgenBatch(qsm_sb) command.</pre><pre class="codeinput">FitResults_old = load(<span class="string">'FitResults/FitResults.mat'</span>);
+   qMRshowOutput(FitResults_old,data,Model);
    </pre><pre class="codeoutput">Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
    that MTData are already normalized. 
-   </pre><img src="_static/qmt_spgr_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/qmt_spgr_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="11">IV- SAVE MAPS AND OBJECT</h2><pre class="codeinput">Model.saveObj(<span class="string">'qmt_spgr_Demo.qmrlab.mat'</span>);
-   FitResultsSave_nii(FitResults);
-   
-   <span class="comment">% Tip: You can load FitResults.mat in qMRLab graphical user interface</span>
+   </pre><img src="_static/qmt_spgr_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/qmt_spgr_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+                 that can be loaded in qMRLab graphical user interface
+            |-  Model object stores all the options and protocol.
+                 It can be easily shared with collaborators to fit their
+                 own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults);
+   Model.saveObj(<span class="string">'qmt_spgr_Demo.qmrlab.mat'</span>);
    </pre><pre class="codeoutput">Warning: Directory already exists. 
-   </pre><h2 id="12">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for 'qmt_spgr.
-   -------------------------------------------------------------------------</pre><h2 id="13">A- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
+   </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for qmt_spgr.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
-                 (3) fit and plot curve
-   -------------------------------------------------------------------------</pre><pre class="codeinput">      x = struct;
+                 (3) fit and plot curve</pre><pre class="codeinput">      x = struct;
          x.F = 0.16;
          x.kr = 30;
          x.R1f = 1;
          x.R1r = 1;
          x.T2f = 0.03;
          x.T2r = 1.3e-05;
-         <span class="comment">% Get all possible options</span>
-         Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons,1);
-         <span class="comment">% run simulation using options `Opt(1)`</span>
+         <span class="comment">% Set simulation options</span>
+         Opt.SNR = 50;
+         Opt.Method = <span class="string">'Analytical equation'</span>;
+         Opt.ResetMz = false;
+         <span class="comment">% run simulation</span>
          figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
-         FitResult = Model.Sim_Single_Voxel_Curve(x,Opt(1));
-   
-   <span class="comment">% -------------------------------------------------------------------------</span>
+         FitResult = Model.Sim_Single_Voxel_Curve(x,Opt);
    </pre><pre class="codeoutput">Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
    that MTData are already normalized. 
    Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
    that MTData are already normalized. 
-   </pre><img src="_static/qmt_spgr_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="14">B- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+   </pre><img src="_static/qmt_spgr_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
-                   (3) Compute mean and std across runs
-   -------------------------------------------------------------------------</pre><pre class="codeinput">      <span class="comment">%              F             kr            R1f           R1r           T2f           T2r</span>
+                   (3) Compute mean and std across runs</pre><pre class="codeinput">      <span class="comment">%              F             kr            R1f           R1r           T2f           T2r</span>
          OptTable.st = [0.16          30            1             1             0.03          1.3e-05]; <span class="comment">% nominal values</span>
          OptTable.fx = [0             1             1             1             1             1]; <span class="comment">%vary F...</span>
          OptTable.lb = [0.0001        0.0001        0.05          0.05          0.003         3e-06]; <span class="comment">%...from 0.0001</span>
          OptTable.ub = [0.5           1e+02         5             5             0.5           5e-05]; <span class="comment">%...to 0.5</span>
-         <span class="comment">% Get all possible options</span>
-         Opt = button2opts([Model.Sim_Single_Voxel_Curve_buttons, Model.Sim_Sensitivity_Analysis_buttons],1);
-         <span class="comment">% run simulation using options `Opt(1)`</span>
-         SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt(1));
+         <span class="comment">% Set simulation options</span>
+         Opt.SNR = 50;
+         Opt.Method = <span class="string">'Analytical equation'</span>;
+         Opt.ResetMz = false;
+         Opt.Nofrun = 5;
+         <span class="comment">% run simulation</span>
+         SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt);
          figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'F'</span> ,<span class="string">'F'</span> );
    </pre><pre class="codeoutput">Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
@@ -327,4 +292,74 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
    that MTData are already normalized. 
    Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
    that MTData are already normalized. 
-   </pre><img src="_static/qmt_spgr_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB R2017b</a><br ></p></div>
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   Warning: No MToff (i.e. no volumes acquired with Angles=0) -- Fitting assumes
+   that MTData are already normalized. 
+   </pre><img src="_static/qmt_spgr_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>

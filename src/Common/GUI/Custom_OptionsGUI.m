@@ -38,7 +38,6 @@ end
 
 
 function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
-
 % This function is called each time the Options Panel is opened.
 %
 % OptionsPanel is a non-modal window with the <uipanel29> ID in handles
@@ -71,7 +70,12 @@ function OptionsGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % INITIALIZE OPTIONSGUI PANEL
 % =======================================================================
 
-if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
+if any(strcmp(varargin,'wait'))
+    wait=true;
+    varargin(strcmp(varargin,'wait'))=[];
+else
+    wait=false;
+end
 
 % Choose dedault command line output for OptionsGUI
 
@@ -277,13 +281,18 @@ if ~isempty(Model.Prot)
     for ii = 1:N
 
         handles.(fields{ii}).CellSelect = [];
-
-        % Create PANEL
+        
+        % Create panel
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-
+        
         % Create TABLE
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
-
+        
+        if isprop(Model,'tabletip') && strcmp(fields{ii},Model.tabletip.table_name)
+            
+        set(handles.(fields{ii}).table,'Tooltip',Model.tabletip.tip);    
+            
+        end
         % add Callbacks
 
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));
@@ -331,7 +340,10 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if getenv('ISTRAVIS'), warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.'); delete(findobj('Name','OptionsGUI')); end
+    if ~isempty(getenv('ISTRAVIS')) && isempty(getenv('ISDOC'))
+        warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.');
+        delete(findobj('Name','OptionsGUI'));
+    end
 end
 
 function OptionsGUI_CloseRequestFcn(hObject, eventdata, handles)
