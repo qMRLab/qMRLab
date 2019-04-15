@@ -66,5 +66,4 @@ tmp/
 # Coveralls.io reports
 reports/
 *coverage*
-src/Common/compiler
 docs/source/.doctrees
