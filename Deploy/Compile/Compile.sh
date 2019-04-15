@@ -9,7 +9,8 @@
 # 6) /tmp folder will be used for intermediary file exhange 
 
 # Get version name from the repo (forked by Azure or another service)
-version = `cat version.txt`
+ls
+version=`cat version.txt`
 echo "Compiling for version: $version"
 
 # Crate tmp directory for compiling 
@@ -25,6 +26,7 @@ zip -r qMRLab_$version.zip /tmp/qMRLab
 # OSF_USERNAME and OSF_PASSWORD variables are set by the release pipeline
 
 projectID=tmdfu 
+echo $OSF_USERNAME 
 
 
 
