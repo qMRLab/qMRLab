@@ -26,7 +26,12 @@ if ~exist('downloadCell','var') || ~downloadCell
 
 else
     
-    demoDir = downloadData(Model,[]);
+    if ~exist('path','var')
+        demoDir = downloadData(Model,[]);
+    else
+        demoDir = downloadData(Model,path);
+    end
+
     down.md = insert2Cell(mdCell,[{'## Download sample data from OSF'}, ...
     {['> The current `Model` is an instance of `' Model.ModelName '` class.']}, {' '} ...
     {['You can manually download the sample data for `' Model.ModelName '` [by clicking here](' Model.onlineData_url ').']}
