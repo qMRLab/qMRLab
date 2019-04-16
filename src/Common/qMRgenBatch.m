@@ -15,7 +15,7 @@ function api = qMRgenBatch(Model,path,nodwnld)
 if nargin==0 && nargout==0, help qMRgenBatch, return; end
 
 if nargin == 0
-    
+
     % Open subfunctions of qMRgenBatch for outside access
     api.data2CLI = @data2CLI;
     api.cell2Explain = @cell2Explain;
