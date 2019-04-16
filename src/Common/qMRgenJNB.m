@@ -1,4 +1,4 @@
-function qMRgenJNB(Model)
+function qMRgenJNB(Model,path,downloadCell)
 
 api = qMRgenBatch;    
 protStr = Model.Prot; % Get model prot here
@@ -14,14 +14,24 @@ varNames.modelName = Model.ModelName;
 simTexts = struct();
 % Depending on the model, there might be multiple field (other than format)
 
-if ~exist('nodwnld','var') || ~nodwnld
+if ~exist('downloadCell','var') || ~downloadCell
+    
     if ~exist('path','var')
         demoDir = downloadData(Model,[]);
     else
         demoDir = downloadData(Model,path);
     end
+    
+    down = [];
+
 else
-    demoDir = path;
+    
+    demoDir = downloadData(Model,[]);
+    down.md = insert2Cell(mdCell,[{'## Download sample data from OSF'}, ...
+    {['> The current `Model` is an instance of `' Model.ModelName '` class.']}, {' '} ...
+    {['You can manually download the sample data for `' Model.ModelName '` [by clicking here](' Model.onlineData_url ').']}
+    ]);
+    down.code = insert2Cell(codeCell,{'dataDir = downloadData(Model,pwd);'});
 end
 if isempty(demoDir), return; end
 
@@ -116,7 +126,7 @@ else
     simTexts.SAcommands = {'% Not available for the current model.'};
 end
 
-cells = juxtaposeCells(descr,model,prot,data,fit,show,save,sim1,sim2);
+cells = juxtaposeCells(descr,model,down,prot,data,fit,show,save,sim1,sim2);
 tmp.cells = cells';
 
 savejson('',tmp,'FileName',[Model.ModelName '_notebook.ipynb'],'ParseLogical',1);
@@ -178,11 +188,14 @@ end
 
 end
 
-function cells = juxtaposeCells(descr,model,prot,data,fit,show,save,sim1,sim2)
+function cells = juxtaposeCells(descr,model,down,prot,data,fit,show,save,sim1,sim2)
 
     cells = [];
     cells = [cells;descr.md;descr.code];
     cells = [cells;model.md;model.code];
+    if ~isempty(down)
+        cells = [cells;down.md;down.code];
+    end
     if ~isempty(prot)
         cells = [cells;prot.md;prot.code];
     end
