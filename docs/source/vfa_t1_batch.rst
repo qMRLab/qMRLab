@@ -1,11 +1,12 @@
-vfa_t1: Compute a T1 map using Variable Flip Angle
+RUN
 ==================================================
-
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=vfa_t1_demo.ipynb
 
-.. raw:: html
+vfa_t1: Compute a T1 map using Variable Flip Angle
+==================================================
 
+.. raw:: html
 
 <style type="text/css">
 .content { font-size:1.0em; line-height:140%; padding: 20px; }
