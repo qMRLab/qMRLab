@@ -3,7 +3,6 @@ qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=qmt_sirfse_demo.ipynb
-
 .. raw:: html
 
 

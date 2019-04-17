@@ -3,7 +3,6 @@ qsm_sb: Compute a T1 map using Variable Flip Angle
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=qsm_sb_demo.ipynb
-
 .. raw:: html
 
 

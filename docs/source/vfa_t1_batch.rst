@@ -3,7 +3,6 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=vfa_t1_demo.ipynb
-
 .. raw:: html
 
 

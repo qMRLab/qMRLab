@@ -3,7 +3,6 @@ filter_map:   Applies spatial filtering (2D or 3D)
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=filter_map_demo.ipynb
-
 .. raw:: html
 
 

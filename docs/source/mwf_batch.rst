@@ -3,7 +3,6 @@ mwf :  Myelin Water Fraction from Multi-Exponential T2w data
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=mwf_demo.ipynb
-
 .. raw:: html
 
 

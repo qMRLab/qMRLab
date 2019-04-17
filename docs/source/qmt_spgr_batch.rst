@@ -3,7 +3,6 @@ qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Ech
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=qmt_spgr_demo.ipynb
-
 .. raw:: html
 
 

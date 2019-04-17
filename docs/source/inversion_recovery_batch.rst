@@ -3,7 +3,6 @@ inversion_recovery: Compute a T1 map using Inversion Recovery data
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=inversion_recovery_demo.ipynb
-
 .. raw:: html
 
 

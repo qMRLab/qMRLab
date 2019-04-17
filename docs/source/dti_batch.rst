@@ -3,7 +3,6 @@ dti: Compute a tensor from diffusion data
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=dti_demo.ipynb
-
 .. raw:: html
 
 

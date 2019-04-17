@@ -3,7 +3,6 @@ b1_dam map:  Double-Angle Method for B1+ mapping
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=b1_dam_demo.ipynb
-
 .. raw:: html
 
 

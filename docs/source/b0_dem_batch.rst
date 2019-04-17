@@ -3,7 +3,6 @@ b0_dem map :  Dual Echo Method for B0 mapping
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=b0_dem_demo.ipynb
-
 .. raw:: html
 
 

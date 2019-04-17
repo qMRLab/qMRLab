@@ -3,7 +3,6 @@ mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
 
 .. image:: https://mybinder.org/badge_logo.svg
  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=mt_sat_demo.ipynb
-
 .. raw:: html
 
 
