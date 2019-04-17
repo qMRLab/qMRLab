@@ -2,7 +2,7 @@ qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
 =======================================================================
 
 .. image:: https://mybinder.org/badge_logo.svg
-  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=qmt_bssfp_demo.ipynb
+  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=qmt_bssfp_notebook.ipynb
 .. raw:: html
 
     <style type="text/css">

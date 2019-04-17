@@ -13,7 +13,7 @@ function insertBadge(rstDir)
         nw = cell(length(tmp)+2,1);
         nw(1:2) = tmp(1:2);
         nw(4) = {'.. image:: https://mybinder.org/badge_logo.svg'};
-        nw(5) = {[' :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=' Modellist{iModel} '_demo.ipynb']};
+        nw(5) = {[' :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=' Modellist{iModel} '_notebook.ipynb']};
         nw(6:end) = tmp(4:end);
 
         fileID = fopen([rstDir filesep Modellist{iModel} '_batch.rst'],'w');

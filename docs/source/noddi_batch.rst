@@ -2,7 +2,7 @@ noddi:   Neurite Orientation Dispersion and Density Imaging
 ===========================================================
 
 .. image:: https://mybinder.org/badge_logo.svg
- :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=noddi_demo.ipynb
+ :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=noddi_notebook.ipynb
 .. raw:: html
 
 

@@ -2,7 +2,7 @@ mt_ratio :  Magnetization transfer ratio (MTR)
 ==============================================
 
 .. image:: https://mybinder.org/badge_logo.svg
-  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=mt_ratio_demo.ipynb
+  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=mt_ratio_notebook.ipynb
 .. raw:: html
 
 

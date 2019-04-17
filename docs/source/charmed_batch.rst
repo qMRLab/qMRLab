@@ -2,7 +2,7 @@ charmed: Composite Hindered and Restricted Model for Diffusion
 ==============================================================
 
 .. image:: https://mybinder.org/badge_logo.svg
-  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=charmed_demo.ipynb
+  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=charmed_notebook.ipynb
 .. raw:: html
 
 
