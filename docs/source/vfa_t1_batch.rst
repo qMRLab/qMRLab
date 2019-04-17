@@ -168,3 +168,6 @@ vfa_t1: Compute a T1 map using Variable Flip Angle
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs</pre><pre class="codeinput"><span class="comment">% Not available for the current model.</span>
    </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>
+
+.. image:: https://mybinder.org/badge_logo.svg
+  :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=inversion_recovery_demo.ipynb
