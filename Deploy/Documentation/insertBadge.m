@@ -1,3 +1,7 @@
+% Assumes that .. raw:: html is @ l3 
+% Insert badge w.r.t. modelname 
+TODO: Explain. 
+
 function insertBadge(rstDir)
 
 
