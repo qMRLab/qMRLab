@@ -10,11 +10,11 @@ function insertBadge(rstDir)
         
         api = qMRgenBatch;
         tmp = api.getTemplateFile([rstDir filesep Modellist{iModel} '_batch.rst']);
-        nw = cell(length(tmp)+3,1);
+        nw = cell(length(tmp)+2,1);
         nw(1:2) = tmp(1:2);
         nw(4) = {'.. image:: https://mybinder.org/badge_logo.svg'};
         nw(5) = {[' :target: https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=' Modellist{iModel} '_demo.ipynb']};
-        nw(7:end) = tmp(4:end);
+        nw(6:end) = tmp(4:end);
 
         fileID = fopen([rstDir filesep Modellist{iModel} '_batch.rst'],'w');
         formatSpec = '%s\n';
