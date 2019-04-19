@@ -16,18 +16,21 @@ RUN mkdir /opt/mcr_install && \
     /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent && \
     rm -rf /opt/mcr_install /tmp/*
 
-RUN mkdir /home/jovyan/work/mcrCache && \
-    mkdir /home/jovyan/work/mcrCache/.mcrCache9.5
+RUN mkdir $HOME/work && chmod -R 777 $HOME/work && \
+    mkdir $HOME/work/mcrCache && \
+    mkdir $HOME/work/mcrCache/.mcrCache9.5
 
 ENV LD_LIBRARY_PATH "/opt/mcr/v95/runtime/glnxa64:/opt/mcr/v94/bin/glnxa64:/opt/mcr/v95/sys/os/glnxa64:/opt/mcr/v95/sys/opengl/lib/glnxa64"
 ENV XAPPLERESDIR "/opt/mcr/v95/X11/app-defaults"
 
-ENV MCR_CACHE_ROOT "/home/jovyan/work/mcrCache"
+ENV MCR_CACHE_ROOT "$HOME/work/mcrCache"
 
-RUN wget -P /home/jovyan/work https://osf.io/ch3fv/download -O qMRLab.zip && \
-unzip -q /home/jovyav/work/qMRLab.zip
+RUN wget https://osf.io/ch3fv/download -O $HOME/work/qMRLab.zip && \
+    ls $HOME/work && \
+    unzip -q $HOME/work/qMRLab.zip -d $HOME/work
 
-RUN chmod -R 777 $HOME
+RUN chmod -R 777 $HOME/work
+WORKDIR /root/work
+ENTRYPOINT ["sh","run_qMRLab.sh","/opt/mcr/v95"]
 
-USER $NB_USER
-WORKDIR $HOME
+USER $QMRLAB_USER
