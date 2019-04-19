@@ -24,7 +24,9 @@ function  link = getLink(modelName)
   case 'qmt_bssfp'
     
     if ISTRAVIS
-      link = 'https://osf.io/28nhj/download?version=1'; % Octave output
+      %link = 'https://osf.io/28nhj/download?version=1'; % Octave output
+      % TODO: Temporary
+      link  = 'https://osf.io/r64tk/download?version=2';
     else
       link  = 'https://osf.io/r64tk/download?version=2'; % Matlab output
     end    
