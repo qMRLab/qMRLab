@@ -8,8 +8,6 @@ jobs:
   - job: 'Test1'
     pool:
       name: 'default'
-    strategy:
-      parallel: 4  
     steps:
       - checkout: self
         clean: false
