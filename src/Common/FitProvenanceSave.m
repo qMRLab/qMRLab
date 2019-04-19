@@ -9,7 +9,7 @@ function FitProvenanceSave
         FitProvenance.OSDetails = getOSDetails();
         FitProvenance.Platform = ['Octave ' OCTAVE_VERSION()];
         Fitprovenance.OctavePackages = pkg('list');
-        FitProvenance.OctaveDetails = __octave_config_info__;
+        FitProvenance.OctaveDetails = eval('__octave_config_info__');
         
         save('-mat7-binary','FitProvenance.mat','FitProvenance');
         
