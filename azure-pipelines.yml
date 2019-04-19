@@ -12,7 +12,8 @@ jobs:
       - checkout: self
         clean: false
         fetchDepth: 2
-      - script: matlab -nodisplay -nosplash -r "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible/quickMoxTests'); res=moxunit_runtests('-recursive'); exit(~res);"
+      - script: matlab -nodisplay -nosplash -r "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible'); res=moxunit_runtests('BatchExample_qmt_sirfse_test.m'); exit(~res);"
+        displayName: qmt_sirfse_matlab
       - script: octave --no-gui --eval "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible/quickMoxTests'); res=moxunit_runtests('-recursive'); exit(~res);"
         displayName: QuickMox
       - script: octave --no-gui --eval "disp(pwd); ls; bootstrapTestAzure; cd('Test/MoxUnitCompatible'); res=moxunit_runtests('BatchExample_qmt_sirfse_test.m'); exit(~res);"
