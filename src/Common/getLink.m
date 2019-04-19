@@ -48,7 +48,7 @@ function  link = getLink(modelName)
 
   case 'noddi'
 
-    if TRAVIS
+    if ISTRAVIS
       link = 'https://osf.io/9s2px/download?version=1'; 
     else
       link = 'https://osf.io/4s6rf/download?version=4';
