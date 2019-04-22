@@ -367,7 +367,20 @@ classdef imtool3D < handle
                 
                 %Create histogram checkbox
                 tool.handles.Tools.Hist     =   uicontrol(tool.handles.Panels.Tools,'Style','ToggleButton','String','','Position',[buff buff w w],'TooltipString','Show Colorbar');
-                MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+                if ~isdeployed
+                    MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+                    else
+                    % IMPORTANT: COMPILER IS ASSUMED TO BE r2018b
+                    % Please change 'v95' to another version when needed.   
+                    if ~ispc
+                      MATLABdir = '/opt/mcr/v95/mcr/toolbox/matlab/icons';
+                    else
+                    % TODO:   
+                      MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+                    end
+                    
+                end
+
                 icon_colorbar = makeToolbarIconFromPNG(fullfile(MATLABdir,'tool_colorbar.png'));
                 set(tool.handles.Tools.Hist,'CData',icon_colorbar)
                 fun=@(hObject,evnt) ShowHistogram(hObject,evnt,tool,wp,h);
@@ -449,7 +462,7 @@ classdef imtool3D < handle
             %Create save button
             tool.handles.Tools.Save           =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','','Position',[lp buff w w]);
             lp=lp+w+buff;
-            icon_save = makeToolbarIconFromPNG([MATLABdir '/file_save.png']);
+            icon_save = makeToolbarIconFromPNG([MATLABdir filesep 'file_save.png']);
             set(tool.handles.Tools.Save,'CData',icon_save);
             fun=@(hObject,evnt) saveImage(tool,hObject);
             set(tool.handles.Tools.Save,'Callback',fun)
@@ -469,7 +482,7 @@ classdef imtool3D < handle
 
             %Create mask2poly button
             tool.handles.Tools.mask2poly             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff w w],'TooltipString','Mask2Poly');
-            icon_profile = makeToolbarIconFromPNG([MATLABdir '/linkproduct.png']);
+            icon_profile = makeToolbarIconFromPNG([MATLABdir filesep 'linkproduct.png']);
             set(tool.handles.Tools.mask2poly ,'Cdata',icon_profile)
             fun=@(hObject,evnt) mask2polyImageCallback(hObject,evnt,tool);
             set(tool.handles.Tools.mask2poly ,'Callback',fun)
@@ -477,14 +490,14 @@ classdef imtool3D < handle
 
             %Create Circle ROI button
             tool.handles.Tools.CircleROI           =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+w w w],'TooltipString','Create Elliptical ROI');
-            icon_ellipse = makeToolbarIconFromPNG([MATLABdir '/tool_shape_ellipse.png']);
+            icon_ellipse = makeToolbarIconFromPNG([MATLABdir filesep 'tool_shape_ellipse.png']);
             set(tool.handles.Tools.CircleROI,'Cdata',icon_ellipse)
             fun=@(hObject,evnt) measureImageCallback(hObject,evnt,tool,'ellipse');
             set(tool.handles.Tools.CircleROI,'Callback',fun)
             
             %Create Square ROI button
             tool.handles.Tools.SquareROI           =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+2*w w w],'TooltipString','Create Rectangular ROI');
-            icon_rect = makeToolbarIconFromPNG([MATLABdir '/tool_shape_rectangle.png']);
+            icon_rect = makeToolbarIconFromPNG([MATLABdir filesep 'tool_shape_rectangle.png']);
             set(tool.handles.Tools.SquareROI,'Cdata',icon_rect)
             fun=@(hObject,evnt) measureImageCallback(hObject,evnt,tool,'rectangle');
             set(tool.handles.Tools.SquareROI,'Callback',fun)
@@ -496,7 +509,7 @@ classdef imtool3D < handle
             
             %Create line profile button
             tool.handles.Tools.Ruler             =   uicontrol(tool.handles.Panels.ROItools,'Style','pushbutton','String','','Position',[buff buff+4*w w w],'TooltipString','Measure Distance');
-            icon_distance = makeToolbarIconFromPNG([MATLABdir '/tool_line.png']);
+            icon_distance = makeToolbarIconFromPNG([MATLABdir filesep 'tool_line.png']);
             set(tool.handles.Tools.Ruler,'CData',icon_distance);
             fun=@(hObject,evnt) measureImageCallback(hObject,evnt,tool,'profile');
             set(tool.handles.Tools.Ruler,'Callback',fun)
@@ -526,7 +539,7 @@ classdef imtool3D < handle
 
             %Paint brush tool button
             tool.handles.Tools.PaintBrush        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String','','Position',[buff buff+8*w w w],'TooltipString','Paint Brush Tool (B)');
-            icon_profile = makeToolbarIconFromPNG([MATLABdir '/tool_data_brush.png']);
+            icon_profile = makeToolbarIconFromPNG([MATLABdir filesep 'tool_data_brush.png']);
             set(tool.handles.Tools.PaintBrush ,'Cdata',icon_profile)
             fun=@(hObject,evnt) PaintBrushCallback(hObject,evnt,tool,'Normal');
             set(tool.handles.Tools.PaintBrush ,'Callback',fun)
@@ -579,7 +592,7 @@ classdef imtool3D < handle
             
             % mask save
             tool.handles.Tools.maskSave        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-(islct+3)*w w w], 'Value', 1, 'TooltipString', 'Save mask');
-            icon_save = makeToolbarIconFromPNG([MATLABdir '/file_save.png']);
+            icon_save = makeToolbarIconFromPNG([MATLABdir filesep 'file_save.png']);
             icon_save = min(1,max(0,imresize(icon_save,[16 16])));
             set(tool.handles.Tools.maskSave ,'Cdata',icon_save)
             fun=@(hObject,evnt) saveMask(tool,hObject);
@@ -587,7 +600,7 @@ classdef imtool3D < handle
 
             % mask load
             tool.handles.Tools.maskLoad        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','Position',[buff pos(4)-(islct+4)*w w w], 'Value', 1, 'TooltipString', 'Load mask');
-            icon_load = makeToolbarIconFromPNG([MATLABdir '/file_open.png']);
+            icon_load = makeToolbarIconFromPNG([MATLABdir filesep 'file_open.png']);
             icon_load = min(1,max(0,imresize(icon_load,[16 16])));
             set(tool.handles.Tools.maskLoad ,'Cdata',icon_load)
             fun=@(hObject,evnt) loadMask(tool,hObject);

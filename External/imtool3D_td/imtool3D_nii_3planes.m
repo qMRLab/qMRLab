@@ -40,8 +40,21 @@ set(H.Tools.maskLoad,'Callback',@(hObject,evnt)loadMask(tool(3),hObject,hdr))
 Pos = get(tool(1).getHandles.Tools.Save,'Position');
 Pos(1) = Pos(1) + Pos(3)+5;
 Loadbut           =   uicontrol(tool(1).getHandles.Panels.Tools,'Style','pushbutton','String','','Position',Pos);
+if ~isdeployed
 MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
-icon_load = makeToolbarIconFromPNG([MATLABdir '/file_open.png']);
+else
+% IMPORTANT: COMPILER IS ASSUMED TO BE r2018b
+% Please change 'v95' to another version when needed.   
+if ~ispc
+MATLABdir = '/opt/mcr/v95/mcr/toolbox/matlab/icons';
+else
+% TODO:   
+MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+end
+
+end
+
+icon_load = makeToolbarIconFromPNG([MATLABdir filesep 'file_open.png']);
 set(Loadbut,'CData',icon_load);
 fun=@(hObject,evnt) loadImage(hObject,tool,hdr,path);
 set(Loadbut,'Callback',fun)

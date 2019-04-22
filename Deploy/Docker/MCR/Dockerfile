@@ -20,12 +20,12 @@ RUN mkdir $HOME/work && chmod -R 777 $HOME/work && \
     mkdir $HOME/work/mcrCache && \
     mkdir $HOME/work/mcrCache/.mcrCache9.5
 
-ENV LD_LIBRARY_PATH "/opt/mcr/v95/runtime/glnxa64:/opt/mcr/v94/bin/glnxa64:/opt/mcr/v95/sys/os/glnxa64:/opt/mcr/v95/sys/opengl/lib/glnxa64"
+ENV LD_LIBRARY_PATH "/opt/mcr/v95/runtime/glnxa64:/opt/mcr/v95/bin/glnxa64:/opt/mcr/v95/sys/os/glnxa64:/opt/mcr/v95/sys/opengl/lib/glnxa64"
 ENV XAPPLERESDIR "/opt/mcr/v95/X11/app-defaults"
 
 ENV MCR_CACHE_ROOT "$HOME/work/mcrCache"
 
-RUN wget https://osf.io/ch3fv/download -O $HOME/work/qMRLab.zip && \
+RUN wget --no-check-certificate https://osf.io/ch3fv/download -O $HOME/work/qMRLab.zip && \
     ls $HOME/work && \
     unzip -q $HOME/work/qMRLab.zip -d $HOME/work
 
