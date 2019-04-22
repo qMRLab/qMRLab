@@ -2,6 +2,7 @@
 #   - Jupyter
 #   - Octave and SOS kernel 
 #   - Interactive plotting (e.g. plotly)
+#   - osfclient
 # 
 # Upon successful built, /home/jovyan/work/qMRLab will contain the qMRLab with the version described
 # in the Tag of the built Docker images. Please see build.sh for details. 
