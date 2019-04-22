@@ -3,8 +3,11 @@ FROM ubuntu:16.04
 USER root 
 
 RUN apt-get -qq update && apt-get -qq install -y \
+    sudo \
+    default-jre \
+    default-jdk \
     unzip \
-    xorg \
+    xserver-xorg \
     wget && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -16,21 +19,36 @@ RUN mkdir /opt/mcr_install && \
     /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent && \
     rm -rf /opt/mcr_install /tmp/*
 
-RUN mkdir $HOME/work && chmod -R 777 $HOME/work && \
-    mkdir $HOME/work/mcrCache && \
-    mkdir $HOME/work/mcrCache/.mcrCache9.5
 
-ENV LD_LIBRARY_PATH "/opt/mcr/v95/runtime/glnxa64:/opt/mcr/v95/bin/glnxa64:/opt/mcr/v95/sys/os/glnxa64:/opt/mcr/v95/sys/opengl/lib/glnxa64"
+RUN mkdir -p /home/neuropoly && \
+    echo "neuropoly:x:1000:1000:Neuropoly,,,:/home/neuropoly:/bin/bash" >> /etc/passwd && \
+    echo "neuropoly:x:1000:" >> /etc/group && \
+    echo "neuropoly ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/neuropoly && \
+    chmod 0440 /etc/sudoers.d/neuropoly && \
+    chown neuropoly:neuropoly -R /home/neuropoly
+
+ENV HOME /home/neuropoly
+
+RUN mkdir /home/neuropoly/mcrCache && \
+    mkdir /home/neuropoly/mcrCache/.mcrCache9.5 && \
+    chmod -R 777 $HOME
+
+ENV LD_LIBRARY_PATH "/opt/mcr/v95/runtime/glnxa64:/opt/mcr/v95/bin/glnxa64:/opt/mcr/v95/sys/os/glnxa64:/opt/mcr/v95/sys/opengl/lib/glnxa64:/opt/mcr/v95/sys/extern/bin/glnxa64"
 ENV XAPPLERESDIR "/opt/mcr/v95/X11/app-defaults"
 
-ENV MCR_CACHE_ROOT "$HOME/work/mcrCache"
+ENV MCR_CACHE_ROOT "/home/neuropoly/mcrCache"
 
-RUN wget --no-check-certificate https://osf.io/ch3fv/download -O $HOME/work/qMRLab.zip && \
-    ls $HOME/work && \
-    unzip -q $HOME/work/qMRLab.zip -d $HOME/work
+RUN wget --no-check-certificate https://osf.io/ch3fv/download -O $HOME/qMRLab.zip && \
+    ls $HOME && \
+    unzip -q $HOME/qMRLab.zip -d $HOME && \
+    rm $HOME/qMRLab.zip && \
+    chmod +x /home/neuropoly/run_qMRLab.sh && \
+    chmod +x /home/neuropoly/qMRLab
+    
 
-RUN chmod -R 777 $HOME/work
-WORKDIR /root/work
+WORKDIR /home/neuropoly
+
+USER neuropoly
 ENTRYPOINT ["sh","run_qMRLab.sh","/opt/mcr/v95"]
 
-USER $QMRLAB_USER
+USER neuropoly
