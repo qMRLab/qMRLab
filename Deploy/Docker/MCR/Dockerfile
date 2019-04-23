@@ -14,28 +14,44 @@ FROM ubuntu:16.04
 
 USER root 
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN apt-get -qq update && apt-get -qq install -y \
     sudo \
     default-jre \
     default-jdk \
     unzip \
+    python3-dev \
+    python3-pip \
     xserver-xorg \
     wget && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    cd /usr/local/bin && \
+    ln -s /usr/bin/python3 python && \
+    pip3 install osfclient && \
+    rm -rf ~/.cache/pip
+
+ENV LANG en_US.UTF-8
 
 # INSTALL MATLAB COMPILE RUNTIME R208b (v95)
+# Moving libexpat.so.1 due to a conflict between MATLAB and python3
+# See more here: https://bbs.archlinux.org/viewtopic.php?pid=1112017#p1112017
 
 RUN mkdir /opt/mcr_install && \
     mkdir /opt/mcr && \
     wget -P /opt/mcr_install http://www.mathworks.com/supportfiles/downloads/R2018b/deployment_files/R2018b/installers/glnxa64/MCR_R2018b_glnxa64_installer.zip && \
     unzip -q /opt/mcr_install/MCR_R2018b_glnxa64_installer.zip -d /opt/mcr_install && \
     /opt/mcr_install/install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent && \
-    rm -rf /opt/mcr_install /tmp/*
+    rm -rf /opt/mcr_install /tmp/* && \
+    cd /opt/mcr/v95/bin/glnxa64 && \
+    mv libexpat.so.1 libexpat.so.1.NOFIND
 
 # Add user neuropoly UID 1000 
 # Download compiled image corresponding to the TAG using OSF client
 # Unzip qMRLab, remove compressed files and give +x access for executables
 # Create home directory and grant 777 access for MCR cache 
+
+ARG TAG
 
 RUN mkdir -p /home/neuropoly && \
     echo "neuropoly:x:1000:1000:Neuropoly,,,:/home/neuropoly:/bin/bash" >> /etc/passwd && \
@@ -43,8 +59,8 @@ RUN mkdir -p /home/neuropoly && \
     echo "neuropoly ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/neuropoly && \
     chmod 0440 /etc/sudoers.d/neuropoly && \
     chown neuropoly:neuropoly -R /home/neuropoly && \
-    wget --no-check-certificate https://osf.io/ch3fv/download -O $HOME/qMRLab.zip && \
-    ls $HOME && \
+    osf -p tmdfu fetch /Standalone/Ubuntu/qMRLab_$TAG.zip /home/neuropoly/qMRLab.zip && \
+    ls /home/neuropoly && \
     unzip -q /home/neuropoly/qMRLab.zip -d /home/neuropoly && \
     rm /home/neuropoly/qMRLab.zip && \
     chmod +x /home/neuropoly/run_qMRLab.sh && \
