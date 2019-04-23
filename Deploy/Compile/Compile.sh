@@ -20,8 +20,8 @@ mkdir -p /tmp/qMRLab
 # This will do it async, cannot manage flow. 
 # mx "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
 projectID=tmdfu 
-echo $OSF_USERNAME
-osf -p $projectID -u $OSF_USERNAME list
+OSF_PASSWORD=$(OSF_PASSWORD)
+osf -p $projectID -u $(OSF_USERNAME) list
 
 matlab -nojvm -nodisplay -nosplash -r "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab'); exit;"
 
@@ -35,7 +35,7 @@ zip -r qMRLab_$version.zip /tmp/qMRLab
 # OSF_USERNAME and OSF_PASSWORD variables are set by the release pipeline
 
 
-osf -p $projectID -u $OSF_USERNAME upload $AGENT_RELEASEDIRECTORY/qMRLab_$version.zip /Standalone/Ubuntu/qMRLab_$version.zip
+osf -p $projectID -u $(OSF_USERNAME) upload $AGENT_RELEASEDIRECTORY/qMRLab_$version.zip /Standalone/Ubuntu/qMRLab_$version.zip
 
 fi
 

@@ -4,7 +4,7 @@ USERNAME=qmrlab
 IMAGE=octjn
 
 # Vraiables are available in Azure
-docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+docker login -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"
 
 # Build docker image
 docker build -t $USERNAME/$IMAGE:$version --build-arg TAG=$version .
