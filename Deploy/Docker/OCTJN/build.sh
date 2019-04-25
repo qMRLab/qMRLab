@@ -13,9 +13,7 @@ docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
 
 # Build docker image
 cd $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/Deploy/Docker/OCTJN
-docker build -t $USERNAME/$IMAGE:$version --build-arg TAG=$version .
-
-docker tag $USERNAME/$IMAGE:latest $USERNAME/$IMAGE:$version
+docker build -t $USERNAME/$IMAGE:$version -t $USERNAME/$IMAGE:latest --build-arg TAG=$version .
 
 # PUSH
 
