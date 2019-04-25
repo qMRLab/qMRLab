@@ -9,14 +9,14 @@ DOCKER_USERNAME=$1
 DOCKER_USERNAME=$2
 
 # Vraiables are available in Azure
-docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
+
 
 # Build docker image
 cd $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/Deploy/Docker/OCTJN
 docker build -t $USERNAME/$IMAGE:$version -t $USERNAME/$IMAGE:latest --build-arg TAG=$version .
 
 # PUSH
-
+docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
 docker push $USERNAME/$IMAGE:latest
 docker push $USERNAME/$IMAGE:$version
 
