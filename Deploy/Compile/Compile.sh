@@ -20,6 +20,7 @@ mkdir -p /tmp/qMRLab
 # This will do it async, cannot manage flow. 
 # mx "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
 projectID=tmdfu 
+echo $(OSF_USERNAME)
 OSF_PASSWORD=$(OSF_PASSWORD)
 osf -p $projectID -u $(OSF_USERNAME) list
 
