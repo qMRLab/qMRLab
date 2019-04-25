@@ -13,7 +13,7 @@ DOCKER_PASSWORD=$2
 docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
 
 # Build docker image
-docker build -t $USERNAME/$IMAGE:$version --build-arg TAG=$version .
+docker build -f $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/Deploy/MCR/Dockerfile -t $USERNAME/$IMAGE:$version --build-arg TAG=$version
 
 docker tag $USERNAME/$IMAGE:latest $USERNAME/$IMAGE:$version
 
