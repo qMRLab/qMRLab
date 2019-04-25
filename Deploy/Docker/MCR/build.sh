@@ -1,5 +1,6 @@
 # Read version from root 
-version=`cat ../../../version.txt`
+#version=`cat ../../../version.txt`
+version=`cat $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/version.txt`
 USERNAME=qmrlab
 IMAGE=mcrgui
 
