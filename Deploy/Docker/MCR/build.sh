@@ -3,8 +3,13 @@ version=`cat ../../../version.txt`
 USERNAME=qmrlab
 IMAGE=mcrgui
 
+
 # Vraiables are available in Azure
-docker login -u="$(DOCKER_USERNAME)" -p="$(DOCKER_PASSWORD)"
+
+DOCKER_USERNAME=$1
+DOCKER_PASSWORD=$2
+
+docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 
 # Build docker image
 docker build -t $USERNAME/$IMAGE:$version --build-arg TAG=$version .

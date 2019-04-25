@@ -8,6 +8,9 @@
 # 5) https://github.com/osfclient/osfclient is installed 
 # 6) /tmp folder will be used for intermediary file exhange 
 
+# OSF_USERNAME and OSF_PASSWORD secret variables are passed through release pipelines. 
+# Author: Agah Karakuzu
+
 # Get version name from the repo (forked by Azure or another service)
 
 version=`cat $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/version.txt`
@@ -22,24 +25,25 @@ mkdir -p /tmp/qMRLab
 projectID=tmdfu 
 
 OSF_USERNAME=$1
-echo $OSF_USERNAME
-#osf -p $projectID -u $(OSF_USERNAME) list
+OSF_PASSWORD=$2
 
-#matlab -nojvm -nodisplay -nosplash -r "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab'); exit;"
+osf -p $projectID -u $OSF_USERNAME list
 
-#if [ -z "$(ls -A /tmp/qMRLab)" ]; then
-#   echo "Empty, not zipping anything"
-#else
+matlab -nojvm -nodisplay -nosplash -r "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab'); exit;"
+
+if [ -z "$(ls -A /tmp/qMRLab)" ]; then
+   echo "Empty, not zipping anything"
+else
 #   # Zip compiled files 
-#zip -r qMRLab_$version.zip /tmp/qMRLab
+zip -r qMRLab_$version.zip /tmp/qMRLab
 
 # Upload to osf using osfclient (These files will be collected at Standalone/Ubuntu)
 # OSF_USERNAME and OSF_PASSWORD variables are set by the release pipeline
 
 
-#osf -p $projectID -u $(OSF_USERNAME) upload $AGENT_RELEASEDIRECTORY/qMRLab_$version.zip /Standalone/Ubuntu/qMRLab_$version.zip
+osf -p $projectID -u $OSF_USERNAME upload $AGENT_RELEASEDIRECTORY/qMRLab_$version.zip /Standalone/Ubuntu/qMRLab_$version.zip
 
-#fi
+fi
 
 
 
