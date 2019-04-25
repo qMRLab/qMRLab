@@ -23,9 +23,9 @@ mkdir -p /tmp/qMRLab
 # This will do it async, cannot manage flow. 
 # mx "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
 
-OSF_PROJECT=tmdfu 
-OSF_USERNAME=$1
-OSF_PASSWORD=$2
+export OSF_PROJECT=tmdfu 
+export OSF_USERNAME=$1
+export OSF_PASSWORD=$2
 
 matlab -nojvm -nodisplay -nosplash -r "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab'); exit;"
 
