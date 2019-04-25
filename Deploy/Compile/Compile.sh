@@ -21,7 +21,7 @@ mkdir -p /tmp/qMRLab
 # mx "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS'); startup; qMRLab_make_standalone('/tmp/qMRLab');"
 projectID=tmdfu 
 
-#OSF_USERNAME="$(OSF_USERNAME)"
+OSF_USERNAME=$1
 echo $OSF_USERNAME
 #osf -p $projectID -u $(OSF_USERNAME) list
 
