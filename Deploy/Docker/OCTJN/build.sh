@@ -1,19 +1,19 @@
 
 if [ -z "${AGENT_RELEASEDIRECTORY}" ]; then
 
-    echo Starting build on Azure 
-    qMRdir=$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
-    version=`cat $qMRdir/version.txt`
-    DOCKER_USERNAME=$1
-    DOCKER_USERNAME=$2
-
-else # User will pass qMRLab path 
-    
     echo Starting build on lcl computer qMRLab path passed $qMRdir
     qMRdir=$1
     version=`cat $qMRdir/version.txt`
     DOCKER_USERNAME=$2
     DOCKER_USERNAME=$3
+
+else # User will pass qMRLab path 
+    
+    echo Starting build on Azure 
+    qMRdir=$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
+    version=`cat $qMRdir/version.txt`
+    DOCKER_USERNAME=$1
+    DOCKER_USERNAME=$2
 fi
 
 echo $version
