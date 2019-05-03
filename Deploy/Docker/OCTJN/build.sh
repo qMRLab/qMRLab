@@ -1,22 +1,31 @@
-# Read version from root 
-#version=`cat ../../../version.txt`
-version=`cat $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/version.txt`
+
+if [ -z "${AGENT_RELEASEDIRECTORY}" ]; then
+
+    echo Starting build on Azure 
+    qMRdir=$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
+    version=`cat $qMRdir/version.txt`
+    DOCKER_USERNAME=$1
+    DOCKER_USERNAME=$2
+
+else # User will pass qMRLab path 
+    
+    echo Starting build on lcl computer qMRLab path passed $qMRdir
+    qMRdir=$1
+    version=`cat $qMRdir/version.txt`
+    DOCKER_USERNAME=$2
+    DOCKER_USERNAME=$3
+fi
+
 echo $version
 USERNAME=qmrlab
 IMAGE=octjn
 
-DOCKER_USERNAME=$1
-DOCKER_USERNAME=$2
-
-# Vraiables are available in Azure
-
-
 # Build docker image
-cd $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/Deploy/Docker/OCTJN
+cd $qMRdir/Deploy/Docker/OCTJN
 docker build -t $USERNAME/$IMAGE:$version -t $USERNAME/$IMAGE:latest --build-arg TAG=$version .
 
 # PUSH
-echo $DOCKER_PASSWORD | docker login -u=$DOCKER_USERNAME --password-stdin docker.io
+echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
 docker push $USERNAME/$IMAGE:latest
 docker push $USERNAME/$IMAGE:$version
 
