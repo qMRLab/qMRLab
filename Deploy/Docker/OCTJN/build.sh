@@ -16,7 +16,7 @@ cd $AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS/Deploy/Docker/OCT
 docker build -t $USERNAME/$IMAGE:$version -t $USERNAME/$IMAGE:latest --build-arg TAG=$version .
 
 # PUSH
-docker login -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD docker.io
+echo $DOCKER_PASSWORD | docker login -u=$DOCKER_USERNAME --password-stdin docker.io
 docker push $USERNAME/$IMAGE:latest
 docker push $USERNAME/$IMAGE:$version
 
