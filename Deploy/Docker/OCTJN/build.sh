@@ -5,7 +5,7 @@ if [ -z "${AGENT_RELEASEDIRECTORY}" ]; then
     qMRdir=$1
     version=`cat $qMRdir/version.txt`
     DOCKER_USERNAME=$2
-    DOCKER_USERNAME=$3
+    DOCKER_PASSWORD=$3
 
 else # User will pass qMRLab path 
     
@@ -13,7 +13,7 @@ else # User will pass qMRLab path
     qMRdir=$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
     version=`cat $qMRdir/version.txt`
     DOCKER_USERNAME=$1
-    DOCKER_USERNAME=$2
+    DOCKER_PASSWORD=$2
 fi
 
 echo $version
