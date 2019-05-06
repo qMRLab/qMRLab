@@ -32,8 +32,10 @@ matlab -nojvm -nodisplay -nosplash -r "disp('$AGENT_RELEASEDIRECTORY'); cd('$AGE
 if [ -z "$(ls -A /tmp/qMRLab)" ]; then
    echo "Empty, not zipping anything"
 else
-#   # Zip compiled files 
-zip -r qMRLab_$version.zip /tmp/qMRLab
+#   # Zip compiled files \
+cd /tmp/qMRLab
+zip -r qMRLab_$version.zip .
+cp /tmp/qMRLab/qMRLab_$version.zip $AGENT_RELEASEDIRECTORY/qMRLab_$version.zip
 
 # Upload to osf using osfclient (These files will be collected at Standalone/Ubuntu)
 # OSF_USERNAME and OSF_PASSWORD variables are set by the release pipeline

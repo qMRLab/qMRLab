@@ -64,7 +64,6 @@ RUN mkdir -p /home/neuropoly && \
     unzip  qMRLab.zip && \
     ls /home/neuropoly && \
     rm /home/neuropoly/qMRLab.zip && \
-    ls /home/neuropoly/tmp && \
     chmod -R 777 /home/neuropoly && \
     chmod +x /home/neuropoly/run_qMRLab.sh && \
     chmod +x /home/neuropoly/qMRLab && \
