@@ -60,14 +60,15 @@ RUN mkdir -p /home/neuropoly && \
     chmod 0440 /etc/sudoers.d/neuropoly && \
     chown neuropoly:neuropoly -R /home/neuropoly && \
     osf -p tmdfu fetch /Standalone/Ubuntu/qMRLab_$TAG.zip /home/neuropoly/qMRLab.zip && \
-    ls /home/neuropoly && \
+    chmod -R 777 /home/neuropoly && \
     unzip -q /home/neuropoly/qMRLab.zip -d /home/neuropoly && \
     rm /home/neuropoly/qMRLab.zip && \
+    ls /home/neuropoly && \
     chmod +x /home/neuropoly/run_qMRLab.sh && \
     chmod +x /home/neuropoly/qMRLab && \
     mkdir /home/neuropoly/mcrCache && \
-    mkdir /home/neuropoly/mcrCache/.mcrCache9.5 && \
-    chmod -R 777 /home/neuropoly
+    mkdir /home/neuropoly/mcrCache/.mcrCache9.5
+    
 
 # Set $HOME 
 
