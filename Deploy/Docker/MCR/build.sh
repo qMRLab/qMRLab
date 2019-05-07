@@ -1,3 +1,17 @@
+# Build and push Docker image for compiled qMRLab (R2018b) 
+# Docker image: qmrlab/mcrgui 
+# This script can be called manually (not by Azure) as well. 
+# If called manually, 3 arguments to be passed with the following order:
+#   - Path to the qMRLab root 
+#   - Docker username 
+#   - Docker password 
+# IMPORTANT: 
+#   The version tag will be read from the version.txt file. 
+#   A corresponding qMRLab_version.zip must exist in OSF (/Standalone/Ubuntu)
+#   For further details please see Dockerfile accompanying this file. 
+# 
+# Author: Agah Karakuzu 
+# ==========================================================================
 
 if [ -z "${AGENT_RELEASEDIRECTORY}" ]; then
 

@@ -5,11 +5,14 @@
 #   - osfclient
 # 
 # Upon successful built, /home/jovyan/work/qMRLab will contain the qMRLab with the version described
-# in the Tag of the built Docker images. Please see build.sh for details. 
-# 
-# For usage instructions, please visit qMRLab's DockerHub organization. 
+#
+#   IMPORTANT! 
+#   Do not modify this Dockerfile for dependency configuration. 
+#   Any changes to the Python and other dependencies should be described in the
+#   accompanying apt.txt and requirements.txt configuration files. 
 #
 # Author: Agah Karakuzu, 2019
+# ==========================================================================
 
 FROM jupyter/base-notebook:8ccdfc1da8d5
 

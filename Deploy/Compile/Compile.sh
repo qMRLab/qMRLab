@@ -1,15 +1,21 @@
 #!/bin/sh
 
 # Assumptions: 
-# 1) /usr/local/bin/mx can route asynchronous matlab tasks to an existing session named matlab, running on tmux (tmux ls)
-# 2) Local machine has MATLAB installed and added it to the system path
-# 3) Local machine has Docker installed 
-# 4) Local machine has Azure agent set as described in https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops
-# 5) https://github.com/osfclient/osfclient is installed 
-# 6) /tmp folder will be used for intermediary file exhange 
+# 1) Local machine has MATLAB installed and added it to the system path
+# 2) Local machine has Docker installed 
+# 3) Local machine has Azure agent set as described in https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops
+# 4) https://github.com/osfclient/osfclient is installed 
+# 5) /tmp folder will be used for intermediary file exhange 
 
-# OSF_USERNAME and OSF_PASSWORD secret variables are passed through release pipelines. 
+# AZURE DEVOPS --> https://devops.azure.com/qmrlab
+# /Pipelines/Releases/Release Pipelines/qMRLab release pipeline
+# This script pertains to Compile R2018b (v95) stage 
+# $(OSF_USERNAME) $(OSF_PASSWORD) are passed as arguments, to be received as $1 # and $2 by this script. 
+
+# Secret variables are kept in qMRLab/Pipelines/Library/qMRLab Release envs variable group.
+
 # Author: Agah Karakuzu
+# ====================================================================
 
 # Get version name from the repo (forked by Azure or another service)
 
