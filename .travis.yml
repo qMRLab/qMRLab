@@ -209,19 +209,19 @@ jobs:
         if [ "$?" != "0" ]; then travis_terminate 1; fi
       fi
   - stage: Test
-  script: 
-  - |
-    travis_wait $WAIT_TIME \
-    octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible'); \
-    res=moxunit_runtests('genJN_test.m','-with_coverage','-cover','$TRAVIS_BUILD_DIR/src','-cover_exclude','*GUI*','-cover_json_file','coverage_genJN_test.json'); \
-    exit(~res);"
-    if [ "$?" != "0" ]; then travis_terminate 1; fi
-    if [ "${TRAVIS_REPO_SLUG%%/*}" =  "qMRLab" ] 
-    then
-      aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_genJN_test.json \
-      s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_genJN_test.json
+    script: 
+    - |
+      travis_wait $WAIT_TIME \
+      octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible'); \
+      res=moxunit_runtests('genJN_test.m','-with_coverage','-cover','$TRAVIS_BUILD_DIR/src','-cover_exclude','*GUI*','-cover_json_file','coverage_genJN_test.json'); \
+      exit(~res);"
       if [ "$?" != "0" ]; then travis_terminate 1; fi
-    fi  
+      if [ "${TRAVIS_REPO_SLUG%%/*}" =  "qMRLab" ] 
+      then
+        aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_genJN_test.json \
+        s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_genJN_test.json
+        if [ "$?" != "0" ]; then travis_terminate 1; fi
+      fi  
   - stage: Test (no coverage)
     script: travis_wait $WAIT_TIME octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_spgr.m');exit(~res);"
   - stage: Test (no coverage)
