@@ -65,11 +65,12 @@ RUN mkdir -p /home/neuropoly && \
     unzip  qMRLab.zip && \
     ls /home/neuropoly && \
     rm /home/neuropoly/qMRLab.zip && \
-    chmod -R 777 /home/neuropoly && \
     chmod +x /home/neuropoly/run_qMRLab.sh && \
     chmod +x /home/neuropoly/qMRLab && \
     mkdir /home/neuropoly/mcrCache && \
-    mkdir /home/neuropoly/mcrCache/.mcrCache9.5
+    mkdir /home/neuropoly/mcrCache/.mcrCache9.5 && \
+    chmod -R 777 /home/neuropoly
+
     
 
 # Set $HOME 
