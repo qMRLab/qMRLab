@@ -11,9 +11,24 @@
 %
 % Written by: Agah Karakuzu, 2017
 
-function qMRgenBatch(Model,path,nodwnld)
-if nargin<1, help qMRgenBatch, return; end
+function api = qMRgenBatch(Model,path,nodwnld)
+if nargin==0 && nargout==0, help qMRgenBatch, return; end
 
+if nargin == 0
+
+    % Open subfunctions of qMRgenBatch for outside access
+    api.data2CLI = @data2CLI;
+    api.cell2Explain = @cell2Explain;
+    api.qMRUsage2CLI = @qMRUsage2CLI;
+    api.prot2CLI = @prot2CLI;
+    api.getDataAssign = @getDataAssign;
+    api.dir2Cell = @dir2Cell;
+    api.juxtaposeCommands = @juxtaposeCommands;
+    api.getTemplateFile = @getTemplateFile;
+    api.remParant = @remParant;
+    api.replaceJoker = @replaceJoker;
+
+else
 % Main function
 
 % Define jokers and get class info ====================== START
@@ -179,6 +194,7 @@ disp(['SAVED: ' writeName]);
 disp(['Demo is ready at: ' curDir]);
 disp('------------------------------');
 
+end
 end
 
 function [explain] = cell2Explain(str,modelName,itemName)

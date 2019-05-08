@@ -1,3 +1,7 @@
+% Compiles a standalone qMRLab application. 
+% IMPORTANT: Entrypoint is GUI. API to the CLI will be disabled. 
+% ===============================================================
+
 function qMRLab_make_standalone(outDir)
     % get model list
     qMRdir = fileparts(which('qMRLab'));

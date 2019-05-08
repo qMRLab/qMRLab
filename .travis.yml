@@ -207,7 +207,7 @@ jobs:
         aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_SimTest_mwf.json \
         s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_SimTest_mwf.json
         if [ "$?" != "0" ]; then travis_terminate 1; fi
-      fi
+      fi 
   - stage: Test (no coverage)
     script: travis_wait $WAIT_TIME octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_spgr.m');exit(~res);"
   - stage: Test (no coverage)
