@@ -75,7 +75,6 @@ end
 
         function obj = UpdateFields(obj)
             obj.options.Magnthresh = max(obj.options.Magnthresh,0);
-            obj.options.Magnthresh = min(obj.options.Magnthresh,1);
         end
 
         function FitResult = fit(obj,data)
