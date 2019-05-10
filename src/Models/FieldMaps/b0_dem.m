@@ -100,22 +100,19 @@ end
             end
 
             % MATLAB "sunwrap" for 2D data
+            Phase_uw = Phase;
             if TwoD
                 Complex = Magn.*exp(Phase*1i);
-                Phase_uw = Phase;
                 for it = 1:size(Magn,4)
                     Phase_uw(:,:,:,it) = sunwrap(Complex(:,:,:,it));
                 end
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
-
             % MATLAB "laplacianUnwrap" for 3D data
             else
-                Phase_uw = laplacianUnwrap(Phase, Magn>obj.options.Magnthresh);
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
+                for iEcho = 1:size(Phase,4)
+                    Phase_uw = laplacianUnwrap(Phase, Magn>obj.options.Magnthresh);
+                end
             end
-
-            % 
-            
+            FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
             
             % Save unwrapped phase
             FitResult.Phase_uw = Phase_uw;
