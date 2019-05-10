@@ -55,7 +55,7 @@ end
 
         % Protocol
         % You can define a default protocol here.
-        Prot = struct('TimingTable',struct('Format',{'TE'},'Mat', [1;2;3;4]));
+        Prot = struct('TimingTable',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
 
         % Model options
         buttons = {'Magn thresh',.05};
