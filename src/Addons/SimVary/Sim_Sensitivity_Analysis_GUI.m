@@ -73,11 +73,7 @@ if ~isfield(handles,'opened')
         FitOptTable(:,4)=mat2cell(cell2mat(FitOptTable(:,3))/2,ones(Nparam,1));
         FitOptTable(:,5)=mat2cell(cell2mat(FitOptTable(:,3))*2,ones(Nparam,1));
     end
-    set(handles.SimVaryOptTable,'Data',FitOptTable)
-    % fill parameters
-    set(handles.SimVaryPlotX,'String',handles.Model.xnames')
-    set(handles.SimVaryPlotY,'String',handles.Model.xnames')
-    
+        
     % Options
     if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons')
         opts = handles.Model.Sim_Single_Voxel_Curve_buttons;
@@ -91,6 +87,16 @@ if ~isfield(handles,'opened')
 
     handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
     handles.opened = 1;
+    
+    % add SNR
+    options = button2opts(opts);
+    FitOptTable = cat(1,{'SNR',false,options.SNR,1,1000},FitOptTable);
+    
+    set(handles.SimVaryOptTable,'Data',FitOptTable)
+    % fill parameters
+    set(handles.SimVaryPlotX,'String',handles.Model.xnames')
+    set(handles.SimVaryPlotY,'String',handles.Model.xnames')
+
     
     % Create CALLBACK for buttons
     ff = fieldnames(handles.options);

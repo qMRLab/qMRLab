@@ -59,6 +59,8 @@ if ~isfield(handles,'opened')
     else
         opts = {'SNR',50};
     end
+    options = button2opts(opts);
+    SNR = options.SNR;
     
     % Generate Buttons
     handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
@@ -67,13 +69,6 @@ if ~isfield(handles,'opened')
     ff = fieldnames(handles.options);
     for ii=1:length(ff)
         switch get(handles.options.(ff{ii}),'Style')
-%             case 'popupmenu'
-%                 val =  find(cell2mat(cellfun(@(x) strcmp(x,Model.options.(ff{ii})),get(handles.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
-%                 set(handles.OptionsPanel_handle.(ff{ii}),'Value',val);
-%             case 'checkbox'
-%                 set(handles.OptionsPanel_handle.(ff{ii}),'Value',Model.options.(ff{ii}));
-%             case 'edit'
-%                 set(handles.OptionsPanel_handle.(ff{ii}),'String',Model.options.(ff{ii}));
             case 'togglebutton'
                 set(handles.options.(ff{ii}),'Callback',@(src,event) ModelSimOptions_Callback(handles));
         end     
@@ -86,6 +81,10 @@ if ~isfield(handles,'opened')
     elseif isprop(handles.Model,'lb') && ~isempty(handles.Model.lb) && isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
         FitOptTable(:,2) = mat2cell(mean([handles.Model.lb(:), handles.Model.ub(:)],2),ones(Nparam,1));
     end
+    
+    % add SNR
+    FitOptTable = cat(1,{'SNR',SNR},FitOptTable);
+    
     set(handles.ParamTable,'Data',FitOptTable)
     
 %     % launch plot
@@ -110,10 +109,17 @@ if isgraphics(handles.SimCurveAxe)
     axes(handles.SimCurveAxe)
 end
 
+% get fitting param values
 xtable = get(handles.ParamTable,'Data');
-x=cell2mat(xtable(~cellfun(@isempty,xtable(:,2)),2))';
+x = xtable(end-length(handles.Model.xnames)+1:end,:);
+x = cell2mat(x(~cellfun(@isempty,x(:,2)),2))';
 
-FitResults = Sim_Single_Voxel_Curve(handles.Model,x,button_handle2opts(handles.options));
+% get custom param values (e.g. SNR)
+Opt = button_handle2opts(handles.options);
+for io = 1:(size(xtable,1)-length(handles.Model.xnames))
+    Opt.(xtable{io,1}) = xtable{io,2};
+end
+FitResults = Sim_Single_Voxel_Curve(handles.Model,x,Opt);
 hold off;
 
 % put results in table
@@ -139,6 +145,7 @@ for ii=1:sum(~handles.Model.fx)
 end
 set(handles.ParamTable,'Data',xtable);
 set(findobj('Name','Single Voxel Curve'),'pointer', 'arrow'); drawnow;
+
 
 % --- Executes on button press in Options panel.
 function ModelSimOptions_Callback(handles)
