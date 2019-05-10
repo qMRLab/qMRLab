@@ -55,7 +55,7 @@ end
 
         % Protocol
         % You can define a default protocol here.
-        Prot = struct('TimingTable',struct('Format',{'deltaTE'},'Mat', 1.92e-3));
+        Prot = struct('TimingTable',struct('Format',{'TE'},'Mat', [1;2;3;4]));
 
         % Model options
         buttons = {'Magn thresh',.05};
@@ -111,10 +111,13 @@ end
 
             % MATLAB "laplacianUnwrap" for 3D data
             else
-                Phase_uw = laplacianUnwrap(Phase, magn>obj.options.Magnthresh);
+                Phase_uw = laplacianUnwrap(Phase, Magn>obj.options.Magnthresh);
                 FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
             end
 
+            % 
+            
+            
             % Save unwrapped phase
             FitResult.Phase_uw = Phase_uw;
         end
