@@ -6,7 +6,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
 %       - Assert that a magnetization vector with only longitudinal values
 %         remains constant for a constant pulse of 0 degree FA.
 %
-%   test_no_longi_mag_evol_for_transverse_inital_mag_inf_t2_t1
+%   test_no_longi_mag_evol_for_transverse_initial_mag_inf_t2_t1
 %       - Assert that a magnetization vector with only transverse values
 %         does not accrue longitudinal magnetization for the case of
 %         infinite T1 and T2 (0 deg FA).
@@ -74,7 +74,7 @@ classdef (TestTags = {'Unit', 'SPGR', 'qMT'}) BlochSol_Test < matlab.unittest.Te
             testCase.assertEqual(M(end,:), M0', 'AbsTol', 0.001);
         end
         
-        function test_no_longi_mag_evol_for_transverse_inital_mag_inf_t2_t1(testCase)
+        function test_no_longi_mag_evol_for_transverse_initial_mag_inf_t2_t1(testCase)
             %% Prep
             %
             Param = testCase.Param;

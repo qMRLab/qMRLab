@@ -20,6 +20,13 @@ T2_relaxometry
 
 	mwf_batch
 
+Processing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+	:maxdepth: 1
+
+	filter_map_batch
+
 T1_relaxometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. toctree::
@@ -52,6 +59,11 @@ Magnetization_transfer
 .. toctree::
 	:maxdepth: 1
 
+	mt_ratio_batch
+
+.. toctree::
+	:maxdepth: 1
+
 	qmt_sirfse_batch
 
 Diffusion
@@ -71,6 +83,13 @@ Diffusion
 
 	charmed_batch
 
+QSM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+	:maxdepth: 1
+
+	qsm_sb_batch
+
 UnderDevelopment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Name your Model
@@ -79,6 +98,11 @@ UnderDevelopment
 
 Noise
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+	:maxdepth: 1
+
+	denoising_mppca_batch
+
 .. toctree::
 	:maxdepth: 1
 

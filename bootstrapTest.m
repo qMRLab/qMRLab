@@ -8,14 +8,14 @@ addpath(genpath(pwd));
 %  <false> if cache (for octave packages) is cleared
 %  <true> if the same cache (for octave packages) is still in use
 
-cacheState = true;
+cacheState = false;
 % -----------------------------------------------------
 
 if moxunit_util_platform_is_octave
     if ~cacheState
         more off;
-        installist = {'struct-1.0.14.tar.gz','optim-1.5.2.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','image-2.6.1.tar.gz'};
-        loadlist = {'struct','optim','io','statistics','image'};
+        installist = {'struct-1.0.14.tar.gz','io-2.4.10.tar.gz','statistics-1.3.0.tar.gz','optim-1.5.2.tar.gz','image-2.6.1.tar.gz'};
+        loadlist = {'struct','io','statistics','optim','image'};
         cd('/home/travis/octave');
         for ii=1:length(installist)
             pkg prefix '/home/travis/octave'

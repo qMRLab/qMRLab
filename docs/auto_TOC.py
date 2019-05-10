@@ -28,11 +28,11 @@ class Model(object):
 category_list = []
 models = []
 #Retrieve the temporary folder containing Data files and batch examples from the text file
-with io.open('../tmp/tmpDocDir.txt','rb') as fpwdTemp:
+with io.open('../src/tmp/tmpDocDir.txt','rb') as fpwdTemp:
 	pwd = (fpwdTemp.readline()).rstrip('\n')
 fpwdTemp.close()
 
-for root, dirs, files in os.walk('../Models'):
+for root, dirs, files in os.walk('../src/Models'):
 	#Check the models that are there
 	for name in files:
 		if name.endswith('.m'):
@@ -40,7 +40,7 @@ for root, dirs, files in os.walk('../Models'):
 			name_pos = name.find(".m")
 			cfile = name[:name_pos]
 			
-			#Get the file category (in wich folder it's located)
+			#Get the file category (in which folder it's located)
 			#Get the index to split the folder path
 			root_pos = root.find("Models")
 			skip_pos = len("Models")
@@ -65,7 +65,7 @@ for root, dirs, files in os.walk('../Models'):
 			#Open the model matlab file
 			with io.open(os.path.join(root,name), 'rb') as fr:
 				found = False
-				#Go throught the file until the name is found
+				#Go thought the file until the name is found
 				while not found:
 					text = fr.read()
 					line_lst = text.split('\n')
@@ -141,7 +141,7 @@ with io.open("./source/methods.rst", "r") as fr:
 							fw.write('* '+element._name.decode('utf8'))
 							fw.write(u"\n\n")
 			i = i - 1
-			#Write every line exept the old toctree
+			#Write every line except the old toctree
 			if not in_Models:
 				fw.write(line)
 

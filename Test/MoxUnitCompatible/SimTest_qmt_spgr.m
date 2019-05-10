@@ -15,7 +15,7 @@ disp('testing Simulation Single Voxel Curve...');
 
 
 Model = str2func('qmt_spgr'); Model = Model();
-savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['qmt_spgr.qmrlab.mat']);
+savedModel_fname = 'qmt_spgr.qmrlab.mat';
 if ~exist(savedModel_fname,'file')
 Model.saveObj(savedModel_fname);
 else
