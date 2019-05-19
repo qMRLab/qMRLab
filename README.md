@@ -24,13 +24,15 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 **qMRLab**
 
+* [Karakuzu et al. *The qMRLab workflow: From acquisition to publication.* ISMRM 2019](https://www.ismrm.org/19/program_files/DP23.htm#005)
 * [Duval et al. *Quantitative MRI made easy with qMRLab.* ISMRM 2018](http://archive.ismrm.org/2018/2288.html)
 * [Cabana et al. *Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization.* Concepts in Magn Reson 2015](https://onlinelibrary.wiley.com/doi/abs/10.1002/cmr.a.21357)
 
 **Applications**
 
-* [Romero and Sinha.  *Magnetization Transfer Saturation Imaging of Human Calf Muscle: Reproducibility and Sensitivity to Regional and Sex Differences* J Magn Reson Imaging 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/jmri.26694)
-* [Michálek et al.  *Fast and accurate compensation of signal offset for T<sub>2</sub> mapping* Magn Reson Mater Phy 2019](https://link.springer.com/article/10.1007/s10334-019-00737-3)
+* [Boudreau et al. *All you need is a browser: eliminating barriers to MRI education with open-source interactive tutorials.* Junior Fellows Symposium: Africa Challenge, ISMRM 2019](https://www.ismrm.org/19/program_files/W06.htm)
+* [Romero and Sinha.  *Magnetization Transfer Saturation Imaging of Human Calf Muscle: Reproducibility and Sensitivity to Regional and Sex Differences.* J Magn Reson Imaging 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/jmri.26694)
+* [Michálek et al.  *Fast and accurate compensation of signal offset for T<sub>2</sub> mapping.* Magn Reson Mater Phy 2019](https://link.springer.com/article/10.1007/s10334-019-00737-3)
 * [Barbieri et al. *Circumventing the Curse of Dimensionality in Magnetic Resonance Fingerprinting through a Deep Learning Approach.* arXiv:1811.11477](https://arxiv.org/abs/1811.11477)
 * [Varma et al. *Low duty-cycle pulsed irradiation reduces magnetization transfer and increases the inhomogeneous magnetization transfer effect.* J of Mag Res 2018](https://www.sciencedirect.com/science/article/abs/pii/S1090780718302088)
 * [Campbell et al. *Promise and pitfalls of g-ratio estimation with MRI.* NeuroImage 2018](https://www.sciencedirect.com/science/article/pii/S1053811917306857)
@@ -38,8 +40,14 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 **Interactive Tutorials**
 
-* [Boudreau M. *Relaxometry Series: Inversion Recovery T<sub>1</sub> Mapping.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/10/23/T1-mapping-inversion-recovery.html)
+* [Boudreau M. *Relaxometry Series: MP2RAGE T<sub>1</sub> Mapping.* qMRLab.org 2019](https://qmrlab.org/2019/04/08/T1-mapping-mp2rage.html)
 * [Boudreau M. *Relaxometry Series: Variable Flip Angle T<sub>1</sub> Mapping.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/12/11/T1-mapping-variable-flip-angle.html)
+* [Boudreau M. *Relaxometry Series: Inversion Recovery T<sub>1</sub> Mapping.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/10/23/T1-mapping-inversion-recovery.html)
+
+**Awards**
+
+* Karakuzu et al. Quantitative MR Study Group Competition, second place, ISMRM 2019 
+* Boudreau et al. Junior Fellows Symposium Challenge, Africa challenge winner, ISMRM 2019
 
 ## Citation
 
