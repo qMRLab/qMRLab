@@ -1,5 +1,12 @@
 # [qMRLab](https://qmrlab.org)
-[![Build Status](https://travis-ci.org/qMRLab/qMRLab.svg?branch=master)](https://travis-ci.org/qMRLab/qMRLab) [![Coverage Status](https://coveralls.io/repos/github/qMRLab/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/qMRLab/qMRLab?branch=master) [![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=latest)](https://qmrlab.readthedocs.io/en/master/?version=latest) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/MIT) [![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)](https://qmrlab.org) [![OctJN](https://vsrm.dev.azure.com/qmrlab/_apis/public/Release/badge/46799180-12b7-4319-b8e7-94e1d39047e7/2/7)](https://devops.azure.com/qmrlab) [![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&label=Follow)](https://twitter.com/qmrlab)
+
+[![Build Status](https://travis-ci.org/qMRLab/qMRLab.svg?branch=master)](https://travis-ci.org/qMRLab/qMRLab)
+[![Coverage Status](https://coveralls.io/repos/github/qMRLab/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/qMRLab/qMRLab?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=latest)](https://qmrlab.readthedocs.io/en/master/?version=latest)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/MIT)
+[![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)](https://qmrlab.org)
+[![Build Status](https://dev.azure.com/qmrlab/qMRLab/_apis/build/status/qMRLab.qMRLab?branchName=master)](https://dev.azure.com/qmrlab/qMRLab/_build/latest?definitionId=7&branchName=master)
+[![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&label=Follow)](https://twitter.com/qmrlab)
 
 ![hdr](/docs/logo/page_header.png)
 
