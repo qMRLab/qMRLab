@@ -103,13 +103,13 @@ end
             Phase_uw = Phase;
             if TwoD
                 Complex = Magn.*exp(Phase*1i);
-                for it = 1:size(Magn,4)
-                    Phase_uw(:,:,:,it) = sunwrap(Complex(:,:,:,it));
+                for iEcho = 1:size(Magn,4)
+                    Phase_uw(:,:,:,iEcho) = sunwrap(Complex(:,:,:,iEcho));
                 end
             % MATLAB "laplacianUnwrap" for 3D data
             else
                 for iEcho = 1:size(Phase,4)
-                    Phase_uw = laplacianUnwrap(Phase, Magn>obj.options.Magnthresh);
+                    Phase_uw(:,:,:,iEcho) = laplacianUnwrap(Phase(:,:,:,iEcho), Magn>obj.options.Magnthresh);
                 end
             end
             FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
