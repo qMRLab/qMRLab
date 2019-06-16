@@ -45,7 +45,7 @@ classdef mt_sat < AbstractModel
 % Author: Pascale Beliveau (pascale.beliveau@polymtl.ca)
 %
 % References:
-%   Please cite thee following if you use this module:
+%   Please cite the following if you use this module:
 %     Helms, G., Dathe, H., Kallenberg, K., Dechent, P., 2008. High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magn. Reson. Med. 60, 1396?1407.
 %     Helms, G., Correction for residual effects of B1+ inhomogeniety on MT saturation in FLASH-based multi-parameter mapping of the brain. Proceedings of the 23rd Annual Meeting of ISMRM 2015, 3360.
 %   In addition to citing the package:
