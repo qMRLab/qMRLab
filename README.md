@@ -30,6 +30,7 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 **Applications**
 
+* [Kim et al. *Rapid framework for quantitative magnetization transfer imaging with interslice magnetization transfer and dictionary‐driven fitting approaches.* Mag Res Med 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.27850)
 * [Boudreau et al. *All you need is a browser: eliminating barriers to MRI education with open-source interactive tutorials.* Junior Fellows Symposium: Africa Challenge, ISMRM 2019](https://www.ismrm.org/19/program_files/W06.htm)
 * [Romero and Sinha.  *Magnetization Transfer Saturation Imaging of Human Calf Muscle: Reproducibility and Sensitivity to Regional and Sex Differences.* J Magn Reson Imaging 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/jmri.26694)
 * [Michálek et al.  *Fast and accurate compensation of signal offset for T<sub>2</sub> mapping.* Magn Reson Mater Phy 2019](https://link.springer.com/article/10.1007/s10334-019-00737-3)
