@@ -30,6 +30,7 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 **Applications**
 
+* [Soustelle et al. *Correlations of quantitative MRI metrics with myelin basic protein (MBP) staining in a murine model of demyelination.* NMR in Biomed 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/nbm.4116)
 * [Kim et al. *Rapid framework for quantitative magnetization transfer imaging with interslice magnetization transfer and dictionary‐driven fitting approaches.* Mag Res Med 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.27850)
 * [Boudreau et al. *All you need is a browser: eliminating barriers to MRI education with open-source interactive tutorials.* Junior Fellows Symposium: Africa Challenge, ISMRM 2019](https://www.ismrm.org/19/program_files/W06.htm)
 * [Romero and Sinha.  *Magnetization Transfer Saturation Imaging of Human Calf Muscle: Reproducibility and Sensitivity to Regional and Sex Differences.* J Magn Reson Imaging 2019](https://onlinelibrary.wiley.com/doi/abs/10.1002/jmri.26694)
