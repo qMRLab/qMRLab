@@ -19,10 +19,10 @@ env:
   - WAIT_TIME=30
 before_install:
 # to prevent IPv6 being used for APT
-- travis_retry sudo apt-get update
+- travis_retry sudo apt-get -y -qq update
 - travis_retry sudo apt-get install -y -qq software-properties-common python-software-properties
 - travis_retry sudo apt-add-repository -y ppa:octave/stable
-- travis_retry sudo apt-get update
+- travis_retry sudo apt-get -y -qq update
 - travis_retry sudo apt-get install -y wget
 - travis_retry sudo apt-get -y -qq install debhelper -t xenial-backports
 - travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev gnuplot
