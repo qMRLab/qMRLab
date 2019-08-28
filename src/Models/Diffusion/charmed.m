@@ -325,6 +325,9 @@ end
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
+        function Signal = Sim_MonteCarlo_Diffusion(obj)
+        end
+        
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
