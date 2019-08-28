@@ -57,8 +57,8 @@ Ymin = round(mean(pts(2,:))/side*masksize - Ls/2);
 Ymax = round(mean(pts(2,:))/side*masksize + Ls/2);
 
 % labeled masks
-FVF_mask_trunc = FVF_mask(min(end,Xmin):min(end,Xmax),min(end,Ymin):min(end,Ymax));
-AVF_mask_trunc = AVF_mask(min(end,Xmin):min(end,Xmax),min(end,Ymin):min(end,Ymax));
+FVF_mask_trunc = FVF_mask(max(1,min(end,Xmin)):min(end,Xmax),max(1,min(end,Ymin)):min(end,Ymax));
+AVF_mask_trunc = AVF_mask(max(1,min(end,Xmin)):min(end,Xmax),max(1,min(end,Ymin)):min(end,Ymax));
 
 % figure(1000); clf; 
 % imagesc(0.6.*~FVF_mask_trunc + ~(FVF_mask_trunc - AVF_mask_trunc))
