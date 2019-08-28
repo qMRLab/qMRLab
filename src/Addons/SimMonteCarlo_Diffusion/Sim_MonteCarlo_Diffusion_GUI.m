@@ -189,6 +189,9 @@ function preset_packing_Callback(hObject, eventdata, handles)
 [axons, packing] = loadPreset(handles);
 handles.axonpacking.axons = axons;
 handles.axonpacking.packing = packing;
+k=1;
+[FVF, FR, MVF, AVF] = compute_statistics(axons.d{k}/2, axons.Delta{k}, packing.final_positions{k}, [], axons.g_ratio{k});
+set(handles.tableVolumes,'Data',[FVF; FR; MVF; AVF])
 
 guidata(hObject, handles);
 
