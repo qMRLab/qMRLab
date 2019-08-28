@@ -47,6 +47,8 @@ end
 function Sim_SimMCdiff_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 handles.Model = varargin{1};
+setappdata(0,'Model',handles.Model);
+
 if ~isfield(handles,'opened')
     savedPacks = dir(fullfile(fileparts(which('Sim_MonteCarlo_Diffusion_GUI.m')),'savedPacks','*.mat'));
     set(handles.preset_packing,'String',{savedPacks.name});
@@ -226,10 +228,15 @@ ylabel y(\mum)
 
 function MonteCarloSim(handles, axons, packing)
 
+% Read updated Model
+Model_new = getappdata(0,'Model');
+if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
+    handles.Model = Model_new;
+end
+
 axes(handles.uipanel12);
 
 % Read parameters
-%TE = handles.Model.Prot.DiffusionData.Mat(1,end)*1000;
 numelparticle = round(get(handles.slider_numelparticle,'Value'));
 
 trans_mean = get(handles.slider_trans,'Value'); % mean probability of penetrating the cell walls [0-1]
