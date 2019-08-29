@@ -325,7 +325,39 @@ end
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
-        function Signal = Sim_MonteCarlo_Diffusion(obj)
+        function Signal = Sim_MonteCarlo_Diffusion(obj, numelparticle, trans_mean, D, packing, axons)
+            scheme = obj.Prot.DiffusionData.Mat;
+            [Signal, signal_intra, signal_extra] = Sim_MonteCarlo_Diffusion(numelparticle, trans_mean, D, scheme, packing, axons);
+            
+            % plot and fit synthetic signal
+            fig = figure(293);
+            set(fig,'Name','Monte-Carlo simulated Signal')
+            set(fig, 'Position', get(0, 'Screensize'));
+            
+            data.SigmaNoise = 0.01;
+            subplot(3,1,1)
+            data.DiffusionData = signal_intra(:);
+            FitResults  = obj.fit(data);
+            obj.plotModel(FitResults, data);
+            txt = get(gca,'Title');
+            set(txt,'String',sprintf(['intra axonal signal:\n' get(txt,'String')]));
+            set(txt,'Color',[1 0 0])
+            subplot(3,1,2)
+            data.DiffusionData = signal_extra(:);
+            FitResults  = obj.fit(data);
+            obj.plotModel(FitResults, data);
+            txt = get(gca,'Title');
+            set(txt,'String',sprintf(['extra axonal signal:\n' get(txt,'String')]));
+            set(txt,'Color',[0 0 1])
+            subplot(3,1,3)
+            data.DiffusionData = Signal(end,:)';
+            FitResults  = obj.fit(data);
+            obj.plotModel(FitResults, data);
+            txt = get(gca,'Title');
+            set(txt,'String',sprintf(['full signal:\n' get(txt,'String')]));
+            
+            uicontrol(293,'Style','pushbutton','String','Save','Callback',@(src,evnt) saveSignal(signal,signal_intra,signal_extra),'BackgroundColor',[0.0 0.65 1]);
+            
         end
         
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
