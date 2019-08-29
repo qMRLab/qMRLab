@@ -244,17 +244,6 @@ D = get(handles.slider_Dcoef,'Value'); % Diffusion coefficient
 
 handles.Model.Sim_MonteCarlo_Diffusion(numelparticle, trans_mean, D, packing, axons);
 
-
-function saveSignal(signal,signal_intra,signal_extra)
-fname = uiputfile('*.mat');
-if fname
-    signal = permute(signal,[1 3 4 2]);
-    signal_intra = permute(signal,[2 3 4 1]);
-    signal_extra = permute(signal,[2 3 4 1]);
-
-    save(fname,'signal','signal_intra','signal_extra')
-end
-
 function slider_trans_Callback(hObject, eventdata, handles)
 set(handles.text_trans,'String', ['Permeability: ' num2str(get(hObject,'Value'))])
 function slider_numelparticle_Callback(hObject, eventdata, handles)

@@ -325,7 +325,7 @@ end
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
-        function Signal = Sim_MonteCarlo_Diffusion(obj, numelparticle, trans_mean, D, packing, axons)
+        function [Signal, signal_intra, signal_extra] = Sim_MonteCarlo_Diffusion(obj, numelparticle, trans_mean, D, packing, axons)
             scheme = obj.Prot.DiffusionData.Mat;
             [Signal, signal_intra, signal_extra] = Sim_MonteCarlo_Diffusion(numelparticle, trans_mean, D, scheme, packing, axons);
             
@@ -356,7 +356,7 @@ end
             txt = get(gca,'Title');
             set(txt,'String',sprintf(['full signal:\n' get(txt,'String')]));
             
-            uicontrol(293,'Style','pushbutton','String','Save','Callback',@(src,evnt) saveSignal(signal,signal_intra,signal_extra),'BackgroundColor',[0.0 0.65 1]);
+            uicontrol(293,'Style','pushbutton','String','Save','Callback',@(src,evnt) Sim_MonteCarlo_saveSignal(Signal,signal_intra,signal_extra),'BackgroundColor',[0.0 0.65 1]);
             
         end
         
