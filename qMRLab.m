@@ -408,7 +408,7 @@ for ii = 1:length(FitResults.fields)
     if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
-        save_nii_datas(FitResults.(map),hdr,fullfile(outputdir,file));
+        nii_save(FitResults.(map),hdr,fullfile(outputdir,file));
     end
 end
 
