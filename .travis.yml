@@ -24,7 +24,8 @@ before_install:
 - travis_retry sudo apt-add-repository -y ppa:octave/stable
 - travis_retry sudo apt-get -y -qq update
 - travis_retry sudo apt-get install -y wget
-- travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev
+- travis_retry sudo apt-get -y -qq install debhelper -t xenial-backports
+- travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev gnuplot
 # Please comment in following section if you need to update packages or add a new one
 # If following section is going to be commented in, please set cacheState to false in startup.m
 # --------------
