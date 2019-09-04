@@ -24,7 +24,8 @@ before_install:
 - travis_retry sudo apt-add-repository -y ppa:octave/stable
 - travis_retry sudo apt-get -y -qq update
 - travis_retry sudo apt-get install -y wget
-- travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev
+- travis_retry sudo apt-get -y -qq install debhelper -t xenial-backports
+- travis_retry sudo apt-get -y -qq install octave liboctave-dev octave-pkg-dev gnuplot
 # Please comment in following section if you need to update packages or add a new one
 # If following section is going to be commented in, please set cacheState to false in startup.m
 # --------------
@@ -207,7 +208,7 @@ jobs:
         aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_SimTest_mwf.json \
         s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_SimTest_mwf.json
         if [ "$?" != "0" ]; then travis_terminate 1; fi
-      fi
+      fi 
   - stage: Test (no coverage)
     script: travis_wait $WAIT_TIME octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible');res=moxunit_runtests('SimTest_qmt_spgr.m');exit(~res);"
   - stage: Test (no coverage)

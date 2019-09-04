@@ -10,5 +10,5 @@ variables:
   imageName: 'neuropoly/qmrlab2:$(build.buildId)'
 
 steps:
-- script: docker build -f Dockerfile -t $(imageName) .
+- script: echo $PATH
   displayName: 'docker build'

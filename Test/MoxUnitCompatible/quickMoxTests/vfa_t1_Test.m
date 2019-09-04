@@ -59,3 +59,9 @@ function test_find_two_optimal_flip_angles_below_and_above_ernst_angle
    
     assertTrue(params.EXC_FA(1) < ernstAngle);
     assertTrue(params.EXC_FA(2) > ernstAngle); 
+
+function generate_vfa_t1_notebook 
+
+
+    eval('Model = vfa_t1');
+    qMRgenJNB(Model,pwd);

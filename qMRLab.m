@@ -53,8 +53,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
-    handles.root = qMRLabDir;
-    handles.methodfiles = '';
+    if isdeployed
+        handles.Default = fullfile(qMRLabDir,'DefaultMethod.mat');
+    else
+        handles.Default = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
+    end
     handles.CurrentData = [];
     handles.dcm_obj = [];
     MethodList = {}; SetAppData(MethodList);
@@ -97,8 +100,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
     
     
     SetAppData(FileBrowserList);
-    
-    load(fullfile(handles.root,'src','Common','Parameters','DefaultMethod.mat'));
+    if exist(handles.Default,'file')
+        load(handles.Default);
+    else
+        Method = 'inversion_recovery';
+    end
 else
     Method = class(GetAppData('Model'));
 end
@@ -117,12 +123,9 @@ if ~isempty(varargin)
 end
 
 % Set Menu to method
-methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
-i = 1;
-while ~strcmp(Method, methods{i})
-    i = i+1;
-end
-set(handles.MethodSelection, 'Value', i);
+MethodList = getappdata(0, 'MethodList');
+indice = find(strcmp(Method,MethodList));
+set(handles.MethodSelection, 'Value', indice);
 
 
 MethodMenu(hObject, eventdata, handles, Method);
@@ -188,6 +191,9 @@ function addModelMenu(hObject, eventdata, handles)
 % Display all the options in the popupmenu
 [MethodList, pathmodels] = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
 pathmodels = cellfun(@(x) strrep(x,[handles.ModelDir filesep],''), pathmodels,'UniformOutput',false);
+if isdeployed
+    [MethodList, pathmodels] = qMRLab_static_Models;
+end
 SetAppData(MethodList)
 maxlength = max(cellfun(@length,MethodList))+4;
 maxlengthpath = max(cellfun(@length,pathmodels))+2;
@@ -226,7 +232,6 @@ end
 SetAppData(Data);
 
 % Now create Simulation panel
-handles.methodfiles = fullfile(handles.root,'src','Models_Functions',[Method 'fun']);
 % find the Simulation functions of the selected Method
 Methodfun = methods(Method);
 Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
@@ -296,7 +301,7 @@ end
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
-save(fullfile(handles.root,'src','Common','Parameters','DefaultMethod.mat'),'Method');
+save(handles.Default,'Method');
 
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
