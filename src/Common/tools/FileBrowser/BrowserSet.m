@@ -133,9 +133,8 @@ classdef BrowserSet
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
                 elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img')
-                    applyslope = true;
                     intrp = 'linear';
-                    [tmp, hdr] = nii_load(obj.FullFile,0,intrp,applyslope);
+                    [tmp, hdr] = nii_load(obj.FullFile,0,intrp);
                 elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
                     TiffInfo = imfinfo(obj.FullFile);
                     NbIm = numel(TiffInfo);
