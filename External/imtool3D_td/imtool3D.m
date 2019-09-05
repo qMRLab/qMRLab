@@ -443,12 +443,6 @@ classdef imtool3D < handle
             set(tool.handles.Tools.Save,'Callback',fun)
             set(tool.handles.Tools.Save,'TooltipString','Save Image')
             
-            %Create viewplane button
-            tool.handles.Tools.ViewPlane    =   uicontrol(tool.handles.Panels.Tools,'Style','popupmenu','String',{'Axial','Sagittal','Coronal'},'Position',[lp buff 3.5*w w],'Value',4-tool.viewplane);
-            lp=lp+3.5*w+buff;
-            fun=@(hObject,evnt) setviewplane(tool,hObject);
-            set(tool.handles.Tools.ViewPlane,'Callback',fun)
-            
             %Create montage button
             tool.handles.Tools.montage    =   uicontrol(tool.handles.Panels.Tools,'Style','togglebutton','Position',[lp buff w w],'Value',0);
             icon_profile = makeToolbarIconFromPNG('icon_montage.png');
@@ -456,7 +450,13 @@ classdef imtool3D < handle
             lp=lp+w+buff;
             fun=@(hObject,evnt) showSlice(tool);
             set(tool.handles.Tools.montage,'Callback',fun)
-
+            
+            %Create viewplane button
+            tool.handles.Tools.ViewPlane    =   uicontrol(tool.handles.Panels.Tools,'Style','popupmenu','String',{'Axial','Sagittal','Coronal'},'Position',[lp buff 3.5*w w],'Value',4-tool.viewplane);
+            lp=lp+3.5*w+buff;
+            fun=@(hObject,evnt) setviewplane(tool,hObject);
+            set(tool.handles.Tools.ViewPlane,'Callback',fun)
+            
             %Create Help Button
             pos = get(tool.handles.Panels.Tools,'Position');
             tool.handles.Tools.Help             =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','?','Position',[pos(3)-w-buff buff w w],'TooltipString','Help with imtool3D','BackgroundColor',[0, 0.65, 1]);
