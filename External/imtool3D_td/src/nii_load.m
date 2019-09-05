@@ -72,8 +72,18 @@ for ff=1:length(list)
         hdr = nii.hdr;
     end
     if ~ismember(nii.hdr.scl_slope, [0,1]) || nii.hdr.scl_inter ~= 0
+        warning(sprintf(['\nScaling factor detected in the Nifty header (field ''scl_slope'')\n\nScaling slope y = %.2g x + %.2g\n\n(Data will be converted from %s to double > memory intensive)\n'],nii.hdr.scl_slope,nii.hdr.scl_inter,class(nii.img)))
         if isempty(applyslope) 
-            applyslope = questdlg(sprintf(['Apply scaling slope %.2gx + %.2g?\nData will be converted from %s to double'],nii.hdr.scl_slope,nii.hdr.scl_inter,class(nii.img)), list{ff},'Yes','No','Yes');
+            if numel(nii.img)*8/1e6 < 300 % 300 Mb limit to auto apply slope
+                applyslope = true;
+            else
+                if isstruct(list{ff})
+                    Name = list{ff}.hdr.file_name;
+                else
+                    Name = list{ff};
+                end
+                applyslope = questdlg(sprintf('Scaling factor detected in the Nifty header (field ''scl_slope'')\n\nApply scaling slope y = %.2g x + %.2g?\n\n(Data will be converted from %s to double > %g Mb free memory is required)',nii.hdr.scl_slope,nii.hdr.scl_inter,class(nii.img),numel(nii.img)*8/1e6), Name,'Yes','No','Yes');
+            end
         end
     else
         applyslope = 0;
