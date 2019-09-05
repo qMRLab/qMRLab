@@ -32,7 +32,13 @@ if ~exist('range','var'), range=[]; end
 
 if ~exist('maskfname','var'), maskfname=[]; end
 if ~isempty(filename)
+    if isstruct(filename)
+        dat = filename.img;
+        hdr = filename.hdr;
+        list = filename.label;
+    else
     [dat, hdr, list] = nii_load(filename,untouch);
+    end
     disp(list)
 else
     load mri % example mri image provided by MATLAB
@@ -46,7 +52,11 @@ end
 
 if iscell(maskfname), maskfname = maskfname{1}; end
 if ~isempty(maskfname)
+    if isnumeric(maskfname)
+        mask = maskfname;
+    else
     mask = nii_load({hdr,maskfname},untouch); mask = mask{1};
+    end
 else
     mask = [];
 end
