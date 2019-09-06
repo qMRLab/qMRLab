@@ -6,12 +6,30 @@ This tool is written using the object-oriented features of matlab. This means th
   <img src="Capture.PNG" width="600">
 </p>
   
-imtool3D is used heavily by several other RAI labs projects:
+imtool3D is used heavily by several other projects:
+* [qMRLab](https://github.com/qMRLab/qMRLab)
 * [imquest](https://gitlab.oit.duke.edu/railabs/SameiResearchGroup/imquest)
 * [lesionTool](https://gitlab.oit.duke.edu/railabs/SameiResearchGroup/lesionTool)
 
 # Dependencies
-* Matlab's image processing toolbox
+* Matlab's image processing toolbox (ROI tools are disabled otherwise)
+* [dicm2nii](https://github.com/xiangruili/dicm2nii) (if NIFTI images are used)
+
+# Tuto
+## include in a GUI
+````matlab
+% Add viewer in a panel in the middle of the GUI
+GUI = figure;
+tool = imtool3D([],[.1 .1 .8 .8],GUI)
+
+% set MRI image
+load mri % example mri image provided by MATLAB
+D = squeeze(D);
+D = permute(D(end:-1:1,:,:),[2 1 3]); % LPI orientation
+tool.setImage(D)
+tool.setAspectRatio([1 1 2.5]) % set voxel size to 1mm x 1mm x 2.5mm
+
+````
 
 # what is new in this fork? 
 * Support for 5D volumes (scroll through time and volumeS with arrows)
