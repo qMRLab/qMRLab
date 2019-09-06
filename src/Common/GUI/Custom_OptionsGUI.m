@@ -281,13 +281,18 @@ if ~isempty(Model.Prot)
     for ii = 1:N
 
         handles.(fields{ii}).CellSelect = [];
-
-        % Create PANEL
+        
+        % Create panel
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-
+        
         % Create TABLE
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
-
+        
+        if isprop(Model,'tabletip') && strcmp(fields{ii},Model.tabletip.table_name)
+            
+        set(handles.(fields{ii}).table,'Tooltip',Model.tabletip.tip);    
+            
+        end
         % add Callbacks
 
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));

@@ -348,6 +348,21 @@ classdef imtool3D < handle
             w=wbutt;
             buff=(wp-w)/2;
             
+            % icon directory
+            if ~isdeployed
+                MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+            else
+                % IMPORTANT: COMPILER IS ASSUMED TO BE r2018b
+                % Please change 'v95' to another version when needed.
+                if ~ispc
+                    MATLABdir = '/opt/mcr/v95/mcr/toolbox/matlab/icons';
+                else
+                    % TODO:
+                    MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+                end
+                
+            end
+            
             %Create the histogram plot
             %set(tool.handles.Panels.Image,'Visible','off')
             if enableHist
@@ -377,7 +392,7 @@ classdef imtool3D < handle
                 
                 %Create histogram checkbox
                 tool.handles.Tools.Hist     =   uicontrol(tool.handles.Panels.Tools,'Style','ToggleButton','String','','Position',[buff buff w w],'TooltipString','Show Colorbar');
-                MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
+
                 icon_colorbar = makeToolbarIconFromPNG(fullfile(MATLABdir,'tool_colorbar.png'));
                 set(tool.handles.Tools.Hist,'CData',icon_colorbar)
                 fun=@(hObject,evnt) ShowHistogram(hObject,evnt,tool,wp,h);
@@ -406,7 +421,6 @@ classdef imtool3D < handle
             
             %Create view restore button
             tool.handles.Tools.ViewRestore           =   uicontrol(tool.handles.Panels.Tools,'Style','pushbutton','String','','Position',[lp buff w w],'TooltipString',sprintf('Reset Pan and Zoom\n(Right Click (Ctrl+Click) to Pan and Middle (Shift+Click) Click to zoom)'));
-            MATLABdir = fullfile(toolboxdir('matlab'), 'icons');
             icon_save = makeToolbarIconFromPNG('overview_zoom_in.png');
             set(tool.handles.Tools.ViewRestore,'CData',icon_save);
             fun=@(hobject,evnt) resetViewCallback(hobject,evnt,tool);
