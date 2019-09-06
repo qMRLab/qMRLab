@@ -8,6 +8,8 @@ else
 end
 if ~exist('fields','var') || isempty(fields)
     fields = cellfun(@(x) ['vol #' x],strsplit(num2str(Nvol:-1:1)),'uni',0); 
+else
+    fields = cellfun(@(X) X(max(1,end-30):end),fields,'uni',0);
 end
 
 values = unique(Maskall(Maskall>0))';
