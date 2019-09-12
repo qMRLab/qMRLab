@@ -7,6 +7,10 @@ classdef mp2rage < AbstractModel
 %   MP2RAGE_UNI         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
 %   (Mask)          Binary mask to accelerate the fitting (optional)
 %
+% Outputs:
+%   T1              Longitudinal relaxation time [s]
+%   R1              Equilibrium magnetization
+%
 
 properties (Hidden=true)
  onlineData_url = 'https://osf.io/8x2c9/download?version=1';  
@@ -54,13 +58,22 @@ end
         end
 
        function FitResult = fit(obj,data)
-            % T1 and M0
-            flipAngles = (obj.Prot.VFAData.Mat(:,1))';
-            TR = obj.Prot.VFAData.Mat(:,2);
-            if (length(unique(TR))~=1), error('VFA data must have same TR'); end
-            if ~isfield(data, 'B1map'), data.B1map = []; end
-            if ~isfield(data, 'Mask'), data.Mask = []; end
-            [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+           MP2RAGE.B0=7;           % in Tesla
+           MP2RAGE.TR=6;           % MP2RAGE TR in seconds
+           MP2RAGE.TRFLASH=6.7e-3; % TR of the GRE readout
+           MP2RAGE.TIs=[800e-3 2700e-3];% inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
+           MP2RAGE.NZslices=[35 72];% Slices Per Slab * [PartialFourierInSlice-0.5  0.5]
+           MP2RAGE.FlipDegrees=[4 5];% Flip angle of the two readouts in degrees
+           MP2RAGE.filename='MP2RAGE_UNI.nii' % file
+           
+           % load the MP2RAGE data - it can be either the SIEMENS one scaled from
+           % 0 4095 or the standard -0.5 to 0.5
+           MP2RAGEimg.img=data.MP2RAGE_UNI;
+           
+           [T1map, R1map]=T1esgit timateMP2RAGE(MP2RAGEimg,MP2RAGE,0.96);
+           
+           FitResult.T1 = T1map.img;
+           FitResult.R1 = R1map.img;
        end
 
 
