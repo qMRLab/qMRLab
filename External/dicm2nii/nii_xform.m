@@ -65,7 +65,7 @@ function varargout = nii_xform(src, target, rst, intrp, missVal)
 if nargin<2 || nargin>5, help('nii_xform'); error('Wrong number of input.'); end
 if nargin<3, rst = []; end
 if nargin<4 || isempty(intrp), intrp = 'linear'; end
-if nargin<5 || isempty(missVal), missVal = nan; end
+if nargin<5 || isempty(missVal), missVal = nan; else, missVal = missVal(1); end
 intrp = lower(intrp);
 quat2R = nii_viewer('func_handle', 'quat2R');
     
@@ -100,7 +100,7 @@ elseif iscell(target)
     end
 
     % I thought it is something like R = R0 \ R * R1; but it is way off. It
-    % seems the transform info in src nii is irrelevant, but direction must be
+    % seems the transform info in src nii is irrevelant, but direction must be
     % used: Left/right-handed storage of both src and target img won't affect
     % FSL alignment R. Alignment R may not be diag-major, and can be negative
     % for major axes (e.g. cor/sag slices).
@@ -133,7 +133,7 @@ end
 
 if ~iscell(target) 
     s = hdr.sform_code;
-    q = hdr.sform_code;
+    q = hdr.qform_code;
     sq = [nii.hdr.sform_code nii.hdr.qform_code];
     if s>0 && (any(s == sq) || (s>2 && (any(sq==3) || any(sq==4))))
         R0 = [hdr.srow_x; hdr.srow_y; hdr.srow_z; 0 0 0 1];
@@ -167,23 +167,48 @@ else
 end
 I = reshape(I(1:3,:)', [d 3]);
 
-d48 = size(nii.img); % in case of RGB
+V = nii.img; isbin = islogical(V);
+if (size(V,1)<2 || size(V,2)<2) && ~strcmpi(intrp, 'nearest')
+    intrp = 'nearest';
+    warning('nii_xform:NotEnoughPoints', 'Not enough data. Switch to "nearest".');
+end
+d48 = size(V); % in case of RGB
 d48(numel(d48)+1:4) = 1; d48(1:3) = [];
-if islogical(nii.img)
-    img = nii.img;
-    nii.img = false([d d48]);
-    intrp = 'nearest'; missVal = 0;
-elseif strcmp(intrp, 'nearest')
-    img = nii.img;
-    nii.img = zeros([d d48], class(img));
-else
-    img = single(nii.img);
+if isbin
+    intrp = 'nearest'; missVal = false;
+    nii.img = zeros([d d48], 'uint8');
+elseif isinteger(V)
     nii.img = zeros([d d48], 'single');
+else
+    nii.img = zeros([d d48], class(V));
 end
-for i = 1:prod(d48)
-    nii.img(:,:,:,i) = interp3(img(:,:,:,i), I(:,:,:,2), I(:,:,:,1), I(:,:,:,3), intrp, missVal);
-end
+if ~isfloat(V), V = single(V); end
+if strcmpi(intrp, 'nearest'), I = round(I); end % needed for edge voxels
+if size(V,1)<2, V(2,:,:,:) = missVal; end
+if size(V,2)<2, V(:,2,:,:) = missVal; end
 
+try
+    F = griddedInterpolant(V(:,:,:,1), intrp, 'none'); % since 2014?
+    for i = 1:prod(d48)
+        F.Values = V(:,:,:,i);
+        if size(V,3)==1
+            nii.img(:,:,:,i) = F(I(:,:,:,1), I(:,:,:,2));
+        else
+            nii.img(:,:,:,i) = F(I(:,:,:,1), I(:,:,:,2), I(:,:,:,3));
+        end
+    end
+    if ~isnan(missVal), nii.img(isnan(nii.img)) = missVal; end
+catch
+    for i = 1:prod(d48)
+        if size(V,3)==1
+            nii.img(:,:,:,i) = interp2(V(:,:,:,i), I(:,:,:,2), I(:,:,:,1), intrp, missVal);
+        else
+            nii.img(:,:,:,i) = interp3(V(:,:,:,i), I(:,:,:,2), I(:,:,:,1), I(:,:,:,3), intrp, missVal);
+        end
+    end
+end
+if isbin, nii.img = logical(nii.img); end
+    
 % copy xform info from template to rst nii
 nii.hdr.pixdim(1:4) = hdr.pixdim(1:4);
 flds = {'qform_code' 'sform_code' 'srow_x' 'srow_y' 'srow_z' ...
