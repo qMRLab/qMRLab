@@ -13,11 +13,11 @@ classdef mp2rage < AbstractModel
 %
 
 properties (Hidden=true)
- onlineData_url = 'https://osf.io/8x2c9/download?version=1';  
+ onlineData_url = 'https://osf.io/8x2c9/download?version=2';  
 end
 
     properties
-        MRIinputs = {'MP2RAGE_UNI', 'Mask'};
+        MRIinputs = {'MP2RAGE', 'Mask'};
         xnames = {'T1','R1'};
         voxelwise = 0;
         
@@ -64,11 +64,8 @@ end
            MP2RAGE.TIs=[800e-3 2700e-3];% inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
            MP2RAGE.NZslices=[35 72];% Slices Per Slab * [PartialFourierInSlice-0.5  0.5]
            MP2RAGE.FlipDegrees=[4 5];% Flip angle of the two readouts in degrees
-           MP2RAGE.filename='MP2RAGE_UNI.nii' % file
            
-           % load the MP2RAGE data - it can be either the SIEMENS one scaled from
-           % 0 4095 or the standard -0.5 to 0.5
-           MP2RAGEimg.img=data.MP2RAGE_UNI;
+           MP2RAGEimg.img=data.MP2RAGE;
            
            [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,0.96);
            
