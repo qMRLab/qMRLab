@@ -4,7 +4,7 @@ classdef mp2rage < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   MP2RAGE_UNI         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
+%   MP2RAGE         MP2RAGE data, 4D volume with different inversion times in time dimension
 %   (Mask)          Binary mask to accelerate the fitting (optional)
 %
 % Outputs:
@@ -32,6 +32,17 @@ end
                    'Flip angles', [4 5], ...
                    'Number of shots' [35 72], ...
                    'Inv efficiency', 0.96};
+               
+        % Tiptool descriptions
+        tips = {'Static magnetic field strength (Tesla)', ...
+                 'Repetition time between two inversion pulses of the MP2RAGE pulse sequence. (seconds)',...
+                 'Repetition time between two excitation pulses of the MP2RAGE pulse sequence. (seconds)',...
+                 'Inversion times for the measurements (seconds). 1st input = 1st time dimension, 2nd input = 2nd time dimension', ...
+                 'Excitation flip angles (degrees). 1st input = 1st time dimension, 2nd input = 2nd time dimension', ...
+                 'Number of shots [before, after] the k-space center', ...
+                 'Efficiency of the inversion pulse (fraction).'
+        };
+    
         options= struct(); % structure filled by the buttons. Leave empty in the code
     end
 
