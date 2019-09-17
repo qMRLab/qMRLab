@@ -57,23 +57,16 @@ end
         end
 
        function FitResult = fit(obj,data)
-           
-           opts.MagneticFieldStrength = obj.options.B0T;
-           opts.RepetitionTimeInversion = obj.options.InversionTRs;
-           opts.RepetitionTimeExcitation = obj.options.ExcitationTRs;
-           opts.InversionTime = obj.options.Inversiontimess;
-           opts.FLipAngle = obj.options.Flipangles;
-           opts.NumberShots = obj.options.Numberofshots;
-           opts.invEFF = obj.options.Invefficiency;
-           
-           MagneticFieldStrength = 7;
-           RepetitionTimeInversion = 6;
-           RepetitionTimeExcitation = 6.7e-3;
-           InversionTime = [800e-3 2700e-3];
-           FlipAngle = [4 5];
-           NumberShots = [35 72];
-           invEFF = 0.96;
 
+           MagneticFieldStrength = obj.options.B0T;
+           RepetitionTimeInversion = obj.options.InversionTRs;
+           RepetitionTimeExcitation = obj.options.ExcitationTRs;
+           InversionTime = obj.options.Inversiontimess;
+           FlipAngle = obj.options.Flipangles;
+           NumberShots = obj.options.Numberofshots;
+           invEFF = obj.options.Invefficiency;
+
+           % Convert naming to the MP2RAGE source code conventions
            MP2RAGE.B0 = MagneticFieldStrength;           % in Tesla
            MP2RAGE.TR = RepetitionTimeInversion;           % MP2RAGE TR in seconds
            MP2RAGE.TRFLASH = RepetitionTimeExcitation; % TR of the GRE readout
@@ -81,15 +74,6 @@ end
            MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
            MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
 
-           
-           assertEqual(opts.MagneticFieldStrength, MP2RAGE.B0)
-           assertEqual(opts.RepetitionTimeInversion, MP2RAGE.TR)
-           assertEqual(opts.RepetitionTimeExcitation, MP2RAGE.TRFLASH)
-           assertEqual(opts.InversionTime, InversionTime)
-           assertEqual(opts.FLipAngle, FlipAngle)
-           assertEqual(opts.NumberShots, NumberShots)
-           assertEqual(opts.invEFF, invEFF)
-           
            MP2RAGEimg.img = data.MP2RAGE;
 
            [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
