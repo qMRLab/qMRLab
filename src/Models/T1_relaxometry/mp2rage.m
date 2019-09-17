@@ -70,7 +70,7 @@ end
            % 0 4095 or the standard -0.5 to 0.5
            MP2RAGEimg.img=data.MP2RAGE_UNI;
            
-           [T1map, R1map]=T1esgit timateMP2RAGE(MP2RAGEimg,MP2RAGE,0.96);
+           [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,0.96);
            
            FitResult.T1 = T1map.img;
            FitResult.R1 = R1map.img;
