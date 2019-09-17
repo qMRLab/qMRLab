@@ -58,17 +58,26 @@ end
         end
 
        function FitResult = fit(obj,data)
-           MP2RAGE.B0=7;           % in Tesla
-           MP2RAGE.TR=6;           % MP2RAGE TR in seconds
-           MP2RAGE.TRFLASH=6.7e-3; % TR of the GRE readout
-           MP2RAGE.TIs=[800e-3 2700e-3];% inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
-           MP2RAGE.NZslices=[35 72];% Slices Per Slab * [PartialFourierInSlice-0.5  0.5]
-           MP2RAGE.FlipDegrees=[4 5];% Flip angle of the two readouts in degrees
            
-           MP2RAGEimg.img=data.MP2RAGE;
-           
-           [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,0.96);
-           
+           MagneticFieldStrength = 7;
+           RepetitionTimeInversion = 6;
+           RepetitionTimeExcitation = 6.7e-3;
+           InversionTime = [800e-3 2700e-3];
+           FlipAngle = [4 5];
+           NumberShots = [35 72];
+           invEFF = 0.96;
+
+           MP2RAGE.B0 = MagneticFieldStrength;           % in Tesla
+           MP2RAGE.TR = RepetitionTimeInversion;           % MP2RAGE TR in seconds
+           MP2RAGE.TRFLASH = RepetitionTimeExcitation; % TR of the GRE readout
+           MP2RAGE.TIs = InversionTime; % inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
+           MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
+           MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
+
+           MP2RAGEimg.img = data.MP2RAGE;
+
+           [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
+
            FitResult.T1 = T1map.img;
            FitResult.R1 = R1map.img;
        end
