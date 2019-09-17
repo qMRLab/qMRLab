@@ -22,17 +22,16 @@ end
         voxelwise = 0;
         
         % Protocol
-        Prot  = struct('MP2RAGEData',struct('Format',{{'FlipAngle' 'TR'}},...
-                                         'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
-
-        % fitting options
-        st           = [2000 0.7]; % starting point
-        lb           = [0   0.00001]; % lower bound
-        ub           = [6000   5]; % upper bound
-        fx           = [0     0]; % fix parameters
+        Prot  = struct(); % You can define a default protocol here.
 
         % Model options
-        buttons = {};
+        buttons = {'B0 (T)', 7, ...
+                   'Inversion TR (s)', 6, ...
+                   'Excitation TR (s)', 6.7e-3, ...
+                   'Inversion times (s)', [800e-3 2700e-3], ...
+                   'Flip angles', [4 5], ...
+                   'Number of shots' [35 72], ...
+                   'Inv efficiency', 0.96};
         options= struct(); % structure filled by the buttons. Leave empty in the code
     end
 
@@ -58,6 +57,14 @@ end
         end
 
        function FitResult = fit(obj,data)
+           
+           opts.MagneticFieldStrength = obj.options.B0T;
+           opts.RepetitionTimeInversion = obj.options.InversionTRs;
+           opts.RepetitionTimeExcitation = obj.options.ExcitationTRs;
+           opts.InversionTime = obj.options.Inversiontimess;
+           opts.FLipAngle = obj.options.Flipangles;
+           opts.NumberShots = obj.options.Numberofshots;
+           opts.invEFF = obj.options.Invefficiency;
            
            MagneticFieldStrength = 7;
            RepetitionTimeInversion = 6;
