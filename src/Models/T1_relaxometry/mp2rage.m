@@ -81,6 +81,15 @@ end
            MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
            MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
 
+           
+           assertEqual(opts.MagneticFieldStrength, MP2RAGE.B0)
+           assertEqual(opts.RepetitionTimeInversion, MP2RAGE.TR)
+           assertEqual(opts.RepetitionTimeExcitation, MP2RAGE.TRFLASH)
+           assertEqual(opts.InversionTime, InversionTime)
+           assertEqual(opts.FLipAngle, FlipAngle)
+           assertEqual(opts.NumberShots, NumberShots)
+           assertEqual(opts.invEFF, invEFF)
+           
            MP2RAGEimg.img = data.MP2RAGE;
 
            [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
