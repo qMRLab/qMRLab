@@ -131,8 +131,10 @@ set(handles.text_Naxons,'String', ['# axons: ' num2str(round(get(hObject,'Value'
 function [d, x0, side, axons] = update_axonSetup(handles)
 k=1;
 axons.N{k}      = round(get(handles.slider_Naxons,'Value'));
-axons.d_mean{k} = get(handles.slider_dmean,'Value');
-axons.d_var{k}  = get(handles.slider_dvar,'Value');
+axons.d_mean{k} = round(get(handles.slider_dmean,'Value')*10)/10;
+set(handles.slider_dmean,'Value',axons.d_mean{k})
+axons.d_var{k}  = round(get(handles.slider_dvar,'Value')*10)/10;
+set(handles.slider_dvar,'Value',axons.d_var{k});
 axons.Delta{k}  = get(handles.slider_gap,'Value'); 
 axons.threshold_high{k} = 20;
 axons.threshold_low{k}  = .1;
