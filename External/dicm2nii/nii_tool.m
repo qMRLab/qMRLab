@@ -226,7 +226,7 @@ function varargout = nii_tool(cmd, varargin)
 
 % History (yymmdd)
 % 150109 Write it based on Jimmy Shen's NIfTI tool (xiangrui.li@gmail.com)
-% 150202 Include renamed pigz files for Windows to trick Matlab Central
+% 150202 Include renamed pigz files for Windows
 % 150203 Fix closeFile and deleteTmpFile order
 % 150205 Add hdr.machine: needed for .img fopen
 % 150208 Add 4th input for 'save', allowing to save SPM 3D files
@@ -238,7 +238,7 @@ function varargout = nii_tool(cmd, varargin)
 % 150517 func_handle: provide a way to use gunzipOS etc from outside
 % 150617 auto detect rgb_dim 1&3 for 'load' etc using ChrisR method
 % 151025 Change subfunc img2datatype as 'update' for outside access
-% 151109 Include dd.win (exe) from WinAVR-20100110 for partial gz unzip
+% 151109 Include dd.exe from WinAVR-20100110 for partial gz unzip
 % 151205 Partial gunzip: fix fname with space & unknown pigz | dd error.
 % 151222 Take care of img for intent_code 2003/2004: anyone uses it?
 % 160110 Use matlab pref method to replace para file.
@@ -247,10 +247,9 @@ function varargout = nii_tool(cmd, varargin)
 % 160531 fopen uses 'W' for 'w': performance benefit according to Yair.
 % 160701 subFuncHelp: bug fix for mfile case.
 % 161018 gunzipOS: use unique name for outName, to avoid problem with parfor.
-% 161025 Make included linux pigz executable; fix "dd" for windows.
+% 161025 Make included linux pigz executible; fix "dd" for windows.
 % 161031 gunzip_mem(), nii_bytes() for hdr/ext read: read uint8 then parse;
 %        Replace hdr.machine with hdr.swap_endian.
-% 170202 check_gzip/check_dd: cd .. if m_dir is pwd, so get full path for m_dir
 % 170212 Extract decode_ext() from 'ext' cmd so call it in 'update' cmd.
 % 170215 gunzipOS: use -c > rather than copyfile for performance.
 % 170322 gzipOS: stop using background gz to avoid file not exist error.
@@ -261,6 +260,7 @@ function varargout = nii_tool(cmd, varargin)
 % 171206 Allow file name ext other than .nii, .hdr, .img.
 % 180104 check_gzip: add /usr/local/bin to PATH for unix if needed.
 % 180119 use jsystem for better speed.
+% 180710 bug fix for cal_max/cal_min in 'update'.
 
 persistent C para; % C columns: name, length, format, value, offset
 if isempty(C)
@@ -278,7 +278,7 @@ if any(cmd=='?'), subFuncHelp(mfilename, cmd); return; end
 
 if strcmpi(cmd, 'init')
     if nargin<2, error('nii_tool(''%s'') needs second input', cmd); end
-    for i = 1:size(C,1), nii.hdr.(C{i,1}) = C{i,4}; end
+    nii.hdr = cell2struct(C(:,4), C(:,1));
     nii.img = varargin{1};
     if numel(size(nii.img))>8
         error('NIfTI img can have up to 7 dimension');
@@ -317,6 +317,7 @@ elseif strcmpi(cmd, 'save')
     end
     if isempty(fext), fext = '.nii'; end % default single .nii file
     fname = fullfile(pth, fname); % without file ext
+    if nargout, varargout{1} = []; end
     isNii = strcmpi(fext, '.nii'); % will use .img/.hdr if not .nii
     
     % Deal with NIfTI version and sizeof_hdr
@@ -620,10 +621,9 @@ elseif strcmpi(cmd, 'update') % old img2datatype subfunction
     nii.hdr.bitpix = para.bitpix(ind);
     nii.hdr.dim = [ndim dim];
     
-    
     mx = double(max(nii.img(:)));
     mn = double(min(nii.img(:)));
-    if nii.hdr.cal_min>mx || nii.hdr.cal_max>mn % reset wrong value
+    if nii.hdr.cal_min>mx || nii.hdr.cal_max<mn % reset wrong value
         nii.hdr.cal_min = 0;
         nii.hdr.cal_max = 0;
     end
@@ -663,7 +663,7 @@ if niiVer == 1
     C = {
     % name              len  format     value           offset
     'sizeof_hdr'        1   'int32'     348             0
-    'data_type'         10  'char*1'    ''              4                                          
+    'data_type'         10  'char*1'    ''              4
     'db_name'           18  'char*1'    ''              14
     'extents'           1   'int32'     16384           32
     'session_error'     1   'int16'     0               36
@@ -810,12 +810,11 @@ if err && ~exist([fname '.gz'], 'file')
     end
 end
 
-% Deal with pigz/gzip on path or in nii_tool folder, and matlab gzip/gunzip
+%% Deal with pigz/gzip on path or in nii_tool folder, and matlab gzip/gunzip
 function cmd = check_gzip(gz_unzip)
-m_dir = fileparts(which(mfilename));
+m_dir = fileparts(mfilename('fullpath'));
 % away from pwd, so use OS pigz if both exist. Avoid error if pwd changed later
 if strcmpi(pwd, m_dir), cd ..; clnObj = onCleanup(@() cd(m_dir)); end
-
 if isunix
     pth1 = getenv('PATH');
     if isempty(strfind(pth1, '/usr/local/bin'))
@@ -829,28 +828,17 @@ end
 if ~err, cmd = 'pigz'; return; end
 
 % next, try pigz included with nii_tool
+cmd = [m_dir '/pigz'];
 if ismac % pigz for mac is not included in the package
     if strcmp(gz_unzip, 'gzip')
         fprintf(2, [' Please install pigz for fast compression: ' ...
             'http://macappstore.org/pigz/\n']);
     end
-elseif ispc % rename back pigz for Windows. Renamed to trick Matlab Central
-    try %#ok<*TRYNC>
-        fname = [m_dir '\pigz.win'];
-        if exist(fname, 'file')
-            movefile(fname, [m_dir '\pigz.exe'], 'f');
-        end
-        fname = [m_dir '\pthreadGC2.win'];
-        if exist(fname, 'file')
-            movefile(fname, [m_dir '\pthreadGC2.dll'], 'f');
-        end
-    end
-else % linux
-    [st, val] = fileattrib([m_dir '/pigz']);
-    if st && ~val.UserExecute, fileattrib([m_dir '/pigz'], '+x'); end
+elseif isunix % linux
+    [st, val] = fileattrib(cmd);
+    if st && ~val.UserExecute, fileattrib(cmd, '+x'); end
 end
 
-cmd = fullfile(m_dir, 'pigz');
 [err, ~] = jsystem({cmd '-V'});
 if ~err, return; end
 
@@ -863,17 +851,13 @@ cmd = usejava('jvm');
 
 %% check dd command, return empty if not available
 function dd = check_dd
+m_dir = fileparts(mfilename('fullpath'));
+if strcmpi(pwd, m_dir), cd ..; clnObj = onCleanup(@() cd(m_dir)); end
 [err, ~] = jsystem({'dd' '--version'});
 if ~err, dd = 'dd'; return; end % dd with linix/mac, and maybe windows
 
 if ispc % rename it as exe
-    m_dir = fileparts(which(mfilename));
-    if strcmpi(pwd, m_dir), cd ..; clnObj = onCleanup(@() cd(m_dir)); end
-    fname = [m_dir '\dd.win'];
-    if exist(fname, 'file') % first time after download
-        try movefile(fname, [m_dir '\dd.exe'], 'f'); end
-    end
-    dd = fullfile(m_dir, 'dd');
+    dd = [m_dir '\dd'];
     [err, ~] = jsystem({dd '--version'});
     if ~err, return; end
 end
@@ -900,7 +884,8 @@ if isempty(cmd)
         if isempty(pth), pth = pwd; end
     else
         pth = getenv('TMP');
-        if isempty(pth), pth = '/tmp'; end
+        if isempty(pth), pth = getenv('TMPDIR'); end
+        if isempty(pth), pth = '/tmp'; end % last resort
     end
     uid = @()sprintf('_%s_%03x', datestr(now, 'yymmddHHMMSSfff'), randi(999));
 end
@@ -1023,9 +1008,14 @@ for i = 1:numel(ext)
                 if isempty(a), continue; end
                 try
                     eval(['ss.' a]); % put all into struct
-                catch me
-                    fprintf(2, '%s\n', me.message);
-                    fprintf(2, 'Unrecognized text: %s\n', a);
+                catch
+                    try
+                        a = regexp(a, '(.*?)\s*=\s*(.*?);', 'tokens', 'once');
+                        ss.(a{1}) = a{2};
+                    catch me
+                        fprintf(2, '%s\n', me.message);
+                        fprintf(2, 'Unrecognized text: %s\n', a);
+                    end
                 end
             end
             flds = fieldnames(ss); % make all vector column
@@ -1057,7 +1047,6 @@ dim = hdr.dim(2:8);
 dim(hdr.dim(1)+1:7) = 1; % avoid some error in file
 dim(dim<1) = 1;
 valpix = para.valpix(ind);
-n = prod(dim); % num of voxels
 
 fname = nii_name(hdr.file_name, '.img'); % in case of .hdr/.img pair
 fid = fopen(fname);
@@ -1069,6 +1058,13 @@ if isequal(sig, [31 139]) % .gz
     fid = fopen(fname);
 end
 
+% if ~exist('cln', 'var') && valpix==1 && ~hdr.swap_endian
+%     m = memmapfile(fname, 'Offset', hdr.vox_offset, ...
+%         'Format', {para.format{ind}, dim, 'img'});
+%     nii = m.Data;
+%     return;
+% end
+
 if hdr.swap_endian % switch between LE and BE
     [~, ~, ed] = fopen(fid); % default endian: almost always ieee-le
     fclose(fid);
@@ -1079,7 +1075,7 @@ if hdr.swap_endian % switch between LE and BE
 end
 
 fseek(fid, hdr.vox_offset, 'bof');
-img = fread(fid, n*valpix, ['*' para.format{ind}]); % * to keep original class
+img = fread(fid, prod(dim)*valpix, ['*' para.format{ind}]); % * to keep original class
 fclose(fid);
 
 if any(hdr.datatype == [128 511 2304]) % RGB or RGBA
@@ -1191,7 +1187,7 @@ catch
         fclose(fid);
     end
     
-    try
+    try %#ok<*TRYNC>
         fname = gunzipOS(fname, nByte);
         fid = fopen(fname);
         bytes = fread(fid, nByte, '*uint8');
@@ -1208,18 +1204,17 @@ end
 
 %% faster than system: based on https://github.com/avivrosenberg/matlab-jsystem
 function [err, out] = jsystem(cmd)
-% cmd is cell str, no quote needed for file names with space.
+% cmd is cell str, no quotation marks needed for file names with space.
 try
     pb = java.lang.ProcessBuilder(cmd);
     pb.redirectErrorStream(true); % ErrorStream to InputStream
     process = pb.start();
     scanner = java.util.Scanner(process.getInputStream).useDelimiter('\A');
     if scanner.hasNext(), out = char(scanner.next()); else, out = ''; end
-    %err = process.waitFor();
-    err = process.exitValue; % waitFor may hang. Error if not exited
-    if err, error(out); end
-catch % fallback to system if error
-    ind = find(cellfun(@(x)~isempty(strfind(x, ' ')), cmd));
-    for i = ind, cmd{i} = ['"' cmd{i} '"']; end % add quotes to name with space
+    err = process.exitValue; % err = process.waitFor() may hang
+    if err, error('java.lang.ProcessBuilder error'); end
+catch % fallback to system() if java fails like for Octave
+    cmd = regexprep(cmd, '.+? .+', '"$0"'); % double quotes if with middle space
     [err, out] = system(sprintf('%s ', cmd{:}));
 end
+%%
