@@ -49,6 +49,10 @@ handles.Model = varargin{1};
 setappdata(0,'Model',handles.Model);
 
 if ~isfield(handles,'opened')
+    if ~ismac
+        set(findobj(hObject,'Type','uicontrol'),'FontSize',7); 
+    end % everything is bigger on windows or linux
+
     savedPacks = dir(fullfile(fileparts(which('Sim_MonteCarlo_Diffusion_GUI.m')),'savedPacks','*.mat'));
     set(handles.preset_packing,'String',{savedPacks.name});
     [axons, packing] = loadPreset(handles);
@@ -140,6 +144,7 @@ axons.threshold_high{k} = 20;
 axons.threshold_low{k}  = .1;
 axons
 [d, x0, side] = axons_setup(axons,'gamma', k, handles.axes_axonDist);
+if ~ismac, set(handles.axes_axonDist,'FontSize',7); end
 
 function run_pack_Callback(hObject, eventdata, handles)
 k=1;
@@ -202,6 +207,7 @@ function     [axons, packing] = loadPreset(handles)
 file = get(handles.preset_packing,'String');
 load(file{get(handles.preset_packing,'Value')})
 axons_setup(axons,'gamma', 1, handles.axes_axonDist);
+if ~ismac, set(handles.axes_axonDist,'FontSize',7); end
 plotPacking(handles,axons,packing)
 
 function plotPacking(handles,axons,packing)
@@ -226,6 +232,8 @@ hold off
 axis equal tight
 xlabel x(\mum)
 ylabel y(\mum)
+
+if ~ismac, set(handles.axes_axonPack,'FontSize',7); end
 
 function MonteCarloSim(handles, axons, packing)
 
