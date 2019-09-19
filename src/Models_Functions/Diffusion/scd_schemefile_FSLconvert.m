@@ -22,12 +22,12 @@ bval = bval(:);
 % load bvec
 bvecs = txt2mat(bvecfile);
 
-disp(['\nCheck if bvecs is written by lines or by columns...'])
+fprintf(['\nCheck if bvecs is written by lines or by columns...\n'])
 if size(bvecs,1)==3 && size(bvecs,2)~=3
-    disp(['\nbvecs seems to be written in columns, transposing it...'])
+    fprintf(['\nbvecs seems to be written in columns, transposing it...\n'])
     bvecs=bvecs';
 else
-	disp(['.. OK! written by lines'])
+	fprintf(['\n.. OK! written by lines\n'])
 end
 
 % maximum b-value in the s/mm^2 unit
