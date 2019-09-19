@@ -120,8 +120,6 @@ end
             end
             if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 obj.options.Riciannoisebias_value  = 'auto';
-            elseif isempty(obj.options.Riciannoisebias_value)
-                obj.options.Riciannoisebias_value=10;
             end
 
             % disable Rician noise panel if linear
@@ -179,6 +177,7 @@ end
                 else
                     SigmaNoise = obj.options.Riciannoisebias_value;
                 end
+                if isempty(SigmaNoise), SigmaNoise = max(data.DiffusionData/100); end
 
 
                 if ~moxunit_util_platform_is_octave && SigmaNoise
