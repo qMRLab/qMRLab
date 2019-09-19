@@ -316,7 +316,9 @@ if ~isempty(Model.Prot)
             % Move down
             uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
             % LOAD
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0    .94 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0      .44 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            % Create
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0      .44 .02*N],'Style','pushbutton','String','Create','Callback',@(hObject, eventdata) CreateProt_Callback(hObject, eventdata, handles,fields{ii}));
         end
 
     end
@@ -483,6 +485,27 @@ if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.(MRIinput).table,'Data',Prot)
 Model = getappdata(0,'Model');
 Model.Prot.(MRIinput).Mat = Prot;
+UpdateProt(MRIinput,Prot,handles)
+
+function CreateProt_Callback(hObject, eventdata, handles, MRIinput)
+Model = getappdata(0,'Model');
+Fmt = Model.Prot.(MRIinput).Format;
+answer = inputdlg(Fmt,'Enter values, vectors or Matlab expressions',[1 100]);
+if isempty(answer), return; end
+Prot = cellfun(@str2num,answer,'uni',0);
+Prot = cellfun(@(x) x(:),Prot,'uni',0);
+Nlines = max(cell2mat(cellfun(@length,Prot,'uni',0)));
+Model.Prot.(MRIinput).Mat = NaN(Nlines,length(Fmt));
+for ic = 1:length(Fmt)
+    if length(Prot{ic})>1
+        Lmax = length(Prot{ic}); % if vector, fill as many as possible
+    else
+        Lmax = Nlines; % if scalar, all lines get this value
+    end
+    Model.Prot.(MRIinput).Mat(1:Lmax,ic) = Prot{ic};
+end
+Prot = Model.Prot.(MRIinput).Mat;
+set(handles.(MRIinput).table,'Data',Prot)
 UpdateProt(MRIinput,Prot,handles)
 
 
