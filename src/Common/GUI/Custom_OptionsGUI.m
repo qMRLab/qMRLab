@@ -470,10 +470,15 @@ set(handles.ProtFileName,'String','Protocol Filename');
 OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
-[FileName,PathName] = uigetfile({'*.mat;*.xls;*.xlsx;*.txt;*.scheme'},'Load Protocol Matrix');
+FileFormat = '*.mat;*.xls;*.xlsx;*.txt';
+if strcmp(MRIinput,'DiffusionData')
+    FileFormat = ['*.bvec;*.scheme;' FileFormat];
+end
+[FileName,PathName] = uigetfile({FileFormat},'Load Protocol Matrix');
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
+if Prot == 0, return; end
 if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.(MRIinput).table,'Data',Prot)
 Model = getappdata(0,'Model');
