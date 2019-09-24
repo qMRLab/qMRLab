@@ -77,6 +77,7 @@ if Model.voxelwise % process voxelwise
 
     % Find voxels that are not empty
     if isfield(data,'Mask') && (~isempty(data.Mask))
+        data.Mask(isnan(data.Mask))=0;
         Voxels = find(all(data.Mask & ~computed,2));
     else
         Voxels = find(~computed)';
