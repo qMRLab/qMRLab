@@ -428,6 +428,9 @@ end
 SetAppData(FileBrowserList);
 % Show results
 handles.CurrentData = FitResults;
+if exist('hdr','var')
+    handles.CurrentData.hdr = hdr;
+end
 guidata(hObject,handles);
 DrawPlot(handles);
 
