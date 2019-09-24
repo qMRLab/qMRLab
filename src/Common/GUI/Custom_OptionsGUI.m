@@ -558,10 +558,21 @@ function Default_Callback(hObject, eventdata, handles)
 oldModel = getappdata(0,'Model');
 modelfun = str2func(class(oldModel));
 Model = modelfun();
-Model.Prot = oldModel.Prot;
-setappdata(0,'Model',Model);
+
+answer = questdlg('What do you want to set to default?','Reset protocol?','Reset options','Reset options AND protocol','Reset protocol','Reset options');
+if strfind(answer,'options')
+    newModel = Model;
+    newModel.Prot = oldModel.Prot;
+else
+    newModel = oldModel;
+end
+if strfind(answer,'protocol')
+    newModel.Prot = Model.Prot;
+end
+
+setappdata(0,'Model',newModel);
 set(handles.ParametersFileName,'String','Parameters Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, newModel, handles.caller)
 
 % --- Executes on button press in Load.
 function Load_Callback(hObject, eventdata, handles)
