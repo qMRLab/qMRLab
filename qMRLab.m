@@ -212,8 +212,16 @@ SetAppData(Method)
 if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
     Model = getappdata(0,'Model');
 else % otherwise create a new object of this method
-    modelfun  = str2func(Method);
-    Model = modelfun();
+    Modeltobesaved = getappdata(0,'Model');
+    savedModel = getappdata(0,'savedModel');
+    savedModel.(class(Modeltobesaved)) = Modeltobesaved;
+    setappdata(0,'savedModel',savedModel);
+    if isfield(savedModel,Method) && ~isempty(savedModel.(Method))
+        Model = savedModel.(Method);
+    else
+        modelfun  = str2func(Method);
+        Model = modelfun();
+    end
 end
 SetAppData(Model)
 % Create empty Data
