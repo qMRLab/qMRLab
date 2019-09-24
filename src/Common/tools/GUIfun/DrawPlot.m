@@ -38,9 +38,9 @@ end
 
 % Change save as NIFTI function
 H = handles.tool.getHandles;
-if isfield(handles.CurrentData,'hdr'), hdr = handles.CurrentData.hdr; else, hdr = []; end
-set(H.Tools.maskSave,'Callback',@(hObject,evnt)saveMask(handles.tool,hObject,hdr))
-set(H.Tools.maskLoad,'Callback',@(hObject,evnt)loadMask(handles.tool,hObject,hdr))
+if isfield(handles.CurrentData,'hdr'), hdr = {handles.CurrentData.hdr}; else, hdr = {}; end
+set(H.Tools.maskSave,'Callback',@(hObject,evnt)saveMask(handles.tool,hObject,hdr{:}))
+set(H.Tools.maskLoad,'Callback',@(hObject,evnt)loadMask(handles.tool,hObject,hdr{:}))
 
 % Use Shortcut to Source button
 set(findobj('Name','qMRLab'),'Windowkeypressfcn', @(hobject, event) shortcutCallback(hobject, event,handles))
