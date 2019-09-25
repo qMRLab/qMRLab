@@ -34,7 +34,7 @@ Model.sanityCheck(data);
 tStart = tic;
 tsaved = 0;
 
-h=[];
+h=[]; hwarn=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
     try, Model = Model.Precompute; end
     try, Model = Model.PrecomputeData(data); end
@@ -78,6 +78,15 @@ if Model.voxelwise % process voxelwise
     % Find voxels that are not empty
     if isfield(data,'Mask') && (~isempty(data.Mask))
         data.Mask(isnan(data.Mask))=0;
+        msg = 'NaNs will be set to 0. We recommend you to check your mask.';
+        titlemsg = 'NaN values detected in the Mask';
+        if exist('wait','var') && (wait)
+            hwarn = warndlg(msg,titlemsg);
+        else
+            fprintf('\n')
+            warning(titlemsg)
+            fprintf('%s\n\n',msg)
+        end
         Voxels = find(all(data.Mask & ~computed,2));
     else
         Voxels = find(~computed)';
@@ -213,6 +222,7 @@ else % process entire volume
 end
 % delete waitbar
 %if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
+if ishandle(hwarn), delete(hwarn); end
 
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
