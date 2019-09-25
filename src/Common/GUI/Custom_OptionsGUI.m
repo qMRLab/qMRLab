@@ -489,7 +489,7 @@ UpdateProt(MRIinput,Prot,handles)
 
 function CreateProt_Callback(hObject, eventdata, handles, MRIinput)
 Model = getappdata(0,'Model');
-Fmt = Model.Prot.(MRIinput).Format;
+Fmt = Model.Prot.(MRIinput).Format; if ischar(Fmt), Fmt = {Fmt}; end
 answer = inputdlg(Fmt,'Enter values, vectors or Matlab expressions',[1 100]);
 if isempty(answer), return; end
 Prot = cellfun(@str2num,answer,'uni',0);
