@@ -44,6 +44,19 @@ else
     if ismethod(Model,'PrecomputeData'), Model = Model.PrecomputeData(data); end
 end
 
+% NaN in Mask
+if isfield(data,'Mask') && (~isempty(data.Mask))
+    data.Mask(isnan(data.Mask))=0;
+    msg = 'NaNs will be set to 0. We recommend you to check your mask.';
+    titlemsg = 'NaN values detected in the Mask';
+    if exist('wait','var') && (wait)
+        hwarn = warndlg(msg,titlemsg);
+    end
+    fprintf('\n')
+    warning(titlemsg)
+    fprintf('%s\n\n',msg)
+end
+
 if Model.voxelwise % process voxelwise
     %############################# INITIALIZE #################################
     % Get dimensions
@@ -77,16 +90,6 @@ if Model.voxelwise % process voxelwise
 
     % Find voxels that are not empty
     if isfield(data,'Mask') && (~isempty(data.Mask))
-        data.Mask(isnan(data.Mask))=0;
-        msg = 'NaNs will be set to 0. We recommend you to check your mask.';
-        titlemsg = 'NaN values detected in the Mask';
-        if exist('wait','var') && (wait)
-            hwarn = warndlg(msg,titlemsg);
-        else
-            fprintf('\n')
-            warning(titlemsg)
-            fprintf('%s\n\n',msg)
-        end
         Voxels = find(all(data.Mask & ~computed,2));
     else
         Voxels = find(~computed)';
