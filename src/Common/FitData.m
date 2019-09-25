@@ -45,7 +45,7 @@ else
 end
 
 % NaN in Mask
-if isfield(data,'Mask') && (~isempty(data.Mask))
+if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
     data.Mask(isnan(data.Mask))=0;
     msg = 'NaNs will be set to 0. We recommend you to check your mask.';
     titlemsg = 'NaN values detected in the Mask';
@@ -88,9 +88,25 @@ if Model.voxelwise % process voxelwise
     end
 
 
-    % Find voxels that are not empty
+   
     if isfield(data,'Mask') && (~isempty(data.Mask))
-        Voxels = find(all(data.Mask & ~computed,2));
+        
+        % Set NaN values to zero if there are any 
+        if any(isnan(data.Mask(:)))
+           data.Mask(isnan(data.Mask))=0;
+            msg = 'NaNs will be set to 0. We recommend you to check your mask.';
+            titlemsg = 'NaN values detected in the Mask';
+            if exist('wait','var') && (wait)
+                hwarn = warndlg(msg,titlemsg);
+            end
+            fprintf('\n')
+            warning(titlemsg)
+            fprintf('%s\n\n',msg) 
+        end
+        
+        % Find voxels that are not empty
+        Voxels = find(all(data.Mask & ~computed,2));    
+        
     else
         Voxels = find(~computed)';
     end
