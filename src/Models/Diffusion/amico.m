@@ -119,14 +119,19 @@ end
             end
             CONFIG.schemeFilename = [];
             % COMPUTE KERNELS
+            h = msgbox('Generate Kernels (Lookup Table) for this protocol...');
             AMICO_GenerateKernels( false );
+            if ishandle(h), delete(h); end
+                        
+            if doResampleKernels
+                h = msgbox('Resample Kernels for this protocol...');
+                AMICO_ResampleKernels();
+                if ishandle(h), delete(h); end
+            end
+
             % SAVE SCHEME ASSOCIATED WITH THIS KERNEL
             ProtLUTable.name = CONFIG.protocol;
             ProtLUTable.scheme = obj.Prot.DiffusionData.Mat;
-            
-            if doResampleKernels
-                AMICO_ResampleKernels();
-            end
 
         end
 
