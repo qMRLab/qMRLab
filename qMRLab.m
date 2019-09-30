@@ -517,7 +517,7 @@ set(hObject, 'Enable', 'on');
 
 I = handles.tool.getImage(1);
 Iraw = handles.CurrentData;
-fields = setdiff(Iraw.fields,'Mask')';
+fields = setdiff(Iraw.fields,'Mask','stable')';
 Maskall = handles.tool.getMask(1);
 Color = handles.tool.getMaskColor;
 StatsGUI(I,Maskall, fields, Color);
