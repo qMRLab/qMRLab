@@ -7,7 +7,7 @@ else
     Nvol = size(I,5);
 end
 if ~exist('fields','var') || isempty(fields)
-    fields = cellfun(@(x) ['vol #' x],strsplit(num2str(Nvol:-1:1)),'uni',0); 
+    fields = cellfun(@(x) ['vol #' x],strsplit(num2str(1:Nvol)),'uni',0); 
 else
     fields = cellfun(@(X) X(max(1,end-30):end),fields,'uni',0);
 end
@@ -22,9 +22,9 @@ for Selected = values
     Stats = cell(length(fields),7);
     for iii=1:length(fields)
         if iscell(I)
-            datiii = nanmean(I{length(fields)+1-iii},4); % average 4D data along time
+            datiii = nanmean(I{iii},4); % average 4D data along time
         else
-            datiii = nanmean(I(:,:,:,:,length(fields)+1-iii),4);
+            datiii = nanmean(I(:,:,:,:,iii),4);
         end
         datiii = datiii(Mask);
         Stats{iii,1} = sum(Mask(:));

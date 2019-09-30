@@ -316,7 +316,9 @@ if ~isempty(Model.Prot)
             % Move down
             uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
             % LOAD
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0    .94 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0      .44 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            % Create
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0      .44 .02*N],'Style','pushbutton','String','Create','Callback',@(hObject, eventdata) CreateProt_Callback(hObject, eventdata, handles,fields{ii}));
         end
 
     end
@@ -470,14 +472,40 @@ set(handles.ProtFileName,'String','Protocol Filename');
 OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
-[FileName,PathName] = uigetfile({'*.mat;*.xls;*.xlsx;*.txt;*.scheme'},'Load Protocol Matrix');
+FileFormat = '*.mat;*.xls;*.xlsx;*.txt';
+if strcmp(MRIinput,'DiffusionData')
+    FileFormat = ['*.bvec;*.scheme;' FileFormat];
+end
+[FileName,PathName] = uigetfile({FileFormat},'Load Protocol Matrix');
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
+if Prot == 0, return; end
 if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.(MRIinput).table,'Data',Prot)
 Model = getappdata(0,'Model');
 Model.Prot.(MRIinput).Mat = Prot;
+UpdateProt(MRIinput,Prot,handles)
+
+function CreateProt_Callback(hObject, eventdata, handles, MRIinput)
+Model = getappdata(0,'Model');
+Fmt = Model.Prot.(MRIinput).Format; if ischar(Fmt), Fmt = {Fmt}; end
+answer = inputdlg(Fmt,'Enter values, vectors or Matlab expressions',[1 100]);
+if isempty(answer), return; end
+Prot = cellfun(@str2num,answer,'uni',0);
+Prot = cellfun(@(x) x(:),Prot,'uni',0);
+Nlines = max(cell2mat(cellfun(@length,Prot,'uni',0)));
+Model.Prot.(MRIinput).Mat = NaN(Nlines,length(Fmt));
+for ic = 1:length(Fmt)
+    if length(Prot{ic})>1
+        Lmax = length(Prot{ic}); % if vector, fill as many as possible
+    else
+        Lmax = Nlines; % if scalar, all lines get this value
+    end
+    Model.Prot.(MRIinput).Mat(1:Lmax,ic) = Prot{ic};
+end
+Prot = Model.Prot.(MRIinput).Mat;
+set(handles.(MRIinput).table,'Data',Prot)
 UpdateProt(MRIinput,Prot,handles)
 
 
@@ -530,10 +558,21 @@ function Default_Callback(hObject, eventdata, handles)
 oldModel = getappdata(0,'Model');
 modelfun = str2func(class(oldModel));
 Model = modelfun();
-Model.Prot = oldModel.Prot;
-setappdata(0,'Model',Model);
+
+answer = questdlg('What do you want to set to default?','Reset protocol?','Reset options','Reset options AND protocol','Reset protocol','Reset options');
+if strfind(answer,'options')
+    newModel = Model;
+    newModel.Prot = oldModel.Prot;
+else
+    newModel = oldModel;
+end
+if strfind(answer,'protocol')
+    newModel.Prot = Model.Prot;
+end
+
+setappdata(0,'Model',newModel);
 set(handles.ParametersFileName,'String','Parameters Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, newModel, handles.caller)
 
 % --- Executes on button press in Load.
 function Load_Callback(hObject, eventdata, handles)
