@@ -1,6 +1,6 @@
 function [D,L,fiberdirection] = scd_model_dti(data,scheme)
 
-b0_index = ~scheme(:,4)>0;
+b0_index = scheme(:,4)<5e-6; % 5mT/m or less are considered as b=0
 scheme = scheme(~b0_index,:);
 data = data(~b0_index);
 bvec = scheme(:,[1 2 3]);

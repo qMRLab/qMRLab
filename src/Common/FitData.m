@@ -34,7 +34,7 @@ Model.sanityCheck(data);
 tStart = tic;
 tsaved = 0;
 
-h=[];
+h=[]; hwarn=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
     try, Model = Model.Precompute; end
     try, Model = Model.PrecomputeData(data); end
@@ -42,6 +42,19 @@ if moxunit_util_platform_is_octave % ismethod not working properly on Octave
 else
     if ismethod(Model,'Precompute'), Model = Model.Precompute; end
     if ismethod(Model,'PrecomputeData'), Model = Model.PrecomputeData(data); end
+end
+
+% NaN in Mask
+if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
+    data.Mask(isnan(data.Mask))=0;
+    msg = 'NaNs will be set to 0. We recommend you to check your mask.';
+    titlemsg = 'NaN values detected in the Mask';
+    if exist('wait','var') && (wait)
+        hwarn = warndlg(msg,titlemsg);
+    end
+    fprintf('\n')
+    warning(titlemsg)
+    fprintf('%s\n\n',msg)
 end
 
 if Model.voxelwise % process voxelwise
@@ -75,9 +88,25 @@ if Model.voxelwise % process voxelwise
     end
 
 
-    % Find voxels that are not empty
+   
     if isfield(data,'Mask') && (~isempty(data.Mask))
-        Voxels = find(all(data.Mask & ~computed,2));
+        
+        % Set NaN values to zero if there are any 
+        if any(isnan(data.Mask(:)))
+           data.Mask(isnan(data.Mask))=0;
+            msg = 'NaNs will be set to 0. We recommend you to check your mask.';
+            titlemsg = 'NaN values detected in the Mask';
+            if exist('wait','var') && (wait)
+                hwarn = warndlg(msg,titlemsg);
+            end
+            fprintf('\n')
+            warning(titlemsg)
+            fprintf('%s\n\n',msg) 
+        end
+        
+        % Find voxels that are not empty
+        Voxels = find(all(data.Mask & ~computed,2));    
+        
     else
         Voxels = find(~computed)';
     end
@@ -212,6 +241,7 @@ else % process entire volume
 end
 % delete waitbar
 %if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
+if ishandle(hwarn), delete(hwarn); end
 
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
