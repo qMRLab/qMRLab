@@ -18,6 +18,8 @@ if hdr.sform_code > 0
     useForm='s';
 elseif hdr.qform_code > 0
     useForm='q';
+else
+    useForm=[];
 end
 
 affine_transform = 1;

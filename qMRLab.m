@@ -212,8 +212,16 @@ SetAppData(Method)
 if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
     Model = getappdata(0,'Model');
 else % otherwise create a new object of this method
-    modelfun  = str2func(Method);
-    Model = modelfun();
+    Modeltobesaved = getappdata(0,'Model');
+    savedModel = getappdata(0,'savedModel');
+    savedModel.(class(Modeltobesaved)) = Modeltobesaved;
+    setappdata(0,'savedModel',savedModel);
+    if isfield(savedModel,Method) && ~isempty(savedModel.(Method))
+        Model = savedModel.(Method);
+    else
+        modelfun  = str2func(Method);
+        Model = modelfun();
+    end
 end
 SetAppData(Model)
 % Create empty Data
@@ -420,6 +428,9 @@ end
 SetAppData(FileBrowserList);
 % Show results
 handles.CurrentData = FitResults;
+if exist('hdr','var')
+    handles.CurrentData.hdr = hdr;
+end
 guidata(hObject,handles);
 DrawPlot(handles);
 
@@ -506,7 +517,7 @@ set(hObject, 'Enable', 'on');
 
 I = handles.tool.getImage(1);
 Iraw = handles.CurrentData;
-fields = setdiff(Iraw.fields,'Mask')';
+fields = setdiff(Iraw.fields,'Mask','stable')';
 Maskall = handles.tool.getMask(1);
 Color = handles.tool.getMaskColor;
 StatsGUI(I,Maskall, fields, Color);
@@ -822,8 +833,8 @@ I.img = handles.tool.getImage(1);
 I.label = cellstr(get(handles.SourcePop,'String'));
 Mask = handles.tool.getMask(1);
 if isfield(handles.CurrentData,'hdr')
-    tool = imtool3D_nii_3planes(I,Mask);
     I.hdr = handles.CurrentData.hdr;
+    tool = imtool3D_nii_3planes(I,Mask);
 else
     tool = imtool3D_3planes(I.img,Mask);
     for ii=1:3, tool(ii).setlabel(I.label); end
