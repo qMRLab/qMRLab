@@ -391,7 +391,7 @@ function FitResults = fit(obj,data)
     disp('-----------------------------------------------');
 
   end
-
+  
   if FitOpt.noreg_Flag
 
     FitResults.nfm = abs(phaseLUnwrap(1+padSize(1):end-padSize(1),1+padSize(2):end-padSize(2),1+padSize(3):end-padSize(3)));
