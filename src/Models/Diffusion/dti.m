@@ -112,16 +112,16 @@ end
             Prot(Prot(:,4)==0,1:6) = 0;
             [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
             cmax = max(c); % find images repeated more than 5 times (for relevant STD)
+            if ~strcmp(obj.options.fittingtype,'linear') && ~strcmp(obj.options.Riciannoisebias_Method,'fix sigma')
             if cmax<2
-                warndlg({'Your dataset doesn''t have 2 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
-                obj.options.Riciannoisebias_Method = 'fix sigma';
+                warndlg({'Your dataset doesn''t have 2 repeated measures (same bvec/bvals) --> you can''t estimate noise STD per voxel.' 'Using linear fitting instead (noise bias will impact your results).'},'Noise estimation method')
+                obj.options.fittingtype = 'linear';
             elseif cmax<4
-                warndlg({'Your dataset doesn''t have 4 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+                warndlg({'Your dataset doesn''t have 4 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately.'},'Noise estimation method')
+            end
             end
             if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 obj.options.Riciannoisebias_value  = 'auto';
-            elseif isempty(obj.options.Riciannoisebias_value)
-                obj.options.Riciannoisebias_value=10;
             end
 
             % disable Rician noise panel if linear
@@ -179,6 +179,7 @@ end
                 else
                     SigmaNoise = obj.options.Riciannoisebias_value;
                 end
+                if isempty(SigmaNoise), SigmaNoise = max(data.DiffusionData/100); end
 
 
                 if ~moxunit_util_platform_is_octave && SigmaNoise
