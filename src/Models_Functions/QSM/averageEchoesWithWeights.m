@@ -21,7 +21,7 @@ function freqEstimate = averageEchoesWithWeights(imPhase, imMagnitude, TE)
 
 % Spatially unwrap phase
 disp('Started   : Laplacian phase unwrapping ...');
-for iEcho = nEcho:-1:1
+for iEcho = numel(TE):-1:1
     imPhaseUw(:,:,:,iEcho) = unwrapPhaseLaplacian(imPhase(:,:,:,iEcho));
 end
 disp('Completed : Laplacian phase unwrapping');
