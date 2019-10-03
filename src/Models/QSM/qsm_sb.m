@@ -208,52 +208,45 @@ function FitResults = fit(obj,data)
 
   persistent phaseLUnwrap maskGlobal
 
-  if FitOpt.sharp_Flag % SHARP BG removal
+  % Estimate frequency from phase data
+  nEcho = numel(TE);
+  assert(nEcho == size(data.PhaseGRE,4));
+  
+  if nEcho > 1 && not(isempty(data.MagnGRE))
+      freqEstimate = averageEchoesWithWeights(data.PhaseGRE, data.MagnGRE, TE);
+  else
+      disp('Started   : Laplacian phase unwrapping ...');
+      for iEcho = nEcho:-1:1
+          freqEstimate(:,:,:,iEcho) = unwrapPhaseLaplacian(data.PhaseGRE(:,:,:,iEcho));
+      end
+      disp('Completed : Laplacian phase unwrapping');
+      disp('-----------------------------------------------');
+      freqEstimate = mean(freqEstimate ./ reshape(TE, [1,1,1,numel(TE)]), 4);
+  end
+  data.phaseGRE = []; % Release
+  
+  % Scale frequency to ppm
+  freqEstimatePpm = freqEstimate / (B0 * gyro);
+  
+  % SHARP BG removal
+  if FitOpt.sharp_Flag
 
     padSize = FitOpt.padSize;
 
-    phaseWrapPad = padVolumeForSharp(data.PhaseGRE, padSize);
+    freqEstimatePpmPad = padVolumeForSharp(freqEstimatePpm, padSize);
     maskPad      = padVolumeForSharp(data.Mask, padSize);
 
-    data.PhaseGRE = []; % Release
-
-    disp('Started   : Laplacian phase unwrapping ...');
-    phaseLUnwrap_tmp = unwrapPhaseLaplacian(phaseWrapPad);
-    disp('Completed : Laplacian phase unwrapping');
-    disp('-----------------------------------------------');
-
-    clear('phaseWrapPad'); % Release
 
     disp('Started   : SHARP background removal ...');
-    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
+    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(freqEstimatePpmPad, maskPad, [TE B0 gyro], FitOpt.sharpMode);
 
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
-    clear('phaseLUnwrap_tmp','maskPad')
+    clear('freqEstimatePadPpm','maskPad')
     data.Mask = []; % Release
-
-
   else
-
-    disp('Started   : Laplacian phase unwrapping ...');
-    phaseLUnwrap = unwrapPhaseLaplacian(data.PhaseGRE);
-    disp('Completed : Laplacian phase unwrapping');
-    disp('-----------------------------------------------');
-
-    data.phaseGRE = []; % Release
-
-    % DEV Note:
-    % I assumed that even w/o SHARP, magn weight is possible by passing
-    % brainmask and padding size as 0 0 0.
-
-    % If there is sharp, phaseLUnwrap is the SHARP masked one
-    % If there is not sharp phaseLUnwrap is just laplacian unwrapped phase.
-
-    maskGlobal = data.Mask;
     padSize    = [0 0 0];
-    data.Mask = [];
-
   end % SHARP BG removal
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
