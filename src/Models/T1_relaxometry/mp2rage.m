@@ -4,44 +4,51 @@ classdef mp2rage < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   MP2RAGE         MP2RAGE data, 4D volume with different inversion times in time dimension
-%   (Mask)          Binary mask to accelerate the fitting (optional)
+%   MP2RAGE         MP2RAGE UNI image. 
+%   (INV1)          Magnitude image of the first inversion pulse (optional).
+%   (INV2)          Magnitude image of the second inversion pulse (opitonal).
+%   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional)
+%   (Mask)          Binary mask to a desired region (optional).
 %
 % Outputs:
-%   T1              Longitudinal relaxation time [s]
-%   R1              Equilibrium magnetization
-%
+%   T1              Longitudinal relaxation time [s].
+%                   Corrected for B1+ bias IF the B1map is provided.
+%   R1              Longitudinal relaxation rate [1/s]
+%                   Corrected for B1+ bias IF the B1map is provided.
+%   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided. 
 
 properties (Hidden=true)
  onlineData_url = 'https://osf.io/8x2c9/download?version=2';  
 end
 
     properties
-        MRIinputs = {'MP2RAGE', 'Mask'};
+        MRIinputs = {'MP2RAGE','INV1','INV2','B1map' 'Mask'};
         xnames = {'T1','R1'};
         voxelwise = 0;
         
         % Protocol
-        Prot  = struct(); % You can define a default protocol here.
+        Prot  = struct('Hardware',struct('Format',{{'B0 (T)'}},...
+        'Mat', [7]),...
+        'ConstantTiming',struct('Format',{{'InversionTR (s)' 'ExcitationTR (s)'}},'Mat',[6 6.7e-3]), ...
+        'VaryingTiming',struct('Format',{{'InversionTimes (s)'}},'Mat',[800e-3;2700e-3;]), ...
+        'VaryingOther',struct('Format',{{'FlipAngles' 'NumberOfShots'}},'Mat',[4 35; 5 72]));
+
+        % Please see wiki page for details regarding tabletip
+        % https://github.com/qMRLab/qMRLab/wiki/Guideline:-GUI#the-optionsgui-is-populated-by
+
+        tabletip = struct('table_name',{{'Hardware','ConstantTiming','VaryingTiming','VaryingOther'}},'tip', ...
+        {sprintf(['B0 (T): Static magnetic field strength (Tesla)']),...
+        sprintf(['Inversion TR (s): Repetition time between two inversion pulses of the MP2RAGE pulse sequence (seconds)\n -- \n Excitation TR (s): Repetition time between two excitation pulses of the MP2RAGE pulse sequence (seconds)']),...
+        sprintf(['InversionTimes (s): Inversion times for the measurements (seconds)\n 1st input = 1st time dimension \n 2nd input = 2nd time dimension']),...
+        sprintf(['Flip Angles: Excitation flip angles (degrees)\n1st input = 1st time dimension, 2nd input = 2nd time dimension \n -- \n NumberOfShots: Number of shots [before, after] the k-space center'])
+        });
+
 
         % Model options
-        buttons = {'B0 (T)', 7, ...
-                   'Inversion TR (s)', 6, ...
-                   'Excitation TR (s)', 6.7e-3, ...
-                   'Inversion times (s)', [800e-3 2700e-3], ...
-                   'Flip angles', [4 5], ...
-                   'Number of shots' [35 72], ...
-                   'Inv efficiency', 0.96};
+        buttons = {'Inv efficiency', 0.96};
                
         % Tiptool descriptions
-        tips = {'B0 (T)', 'Static magnetic field strength (Tesla)', ...
-        'Inversion TR (s)', 'Repetition time between two inversion pulses of the MP2RAGE pulse sequence. (seconds)',...
-        'Excitation TR (s)', 'Repetition time between two excitation pulses of the MP2RAGE pulse sequence. (seconds)',...
-        'Inversion times (s)','Inversion times for the measurements (seconds). 1st input = 1st time dimension, 2nd input = 2nd time dimension', ...
-        'Flip angles','Excitation flip angles (degrees). 1st input = 1st time dimension, 2nd input = 2nd time dimension', ...
-        'Number of shots','Number of shots [before, after] the k-space center', ...
-        'Inv efficiency', 'Efficiency of the inversion pulse (fraction).'
-        };
+        tips = {'Inv efficiency', 'Efficiency of the inversion pulse (fraction).'};
     
         options= struct(); % structure filled by the buttons. Leave empty in the code
     end
@@ -69,29 +76,65 @@ end
 
        function FitResult = fit(obj,data)
 
-           MagneticFieldStrength = obj.options.B0T;
-           RepetitionTimeInversion = obj.options.InversionTRs;
-           RepetitionTimeExcitation = obj.options.ExcitationTRs;
-           InversionTime = obj.options.Inversiontimess;
-           FlipAngle = obj.options.Flipangles;
-           NumberShots = obj.options.Numberofshots;
-           invEFF = obj.options.Invefficiency;
+        if ~isfield(data, 'B1map'), data.B1map = []; end
+        if ~isfield(data, 'Mask'), data.Mask = []; end
 
-           % Convert naming to the MP2RAGE source code conventions
-           MP2RAGE.B0 = MagneticFieldStrength;           % in Tesla
-           MP2RAGE.TR = RepetitionTimeInversion;           % MP2RAGE TR in seconds
-           MP2RAGE.TRFLASH = RepetitionTimeExcitation; % TR of the GRE readout
-           MP2RAGE.TIs = InversionTime; % inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
-           MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
-           MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
+        % Hardware
+        MagneticFieldStrength = obj.Prot.Hardware.Mat;
+        
+        % ConstantTiming
+        RepetitionTimeInversion = obj.Prot.ConstantTiming.Mat(1);
+        RepetitionTimeExcitation = obj.Prot.ConstantTiming.Mat(2);
+        
+        % VaryingTiming
+        InversionTime = obj.Prot.VaryingTiming.Mat';
+        
+        %VaryingOther    
+        FlipAngle = obj.Prot.VaryingOther.Mat(:,1)';
+        NumberShots = obj.Prot.VaryingOther.Mat(:,2);
+        
+        invEFF = obj.options.Invefficiency;
 
-           MP2RAGEimg.img = data.MP2RAGE;
+        % Convert naming to the MP2RAGE source code conventions
+        MP2RAGE.B0 = MagneticFieldStrength;           % in Tesla
+        MP2RAGE.TR = RepetitionTimeInversion;           % MP2RAGE TR in seconds
+        MP2RAGE.TRFLASH = RepetitionTimeExcitation; % TR of the GRE readout
+        MP2RAGE.TIs = InversionTime; % inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
+        MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
+        MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
 
-           [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
+        MP2RAGEimg.img = data.MP2RAGE;
 
-           FitResult.T1 = T1map.img;
-           FitResult.R1 = R1map.img;
-       end
+
+        if ~isempty(data.B1map)
+
+            [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
+            
+            FitResult.T1 = T1corrected.img;
+            FitResult.R1=1./FitResult.T1;
+            FitResult.R1(isnan(FitResult.R1))=0;
+            FitResult.MP2RAGEcor = MP2RAGEcorr.img;
+
+        else
+
+            [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
+        
+            FitResult.T1 = T1map.img;
+            FitResult.R1 = R1map.img;
+            
+        end
+
+        if ~isempty(data.Mask)
+            data.Mask = logical(data.Mask); % ensure 
+            FitResult.T1(~data.Mask) = 0;
+            FitResult.R1(~data.Mask) = 0;
+
+            if isfield(FitResult,'MP2RAGEcor')
+                FitResult.MP2RAGEcor(~data.Mask) = 0;
+            end
+        end
+        
+    end
 
 
     end
