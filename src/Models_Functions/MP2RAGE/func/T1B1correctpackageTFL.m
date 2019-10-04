@@ -43,13 +43,14 @@ function [ T1temp MP2RAGEcorrected] = T1B1correctpackageTFL( B1img,MP2RAGEimg,T1
 %
 % please cite:
 % Marques, J.P., Gruetter, R., 2013. New Developments and Applications of the MP2RAGE Sequence - Focusing the Contrast and High Spatial Resolution R1 Mapping. PLoS ONE 8. doi:10.1371/journal.pone.0069294
-% Marques, J.P., Kober, T., Krueger, G., van der Zwaag, W., Van de Moortele, P.-F., Gruetter, R., 2010a. MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. NeuroImage 49, 1271–1281. doi:10.1016/j.neuroimage.2009.10.002
+% Marques, J.P., Kober, T., Krueger, G., van der Zwaag, W., Van de Moortele, P.-F., Gruetter, R., 2010a. MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. NeuroImage 49, 1271ï¿½1281. doi:10.1016/j.neuroimage.2009.10.002
 %
 
+B1img = B1img./1000;
 
 if nargin==8
     
-    invEFF=varargin{1}
+    invEFF=varargin{1};
     
 else
     
@@ -75,87 +76,19 @@ if isempty(brain)
     
 end;
 
-%% sanity check to see how B1 sensitive your sequence was
-
-gcf=figure(3);
-
-set(gcf,'Color',[1 1 1]);
-
-hold off
-
-for B1val=0.6:0.2:1.4
-    
-    [MP2RAGEamp T1vector IntensityBeforeComb]=MP2RAGE_lookuptable(2,MP2RAGE.TR,MP2RAGE.TIs,B1val*MP2RAGE.FlipDegrees,MP2RAGE.NZslices,MP2RAGE.TRFLASH,'normal');
-    
-    plot(MP2RAGEamp,T1vector,'color',[0.5 0.5 0.5]*B1val,'Linewidth',2)
-    
-    hold on
-    
-end
-
-legend('B1=0.6','B1=0.8','B1=1','B1=1.2','B1=1.4')
-
-% examples of T1 values at 3T
-
-if ~isfield(MP2RAGE,'B0')
-    
-    T1WM=1.1;
-    
-    T1GM=1.85;
-    
-    T1CSF=3.5;
-    
-else
-    
-    if MP2RAGE.B0==3
-        
-        T1WM=0.85;
-        
-        T1GM=1.35;
-        
-        T1CSF=2.8;
-        
-    else
-        
-        % examples of T1 values at 7T
-        
-        T1WM=1.1;
-        
-        T1GM=1.85;
-        
-        T1CSF=3.5;
-        
-    end;
-    
-end;
-
-plot([-0.5 0.5],[T1CSF T1CSF;T1GM T1GM;T1WM T1WM]','Linewidth',2)
-
-text(0.35,T1WM,'White Matter')
-
-text(0.35,T1GM,'Grey Matter')
-
-text(0.35,T1CSF,'CSF')
-
-ylabel('T1');
-
-xlabel('MP2RAGE');
-
-%% definition of range of B1s and T1s and creation of MP2RAGE and Sa2RAGE lookupvector to make sure the input data for the rest of the code is the Sa2RAGEimg and the MP2RAGEimg
-
 B1_vector=0.005:0.05:1.9;
 
 T1_vector=0.5:0.05:5.2;
 
-[MP2RAGE.Intensity MP2RAGE.T1vector ]=MP2RAGE_lookuptable(2,MP2RAGE.TR,MP2RAGE.TIs,MP2RAGE.FlipDegrees,MP2RAGE.NZslices,MP2RAGE.TRFLASH,'normal',invEFF)
+[MP2RAGE.Intensity MP2RAGE.T1vector ]=MP2RAGE_lookuptable(2,MP2RAGE.TR,MP2RAGE.TIs,MP2RAGE.FlipDegrees,MP2RAGE.NZslices,MP2RAGE.TRFLASH,'normal',invEFF);
 
 if isempty(MP2RAGEimg)
     
     T1.img=double(T1.img)/1000;
     
-    MP2RAGEimg.img=reshape(interp1(MP2RAGE.T1vector,MP2RAGE.Intensity,T1.img(:)),size(B1img.img));
+    MP2RAGEimg.img=reshape(interp1(MP2RAGE.T1vector,MP2RAGE.Intensity,T1.img(:)),size(B1img));
     
-    MP2RAGEimg.img(isnan(MP2RAGEimg.img))=-0.5
+    MP2RAGEimg.img(isnan(MP2RAGEimg.img))=-0.5;
     
 else
     
@@ -220,7 +153,7 @@ end;
 
 T1temp=MP2RAGEimg;
 
-brain.img(B1img.img==0)=0;
+brain.img(B1img==0)=0;
 
 brain.img(MP2RAGEimg.img==0)=0;
 
@@ -228,39 +161,19 @@ T1temp.img(brain.img==0)=0;
 
 T1temp.img(brain.img==1)=0;
 
-B1img.img(brain.img==0)=0;
-
-
-
+B1img(brain.img==0)=0;
 
 temp=squeeze(T1temp.img(:,end/2,:));
 
-
-
-T1temp.img(brain.img~=0)=interp2(MP2RAGE_vector,B1_vector,T1matrix,MP2RAGEimg.img(brain.img~=0),B1img.img(brain.img~=0))
+T1temp.img(brain.img~=0)=interp2(MP2RAGE_vector,B1_vector,T1matrix,MP2RAGEimg.img(brain.img~=0),B1img(brain.img~=0));
 
 T1temp.img(isnan(T1temp.img))=4;
 
-
-
 temp2=squeeze(T1temp.img(:,end/2,:));
-
-
-
-gcf=figure(1);
-
-set(gcf,'Color',[1 1 1]);
-
-imagesc(temp2-temp);colorbar
-
-title(['T1 correction ']);
-
-colormap(gray)
-
 
 %% creates an MP2RAGEcorrected image and puts both the B1 and T1 in the ms scale
 
-[MP2RAGE.Intensity MP2RAGE.T1vector ]=MP2RAGE_lookuptable(2,MP2RAGE.TR,MP2RAGE.TIs,MP2RAGE.FlipDegrees,MP2RAGE.NZslices,MP2RAGE.TRFLASH,'normal',invEFF)
+[MP2RAGE.Intensity MP2RAGE.T1vector ]=MP2RAGE_lookuptable(2,MP2RAGE.TR,MP2RAGE.TIs,MP2RAGE.FlipDegrees,MP2RAGE.NZslices,MP2RAGE.TRFLASH,'normal',invEFF);
 
 MP2RAGEcorrected=MP2RAGEimg;
 
@@ -270,32 +183,7 @@ MP2RAGEcorrected.img(isnan(MP2RAGEcorrected.img))=-0.5;
 
 MP2RAGEcorrected.img=round(4095*(MP2RAGEcorrected.img+0.5));
 
-T1temp.img=(T1temp.img)*1000;
-
-
-%%
-
-showimages=0
-
-if showimages==1;
-    
-    imagesc(MP2RAGE_vector,B1_vector,T1matrix,[0.4 5]);colorbar;
-    
-    xlabel ('MP2RAGE','FontSize',12,'FontWeight','bold')
-    
-    ylabel ('B_1','FontSize',12,'FontWeight','bold')
-    
-    title('T_1 look-up table','FontSize',12,'FontWeight','bold')
-    
-    H=gca
-    
-    set(H,'FontSize',12,'LineWidth',2)
-    
-    axes(H)
-    
-    
-    
-end;
+%T1temp.img=(T1temp.img)*1000;
 
 end
 

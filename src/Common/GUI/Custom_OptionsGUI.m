@@ -287,11 +287,19 @@ if ~isempty(Model.Prot)
         
         % Create TABLE
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
+                
+        if isprop(Model,'tabletip') 
         
-        if isprop(Model,'tabletip') && strcmp(fields{ii},Model.tabletip.table_name)
+        tbl_cur = Model.tabletip.table_name;
+        tip_cur = {Model.tabletip.tip};
+        
+        if ismember(fields{ii},tbl_cur)
             
-        set(handles.(fields{ii}).table,'Tooltip',Model.tabletip.tip);    
-            
+            [~,tbidx] = ismember(fields{ii},tbl_cur);
+            set(handles.(fields{ii}).table,'Tooltip',char(tip_cur{tbidx}));    
+        
+        end
+        
         end
         % add Callbacks
 
