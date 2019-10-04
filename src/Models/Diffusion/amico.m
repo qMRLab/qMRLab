@@ -28,6 +28,7 @@ classdef amico < noddi
 %   fiso                Fraction of water in the isotropic compartment (e.g. CSF/Veins)
 %   fr                  Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
 %                        fr = ficvf*(1-fiso)
+%   irfrac              Fraction of isotropically restricted compartment (Dot for ex vivo model)
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
 %   kappa               Orientation dispersion index
 %   b0                  Signal at b=0
@@ -81,6 +82,11 @@ end
             obj = UpdateFields@noddi(obj);
             AMICO_SetModel( 'NODDI' );
             
+            % Dot compartment?
+            if strcmp(obj.options.modelname,'WatsonSHStickTortIsoVIsoDot_B0')
+                CONFIG.model.isExvivo=true; % Dot compartment in ex vivo
+            end
+
             CONFIG.model.dPar = obj.st(strcmp(obj.xnames,'di')).* 1E-3;
             CONFIG.model.dIso = obj.st(strcmp(obj.xnames,'diso')).* 1E-3;
             
@@ -96,6 +102,11 @@ end
             CONFIG.scheme = AMICO_LoadSchemeMAT(obj.Prot.DiffusionData.Mat,CONFIG.b0_thr);
 
             AMICO_SetModel( 'NODDI' );
+            
+            % Dot compartment?
+            if strcmp(obj.options.modelname,'WatsonSHStickTortIsoVIsoDot_B0')
+                CONFIG.model.isExvivo=true; % Dot compartment in ex vivo
+            end
             
             % rotation matrices
             lmax = 12;
@@ -174,7 +185,7 @@ end
             end
             
             outputsName = CONFIG.model.OUTPUT_names;
-            outputsName = {'ficvf' 'ODI' 'fiso'}; 
+            outputsName = {'ficvf' 'ODI' 'fiso' 'irfrac'}; 
             for io = 1:length(CONFIG.model.OUTPUT_names)
                 FitResults.(outputsName{io}) = vox_MAPs(io);
             end

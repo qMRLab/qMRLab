@@ -177,6 +177,9 @@ methods
         if ( obj.isExvivo )
             xx =  x(1:end-2);
             fISO = x(end-1);
+            fDOT = x(end);
+            CONFIG.model.OUTPUT_names{4} = 'DOTVF';
+            CONFIG.model.OUTPUT_descriptions{4} = 'Dot volume fraction';
         else
             xx =  x(1:end-1);
             fISO = x(end);
@@ -187,6 +190,9 @@ methods
         MAPs(1) = f1 / (f1+f2+eps);
         MAPs(2) = 2/pi * atan2(1,KERNELS.A_kappa*xx);
         MAPs(3) = fISO;
+        if ( obj.isExvivo )
+            MAPs(4) = fDOT;
+        end
     end
 
 
