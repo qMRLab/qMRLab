@@ -238,8 +238,7 @@ function FitResults = fit(obj,data)
 
 
     disp('Started   : SHARP background removal ...');
-    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(freqEstimatePpmPad, maskPad, [TE B0 gyro], FitOpt.sharpMode);
-
+    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(freqEstimatePpmPad, maskPad, FitOpt.sharpMode);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
