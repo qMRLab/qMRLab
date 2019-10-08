@@ -31,6 +31,7 @@ disp('-----------------------------------------------');
 TE = reshape(TE, [1,1,1,numel(TE)]); % For broadcasting
 weights = TE .* imMagnitude;
 weights = weights ./ sum(weights,4);
+weights(~isfinite(weights)) = 0;
 
 % Average frequencies with weights
 freqEstimate = sum(imPhaseUw ./ TE .* weights, 4);
