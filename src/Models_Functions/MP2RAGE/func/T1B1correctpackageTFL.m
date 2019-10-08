@@ -46,17 +46,47 @@ function [ T1temp MP2RAGEcorrected] = T1B1correctpackageTFL( B1img,MP2RAGEimg,T1
 % Marques, J.P., Kober, T., Krueger, G., van der Zwaag, W., Van de Moortele, P.-F., Gruetter, R., 2010a. MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. NeuroImage 49, 1271�1281. doi:10.1016/j.neuroimage.2009.10.002
 %
 
-B1img = B1img./1000;
 
-if nargin==8
+% Check B1 range 
+b1med = median(prctile(B1img(:),90));
+
+if b1med > 5
+    
+     warning(sprintf(['=============== mp2rage::b1correction ==========='...
+        '\n B1 data is not in [0-2] range. B1map magnitude will be scaled down.'  ...
+        '\n ===========================================================' ...
+        ]));
+
+    if b1med > 10 &&  b1med < 500
+
+        B1img = double(B1img)./100;
+    
+    elseif b1med>500 && b1med<1500
+        
+        B1img = double(B1img)./1000;
+    end
+end
+
+b1med = median(prctile(B1img(:),90));
+
+if ~(b1med > 0.5) && ~(b1med < 1.5)
+
+    warning(sprintf(['=============== mp2rage::b1correction ==========='...
+        '\n B1 data may not be in the required [0-2] range'  ...
+        '\n ===========================================================' ...
+        ]));
+
+end
+
+if nargin==6
     
     invEFF=varargin{1};
     
 else
     
-    invEFF=0.99;
+    invEFF=0.96;
     
-end;
+end
 
 if isempty(brain)
     
