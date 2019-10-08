@@ -264,7 +264,9 @@ function FitResults = fit(obj,data)
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
 
-
+    if nEcho > 1
+        data.MagnGRE = sqrt(sum(data.MagnGRE.^2, 4));
+    end
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
     disp('Completed : Calculation of gradient masks for magn weighting');
