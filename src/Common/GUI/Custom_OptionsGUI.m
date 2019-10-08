@@ -282,13 +282,33 @@ if ~isempty(Model.Prot)
 
         handles.(fields{ii}).CellSelect = [];
         
-        % Create panel
+        % Create PANEL
+        % Panels function as a namespace for protocols. 
+        % Unlike options panel, here they are REQUIRED. 
+        
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
         
+        if ~isprop(Model,'ProtStyle')
+            
         % Create TABLE
-        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
-                
-        if isprop(Model,'tabletip') 
+            handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
+        
+        elseif isprop(Model,'ProtStyle')
+            
+            prot_names  = Model.ProtStyle.prot_namespace;
+            styles = {Model.ProtStyle.style};
+            [~,prtidx] = ismember(fields{ii},prot_names);
+            
+            if strcmp(styles(prtidx),'TableNoButton')
+            % Create TABLE
+                handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
+
+            end
+            
+        end
+        
+        % TODO: Condition to be improved.
+        if isprop(Model,'tabletip')
         
         tbl_cur = Model.tabletip.table_name;
         tip_cur = {Model.tabletip.tip};
@@ -301,6 +321,8 @@ if ~isempty(Model.Prot)
         end
         
         end
+        
+        
         % add Callbacks
 
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));
@@ -313,18 +335,38 @@ if ~isempty(Model.Prot)
             set(handles.(fields{ii}).table,'RowName', Model.Prot.(fields{ii}).Format);
             set(handles.(fields{ii}).table,'ColumnName','');
         else
-            set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
-            % Create BUTTONS
-            % ADD
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(hObject, eventdata, handles,fields{ii}));
-            % REMOVE
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.04*N .44 .02*N],'Style','pushbutton','String','Remove','Callback',@(hObject, eventdata) PointRem_Callback(hObject, eventdata, handles,fields{ii}));
-            % Move up
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.02*N .44 .02*N],'Style','pushbutton','String','Move up','Callback',@(hObject, eventdata) PointUp_Callback(hObject, eventdata, handles,fields{ii}));
-            % Move down
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
-            % LOAD
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0    .94 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            
+            if ~isprop(Model,'ProtStyle') % NEW implemented in 2.4.0 
+                
+                % If Protsyle property does not exist, assume type table 
+                % and assign column names. 
+                
+                set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
+                % Create BUTTONS
+                % ADD
+                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(hObject, eventdata, handles,fields{ii}));
+                % REMOVE
+                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.04*N .44 .02*N],'Style','pushbutton','String','Remove','Callback',@(hObject, eventdata) PointRem_Callback(hObject, eventdata, handles,fields{ii}));
+                % Move up
+                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.02*N .44 .02*N],'Style','pushbutton','String','Move up','Callback',@(hObject, eventdata) PointUp_Callback(hObject, eventdata, handles,fields{ii}));
+                % Move down
+                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
+                % LOAD
+                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0    .94 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            
+            else % If Style is passed 
+                
+              
+               if strcmp(styles(prtidx),'TableNoButton')
+                  
+                % If Protsyle property exist and value is NoTableButton
+                % assign TABLE column names. 
+                  set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
+               
+               end
+                
+                
+            end
         end
 
     end

@@ -208,7 +208,9 @@ else % process entire volume
     end
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
-    disp('...done');
+    disp('=============== qMRLab::Fit ======================')
+    disp(['Operation has been completed: ' Model.ModelName]);
+    disp('==================================================')
 end
 % delete waitbar
 %if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end

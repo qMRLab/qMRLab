@@ -5,8 +5,6 @@ classdef mp2rage < AbstractModel
 %
 % Inputs:
 %   MP2RAGE         MP2RAGE UNI image. 
-%   (INV1)          Magnitude image of the first inversion pulse (optional).
-%   (INV2)          Magnitude image of the second inversion pulse (opitonal).
 %   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional)
 %   (Mask)          Binary mask to a desired region (optional).
 %
@@ -18,29 +16,34 @@ classdef mp2rage < AbstractModel
 %   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided. 
 
 properties (Hidden=true)
- onlineData_url = 'https://osf.io/8x2c9/download?version=2';  
+ onlineData_url = 'https://osf.io/8x2c9/download?version=2';
 end
 
     properties
-        MRIinputs = {'MP2RAGE','INV1','INV2','B1map' 'Mask'};
+        MRIinputs = {'MP2RAGE','B1map' 'Mask'};
         xnames = {'T1','R1'};
         voxelwise = 0;
         
         % Protocol
         Prot  = struct('Hardware',struct('Format',{{'B0 (T)'}},...
         'Mat', [7]),...
-        'ConstantTiming',struct('Format',{{'InversionTR (s)' 'ExcitationTR (s)'}},'Mat',[6 6.7e-3]), ...
-        'VaryingTiming',struct('Format',{{'InversionTimes (s)'}},'Mat',[800e-3;2700e-3;]), ...
-        'VaryingOther',struct('Format',{{'FlipAngles' 'NumberOfShots'}},'Mat',[4 35; 5 72]));
+        'RepetitionTimes',struct('Format',{{'Inv (s)';'Exc (s)'}},'Mat',[6;6.7e-3]), ...
+        'Timing',struct('Format',{{'InversionTimes (s)'}},'Mat',[800e-3;2700e-3]), ...
+        'Sequence',struct('Format',{{'FlipAngles'}},'Mat',[4; 5]),...
+        'KSpace',struct('Format',{{'NumberOfShots'}},'Mat',[35; 72]));
+
+        ProtStyle = struct('prot_namespace',{{'Hardware', 'RepetitionTimes','Timing','Sequence','KSpace'}}, ...
+        'style',repmat({'TableNoButton'},[1,5]));
 
         % Please see wiki page for details regarding tabletip
         % https://github.com/qMRLab/qMRLab/wiki/Guideline:-GUI#the-optionsgui-is-populated-by
 
-        tabletip = struct('table_name',{{'Hardware','ConstantTiming','VaryingTiming','VaryingOther'}},'tip', ...
+        tabletip = struct('table_name',{{'Hardware','RepetitionTimes','Timing','Sequence','KSpace'}},'tip', ...
         {sprintf(['B0 (T): Static magnetic field strength (Tesla)']),...
-        sprintf(['Inversion TR (s): Repetition time between two inversion pulses of the MP2RAGE pulse sequence (seconds)\n -- \n Excitation TR (s): Repetition time between two excitation pulses of the MP2RAGE pulse sequence (seconds)']),...
-        sprintf(['InversionTimes (s): Inversion times for the measurements (seconds)\n 1st input = 1st time dimension \n 2nd input = 2nd time dimension']),...
-        sprintf(['Flip Angles: Excitation flip angles (degrees)\n1st input = 1st time dimension, 2nd input = 2nd time dimension \n -- \n NumberOfShots: Number of shots [before, after] the k-space center'])
+        sprintf(['[Inv (s)]: Repetition time between two INVERSION pulses of the MP2RAGE pulse sequence (seconds)\n -- \n [Exc (s)]: Repetition time between two EXCITATION pulses of the MP2RAGE pulse sequence (seconds)']),...
+        sprintf(['InversionTimes (s): Inversion times for the measurements (seconds)\n [1] 1st time dimension \n [2] 2nd time dimension']),...
+        sprintf(['FlipAngles: Excitation flip angles (degrees)\n [1] 1st time dimension \n [2] 2nd time dimension']),...
+        sprintf(['NumberOfShots: Number of shots [1] before and [2] after the k-space center'])
         });
 
 
@@ -82,16 +85,18 @@ end
         % Hardware
         MagneticFieldStrength = obj.Prot.Hardware.Mat;
         
-        % ConstantTiming
-        RepetitionTimeInversion = obj.Prot.ConstantTiming.Mat(1);
-        RepetitionTimeExcitation = obj.Prot.ConstantTiming.Mat(2);
+        % RepetitionTime
+        RepetitionTimeInversion = obj.Prot.RepetitionTimes.Mat(1);
+        RepetitionTimeExcitation = obj.Prot.RepetitionTimes.Mat(2);
         
-        % VaryingTiming
-        InversionTime = obj.Prot.VaryingTiming.Mat';
+        % Timing
+        InversionTime = obj.Prot.Timing.Mat';
         
-        %VaryingOther    
-        FlipAngle = obj.Prot.VaryingOther.Mat(:,1)';
-        NumberShots = obj.Prot.VaryingOther.Mat(:,2);
+        % Sequence   
+        FlipAngle = obj.Prot.Sequence.Mat';
+        
+        % KSpace
+        NumberShots = obj.Prot.KSpace.Mat';
         
         invEFF = obj.options.Invefficiency;
 
