@@ -299,10 +299,21 @@ if ~isempty(Model.Prot)
             styles = {Model.ProtStyle.style};
             [~,prtidx] = ismember(fields{ii},prot_names);
             
+            try
             if strcmp(styles(prtidx),'TableNoButton')
             % Create TABLE
                 handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
 
+            end
+            catch 
+               
+                if prtidx == 0
+                   
+                    disp('============ qMRLab developer: ==========');
+                    error('Please ensure that Protocol panel names are consistent across all attributes');
+                    
+                end
+                
             end
             
         end
