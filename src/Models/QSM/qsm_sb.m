@@ -208,12 +208,25 @@ function FitResults = fit(obj,data)
 
   persistent phaseLUnwrap maskGlobal
 
+  % Pad data for SHARP (this is done before phase unwrapping only for
+  % reproducibility's sake).
+  if FitOpt.sharp_Flag
+      padSize = FitOpt.padSize;
+      data.PhaseGRE = padVolumeForSharp(data.PhaseGRE, padSize);
+      maskPad = padVolumeForSharp(data.Mask, padSize);
+      magnGREPad = padVolumeForSharp(data.MagnGRE, padSize);
+  else
+      padSize = [0,0,0];
+      magnGREPad = data.MagnGRE;
+  end
+  
   % Estimate frequency from phase data
   nEcho = numel(TE);
-  assert(nEcho == size(data.PhaseGRE,4));
+  assert(nEcho == size(data.PhaseGRE,4));  
   
   if nEcho > 1 && not(isempty(data.MagnGRE))
-      freqEstimate = averageEchoesWithWeights(data.PhaseGRE, data.MagnGRE, TE);
+      freqEstimate = averageEchoesWithWeights(data.PhaseGRE, magnGREPad, TE);
+      clear magnGREPad % Release
   else
       disp('Started   : Laplacian phase unwrapping ...');
       for iEcho = nEcho:-1:1
@@ -230,22 +243,23 @@ function FitResults = fit(obj,data)
   
   % SHARP BG removal
   if FitOpt.sharp_Flag
-
-    padSize = FitOpt.padSize;
-
-    freqEstimatePpmPad = padVolumeForSharp(freqEstimatePpm, padSize);
-    maskPad      = padVolumeForSharp(data.Mask, padSize);
-
-
     disp('Started   : SHARP background removal ...');
-    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(freqEstimatePpmPad, maskPad, FitOpt.sharpMode);
+    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(freqEstimatePpm, maskPad, FitOpt.sharpMode);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
     clear('freqEstimatePadPpm','maskPad')
     data.Mask = []; % Release
   else
-    padSize    = [0 0 0];
+      % DEV Note:
+      % I assumed that even w/o SHARP, magn weight is possible by passing
+      % brainmask and padding size as 0 0 0.
+      
+      % If there is sharp, phaseLUnwrap is the SHARP masked one
+      % If there is not sharp phaseLUnwrap is just laplacian unwrapped phase.
+      phaseLUnwrap = freqEstimatePpm;
+      maskGlobal = data.Mask;
+      data.Mask = [];
   end % SHARP BG removal
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
