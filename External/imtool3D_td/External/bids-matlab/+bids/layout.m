@@ -160,7 +160,11 @@ if exist(pth,'dir')
         
         %-Anatomy imaging data file
         %------------------------------------------------------------------
-        p = parse_filename(f{i}, {'sub','ses','acq','ce','rec','fa','echo','inv','run'});
+        ent = {'sub','ses','acq','ce','rec',...
+               'fa','echo','inv','run', ...
+               'part','defacemask','mod'};       
+        
+        p = parse_filename(f{i}, ent);
         subject.anat = [subject.anat p];
         
     end

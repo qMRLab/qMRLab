@@ -4,7 +4,7 @@ classdef mp2rage < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   MP2RAGE         MP2RAGE UNI image. 
+%   MP2RAGE         MP2RAGE UNI image.
 %   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional)
 %   (Mask)          Binary mask to a desired region (optional).
 %
@@ -15,12 +15,18 @@ classdef mp2rage < AbstractModel
 %                   Corrected for B1+ bias IF the B1map is provided.
 %   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided. 
 
+% TODO:
+%   (INV1mag)       
+%   (INV1phase)     
+%   (INV2mag)       
+%   (INV2phase)      
+
 properties (Hidden=true)
  onlineData_url = 'https://osf.io/8x2c9/download?version=2';
 end
 
     properties
-        MRIinputs = {'MP2RAGE','B1map' 'Mask'};
+        MRIinputs = {'MP2RAGE','INV1mag','INV1phase','INV1mag','INV1phase','B1map' 'Mask'};
         xnames = {'T1','R1'};
         voxelwise = 0;
         
@@ -66,16 +72,11 @@ end
             obj.options = button2opts(obj.buttons);
         end
 
-        function Smodel = equation(obj,x)
-            % Generates a VFA signal based on input parameters
-            x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
+       function  obj = CalcUNI(obj,data)
 
-            % Equation: S=M0sin(a)*(1-E)/(1-E)cos(a); E=exp(-TR/T1)
-            flipAngles = (obj.Prot.VFAData.Mat(:,1))';
-            TR = obj.Prot.VFAData.Mat(1,2);
-            E = exp(-TR/x.T1);
-            Smodel = x.M0*sin(flipAngles/180*pi)*(1-E)./(1-E*cos(flipAngles/180*pi));
-        end
+        % IMPLEMENT HERE
+
+       end
 
        function FitResult = fit(obj,data)
 

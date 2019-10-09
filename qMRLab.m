@@ -267,6 +267,21 @@ for i=1:length(FileBrowserList)
 end
 FileBrowserList(MethodNum).Visible('on');
 
+
+%{
+% TODO: Method specific panel scaling 
+% Will read a JSON file 
+
+if strcmp(Method,'mp2rage')
+   
+    tmp_pos = get(handles.FitDataFileBrowserPanel,'Position');
+    tmp_pos(4) = tmp_pos(4)*0.80;
+
+else
+    set(handles.FitDataFileBrowserPanel,'Position',[0.0117 0.7391 0.9749 0.2493]);
+end
+%}
+
 % enable/disable viewdatafit
 if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
