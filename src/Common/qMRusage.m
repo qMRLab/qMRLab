@@ -71,6 +71,8 @@ for im=1:length(mstr)
                 mess = {mess{:},...
                  '      %% SPECIFY PROTOCOL'};
             for ff=fieldnames(Model.Prot)
+                if isempty(ff), continue; end
+                if ~iscell(Model.Prot.(ff{1}).Format), Model.Prot.(ff{1}).Format = {Model.Prot.(ff{1}).Format}; end
                 Fmt = sprintf('%s, ',Model.Prot.(ff{1}).Format{:});
                 mess = {mess{:},...
                 ['      % Model.Prot.' ff{1} ' = [' Fmt(1:end-2) ']; % Nx' num2str(length(Model.Prot.(ff{1}).Format)) ' matrix']};
