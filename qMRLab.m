@@ -265,22 +265,23 @@ MethodNum = find(strcmp({FileBrowserList.MethodID},Method));
 for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
+
 FileBrowserList(MethodNum).Visible('on');
 
+scl_str = json2struct('ScalePanels.json');
 
-%{
-% TODO: Method specific panel scaling 
-% Will read a JSON file 
+for ii = 1:length(scl_str)
 
-if strcmp(Method,'mp2rage')
-   
-    tmp_pos = get(handles.FitDataFileBrowserPanel,'Position');
-    tmp_pos(4) = tmp_pos(4)*0.80;
+    if strcmp(Method,scl_str(ii).ModelName)
+        
+        attachScrollPanelTo(handles.(scl_str(ii).PanelName));
+        set(handles.(scl_str(ii).PanelName),'Position',scl_str(ii).Position);
 
-else
-    set(handles.FitDataFileBrowserPanel,'Position',[0.0117 0.7391 0.9749 0.2493]);
+    else
+        set(handles.FitDataFileBrowserPanel,'Position',[0.0117 0.7391 0.9749 0.2493]);
+    end
+
 end
-%}
 
 % enable/disable viewdatafit
 if ismethod(Model,'plotModel')

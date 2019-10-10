@@ -4,22 +4,20 @@ classdef mp2rage < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   MP2RAGE         MP2RAGE UNI image.
+%   (MP2RAGE)         MP2RAGE UNI image.
 %   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional)
 %   (Mask)          Binary mask to a desired region (optional).
-%
+%   (INV1mag)       
+%   (INV1phase)     
+%   (INV2mag)       
+%   (INV2phase)
 % Outputs:
 %   T1              Longitudinal relaxation time [s].
 %                   Corrected for B1+ bias IF the B1map is provided.
 %   R1              Longitudinal relaxation rate [1/s]
 %                   Corrected for B1+ bias IF the B1map is provided.
-%   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided. 
-
-% TODO:
-%   (INV1mag)       
-%   (INV1phase)     
-%   (INV2mag)       
-%   (INV2phase)      
+%   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided.  
+  
 
 properties (Hidden=true)
  onlineData_url = 'https://osf.io/8x2c9/download?version=2';
