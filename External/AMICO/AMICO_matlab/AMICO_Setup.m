@@ -11,3 +11,6 @@ global AMICO_code_path AMICO_data_path
 % ==========================================
 AMICO_code_path = fileparts(mfilename('fullpath'));
 AMICO_data_path = fullfile(AMICO_code_path,'exports');
+if(~exist(AMICO_data_path,'dir'))
+    mkdir(AMICO_data_path);
+end
