@@ -6,6 +6,12 @@ function FitResultsSave_mat(FitResults,folder)
 % Example:
 %   FitResultsSave_nii(FitResults,'merged_crop_eddy_moco.nii')
 if ~exist('folder','var'), folder = 'FitResults'; end
+
+if length(strfind(folder,filesep)) <= 1 && length(strfind(folder,['.' filesep]))~=1
+    folder = [pwd filesep folder];
+    mkdir(folder);
+end
+
 if ~exist(folder,'dir')
     mkdir(folder)
 end
