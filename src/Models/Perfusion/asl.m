@@ -27,8 +27,8 @@ classdef asl < AbstractModel
 % Options:
 %   Type                       ASL labeling approach (e.g. Pseudo-continuous pcASL)
 %   lambda                     Blood partial volume [mL/g]
-%   alpha                      Label efficiency
-%   T1_blood                   T1 relaxation of blood [ms]
+%   alpha                      Label efficiency (value depends on the type of labeling)
+%   T1_blood                   T1 relaxation of blood [ms]. 1.5T: 1350ms, 3T: 1650ms
 %
 % Example of command line usage:
 %   For more examples: <a href="matlab: qMRusage(CustomExample);">qMRusage(CustomExample)</a>
@@ -69,6 +69,15 @@ classdef asl < AbstractModel
             obj.options = button2opts(obj.buttons); % converts buttons values to option structure
         end
         
+        function obj = UpdateFields(obj)
+            switch obj.options.Type
+                case 'pulsed labeling (PASL)'
+                    obj.options.alpha = 0.98;
+                case 'pseudo-continuous labeling (pcASL)'
+                    obj.options.alpha = 0.85;
+            end
+        end
+        
         function obj = PrecomputeData(obj, data)
         end
         
@@ -80,7 +89,7 @@ classdef asl < AbstractModel
             switch obj.options.Type
                 case 'pseudo-continuous labeling (pcASL)'
                     ASL_norm = mean(data.ASL(:,:,:,3:2:end)-data.ASL(:,:,:,4:2:end),4)./mean(data.ASL(:,:,:,1:2),4);
-                    FitResults.CBF = 6000*obj.options.lambda*ASL_norm*exp(PLD/obj.options.T1_blood)/(2*obj.options.alpha*obj.options.T1_blood*(1-exp(-tau/obj.options.T1_blood)));
+                    FitResults.CBF = 6000*obj.options.lambda*ASL_norm*exp(PLD/obj.options.T1_blood)/(2*obj.options.alpha*obj.options.T1_blood*1e-3*(1-exp(-tau/obj.options.T1_blood)));
             end
         end
 
