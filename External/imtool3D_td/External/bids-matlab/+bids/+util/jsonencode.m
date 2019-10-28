@@ -54,6 +54,11 @@ elseif exist('jsonencode','builtin') == 5                % MATLAB >= R2016b
         fclose(fid);
     end
     varargout = { txt };
+
+elseif exist('savejson','file') == 2   
+    disp('this');                 % JSONlab
+    [varargout{1:nargout}] = savejson(varargin{:});
+
 else
     error('JSON library required: install JSONio from https://github.com/gllmflndn/JSONio');
 end
