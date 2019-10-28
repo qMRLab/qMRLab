@@ -178,6 +178,11 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
     end
 end
 
+ % Add TooltipString
+    try
+        modelheader=iqmr_header.header_parse(which(Model.ModelName));
+    end
+    
 % MODEL PROPERTY ADAPTIVE DYNAMIC SUBPANELS
 % ======================================================================
 
@@ -240,7 +245,12 @@ if ~isempty(Model.buttons)
     if isprop(Model,'tips')
         handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel, Model.tips);
     else
-        handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel, []);
+        tips = [];
+        try
+            tips = modelheader.option';
+            tips(cellfun(@isempty,tips)) = {''};
+        end
+        handles.OptionsPanel_handle = GenerateButtonsWithPanels(Model.buttons,handles.OptionsPanel, tips);
 
     end
 
@@ -287,7 +297,10 @@ if ~isempty(Model.Prot)
 
         % Create TABLE
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
-
+        try
+            modelheader.protocol(cellfun(@isempty,modelheader.protocol)) = {''};
+            set(handles.(fields{ii}).table,'TooltipString',strjoin(modelheader.protocol','\n'))
+        end
         % add Callbacks
 
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));

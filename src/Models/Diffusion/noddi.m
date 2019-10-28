@@ -49,7 +49,7 @@ classdef noddi < AbstractModel
 %     TE (s)            Echo time
 %
 % Options:
-%   Model               Model part of NODDI. 
+%   model name           Model part of NODDI. 
 %                         Available models are:
 %                           -WatsonSHStickTortIsoVIsoDot_B0 is a four model compartment used for ex-vivo datasets
 %
