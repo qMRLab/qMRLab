@@ -6,7 +6,10 @@ function FitResultsSave_mat(FitResults,folder)
 % Example:
 %   FitResultsSave_nii(FitResults,'merged_crop_eddy_moco.nii')
 if ~exist('folder','var'), folder = 'FitResults'; end
-mkdir(folder)
+if ~exist(folder,'dir')
+    mkdir(folder)
+end
+
 for i = 1:length(FitResults.fields)
     map = FitResults.fields{i};
     file = strcat(map,'.mat');
