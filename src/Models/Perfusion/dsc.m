@@ -1,5 +1,5 @@
-classdef DCE < AbstractModel
-% DCE :  Dynamic Contrast Enhanced
+classdef dsc < AbstractModel
+% dsc :  Dynamic Susceptibility Contrast (T2* weigthed dynamic contrast enhanced)
 %<a href="matlab: figure, imshow CustomExample.png ;">Pulse Sequence Diagram</a>
 %
 % Assumptions:
