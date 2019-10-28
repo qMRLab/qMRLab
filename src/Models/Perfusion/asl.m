@@ -25,7 +25,7 @@ classdef asl < AbstractModel
 %     tau                      Label duration [ms]
 %                               Recommendation: 1800 ms
 % Options:
-%                              pseudo-continuous 
+%   Type                       ASL labeling approach (e.g. Pseudo-continuous pcASL)
 %   lambda                     Blood partial volume [mL/g]
 %   alpha                      Label efficiency
 %   T1_blood                   T1 relaxation of blood [ms]
@@ -54,7 +54,7 @@ classdef asl < AbstractModel
                         'Mat', [1800; 1800])); % provide a default protocol (Nx2 matrix)
         
         % Model options
-        buttons = {'Type',{'continuous labeling (cASL)'},... % todo: add types 'pulsed labeling' ans 'velocity selective labeling'
+        buttons = {'Type',{'pseudo-continuous labeling (pcASL)'},... % todo: add types 'pulsed labeling' ans 'velocity selective labeling'
                    'lambda', 0.9,...
                    'alpha', 0.85,...
                    'T1_blood', 1350};
@@ -74,122 +74,17 @@ classdef asl < AbstractModel
         
         function FitResults = fit(obj,data)
             %  Inverse problem. Extract CBF.
-            
-            switch obj.options.type
-                case 'continuous labeling'
-                    ASL_norm = mean(data.ASL(:,:,:,3:2:end)-data.ASL(:,:,:,4:2:end),4)./mean(data.ASL(:,:,:,1:2),4);
-                    FitResults.CBF = 6000*lambda*ASL_norm*exp(2000/1350)/(2*0.85*1.650*(1-exp(-1800/1350)));
-            end
-        end
-        
-        
-        function plotModel(obj, FitResults, data)
-            %  Plot the Model and Data.
-            if nargin<2, qMRusage(obj,'plotModel'), FitResults=obj.st; end
-            
-            %Get fitted Model signal
-            R2star = equation(obj, FitResults);
-            
-            %Get the varying acquisition parameter
-            TR = obj.Prot.PWI.Mat(1);
-            Nvol = obj.Prot.PWI.Mat(3);
-            time = 0:TR:TR*(Nvol-1);
-            time = time';
-            
-            % Plot Fitted Model
-            plot(time,R2star,'b-')
-            
-            % Plot Data
-            if exist('data','var')
-                TE = obj.Prot.PWI.Mat(2);
-                % norm
-                [PWInorm, T0] = pwiNorm(data.PWI);
-                R2star = pwi2R2star(PWInorm,TE);
-                time = 0:TR:TR*(length(R2star)-1);
-                hold on
-                plot(time,R2star,'r+')
-                plot([time(T0) time(T0)],[0 max(R2star)],'k--')
-                hold off
-            end
-            ylabel('R2* (s^{-1})')
-            xlabel('time (s)')
-            legend({'Model','Data'})
-        end
-        
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
-            % Compute Smodel
-            R2star = equation(obj, x);
-            TE = obj.Prot.PWI.Mat(2);
-            Smodel = exp(-TE*R2star);
-            % add rician noise
-            sigma = max(Smodel)/Opt.SNR;
-            data.PWI = random('rician',Smodel,sigma);
-            % fit the noisy synthetic data
-            FitResults = fit(obj,data);
-            % plot
-            if ~exist('display','var') || display
-                plotModel(obj, FitResults, data);
-            end
-        end
+            PLD = obj.Prot.LabelTiming.Mat(1);
+            tau = obj.Prot.LabelTiming.Mat(2);
 
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
-            % SimVaryGUI
-            SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
-        end
-        
-        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
-            % SimRndGUI
-            SimRndResults = SimRnd(obj, RndParam, Opt);
+            switch obj.options.Type
+                case 'pseudo-continuous labeling (pcASL)'
+                    ASL_norm = mean(data.ASL(:,:,:,3:2:end)-data.ASL(:,:,:,4:2:end),4)./mean(data.ASL(:,:,:,1:2),4);
+                    FitResults.CBF = 6000*obj.options.lambda*ASL_norm*exp(PLD/obj.options.T1_blood)/(2*obj.options.alpha*obj.options.T1_blood*(1-exp(-tau/obj.options.T1_blood)));
+            end
         end
 
     end
 end
 
-function [PWInorm, T0] = pwiNorm(PWI)
-[T0,T0_mask] = BAT(PWI);
-BL = sum(PWI .* T0_mask)./sum((PWI .* T0_mask) ~= 0);
-PWInorm = PWI/BL;
-end
 
-function R2star = pwi2R2star(Snorm,TE)
-R2star = -1/TE*log(max(Snorm,eps));
-end
-
-function [T0,T0_mask] = BAT(PWI)
-% function T0 = BAT(VOX,curve_type)
-% Compute Bolus Arrival Time
-%
-% INPUT :
-%
-% OUTPUTS :
-%
-% 13/03/2013 (Thomas Perret : <thomas.perret@grenoble-inp.fr>)
-% Last modified : 15/03/2013 (TP)
-
-% Parameters of algorithm
-window_size = 4;
-th = 2.0;
-
-Nvol = length(PWI);
-T0_mask = false(Nvol,1);
-moy = zeros(Nvol-window_size,1);
-ect = zeros(Nvol-window_size,1);
-for t = 1:Nvol-window_size
-    moy(t) = mean(PWI(t:t+window_size));
-    ect(t) = std(PWI(t:t+window_size));
-end
-ect = sort(ect); ect = median(ect(1:4));
-Tlog = PWI(window_size+1:Nvol) < (moy - th.*ect);
-[~,T0] = max(Tlog);
-T0 = T0 + window_size - 1;
-[~,TTP] = min(PWI);
-
-
-if T0 < TTP && T0 > window_size
-    T0_mask(2:T0-2) = true;
-else
-    T0_mask(2:window_size-2) = true;
-end
-
-    
-end
