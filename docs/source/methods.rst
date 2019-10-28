@@ -81,6 +81,11 @@ Diffusion
 .. toctree::
 	:maxdepth: 1
 
+	amico_batch
+
+.. toctree::
+	:maxdepth: 1
+
 	charmed_batch
 
 QSM
