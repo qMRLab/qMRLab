@@ -67,3 +67,4 @@ tmp/
 reports/
 *coverage*
 docs/source/.doctrees
+External/AMICO/AMICO_matlab/exports/
