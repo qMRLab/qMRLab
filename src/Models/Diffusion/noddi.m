@@ -2,7 +2,7 @@ classdef noddi < AbstractModel
 % noddi:   Neurite Orientation Dispersion and Density Imaging
 %          Three-compartment model for fitting multi-shell DWI
 %<a href="matlab: figure, imshow Diffusion.png ;">Pulse Sequence Diagram</a>
-%           
+%
 % ASSUMPTIONS:
 %   Neuronal fibers model:
 %     geometry                          sticks (Dperp = 0)
@@ -14,7 +14,7 @@ classdef noddi < AbstractModel
 %     intra-axonal                      totally restricted
 %       diffusion coefficient (Dr)      fixed by default.
 %     extra-axonal                      Tortuosity model. Parallel diffusivity is equal to
-%                                         intra-diffusivity.Perpendicular diffusivity is 
+%                                         intra-diffusivity.Perpendicular diffusivity is
 %                                         proportional to fiber density
 %       diffusion coefficient (Dh)      Constant
 %
@@ -29,7 +29,7 @@ classdef noddi < AbstractModel
 %   fr                  Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
 %                        fr = ficvf*(1-fiso)
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
-%   kappa               Orientation dispersion index                               
+%   kappa               Orientation dispersion index
 %   b0                  Signal at b=0
 %   theta               angle of the fibers
 %   phi                 angle of the fibers
@@ -65,40 +65,44 @@ classdef noddi < AbstractModel
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/4s6rf/download/';
+    onlineData_url = 'https://osf.io/4s6rf/download?version=4';
 end
 
     properties
         MRIinputs = {'DiffusionData','Mask'};
         xnames = { };
         voxelwise = 1;
-        
+
         % fitting options
         st           = [ ]; % starting point
         lb           = [ ]; % lower bound
         ub           = [ ]; % upper bound
         fx           = [ ]; % fix parameters
-        
+
         % Protocol
         Prot = struct('DiffusionData',struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
                             'Mat', txt2mat('NODDIProtocol.txt','InfoLevel',0))); % You can define a default protocol here.
-        
+
         % Model options
         buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};
+
+        tabletip = struct('table_name',{'DiffusionData'},'tip', ...
+        {sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
+        'delta (s): Diffusion duration\nTE (s): Echo time.\nPlease visit our documentation for the computation of Delta and delta.\nRelevant issue #299 on GitHub (qMRLab / qMRLab).'])});
         options= struct();
-        
+
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
-    
+
     methods
         function obj = noddi
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
-        
+
         function obj = UpdateFields(obj)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end;
             model      = MakeModel(obj.options.modelname);
@@ -109,22 +113,22 @@ end
             else
                 ModelChanged=false;
             end
-            
+
             obj.xnames = model.paramsStr;
             grid       = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
             scale      = GetScalingFactors(obj.options.modelname);
-            
+
             obj.lb     = min(grid,[],2)'.*scale(Pindex);
             obj.ub     = max(grid,[],2)'.*scale(Pindex);
-            
+
             % for simulation:
-            obj.lb(strcmp(obj.xnames,'b0'))=0; 
-            obj.lb(strcmp(obj.xnames,'theta'))=0; 
+            obj.lb(strcmp(obj.xnames,'b0'))=0;
+            obj.lb(strcmp(obj.xnames,'theta'))=0;
             obj.lb(strcmp(obj.xnames,'phi'))=0;
-            obj.ub(strcmp(obj.xnames,'b0'))=1e3; 
-            obj.ub(strcmp(obj.xnames,'theta'))=pi; 
+            obj.ub(strcmp(obj.xnames,'b0'))=1e3;
+            obj.ub(strcmp(obj.xnames,'theta'))=pi;
             obj.ub(strcmp(obj.xnames,'phi'))=pi;
-            
+
             if ModelChanged % user can modify this
                 obj.fx     = model.GD.fixed;
                 obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
@@ -133,19 +137,19 @@ end
                 obj.st(strcmp(obj.xnames,'phi'))=0;
                 obj.st(ismember(model.paramsStr,{'ficvf'})) = .5;
             end
-            
+
             obj.st     = max(obj.st,obj.lb);
             obj.st     = min(obj.st,obj.ub);
 
         end
-        
+
         function [Smodel, fibredir] = equation(obj, x)
             x = struct2mat(x,obj.xnames); % if x is a structure, convert to vector
-            
+
             model = MakeModel(obj.options.modelname);
             if length(x)<length(model.GD.fixedvals)-2, x(end+1) = 1; end % b0
             if length(x)<length(model.GD.fixedvals)-1, x(end+1) = 0; x(end+1)=0; end % phi and theta
-            
+
             scale = GetScalingFactors(obj.options.modelname);
             if (strcmp(obj.options.modelname, 'ExCrossingCylSingleRadGPD') ||...
                 strcmp(obj.options.modelname, 'ExCrossingCylSingleRadIsoDotTortIsoV_GPD_B0'))
@@ -160,11 +164,11 @@ end
                 fibredir = [cos(phi)*sin(theta) sin(phi)*sin(theta) cos(theta)]';
             end
             constants.roots_cyl = BesselJ_RootsCyl(30);
-            
+
             Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocolmat(obj.Prot.DiffusionData.Mat), fibredir, constants);
-            
+
         end
-        
+
         function FitResults = fit(obj,data)
             if exist('MakeModel.m','file') ~= 2, errordlg('Please add the NODDI Toolbox to your Matlab Path: http://www.nitrc.org/projects/noddi_toolbox','NODDI is not installed properly'); return; end
             % load model
@@ -177,14 +181,14 @@ end
             scale(Pindex) = scaletmp(1:end-1);
             model.GS.fixedvals = obj.st./scale;
             model.GD.fixedvals = obj.st./scale;
-            
+
             protocol = SchemeToProtocolmat(obj.Prot.DiffusionData.Mat);
-            
+
             if moxunit_util_platform_is_octave
                 model.noOfStages=1;
                 warning('fmincon not implemented on OCTAVE. Skip Gradient descent (only Grid search will be performed).')
             end
-            
+
             % fit
             [gsps, fobj_gs, mlps, fobj_ml, error_code] = ThreeStageFittingVoxel(max(eps,double(data.DiffusionData)), protocol, model);
             if moxunit_util_platform_is_octave
@@ -204,12 +208,12 @@ end
             xopt(end+1)   = fobj_ml;
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),xnames,1);
         end
-        
+
         function plotModel(obj, x, data)
             if nargin<2, x=obj.st; end
             [Smodel, fibredir] = obj.equation(x);
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
-                        
+
             % plot
             if exist('data','var')
                 h = scd_display_qspacedata3D(data.DiffusionData,Prot,fibredir);
@@ -223,14 +227,14 @@ end
                     end
                 end
             end
-            
+
             % plot fitting curves
             scd_display_qspacedata3D(Smodel,Prot,fibredir,'none','-');
-           
+
             hold off
-            
+
         end
-        
+
         function plotProt(obj)
             % round bvalue
             Prot      = obj.Prot.DiffusionData.Mat;
@@ -264,20 +268,20 @@ end
                 plotModel(obj, FitResults, data);
             end
         end
-        
+
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
-            
+
         end
-        
+
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
 
     end
-    
+
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);

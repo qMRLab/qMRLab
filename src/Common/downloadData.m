@@ -4,6 +4,7 @@ h = msgbox('Please select a destination to create example folder.','qMRLab');
 waitfor(h);
 path = uigetdir(); % Save batch example to this dir
 end
+if ~path, dataPath = []; return; end
 cd(path);
 path = '.'; % use relative path
 

@@ -23,39 +23,39 @@ classdef noise_level < AbstractModel
 %     FILL
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-    
+
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/ve3xy/download/';
+    onlineData_url = 'https://osf.io/ve3xy/download?version=4';
 end
 
     properties
         MRIinputs = {'Data4D','NoiseMask'};
         xnames = {};
         voxelwise = 0;
-        
+
         % Protocol
         Prot  = struct(); % You can define a default protocol here.
-        
+
         % Model options
         buttons = {'figure',true,'Noise Distribution',{'Rician','Non-central Chi'}};
         options= struct(); % structure filled by the buttons. Leave empty in the code
-        
+
     end
-    
+
 methods (Hidden=true)
-% Hidden methods goes here.    
+% Hidden methods goes here.
 end
 
     methods
-        
+
         function obj = noise_level
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
         end
-        
+
         function obj = UpdateFields(obj)
         end
-        
+
         function FitResults = fit(obj,data)
             if any(strcmp('NoiseMask',fieldnames(data)))
                 dat = reshape2D(data.Data4D,4)';
@@ -63,7 +63,7 @@ end
             else
                 dat = data.Data4D;
             end
-            
+
             [N, eta, sigma_g] = scd_noise_fit_histo(dat,'fig',double(obj.options.figure),'distrib',obj.options.NoiseDistribution);
             init=ones(size(data.Data4D,1),size(data.Data4D,2),size(data.Data4D,3));
             FitResults.sigma_g = sigma_g*init;
@@ -72,6 +72,6 @@ end
                 FitResults.N = N*init;
             end
         end
-        
+
     end
 end
