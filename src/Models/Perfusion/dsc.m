@@ -57,7 +57,7 @@ classdef dsc < AbstractModel
     end
     
     methods
-        function obj = DCE
+        function obj = dsc
             obj.options = button2opts(obj.buttons); % converts buttons values to option structure
         end
         
