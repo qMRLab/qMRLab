@@ -55,8 +55,7 @@ elseif exist('jsonencode','builtin') == 5                % MATLAB >= R2016b
     end
     varargout = { txt };
 
-elseif exist('savejson','file') == 2   
-    disp('this');                 % JSONlab
+elseif exist('savejson','file') == 2                 % JSONlab
     [varargout{1:nargout}] = savejson(varargin{:});
 
 else
