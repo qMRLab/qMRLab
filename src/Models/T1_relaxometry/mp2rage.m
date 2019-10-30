@@ -144,7 +144,7 @@ methods
             % If both NumberShots are equal, then assume half/half for before/after
         if NumberShots(1) == NumberShots(2)
     
-            MP2RAGE.NZslices = [NumberShots(1)/2 NumberShots(1)/2]; 
+            MP2RAGE.NZslices = [ceil(NumberShots(1)/2) floor(NumberShots(1)/2)]; 
     
         end 
         
@@ -157,9 +157,8 @@ methods
        if availabledata.allbutUNI
         % If phase data is present, normalize it in 0-2pi range 
 
-        % Normalize phases between 0 and 2 pi
-        data.INV1phase = ((data.INV1phase(:) - max(data.INV1phase(:)))./-1.*peak2peak(data.INV1phase(:))).*2.*pi;
-        data.INV2phase = ((data.INV2phase(:) - max(data.INV2phase(:)))./-1.*peak2peak(data.INV2phase(:))).*2.*pi;
+        data.INV1phase = ((data.INV1phase - min(data.INV1phase(:)))./(max(data.INV1phase(:)-min(data.INV1phase(:))))).*2.*pi;
+        data.INV2phase = ((data.INV2phase - min(data.INV2phase(:)))./(max(data.INV2phase(:)-min(data.INV2phase(:))))).*2.*pi;
        
        end 
        
@@ -170,12 +169,13 @@ methods
 
             
         elseif availabledata.allbutUNI
+            
 
-            INV1 = data.INV1mag.*exp(data/INV1phase * 1j);
-            INV2 = data.INV2mag.*exp(data/INV2phase * 1j);
+            INV1 = data.INV1mag.*exp(data.INV1phase * 1j);
+            INV2 = data.INV2mag.*exp(data.INV2phase * 1j);
     
             % Combination
-            img = (real(conj(INV1)*INV2/(INV1.^2 + INV2.^2)))*4095 + 2048; 
+            img = (real(INV1.*INV2./(INV1.^2 + INV2.^2)))*4095 + 2048; 
             img(img<0) = 0;
             img(img>4095) = 4095;
             FitResult.MP2RAGE = img;
