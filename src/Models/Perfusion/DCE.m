@@ -63,7 +63,16 @@ classdef DCE < AbstractModel
         
         function obj = PrecomputeData(obj, data)
             % compute AIF
-            [obj.AIF, score] = extraction_aif_volume(data.PWI,data.Mask);
+            switch obj.options.ArterialInputFunction
+                case 'Deconvolution'
+                    if isempty(data.Mask)
+                        data.Mask = true(size(data.PWI));
+                    end
+                    [obj.AIF, score] = extraction_aif_volume(data.PWI,any(data.Mask,4));
+                    if sum(cell2mat(score(:,5))) > 10
+                        error('No computation because the AIF is not good enough');
+                    end
+            end
         end
         
         function R2star = equation(obj, x)
@@ -88,11 +97,7 @@ classdef DCE < AbstractModel
             %  data is a structure. FieldNames are based on property
             %  MRIinputs. 
             
-%             if obj.options.SMS
-%                 % buttons values can be access with obj.options
-%             end
-            
-            % set the right value for 
+            % set the right value for number of volumes
             obj.Prot.PWI.Mat(3) = length(data.PWI);
             % param
             TE = obj.Prot.PWI.Mat(2);
@@ -104,22 +109,57 @@ classdef DCE < AbstractModel
             % data
             PWI = double(data.PWI);
             % normalization
-            PWInorm = pwiNorm(PWI);
-            R2star = pwi2R2star(PWInorm,TE);
+            AIFnorm = pwiNorm(PWI);
+            R2star = pwi2R2star(AIFnorm,TE);
             R2star = max(.1,R2star);
             Smax = max(R2star);
             R2star = R2star./Smax;
             % remove 0.7*T2star(tpic)
             R2star(find(diff(R2star<0.4*max(R2star)),1,'last')+4:Nvol) = 0;
-            opt = optimoptions('lsqcurvefit','Display','off');
-            [xopt, resnorm] = lsqcurvefit(@(x,xdata) obj.equation(addfix(obj.st,x,obj.fx)),...
-                     obj.st(~obj.fx), [], R2star, obj.lb(~obj.fx), obj.ub(~obj.fx),opt);
-%                  
-            %  convert fitted vector xopt to a structure.
-            FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
-            FitResults.gamma_K = FitResults.gamma_K*Smax;
-            FitResults.resnorm=resnorm;
-            FitResults.CBV = trapz(time,equation(obj, FitResults));
+            if obj.options.GammaFit
+                % Fit with Gamma function
+                opt = optimoptions('lsqcurvefit','Display','off');
+                [xopt, resnorm] = lsqcurvefit(@(x,xdata) obj.equation(addfix(obj.st,x,obj.fx)),...
+                    obj.st(~obj.fx), [], R2star, obj.lb(~obj.fx), obj.ub(~obj.fx),opt);
+                %  convert fitted vector xopt to a structure.
+                FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),obj.xnames,1);
+                FitResults.gamma_K = FitResults.gamma_K*Smax;
+                FitResults.resnorm=resnorm;
+                % Recompute the theoretical R2star
+                R2star = equation(obj, FitResults);
+            end
+            % Cerebral Blood Volume
+            FitResults.CBV = trapz(time,R2star);
+            % Time to Peak
+            [~,TTP] = max(R2star);
+            FitResults.TTP = TTP.*TR;
+
+            % Deconvolution
+            switch obj.options.ArterialInputFunction
+                case 'Deconvolution'
+                    % compute R2star variation (Gado concentration) in the artery 
+                    AIFnorm = pwiNorm(obj.AIF);
+                    R2starAIF = pwi2R2star(AIFnorm,TE);
+                    
+                    % Deconv CBV
+                    FitResults.CBV = 100*FitResults.CBV/trapz(time,R2starAIF);
+                    
+                    % Deconv R2star
+                    %%% Compute SVD for Ca
+                    Ca = toeplitz(R2starAIF,[R2starAIF(1) R2starAIF(end:-1:2)]);
+                    [U,S,V] = svd(Ca);
+                    R2star = devonvolution_osvd(U,S,V,R2star);
+
+            end
+            
+            [RMAX,TMAX] = max(R2star);
+            TMAX = (TMAX-(1/2)).*TR;
+            MTT = trapz(time,R2star)./RMAX;
+            CBF = 60.*CBV./MTT;
+            
+            FitResults.TMAX = TMAX;
+            FitResults.MTT = MTT;
+            FitResults.CBF = CBF;
         end
         
         
@@ -151,7 +191,7 @@ classdef DCE < AbstractModel
                 plot([time(T0) time(T0)],[0 max(R2star)],'k--')
                 hold off
             end
-            ylabel('R2* (s^{-1})')
+            ylabel('\DeltaR2* (s^{-1})')
             xlabel('time (s)')
             legend({'Model','Data'})
         end
@@ -233,3 +273,79 @@ end
 
     
 end
+
+function R = devonvolution_osvd(U,S,V,Cvox)
+% function R = devonvolution_osvd(U,S,V,CVOXpad,OIth,mask_computation)
+% Devonvolution
+%
+% INPUTS :
+% U,S,V : matrices from SVD of Ca matrix
+% Cvox : zero-padded concentration voxels (total volume, 4D)
+%
+% OUTPUT :
+% R : Residu function from deconvolution
+%
+% 13/03/2013 (Thomas Perret : <thomas.perret@grenoble-inp.fr>)
+% Last modified : 15/03/2013 (TP)
+
+%%% Deconvolution Parameters
+zero_pad_fact = 2; % MUST be an integer !
+OIth = 0.1; % OIth : oscillation threshold
+
+% init
+Nvol = length(Cvox);
+Nvolpad = Nvol * zero_pad_fact;
+Cvox = cat(2,Cvox,zeros(1,Nvol*(zero_pad_fact-1))); % pad
+R = zeros(1,Nvol);
+Sv=diag(S);
+        th_prev = Nvolpad;
+        th = 0;
+        OI = Inf;
+        first = true;
+        % deconv
+        while (OI > OIth || (abs(th_prev - th) > 1)) && th < Nvolpad
+            
+            %%% Calcul de l'inverse de S et filtrage %%%
+            Sinv = diag([1./Sv(1:Nvolpad-th);zeros(th,1)]);
+            
+            %%% Inverse de Ca %%%
+            Cainv = V*Sinv*(U');
+            
+            %%% Calcul du residu %%%
+            r = Cainv*Cvox;
+            
+            %%% Calcul de OI %%%
+            rOI = r(1:Nvolpad);
+            
+            f = abs(rOI(3:Nvolpad) - 2*rOI(2:Nvolpad-1) + rOI(1:Nvolpad-2));
+            sum_oi = sum(f);
+            
+            if max(rOI) ~= 0
+                OI = (1/Nvolpad) * (1/max(rOI)) * sum_oi;
+            else
+                OI = Inf;
+            end
+            
+            
+            if ~first
+                if OI > OIth
+                    th_next = th + round(abs((th - th_prev))/2);
+                else
+                    th_next = th - round(abs((th - th_prev))/2);
+                end
+            else
+                if OI > OIth
+                    th_next = th + round(abs((th - th_prev))/2);
+                else
+                    th_next = th;
+                end
+            end
+            
+            th_prev = th;
+            th = th_next;
+            
+            first = false;
+        end
+        R = r(1:Nvolpad);
+end
+
