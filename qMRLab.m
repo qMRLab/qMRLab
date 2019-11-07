@@ -772,6 +772,10 @@ end
 
 Model.sanityCheck(data);
 
+if ismethod(Model,'PrecomputeData')
+    Model = Model.PrecomputeData(data);
+end
+
 for ipix = 1:length(vox)    
     
     for ii=1:length(Model.MRIinputs)
