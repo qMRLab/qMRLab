@@ -29,7 +29,8 @@ classdef noddi < AbstractModel
 %   fr                  Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
 %                        fr = ficvf*(1-fiso)
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
-%   kappa               Orientation dispersion index
+%   ODI                 Orientation dispersion index
+%   kappa               1 ./ tan(ODI*pi/2);
 %   b0                  Signal at b=0
 %   theta               angle of the fibers
 %   phi                 angle of the fibers
@@ -116,10 +117,9 @@ end
 
             obj.xnames = model.paramsStr;
             grid       = GetSearchGrid(obj.options.modelname, model.tissuetype, false(1,sum(Pindex)), false(1,sum(Pindex)));
-            scale      = GetScalingFactors(obj.options.modelname);
 
-            obj.lb     = min(grid,[],2)'.*scale(Pindex);
-            obj.ub     = max(grid,[],2)'.*scale(Pindex);
+            obj.lb     = min(grid,[],2)';
+            obj.ub     = max(grid,[],2)';
 
             % for simulation:
             obj.lb(strcmp(obj.xnames,'b0'))=0;
@@ -131,7 +131,7 @@ end
 
             if ModelChanged % user can modify this
                 obj.fx     = model.GD.fixed;
-                obj.st     = model.GD.fixedvals(Pindex).*scale(Pindex);
+                obj.st     = model.GD.fixedvals(Pindex);
                 obj.st(strcmp(obj.xnames,'b0'))=1;
                 obj.st(strcmp(obj.xnames,'theta'))=.2; % at theta=0, phi can have any value, not good for testing
                 obj.st(strcmp(obj.xnames,'phi'))=0;
@@ -150,15 +150,14 @@ end
             if length(x)<length(model.GD.fixedvals)-2, x(end+1) = 1; end % b0
             if length(x)<length(model.GD.fixedvals)-1, x(end+1) = 0; x(end+1)=0; end % phi and theta
 
-            scale = GetScalingFactors(obj.options.modelname);
             if (strcmp(obj.options.modelname, 'ExCrossingCylSingleRadGPD') ||...
                 strcmp(obj.options.modelname, 'ExCrossingCylSingleRadIsoDotTortIsoV_GPD_B0'))
-                xsc      = x(1:(end-4))./scale(1:(end-1));
+                xsc      = x(1:(end-4));
                 theta    = [x(end-3) x(end-1)]';
                 phi      = [x(end-2) x(end)]';
                 fibredir = [cos(phi).*sin(theta) sin(phi).*sin(theta) cos(theta)]';
             else
-                xsc      = x(1:(end-2))./scale(1:(end-1));
+                xsc      = x(1:(end-2));
                 theta    = x(end-1);
                 phi      = x(end);
                 fibredir = [cos(phi)*sin(theta) sin(phi)*sin(theta) cos(theta)]';
@@ -175,12 +174,8 @@ end
             model = MakeModel(obj.options.modelname);
             model.GD.fixed = obj.fx; % gradient descent
             model.GS.fixed = obj.fx; % grid search
-            Pindex     =~ ismember(model.paramsStr,{'theta','phi'});
-            scale = ones(1,length(obj.xnames));
-            scaletmp = GetScalingFactors(obj.options.modelname);
-            scale(Pindex) = scaletmp(1:end-1);
-            model.GS.fixedvals = obj.st./scale;
-            model.GD.fixedvals = obj.st./scale;
+            model.GS.fixedvals = obj.st;
+            model.GD.fixedvals = obj.st;
 
             protocol = SchemeToProtocolmat(obj.Prot.DiffusionData.Mat);
 
@@ -196,6 +191,11 @@ end
             else
                 xopt = mlps;
             end
+            Pindex     =~ ismember(model.paramsStr,{'theta','phi'});
+            scale = ones(1,length(obj.xnames));
+            scaletmp = GetScalingFactors(obj.options.modelname);
+            scale(Pindex) = scaletmp(1:end-1);
+            xopt = xopt./scale;
             % Outputs
             xnames = model.paramsStr;
             if sum(strcmp(obj.xnames,'ficvf')) && sum(strcmp(obj.xnames,'fiso'))
@@ -203,7 +203,7 @@ end
                 xopt(end+1)   = xopt(strcmp(obj.xnames,'ficvf'))*(1-xopt(strcmp(obj.xnames,'fiso')));
             end
             xnames{end+1} = 'ODI';
-            xopt(end+1)   = atan2(1, xopt(strcmp(obj.xnames,'kappa'))*10)*2/pi;
+            xopt(end+1)   = atan2(1, xopt(strcmp(obj.xnames,'kappa'))/scale(strcmp(model.paramsStr,'kappa')))*2/pi;
             xnames{end+1} = 'ObjectiveFun';
             xopt(end+1)   = fobj_ml;
             FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),1)),xnames,1);

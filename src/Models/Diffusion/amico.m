@@ -30,7 +30,8 @@ classdef amico < noddi
 %                        fr = ficvf*(1-fiso)
 %   irfrac              Fraction of isotropically restricted compartment (Dot for ex vivo model)
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
-%   kappa               Orientation dispersion index
+%   ODI                 Orientation dispersion index
+%   kappa               1 ./ tan(ODI*pi/2);
 %   b0                  Signal at b=0
 %   theta               angle of the fibers
 %   phi                 angle of the fibers
@@ -189,7 +190,7 @@ end
             for io = 1:length(CONFIG.model.OUTPUT_names)
                 FitResults.(outputsName{io}) = vox_MAPs(io);
             end
-            FitResults.kappa = 1 ./ tan(FitResults.ODI*pi/2)/10;
+            FitResults.kappa = 1 ./ tan(FitResults.ODI*pi/2);
             FitResults.di = CONFIG.model.dPar * 1E3;
             FitResults.diso = CONFIG.model.dIso * 1E3;
             FitResults.b0 = b0;
