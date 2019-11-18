@@ -198,11 +198,12 @@ classdef dsc < AbstractModel
                 
                 % Plot Fitted Model
                 plot(time,R2star,'b-')
-                
+                hold on
                 leg = [leg {'Model'}];
             end
             
             plot([FitResults.TTP FitResults.TTP],[0 FitResults.R2starMAX],'g-')
+            hold on
             leg = [leg {'Time to Peak (TTP)'}];
             plot([FitResults.TTP-FitResults.MTT/2 FitResults.TTP+FitResults.MTT/2],[1/2 1/2]*FitResults.R2starMAX,'m-')
             leg = [leg {'Mean Transit Time (MTT)'}];
@@ -223,6 +224,7 @@ classdef dsc < AbstractModel
             ylabel('\DeltaR2* (s^{-1})')
             xlabel('time (s)')
             legend(leg)
+            hold off
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
