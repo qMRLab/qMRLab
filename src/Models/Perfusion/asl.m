@@ -7,7 +7,9 @@ classdef asl < AbstractModel
 % (2) 
 %
 % Inputs:
+%   M0                  Reference Image (PDw) without any labeling
 %   ASL                 Arterial Spin Labelling (ASL) 4D volume
+%                        with alternatively control/label pulses
 %   (Mask)              Binary mask to accelerate the fitting
 %
 % Outputs:
@@ -41,8 +43,14 @@ classdef asl < AbstractModel
 %   In addition to citing the package:
 %     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
+properties (Hidden=true)
+% Hidden proprties goes here.
+    onlineData_url = 'https://osf.io/x8cdw/download';
+    onlineData_filename = 'asl.zip';
+end
+
     properties
-        MRIinputs = {'ASL','Mask'}; % used in the data panel 
+        MRIinputs = {'M0','ASL','Mask'}; % used in the data panel 
         
         % fitting options
         xnames = {}; % name of the parameters to fit
@@ -88,7 +96,7 @@ classdef asl < AbstractModel
 
             switch obj.options.Type
                 case 'pseudo-continuous labeling (pcASL)'
-                    ASL_norm = mean(data.ASL(:,:,:,3:2:end)-data.ASL(:,:,:,4:2:end),4)./mean(data.ASL(:,:,:,1:2),4);
+                    ASL_norm = mean(data.ASL(:,:,:,1:2:end)-data.ASL(:,:,:,2:2:end),4)./mean(data.M0,4);
                     FitResults.CBF = 6000*obj.options.lambda*ASL_norm*exp(PLD/obj.options.T1_blood)/(2*obj.options.alpha*obj.options.T1_blood*1e-3*(1-exp(-tau/obj.options.T1_blood)));
             end
         end
