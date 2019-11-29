@@ -10,21 +10,31 @@ classdef dsc < AbstractModel
 %   PWI                 4D Dynamic Contrast Enhanced
 %   (Mask)              Binary mask to accelerate the fitting
 %
-% Fitted Parameters:
-%    Param1    
-%    Param2    
+% Outputs:
+%    T0                 [sec] Bolus arrival time   
+%    S0                 Signal before bolus
+%    R2starMAX          Max variation of R2star
+%    CBV                [%] Cerebral Blood Volume  
+%    CBF                [mL/100g/min] Cerebral Blood Flow
+%    TTP                [sec] Time to Peak
+%    TAP                [sec] Time AIF to Peak
 %
-% Non-Fitted Parameters:
-%    residue                    Fitting residue.
+% Protocol:
+%   PWI                 Array [3x1]
+%    TR                 [sec] Repetition time
+%    TE                 [sec] Echo time
+%    Nvolumes           Number of volumes (used in simulations)
 %
 % Options:
-%   Q-space regularization      
-%       Smooth q-space data per shell prior fitting
+%   GammaFit
+%   Deconvolution
+%   lambda              blood-brain partition coefficient
 %
 % Example of command line usage:
 %   For more examples: <a href="matlab: qMRusage(CustomExample);">qMRusage(CustomExample)</a>
 %
-% Author: 
+% Author: Tanguy Duval, INSERM 2019
+%         Thomas Perret, grenoble INP
 %
 % References:
 %   Please cite the following if you use this module:
@@ -49,7 +59,7 @@ classdef dsc < AbstractModel
                         'Mat', [1.5; 0.040; 40])); % provide a default protocol (Nx2 matrix)
         
         % Model options
-        buttons = {'GammaFit',false,'Arterial Input Function',{'Dirac','Deconvolution'}};
+        buttons = {'GammaFit',false,'Arterial Input Function',{'Dirac','Deconvolution'},'lambda',0.9};
         options= struct();
         
         % Arterial Input Function
@@ -65,23 +75,48 @@ classdef dsc < AbstractModel
             % compute AIF
             switch obj.options.ArterialInputFunction
                 case 'Deconvolution'
-                    if isempty(data.Mask)
+                    if ~isfield(data,'Mask') || isempty(data.Mask)
                         data.Mask = true(size(data.PWI));
                     end
-                    [obj.AIF, score] = extraction_aif_volume(data.PWI,any(data.Mask,4));
-                    obj.AIF = obj.AIF';
+                    dimsMask = size(data.Mask);
+                    if max(dimsMask(1:min(3,end)))==1
+                        obj.AIF = data.PWI(:);
+                        return;
+                    else
+                        [obj.AIF, score] = extraction_aif_volume(data.PWI,any(data.Mask,4));
+                        obj.AIF = obj.AIF';
+                    end
                     if sum(cell2mat(score(:,5))) > 10
                         error('No computation because the AIF is not good enough');
                     end
                     
                     % Display
+                    fig=figure;
+                    pan1 = uipanel(fig,'Position',[0 0 .5 1]);
+
                     data.Mask(:)=0;
                     for ii=1:5
                         data.Mask(score{ii,2},score{ii,3},score{ii,4})=1;
+                        vol(ii,:) = squeeze(data.PWI(score{ii,2},score{ii,3},score{ii,4},:));
                     end
-                    tool = imtool3D(data.PWI,[],[],[],[],data.Mask);
+                    tool = imtool3D(data.PWI,[],pan1,[],[],data.Mask);
                     tool.setCurrentSlice(score{1,4})
                     set(tool.getHandles.fig,'Name','Voxels used for Arterial Input Function (in red)')
+                    
+                    Nvol = length(obj.AIF);
+                    %%
+                    pan2 = uipanel(fig,'Position',[0.5 0 .5 1]);
+                    ax = axes(pan2);
+                    TE = obj.Prot.PWI.Mat(2);
+                    TR = obj.Prot.PWI.Mat(1);
+                    time = 0:TR:TR*(Nvol-1);
+                    [AIFnorm,~,S0] = pwiNorm(obj.AIF);
+                    plot(ax,time,pwi2R2star(AIFnorm,TE),'Linewidth',3)
+                    hold on
+                    plot(ax,time,pwi2R2star(vol/S0,TE),'r-','Linewidth',.5)
+                    hold off
+                    ylabel \DeltaR2*
+                    xlabel time[sec]
             end
         end
         
@@ -119,7 +154,7 @@ classdef dsc < AbstractModel
             % data
             PWI = double(data.PWI);
             % normalization
-            PWInorm = pwiNorm(PWI);
+            [PWInorm, FitResults.T0, FitResults.S0]= pwiNorm(PWI);
             R2star = pwi2R2star(PWInorm,TE);
             R2star = max(.1,R2star);
             Smax = max(R2star);
@@ -138,16 +173,18 @@ classdef dsc < AbstractModel
                 % Recompute the theoretical R2star
                 R2star = equation(obj, FitResults);
             end
-            % Cerebral Blood Volume
-            FitResults.CBV = trapz(time,R2star);
+
             % Time to Peak
             [FitResults.R2starMAX,TTP] = max(R2star);
             FitResults.TTP = (TTP-1/2).*TR;
+         
+            % Cerebral Blood Volume
+            FitResults.CBV = trapz(time,R2star);
             
             % Deconvolution
-            if ~isempty(obj.AIF)
-                switch obj.options.ArterialInputFunction
-                    case 'Deconvolution'
+            switch obj.options.ArterialInputFunction
+                case 'Deconvolution'
+                    if ~isempty(obj.AIF)
                         % compute R2star variation (Gado concentration) in the artery
                         AIFnorm = pwiNorm(obj.AIF);
                         R2starAIF = pwi2R2star(AIFnorm,TE);
@@ -159,24 +196,23 @@ classdef dsc < AbstractModel
                         %%% Compute SVD for Ca
                         zero_pad_fact = 2; % MUST be an integer !
                         R2starAIF = cat(1,R2starAIF,zeros(Nvol*(zero_pad_fact-1),1)); % pad
-
+                        
                         Ca = toeplitz(R2starAIF,[R2starAIF(1); R2starAIF(end:-1:2)]);
                         [U,S,V] = svd(Ca);
                         R2starpad = cat(1,R2star,zeros(Nvol*(zero_pad_fact-1),1)); % pad
                         R2starpad = devonvolution_osvd(U,S,V,R2starpad);
                         R2star = R2starpad(1:Nvol);
-                        
-                end
-            else
-                warning('Cannot apply deconvolution. Start by running Model.PrecomputeData to get the Arterial Input Function.')
+                    else
+                        warning('Cannot apply deconvolution. Start by running Model.PrecomputeData to get the Arterial Input Function.')
+                    end
             end
             
-            [RMAX,TMAX] = max(R2star);
-            TMAX = (TMAX-(1/2)).*TR;
+            [RMAX,TAP] = max(R2star);
+            TAP = (TAP-(1/2)).*TR;
             MTT = trapz(time,R2star)./RMAX;
-            CBF = 60.*FitResults.CBV./MTT;
+            CBF = 60*obj.options.lambda*FitResults.CBV/100/max(1,MTT); % mL/100g/min
             
-            FitResults.TMAX = TMAX;
+            FitResults.TAP = TAP;
             FitResults.MTT = MTT;
             FitResults.CBF = CBF;
         end
@@ -235,6 +271,8 @@ classdef dsc < AbstractModel
             % add rician noise
             sigma = max(Smodel)/Opt.SNR;
             data.PWI = random('rician',Smodel,sigma);
+            % Precompute
+            obj.AIF = data.PWI;
             % fit the noisy synthetic data
             FitResults = fit(obj,data);
             % plot
@@ -256,7 +294,7 @@ classdef dsc < AbstractModel
     end
 end
 
-function [PWInorm, T0] = pwiNorm(PWI)
+function [PWInorm, T0, BL] = pwiNorm(PWI)
 [T0,T0_mask] = BAT(PWI);
 BL = sum(PWI .* T0_mask)./sum((PWI .* T0_mask) ~= 0);
 PWInorm = PWI/BL;
@@ -279,7 +317,7 @@ function [T0,T0_mask] = BAT(PWI)
 
 % Parameters of algorithm
 window_size = 4;
-th = 2.0;
+th = 5.0;
 
 Nvol = length(PWI);
 T0_mask = false(Nvol,1);
