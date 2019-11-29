@@ -41,7 +41,7 @@ if nargin < 3
 	flag = 0;
 end
 
-if nargin < 2
+if nargin < 2 || isempty(dim)
 	dim = min(find(size(x)~=1));
 	if isempty(dim)
 		dim = 1; 
