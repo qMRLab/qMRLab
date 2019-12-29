@@ -220,6 +220,7 @@ else % process entire volume
                 
              if ~moxunit_util_platform_is_octave
                  
+                if ~isempty(data.(fields{ff})) 
                  if verLessThan('matlab','9.0')
                      
                      % Introduced in R2007a
@@ -229,10 +230,13 @@ else % process entire volume
                       % Introduced in 2016
                      data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
                  end
-                 
+                end
+                
              else % If Octave 
                  
-                 data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 if ~isempty(data.(fields{ff}))
+                  data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 end
                  
              end
              
