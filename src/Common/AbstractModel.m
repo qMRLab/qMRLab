@@ -235,7 +235,6 @@ classdef (Abstract) AbstractModel
 
             end
 
-
         end
 
         function obj = linkGUIState(obj, checkBoxName, targetObject, eventType, activeState, setVal)
@@ -276,7 +275,6 @@ classdef (Abstract) AbstractModel
             if not(strcmp(typeCheckBox,'checkbox'))
                 error('LinkGUIState: Second argument must be a checkbox');
             end
-
 
             switch eventType
 
@@ -321,9 +319,7 @@ classdef (Abstract) AbstractModel
                         obj =  setPanelInvisible(obj,targetObject,y);
 
                     end
-
             end
-
 
         end
 
@@ -391,7 +387,6 @@ classdef (Abstract) AbstractModel
 
                 end
 
-
         end
 
         function state = getCheckBoxState(obj,checkBoxName)
@@ -403,9 +398,7 @@ classdef (Abstract) AbstractModel
           error('Pass checknoxname please.');
         end
 
-
         end
-
 
     end
 
@@ -416,24 +409,18 @@ classdef (Abstract) AbstractModel
             FitProvenance = struct();
             FitProvenance.EstimationSoftwareName = 'qMRLab';
             FitProvenance.EstimationSoftwareVer  = qMRLabVer;
-
             % Add extra fields
             if nargin>0
-
                 if any(cellfun(@isequal,varargin,repmat({'extra'},size(varargin))))
                     idx = find(cellfun(@isequal,varargin,repmat({'extra'},size(varargin)))==1);
                     if isstruct(varargin{idx+1})
-
                         tmp = varargin{idx+1};
                         names = fieldnames(tmp);
                         for ii=1:length(names) 
                             FitProvenance.(names{ii}) = tmp.(names{ii});
                         end
-
                     end    
                 end
-
-          
             end 
 
             if moxunit_util_platform_is_octave
@@ -443,8 +430,7 @@ classdef (Abstract) AbstractModel
                 FitProvenance.EstimationSoftwareEnvDetails = GetOSDetails();
                 FitProvenance.EstimationSoftwareLang = ['Octave ' OCTAVE_VERSION()];
                 Fitprovenance.EstimationSoftwareLangDetails = pkg('list');
-                
-                
+
             else 
 
                 FitProvenance.EstimationDate = datetime(now,'ConvertFrom','datenum');
@@ -456,8 +442,6 @@ classdef (Abstract) AbstractModel
             end
             
         end    
-
-
 
     end
 
