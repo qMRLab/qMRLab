@@ -438,21 +438,20 @@ classdef (Abstract) AbstractModel
 
             if moxunit_util_platform_is_octave
                 
-                FitProvenance.Date = strftime('%Y-%m-%d %H:%M:%S', localtime (time ()));
-                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer;
-                FitProvenance.OSDetails = GetOSDetails();
-                FitProvenance.Platform = ['Octave ' OCTAVE_VERSION()];
-                Fitprovenance.PlatformPackages = pkg('list');
-                FitProvenance.PlatformDetails = octave_config_info;
+                FitProvenance.EstimationDate = strftime('%Y-%m-%d %H:%M:%S', localtime (time ()));
+                [FitProvenance.EstimationSoftwareEnv, FitProvenance.MaxSize, FitProvenance.Endian] = computer;
+                FitProvenance.EstimationSoftwareEnvDetails = GetOSDetails();
+                FitProvenance.EstimationSoftwareLang = ['Octave ' OCTAVE_VERSION()];
+                Fitprovenance.EstimationSoftwareLangDetails = pkg('list');
                 
                 
             else 
 
-                FitProvenance.Date = datetime(now,'ConvertFrom','datenum');
-                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer; 
-                FitProvenance.OSDetails = GetOSDetails();
-                FitProvenance.Platform = ['Matlab ' version('-release')];
-                FitProvenance.PlatformPackages = ver;
+                FitProvenance.EstimationDate = datetime(now,'ConvertFrom','datenum');
+                [FitProvenance.EstimationSoftwareEnv, FitProvenance.MaxSize, FitProvenance.Endian] = computer; 
+                FitProvenance.EstimationSoftwareEnvDetails = GetOSDetails();
+                FitProvenance.EstimationSoftwareLang = ['Matlab ' version('-release')];
+                FitProvenance.EstimationSoftwareLangDetails = ver;
 
             end
             
