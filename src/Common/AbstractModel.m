@@ -129,10 +129,33 @@ classdef (Abstract) AbstractModel
             end
         end
         
-        function obj = getEnvDetails(obj)
-    
-            FitProvenance = struct();
+        function obj = getEnvDetails(obj,varargin)
             
+            FitProvenance = struct();
+            FitProvenance.EstimationSoftwareName = 'qMRLab';
+            FitProvenance.EstimationSoftwareVer  = qMRLabVer;
+
+            % Add extra fields
+            if nargin>1
+
+                if any(cellfun(@isequal,varargin,repmat({'extra'},size(varargin))))
+                    idx = find(cellfun(@isequal,varargin,repmat({'extra'},size(varargin)))==1);
+                    if isstruct(varargin{idx+1})
+
+                        tmp = varargin{idx+1};
+                        names = fieldnames(tmp);
+                        for ii=1:length(names) 
+                            FitProvenance.(names{ii}) = tmp.(names{ii});
+                        end
+
+                    end    
+                end
+
+            FitProvenance.BasedOn = regexprep(files,BIDS.dir(1:max(strfind(BIDS.dir,filesep))),'','ignorecase');
+            FitProvenance.EstimationReference = protomapper.estimationPaper;
+            FitProvenance.EstimationAlgorithm = protomapper.estimationAlgorithm;
+            end 
+
             if moxunit_util_platform_is_octave
                 
                 FitProvenance.Date = strftime('%Y-%m-%d %H:%M:%S', localtime (time ()));
