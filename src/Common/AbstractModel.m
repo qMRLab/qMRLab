@@ -151,9 +151,7 @@ classdef (Abstract) AbstractModel
                     end    
                 end
 
-            FitProvenance.BasedOn = regexprep(files,BIDS.dir(1:max(strfind(BIDS.dir,filesep))),'','ignorecase');
-            FitProvenance.EstimationReference = protomapper.estimationPaper;
-            FitProvenance.EstimationAlgorithm = protomapper.estimationAlgorithm;
+          
             end 
 
             if moxunit_util_platform_is_octave
