@@ -12,10 +12,6 @@ classdef (Abstract) AbstractModel
         ModelName
     end
 
-    properties (Hidden=true)
-        EnvDetails
-    end
-    
     methods
         % Constructor
         function obj = AbstractModel()
@@ -132,55 +128,7 @@ classdef (Abstract) AbstractModel
                 end
             end
         end
-        
-        function obj = getEnvDetails(obj,varargin)
-            
-            FitProvenance = struct();
-            FitProvenance.EstimationSoftwareName = 'qMRLab';
-            FitProvenance.EstimationSoftwareVer  = qMRLabVer;
-
-            % Add extra fields
-            if nargin>1
-
-                if any(cellfun(@isequal,varargin,repmat({'extra'},size(varargin))))
-                    idx = find(cellfun(@isequal,varargin,repmat({'extra'},size(varargin)))==1);
-                    if isstruct(varargin{idx+1})
-
-                        tmp = varargin{idx+1};
-                        names = fieldnames(tmp);
-                        for ii=1:length(names) 
-                            FitProvenance.(names{ii}) = tmp.(names{ii});
-                        end
-
-                    end    
-                end
-
-          
-            end 
-
-            if moxunit_util_platform_is_octave
-                
-                FitProvenance.Date = strftime('%Y-%m-%d %H:%M:%S', localtime (time ()));
-                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer;
-                FitProvenance.OSDetails = GetOSDetails();
-                FitProvenance.Platform = ['Octave ' OCTAVE_VERSION()];
-                Fitprovenance.PlatformPackages = pkg('list');
-                FitProvenance.PlatformDetails = octave_config_info;
-                
-                obj.EnvDetails = FitProvenance;
-                
-            else 
-
-                FitProvenance.Date = datetime(now,'ConvertFrom','datenum');
-                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer; 
-                FitProvenance.OSDetails = GetOSDetails();
-                FitProvenance.Platform = ['Matlab ' version('-release')];
-                FitProvenance.PlatformPackages = ver;
-
-                obj.EnvDetails = FitProvenance;
-            end
-            
-        end    
+           
     end
 
     methods(Access = protected)
@@ -457,6 +405,59 @@ classdef (Abstract) AbstractModel
 
 
         end
+
+
+    end
+
+    methods(Static)
+
+        function FitProvenance = getProvenance(varargin)
+            
+            FitProvenance = struct();
+            FitProvenance.EstimationSoftwareName = 'qMRLab';
+            FitProvenance.EstimationSoftwareVer  = qMRLabVer;
+
+            % Add extra fields
+            if nargin>0
+
+                if any(cellfun(@isequal,varargin,repmat({'extra'},size(varargin))))
+                    idx = find(cellfun(@isequal,varargin,repmat({'extra'},size(varargin)))==1);
+                    if isstruct(varargin{idx+1})
+
+                        tmp = varargin{idx+1};
+                        names = fieldnames(tmp);
+                        for ii=1:length(names) 
+                            FitProvenance.(names{ii}) = tmp.(names{ii});
+                        end
+
+                    end    
+                end
+
+          
+            end 
+
+            if moxunit_util_platform_is_octave
+                
+                FitProvenance.Date = strftime('%Y-%m-%d %H:%M:%S', localtime (time ()));
+                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer;
+                FitProvenance.OSDetails = GetOSDetails();
+                FitProvenance.Platform = ['Octave ' OCTAVE_VERSION()];
+                Fitprovenance.PlatformPackages = pkg('list');
+                FitProvenance.PlatformDetails = octave_config_info;
+                
+                
+            else 
+
+                FitProvenance.Date = datetime(now,'ConvertFrom','datenum');
+                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer; 
+                FitProvenance.OSDetails = GetOSDetails();
+                FitProvenance.Platform = ['Matlab ' version('-release')];
+                FitProvenance.PlatformPackages = ver;
+
+            end
+            
+        end    
+
 
 
     end
