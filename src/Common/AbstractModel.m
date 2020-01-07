@@ -12,6 +12,10 @@ classdef (Abstract) AbstractModel
         ModelName
     end
 
+    properties (Hidden=true)
+        EnvDetails
+    end
+    
     methods
         % Constructor
         function obj = AbstractModel()
