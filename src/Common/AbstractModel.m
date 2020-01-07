@@ -128,7 +128,34 @@ classdef (Abstract) AbstractModel
                 end
             end
         end
+        
+        function obj = getEnvDetails(obj)
+    
+            FitProvenance = struct();
+            
+            if moxunit_util_platform_is_octave
+                
+                FitProvenance.Date = strftime('%Y-%m-%d %H:%M:%S', localtime (time ()));
+                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer;
+                FitProvenance.OSDetails = GetOSDetails();
+                FitProvenance.Platform = ['Octave ' OCTAVE_VERSION()];
+                Fitprovenance.PlatformPackages = pkg('list');
+                FitProvenance.PlatformDetails = octave_config_info;
+                
+                obj.EnvDetails = FitProvenance;
+                
+            else 
 
+                FitProvenance.Date = datetime(now,'ConvertFrom','datenum');
+                [FitProvenance.OS, FitProvenance.MaxSize, FitProvenance.Endian] = computer; 
+                FitProvenance.OSDetails = GetOSDetails();
+                FitProvenance.Platform = ['Matlab ' version('-release')];
+                FitProvenance.PlatformPackages = ver;
+
+                obj.EnvDetails = FitProvenance;
+            end
+            
+        end    
     end
 
     methods(Access = protected)
