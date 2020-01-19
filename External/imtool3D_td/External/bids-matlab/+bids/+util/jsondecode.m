@@ -19,6 +19,9 @@ elseif exist('spm_jsonread','file') == 3            % SPM12
     value = spm_jsonread(file, varargin{:});
 elseif exist('jsonread','file') == 3                % JSONio
     value = jsonread(file, varargin{:});
+elseif exist('loadjson','file') == 2                    % JSONlab
+    value = loadjson(file,varargin{:});
+
 else
     error('JSON library required: install JSONio from https://github.com/gllmflndn/JSONio');
 end
