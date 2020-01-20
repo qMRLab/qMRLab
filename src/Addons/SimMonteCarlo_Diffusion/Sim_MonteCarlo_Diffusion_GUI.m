@@ -183,9 +183,9 @@ axons   = handles.axonpacking.axons;
 packing = handles.axonpacking.packing;
 fname = sprintf('pack_d%.1fvar%.1fgap%.1f.mat',axons.d_mean{1},axons.d_var{1},axons.Delta{1});
 fname = fullfile(fileparts(which('Sim_MonteCarlo_Diffusion_GUI.m')),'savedPacks',fname);
-fname = uiputfile('*.mat','Save Packing as...',fname);
+[fname, path] = uiputfile('*.mat','Save Packing as...',fname);
 if fname
-    save(fname,'axons','packing')
+    save(fullfile(path,fname),'axons','packing')
     savedPacks = get(handles.preset_packing,'String');
     set(handles.preset_packing,'String',unique([savedPacks; {fname}]));
     savedPacks = get(handles.preset_packing,'String');
@@ -257,6 +257,7 @@ handles.Model.Sim_MonteCarlo_Diffusion(numelparticle, trans_mean, D, packing, ax
 function slider_trans_Callback(hObject, eventdata, handles)
 set(handles.text_trans,'String', ['Permeability: ' num2str(get(hObject,'Value'))])
 function slider_numelparticle_Callback(hObject, eventdata, handles)
+set(hObject,'Value',round(get(hObject,'Value')))
 set(handles.text_numelparticle,'String', ['Number of particles: ' num2str(get(hObject,'Value'))])
 function slider_bv_Callback(hObject, eventdata, handles)
 set(handles.text_bv,'String', ['bvalue: ' num2str(get(hObject,'Value')) 'sec/mm2'])
