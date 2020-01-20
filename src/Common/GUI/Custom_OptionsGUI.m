@@ -502,6 +502,7 @@ for ic = 1:length(Fmt)
     else
         Lmax = Nlines; % if scalar, all lines get this value
     end
+    if isempty(Prot{ic}), Prot{ic} = NaN; end
     Model.Prot.(MRIinput).Mat(1:Lmax,ic) = Prot{ic};
 end
 Prot = Model.Prot.(MRIinput).Mat;

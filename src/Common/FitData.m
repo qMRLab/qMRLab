@@ -33,6 +33,7 @@ Model.sanityCheck(data);
 
 tStart = tic;
 tsaved = 0;
+tsavedwb = 0;
 
 h=[]; hwarn=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
@@ -128,16 +129,6 @@ if Model.voxelwise % process voxelwise
     for ii = 1:numVox
         vox = Voxels(ii);
         
-        % Update waitbar
-        if (isempty(h))
-            % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
-            %            fprintf('Fitting voxel %d/%d\r',ii,l);
-
-        else
-            if getappdata(h,'canceling');  break;  end  % Allows user to cancel
-            waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d (%d errors)', ii, numVox, fitFailedCounter));
-        end
-
         % Get current voxel data
         for iii = 1:length(MRIinputs)
             M.(MRIinputs{iii}) = data.(MRIinputs{iii})(vox,:)';
@@ -183,6 +174,18 @@ if Model.voxelwise % process voxelwise
             save('FitTempResults.mat', '-struct','Fit');
         end
         
+        % Update waitbar every sec
+        if (isempty(h))
+            % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
+            %            fprintf('Fitting voxel %d/%d\r',ii,l);
+
+        else
+            if getappdata(h,'canceling');  break;  end  % Allows user to cancel
+            if (telapsed-tsavedwb)>1 % Update waitbar every sec
+                tsavedwb = telapsed; 
+                waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d (%d errors)', ii, numVox, fitFailedCounter));
+            end
+        end
         
         if ISTRAVIS && ii>2
             try
@@ -217,6 +220,7 @@ else % process entire volume
                 
              if ~moxunit_util_platform_is_octave
                  
+                if ~isempty(data.(fields{ff})) 
                  if verLessThan('matlab','9.0')
                      
                      % Introduced in R2007a
@@ -226,10 +230,13 @@ else % process entire volume
                       % Introduced in 2016
                      data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
                  end
-                 
+                end
+                
              else % If Octave 
                  
-                 data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 if ~isempty(data.(fields{ff}))
+                  data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 end
                  
              end
              
@@ -237,7 +244,9 @@ else % process entire volume
     end
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
-    disp('...done');
+    disp('=============== qMRLab::Fit ======================')
+    disp(['Operation has been completed: ' Model.ModelName]);
+    disp('==================================================')
 end
 % delete waitbar
 %if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
