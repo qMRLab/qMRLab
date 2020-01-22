@@ -1,4 +1,4 @@
-function test_suite=SimTest_mwf
+function test_suite=SimTest_amico
 try % assignment of 'localfunctions' is necessary in Matlab >= 2016
 test_functions=localfunctions();
 catch % no problem; early Matlab versions can use initTestSuite fine
@@ -10,12 +10,12 @@ setenv('ISDISPLAY','0') % go faster! Fit only 2 voxels in FitData.m
 
 function test_Sim
 disp('===========================================')
-disp('Running simulation test for mwf');
+disp('Running simulation test for amico');
 disp('testing Simulation Single Voxel Curve...');
 
 
-Model = str2func('mwf'); Model = Model();
-savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['mwf.qmrlab.mat']);
+Model = str2func('amico'); Model = Model();
+savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['amico.qmrlab.mat']);
 if ~exist(savedModel_fname,'file')
 Model.saveObj(savedModel_fname);
 else
