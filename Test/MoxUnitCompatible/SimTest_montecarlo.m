@@ -22,8 +22,8 @@ function test_suite=SimTest_charmed
     Model = Model.loadObj(savedModel_fname);
     end
     
-    load('pack_d3.0var1.0gap0.5.mat'); % load a predefined packing
-    numelparticle = 100;
+    load('pack_testing.mat'); % load a predefined packing
+    numelparticle = 10;
     permeability = 0;
     D = 1.5;
     SignalMC = Model.Sim_MonteCarlo_Diffusion(numelparticle, permeability, D, packing, axons);
