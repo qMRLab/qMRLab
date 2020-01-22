@@ -84,7 +84,9 @@ for d = 1:size(direc,1)
     tempY(rowindex) = Y(rowindex);
     ar = area(X,tempY,'linewidth',0.1);
     color = abs(direc(d,:)); color = [color(2:3), color(1)]; 
+    if ~moxunit_util_platform_is_octave
     set(ar,'facecolor', color, 'facealpha',0.1);
+    end
 end
 bar = plot([0,0],[-100,100],'r');
 ylim([min(G_strength(:,end))*1.2, max(G_strength(:,end))*1.2]);
