@@ -83,7 +83,7 @@ for d = 1:size(direc,1)
     tempY = zeros(size(Y));
     tempY(rowindex) = Y(rowindex);
     ar = area(X,tempY,'linewidth',0.1);
-    color = abs(direc(d,:)); color = [color(2:3), col`or(1)]; 
+    color = abs(direc(d,:)); color = [color(2:3), color(1)]; 
     if ~moxunit_util_platform_is_octave
     set(ar,'facecolor', color, 'facealpha',0.1);
     end
