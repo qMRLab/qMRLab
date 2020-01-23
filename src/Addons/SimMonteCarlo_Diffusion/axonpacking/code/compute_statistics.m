@@ -28,7 +28,7 @@ disp(['pixel size : ', num2str(resolution), ' micro meters'])
 % resulting mask size
 masksize = ceil(side/resolution);
 
-pts = pts - min(pts,[],2);
+pts = pts - min(min(pts,[],2));
 % FVF mask
 FVF_mask = false(masksize);
 t = 0:.1:2*pi+0.1;
