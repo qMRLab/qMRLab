@@ -83,7 +83,7 @@ for d = 1:size(direc,1)
     tempY = zeros(size(Y));
     tempY(rowindex) = Y(rowindex);
     ar = area(X,tempY,'linewidth',0.1);
-    color = abs(direc(d,:)); color = [color(2:3), color(1)]; 
+    color = abs(direc(d,:)); color = [color(2:3), col`or(1)]; 
     if ~moxunit_util_platform_is_octave
     set(ar,'facecolor', color, 'facealpha',0.1);
     end
@@ -151,6 +151,12 @@ signal = ones(totalsteps+1,Ndwi);
 
 th_xy = rand(numelparticle,1)*2*pi; % for the first displacement
 th_z = (rand(numelparticle,1)-0.5) * pi *mode3D;
+
+if str2double(getenv('ISDISPLAY')) == 0
+    disp('Total steps is set to 5 for testing.');
+    totalsteps = 5;
+end
+
 
 for s = 1:totalsteps
     flight = ones(numelparticle,1) * flight_mean + randn(numelparticle,1) * flight_var;
