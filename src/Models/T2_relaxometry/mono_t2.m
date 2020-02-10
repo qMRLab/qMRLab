@@ -6,7 +6,7 @@ classdef mono_t2 < AbstractModel % Name your Model
     %   Mono-exponential fit
     %
     % Inputs:
-    %   MESEdata        multi-echo data, 4D volume with different echo times in time dimension
+    %   SEdata        multi-echo data, 4D volume with different echo times in time dimension
     %   (Mask)          Binary mask to accelerate the fitting (optional)
     %
     % Outputs:
@@ -15,7 +15,7 @@ classdef mono_t2 < AbstractModel % Name your Model
     %
     % Protocol:
     %   TE Array [nbTE]:
-    %       [TE1 TE2...TEn]      TE [ms] 
+    %       [TE1; TE2;...;TEn]     column vector listing the TEs [ms] 
     %
     % Options:
     %   FitType     Linear or Exponential
@@ -24,34 +24,38 @@ classdef mono_t2 < AbstractModel % Name your Model
     %
     % Example of command line usage:
     %   Model = mono_t2;  % Create class from model
-    %   Model.Prot.MESEData.Mat=[10:10:320]; %Protocol: 32 echo times
+    %   Model.Prot.SEData.Mat=[10:10:320]'; %Protocol: 32 echo times
     %   data = struct;  % Create data structure
-    %   data.MESEData = load_nii_data('MESEData.nii.gz');
+    %   data.SEData = load_nii_data('SEData.nii.gz');
     %   FitResults = FitData(data,Model); %fit data
     %   FitResultsSave_mat(FitResults);
     %
     %   For more examples: <a href="matlab: qMRusage(mono_t2);">qMRusage(mono_t2)</a>
     
-    
+properties (Hidden=true)
+    onlineData_url = 'https://osf.io/kujp3/download?version=1';
+end   
+
     
     properties
-        MRIinputs = {'MESEdata','Mask'}; % used in the data panel
+        MRIinputs = {'SEdata','Mask'}; % used in the data panel
         
         % fitting options
         xnames = { 'T2','M0'}; % name of the parameters to fit
         voxelwise = 1; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
-        st           = [ 0.7	0.5 ]; % starting point
+        st           = [ 100	1000 ]; % starting point
         lb            = [  0      0 ]; % lower bound
-        ub           = [ 1        3 ]; % upper bound
+        ub           = [ 300        10000 ]; % upper bound
         fx            = [ 0       0 ]; % fix parameters
         
         % Protocol
-        Prot  = struct('MESEdata',struct('Format',{{'EchoTime (ms)'}},...
-            'Mat', [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
-            180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320]));
+        Prot  = struct('SEdata',struct('Format',{{'EchoTime (ms)'}},...
+            'Mat',[12.8  25.6  38.4  51.2  64.0  76.8  89.6  102.4...  
+            115.2  128  140.8  153.6  166.4  179.2  192.0  204.8  217.6...
+            230.4  243.2  256  268.8  281.6  294.4  307.2  320.0  332.8  345.6  358.4  371.2  384]'));
         
         % Model options
-        buttons = {'FitType',{'Linear','Exponential'},'DropFirstEcho',false,'OffsetTerm',false};
+        buttons = {'FitType',{'Exponential','Linear'},'DropFirstEcho',false,'OffsetTerm',false};
         options= struct();
         
     end
@@ -68,7 +72,7 @@ classdef mono_t2 < AbstractModel % Name your Model
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
             
             % equation
-            Smodel = x.M0.*exp(-obj.Prot.MESEdata.Mat./x.T2);
+            Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2);
         end
         
         function FitResults = fit(obj,data)
@@ -82,8 +86,8 @@ classdef mono_t2 < AbstractModel % Name your Model
                 
                 if obj.options.DropFirstEcho
                     
-                    xData = obj.Prot.MESEdata.Mat(2:end);
-                    yDat = data.MESEdata(2:end);
+                    xData = obj.Prot.SEdata.Mat(2:end);
+                    yDat = data.SEdata(2:end);
                     
                     
                     
@@ -93,8 +97,8 @@ classdef mono_t2 < AbstractModel % Name your Model
                     
                 else
                    
-                    xData = obj.Prot.MESEdata.Mat;
-                    yDat = data.MESEdata;
+                    xData = obj.Prot.SEdata.Mat;
+                    yDat = data.SEdata;
                  
                 end
                 
@@ -140,8 +144,8 @@ classdef mono_t2 < AbstractModel % Name your Model
                 
                 if obj.options.DropFirstEcho
                     
-                    xData = obj.Prot.MESEdata.Mat(2:end);
-                    yDat = log(data.MESEdata(2:end));
+                    xData = obj.Prot.SEdata.Mat(2:end);
+                    yDat = log(data.SEdata(2:end));
                     
                     if max(size(yDat)) == 1
                         error('DropFirstEcho is not valid for ETL of 2.');
@@ -149,8 +153,8 @@ classdef mono_t2 < AbstractModel % Name your Model
                     
                     else
                    
-                    xData = obj.Prot.MESEdata.Mat;
-                    yDat = log(data.MESEdata);
+                    xData = obj.Prot.SEdata.Mat;
+                    yDat = log(data.SEdata);
                     
                 end
                 
@@ -183,7 +187,7 @@ classdef mono_t2 < AbstractModel % Name your Model
             Smodel = equation(obj, FitResults);
             
             %Get the varying acquisition parameter
-            Tvec = obj.Prot.MESEdata.Mat;
+            Tvec = obj.Prot.SEdata.Mat;
             [Tvec,Iorder] = sort(Tvec);
             
             % Plot Fitted Model
@@ -192,7 +196,7 @@ classdef mono_t2 < AbstractModel % Name your Model
             % Plot Data
             if exist('data','var')
                 hold on
-                plot(Tvec,data.MESEdata(Iorder),'r+')
+                plot(Tvec,data.SEdata(Iorder),'r+')
                 hold off
             end
             legend({'Model','Data'})
@@ -204,7 +208,7 @@ classdef mono_t2 < AbstractModel % Name your Model
             Smodel = equation(obj, x);
             % add rician noise
             sigma = max(Smodel)/Opt.SNR;
-            data.MESEdata = random('rician',Smodel,sigma);
+            data.SEdata = random('rician',Smodel,sigma);
             % fit the noisy synthetic data
             FitResults = fit(obj,data);
             % plot
