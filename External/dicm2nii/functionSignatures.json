@@ -4,7 +4,7 @@
     "inputs":
         [
             {"name":"cmd", "kind":"required", "type":"choices={'hdr'}"},
-            {"name":"varargin", "kind":"required", "type":"filepath=*.hdr,*.nii,*.nii.gz"}
+            {"name":"filename", "kind":"required", "type":"filepath=*.hdr,*.nii,*.nii.gz"}
         ]
 },
 "nii_tool":
@@ -12,7 +12,7 @@
     "inputs":
         [
             {"name":"cmd", "kind":"required", "type":"choices={'load', 'img', 'ext'}"},
-            {"name":"varargin", "kind":"required", "type":[["struct"], ["filepath=*.hdr,*.nii,*.nii.gz"]]}
+            {"name":"filename", "kind":"required", "type":[["struct"], ["filepath=*.hdr,*.nii,*.nii.gz"]]}
         ]
 },
 "nii_tool":
@@ -20,7 +20,7 @@
     "inputs":
         [
             {"name":"cmd", "kind":"required", "type":"choices={'init'}"},
-            {"name":"varargin", "kind":"required", "type":"numeric"}
+            {"name":"img", "kind":"required", "type":"numeric"}
         ]
 },
 "nii_tool":
@@ -28,7 +28,7 @@
     "inputs":
         [
             {"name":"cmd", "kind":"required", "type":"choices={'save', 'update'}"},
-            {"name":"varargin", "kind":"required", "type":"struct"}
+            {"name":"nii", "kind":"required", "type":"struct"}
         ]
 },
 "nii_tool":
@@ -36,7 +36,7 @@
     "inputs":
         [
             {"name":"cmd", "kind":"required", "type":"choices={'cat3D'}"},
-            {"name":"varargin", "kind":"required", "type":"filepath=*.hdr,*.nii,*.nii.gz"}
+            {"name":"filename", "kind":"required", "type":"filepath=*.hdr,*.nii,*.nii.gz"}
         ]
 },
 "nii_moco":
@@ -52,7 +52,7 @@
 {
     "inputs":
         [
-            {"name":"src", "kind":"positional", "type":[["folderpath"], ["filepath=*.dcm,*.par"]]},
+            {"name":"src", "kind":"positional", "type":[["folderpath"], ["filepath=*.dcm,*.par,*.xml"]]},
             {"name":"niiFolder", "kind":"positional", "type":[["char"], ["folderpath"]]},
             {"name":"fmt", "kind":"positional", "type":"choices={'.hdr', '.hdr.gz', '.hdr (3D)', '.nii', '.nii (3D)', '.nii.gz'}"}
         ]
@@ -98,7 +98,7 @@
 {
     "inputs":
         [
-            {"name":"fname", "kind":"required", "type":"filepath=*.par,*.dcm"},
+            {"name":"fname", "kind":"required", "type":"filepath=*.par,*.dcm,*.xml"},
             {"name":"dict", "kind":"positional", "type":"struct"},
             {"name":"iFrames", "kind":"positional", "type":"numeric"}
         ]

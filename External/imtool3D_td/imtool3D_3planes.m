@@ -1,13 +1,15 @@
-function tool = imtool3D_3planes(dat,mask)
+function tool = imtool3D_3planes(dat,mask,parent,range)
 if ~exist('mask','var'), mask=[]; end
 if ~exist('dat','var'), dat=[]; end
-
-tool = imtool3D(dat,[],[],[],[],mask);
+if ~exist('parent','var'), parent=[]; end
+if ~exist('range','var'), range=[]; end
+tool = imtool3D(dat,[],parent,range,[],mask);
+if isempty(parent), parent = tool(1).getHandles.fig; end
 range = tool.getClimits;
 CB_Motion1 = get(gcf,'WindowButtonMotionFcn');
-tool(2) = imtool3D(dat,[],tool(1).getHandles.fig,range,[],mask);
+tool(2) = imtool3D(dat,[],parent,range,[],mask);
 CB_Motion2 = get(gcf,'WindowButtonMotionFcn');
-tool(3) = imtool3D(dat,[],tool(1).getHandles.fig,range,[],mask);
+tool(3) = imtool3D(dat,[],parent,range,[],mask);
 CB_Motion3 = get(gcf,'WindowButtonMotionFcn');
 
 setviewplane(tool(2),'sagittal');
@@ -102,14 +104,14 @@ S = tool(2).getImageSize;
 y2 = tool(3).getCurrentSlice;
 x2 = tool(1).getCurrentSlice;
 crossX2 = plot(H.Axes,[x2 x2],[0 S(1)],'r-');
-crossY2 = plot(H.Axes,[0 S(2)],[y2 y2],'r-');
+crossY2 = plot(H.Axes,[0 S(3)],[y2 y2],'r-');
 
 H = tool(3).getHandles;
 S = tool(3).getImageSize;
 y3 = tool(2).getCurrentSlice;
 x3 = tool(1).getCurrentSlice;
 crossX3 = plot(H.Axes,[x3 x3],[0 S(1)],'r-');
-crossY3 = plot(H.Axes,[0 S(2)],[y3 y3],'r-');
+crossY3 = plot(H.Axes,[0 S(3)],[y3 y3],'r-');
 
 hidecross(crossX1,crossY1,crossX2,crossY2,crossX3,crossY3)
 % add tooltip
@@ -124,7 +126,7 @@ set(h,'WindowScrollWheelFcn',@(src, evnt) scrollWheel(src, evnt, tool) )
 set(h,'Windowkeypressfcn', @(hobject, event) shortcutCallback(hobject, event,tool,crossX1,crossY1,crossX2,crossY2,crossX3,crossY3))
 set(h,'WindowButtonMotionFcn',@(src,evnt) Callback3(CB_Motion1,CB_Motion2,CB_Motion3,src,evnt))
 set(h,'WindowKeyReleaseFcn',@(hobject,key) setappdata(hobject,'HoldX',0))
-setappdata(h,'HoldX',1)
+setappdata(h,'HoldX',0)
 
 addlistener(tool(1).getHandles.Tools.L,'String','PostSet',@(x,y) setWL(tool));
 addlistener(tool(1).getHandles.Tools.U,'String','PostSet',@(x,y) setWL(tool));
@@ -276,12 +278,19 @@ timer=tic;
 
 
 function showcross(tool,crossX1,crossY1,crossX2,crossY2,crossX3,crossY3)
+S = tool(1).getImageSize;
 set(crossX1,'XData',[tool(3).getCurrentSlice tool(3).getCurrentSlice])
+set(crossX1,'YData',[0 S(1)])
 set(crossY1,'YData',[tool(2).getCurrentSlice tool(2).getCurrentSlice])
+set(crossY1,'XData',[0 S(2)])
 set(crossX2,'XData',[tool(1).getCurrentSlice tool(1).getCurrentSlice])
+set(crossX2,'YData',[0 S(2)])
 set(crossY2,'YData',[tool(3).getCurrentSlice tool(3).getCurrentSlice])
+set(crossY2,'XData',[0 S(3)])
 set(crossX3,'XData',[tool(1).getCurrentSlice tool(1).getCurrentSlice])
+set(crossX3,'YData',[0 S(1)])
 set(crossY3,'YData',[tool(2).getCurrentSlice tool(2).getCurrentSlice])
+set(crossY3,'XData',[0 S(3)])
 
 set(crossX1,'Visible','on')
 set(crossY1,'Visible','on')
