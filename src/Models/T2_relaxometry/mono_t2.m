@@ -33,7 +33,7 @@ classdef mono_t2 < AbstractModel % Name your Model
     %   For more examples: <a href="matlab: qMRusage(mono_t2);">qMRusage(mono_t2)</a>
     
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/kujp3/download?version=1';
+    onlineData_url = getLink_t2;
 end   
 
     
@@ -44,7 +44,7 @@ end
         xnames = { 'T2','M0'}; % name of the parameters to fit
         voxelwise = 1; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
         st           = [ 100	1000 ]; % starting point
-        lb            = [  0      0 ]; % lower bound
+        lb            = [  1      1 ]; % lower bound
         ub           = [ 300        10000 ]; % upper bound
         fx            = [ 0       0 ]; % fix parameters
         
@@ -192,14 +192,21 @@ end
             
             % Plot Fitted Model
             plot(Tvec,Smodel(Iorder),'b-')
+            title(sprintf('T2 Fit: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
+            xlabel('Echo time [ms]','FontSize',12);
+            ylabel('Signal','FontSize',12);
+            
+            set(gca,'FontSize',12)
             
             % Plot Data
             if exist('data','var')
                 hold on
                 plot(Tvec,data.SEdata(Iorder),'r+')
+                legend('data', 'fitted','Location','best')
+                legend({'Model','Data'})
                 hold off
             end
-            legend({'Model','Data'})
+            
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
