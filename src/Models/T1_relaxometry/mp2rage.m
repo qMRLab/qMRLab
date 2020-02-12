@@ -84,6 +84,14 @@ methods
         availabledata.allbutUNI = false;
         availabledata.all = false;
 
+        if ~isfield(data,'INV1mag'), data.INV1mag = []; end
+        if ~isfield(data,'INV1phase'), data.INV1phase = []; end
+        if ~isfield(data,'INV2mag'), data.INV2mag = []; end
+        if ~isfield(data,'INV2phase'), data.INV2phase = []; end 
+        if ~isfield(data,'MP2RAGE'), data.MP2RAGE = []; end 
+        if ~isfield(data,'B1map'), data.B1map = []; end 
+        if ~isfield(data,'Mask'), data.Mask = []; end 
+        
         if isempty(data.MP2RAGE), noUNI = true; end     
         if isempty(data.INV1mag), noINV1mag = true;  end 
         if isempty(data.INV1phase), noINV1phase = true;  end 
