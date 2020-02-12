@@ -1,12 +1,16 @@
 function varargout = qMRLab(varargin)
+%         __  __ ____  _          _     
+%    __ _|  \/  |  _ \| |    __ _| |__  
+%   / _` | |\/| | |_) | |   / _` | '_ \ 
+%  | (_| | |  | |  _ <| |__| (_| | |_) |
+%   \__, |_|  |_|_| \_\_____\__,_|_.__/ 
+%      |_|
+
 % qmrlab MATLAB code for qMRLab.fig
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
-%
-% -- MTSAT functionality: P. Beliveau, 2017
-% -- File Browser changes: P. Beliveau 2017
+% See the list of contributors: https://github.com/qMRLab/qMRLab/graphs/contributors
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
