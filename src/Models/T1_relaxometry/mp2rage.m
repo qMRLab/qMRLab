@@ -54,7 +54,7 @@ properties
 
 
     % Model options
-    buttons = {'BIDS',false,'Inv efficiency', 0.96};
+    buttons = {'Inv efficiency', 0.96};
             
     % Tiptool descriptions
     tips = {'Inv efficiency', 'Efficiency of the inversion pulse (fraction).'};
