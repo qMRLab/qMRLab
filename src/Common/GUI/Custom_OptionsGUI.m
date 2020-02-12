@@ -346,38 +346,20 @@ if ~isempty(Model.Prot)
             set(handles.(fields{ii}).table,'RowName', Model.Prot.(fields{ii}).Format);
             set(handles.(fields{ii}).table,'ColumnName','');
         else
-            
-            if ~isprop(Model,'ProtStyle') % NEW implemented in 2.4.0 
-                
-                % If Protsyle property does not exist, assume type table 
-                % and assign column names. 
-                
-                set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
-                % Create BUTTONS
-                % ADD
-                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(hObject, eventdata, handles,fields{ii}));
-                % REMOVE
-                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.04*N .44 .02*N],'Style','pushbutton','String','Remove','Callback',@(hObject, eventdata) PointRem_Callback(hObject, eventdata, handles,fields{ii}));
-                % Move up
-                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.02*N .44 .02*N],'Style','pushbutton','String','Move up','Callback',@(hObject, eventdata) PointUp_Callback(hObject, eventdata, handles,fields{ii}));
-                % Move down
-                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
-                % LOAD
-                uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0    .94 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
-            
-            else % If Style is passed 
-                
-              
-               if strcmp(styles(prtidx),'TableNoButton')
-                  
-                % If Protsyle property exist and value is NoTableButton
-                % assign TABLE column names. 
-                  set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
-               
-               end
-                
-                
-            end
+            set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
+            % Create BUTTONS
+            % ADD
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(hObject, eventdata, handles,fields{ii}));
+            % REMOVE
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.04*N .44 .02*N],'Style','pushbutton','String','Remove','Callback',@(hObject, eventdata) PointRem_Callback(hObject, eventdata, handles,fields{ii}));
+            % Move up
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.02*N .44 .02*N],'Style','pushbutton','String','Move up','Callback',@(hObject, eventdata) PointUp_Callback(hObject, eventdata, handles,fields{ii}));
+            % Move down
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
+            % LOAD
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0      .44 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            % Create
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0      .44 .02*N],'Style','pushbutton','String','Create','Callback',@(hObject, eventdata) CreateProt_Callback(hObject, eventdata, handles,fields{ii}));
         end
 
     end
@@ -531,14 +513,41 @@ set(handles.ProtFileName,'String','Protocol Filename');
 OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
-[FileName,PathName] = uigetfile({'*.mat;*.xls;*.xlsx;*.txt;*.scheme'},'Load Protocol Matrix');
+FileFormat = '*.mat;*.xls;*.xlsx;*.txt';
+if strcmp(MRIinput,'DiffusionData')
+    FileFormat = ['*.bvec;*.scheme;' FileFormat];
+end
+[FileName,PathName] = uigetfile({FileFormat},'Load Protocol Matrix');
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
+if Prot == 0, return; end
 if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.(MRIinput).table,'Data',Prot)
 Model = getappdata(0,'Model');
 Model.Prot.(MRIinput).Mat = Prot;
+UpdateProt(MRIinput,Prot,handles)
+
+function CreateProt_Callback(hObject, eventdata, handles, MRIinput)
+Model = getappdata(0,'Model');
+Fmt = Model.Prot.(MRIinput).Format; if ischar(Fmt), Fmt = {Fmt}; end
+answer = inputdlg(Fmt,'Enter values, vectors or Matlab expressions',[1 100]);
+if isempty(answer), return; end
+Prot = cellfun(@str2num,answer,'uni',0);
+Prot = cellfun(@(x) x(:),Prot,'uni',0);
+Nlines = max(cell2mat(cellfun(@length,Prot,'uni',0)));
+Model.Prot.(MRIinput).Mat = NaN(Nlines,length(Fmt));
+for ic = 1:length(Fmt)
+    if length(Prot{ic})>1
+        Lmax = length(Prot{ic}); % if vector, fill as many as possible
+    else
+        Lmax = Nlines; % if scalar, all lines get this value
+    end
+    if isempty(Prot{ic}), Prot{ic} = NaN; end
+    Model.Prot.(MRIinput).Mat(1:Lmax,ic) = Prot{ic};
+end
+Prot = Model.Prot.(MRIinput).Mat;
+set(handles.(MRIinput).table,'Data',Prot)
 UpdateProt(MRIinput,Prot,handles)
 
 
@@ -591,10 +600,21 @@ function Default_Callback(hObject, eventdata, handles)
 oldModel = getappdata(0,'Model');
 modelfun = str2func(class(oldModel));
 Model = modelfun();
-Model.Prot = oldModel.Prot;
-setappdata(0,'Model',Model);
+
+answer = questdlg('What do you want to set to default?','Reset protocol?','Reset options','Reset options AND protocol','Reset protocol','Reset options');
+if strfind(answer,'options')
+    newModel = Model;
+    newModel.Prot = oldModel.Prot;
+else
+    newModel = oldModel;
+end
+if strfind(answer,'protocol')
+    newModel.Prot = Model.Prot;
+end
+
+setappdata(0,'Model',newModel);
 set(handles.ParametersFileName,'String','Parameters Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, newModel, handles.caller)
 
 % --- Executes on button press in Load.
 function Load_Callback(hObject, eventdata, handles)

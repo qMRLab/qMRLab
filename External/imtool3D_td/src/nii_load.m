@@ -62,7 +62,11 @@ for ff=1:length(list)
     
     % LOAD AND RESLICE
     hdr_ref = nii_reset_orient(list{1}); % Set hdr.dim back to initial orientation
-    nii = nii_xform(list{ff},hdr_ref,[],intrp);
+    if ff==1
+        nii = nii_tool('load',list{ff});
+    else
+        nii = nii_xform(list{ff},hdr_ref,[],intrp);
+    end
     
     if nargin==1 || (~isempty(untouch) && ~untouch)
         orient = nii_get_orient(nii.hdr);

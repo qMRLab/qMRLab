@@ -40,7 +40,7 @@ classdef filter_map < AbstractModel & FilterClass
         voxelwise = 0; % 0, if the analysis is done matricially
         % 1, if the analysis is done voxel per voxel
         % Protocol
-        Prot;
+        Prot = struct();
     end
     % Inherit these from public properties of FilterClass
     % Model options

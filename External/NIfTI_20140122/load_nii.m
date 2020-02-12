@@ -168,7 +168,13 @@ function nii = load_nii(filename, img_idx, dim5_idx, dim6_idx, dim7_idx, ...
          gzFileName = filename;
          copyfile(filename,tmpDir)
          [pathtmp, nametmp, exttmp] = fileparts(filename);
-         filename = gunzip(fullfile(tmpDir,[nametmp,exttmp]));
+         if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
+         % To avoid too many levels of symlinks error thrown by octave. 
+            system(['gzip -d --force ' fullfile(tmpDir,[nametmp,exttmp])]);
+            filename = [tmpDir filesep filename(1:end-3)];
+         else
+            filename = gunzip(fullfile(tmpDir,[nametmp,exttmp]));
+         end   
          filename = char(filename);	% convert from cell to string
       end
    end
