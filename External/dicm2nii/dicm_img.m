@@ -35,13 +35,12 @@ function img = dicm_img(s, xpose)
 % 160521 support dicom with BitsStored~=HighBit+1 (thx RayL).
 % 171201 Bug fix for compressed dicom without offset table (thx DianaG).
 
-persistent flds dict mem cleanObj;
-if isempty(flds), flds = {'Rows' 'Columns' 'BitsAllocated'}; end
-if isstruct(s) && ~all(isfield(s, [flds 'PixelData'])), s = s.Filename; end
+persistent dict mem cleanObj;
+if isstruct(s) && ~all(isfield(s, {'Rows' 'Columns' 'PixelData'})), s = s.Filename; end
 if ischar(s) % input is file name
     if isempty(dict)
-        dict = dicm_dict('', ['SamplesPerPixel' 'PlanarConfiguration' ...
-            flds 'BitsStored' 'HighBit' 'PixelRepresentation' ]);
+        dict = dicm_dict('', {'SamplesPerPixel' 'PlanarConfiguration' 'Rows' 'Columns' ...
+            'BitsAllocated' 'BitsStored' 'HighBit' 'PixelRepresentation'});
     end
     [s, err] = dicm_hdr(s, dict); 
     if isempty(s), error(err); end
@@ -56,10 +55,23 @@ if isnumeric(s.PixelData) % data already in hdr
     return;
 end
 
-if ~isfield(s.PixelData, 'Format')
-    fmt = sprintf('*uint%g', s.BitsAllocated);
+if isfield(s.PixelData, 'Format') % all expl dicm
+    fmt = s.PixelData.Format;
+    if isfield(s, 'BitsAllocated')
+        bpp = double(s.BitsAllocated);
+        if bpp==8 && strcmp(fmt, 'uint16'), fmt = 'uint8'; % ugly fix
+        elseif bpp==16 && strcmp(fmt, 'uint8'), fmt = 'uint16'; % by CorradoC
+        end
+    elseif regexp(fmt, 'single$'), bpp = 32;
+    elseif regexp(fmt, 'double$'), bpp = 64;
+    else, bpp = str2double(regexp(fmt, '(?<=int)\d+', 'match', 'once'));
+    end
+    if fmt(1) ~= '*', fmt = ['*' fmt]; end
+elseif isfield(s, 'BitsAllocated')
+    bpp = double(s.BitsAllocated);
+    fmt = sprintf('*uint%g', bpp);
 else
-    fmt =  s.PixelData.Format;
+    error('Unknown data type for %s', s.Filename);
 end
 
 if nargin<2 || isempty(xpose), xpose = true; end % same as dicomread by default
@@ -80,10 +92,10 @@ else, tsUID = '1.2.840.10008.1.2.1'; % files other than dicom
 end
 
 if any(strcmp(tsUID, {'1.2.840.10008.1.2.1' '1.2.840.10008.1.2.2' '1.2.840.10008.1.2'}))
-    n = double(s.PixelData.Bytes) / (double(s.BitsAllocated) / 8);
+    n = double(s.PixelData.Bytes) / (bpp/8);
     img = fread(fid, n, fmt);
     
-    if all(isfield(s, {'BitsStored' 'HighBit'})) && ...
+    if all(isfield(s, {'BitsStored' 'HighBit' 'BitsAllocated'})) && ...
             (s.BitsStored ~= s.HighBit+1) && (s.BitsStored ~= s.BitsAllocated)
         img = bitshift(img, s.BitsStored-s.HighBit-1);
     end
