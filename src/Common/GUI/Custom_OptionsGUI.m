@@ -287,36 +287,7 @@ if ~isempty(Model.Prot)
         % Unlike options panel, here they are REQUIRED. 
         
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-        
-        if ~isprop(Model,'ProtStyle')
-            
-        % Create TABLE
-            handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
-        
-        elseif isprop(Model,'ProtStyle')
-            
-            prot_names  = Model.ProtStyle.prot_namespace;
-            styles = {Model.ProtStyle.style};
-            [~,prtidx] = ismember(fields{ii},prot_names);
-            
-            try
-            if strcmp(styles(prtidx),'TableNoButton')
-            % Create TABLE
-                handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
-
-            end
-            catch 
-               
-                if prtidx == 0
-                   
-                    disp('============ qMRLab developer: ==========');
-                    error('Please ensure that Protocol panel names are consistent across all attributes');
-                    
-                end
-                
-            end
-            
-        end
+        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
         
         % TODO: Condition to be improved.
         if isprop(Model,'tabletip')
@@ -361,8 +332,30 @@ if ~isempty(Model.Prot)
             % Create
             uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0      .44 .02*N],'Style','pushbutton','String','Create','Callback',@(hObject, eventdata) CreateProt_Callback(hObject, eventdata, handles,fields{ii}));
         end
-
-    end
+        
+        % Make buttons invisible on condition.
+        if isprop(Model,'ProtStyle')
+            
+            prot_names  = Model.ProtStyle.prot_namespace;
+            styles = {Model.ProtStyle.style};
+            [~,prtidx] = ismember(fields{ii},prot_names);
+           
+            if strcmp(styles(prtidx),'TableNoButton') && length(handles.(fields{ii}).panel.Children)>1
+             
+              for chil_iter = 1:length(handles.(fields{ii}).panel.Children)
+                  
+                  if isa(handles.(fields{ii}).panel.Children(chil_iter),'matlab.ui.control.UIControl')
+                  if strcmp(handles.(fields{ii}).panel.Children(chil_iter).Style,'pushbutton')
+                      handles.(fields{ii}).panel.Children(chil_iter).Visible = 'off';
+                  end
+                  end
+              end
+              
+            end
+        end
+    
+        
+     end
 end
 
 if ismethod(Model,'plotProt')
