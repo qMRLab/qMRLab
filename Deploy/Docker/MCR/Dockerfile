@@ -11,7 +11,7 @@
 # Author: Agah Karakuzu, 2019
 # ===========================================================================
 
-FROM ubuntu:16.04
+FROM qmrlab/octjn:v2.3.1
 
 USER root 
 
@@ -54,28 +54,28 @@ RUN mkdir /opt/mcr_install && \
 
 ARG TAG
 
-RUN mkdir -p /home/neuropoly && \
-    echo "neuropoly:x:1000:1000:Neuropoly,,,:/home/neuropoly:/bin/bash" >> /etc/passwd && \
-    echo "neuropoly:x:1000:" >> /etc/group && \
-    echo "neuropoly ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/neuropoly && \
-    chmod 0440 /etc/sudoers.d/neuropoly && \
-    chown neuropoly:neuropoly -R /home/neuropoly && \
-    osf -p tmdfu fetch /Standalone/Ubuntu/qMRLab_$TAG.zip /home/neuropoly/qMRLab.zip && \
-    cd /home/neuropoly && \
+RUN mkdir -p /home/jovyan/work && \
+    echo "jovyan:x:1000:1000:Jovyan,,,:/home/jovyan:/bin/bash" >> /etc/passwd && \
+    echo "jovyan:x:1000:" >> /etc/group && \
+    echo "jovyan ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/jovyan && \
+    chmod 0440 /etc/sudoers.d/jovyan && \
+    chown jovyan:jovyan -R /home/jovyan && \
+    osf -p tmdfu fetch /Standalone/Ubuntu/qMRLab_$TAG.zip /home/jovyan/qMRLab.zip && \
+    cd /home/jovyan && \
     unzip  qMRLab.zip && \
-    ls /home/neuropoly && \
-    rm /home/neuropoly/qMRLab.zip && \
-    chmod +x /home/neuropoly/run_qMRLab.sh && \
-    chmod +x /home/neuropoly/qMRLab && \
-    mkdir /home/neuropoly/mcrCache && \
-    mkdir /home/neuropoly/mcrCache/.mcrCache9.5 && \
-    chmod -R 777 /home/neuropoly
+    ls /home/jovyan && \
+    rm /home/jovyan/qMRLab.zip && \
+    chmod +x /home/jovyan/run_qMRLab.sh && \
+    chmod +x /home/jovyan/qMRLab && \
+    mkdir /home/jovyan/mcrCache && \
+    mkdir /home/jovyan/mcrCache/.mcrCache9.5 && \
+    chmod -R 777 /home/jovyan
 
     
 
 # Set $HOME 
 
-ENV HOME /home/neuropoly
+ENV HOME /home/jovyan
 
 # SET LD_LIBRARY_PATH and XAPPLETRESDIR environment variables 
 
@@ -84,10 +84,10 @@ ENV XAPPLERESDIR "/opt/mcr/v95/X11/app-defaults"
 
 # SET MCR CACHE ROOT env variable
 
-ENV MCR_CACHE_ROOT "/home/neuropoly/mcrCache" 
+ENV MCR_CACHE_ROOT "/home/jovyan/mcrCache" 
 
 # Set WORKDIR to the directory where qMRLab executables are present for ENTRYPOINT call
 
-WORKDIR /home/neuropoly
+WORKDIR $HOME
 
-USER neuropoly
+USER $NB_UID
