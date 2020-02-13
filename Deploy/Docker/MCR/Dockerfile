@@ -60,7 +60,7 @@ RUN mkdir -p /home/jovyan/work && \
     echo "jovyan ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/jovyan && \
     chmod 0440 /etc/sudoers.d/jovyan && \
     chown jovyan:jovyan -R /home/jovyan && \
-    osf -p tmdfu fetch /Standalone/Ubuntu/qMRLab_$TAG.zip /home/jovyan/qMRLab.zip && \
+    osf -p tmdfu fetch /Standalone/Ubuntu/qMRLab_v99.3.1.zip /home/jovyan/qMRLab.zip && \
     cd /home/jovyan && \
     unzip  qMRLab.zip && \
     ls /home/jovyan && \
