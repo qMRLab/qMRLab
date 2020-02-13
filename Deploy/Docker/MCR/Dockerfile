@@ -65,8 +65,8 @@ RUN mkdir -p /home/jovyan/work && \
     unzip  qMRLab.zip && \
     ls /home/jovyan && \
     rm /home/jovyan/qMRLab.zip && \
-    chmod +x /home/jovyan/run_qMRLab.sh && \
-    chmod +x /home/jovyan/qMRLab && \
+    chmod +x /home/jovyan/run_ir_rrsg.sh && \
+    chmod +x /home/jovyan/ir_rrsg && \
     mkdir /home/jovyan/mcrCache && \
     mkdir /home/jovyan/mcrCache/.mcrCache9.5 && \
     chmod -R 777 /home/jovyan
