@@ -1,28 +1,24 @@
-function ir_rrsg(inputFilename, outputFilename)
+function ir_rrsg(varargin)
 
-load(inputFilename)
+inputFilename = varargin{1};
+outputFilename = varargin{2};
 
-% Assign data to variables needed for qMRLab module
-IRData = data;
-
-if exist('mask')
-  Mask = mask;
-end
+inps = load(inputFilename);
 
 % Format qMRLab inversion_recovery model parameters, and load them into the Model object
 Model = inversion_recovery; 
 
-% Set the customizable settings in the model
-Model.Prot.IRData.Mat = [TI'];
-Model.options.method = dataType;
-
 % Format data structure so that they may be fit by the model
 data = struct();
-data.IRData= double(IRData);
+data.IRData= double(inps.data);
 
-if exist('mask')
-  data.Mask= double(Mask);
+if isfield(inps,'mask')
+    data.Mask= double(inps.mask);
 end
+
+% Set the customizable settings in the model
+Model.Prot.IRData.Mat = inps.TI';
+Model.options.method = inps.dataType;
 
 FitResults = FitData(data,Model,0); % The '0' flag is so that no wait bar is shown.
 
