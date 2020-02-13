@@ -19,7 +19,6 @@ classdef mp2rage < AbstractModel
 %   MP2RAGE         Combined MP2RAGE image if INV1mag, INV1phase, INV2mag, INV2phase
 %                   images were provided but MP2RAGE was not.
 %   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided.  
-  
 
 properties (Hidden=true)
  onlineData_url = 'https://osf.io/8x2c9/download?version=4';
@@ -29,7 +28,7 @@ properties
     MRIinputs = {'MP2RAGE','INV1mag','INV1phase','INV2mag','INV2phase','B1map' 'Mask'};
     xnames = {'T1','R1','MP2RAGE','MP2RAGEcor'};
     voxelwise = 0;
-    
+
     % Protocol
     Prot  = struct('Hardware',struct('Format',{{'B0 (T)'}},...
     'Mat', [7]),...
@@ -52,10 +51,9 @@ properties
     sprintf(['NumberOfShots: Number of shots [Pre] before and [Post] after the k-space center'])
     });
 
-
     % Model options
     buttons = {'Inv efficiency', 0.96};
-            
+
     % Tiptool descriptions
     tips = {'Inv efficiency', 'Efficiency of the inversion pulse (fraction).'};
 
@@ -71,10 +69,10 @@ methods
     end
 
     function FitResult = fit(obj,data)
-        
+
         % All fields are optional, possible cases must be handled properly.  
         availabledata = struct();
-        
+
         noUNI = false;
         noINV1mag = false; 
         noINV1phase = false; 
@@ -97,10 +95,9 @@ methods
         if isempty(data.INV1phase), noINV1phase = true;  end 
         if isempty(data.INV2mag), noINV2mag = true; end 
         if isempty(data.INV2phase), noINV2phase = true; end 
-        
-        
+
         if noINV1mag && noINV1phase && noINV2mag && noINV2phase && ~noUNI
-            
+
             availabledata.onlyUNI = true;
 
         elseif ~noINV1mag && ~noINV1phase && ~noINV2mag && ~noINV2phase && noUNI
@@ -115,29 +112,28 @@ methods
             'MP2RAGE data is available. Data from the following fields will not be used for T1 mapping:\n' ...
             '- Inv1mag \n -INV1phase \n -INV2mag \n -INV2phase' ...
             'If you would like to use the data listed above for fitting, please leave MP2RAGE directory empty.']));    
-        
+
         else     
 
             error(sprintf(['=============== qMRLab::Fit ======================\n' ...
             'Required data is not provided to perform T1 fitting.']));
-
         end
-             
+
         % LOAD PROTOCOLS =========================================
 
         % Hardware
         MagneticFieldStrength = obj.Prot.Hardware.Mat;
-        
+
         % RepetitionTime
         RepetitionTimeInversion = obj.Prot.RepetitionTimes.Mat(1);
         RepetitionTimeExcitation = obj.Prot.RepetitionTimes.Mat(2);
-        
+
         % Timing
         InversionTime = obj.Prot.Timing.Mat';
-        
-        % Sequence   
+
+        % Sequence
         FlipAngle = obj.Prot.Sequence.Mat';
-        
+
         % KSpace
         NumberShots = obj.Prot.NumberOfShots.Mat';
 
@@ -148,14 +144,14 @@ methods
             MP2RAGE.TIs = InversionTime; % inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
             MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
             MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
-            
+
             % If both NumberShots are equal, then assume half/half for before/after
         if NumberShots(1) == NumberShots(2)
-    
+
             MP2RAGE.NZslices = [ceil(NumberShots(1)/2) floor(NumberShots(1)/2)]; 
-    
+
         end 
-        
+
         % LOAD OPTIONS ========================================= 
 
         invEFF = obj.options.Invefficiency;
@@ -169,15 +165,12 @@ methods
         data.INV2phase = ((data.INV2phase - min(data.INV2phase(:)))./(max(data.INV2phase(:)-min(data.INV2phase(:))))).*2.*pi;
        
        end 
-       
-       
+
         if availabledata.onlyUNI || availabledata.all
             
             MP2RAGEimg.img = data.MP2RAGE;
 
-            
         elseif availabledata.allbutUNI
-            
 
             INV1 = data.INV1mag.*exp(data.INV1phase * 1j);
             INV2 = data.INV2mag.*exp(data.INV2phase * 1j);
@@ -192,8 +185,6 @@ methods
             clear('INV1','INV2','img'); 
             
         end
-        
-        
         
         if ~isempty(data.B1map)
 
