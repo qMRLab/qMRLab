@@ -182,6 +182,7 @@ end
         function plotModel(obj, FitResults, data)
             %  Plot the Model and Data.
             if nargin<2, qMRusage(obj,'plotModel'), FitResults=obj.st; end
+            FitResults=mat2struct(FitResults,obj.xnames);
             
             %Get fitted Model signal
             Smodel = equation(obj, FitResults);
