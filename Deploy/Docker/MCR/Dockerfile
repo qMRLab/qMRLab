@@ -91,7 +91,3 @@ ENV MCR_CACHE_ROOT "/home/neuropoly/mcrCache"
 WORKDIR /home/neuropoly
 
 USER neuropoly
-
-# Start standalone qMRLab with GUI
-
-ENTRYPOINT ["sh","run_qMRLab.sh","/opt/mcr/v95"]

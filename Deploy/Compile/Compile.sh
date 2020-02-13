@@ -24,6 +24,8 @@ echo "Compiling for version: $version"
 
 # Crate tmp directory for compiling 
 mkdir -p /tmp/qMRLab
+# Delete old files
+rm -rf /tmp/qMRLab/*
 
 # Compile 
 # This will do it async, cannot manage flow. 
