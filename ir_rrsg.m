@@ -1,7 +1,11 @@
 function ir_rrsg(varargin)
 
-inputFilename = varargin{1};
-outputFilename = varargin{2};
+% varargin 1 is reserved for $LD_LIBRARY_PATH
+    
+disp(['Received file input: ' varargin{2}]);
+
+inputFilename = varargin{2};
+outputFilename = varargin{3};
 
 inps = load(inputFilename);
 
