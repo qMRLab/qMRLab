@@ -11,7 +11,7 @@
 # Author: Agah Karakuzu, 2019
 # ===========================================================================
 
-FROM qmrlab/octjn:v2.3.1
+FROM qmrlab/octjn:latest
 
 USER root 
 

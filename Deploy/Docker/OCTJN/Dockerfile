@@ -43,7 +43,7 @@ RUN echo ${TAG};\
     pip install --requirement /tmp/requirements.txt; \
     python -m sos_notebook.install;\    
     cd $HOME/work; \    
-    git clone -b ${TAG} --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
+    git clone --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
     chmod -R 777 $HOME/work/qMRLab; \
     octave --eval "cd /home/jovyan/work/qMRLab; \
                       startup; \
