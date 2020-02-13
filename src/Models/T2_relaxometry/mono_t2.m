@@ -214,9 +214,9 @@ end
             if nargin<4, display=1; end
             % Compute Smodel
             Smodel = equation(obj, x);
-            % add rician noise
+            % add gaussian noise
             sigma = max(Smodel)/Opt.SNR;
-            data.SEdata = random('rician',Smodel,sigma);
+            data.SEdata = random('normal',Smodel,sigma);
             % fit the noisy synthetic data
             FitResults = fit(obj,data);
             % plot
