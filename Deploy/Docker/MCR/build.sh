@@ -32,7 +32,7 @@ fi
 
 
 USERNAME=qmrlab
-IMAGE=mcrgui
+IMAGE=mcrcli
 
 
 # Vraiables are available in Azure
