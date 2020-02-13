@@ -44,10 +44,9 @@ DOCKER_PASSWORD=$2
 
 # Build docker image after navigating to the Dockerfile's directory
 cd $qMRdir/Deploy/Docker/MCR
-docker build -t $USERNAME/$IMAGE:$version -t $USERNAME/$IMAGE:latest --build-arg TAG=$version .
+docker build -t $USERNAME/$IMAGE:$version --build-arg TAG=$version .
 
 # PUSH
 echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-docker push $USERNAME/$IMAGE:latest
 docker push $USERNAME/$IMAGE:$version
 

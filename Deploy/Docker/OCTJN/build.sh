@@ -38,11 +38,10 @@ IMAGE=octjn
 
 # Build docker image
 cd $qMRdir/Deploy/Docker/OCTJN
-docker build -t $USERNAME/$IMAGE:$version -t $USERNAME/$IMAGE:latest --build-arg TAG=$version .
+docker build -t $USERNAME/$IMAGE:$version --build-arg TAG=$version .
 
 # PUSH
 echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-docker push $USERNAME/$IMAGE:latest
 docker push $USERNAME/$IMAGE:$version
 
 
