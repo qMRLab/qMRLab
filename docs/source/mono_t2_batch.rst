@@ -91,7 +91,7 @@ mono_t2: Compute a monoexponential T2 map
        FitResults = FitData(data,Model); %fit data
        FitResultsSave_mat(FitResults);
     
-      Reference work for codeDropFirstEcho/code and codeOffset/code options: 
+      Reference work for <code>DropFirstEcho</code> and <code>codeOffset</code> options: 
       https://www.ncbi.nlm.nih.gov/pubmed/26678918
    
        Reference page in Doc Center
