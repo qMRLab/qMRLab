@@ -3,15 +3,9 @@ Methods available
 
 FieldMaps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
+* b1_dam map:  Double-Angle Method for B1+ mapping
 
-	b1_dam_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	b0_dem_batch
+* b0_dem map :  Dual Echo Method for B0 mapping
 
 T2_relaxometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,90 +14,45 @@ T2_relaxometry
 
 	mono_t2_batch
 
-.. toctree::
-	:maxdepth: 1
-
-	mwf_batch
+* mwf :  Myelin Water Fraction from Multi-Exponential T2w data
 
 Processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
-
-	filter_map_batch
+* filter_map:   Applies spatial filtering (2D or 3D)
 
 T1_relaxometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
+* mp2rage: Compute a T1 map using MP2RAGE
 
-	mp2rage_batch
+* vfa_t1: Compute a T1 map using Variable Flip Angle
 
-.. toctree::
-	:maxdepth: 1
-
-	vfa_t1_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	inversion_recovery_batch
+* inversion_recovery: Compute a T1 map using Inversion Recovery data
 
 Magnetization_transfer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
+* qmt_bssfp : qMT using Balanced Steady State Free Precession acquisition
 
-	qmt_bssfp_batch
+* qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)
 
-.. toctree::
-	:maxdepth: 1
+* mt_sat :  Correction of Magnetization transfer for RF inhomogeneities and T1
 
-	qmt_spgr_batch
+* mt_ratio :  Magnetization transfer ratio (MTR)
 
-.. toctree::
-	:maxdepth: 1
-
-	mt_sat_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	mt_ratio_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	qmt_sirfse_batch
+* qmt_sirfse:  qMT using Inversion Recovery Fast Spin Echo acquisition
 
 Diffusion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
+* dti: Compute a tensor from diffusion data
 
-	dti_batch
+* amico:   Accelerated Microstructure Imaging via Convex Optimization
 
-.. toctree::
-	:maxdepth: 1
+* noddi:   Neurite Orientation Dispersion and Density Imaging
 
-	amico_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	noddi_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	charmed_batch
+* charmed: Composite Hindered and Restricted Model for Diffusion
 
 QSM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
-
-	qsm_sb_batch
+* qsm_sb: Compute a T1 map using Variable Flip Angle
 
 UnderDevelopment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,13 +62,7 @@ UnderDevelopment
 
 Noise
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. toctree::
-	:maxdepth: 1
+* denoising_mppca :  4d image denoising and noise map estimation by exploiting
 
-	denoising_mppca_batch
-
-.. toctree::
-	:maxdepth: 1
-
-	noise_level_batch
+* noise_level :  Noise histogram fitting within a noise mask
 

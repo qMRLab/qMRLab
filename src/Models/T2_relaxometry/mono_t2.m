@@ -1,4 +1,4 @@
-classdef mono_t2 < AbstractModel % Name your Model
+classdef mono_t2 < AbstractModel
     % mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
     % data
     %
@@ -6,7 +6,7 @@ classdef mono_t2 < AbstractModel % Name your Model
     %   Mono-exponential fit
     %
     % Inputs:
-    %   SEdata        multi-echo data, 4D volume with different echo times in time dimension
+    %   SEdata          Multi-echo data, 4D volume with different echo times in time dimension
     %   (Mask)          Binary mask to accelerate the fitting (optional)
     %
     % Outputs:
@@ -15,12 +15,12 @@ classdef mono_t2 < AbstractModel % Name your Model
     %
     % Protocol:
     %   TE Array [nbTE]:
-    %       [TE1; TE2;...;TEn]     column vector listing the TEs [ms] 
+    %   [TE1; TE2;...;TEn]     column vector listing the TEs [ms] 
     %
     % Options:
-    %   FitType     Linear or Exponential
-    %   DropFirstEcho  Optionally drop 1st echo because of imperfect refocusing https://www.ncbi.nlm.nih.gov/pubmed/26678918
-    %   Offset          Optionally fit for offset parameter to correct for imperfect refocusing https://www.ncbi.nlm.nih.gov/pubmed/26678918
+    %   FitType         Linear or Exponential
+    %   DropFirstEcho   `Link Optionally drop 1st echo because of imperfect refocusing <https://www.ncbi.nlm.nih.gov/pubmed/26678918>`_
+    %   Offset          <a href="https://www.ncbi.nlm.nih.gov/pubmed/26678918">Optionally fit for offset parameter to correct for imperfect refocusing</a> 
     %
     % Example of command line usage:
     %   Model = mono_t2;  % Create class from model
@@ -29,8 +29,6 @@ classdef mono_t2 < AbstractModel % Name your Model
     %   data.SEData = load_nii_data('SEData.nii.gz');
     %   FitResults = FitData(data,Model); %fit data
     %   FitResultsSave_mat(FitResults);
-    %
-    %   For more examples: <a href="matlab: qMRusage(mono_t2);">qMRusage(mono_t2)</a>
     
 properties (Hidden=true)
     onlineData_url = getLink_t2();
