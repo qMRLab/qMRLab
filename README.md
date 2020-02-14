@@ -22,25 +22,25 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 ***
 
-<b><p align="center" style="color:red;">
+<b><p align="center" style="font-size:24px">
 FROM SCANNER</p></b> 
-<p align="center">
-🔻</p>  
+
 <p align="center">
 Version controlled, fully transparent & vendor-neutral  <a href="https://github.com/qMRLab/pulse_sequences"> pulse sequences</a>.</p>  
 
 <p align="center">
-🔻</p>  
+⬇️</p>  
 
 <p align="center">
-Data-drive, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows</a>.</p>
+Data-driven, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows</a>.</p>
+
 <p align="center">
-🔻</p>  
+⬇️</p>  
+
 <p align="center">
  Reproducible & modern <a href="https://qmrlab.org/blog.html"> publication</a> objects.</p>
-<p align="center">
-🔻</p>  
-<b><p align="center" style="color:red;">
+
+<b><p align="center" style="font-size:24px">
 TO PUBLICATION</p></b> 
 
 ***
