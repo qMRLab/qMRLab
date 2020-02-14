@@ -33,7 +33,7 @@ classdef mono_t2 < AbstractModel % Name your Model
     %   For more examples: <a href="matlab: qMRusage(mono_t2);">qMRusage(mono_t2)</a>
     
 properties (Hidden=true)
-    onlineData_url = getLink_t2;
+    onlineData_url = getLink_t2();
 end   
 
     

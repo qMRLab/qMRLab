@@ -21,7 +21,7 @@ classdef mp2rage < AbstractModel
 %   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided.  
 
 properties (Hidden=true)
- onlineData_url = getLink_mp2rage;
+ onlineData_url = getLink_mp2rage();
 end
 
 properties
