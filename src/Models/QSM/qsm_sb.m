@@ -1,5 +1,5 @@
 classdef qsm_sb < AbstractModel
-% qsm_sb: Compute a T1 map using Variable Flip Angle
+% qsm_sb: Fast quantitative susceptibility mapping
 %
 % Assumptions:
 % Type/number of outputs will depend on the selected options. 
