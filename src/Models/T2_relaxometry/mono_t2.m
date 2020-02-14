@@ -5,7 +5,8 @@ classdef mono_t2 < AbstractModel
     %   Mono-exponential fit
     %
     % Inputs:
-    %   SEdata          Multi-echo data, 4D volume with different echo times in time dimension
+    %   SEdata          Multi-echo spin-echo data, 4D volume with different 
+    %                   echo times in time dimension
     %   (Mask)          Binary mask to accelerate the fitting (optional)
     %
     % Outputs:
@@ -29,7 +30,7 @@ classdef mono_t2 < AbstractModel
     %   FitResults = FitData(data,Model); %fit data
     %   FitResultsSave_mat(FitResults);
     %
-    %  Reference work for <code>DropFirstEcho</code> and <code>Offset</code> options: 
+    %  Reference work for DropFirstEcho and Offset options: 
     %  https://www.ncbi.nlm.nih.gov/pubmed/26678918
     
 properties (Hidden=true)
