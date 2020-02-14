@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - 🆕 model: `mp2rage` 
     - Fit MP2RAGE data to create a T1map.
     - The original codebase is [here](https://github.com/JosePMarques/MP2RAGE-related-scripts).
+    - Check out [qMRLab's MP2RAGE blog post](https://qmrlab.org/2019/04/08/T1-mapping-mp2rage.html) by @mathieuboudreau!
 - 🆕 model: `mono_t2`
     - Fit MESE data to create a T2map.
 - 🆕 simulator: `Monte-Carlo Diffusion`

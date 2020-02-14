@@ -1,7 +1,7 @@
 # [qMRLab](https://qmrlab.org)
 [![Build Status](https://travis-ci.org/qMRLab/qMRLab.svg?branch=master)](https://travis-ci.org/qMRLab/qMRLab) [![Coverage Status](https://coveralls.io/repos/github/qMRLab/qMRLab/badge.svg?branch=master)](https://coveralls.io/github/qMRLab/qMRLab?branch=master) [![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=latest)](https://qmrlab.readthedocs.io/en/master/?version=latest) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/MIT) [![Website](https://img.shields.io/badge/Website-qmrlab.org-red.svg)](https://qmrlab.org) [![OctJN](https://vsrm.dev.azure.com/qmrlab/_apis/public/Release/badge/46799180-12b7-4319-b8e7-94e1d39047e7/2/7)](https://devops.azure.com/qmrlab) [![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&label=Follow)](https://twitter.com/qmrlab)
 
-![hdr](/docs/logo/page_header.png)
+![hdr](/docs/logo/header_new.png)
 
 <h2>qMRLab is an open-source software for quantitative MR image analysis.</h2>
 
@@ -19,6 +19,28 @@ Please report any <b>bug</b> or <b>suggestions</b> in <a href="https://github.co
 
 <p align="center">
 qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/qMTLab">qMTLab</a>.</p>  
+
+
+<p align="center" style="color:red;">
+FROM SCANNER</p> 
+<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
+
+<p align="center">
+Version controlled, fully transparent & vendor-neutral  <a href="https://github.com/qMRLab/pulse_sequences"> pulse sequences</a>.</p>  
+
+<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
+
+<p align="center">
+Data-drive, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows</a>.</p>
+
+<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
+
+<p align="center">
+ Reproducible & modern <a href="https://qmrlab.org/blog.html"> publication</a> objects.</p>
+
+<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
+<p align="center" style="color:red;">
+TO PUBLICATION</p> 
 
 ## References
 
@@ -50,6 +72,12 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 
 * Karakuzu et al. Quantitative MR Study Group Competition, second place, ISMRM 2019 
 * Boudreau et al. Junior Fellows Symposium Challenge, Africa challenge winner, ISMRM 2019
+* Karakuzu et al. [Magnetic Moments](https://www.youtube.com/watch?v=67GKiK3iFr0), People's Choice Award, ISMRM 2018 
+
+**Sponsored by**
+
+* [Institut TransMedTech Montréal (ITMT)](https://www.polymtl.ca/transmedtech/)
+* [Canadian Open Neuroscience Platform (CONP)](https://conp.ca/)
 
 ## Citation
 
