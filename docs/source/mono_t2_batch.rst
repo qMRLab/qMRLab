@@ -1,5 +1,5 @@
-mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
-====================================================================
+mono_t2: Compute a monoexponential T2 map
+=========================================
 
 .. raw:: html
 
@@ -61,8 +61,7 @@ mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
    <span class="comment">% Written by: Agah Karakuzu, 2017</span>
    <span class="comment">% =========================================================================</span>
    </pre><h2 id="2">I- DESCRIPTION</h2><pre class="codeinput">qMRinfo(<span class="string">'mono_t2'</span>); <span class="comment">% Describe the model</span>
-   </pre><pre class="codeoutput">  mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
-     data
+   </pre><pre class="codeoutput">  mono_t2: Compute a monoexponential T2 map
     
      Assumptions:
        Mono-exponential fit
@@ -81,8 +80,8 @@ mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
     
      Options:
        FitType         Linear or Exponential
-       DropFirstEcho   `Link Optionally drop 1st echo because of imperfect refocusing https://www.ncbi.nlm.nih.gov/pubmed/26678918`_
-       Offset          a href="https://www.ncbi.nlm.nih.gov/pubmed/26678918"Optionally fit for offset parameter to correct for imperfect refocusing/a 
+       DropFirstEcho   Link Optionally drop 1st echo because of imperfect refocusing
+       Offset          Optionally fit for offset parameter to correct for imperfect refocusing
     
      Example of command line usage:
        Model = mono_t2;  % Create class from model
@@ -91,6 +90,9 @@ mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
        data.SEData = load_nii_data('SEData.nii.gz');
        FitResults = FitData(data,Model); %fit data
        FitResultsSave_mat(FitResults);
+    
+      Reference work for codeDropFirstEcho/code and codeOffset/code options: 
+      https://www.ncbi.nlm.nih.gov/pubmed/26678918
    
        Reference page in Doc Center
           doc mono_t2
@@ -109,7 +111,7 @@ mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
    </pre><h2 id="8">b- fit dataset</h2><pre >           |- This section will fit data.</pre><pre class="codeinput">FitResults = FitData(data,Model,0);
    </pre><pre class="codeoutput">=============== qMRLab::Fit ======================
    Operation has been started: mono_t2
-   Elapsed time is 0.052560 seconds.
+   Elapsed time is 0.027740 seconds.
    Operation has been completed: mono_t2
    ==================================================
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
@@ -120,24 +122,13 @@ mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
             |- Users will get the whole dataset (384X336X224) and the script that uses it for demo
                via qMRgenBatch(qsm_sb) command.</pre><pre class="codeinput">FitResults_old = load(<span class="string">'FitResults/FitResults.mat'</span>);
    qMRshowOutput(FitResults_old,data,Model);
-   </pre><pre class="codeoutput error">Error using load
-   'FitResults/FitResults.mat' is not found in the current folder or on the MATLAB path, but exists in:
-       /private/var/folders/7_/92rkmqt51sj07k7hkdrg7_fw0000gn/T/tpf60df1b2_a55b_432c_a2dc_5dfd294d073b/amico_demo
-       /Users/Agah/Desktop/neuropoly/mp2rage_demo
-       /Users/Agah/Desktop/mono_t2_demo
-       /Users/Agah/Desktop/mp2rage_demo
-       /Users/Agah/Desktop/filter_map_demo
-   
-   Change the MATLAB current folder or add its folder to the MATLAB path.
-   
-   Error in mono_t2_batch (line 55)
-   FitResults_old = load('FitResults/FitResults.mat');
-   </pre><h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+   </pre><img src="_static/mono_t2_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/mono_t2_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
                  own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'mono_t2_data/SEdata.nii.gz'</span>);
    Model.saveObj(<span class="string">'mono_t2_Demo.qmrlab.mat'</span>);
+   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for mono_t2.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
@@ -148,7 +139,7 @@ mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
          <span class="comment">% run simulation</span>
          figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt);
-   </pre><h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+   </pre><img src="_static/mono_t2_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs</pre><pre class="codeinput">      <span class="comment">%              T2            M0</span>
@@ -162,4 +153,4 @@ mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt);
          figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'T2'</span> ,<span class="string">'T2'</span> );
-   </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>
+   </pre><img src="_static/mono_t2_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>

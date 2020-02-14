@@ -1,6 +1,5 @@
 classdef mono_t2 < AbstractModel
-    % mono_t2: Compute a monoexponential T2 map using multi-echo spin-echo
-    % data
+    % mono_t2: Compute a monoexponential T2 map
     %
     % Assumptions:
     %   Mono-exponential fit
@@ -19,8 +18,8 @@ classdef mono_t2 < AbstractModel
     %
     % Options:
     %   FitType         Linear or Exponential
-    %   DropFirstEcho   `Link Optionally drop 1st echo because of imperfect refocusing <https://www.ncbi.nlm.nih.gov/pubmed/26678918>`_
-    %   Offset          <a href="https://www.ncbi.nlm.nih.gov/pubmed/26678918">Optionally fit for offset parameter to correct for imperfect refocusing</a> 
+    %   DropFirstEcho   Link Optionally drop 1st echo because of imperfect refocusing
+    %   Offset          Optionally fit for offset parameter to correct for imperfect refocusing
     %
     % Example of command line usage:
     %   Model = mono_t2;  % Create class from model
@@ -29,6 +28,9 @@ classdef mono_t2 < AbstractModel
     %   data.SEData = load_nii_data('SEData.nii.gz');
     %   FitResults = FitData(data,Model); %fit data
     %   FitResultsSave_mat(FitResults);
+    %
+    %  Reference work for <code>DropFirstEcho</code> and <code>Offset</code> options: 
+    %  https://www.ncbi.nlm.nih.gov/pubmed/26678918
     
 properties (Hidden=true)
     onlineData_url = getLink_t2();
