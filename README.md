@@ -20,27 +20,30 @@ Please report any <b>bug</b> or <b>suggestions</b> in <a href="https://github.co
 <p align="center">
 qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/qMTLab">qMTLab</a>.</p>  
 
+***
 
-<p align="center" style="color:red;">
-FROM SCANNER</p> 
-<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
-
+<b><p align="center" style="color:red;">
+FROM SCANNER</p></b> 
+<p align="center">
+🔻</p>  
 <p align="center">
 Version controlled, fully transparent & vendor-neutral  <a href="https://github.com/qMRLab/pulse_sequences"> pulse sequences</a>.</p>  
 
-<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
+<p align="center">
+🔻</p>  
 
 <p align="center">
 Data-drive, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows</a>.</p>
-
-<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
-
+<p align="center">
+🔻</p>  
 <p align="center">
  Reproducible & modern <a href="https://qmrlab.org/blog.html"> publication</a> objects.</p>
+<p align="center">
+🔻</p>  
+<b><p align="center" style="color:red;">
+TO PUBLICATION</p></b> 
 
-<center><i class="fa fa-chevron-down fa-2x fa-align-center" style="color:#f2393d"></i></center>
-<p align="center" style="color:red;">
-TO PUBLICATION</p> 
+***
 
 ## References
 
