@@ -417,6 +417,8 @@ if flg
             n = n+2;
             if ~all(Model.get_MRIinputs_optional)
                 eq2{i} = [' data.' req{i} '= double(' req{i} ');'];
+            else
+                eq2{i} = [' data.' dt '= double(' dt ');'];
             end
             
         end
