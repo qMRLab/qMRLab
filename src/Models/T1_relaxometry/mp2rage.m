@@ -2,32 +2,39 @@ classdef mp2rage < AbstractModel
 % mp2rage: Compute a T1 map using MP2RAGE
 %
 % Assumptions:
-%
+% N/A
 % Inputs:
 %   (MP2RAGE)       MP2RAGE UNI image.
-%   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional)
+%   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional).
 %   (Mask)          Binary mask to a desired region (optional).
-%   (INV1mag)       Magnitude image from the first GRE readout (optional). 
-%   (INV1phase)     Phase image from the first GRE readout (optional). 
-%   (INV2mag)       Magnitude image from the second GRE readout (optional). 
+%   (INV1mag)       Magnitude image from the first GRE readout (optional).
+%   (INV1phase)     Phase image from the first GRE readout (optional).
+%   (INV2mag)       Magnitude image from the second GRE readout (optional).
 %   (INV2phase)     Phase image from the second GRE readout (optional).
-%     
+%
 % Outputs:
 %   T1              Longitudinal relaxation time [s].
 %                   Corrected for B1+ bias IF the B1map is provided.
-%   R1              Longitudinal relaxation rate [1/s]
+%   R1              Longitudinal relaxation rate [1/s].
 %                   Corrected for B1+ bias IF the B1map is provided.
 %   MP2RAGE         Combined MP2RAGE image if INV1mag, INV1phase, INV2mag, INV2phase
 %                   images were provided but MP2RAGE was not.
 %   MP2RAGEcor      MP2RAGE image corrected for B1+ bias if B1map is provided.
 %
+% Options:
+%   Inversion efficiency               Efficiency of the inversion pulse (fraction).
+%
+% Authors: Agah Karakuzu, Mathieu Boudreau 2019
+%
 % References:
 %   Please cite the following if you use this module:
-%    Marques, José P., et al. "MP2RAGE, a self bias-field corrected sequence for 
+%    Marques, José P., et al. "MP2RAGE, a self bias-field corrected sequence for
 %    improved segmentation and T1-mapping at high field." Neuroimage 49.2 (2010): 1271-1281.
-%
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357  
+%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, 
+%     Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging 
+%     made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. 
+%     Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
  onlineData_url = getLink_mp2rage();
