@@ -16,8 +16,6 @@ All notable changes to this project will be documented in this file.
     - Monte Carlo simulator for 2D diffusion is able to generate synthetic 
     diffusion signal from any 2D axon packing.
     - An MRathon project by @Yasuhik, @TomMingasson and @tanguyduval. 
-- 🆕 Docker image: `qmrlab/minimal`
-    - qMRLab + Octave - Jupyter for [qMRFlow](https://github.com/qMRLab/qMRflow) pipelines.
 - 🆕 Changelog ❤️
 
 ### Improvements 🚀
@@ -34,4 +32,40 @@ All notable changes to this project will be documented in this file.
 
 ### Removed 🧹
 
+## Release [2.3.1] - 2020-01-07
+
+### New ✨
+- 🆕 static member function: getProvenance 
+    - Scrape details and add more (optional) to save sidecar `*.json` files for maps.
+    - See an example use [here](https://github.com/qMRLab/qMRWrappers/blob/master/mt_sat/mt_sat_wrapper.m).
+- 🆕 Docker image: `qmrlab/minimal`
+    - qMRLab + Octave - Jupyter for [qMRFlow](https://github.com/qMRLab/qMRflow) pipelines.    
+
+### Improvements 🚀
+- New MATLAB/Octave env: `ISNEXTFLOW` 
+    - Deals with the `load_nii` case for symlinked inputs.
+    - Enforces `gzip -d --force` if `ISNEXTFLOW` 
+    - Commonly used by `qMRWrappers` 
+
+### Bug Fixes🐛
+- N/A
+
+### Removed 🧹
+- N/A 
+
+## Release [2.3.0] - 2019-05-08
+
+### New ✨
+
+- 🆕 model: `Processing/filtermap` 
+    - Apply 2D/3D spatial filtering, mainly intended for fieldmaps. 
+        - 
+- 🆕 model: `qsm_sb` 
+    - Fast quantitative susceptibility mapping:
+        - `Split-Bregman` 
+        - `L1 Regularization`
+        - `L2 Regulatization` 
+        - `No Regularization` 
+        - `SHARP background filtering` 
+- 🆕 model: `mt_ratio` 
 
