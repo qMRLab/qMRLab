@@ -69,6 +69,10 @@ classdef mt_sat < AbstractModel
                       'PDw',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [6 0.028]));
         % Model options
+        
+        ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
+        'style',repmat({'TableNoButton'},[1,3]));
+
         buttons = {'B1 correction factor', 0.4};
         options= struct();
 
@@ -116,6 +120,13 @@ classdef mt_sat < AbstractModel
                     obj.Prot.MTw.Mat(:,3)  = [];
                 end
             end
+
+            % 2.3.1 --> Remove buttons from prot
+            if checkanteriorver(version,[2 3 1])
+                obj.ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
+                'style',repmat({'TableNoButton'},[1,3]));
+            end
+
         end
     end
 
