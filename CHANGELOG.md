@@ -58,8 +58,11 @@ All notable changes to this project will be documented in this file.
 ### New ✨
 
 - 🆕 model: `Processing/filtermap` 
-    - Apply 2D/3D spatial filtering, mainly intended for fieldmaps. 
-        - 
+    - Apply 2D/3D spatial filtering, primarily intended for fieldmaps. 
+        - `Polynomial`
+        - `Gaussian` 
+        - `Median` 
+        - `Spline` 
 - 🆕 model: `qsm_sb` 
     - Fast quantitative susceptibility mapping:
         - `Split-Bregman` 
@@ -68,4 +71,33 @@ All notable changes to this project will be documented in this file.
         - `No Regularization` 
         - `SHARP background filtering` 
 - 🆕 model: `mt_ratio` 
+    - Semi-quantitative MTR. 
+- 🆕 GUI 3D toolbox:
+    - An array of UI tools for the visualization and brief statistical
+      inspection of the data using ROI tools. 
+- 🆕 functionality `qMRgenJNB`:
+    - Create a Jupyter Notebook for any model. 
+    - Insert Binder Badge to the documentation. 
+- 🆕 Azure release pipelines and deployment protocols:
+    - Set self-hosted Azure agent to compile qMRLab and ship in a Docker image
+    - `qmrlab/mcrgui`: Use qMRLab GUI in a Docker image. 
+    - `qmrlab/octjn`: Use qMRLab in Octave in Jupyter Env. 
+    - See `/Deploy` folder for furhter details. 
+    - [qMRLab DockerHub page.](https://hub.docker.com/orgs/qmrlab)
 
+### Improvements 🚀
+- Model: `vfa_t1`:
+    - Bloch simulations are added 
+    - Performance improvement 
+- Model: `ir_t1` 
+    - Parameter descriptions are improved. 
+- Model: `b1_dam`
+    - Protocol descriptions has been updated. 
+- `FitTempResults`:
+    - Is now saved every 5 minutes instead of every 20 voxels. 
+    
+### Bug Fixes🐛
+- GUI fixes. 
+
+### Removed 🧹
+- N/A 
