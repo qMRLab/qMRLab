@@ -290,11 +290,25 @@ for ii = 1:length(scl_str)
         set(handles.(scl_str(ii).PanelName),'Position',scl_str(ii).Position);
 
     else
+        attachScrollPanelTo(handles.('FitDataFileBrowserPanel'));
         set(handles.FitDataFileBrowserPanel,'Position',[0.0117 0.7391 0.9749 0.2493]);
     end
-
+       
+        
 end
 
+% Scale the main panel by a super small factor and 
+% bring it back to the original to get rid of 
+% artificial duplication of the top portion of the data 
+% panel that occurs upon switching to another model 
+% after selecting mp2rage. 
+
+% Caused by attachScrollToPanel. 
+
+curpos = get(handles.qMRILab,'Position');
+set(handles.qMRILab,'Position',curpos.*[1 1 1.0001 1.0001]);
+set(handles.qMRILab,'Position',curpos);
+        
 % enable/disable viewdatafit
 if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
