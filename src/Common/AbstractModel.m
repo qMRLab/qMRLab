@@ -12,6 +12,10 @@ classdef (Abstract) AbstractModel
         ModelName
     end
 
+    properties (Hidden=true)
+        EnvDetails
+    end
+
     methods
         % Constructor
         function obj = AbstractModel()
@@ -76,7 +80,10 @@ classdef (Abstract) AbstractModel
                end
            end
            if ~isempty(ErrMsg), break; end
-
+           
+           if ~optionalInputs(1)
+           % For some models e.g. MP2RAGE, first input can be optional
+           % as well. This error should not be thrown in such cases.
            % check if all input data is sampled the same as qData input
            qDataIdx=find((strcmp(obj.MRIinputs{1},MRIinputs')));
            qData = double(data.(MRIinputs{qDataIdx}));
@@ -91,6 +98,8 @@ classdef (Abstract) AbstractModel
                    end
                end
            end
+           end
+           
            if ~isempty(ErrMsg), break; end
 
            % check if protocol matches data

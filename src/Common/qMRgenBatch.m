@@ -415,7 +415,11 @@ if flg
             eq{n} = ['% ' readList{i} ' contains ' '[' num2str(size(curDat)) '] data.'];
             eq{n+1} = [ ' load(' '''' visDir filesep readList{i} '''' ');'];
             n = n+2;
-            eq2{i} = [' data.' req{i} '= double(' req{i} ');'];
+            if ~all(Model.get_MRIinputs_optional)
+                eq2{i} = [' data.' req{i} '= double(' req{i} ');'];
+            else
+                eq2{i} = [' data.' dt '= double(' dt ');'];
+            end
             
         end
         
@@ -424,8 +428,12 @@ if flg
     
     if strcmp(format,'nifti')
         datCommand = eq;
-    elseif strcmp(format,'mat')
+    elseif strcmp(format,'mat')  
+        if ~isempty(eq2)
         datCommand  = [eq eq2];
+        else
+        datCommand = eq;    
+        end
     end
     
 else

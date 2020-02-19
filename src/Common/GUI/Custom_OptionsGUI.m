@@ -282,17 +282,29 @@ if ~isempty(Model.Prot)
 
         handles.(fields{ii}).CellSelect = [];
         
-        % Create panel
-        handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
+        % Create PANEL
+        % Panels function as a namespace for protocols. 
+        % Unlike options panel, here they are REQUIRED. 
         
-        % Create TABLE
+        handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
         handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
         
-        if isprop(Model,'tabletip') && strcmp(fields{ii},Model.tabletip.table_name)
+        % TODO: Condition to be improved.
+        if isprop(Model,'tabletip')
+        
+        tbl_cur = Model.tabletip.table_name;
+        tip_cur = {Model.tabletip.tip};
+        
+        if ismember(fields{ii},tbl_cur)
             
-        set(handles.(fields{ii}).table,'Tooltip',Model.tabletip.tip);    
-            
+            [~,tbidx] = ismember(fields{ii},tbl_cur);
+            set(handles.(fields{ii}).table,'Tooltip',char(tip_cur{tbidx}));    
+        
         end
+        
+        end
+        
+        
         % add Callbacks
 
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));
@@ -320,8 +332,30 @@ if ~isempty(Model.Prot)
             % Create
             uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0      .44 .02*N],'Style','pushbutton','String','Create','Callback',@(hObject, eventdata) CreateProt_Callback(hObject, eventdata, handles,fields{ii}));
         end
-
-    end
+        
+        % Make buttons invisible on condition.
+        if isprop(Model,'ProtStyle')
+            
+            prot_names  = Model.ProtStyle.prot_namespace;
+            styles = {Model.ProtStyle.style};
+            [~,prtidx] = ismember(fields{ii},prot_names);
+           
+            if strcmp(styles(prtidx),'TableNoButton') && length(handles.(fields{ii}).panel.Children)>1
+             
+              for chil_iter = 1:length(handles.(fields{ii}).panel.Children)
+                  
+                  if isa(handles.(fields{ii}).panel.Children(chil_iter),'matlab.ui.control.UIControl')
+                  if strcmp(handles.(fields{ii}).panel.Children(chil_iter).Style,'pushbutton')
+                      handles.(fields{ii}).panel.Children(chil_iter).Visible = 'off';
+                  end
+                  end
+              end
+              
+            end
+        end
+    
+        
+     end
 end
 
 if ismethod(Model,'plotProt')

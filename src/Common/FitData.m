@@ -1,5 +1,10 @@
 function Fit = FitData(data, Model, wait , Fittmp)
-
+%         __  __ ____  _          _     
+%    __ _|  \/  |  _ \| |    __ _| |__  
+%   / _` | |\/| | |_) | |   / _` | '_ \ 
+%  | (_| | |  | |  _ <| |__| (_| | |_) |
+%   \__, |_|  |_|_| \_\_____\__,_|_.__/ 
+%      |_|
 % ----------------------------------------------------------------------------------------------------
 % Fit = FitData( data, Model, wait, FitTempResults_filename )
 % Takes 2D or 3D MTdata and returns fitted parameters maps
@@ -124,8 +129,12 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
 
-    if (isempty(h)), fprintf('Starting to fit data.\n'); end
+    if (isempty(h))
+        disp('=============== qMRLab::Fit ======================')
+        disp(['Operation has been started: ' Model.ModelName]);
+    end
     fitFailedCounter = 0;
+    tic;
     for ii = 1:numVox
         vox = Voxels(ii);
         
@@ -194,6 +203,9 @@ if Model.voxelwise % process voxelwise
             break;
         end
     end
+    toc;
+    disp(['Operation has been completed: ' Model.ModelName]);
+    disp('==================================================')
     
 else % process entire volume
     
@@ -242,10 +254,18 @@ else % process entire volume
              
         end
     end
+    disp('=============== qMRLab::Fit ======================')
+    disp(['Operation has been started: ' Model.ModelName]);
+    tic;
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
-    disp('=============== qMRLab::Fit ======================')
+    toc;
     disp(['Operation has been completed: ' Model.ModelName]);
+    if ~moxunit_util_platform_is_octave && ~isempty(findobj(0, 'tag', 'qMRILab'))
+        
+        disp('Loading outputs to the GUI may take some time.');    
+    
+    end
     disp('==================================================')
 end
 % delete waitbar
