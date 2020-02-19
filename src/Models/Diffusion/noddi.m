@@ -86,9 +86,12 @@ end
         % Model options
         buttons = {'model name',{'WatsonSHStickTortIsoV_B0','WatsonSHStickTortIsoVIsoDot_B0'}};
 
-        tabletip = struct('table_name',{'DiffusionData'},'tip', ...
-        {sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
-        'delta (s): Diffusion duration\nTE (s): Echo time.\nPlease visit our documentation for the computation of Delta and delta.\nRelevant issue #299 on GitHub (qMRLab / qMRLab).'])});
+        % Please see wiki page for details regarding tabletip
+        % https://github.com/qMRLab/qMRLab/wiki/Guideline:-GUI#the-optionsgui-is-populated-by
+        
+        tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
+        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
+        'delta (s): Diffusion duration\nTE (s): Echo time.\nPlease visit our documentation for the computation of Delta and delta.\nRelevant issue #299 on GitHub (qMRLab / qMRLab).'])}});
         options= struct();
 
     end

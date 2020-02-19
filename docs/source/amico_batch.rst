@@ -90,6 +90,7 @@ amico:   Accelerated Microstructure Imaging via Convex Optimization
        fiso                Fraction of water in the isotropic compartment (e.g. CSF/Veins)
        fr                  Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
                             fr = ficvf*(1-fiso)
+       irfrac              Fraction of isotropically restricted compartment (Dot for ex vivo model)
        diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
        kappa               Orientation dispersion index
        b0                  Signal at b=0
@@ -150,9 +151,23 @@ amico:   Accelerated Microstructure Imaging via Convex Optimization
       [ Kernels already computed. Set "doRegenerate=true" to force regeneration ]
    
    - Resampling rotated kernels:
-      [=========================] 
-      [ 78.4 seconds ]
-   Starting to fit data.
+      [========                 ] </pre><pre class="codeoutput error">Error using load
+   Unable to read file '/Users/Agah/Desktop/neuropoly/qMRLab/External/AMICO/AMICO_matlab/exports/example/kernels/NODDI/A_054.mat'. No such file or directory.
+   
+   Error in AMICO_NODDI/ResampleKernels (line 118)
+               load( fullfile( ATOMS_path, sprintf('A_%03d.mat',progress.i) ), 'lm' );
+   
+   Error in AMICO_ResampleKernels (line 48)
+   		CONFIG.model.ResampleKernels( fullfile(AMICO_data_path,CONFIG.protocol,'kernels',CONFIG.model.id), idx_OUT, Ylm_OUT );
+   
+   Error in amico/Precompute (line 140)
+                   AMICO_ResampleKernels();
+   
+   Error in FitData (line 49)
+       if ismethod(Model,'Precompute'), Model = Model.Precompute; end
+   
+   Error in amico_batch (line 44)
+   FitResults = FitData(data,Model,0);
    </pre><h2 id="9">c- show fitting results</h2><pre >         |- Output map will be displayed.
             |- If available, a graph will be displayed to show fitting in a voxel.
             |- To make documentation generation and our CI tests faster for this model,
@@ -161,13 +176,12 @@ amico:   Accelerated Microstructure Imaging via Convex Optimization
             |- Users will get the whole dataset (384X336X224) and the script that uses it for demo
                via qMRgenBatch(qsm_sb) command.</pre><pre class="codeinput">FitResults_old = load(<span class="string">'FitResults/FitResults.mat'</span>);
    qMRshowOutput(FitResults_old,data,Model);
-   </pre><img src="_static/amico_batch_02.png" vspace="5" hspace="5" alt=""> <img src="_static/amico_batch_03.png" vspace="5" hspace="5" alt=""> <h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+   </pre><h2 id="10">d- Save results</h2><pre >         |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
                  that can be loaded in qMRLab graphical user interface
             |-  Model object stores all the options and protocol.
                  It can be easily shared with collaborators to fit their
                  own data or can be used for simulation.</pre><pre class="codeinput">FitResultsSave_nii(FitResults, <span class="string">'amico_data/DiffusionData.nii.gz'</span>);
    Model.saveObj(<span class="string">'amico_Demo.qmrlab.mat'</span>);
-   </pre><pre class="codeoutput">Warning: Directory already exists. 
    </pre><h2 id="11">V- SIMULATIONS</h2><pre >   |- This section can be executed to run simulations for amico.</pre><h2 id="12">a- Single Voxel Curve</h2><pre >         |- Simulates Single Voxel curves:
                  (1) use equation to generate synthetic MRI data
                  (2) add rician noise
@@ -184,7 +198,7 @@ amico:   Accelerated Microstructure Imaging via Convex Optimization
          <span class="comment">% run simulation</span>
          figure(<span class="string">'Name'</span>,<span class="string">'Single Voxel Curve Simulation'</span>);
          FitResult = Model.Sim_Single_Voxel_Curve(x,Opt);
-   </pre><img src="_static/amico_batch_04.png" vspace="5" hspace="5" alt=""> <h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
+   </pre><h2 id="13">b- Sensitivity Analysis</h2><pre >         |-    Simulates sensitivity to fitted parameters:
                    (1) vary fitting parameters from lower (lb) to upper (ub) bound.
                    (2) run Sim_Single_Voxel_Curve Nofruns times
                    (3) Compute mean and std across runs</pre><pre class="codeinput">      <span class="comment">%              ficvf         di            kappa         fiso          diso          b0            theta         phi</span>
@@ -198,4 +212,4 @@ amico:   Accelerated Microstructure Imaging via Convex Optimization
          SimResults = Model.Sim_Sensitivity_Analysis(OptTable,Opt);
          figure(<span class="string">'Name'</span>,<span class="string">'Sensitivity Analysis'</span>);
          SimVaryPlot(SimResults, <span class="string">'ficvf'</span> ,<span class="string">'ficvf'</span> );
-   </pre><img src="_static/amico_batch_05.png" vspace="5" hspace="5" alt=""> <p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>
+   </pre><p class="footer"><br ><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB R2018a</a><br ></p></div>

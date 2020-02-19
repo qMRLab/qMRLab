@@ -18,6 +18,11 @@ T2_relaxometry
 .. toctree::
 	:maxdepth: 1
 
+	mono_t2_batch
+
+.. toctree::
+	:maxdepth: 1
+
 	mwf_batch
 
 Processing
@@ -29,6 +34,11 @@ Processing
 
 T1_relaxometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. toctree::
+	:maxdepth: 1
+
+	mp2rage_batch
+
 .. toctree::
 	:maxdepth: 1
 
@@ -76,12 +86,12 @@ Diffusion
 .. toctree::
 	:maxdepth: 1
 
-	noddi_batch
+	amico_batch
 
 .. toctree::
 	:maxdepth: 1
 
-	amico_batch
+	noddi_batch
 
 .. toctree::
 	:maxdepth: 1

@@ -1,4 +1,4 @@
-function  link = getLink
+function  link = getLink_qsm
 
   if ~isempty(getenv('ISTRAVIS')) && str2double(getenv('ISTRAVIS'))
     link = 'https://osf.io/549ke/download?version=4';

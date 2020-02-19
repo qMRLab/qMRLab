@@ -163,14 +163,27 @@ classdef MethodBrowser
             end
             setappdata(0,'Data',Data);
             
-            % Manage each data items
-            for ii=1:obj.NbItems
-                obj.ItemsList(ii).setPath(Path, fileList,0);
+            Model = getappdata(0,'Model');
+            
+            % TODO:
+            if not(isfield(Model.options,'BIDS'))
+                % Manage each data items
+                for ii=1:obj.NbItems
+                    obj.ItemsList(ii).setPath(Path, fileList,0);
+                end
+                
+            else
+            
+            if Model.options.BIDS    
+              disp('Looking for BIDS');  
+            else
+              disp('Annoying function goes here');  
+            end
+            
             end
             
             % warning
             Data = getappdata(0, 'Data');
-            Model = getappdata(0,'Model');
             ErrMsg = Model.sanityCheck(Data.(class(Model)));
             hWarnBut = findobj(obj.Parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
             if ~isempty(ErrMsg)

@@ -1,12 +1,16 @@
 function varargout = qMRLab(varargin)
+%         __  __ ____  _          _     
+%    __ _|  \/  |  _ \| |    __ _| |__  
+%   / _` | |\/| | |_) | |   / _` | '_ \ 
+%  | (_| | |  | |  _ <| |__| (_| | |_) |
+%   \__, |_|  |_|_| \_\_____\__,_|_.__/ 
+%      |_|
+
 % qmrlab MATLAB code for qMRLab.fig
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
-%
-% -- MTSAT functionality: P. Beliveau, 2017
-% -- File Browser changes: P. Beliveau 2017
+% See the list of contributors: https://github.com/qMRLab/qMRLab/graphs/contributors
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
@@ -273,8 +277,38 @@ MethodNum = find(strcmp({FileBrowserList.MethodID},Method));
 for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
+
 FileBrowserList(MethodNum).Visible('on');
 
+scl_str = json2struct('ScalePanels.json');
+
+for ii = 1:length(scl_str)
+
+    if strcmp(Method,scl_str(ii).ModelName)
+        
+        attachScrollPanelTo(handles.(scl_str(ii).PanelName));
+        set(handles.(scl_str(ii).PanelName),'Position',scl_str(ii).Position);
+
+    else
+        attachScrollPanelTo(handles.('FitDataFileBrowserPanel'));
+        set(handles.FitDataFileBrowserPanel,'Position',[0.0117 0.7391 0.9749 0.2493]);
+    end
+       
+        
+end
+
+% Scale the main panel by a super small factor and 
+% bring it back to the original to get rid of 
+% artificial duplication of the top portion of the data 
+% panel that occurs upon switching to another model 
+% after selecting mp2rage. 
+
+% Caused by attachScrollToPanel. 
+
+curpos = get(handles.qMRILab,'Position');
+set(handles.qMRILab,'Position',curpos.*[1 1 1.0001 1.0001]);
+set(handles.qMRILab,'Position',curpos);
+        
 % enable/disable viewdatafit
 if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
