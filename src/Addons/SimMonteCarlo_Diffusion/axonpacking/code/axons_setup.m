@@ -73,7 +73,6 @@ h = bar(bins,n_hist);
 set(h,'barwidth',0.5)
 hold on
 plot(xth,yth/max(yth(:))*max(n_hist),'r', 'LineWidth',1 )
-legend('histogram',['distribution law :  ', lawName])
 drawnow
 
 xlabel('diameters (um)')
