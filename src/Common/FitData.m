@@ -1,5 +1,10 @@
 function Fit = FitData(data, Model, wait , Fittmp)
-
+%         __  __ ____  _          _     
+%    __ _|  \/  |  _ \| |    __ _| |__  
+%   / _` | |\/| | |_) | |   / _` | '_ \ 
+%  | (_| | |  | |  _ <| |__| (_| | |_) |
+%   \__, |_|  |_|_| \_\_____\__,_|_.__/ 
+%      |_|
 % ----------------------------------------------------------------------------------------------------
 % Fit = FitData( data, Model, wait, FitTempResults_filename )
 % Takes 2D or 3D MTdata and returns fitted parameters maps
@@ -33,8 +38,9 @@ Model.sanityCheck(data);
 
 tStart = tic;
 tsaved = 0;
+tsavedwb = 0;
 
-h=[];
+h=[]; hwarn=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
     try, Model = Model.Precompute; end
     try, Model = Model.PrecomputeData(data); end
@@ -42,6 +48,19 @@ if moxunit_util_platform_is_octave % ismethod not working properly on Octave
 else
     if ismethod(Model,'Precompute'), Model = Model.Precompute; end
     if ismethod(Model,'PrecomputeData'), Model = Model.PrecomputeData(data); end
+end
+
+% NaN in Mask
+if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
+    data.Mask(isnan(data.Mask))=0;
+    msg = 'NaNs will be set to 0. We recommend you to check your mask.';
+    titlemsg = 'NaN values detected in the Mask';
+    if exist('wait','var') && (wait)
+        hwarn = warndlg(msg,titlemsg);
+    end
+    fprintf('\n')
+    warning(titlemsg)
+    fprintf('%s\n\n',msg)
 end
 
 if Model.voxelwise % process voxelwise
@@ -75,9 +94,25 @@ if Model.voxelwise % process voxelwise
     end
 
 
-    % Find voxels that are not empty
+   
     if isfield(data,'Mask') && (~isempty(data.Mask))
-        Voxels = find(all(data.Mask & ~computed,2));
+        
+        % Set NaN values to zero if there are any 
+        if any(isnan(data.Mask(:)))
+           data.Mask(isnan(data.Mask))=0;
+            msg = 'NaNs will be set to 0. We recommend you to check your mask.';
+            titlemsg = 'NaN values detected in the Mask';
+            if exist('wait','var') && (wait)
+                hwarn = warndlg(msg,titlemsg);
+            end
+            fprintf('\n')
+            warning(titlemsg)
+            fprintf('%s\n\n',msg) 
+        end
+        
+        % Find voxels that are not empty
+        Voxels = find(all(data.Mask & ~computed,2));    
+        
     else
         Voxels = find(~computed)';
     end
@@ -94,21 +129,15 @@ if Model.voxelwise % process voxelwise
         setappdata(h,'canceling',0)
     end
 
-    if (isempty(h)), fprintf('Starting to fit data.\n'); end
+    if (isempty(h))
+        disp('=============== qMRLab::Fit ======================')
+        disp(['Operation has been started: ' Model.ModelName]);
+    end
     fitFailedCounter = 0;
+    tic;
     for ii = 1:numVox
         vox = Voxels(ii);
         
-        % Update waitbar
-        if (isempty(h))
-            % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
-            %            fprintf('Fitting voxel %d/%d\r',ii,l);
-
-        else
-            if getappdata(h,'canceling');  break;  end  % Allows user to cancel
-            waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d (%d errors)', ii, numVox, fitFailedCounter));
-        end
-
         % Get current voxel data
         for iii = 1:length(MRIinputs)
             M.(MRIinputs{iii}) = data.(MRIinputs{iii})(vox,:)';
@@ -154,6 +183,18 @@ if Model.voxelwise % process voxelwise
             save('FitTempResults.mat', '-struct','Fit');
         end
         
+        % Update waitbar every sec
+        if (isempty(h))
+            % j_progress(ii) Feature removed temporarily until logs are implemented ? excessive printing is a nuissance in Jupyter Notebooks, and slow down processing
+            %            fprintf('Fitting voxel %d/%d\r',ii,l);
+
+        else
+            if getappdata(h,'canceling');  break;  end  % Allows user to cancel
+            if (telapsed-tsavedwb)>1 % Update waitbar every sec
+                tsavedwb = telapsed; 
+                waitbar(ii/numVox, h, sprintf('Fitting voxel %d/%d (%d errors)', ii, numVox, fitFailedCounter));
+            end
+        end
         
         if ISTRAVIS && ii>2
             try
@@ -162,6 +203,9 @@ if Model.voxelwise % process voxelwise
             break;
         end
     end
+    toc;
+    disp(['Operation has been completed: ' Model.ModelName]);
+    disp('==================================================')
     
 else % process entire volume
     
@@ -188,6 +232,7 @@ else % process entire volume
                 
              if ~moxunit_util_platform_is_octave
                  
+                if ~isempty(data.(fields{ff})) 
                  if verLessThan('matlab','9.0')
                      
                      % Introduced in R2007a
@@ -197,21 +242,35 @@ else % process entire volume
                       % Introduced in 2016
                      data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
                  end
-                 
+                end
+                
              else % If Octave 
                  
-                 data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 if ~isempty(data.(fields{ff}))
+                  data.(fields{ff}) = data.(fields{ff}) .* double(data.Mask>0);
+                 end
                  
              end
              
         end
     end
+    disp('=============== qMRLab::Fit ======================')
+    disp(['Operation has been started: ' Model.ModelName]);
+    tic;
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
-    disp('...done');
+    toc;
+    disp(['Operation has been completed: ' Model.ModelName]);
+    if ~moxunit_util_platform_is_octave && ~isempty(findobj(0, 'tag', 'qMRILab'))
+        
+        disp('Loading outputs to the GUI may take some time.');    
+    
+    end
+    disp('==================================================')
 end
 % delete waitbar
 %if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
+if ishandle(hwarn), delete(hwarn); end
 
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;

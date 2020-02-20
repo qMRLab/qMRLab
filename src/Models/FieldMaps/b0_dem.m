@@ -75,7 +75,6 @@ end
 
         function obj = UpdateFields(obj)
             obj.options.Magnthresh = max(obj.options.Magnthresh,0);
-            obj.options.Magnthresh = min(obj.options.Magnthresh,1);
         end
 
         function FitResult = fit(obj,data)
@@ -101,20 +100,20 @@ end
             end
 
             % MATLAB "sunwrap" for 2D data
+            Phase_uw = Phase;
             if TwoD
                 Complex = Magn.*exp(Phase*1i);
-                Phase_uw = Phase;
-                for it = 1:size(Magn,4)
-                    Phase_uw(:,:,:,it) = sunwrap(Complex(:,:,:,it));
+                for iEcho = 1:size(Magn,4)
+                    Phase_uw(:,:,:,iEcho) = sunwrap(Complex(:,:,:,iEcho));
                 end
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
-
             % MATLAB "laplacianUnwrap" for 3D data
             else
-                Phase_uw = laplacianUnwrap(Phase, magn>obj.options.Magnthresh);
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
+                for iEcho = 1:size(Phase,4)
+                    Phase_uw(:,:,:,iEcho) = laplacianUnwrap(Phase(:,:,:,iEcho), Magn>obj.options.Magnthresh);
+                end
             end
-
+            FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
+            
             % Save unwrapped phase
             FitResult.Phase_uw = Phase_uw;
         end

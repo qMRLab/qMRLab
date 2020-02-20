@@ -1,4 +1,4 @@
-function [nfm_Sharp_lunwrap, mask_sharp] = backgroundRemovalSharp(phase_lunwrap, mask_pad, physParams, filterMode)
+function [nfm_Sharp_lunwrap, mask_sharp] = backgroundRemovalSharp(phase_lunwrap, mask_pad, filterMode)
 %BACKGROUNDREMOVALSHARP Background phase removal using SHARP (Sophisticated harmonic artifact reduction for phase data)
 %   Code refractored from Berkin Bilgic's scripts: "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m" 
 %   and "script_Laplacian_unwrap_Sharp_Fast_TV_gre3D.m"
@@ -6,7 +6,6 @@ function [nfm_Sharp_lunwrap, mask_sharp] = backgroundRemovalSharp(phase_lunwrap,
 %
 %   phase_lunwrap: unwrapped phase volume
 %   mask_pad: zero-padded mask volume
-%   physParams: [TE B0 gyro]
 %   filterMode: 'once' or 'iterative'
 %
 %   Original reference: 
@@ -27,19 +26,14 @@ function [nfm_Sharp_lunwrap, mask_sharp] = backgroundRemovalSharp(phase_lunwrap,
     end
     switch filterMode
         case 'once'
-            [nfm_Sharp_lunwrap, mask_sharp] = sharp_once(phase_lunwrap, mask_pad, physParams);
+            [nfm_Sharp_lunwrap, mask_sharp] = sharp_once(phase_lunwrap, mask_pad);
         case 'iterative'
-            [nfm_Sharp_lunwrap, mask_sharp] = sharp_iterative(phase_lunwrap, mask_pad, physParams);
+            [nfm_Sharp_lunwrap, mask_sharp] = sharp_iterative(phase_lunwrap, mask_pad);
     end
 
 end
 
-function [nfm_Sharp_lunwrap, mask_sharp] = sharp_once(phase_lunwrap, mask_pad, physParams)
-
-    % constants
-    TE = physParams(1);
-    B0 = physParams(2);
-    gyro = physParams(3);
+function [nfm_Sharp_lunwrap, mask_sharp] = sharp_once(phase_lunwrap, mask_pad)
 
     N = size(mask_pad);
 
@@ -61,16 +55,11 @@ function [nfm_Sharp_lunwrap, mask_sharp] = sharp_once(phase_lunwrap, mask_pad, p
 
     phase_Sharp_lunwrap = real( ifftn(fftn(Phase_Del) .* delsharp_inv) .* mask_sharp );
 
-    nfm_Sharp_lunwrap = phase_Sharp_lunwrap / (B0 * gyro * TE);
+    nfm_Sharp_lunwrap = phase_Sharp_lunwrap;
 end
 
 
-function [nfm_Sharp_lunwrap, mask_sharp] = sharp_iterative(phase_lunwrap, mask_pad, physParams)
-
-    % constants
-    TE = physParams(1);
-    B0 = physParams(2);
-    gyro = physParams(3);
+function [nfm_Sharp_lunwrap, mask_sharp] = sharp_iterative(phase_lunwrap, mask_pad)
 
     N = size(mask_pad);
 
@@ -109,7 +98,7 @@ function [nfm_Sharp_lunwrap, mask_sharp] = sharp_iterative(phase_lunwrap, mask_p
     end
 
     phase_Sharp_lunwrap = real( ifftn(fftn(Phase_Del) .* delsharp_inv) .* mask_sharp );
-    nfm_Sharp_lunwrap = phase_Sharp_lunwrap / (B0 * gyro * TE);
+    nfm_Sharp_lunwrap = phase_Sharp_lunwrap;
 
 end
 

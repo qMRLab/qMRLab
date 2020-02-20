@@ -12,6 +12,10 @@ classdef (Abstract) AbstractModel
         ModelName
     end
 
+    properties (Hidden=true)
+        EnvDetails
+    end
+
     methods
         % Constructor
         function obj = AbstractModel()
@@ -76,7 +80,10 @@ classdef (Abstract) AbstractModel
                end
            end
            if ~isempty(ErrMsg), break; end
-
+           
+           if ~optionalInputs(1)
+           % For some models e.g. MP2RAGE, first input can be optional
+           % as well. This error should not be thrown in such cases.
            % check if all input data is sampled the same as qData input
            qDataIdx=find((strcmp(obj.MRIinputs{1},MRIinputs')));
            qData = double(data.(MRIinputs{qDataIdx}));
@@ -91,6 +98,8 @@ classdef (Abstract) AbstractModel
                    end
                end
            end
+           end
+           
            if ~isempty(ErrMsg), break; end
 
            % check if protocol matches data
@@ -128,7 +137,7 @@ classdef (Abstract) AbstractModel
                 end
             end
         end
-
+           
     end
 
     methods(Access = protected)
@@ -235,7 +244,6 @@ classdef (Abstract) AbstractModel
 
             end
 
-
         end
 
         function obj = linkGUIState(obj, checkBoxName, targetObject, eventType, activeState, setVal)
@@ -276,7 +284,6 @@ classdef (Abstract) AbstractModel
             if not(strcmp(typeCheckBox,'checkbox'))
                 error('LinkGUIState: Second argument must be a checkbox');
             end
-
 
             switch eventType
 
@@ -321,9 +328,7 @@ classdef (Abstract) AbstractModel
                         obj =  setPanelInvisible(obj,targetObject,y);
 
                     end
-
             end
-
 
         end
 
@@ -391,7 +396,6 @@ classdef (Abstract) AbstractModel
 
                 end
 
-
         end
 
         function state = getCheckBoxState(obj,checkBoxName)
@@ -403,9 +407,50 @@ classdef (Abstract) AbstractModel
           error('Pass checknoxname please.');
         end
 
-
         end
 
+    end
+
+    methods(Static)
+
+        function FitProvenance = getProvenance(varargin)
+            
+            FitProvenance = struct();
+            FitProvenance.EstimationSoftwareName = 'qMRLab';
+            FitProvenance.EstimationSoftwareVer  = qMRLabVer;
+            % Add extra fields
+            if nargin>0
+                if any(cellfun(@isequal,varargin,repmat({'extra'},size(varargin))))
+                    idx = find(cellfun(@isequal,varargin,repmat({'extra'},size(varargin)))==1);
+                    if isstruct(varargin{idx+1})
+                        tmp = varargin{idx+1};
+                        names = fieldnames(tmp);
+                        for ii=1:length(names) 
+                            FitProvenance.(names{ii}) = tmp.(names{ii});
+                        end
+                    end    
+                end
+            end 
+
+            if moxunit_util_platform_is_octave
+                
+                FitProvenance.EstimationDate = strftime('%Y-%m-%d %H:%M:%S', localtime (time ()));
+                [FitProvenance.EstimationSoftwareEnv, FitProvenance.MaxSize, FitProvenance.Endian] = computer;
+                FitProvenance.EstimationSoftwareEnvDetails = GetOSDetails();
+                FitProvenance.EstimationSoftwareLang = ['Octave ' OCTAVE_VERSION()];
+                Fitprovenance.EstimationSoftwareLangDetails = pkg('list');
+
+            else 
+
+                FitProvenance.EstimationDate = datetime(now,'ConvertFrom','datenum');
+                [FitProvenance.EstimationSoftwareEnv, FitProvenance.MaxSize, FitProvenance.Endian] = computer; 
+                FitProvenance.EstimationSoftwareEnvDetails = GetOSDetails();
+                FitProvenance.EstimationSoftwareLang = ['Matlab ' version('-release')];
+                FitProvenance.EstimationSoftwareLangDetails = ver;
+
+            end
+            
+        end    
 
     end
 
