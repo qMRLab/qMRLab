@@ -195,6 +195,20 @@ jobs:
         s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_SimTest_vfa_t1.json
         if [ "$?" != "0" ]; then travis_terminate 1; fi
       fi
+    - stage: Test
+    script: 
+    - |
+      travis_wait $WAIT_TIME \
+      octave --no-gui --eval "bootstrapTest;cd('$TRAVIS_BUILD_DIR/Test/MoxUnitCompatible'); \
+      res=moxunit_runtests('SimTest_montecarlo.m','-with_coverage','-cover','$TRAVIS_BUILD_DIR/src','-cover_exclude','*GUI*','-cover_json_file','coverage_SimTest_montecarlo.json'); \
+      exit(~res);"
+      if [ "$?" != "0" ]; then travis_terminate 1; fi
+      if [ "${TRAVIS_REPO_SLUG%%/*}" =  "qMRLab" ] 
+      then
+        aws s3 cp $TRAVIS_BUILD_DIR/Test/MoxUnitCompatible/coverage_SimTest_montecarlo.json \
+        s3://qmrlab/$TRAVIS_BUILD_NUMBER/coverage_SimTest_montecarlo.json
+        if [ "$?" != "0" ]; then travis_terminate 1; fi
+      fi  
   - stage: Test
     script: 
     - |

@@ -134,3 +134,35 @@ end
 end
 
 
+function Er = scd_model_smallpulse(R,q,bigdelta,Dr)
+% AxCaliber paper (erratum in the paper --> bessel function are squared...)
+
+          %J0'     J1'    J2'    J3'    ...
+beta = [3.8317	1.8412	3.0542	4.2012	5.3175	6.4156; % k=1
+        7.0156	5.3314	6.7061	8.0152	9.2824	10.5199; % k=2
+        10.1735	8.5363	9.9695	11.3459	12.6819	13.9872; % k=3
+        13.3237	11.7060	13.1704	14.5858	15.9641	17.3128; % k=4
+        16.4706	14.8636	16.3475	17.7887	19.1960	20.5755]; % k=5
+
+Z = 2*pi*q*R;
+
+Sum1 = 0;
+beta0 = [0; beta(:,1)];
+for k=1:5
+    Sum1 = Sum1+4*exp(-beta0(k).^2*Dr*bigdelta/R^2).*...
+                  ((Z.*(-besselj(1, Z)))./((Z).^2-beta0(k).^2)).^2;
+end
+
+Sum2 = 0;
+for n=1:5
+    for k=1:5
+        Jnprime = 0.5*(besselj(n-1,Z)-besselj(n+1,Z));
+        Sum2 = Sum2+8*exp(-beta(k,n+1).^2*Dr*bigdelta/R^2)*...
+                      beta(k,n+1).^2/(beta(k,n+1).^2-n^2).*...
+                     ((Z.*Jnprime)./((Z).^2-beta(k,n+1).^2)).^2;
+    end
+end
+
+Er = Sum1 + Sum2;
+end
+
