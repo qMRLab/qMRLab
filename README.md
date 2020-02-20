@@ -10,13 +10,16 @@ qMRLab is an open-source software for quantitative MR image analysis.</h2></b>
 The modularity of the qMRLab framework makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!</p>
 
 <p align="center">
-For <b>documentation</b>, visit the <a href="http://qmrlab.readthedocs.io/">Documentation website</a>.</p>
+For <b>documentation 📖</b>, visit the <a href="http://qmrlab.readthedocs.io/">Documentation website</a>.</p>
 
 <p align="center">
-If you are a <b>developer</b>, please visit the <a href="https://github.com/neuropoly/qMRLab/wiki">Wiki page<a>.</p>
+If you are a <b>developer 🛠</b>, please visit the <a href="https://github.com/neuropoly/qMRLab/wiki">Wiki page<a>.</p>
 
 <p align="center">
-Please report any <b>bug</b> or <b>suggestions</b> in <a href="https://github.com/neuropoly/qMRLab/issues">GitHub</a>.</p>
+Please report any <b>bug 🐛</b> or <b>suggestions 💭</b> in <a href="https://github.com/neuropoly/qMRLab/issues">GitHub</a>.</p>
+
+<p align="center">
+For <b>interactive tutorials 🎚</b>, <b>blog posts 🖋</b> and more, you can visit <a href="https://qmrlab.org">qMRLab portal</a>.</p>
 
 <p align="center">
 qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/qMTLab">qMTLab</a>.</p>  
@@ -27,19 +30,19 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 FROM SCANNER</p></b> 
 
 <p align="center">
-Version controlled, fully transparent & vendor-neutral  <a href="https://github.com/qMRLab/pulse_sequences"> pulse sequences</a>.</p>  
+Version controlled, fully transparent & vendor-neutral  <a href="https://github.com/qMRLab/pulse_sequences"> pulse sequences 🌀</a>.</p>  
 
 <p align="center">
 ⬇️</p>  
 
 <p align="center">
-Data-driven, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows</a>.</p>
+Data-driven, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows 🔀</a>.</p>
 
 <p align="center">
 ⬇️</p>  
 
 <p align="center">
- Reproducible & modern <a href="https://qmrlab.org/blog.html"> publication</a> objects.</p>
+ Reproducible & modern <a href="https://qmrlab.org/blog.html"> publication 📚</a> objects.</p>
 
 <b><p align="center" style="font-size:24px">
 TO PUBLICATION</p></b> 
