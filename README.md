@@ -3,10 +3,11 @@
 
 ![hdr](/docs/logo/header_new.png)
 
-<h2>qMRLab is an open-source software for quantitative MR image analysis.</h2>
+<b><h2 align="center">
+qMRLab is an open-source software for quantitative MR image analysis.</h2></b> 
 
-<p align="center">The main goal is to provide the community with an intuitive tool for <b>data fitting</b>, <b>plotting</b>, <b>simulation</b> and <b>protocol optimization</b> for a myriad of different quantitative models.
-The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!</p>
+<p align="center">Our main goal is to provide the community with an intuitive tool for <b>data fitting</b>, <b>plotting</b>, <b>simulation</b> and <b>protocol optimization</b> for a myriad of different quantitative models.
+The modularity of the qMRLab framework makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!</p>
 
 <p align="center">
 For <b>documentation</b>, visit the <a href="http://qmrlab.readthedocs.io/">Documentation website</a>.</p>
