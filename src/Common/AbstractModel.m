@@ -452,6 +452,16 @@ classdef (Abstract) AbstractModel
             
         end    
 
+        function URL = getLink(urlFull,urlPartial)
+              
+             if ~isempty(getenv('ISTRAVIS')) && str2double(getenv('ISTRAVIS'))
+                URL = urlPartial;
+              else
+                URL  = urlFull;
+            end
+
+        end
+
     end
 
 end

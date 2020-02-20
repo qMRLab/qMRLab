@@ -109,8 +109,8 @@ options= struct();
 end % Public properties
 
 properties (Hidden = true)
-
-onlineData_url = getLink_qsm();
+% See the constructor.
+onlineData_url;
 
 end % Hidden public properties
 
@@ -123,6 +123,7 @@ function obj = qsm_sb
   obj.options = button2opts(obj.buttons);
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
+  obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4');
 
 end % fx: Constructor
 

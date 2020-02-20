@@ -37,7 +37,8 @@ classdef mp2rage < AbstractModel
 %     Reson.. doi: 10.1002/cmr.a.21357
 
 properties (Hidden=true)
- onlineData_url = getLink_mp2rage();
+    % See the constructor.
+    onlineData_url;
 end
 
 properties
@@ -81,6 +82,7 @@ methods
     function obj = mp2rage()
     
         obj.options = button2opts(obj.buttons);
+        obj.onlineData_url = obj.getLink('https://osf.io/8x2c9/download?version=4','https://osf.io/k3shf/download?version=1');
     
     end
 
