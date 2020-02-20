@@ -64,6 +64,7 @@ TO PUBLICATION</p></b>
 * [Varma et al. *Low duty-cycle pulsed irradiation reduces magnetization transfer and increases the inhomogeneous magnetization transfer effect.* J of Mag Res 2018](https://www.sciencedirect.com/science/article/abs/pii/S1090780718302088)
 * [Campbell et al. *Promise and pitfalls of g-ratio estimation with MRI.* NeuroImage 2018](https://www.sciencedirect.com/science/article/pii/S1053811917306857)
 * [Boudreau and Pike. *Sensitivity regularization of the Cramér‐Rao lower bound to minimize B1 nonuniformity effects in quantitative magnetization transfer imaging.* Mag Res Med 2018](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.27337)
+* [Mingasson et al. *AxonPacking: an open-source software to simulate arrangements of axons in white matter.* Frontiers in neuroinformatics 2017](https://www.frontiersin.org/articles/10.3389/fninf.2017.00005/full)
 
 **Interactive Tutorials**
 
