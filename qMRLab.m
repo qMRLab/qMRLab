@@ -868,17 +868,12 @@ I.label = cellstr(get(handles.SourcePop,'String'));
 Mask = handles.tool.getMask(1);
 if isfield(handles.CurrentData,'hdr')
     I.hdr = handles.CurrentData.hdr;
-    if isreal(I)
-        tool = imtool3D_nii_3planes(I,Mask);
-    else
-        tool = imtool3D_nii_3planes(abs(I),Mask);
-    end
+
+    tool = imtool3D_nii_3planes(I,Mask);
 else
-    if isreal(I)
-        tool = imtool3D_3planes(I.img,Mask);
-    else
-        tool = imtool3D_3planes(abs(I.img),Mask);
-    end
+
+    tool = imtool3D_3planes(I.img,Mask);
+
     for ii=1:3, tool(ii).setlabel(I.label); end
 end
 clims = handles.tool.getClimits;
