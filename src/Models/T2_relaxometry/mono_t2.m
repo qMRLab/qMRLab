@@ -34,7 +34,8 @@ classdef mono_t2 < AbstractModel
     %  https://www.ncbi.nlm.nih.gov/pubmed/26678918
     
 properties (Hidden=true)
-    onlineData_url = getLink_t2();
+    % See the constructor
+    onlineData_url;
 end   
 
     
@@ -66,7 +67,7 @@ end
         function obj = mono_t2()
             
             obj.options = button2opts(obj.buttons);
-            
+            obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=1','https://osf.io/ns3wx/download?version=1');
         end
         
         function Smodel = equation(obj, x)

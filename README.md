@@ -3,19 +3,23 @@
 
 ![hdr](/docs/logo/header_new.png)
 
-<h2>qMRLab is an open-source software for quantitative MR image analysis.</h2>
+<b><h2 align="center">
+qMRLab is an open-source software for quantitative MR image analysis.</h2></b> 
 
-<p align="center">The main goal is to provide the community with an intuitive tool for <b>data fitting</b>, <b>plotting</b>, <b>simulation</b> and <b>protocol optimization</b> for a myriad of different quantitative models.
-The modularity of the implementation makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!</p>
-
-<p align="center">
-For <b>documentation</b>, visit the <a href="http://qmrlab.readthedocs.io/">Documentation website</a>.</p>
+<p align="center">Our main goal is to provide the community with an intuitive tool for <b>data fitting</b>, <b>plotting</b>, <b>simulation</b> and <b>protocol optimization</b> for a myriad of different quantitative models.
+The modularity of the qMRLab framework makes it easy to add any additional modules and we encourage everyone to contribute their favorite recipe for qMR!</p>
 
 <p align="center">
-If you are a <b>developer</b>, please visit the <a href="https://github.com/neuropoly/qMRLab/wiki">Wiki page<a>.</p>
+For <b>documentation 📖</b>, visit the <a href="http://qmrlab.readthedocs.io/">Documentation website</a>.</p>
 
 <p align="center">
-Please report any <b>bug</b> or <b>suggestions</b> in <a href="https://github.com/neuropoly/qMRLab/issues">GitHub</a>.</p>
+If you are a <b>developer 🛠</b>, please visit the <a href="https://github.com/neuropoly/qMRLab/wiki">Wiki page<a>.</p>
+
+<p align="center">
+Please report any <b>bug 🐛</b> or <b>suggestions 💭</b> in <a href="https://github.com/neuropoly/qMRLab/issues">GitHub</a>.</p>
+
+<p align="center">
+For <b>interactive tutorials 🎚</b>, <b>blog posts 🖋</b> and more, you can visit <a href="https://qmrlab.org">qMRLab portal</a>.</p>
 
 <p align="center">
 qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/qMTLab">qMTLab</a>.</p>  
@@ -26,19 +30,19 @@ qMRLab is a fork from the initial project <a href="https://github.com/neuropoly/
 FROM SCANNER</p></b> 
 
 <p align="center">
-Version controlled, fully transparent & vendor-neutral  <a href="https://github.com/qMRLab/pulse_sequences"> pulse sequences</a>.</p>  
+Version controlled, fully transparent & vendor-neutral  <a href="https://github.com/qMRLab/pulse_sequences"> pulse sequences 🌀</a>.</p>  
 
 <p align="center">
 ⬇️</p>  
 
 <p align="center">
-Data-driven, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows</a>.</p>
+Data-driven, container-mediated, platform-agnostic & BIDS compatible  <a href="https://github.com/qMRLab/pulse_sequences"> workflows 🔀</a>.</p>
 
 <p align="center">
 ⬇️</p>  
 
 <p align="center">
- Reproducible & modern <a href="https://qmrlab.org/blog.html"> publication</a> objects.</p>
+ Reproducible & modern <a href="https://qmrlab.org/blog.html"> publication 📚</a> objects.</p>
 
 <b><p align="center" style="font-size:24px">
 TO PUBLICATION</p></b> 
@@ -64,6 +68,7 @@ TO PUBLICATION</p></b>
 * [Varma et al. *Low duty-cycle pulsed irradiation reduces magnetization transfer and increases the inhomogeneous magnetization transfer effect.* J of Mag Res 2018](https://www.sciencedirect.com/science/article/abs/pii/S1090780718302088)
 * [Campbell et al. *Promise and pitfalls of g-ratio estimation with MRI.* NeuroImage 2018](https://www.sciencedirect.com/science/article/pii/S1053811917306857)
 * [Boudreau and Pike. *Sensitivity regularization of the Cramér‐Rao lower bound to minimize B1 nonuniformity effects in quantitative magnetization transfer imaging.* Mag Res Med 2018](https://onlinelibrary.wiley.com/doi/abs/10.1002/mrm.27337)
+* [Mingasson et al. *AxonPacking: an open-source software to simulate arrangements of axons in white matter.* Frontiers in neuroinformatics 2017](https://www.frontiersin.org/articles/10.3389/fninf.2017.00005/full)
 
 **Interactive Tutorials**
 
