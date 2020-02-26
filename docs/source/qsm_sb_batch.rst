@@ -1,4 +1,4 @@
-qsm_sb: Compute a T1 map using Variable Flip Angle
+qsm_sb: Fast quantitative susceptibility mapping
 ==================================================
 
 .. image:: https://mybinder.org/badge_logo.svg
