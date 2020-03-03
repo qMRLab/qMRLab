@@ -1,7 +1,86 @@
 How to install
 ===============================================================================
 
-Citation
+.. figure:: _static/access_options.png
+   :scale: 100 %
+
+qMRLab in MATLAB
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Minimum required version: `R2014b`
+* Available interfaces: 
+	* Graphical User interface (GUI) 🖥
+	* Command Line Interface (CLI) ⌨️
+
+If you have a MATLAB license, you can easily start using qMRLab by:
+
+1. Download the latest stable release `here <https://github.com/qMRLab/qMRLab/releases/latest/download/qMRLab_latest.zip>`_.
+	* Scroll down to the page, download links are under the `Assets` tab.
+2. Extract the downloaded `.zip` or `.tar.gz` file to a directory of your choice.
+3. Open MATLAB point your current directory to the `qMRLab` folder.
+4. Ensure that you can see `qMRLab.m` in the list of files of your current directory.
+5. If you would like to use **GUI**, execute the following command in your `Command Window`::
+
+    qMRLab
+
+* To see the beginners guide for **GUI** please refer to :ref:`Beginners example with GUI`
+
+6. To initialize qMRLab for **CLI** use, execute the following command in your `Command Window`::
+
+    startup
+
+7. Ensure that qMRLab is ready to use by executing the following command in your `Command Window`::
+
+    qMRLabVer
+
+* To see the beginners guide to **CLI** please refer to :ref:`Beginners example with batch`
+
+qMRLab in Octave
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Minimum required version: `4.2.0`
+* Available interfaces: 
+	* Command Line Interface (CLI) ⌨️
+* If you don't have Octave installed, you can find the instructions `here <https://www.gnu.org/software/octave/>`_. 
+
+GNU Octave is the free clone software for MATLAB. You can use nearly all the qMRLab methods in Octave via **CLI**: 
+
+1. Download the latest stable release `here <https://github.com/qMRLab/qMRLab/releases/latest/download/qMRLab_latest.zip>`_.
+	* Scroll down to the page, download links are under the `Assets` tab.
+2. Extract the downloaded `.zip` or `.tar.gz` file to a directory of your choice.
+3. To initialize qMRLab for **CLI** use in Octave, open your terminal::
+
+    cd ../directory/where/you/extracted/qMRLab
+    octave 
+    startup 
+
+* If you are running qMRLab in Octave for the first time, qMRLab will attempt to install the following packages (if not already installed): 
+	* `struct`
+	* `optim`
+	* `io`
+	* `statistics`
+	* `image`
+
+4. Ensure that qMRLab is ready to use by executing the following command in your `Command Window`::
+
+    qMRLabVer
+
+* To see the beginners guide to **CLI** please refer to :ref:`Beginners example with batch`
+
+qMRLab in Docker 🐳
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Beginning from the release `v2.3.0` on, qMRLab offers different flavors of Docker images:
+
+* 🖥 `qmrlab/mcrgui <https://hub.docker.com/repository/docker/qmrlab/mcrgui>`_
+	* Use qMRLab **GUI** without MATLAB license! Instructions are available `elsewhere <https://hub.docker.com/repository/docker/qmrlab/mcrgui>`_.
+* 📑 `qmrlab/octjn <https://hub.docker.com/repository/docker/qmrlab/octjn>`_
+	* Use qMRLab in **Jupyter Notebooks**! This image comes with **SoS Kernel** and some cool visualization libraries in **Python**, allowing you to combine qMRI processing with qMRLab in Octave and interactive visualization, all in the same notebook. Instructions are available `elsewhere <https://hub.docker.com/repository/docker/qmrlab/octjn>`_.
+* ⌨️ `qmrlab/minimal <https://hub.docker.com/repository/docker/qmrlab/minimal>`_
+	* Barebones qMRLab in Octave (i.e `qmrlab/octjn` without `jupyter`). Instructions are available `elsewhere <https://hub.docker.com/repository/docker/qmrlab/minimal>`_.
+
+Docker image tags are coherent with qMRLab release versions. For example, if you would like to get Docker image with qMRLab `v2.4.0` installed::
+
+    docker pull qmrlab/octjn:v2.4.0
+
+How to cite?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you use qMRLab in you work, please cite:
@@ -9,49 +88,3 @@ If you use qMRLab in you work, please cite:
 Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S., Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 
 Please also cite the reference for the particular module you are using (specified in each model's page).
-
-Dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* MATLAB_R2014b or later with Optimization Toolbox 
-or
-* Octave 4.2.1 or later
-
-Zip Download Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The latest stable version of qMRLab can be downloaded freely `here <https://github.com/neuropoly/qMRLab/archive/master.zip>`_.
-
-* Extract the downloaded file to the directory you want to install qMRLab.
-
-* Open MATLAB, got to the qMRLab folder and run `startup`.
-
-* To start a qMRLab session, run `qMRLab`.
-
-
-Command-Line Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you have git available on a command-line interface (e.g. Terminal on Mac OSX, Git Shell on Windows), the installation can be completed using a few quick commands.
-
-* In the command-line interface, navigate (`cd`) to the directory that you want to install qMRLab
-
-* Clone the directory::
-
-    git clone https://github.com/neuropoly/qMRLab.git
-
-* Open MATLAB, got to the qMRLab folder and run `startup`.
-
-* To start a qMRLab session, run `qMRLab`.
-
-Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-After installing the software, we recommend you evaluate all the test cases for the software.
-
-To run all tests, from MATLAB or Octave (assuming you are already in the qMRLab directory), execute the following command::
-
-	cd Test/MoxUnitCompatible/
-
-and run the following command::
-
-	moxunit_runtests -recursive
