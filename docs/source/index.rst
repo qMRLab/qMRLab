@@ -54,7 +54,7 @@ Welcome to qMRLab, a software for quantitative MR image analysis. Please take a 
    :maxdepth: 1
    :caption: Open Pulse Sequences
 
-   qmr_pullseq.rst.rst
+   qmr_pullseq.rst
 
 Indices and tables
 ==================
