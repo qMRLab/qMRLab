@@ -18,17 +18,17 @@ If you have a MATLAB license, you can easily start using qMRLab by:
 2. Extract the downloaded `.zip` or `.tar.gz` file to a directory of your choice.
 3. Open MATLAB point your current directory to the `qMRLab` folder.
 4. Ensure that you can see `qMRLab.m` in the list of files of your current directory.
-5. If you would like to use **GUI**, execute the following command in your `Command Window`::
+5. Execute the following command in your `Command Window` to initialize qMRLab's default environment::
+
+    startup
+
+6. If you would like to use **GUI**, execute the following command in your `Command Window`::
 
     qMRLab
 
 * To see the beginners guide for **GUI** please refer to :ref:`Beginners example with GUI`
 
-6. To initialize qMRLab for **CLI** use, execute the following command in your `Command Window`::
-
-    startup
-
-7. Ensure that qMRLab is ready to use by executing the following command in your `Command Window`::
+7. If you would like to use **CLI**, ensure that the environment is ready to use by executing the following command in your `Command Window`::
 
     qMRLabVer
 
@@ -67,7 +67,7 @@ GNU Octave is the free clone software for MATLAB. You can use nearly all the qMR
 
 qMRLab in Docker 🐳
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Beginning from the release `v2.3.0` on, qMRLab offers different flavors of Docker images:
+Beginning from the release `v2.3.0`, qMRLab offers different flavors of Docker images:
 
 * 🖥 `qmrlab/mcrgui <https://hub.docker.com/repository/docker/qmrlab/mcrgui>`_
 	* Use qMRLab **GUI** without MATLAB license! Instructions are available `elsewhere <https://hub.docker.com/repository/docker/qmrlab/mcrgui>`_.
@@ -79,6 +79,8 @@ Beginning from the release `v2.3.0` on, qMRLab offers different flavors of Docke
 Docker image tags are coherent with qMRLab release versions. For example, if you would like to get Docker image with qMRLab `v2.4.0` installed::
 
     docker pull qmrlab/octjn:v2.4.0
+
+🚀 Docker images are built and published automatically by `qMRLab's Azure Release Pipelines <https://hub.docker.com/repository/docker/qmrlab/minimal>`_.
 
 How to cite?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
