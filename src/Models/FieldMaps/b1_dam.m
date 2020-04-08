@@ -51,6 +51,7 @@ classdef b1_dam < AbstractModel & FilterClass
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/mw3sq/download?version=3';
+    %additional multi-slice dataset available here: https://osf.io/kytxw/
 end
 
     properties
