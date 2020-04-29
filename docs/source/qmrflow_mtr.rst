@@ -116,7 +116,7 @@ Optional arguments
 --ants_shrink                   [MxNxO] Specify the shrink factor for the virtual domain (typically |br|
                                 the fixed image) at each level.
 --ants_smoothing                [MxNxO] Specify the sigma of gaussian smoothing at each level. |br|
-                                Units are given in terms of voxels ('vox') or physical spacing ('mm'). |br|
+                                Units are given in terms of voxels ('vox') or physical spacing ('mm').
                                 Example usage is '4x2x1mm' and '4x2x1vox' where no units implies voxel spacing.
 --use_b1cor                     [true/false] Use and RF transmit field to correct for flip angle
                                 imperfections. 
