@@ -3,4 +3,4 @@ WORKFLOWS
 .. toctree::
    :maxdepth: 2
 
-   qmr_flow
+   qmr_workflow

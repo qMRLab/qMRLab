@@ -48,7 +48,8 @@ Welcome to qMRLab, a software for quantitative MR image analysis. Please take a 
    :maxdepth: 1
    :caption: Workflows
 
-   qmr_workflow.rst
+   qmrflow_intro.rst
+   methods_workflow.rst
 
 .. toctree::
    :maxdepth: 1
