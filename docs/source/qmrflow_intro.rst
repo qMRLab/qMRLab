@@ -1,12 +1,15 @@
 qMRFlow
 ====================================
 
+About
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. image:: https://github.com/qMRLab/qMRFlow/raw/master/assets/qmrflow_small.png?raw=true
   :width: 400
 
 qMRFlow is a collection of container-mediated, data-driven, transparent and platform-agnostic qMRI workflows written in `Nextflow <https://www.nextflow.io/>`_.
 
-Benefits 
+Benefits
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - qMRLab implements a myriad of qMRI methods, however does not provide pre-processing solutions such as volume alignment or skull stripping. qMRFlow enables the easy use of virtually any pre-processing software with qMRLab, as the process logic and descriptions are detached from workflow orchestration.
 
@@ -15,7 +18,7 @@ Benefits
 
 - qMRFlow pipelines run on `BIDS <https://bids-specification.readthedocs.io/en/stable/>`_ formatted data, highly convenient for multi-subject processing: 
 
-.. image:: https://bids.neuroimaging.io/assets/img/dicom-reorganization-transparent-white_1000x477.png
+.. image:: https://media.springernature.com/m685/springer-static/image/art%3A10.1038%2Fsdata.2016.44/MediaObjects/41597_2016_Article_BFsdata201644_Fig1_HTML.jpg
   :width: 800
 
 
@@ -32,7 +35,7 @@ To see the latest BIDS developments on describing qMRI data, you can visit `BEP0
 
 - In case that the workflow is interrupted for any reason, pipeline execution can be resumed from where it left off.
 
-Run qMRFlow with Docker 🐳
+Use qMRFlow with Docker 🐳
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you have Docker installed on your computer, getting started with qMRFlow is 
 a few steps away. 
@@ -44,7 +47,7 @@ a few steps away.
     docker pull qmrlab/antsfsl:latest
 3. Run the pipeline as described in the `Usage` section of the desired qMRFlow pipeline documentation.
 
-Run qMRFlow locally 
+Use qMRFlow locally 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 We highly suggest using qMRFlow workflows in containers. However, if you don't 
 have Docker installed, you can still use them by installing dependencies locally.
