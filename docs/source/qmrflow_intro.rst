@@ -26,6 +26,7 @@ Benefits
 
 
 To see the latest BIDS developments on describing qMRI data, you can visit `BEP001 GitHub repository <https://github.com/orgs/bids-bep001/dashboard>`_.
+
 - Quantitative maps created by qMRFlow are accompanied by sidecar json files containing provenance metadata about the executed qMRI process: 
 
 .. image:: https://github.com/qMRLab/qMRFlow/blob/master/assets/output_formatting.png?raw=true
