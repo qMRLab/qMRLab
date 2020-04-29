@@ -1,6 +1,10 @@
 MTR
 ===================
 
+.. |br| raw:: html
+
+  <br/>
+
 Usage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,35 +71,35 @@ the folder organization for MTS in `mt_sat/USAGE` in this repository.
 Optional arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``--platform``                      ["octave"/"matlab"] Platform choice. 
-``--qmrlab_dir``                    ["/path/to/qMRLab" OR null] Absolute path to the qMRLab's
-                                root directory. If docker is enabled, MUST be set
-                                to null (without double quotes). If docker is NOT enabled,
-                                then the absolute path to the qMRLab MUST be provided.
-                                Note that qMRLab version MUST be equal or greater than v2.3.1.
---octave_path                   ["/path/to/octave_exec" OR null] Absolute path to Octave's
-                                executable. If docker is enabled, or, if you'd like to use
-                                Octave executable saved to your system path, MUST be set to
+--platform                      ["octave"/"matlab"] Platform choice.
+--qmrlab_dir                    ["/path/to/qMRLab" OR null] Absolute path to the qMRLab's |br|
+                                root directory. If docker is enabled, MUST be set |br|
+                                to null (without double quotes). If docker is NOT enabled, |br|
+                                then the absolute path to the qMRLab MUST be provided.|br|
+                                Note that qMRLab version MUST be equal or greater than v2.3.1.|br|
+--octave_path                   ["/path/to/octave_exec" OR null] Absolute path to Octave's |br|
+                                executable. If docker is enabled, or, if you'd like to use |br|
+                                Octave executable saved to your system path, MUST be set to |br|
                                 null (without double quotes).
---matlab_path                   ["/path/to/matlab_exec" OR null] Absolute path to MATLAB's
-                                executable. If you'd like to use MATLAB executable saved to
-                                your system path, MUST be set to null (without double quotes).
-                                Note that qMRLab requires MATLAB > R2014b. Docker image
-                                containing MCR compiled version of this application is NOT
-                                available yet. Therefore, container declerations for the
-                                processes starting with Fit_ prefix MUST be set to null
+--matlab_path                   ["/path/to/matlab_exec" OR null] Absolute path to MATLAB's |br|
+                                executable. If you'd like to use MATLAB executable saved to |br|
+                                your system path, MUST be set to null (without double quotes). |br|
+                                Note that qMRLab requires MATLAB > R2014b. Docker image |br|
+                                containing MCR compiled version of this application is NOT |br|
+                                available yet. Therefore, container declerations for the |br|
+                                processes starting with Fit_ prefix MUST be set to null |br|
                                 (without double quotes).
---ants_dim                      [2/3/4] This option forces the image to be treated
-                                as a specified-dimensional image. If not specified,
+--ants_dim                      [2/3/4] This option forces the image to be treated |br|
+                                as a specified-dimensional image. If not specified, |br|
                                 ANTs tries to infer the dimensionality.
---ants_metric                   ["MI"] Confined to MI: Mutual information, for this
+--ants_metric                   ["MI"] Confined to MI: Mutual information, for this |br|
                                 particular pipeline.
---ants_metric_weight            [0-1] If multimodal (i.e. changing contrast) use weight 1.
-                                This parameter is used to modulate the per stagehting
+--ants_metric_weight            [0-1] If multimodal (i.e. changing contrast) use weight 1. |br|
+                                This parameter is used to modulate the per stagehting |br|
                                 of the metrics.
---ants_metric_bins              [e.g. 32] Number of bins.
---ants_metric_sampling          ["Regular","Random:]The point set can be on a regular
-                                lattice or a random lattice of points slightly perturbed
+--ants_metric_bins              [e.g. 32] Number of bins. |br|
+--ants_metric_sampling          ["Regular","Random:]The point set can be on a regular |br|
+                                lattice or a random lattice of points slightly perturbed |br|
                                 to minimize aliasing artifacts.
 --ants_metric_samplingprct      [0-100] The fraction of points to select from the domain
 --ants_transform                * "Rigid"
@@ -105,14 +109,14 @@ Optional arguments
                                 * "Translation"
                                 * "BSpline"
 --ants_convergence              [MxNxO,<convergenceThreshold=1e-6>,<convergenceWindowSize=10>]
-                                Convergence is determined from the number of iterations per level
-                                and is determined by fitting a line to the normalized energy
-                                profile of the last N iterations (where N is specified by the window
-                                size) and determining the slope which is then compared with theconvergence threshold.
---ants_shrink                   [MxNxO] Specify the shrink factor for the virtual domain (typically
+                                Convergence is determined from the number of iterations per level |br|
+                                and is determined by fitting a line to the normalized energy |br|
+                                profile of the last N iterations (where N is specified by the window |br|
+                                size) and determining the slope which is then compared with |br| theconvergence threshold.
+--ants_shrink                   [MxNxO] Specify the shrink factor for the virtual domain (typically |br|
                                 the fixed image) at each level.
---ants_smoothing                [MxNxO] Specify the sigma of gaussian smoothing at each level.
-                                Units are given in terms of voxels ('vox') or physical spacing ('mm').
+--ants_smoothing                [MxNxO] Specify the sigma of gaussian smoothing at each level. |br|
+                                Units are given in terms of voxels ('vox') or physical spacing ('mm'). |br|
                                 Example usage is '4x2x1mm' and '4x2x1vox' where no units implies voxel spacing.
 --use_b1cor                     [true/false] Use and RF transmit field to correct for flip angle
                                 imperfections. 
