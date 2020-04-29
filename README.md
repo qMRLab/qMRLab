@@ -78,14 +78,16 @@ TO PUBLICATION</p></b>
 
 **Awards**
 
-* Karakuzu et al. Quantitative MR Study Group Competition, second place, ISMRM 2019 
-* Boudreau et al. Junior Fellows Symposium Challenge, Africa challenge winner, ISMRM 2019
-* Karakuzu et al. [Magnetic Moments](https://www.youtube.com/watch?v=67GKiK3iFr0), People's Choice Award, ISMRM 2018 
+* Karakuzu A. ISMRM Research Exchange Grant 2020
+* Karakuzu A. et al. Quantitative MR Study Group Competition, second place, ISMRM 2019 
+* Boudreau M. et al. Junior Fellows Symposium Challenge, Africa challenge winner, ISMRM 2019
+* Karakuzu A. et al. [Magnetic Moments](https://www.youtube.com/watch?v=67GKiK3iFr0), People's Choice Award, ISMRM 2018 
 
 **Sponsored by**
 
 * [Institut TransMedTech Montréal (ITMT)](https://www.polymtl.ca/transmedtech/)
 * [Canadian Open Neuroscience Platform (CONP)](https://conp.ca/)
+* [International Society of Magnetic Resonance in Medicine (ISMRM)](http://ismrm.org)
 
 ## Citation
 
