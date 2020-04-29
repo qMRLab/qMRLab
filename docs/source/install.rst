@@ -11,7 +11,7 @@ qMRLab in MATLAB
 	* Graphical User interface (GUI) 🖥
 	* Command Line Interface (CLI) ⌨️
 
-If you have a MATLAB license, you can easily start using qMRLab by:
+If you have a MATLAB license, you can easily start using qMRLab:
 
 1. Download the latest stable release `here <https://github.com/qMRLab/qMRLab/releases/latest/download/qMRLab_latest.zip>`_.
 	* Scroll down to the page, download links are under the `Assets` tab.
@@ -22,13 +22,13 @@ If you have a MATLAB license, you can easily start using qMRLab by:
 
     startup
 
-6. If you would like to use **GUI**, execute the following command in your `Command Window`::
+6.1. If you would like to use **GUI**, execute the following command in your `Command Window`::
 
     qMRLab
 
 * To see the beginners guide for **GUI** please refer to :ref:`Beginners example with GUI`
 
-7. If you would like to use **CLI**, ensure that the environment is ready to use by executing the following command in your `Command Window`::
+6.2. If you would like to use **CLI**, ensure that the environment is ready to use by executing the following command in your `Command Window`::
 
     qMRLabVer
 
