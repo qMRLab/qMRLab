@@ -1,6 +1,6 @@
-Beginners example with GUI
+Beginner's example with GUI
 =========================================
-This will guide you step by step in processing a sample dataset with the user interface. 
+This will guide you step by step in processing a sample dataset with the user interface.
 
 1. Open matlab
 ----------------------------------

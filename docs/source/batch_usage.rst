@@ -1,4 +1,4 @@
-Command-Line Usage
+Command Line Interface (CLI) Usage
 ====================================
 
 General structure

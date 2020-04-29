@@ -1,4 +1,4 @@
-Beginners example with CLI
+Beginner's example with CLI
 ====================================
 This will guide you through the steps to create a script that can be used to process sample data. The generated example script scan then be used as a guideline to analyze your own data.
 
