@@ -67,8 +67,8 @@ the folder organization for MTS in `mt_sat/USAGE` in this repository.
 Optional arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
---platform                      ["octave"/"matlab"] Platform choice. 
---qmrlab_dir                    ["/path/to/qMRLab" OR null] Absolute path to the qMRLab's
+``--platform``                      ["octave"/"matlab"] Platform choice. 
+``--qmrlab_dir``                    ["/path/to/qMRLab" OR null] Absolute path to the qMRLab's
                                 root directory. If docker is enabled, MUST be set
                                 to null (without double quotes). If docker is NOT enabled,
                                 then the absolute path to the qMRLab MUST be provided.

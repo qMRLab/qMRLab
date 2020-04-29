@@ -22,7 +22,7 @@ streamline the process of qMRI map generation.
 VFA T1 mapping
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A preliminary version of the RTHawk application is publicly available for variable flip angle method T1 mapping using a 3D spoiled gradient-echo sequence. 
+A preliminary version of the RTHawk application is publicly available for variable flip angle T1 mapping using a 3D spoiled gradient-echo sequence. 
 
 .. image:: https://github.com/qMRLab/pulse_sequences/blob/master/assets/RTH_Figure.gif?raw=true
   :width: 800
