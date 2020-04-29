@@ -1,4 +1,4 @@
-GUI
+Graphical User Interface (GUI)
 ======================================
 This section describes the various features and functionality of the user interface.
 
