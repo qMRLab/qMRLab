@@ -87,7 +87,7 @@ Optional arguments
                                 Note that qMRLab requires MATLAB > R2014b. Docker image |br|
                                 containing MCR compiled version of this application is NOT |br|
                                 available yet. Therefore, container declerations for the |br|
-                                processes starting with Fit_ prefix MUST be set to null |br|
+                                processes starting with ``Fit`` prefix MUST be set to null |br|
                                 (without double quotes).
 --ants_dim                      ``[2/3/4]`` This option forces the image to be treated |br|
                                 as a specified-dimensional image. If not specified, |br|
@@ -108,7 +108,7 @@ Optional arguments
                                 * ``"Similarity"``
                                 * ``"Translation"``
                                 * ``"BSpline"``
---ants_convergence              ``[MxNxO,<convergenceThreshold=1e-6>,<convergenceWindowSize=10>]``
+--ants_convergence              ``[MxNxO,<convergenceThreshold=1e-6>,<convergenceWindowSize=10>]`` |br|
                                 Convergence is determined from the number of iterations per level |br|
                                 and is determined by fitting a line to the normalized energy |br|
                                 profile of the last N iterations (where N is specified by the window |br|
@@ -116,7 +116,7 @@ Optional arguments
 --ants_shrink                   ``[MxNxO]`` Specify the shrink factor for the virtual domain (typically 
                                 |br| the fixed image) at each level.
 --ants_smoothing                ``[MxNxO]`` Specify the sigma of gaussian smoothing at each level. |br|
-                                Units are given in terms of voxels ('vox') or physical spacing ('mm'). |br| Example usage is '4x2x1mm' and '4x2x1vox' where no units implies voxel spacing.
+                                Units are given in terms of voxels ('vox') or physical spacing ('mm'). |br| Example usage is '4x2x1mm' and '4x2x1vox' where no units implies |br| voxel spacing.
 --use_b1cor                     ``[true/false]`` Use and RF transmit field to correct for flip angle |br|
                                 imperfections. 
 --b1cor_factor                  ``[0-1]`` Correction factor (empirical) for the transmit RF. Only |br|
