@@ -1,5 +1,5 @@
-MTsat
-====================================
+MTsat: Magnetization transfer saturation
+===========================================
 
 .. |br| raw:: html
 
@@ -46,8 +46,8 @@ dependencies must be installed and added to the system path:
 Folder organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-BIDS convention
-mtsatflow_BIDS.nf
+.. image:: https://upload.wikimedia.org/wikipedia/commons/d/de/BIDS_Logo.png
+  :width: 200
 
 .. code-block:: console
 
@@ -134,34 +134,29 @@ Optional arguments
 Notes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- BIDS:
+- BIDS for quantitative MRI (BEP001) data is under development as of early 2020. You can  visit the `BEP001 GitHub repository <https://github.com/orgs/bids-bep001/dashboard>`_.
 
-    mtsatflow_BIDS.nf           To process BIDSified MTsat data. Note that BIDS for 
-                                quantitative MRI data is under development as of 
-                                early 2020. You can visit the GitHub project page
-                                [here](https://github.com/bids-standard/bep001). 
 - Example datasets: 
 
-    Custom-organized data       TBA
-    BIDSified MTsat data        https://osf.io/k4bs5/                                
+    * BIDSified MTsat data        https://osf.io/k4bs5/
 
 - Files should be compressed Nifti files (.nii.gz)
 
-- Timing parameters in the .json files MUST be in seconds. 
+- Timing parameters in the .json files MUST be in ``seconds``. 
 
-- Subject IDs are used as the primary process ID and tag throughout the pipeline. 
+- ``Subject IDs`` are used as the primary process ``ID`` and ``tag`` throughout the pipeline. 
 
-- We adhere to a strict one-process one-container mapping, where possible using off-the shelf
+- We adhere to a strict ``one-process one-container mapping``, where possible using off-the shelf
   qMRLab containers. 
 
-- All the OPTIONAL ARGUMENTS can be modified in the `nextflow.config` file. The same 
-  config file is consumed by both `mtsatflow.nf` and `mtsatflow_BIDS.nf`.  
+- All the OPTIONAL ARGUMENTS can be modified in the ``nextflow.config`` file. The same 
+  config file is consumed by ``mtrflow_BIDS.nf``.
 
-- You can take advantage of Nextflow's comprehensive tracing and visualization 
+- You can take advantage of Nextflow's comprehensive ``tracing and visualization`` 
   features while executing this pipeline: https://www.nextflow.io/docs/latest/tracing.html. 
 
 - For any requests, questions or contributions, please feel free to open
-  an issue at qMRflow's GitHub repo at https://github.com/qMRLab/qMRflow. 
+  an issue at qMRflow's GitHub repo at https://github.com/qMRLab/qMRflow.
 
 Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

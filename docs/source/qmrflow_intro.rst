@@ -9,7 +9,7 @@ About
 
 qMRFlow is a collection of container-mediated, data-driven, transparent and platform-agnostic qMRI workflows written in `Nextflow <https://www.nextflow.io/>`_.
 
-.. image:: https://img.shields.io/badge/GitHub-qMRFlow-red.svg
+.. image:: https://img.shields.io/badge/GitHub-qMRFlow-ff0000.svg
  :target: https://github.com/qMRLab/qMRFlow
 
 Benefits
