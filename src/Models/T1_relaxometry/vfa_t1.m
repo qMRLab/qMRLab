@@ -52,7 +52,7 @@ end
 
     properties
         MRIinputs = {'VFAData','B1map','Mask'};
-        xnames = {'M0','T1'};
+        xnames = {'M0','T1','R2','R2adj','normr'};
         voxelwise = 0;
         
         % Protocol
@@ -102,7 +102,13 @@ end
             if (length(unique(TR))~=1), error('VFA data must have same TR'); end
             if ~isfield(data, 'B1map'), data.B1map = []; end
             if ~isfield(data, 'Mask'), data.Mask = []; end
-            [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+            [FitResult.T1, FitResult.M0,R2,R2adj,normr] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+            if ~isempty(R2) && ~isempty(R2)
+                FitResult.R2 = R2;
+                FitResult.R2adj = R2adj;
+            elseif isempty(R2) && isempty(R2) && ~isempty(normr)
+                FitResult.normr = normr;
+            end
        end
 
        function plotModel(obj,x,data)
