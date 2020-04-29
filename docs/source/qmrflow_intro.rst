@@ -9,6 +9,9 @@ About
 
 qMRFlow is a collection of container-mediated, data-driven, transparent and platform-agnostic qMRI workflows written in `Nextflow <https://www.nextflow.io/>`_.
 
+.. image:: https://img.shields.io/badge/GitHub-qMRFlow-green.svg
+ :target: https://github.com/qMRLab/qMRFlow
+
 Benefits
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - qMRLab implements a myriad of qMRI methods, however does not provide pre-processing solutions such as volume alignment or skull stripping. qMRFlow enables the easy use of virtually any pre-processing software with qMRLab, as the process logic and descriptions are detached from workflow orchestration.
