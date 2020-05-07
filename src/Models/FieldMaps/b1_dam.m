@@ -26,7 +26,7 @@ classdef b1_dam < AbstractModel & FilterClass
 %   Model = b1_dam;% Create class from model
 %   data.SFalpha = double(load_nii_data('SFalpha.nii.gz')); %load data
 %   data.SF2alpha  = double(load_nii_data('SF2alpha.nii.gz'));
-%   Model.Smoothingfilter_Type = 'gaussian'; %apply gaussian smoothing in 3D with fwhm=3
+%   Model.Smoothingfilter_Dimension = 'gaussian'; %apply gaussian smoothing in 3D with fwhm=3
 %   Model.Smoothingfilter_Type = '3D';
 %   Model.Smoothingfilter_sizex = 3;
 %   Model.Smoothingfilter_sizey = 3;
@@ -51,6 +51,7 @@ classdef b1_dam < AbstractModel & FilterClass
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/mw3sq/download?version=3';
+    %additional multi-slice dataset available here: https://osf.io/kytxw/
 end
 
     properties
