@@ -15,7 +15,7 @@ We maintain a developer-friendly documentation on our `wiki page <https://github
 
 * `Automatic documentation generation <https://github.com/qMRLab/qMRLab/wiki/Guideline:-Generating-Documentation>`_
 
-* `Continious Integration tests <https://github.com/qMRLab/qMRLab/wiki/Testing:-Travis-specific>`_
+* `Continuous Integration tests <https://github.com/qMRLab/qMRLab/wiki/Testing:-Travis-specific>`_
 
 * `Our Docker organization <https://hub.docker.com/orgs/qmrlab/repositories>`_
 

@@ -39,7 +39,7 @@ dependencies must be installed and added to the system path:
 
   * ANTs registration (https://github.com/ANTsX/ANTs)
   * FSL (https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/)
-  * Octave/MATLAB (https://www.gnu.org/software/octave/,https://www.mathworks.com/)
+  * Octave/MATLAB (https://www.gnu.org/software/octave/, https://www.mathworks.com/)
   * qMRLab > v2.3.1 (https://qmrlab.org)
   * git
 
@@ -91,7 +91,7 @@ Optional arguments
                                 your system path, MUST be set to null (without double quotes). |br|
                                 Note that qMRLab requires MATLAB > R2014b. Docker image |br|
                                 containing MCR compiled version of this application is NOT |br|
-                                available yet. Therefore, container declerations for the |br|
+                                available yet. Therefore, container declarations for the |br|
                                 processes starting with ``Fit`` prefix MUST be set to null |br|
                                 (without double quotes).
 --ants_dim                      ``[2/3/4]`` This option forces the image to be treated |br|
@@ -100,7 +100,7 @@ Optional arguments
 --ants_metric                   ``["MI"]`` Confined to MI: Mutual information, for this |br|
                                 particular pipeline.
 --ants_metric_weight            ``[0-1]`` If multimodal (i.e. changing contrast) use weight 1. |br|
-                                This parameter is used to modulate the per stagehting |br|
+                                This parameter is used to modulate the per stage weighting |br|
                                 of the metrics.
 --ants_metric_bins              ``[e.g. 32]`` Number of bins. |br|
 --ants_metric_sampling          ``["Regular","Random:]`` The point set can be on a regular |br|
@@ -117,7 +117,7 @@ Optional arguments
                                 Convergence is determined from the number of iterations per level |br|
                                 and is determined by fitting a line to the normalized energy |br|
                                 profile of the last N iterations (where N is specified by the window |br|
-                                size) and determining the slope which is then compared with |br| theconvergence threshold.
+                                size) and determining the slope which is then compared with |br| the convergence threshold.
 --ants_shrink                   ``[MxNxO]`` Specify the shrink factor for the virtual domain (typically 
                                 |br| the fixed image) at each level.
 --ants_smoothing                ``[MxNxO]`` Specify the sigma of gaussian smoothing at each level. |br|
