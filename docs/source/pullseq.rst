@@ -1,7 +1,6 @@
-Interfaces
+OPEN PULSE SEQUENCES
 ================================================================================
 .. toctree::
    :maxdepth: 2
 
-   gui_usage
-   batch_usage
+   qmr_pullseq

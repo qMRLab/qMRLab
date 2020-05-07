@@ -40,9 +40,28 @@ Welcome to qMRLab, a software for quantitative MR image analysis. Please take a 
 
 .. toctree::
    :maxdepth: 1
-   :caption: General Usage Guidelines
+   :caption: User Interface Guidelines
 
    usage-guidelines.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Workflows
+
+   qmrflow_intro.rst
+   methods_workflow.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Open Pulse Sequences
+
+   qmr_pullseq.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contribute
+
+   dev-doc.rst
 
 Indices and tables
 ==================
