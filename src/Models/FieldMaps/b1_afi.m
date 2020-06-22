@@ -42,7 +42,7 @@ classdef b1_afi < AbstractModel
 
 
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/csjgx/'; %Please check this link. I think the version is needed for it to work
+        onlineData_url = 'https://osf.io/csjgx/download/';
     end
 
     properties
