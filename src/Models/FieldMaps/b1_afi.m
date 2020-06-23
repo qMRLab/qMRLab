@@ -2,6 +2,9 @@ classdef b1_afi < AbstractModel & FilterClass
 % b1_afi map:  Actual Flip-Angle Imaging for B1+ mapping
 %
 % Assumptions:
+%   Compute a B1map
+%   Smoothing can be done with different filters and optional size
+%   Spurious B1 values and those outside the mask (optional) are set to a constant before smoothing
 %   
 %
 % Inputs:
@@ -19,8 +22,6 @@ classdef b1_afi < AbstractModel & FilterClass
 %   Sequence    [nomFA; TR1; TR2]  nominal Flip Angle [deg]; TR1 [s]; TR2 [s]
 %
 % Options:
-%   Parallelize: Parallelize the voxelwise computation
-%     Multi CPU cores (only)
 %
 %
 %
@@ -28,10 +29,10 @@ classdef b1_afi < AbstractModel & FilterClass
 %   Model = b1_afi;  % Create class from model
 %   Model.Prot.Sequence.Mat = txt2mat('seq.txt');  % Load protocol
 %   data = struct;  % Create data structure
-%   data.AFIData1 = load_nii_data('img1.nii.gz');
-%   data.AFIData2 = load_nii_data('img2.nii.gz');
+%   data.AFIData1 = load_nii_data('AFIData1.nii');
+%   data.AFIData2 = load_nii_data('AFIData2.nii');
 %   FitResults = FitData(data,Model); %fit data
-%   FitResultsSave_nii(FitResults,'img1.nii.gz'); % Save in local folder: FitResults/
+%   FitResultsSave_nii(FitResults,'AFIData1.nii'); % Save in local folder: FitResults/
 %
 %   For more examples: <a href="matlab: qMRusage(b1_afi);">qMRusage(b1_afi)</a>
 %
