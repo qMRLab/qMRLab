@@ -1,4 +1,4 @@
-classdef b1_afi < AbstractModel
+classdef b1_afi < AbstractModel & FilterClass
 % b1_afi map:  Actual Flip-Angle Imaging for B1+ mapping
 %
 % Assumptions:
@@ -10,8 +10,11 @@ classdef b1_afi < AbstractModel
 %  (Mask)    Binary mask to exclude non-brain voxels
 %
 % Outputs:
-%   B1map_afi    Actual/Nominal FA map
-%
+%	B1map_raw          Actual/Nominal FA field map (B1+) 
+%   B1map_filtered     Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)
+%   Spurious           Map of datapoints that were set to 1 prior to smoothing
+
+
 % Protocol:
 %   Sequence    [nomFA; TR1; TR2]  nominal Flip Angle [deg]; TR1 [s]; TR2 [s]
 %
@@ -48,16 +51,11 @@ classdef b1_afi < AbstractModel
     properties
         MRIinputs = {'AFIData1','AFIData2', 'Mask'};
         xnames = {};
-        voxelwise = 1;
+        voxelwise = 0;
 
         % Protocol
         Prot  = struct('Sequence',struct('Format',{{'nomFA';'TR1';'TR2'}},...
             'Mat',[60;20;100]));
-
-        % Model options
-        buttons = {'Parallelize',false};
-        options= struct();
-
     end
 
     methods
@@ -65,61 +63,28 @@ classdef b1_afi < AbstractModel
             obj.options = button2opts(obj.buttons);
         end
 
-        function FitResults = fit(obj,data)
+        function FitResult = fit(obj,data)
             nomFA = obj.Prot.Sequence.Mat(1); %nominal Flip Angle
             n = obj.Prot.Sequence.Mat(3)/obj.Prot.Sequence.Mat(2); %TR2/TR1
-            if obj.options.Parallelize
-                %Parallelization
-                
-                %1.- Distributed arrays
-                %https://la.mathworks.com/help/parallel-computing/distributed-arrays.html
-                img1 = distributed(data.AFIData1);
-                img2 = distributed(data.AFIData2);
-                r = abs(img2./img1); %Signal AFI2/Signal AFI1
-                r = distributed(r);
-                cos_arg = (r*n-1)./(n-r);
-                cos_arg = distributed(cos_arg);
-                cos_arg = double(cos_arg).*(r<=1) + ones(size(r)).*(r>1);
-                AFImap = acos(cos_arg); %AFImap is in radians
-                AFImap = AFImap*180/pi;
-                AFImap = gather(AFImap);
-                FitResults.B1map_afi = AFImap/nomFA;
 
-%                 %2.- Submitting batch job
-%                 %https://la.mathworks.com/help/parallel-computing/simple-batch-processing.html
-%                 clust = parcluster('local');
-%                 N = 4; %for a quad core computer
-%                 %N = clust.NumIdleWorkers; %utilize all available workers
-%                 img1 = data.AFIData1;
-%                 img2 = data.AFIData2;
-%                 job = batch(clust,@Parallelization,1,{n,img1,img2},'Pool',N-1);
-%                 %get(job,'State');
-%                 wait(job,'finished');
-%                 
-%                 %Retrieve results
-%                 results = fetchOutputs(job);
-%                 AFImap = results{1};
-%                 delete(job);
-%                 FitResults.B1map_afi = AFImap/nomFA;
-            else
-                r = abs(data.AFIData2./data.AFIData1); %Signal AFI2/Signal AFI1
-                cos_arg = (r*n-1)./(n-r);
-                % filter out cases where r > 1:
-                % r should not be greater than one, so must be noise
-                cos_arg = double(cos_arg).*(r<=1) + ones(size(r)).*(r>1);
-                AFImap = acos(cos_arg); %AFImap is in radians
-                AFImap = AFImap*180/pi;
-                FitResults.B1map_afi = AFImap/nomFA;
-            end
-        end
-        
-        %This is the function I tried to use (nested in fit, locally and anonymous) for the Parallelize option
-        function AFImap = Parallelization(n,img1,img2)
-            r = abs(img2./img1); %Signal AFI2/Signal AFI1
+            r = abs(data.AFIData2./data.AFIData1); %Signal AFI2/Signal AFI1
             cos_arg = (r*n-1)./(n-r);
+            % filter out cases where r > 1:
+            % r should not be greater than one, so must be noise
             cos_arg = double(cos_arg).*(r<=1) + ones(size(r)).*(r>1);
             AFImap = acos(cos_arg); %AFImap is in radians
             AFImap = AFImap*180/pi;
+            FitResult.B1map_raw = AFImap/nomFA;
+                
+            %remove 'spurious' points to reduce edge effects
+            FitResult.Spurious = double(FitResult.B1map_raw<0.5);
+            B1map_nospur = FitResult.B1map_raw;
+            B1map_nospur(B1map_nospur<0.6 | isnan(B1map_nospur))=0.6; %set 'spurious' values to 0.6
+            
+            % call the superclass (FilterClass) fit function
+            data.Raw = B1map_nospur;
+            FitResult.B1map_filtered=cell2mat(struct2cell(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez])));
+            % note: can't use struct2array because dne for octave...
         end
 
     end
