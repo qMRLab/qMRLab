@@ -62,6 +62,7 @@ classdef b1_afi < AbstractModel & FilterClass
     methods
         function obj = b1_afi
             obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
         end
 
         function FitResult = fit(obj,data)
