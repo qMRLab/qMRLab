@@ -36,7 +36,7 @@ classdef b1_afi < AbstractModel & FilterClass
 %
 %   For more examples: <a href="matlab: qMRusage(b1_afi);">qMRusage(b1_afi)</a>
 %
-% Author: 
+% Authors: Mathieu Boudreau & Juan Velazquez 
 %
 % References:
 %   Please cite the following if you use this module:
