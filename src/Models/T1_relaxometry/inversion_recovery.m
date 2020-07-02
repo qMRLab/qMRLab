@@ -56,6 +56,7 @@ end
         MRIinputs = {'IRData','Mask'}; % input data required
         xnames = {'T1','rb','ra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
+        fitModel = 'Barral' % 'Barral' or 'General'
 
         % fitting options
         st           = [  600    -1000      500 ]; % starting point
@@ -65,7 +66,7 @@ end
 
         % Protocol
         Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]')); %default protocol
-
+        TR = 2550;
         % Model options
         buttons = {'method',{'Magnitude','Complex'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
@@ -154,15 +155,45 @@ end
         function FitResults = fit(obj,data)
             % Fits the data
             %
-
+            
             data = data.IRData;
-            [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
-            FitResults.T1  = T1;
-            FitResults.rb  = rb;
-            FitResults.ra  = ra;
-            FitResults.res = res;
-            if (strcmp(obj.options.method, 'Magnitude'))
-                FitResults.idx = idx;
+            
+            switch obj.fitModel
+                case 'Barral'
+                    [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
+                    FitResults.T1  = T1;
+                    FitResults.rb  = rb;
+                    FitResults.ra  = ra;
+                    FitResults.res = res;
+                    if (strcmp(obj.options.method, 'Magnitude'))
+                        FitResults.idx = idx;
+                    end
+                case 'General'
+                    approxFlag = 3;
+
+                    params.TI = obj.Prot.IRData.Mat';
+                    params.TR = obj.TR;
+                    
+                    % Make sure data vector is a column vector
+                    data = data(:);
+
+                    % Find the min of the data
+                    [~, minInd] = min(data);
+                    for ii = 1:2
+                        if ii == 1
+                            % First, we set all elements up to and including
+                            % the smallest element to minus
+                            dataTmp = data.*[-ones(minInd,1); ones(length(data) - minInd,1)];
+                        elseif ii == 2
+                            % Second, we set all elements up to (not including)
+                            % the smallest element to minus
+                            dataTmp = data.*[-ones(minInd-1,1); ones(length(data) - (minInd-1),1)];
+                        end
+                        [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
+                    end
+                    [~,ind] = min(resnorm);
+                    FitResults.T1 = fitVals{ind}.T1;
+                    FitResults.resnorm = resnorm(ind);
             end
         end
 
@@ -433,16 +464,25 @@ end
                     TI = params.TI;
                     TR = params.TR;
 
+                    % Find the min of the data
+                    [~, minInd] = min(abs(data));
+
+                    T1est = -TI(minInd)/log(1/2); % Estimate from null (or min) of data and Eq. 4
+                    
                     %    [constant, T1]
-                    x0 = [1, 1000];
-
-                    options.Algorithm = 'levenberg-marquardt';
+                    x0 = [1, T1est];
+                    if max(abs(data)) > 0
+                        dataNorm = data/max(abs(data));
+                    else
+                        dataNorm = data;
+                    end
+                    
+                    options.Algorithm = 'trust-region-reflective';
                     options.Display = 'off';
-
-                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, data), x0, [], [], options);
+                    
+                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm'), x0, [0, 0], [2, 5000], options);
 
                     fitVals.T1 = x(2);
-                    fitVals.c = x(1);
 
                 case 4
                     TI = params.TI;
