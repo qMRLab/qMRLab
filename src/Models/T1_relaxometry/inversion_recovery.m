@@ -56,7 +56,6 @@ end
         MRIinputs = {'IRData','Mask'}; % input data required
         xnames = {'T1','rb','ra'}; % name of the fitted parameters
         voxelwise = 1; % voxel by voxel fitting?
-        fitModel = 'Barral' % 'Barral' or 'General'
 
         % fitting options
         st           = [  600    -1000      500 ]; % starting point
@@ -65,10 +64,10 @@ end
         fx           = [    0        0        0 ]; % fix parameters
 
         % Protocol
-        Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]')); %default protocol
-        TR = 2550;
+        Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
+                      'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
         % Model options
-        buttons = {'method',{'Magnitude','Complex'}}; %selection buttons
+        buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulation Options
@@ -158,7 +157,7 @@ end
             
             data = data.IRData;
             
-            switch obj.fitModel
+            switch obj.options.fitModel
                 case 'Barral'
                     [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
                     FitResults.T1  = T1;
@@ -169,31 +168,36 @@ end
                         FitResults.idx = idx;
                     end
                 case 'General'
+
                     approxFlag = 3;
 
                     params.TI = obj.Prot.IRData.Mat';
-                    params.TR = obj.TR;
+                    params.TR = obj.Prot.TimingTable.Mat;
                     
-                    % Make sure data vector is a column vector
-                    data = data(:);
+                    if strcmp(obj.options.method, 'Magnitude')
+                        % Make sure data vector is a column vector
+                        data = data(:);
 
-                    % Find the min of the data
-                    [~, minInd] = min(data);
-                    for ii = 1:2
-                        if ii == 1
-                            % First, we set all elements up to and including
-                            % the smallest element to minus
-                            dataTmp = data.*[-ones(minInd,1); ones(length(data) - minInd,1)];
-                        elseif ii == 2
-                            % Second, we set all elements up to (not including)
-                            % the smallest element to minus
-                            dataTmp = data.*[-ones(minInd-1,1); ones(length(data) - (minInd-1),1)];
+                        % Find the min of the data
+                        [~, minInd] = min(data);
+                        for ii = 1:2
+                            if ii == 1
+                                % First, we set all elements up to and including
+                                % the smallest element to minus
+                                dataTmp = data.*[-ones(minInd,1); ones(length(data) - minInd,1)];
+                            elseif ii == 2
+                                % Second, we set all elements up to (not including)
+                                % the smallest element to minus
+                                dataTmp = data.*[-ones(minInd-1,1); ones(length(data) - (minInd-1),1)];
+                            end
+                            [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
                         end
-                        [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
+                        [~,ind] = min(resnorm);
+                        FitResults.T1 = fitVals{ind}.T1;
+                        FitResults.resnorm = resnorm(ind);
+                    elseif strcmp(obj.options.method, 'Complex')
+                        warning('General fitting model not implemented for complex data yet - abort.');
                     end
-                    [~,ind] = min(resnorm);
-                    FitResults.T1 = fitVals{ind}.T1;
-                    FitResults.resnorm = resnorm(ind);
             end
         end
 
@@ -480,7 +484,7 @@ end
                     options.Algorithm = 'trust-region-reflective';
                     options.Display = 'off';
                     
-                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm'), x0, [0, 0], [2, 5000], options);
+                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)'), x0, [0, 0], [2, 5000], options);
 
                     fitVals.T1 = x(2);
 
