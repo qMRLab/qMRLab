@@ -196,7 +196,12 @@ end
                         FitResults.T1 = fitVals{ind}.T1;
                         FitResults.resnorm = resnorm(ind);
                     elseif strcmp(obj.options.method, 'Complex')
-                        warning('General fitting model not implemented for complex data yet - abort.');
+                        params.dataType = 'complex';
+                        [fitVals, resnorm] = inversion_recovery.fit_lm(data(:), params, 3);
+                        FitResults.T1 = fitVals.T1;
+                        FitResults.Re_a = real(fitVals.constant);
+                        FitResults.Im_a = imag(fitVals.constant);                        
+                        FitResults.resnorm = resnorm;
                     end
             end
         end
@@ -473,20 +478,41 @@ end
 
                     T1est = -TI(minInd)/log(1/2); % Estimate from null (or min) of data and Eq. 4
                     
-                    %    [constant, T1]
-                    x0 = [1, T1est];
-                    if max(abs(data)) > 0
-                        dataNorm = data/max(abs(data));
-                    else
-                        dataNorm = data;
-                    end
-                    
-                    options.Algorithm = 'trust-region-reflective';
-                    options.Display = 'off';
-                    
-                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)'), x0, [0, 0], [2, 5000], options);
 
-                    fitVals.T1 = x(2);
+                    if isfield(params, 'dataType') && strcmp(params.dataType,'complex')
+                        % Fit comlex data
+                        %    [constant, T1]
+                        x0 = [1, 0, T1est];
+                        if max(abs(data)) > 0
+                            dataNorm = data/max(abs(data));
+                        else
+                            dataNorm = data;
+                        end
+                        options.Algorithm = 'trust-region-reflective';
+                        options.Display = 'off';
+                        
+                        [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)', params.dataType), x0, [-2, -2, 0], [2, 2, 5000], options);
+                        
+                        fitVals.T1 = x(3);
+                        fitVals.constant = x(1) + 1i*x(2);
+                    else
+                        % Fit magnitude data
+                        %    [constant, T1]
+                        x0 = [1, T1est];
+                        if max(abs(data)) > 0
+                            dataNorm = data/max(abs(data));
+                        else
+                            dataNorm = data;
+                        end
+
+                        options.Algorithm = 'trust-region-reflective';
+                        options.Display = 'off';
+
+                        [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)'), x0, [0, 0], [2, 5000], options);
+
+                        fitVals.T1 = x(2);
+                    end
+
 
                 case 4
                     TI = params.TI;
