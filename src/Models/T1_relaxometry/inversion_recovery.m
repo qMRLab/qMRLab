@@ -563,6 +563,7 @@ end
                                   'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
                 % Model options
                 obj.buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
+                obj.options = button2opts(obj.buttons);
             end
         end
     end
