@@ -557,6 +557,13 @@ end
                 snrValue = obj.Sim_Single_Voxel_Curve_buttons{2};
                 obj.Sim_Single_Voxel_Curve_buttons = {'SNR' snrValue 'T1' 600 'M0' 1000 'TR' 3000 'FAinv' 180 'FAexcite' 90 'Update input variables' 'pushbutton'};
             end
+             if checkanteriorver(version,[2 4 1])
+                % Update buttons for simulation
+                obj.Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
+                                  'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
+                % Model options
+                obj.buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
+            end
         end
     end
 
