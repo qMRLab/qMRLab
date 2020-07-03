@@ -20,13 +20,17 @@ classdef inversion_recovery < AbstractModel
 %
 % Protocol:
 %	IRData  [TI1 TI2...TIn] inversion times [ms]
+%   TimingTable   [TR] repetition time [ms]
 %
 % Options:
-%   Method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
-%     'complex'         RD-NLS (Reduced-Dimension Non-Linear Least Squares)
-%                         S=a + b*exp(-TI/T1)
-%      'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
-%                         S=|a + b*exp(-TI/T1)|
+%   method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
+%     'complex'     Complex dataset.
+%     'magnitude'   Magnitude dataset.
+%
+%
+%   fitModel        T1 fitting moddel.
+%     'Barral'      Fitting equation: a+bexp(-TI/T1)
+%     'General'     Fitting equation: c(1-2exp(-TI/T1)+exp(-TR/T1))
 %
 % Example of command line usage (see also <a href="matlab: showdemo inversion_recovery_batch">showdemo inversion_recovery_batch</a>):
 %   Model = inversion_recovery;  % Create class from model
@@ -168,8 +172,7 @@ end
                         FitResults.idx = idx;
                     end
                 case 'General'
-
-                    approxFlag = 3;
+                    approxFlag = 3; % Selects the equation c(1-2exp(-TI/T1)+exp(TR/T1))
 
                     params.TI = obj.Prot.IRData.Mat';
                     params.TR = obj.Prot.TimingTable.Mat;
@@ -178,9 +181,18 @@ end
                         % Make sure data vector is a column vector
                         data = data(:);
 
-                        % Find the min of the data
+                        % Find the min of the data (which is nearest to
+                        % signal null to flip
                         [~, minInd] = min(data);
+                        
+                        % Signal inversion algorithm to fir the T1 curve
                         for ii = 1:2
+                            % Fit the data by inverting the sign of the
+                            % datapoints up until the TI where signal is
+                            % null, then also without that point. The
+                            % fit with the smallest residual is our best
+                            % guess for up to where to flip the sign of the
+                            % signal.
                             if ii == 1
                                 % First, we set all elements up to and including
                                 % the smallest element to minus
@@ -192,15 +204,13 @@ end
                             end
                             [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
                         end
-                        [~,ind] = min(resnorm);
+                        [~,ind] = min(resnorm); % Index of the minimum residual will be which signal fit results to choose.
                         FitResults.T1 = fitVals{ind}.T1;
                         FitResults.resnorm = resnorm(ind);
                     elseif strcmp(obj.options.method, 'Complex')
                         params.dataType = 'complex';
                         [fitVals, resnorm] = inversion_recovery.fit_lm(data(:), params, 3);
                         FitResults.T1 = fitVals.T1;
-                        FitResults.Re_a = real(fitVals.constant);
-                        FitResults.Im_a = imag(fitVals.constant);                        
                         FitResults.resnorm = resnorm;
                     end
             end
@@ -476,31 +486,35 @@ end
                     % Find the min of the data
                     [~, minInd] = min(abs(data));
 
-                    T1est = -TI(minInd)/log(1/2); % Estimate from null (or min) of data and Eq. 4
-                    
+                    T1est = -TI(minInd)/log(1/2); % Estimate from null (or min) of data and the equation in Case 4. Used as the first guess for the fitting point.
 
                     if isfield(params, 'dataType') && strcmp(params.dataType,'complex')
                         % Fit comlex data
                         %    [constant, T1]
-                        x0 = [1, 0, T1est];
                         if max(abs(data)) > 0
-                            dataNorm = data/max(abs(data));
+                            dataNorm = data/max(abs(data)); % Normalize the data to fit with the initial constant guess of 1.
                         else
                             dataNorm = data;
                         end
+                        
+                        % Initial fit estimates
+                        %    [Re(constant), Im(constant), T1)]
+                        x0 = [1, 0, T1est];
+
                         options.Algorithm = 'trust-region-reflective';
                         options.Display = 'off';
                         
+                        % Bound the fitting variables to -2 to 2
+                        % (constant) and 0 to 5000 (T1 in ms).
                         [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)', params.dataType), x0, [-2, -2, 0], [2, 2, 5000], options);
                         
                         fitVals.T1 = x(3);
-                        fitVals.constant = x(1) + 1i*x(2);
                     else
                         % Fit magnitude data
                         %    [constant, T1]
                         x0 = [1, T1est];
                         if max(abs(data)) > 0
-                            dataNorm = data/max(abs(data));
+                            dataNorm = data/max(abs(data)); % Normalize the data to fit with the initial constant guess of 1.
                         else
                             dataNorm = data;
                         end
@@ -508,6 +522,8 @@ end
                         options.Algorithm = 'trust-region-reflective';
                         options.Display = 'off';
 
+                        % Bound the fitting variables to -2 to 2
+                        % (constant) and 0 to 5000 (T1 in ms).
                         [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)'), x0, [0, 0], [2, 5000], options);
 
                         fitVals.T1 = x(2);

@@ -7,7 +7,7 @@ params.TI = TI;
 if exist('dataType', 'var') && strcmp(dataType,'complex')
     params.constant = x(1);
     params.T1 = x(3);
-
+    
     lossVal(:,1) = inversion_recovery.analytical_solution(params, 'GRE-IR', 3) - real(data);
 
     params.constant = x(2);
