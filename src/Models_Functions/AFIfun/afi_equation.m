@@ -20,13 +20,13 @@ try
         constant = 1;
     end
     
-    Mz1 = constant .* ( (1 - exp(-TR2/T1) + (1 - exp(-TR1/T1)) * exp(-TR2/T1) .* cosd(EXC_FA)) ./  (1 -  exp(-TR1/T1)) * exp(-TR2/T1) .* cosd(EXC_FA) .* cosd(EXC_FA) ) .* sind(EXC_FA);
-    Mz2 = constant .* ( (1 - exp(-TR1/T1) + (1 - exp(-TR2/T1)) * exp(-TR1/T1) .* cosd(EXC_FA)) ./  (1 -  exp(-TR1/T1)) * exp(-TR2/T1) .* cosd(EXC_FA) .* cosd(EXC_FA) ) .* sind(EXC_FA);
+    Mz1 = constant .* ( (1 - exp(-TR2/T1) + (1 - exp(-TR1/T1)) * exp(-TR2/T1) .* cosd(EXC_FA)) ./  (1 -  exp(-TR1/T1) * exp(-TR2/T1) .* cosd(EXC_FA) .* cosd(EXC_FA)) ) .* sind(EXC_FA);
+    Mz2 = constant .* ( (1 - exp(-TR1/T1) + (1 - exp(-TR2/T1)) * exp(-TR1/T1) .* cosd(EXC_FA)) ./  (1 -  exp(-TR1/T1) * exp(-TR2/T1) .* cosd(EXC_FA) .* cosd(EXC_FA)) ) .* sind(EXC_FA);
     
-    %Normalize at Mz1(20)
-    normMz1 = Mz1(20);
-    Mz1 = Mz1/normMz1;
-    Mz2 = Mz2/normMz1;
+%     %Normalize at Mz1(20)
+%     normMz1 = Mz1(20);
+%     Mz1 = Mz1/normMz1;
+%     Mz2 = Mz2/normMz1;
 catch
     error('afi_equation: Incorrect parameters for given flag.  Run `help afi_equation` for more info.')
 end
