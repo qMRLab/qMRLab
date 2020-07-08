@@ -88,7 +88,124 @@ classdef b1_afi < AbstractModel & FilterClass
             FitResult.B1map_filtered=cell2mat(struct2cell(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez])));
             % note: can't use struct2array because dne for octave...
         end
-
     end
+    
+    methods(Static)
 
+        function [Mz1, Mz2] = analytical_solution(params)
+            %ANALYTICAL_SOLUTION  Analytical equations for the longitudinal magnetization of
+            %steady-state gradient echo experiments.
+            %
+            %   Reference: 
+            %
+            %   params: Struct.
+            %           Properties: T1, TR1, TR2, EXC_FA, constant (optional)
+            %
+            %% Setup parameters
+            %
+            
+%             T1 = params.T1;
+%             TR1 = params.TR1;
+%             TR2 = params.TR2;
+%             EXC_FA = params.EXC_FA;
+            
+            
+            [Mz1, Mz2] = afi_equation(params);
+            
+        end
+        
+        function [Mz, Msig1, Msig2] = bloch_sim(params)
+            %BLOCH_SIM Bloch simulations of the GRE-AFI pulse sequence.
+            % Simulates 100 spins params. Nex repetitions of the AFI pulse
+            % sequences.
+            %
+            % params: Struct with the following fields:
+            %   EXC_FA: Excitation pulse flip angle in degrees.
+            %   TR1: Repetition time 1 (ms).
+            %   TR2: Repetition time 2 (ms).
+            %   TE: Echo time (ms).
+            %   T1: Longitudinal relaxation time (ms).
+            %   T2: Transverse relaxation time (ms).
+            %   Nex: Number of excitations
+            %
+            %   (optional)
+            %       df: Off-resonance frequency of spins relative to excitation pulse (in Hz)
+            %       crushFlag: Numeric flag for perfect spoiling (1) or partial spoiling (2).
+            %       partialDephasingFlag: do partialDephasing (see below)
+            %       partialDephasing: Partial dephasing fraction (between [0, 1]). 1 = no dephasing, 0 = complete dephasing (sele
+            %       inc: Phase spoiling increment in degrees.
+            %
+            % Outputs:
+            %   Mz: Longitudinal magnetization at just prior to excitation pulse.
+            %   Msig: Complex signal produced by the transverse magnetization at time TE after excitation.
+            %
+            
+            %% Setup parameters
+            %
+            
+            alpha = deg2rad(params.EXC_FA);
+            TR1 = params.TR1;
+            TR2 = params.TR2;
+            T1 = params.T1;
+            
+            TE = params.TE;
+            T2 = params.T2;
+            
+            Nex = params.Nex;
+            
+            %% Optional parameers
+            
+            if isfield(params, 'df')
+                df = params.df;
+            else
+                df = 0;
+            end
+            
+            if isfield(params, 'crushFlag')
+                crushFlag = params.crushFlag;
+            else
+                crushFlag = 1;
+            end
+            
+            if isfield(params, 'partialDephasingFlag')
+                partialDephasingFlag = params.partialDephasingFlag;
+            else
+                partialDephasingFlag = 0;
+            end
+            
+            if isfield(params, 'partialDephasing')
+                partialDephasing = params.partialDephasing;
+            else
+                partialDephasing = 1;
+            end
+            
+            if isfield(params, 'inc')
+                inc = deg2rad(params.inc);
+            else
+                inc = 0;
+            end
+            
+            %% Simulate for every flip angless
+            %
+            
+            for ii = 1:length(alpha)
+                
+                [Msig1(ii), Msig2(ii), Mz(ii)] = afi_blochsim(                  ...
+                    alpha(ii),            ...
+                    T1,                   ...
+                    T2,                   ...
+                    TE,                   ...
+                    TR1,                  ...
+                    TR2,                  ...
+                    crushFlag,            ...
+                    partialDephasingFlag, ...
+                    partialDephasing,     ...
+                    df,                   ...
+                    Nex,                  ...
+                    inc                   ...
+                    );
+                
+            end
+        end
+    end
 end
