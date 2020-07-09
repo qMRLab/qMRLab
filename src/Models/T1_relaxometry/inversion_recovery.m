@@ -209,13 +209,13 @@ end
                         FitResults.ra = fitVals{ind}.ra;
                         FitResults.rb = fitVals{ind}.rb;
                         FitResults.res = resnorm(ind);
-                        if (strcmp(obj.options.method, 'Magnitude'))
-                            FitResults.idx = ind;
-                        end
+                        FitResults.idx = ind;
                     elseif strcmp(obj.options.method, 'Complex')
                         params.dataType = 'complex';
                         [fitVals, resnorm] = inversion_recovery.fit_lm(data(:), params, 3);
                         FitResults.T1 = fitVals.T1;
+                        FitResults.ra = fitVals.ra;
+                        FitResults.rb = fitVals.rb;
                         FitResults.res = resnorm;
                     end
             end
@@ -514,6 +514,15 @@ end
                         [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)', params.dataType), x0, [-2, -2, 0], [2, 2, 5000], options);
                         
                         fitVals.T1 = x(3);
+                        
+                        % ra and rb calculation from Equation 3
+                        if max(abs(data)) > 0
+                            fitVals.ra = (x(1)+1i*x(2))*max(abs(data)) * (1 + exp(-TR/fitVals.T1));
+                            fitVals.rb = -2*(x(1)+1i*x(2))*max(abs(data));
+                        else
+                            fitVals.ra = (x(1)+1i*x(2)) * (1 + exp(-TR/fitVals.T1));
+                            fitVals.rb = -2*(x(1)+1i*x(2));
+                        end
                     else
                         % Fit magnitude data
                         %    [constant, T1]
