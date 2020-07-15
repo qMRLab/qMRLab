@@ -21,6 +21,15 @@ authors:
     affiliation: 1
   - name: Ilana R. Leppert
     affiliation: 2
+  - name: Jean-François Cabana
+    orcid: 0000-0003-0579-5378
+    affiliation: 6
+  - name: Ian Gagnon
+    orcid: 0000-0001-6815-504X
+    affiliation: 1
+  - name: Pascale Beliveau
+    orcid: 0000-0002-1971-4877
+    affiliation: 7
   - name: G. Bruce Pike
     orcid: 0000-0001-8924-683X
     affiliation: "2, 5"
@@ -41,6 +50,10 @@ affiliations:
    index: 4
  - name: Departments of Radiology and Clinical Neuroscience,  Hotchkiss Brain Institute, University of Calgary, Calgary, Canada
    index: 5
+ - name: Chaudière-Appalaches Integrated Health and Social Services Center, Sainte-Marie, Canada
+   index: 6
+ - name: Department of radio-oncology, Research Center of the University of Montreal Hospital Center, Montreal, Canada
+   index: 7
 date: 02 March 2020
 bibliography: paper.bib
 ---
