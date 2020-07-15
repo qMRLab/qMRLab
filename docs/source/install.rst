@@ -7,6 +7,9 @@ How to install
 qMRLab in MATLAB
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Minimum required version: `R2014b`
+* Required MATLAB products:
+	* Image Processing Toolbox
+	* Optimization Toolbox
 * Available interfaces: 
 	* Graphical User interface (GUI) 🖥
 	* Command Line Interface (CLI) ⌨️

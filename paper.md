@@ -21,6 +21,15 @@ authors:
     affiliation: 1
   - name: Ilana R. Leppert
     affiliation: 2
+  - name: Jean-François Cabana
+    orcid: 0000-0003-0579-5378
+    affiliation: 6
+  - name: Ian Gagnon
+    orcid: 0000-0001-6815-504X
+    affiliation: 1
+  - name: Pascale Beliveau
+    orcid: 0000-0002-1971-4877
+    affiliation: 7
   - name: G. Bruce Pike
     orcid: 0000-0001-8924-683X
     affiliation: "2, 5"
@@ -41,6 +50,10 @@ affiliations:
    index: 4
  - name: Departments of Radiology and Clinical Neuroscience,  Hotchkiss Brain Institute, University of Calgary, Calgary, Canada
    index: 5
+ - name: Chaudière-Appalaches Integrated Health and Social Services Center, Sainte-Marie, Canada
+   index: 6
+ - name: Department of radio-oncology, Research Center of the University of Montreal Hospital Center, Montreal, Canada
+   index: 7
 date: 02 March 2020
 bibliography: paper.bib
 ---
@@ -55,11 +68,11 @@ Although qMRI has yet to enter mainstream clinical use, imaging scientists see g
 
 To tackle this problem, we developed qMRLab, an open-source software package that provides a wide selection of qMRI methods for data fitting, simulation and protocol optimization \autoref{fig:header}. It not only brings qMRI under one umbrella, but also facilitates its use through documentation that features online executable notebooks, a user friendly graphical user interface (GUI), interactive tutorials and blog posts.
 
-![qMRLab is an open-source software for quantitative MRI analysis It provide a myriad of methods to characterize microstructural tissue properties, from relaxometry to magnetization transfer.\label{fig:header}](https://github.com/qMRLab/qMRLab/raw/master/docs/logo/header_new.png)
+![qMRLab is an open-source software for quantitative MRI analysis It provides a myriad of methods to characterize microstructural tissue properties, from relaxometry to magnetization transfer.\label{fig:header}](https://github.com/qMRLab/qMRLab/raw/master/docs/logo/page_header.png)
 
 MATLAB is the native development language of qMRLab, primarily because it is by far the most common choice among MRI methods developers. However, we have made a strong effort to lower licensing and accessibility barriers by supporting Octave compatibility and Docker containerization.
 
-qMRLab started as a spin-off project of qMTLab [@cabana:2015]. In the meantime, a few other open-source software packages were developed, addressing  the lack of qMRI consistency  from different angles. QUIT [@wood:2018] implemented an array of qMRI methods in C++, which is highly favorable as an on-site solution because of its speed. The hMRI toolbox [@tabelow:2019] was developed as an SPM [@ashburner:1994] module that expands on the multi-parametric mapping method [@weiskopf:2008]. Other tools such as mrQ [@mezer:2016] and QMAP [@samsonov:2011] are also primarily designed for brain imaging. Yet, brain imaging is not the only qMRI area slowed down by lack of consistency. Recently we published a preprint demonstrating notable disagreements between cardiac qMRI methods [@hafyane:2018]. Open-source software can go a long way in explaining these discrepancies, and the cardiac imaging community was recently introduced to TOMATO [@werys:2020], an open C++ framework for parametric cardiac MRI.
+qMRLab started as a spin-off project of qMTLab [@cabana:2015]. In the meantime, a few other open-source software packages were developed, addressing  the lack of qMRI consistency  from different angles. QUIT [@wood:2018] implemented an array of qMRI methods in C++, which is highly favorable as an on-site solution because of its speed. The hMRI toolbox [@tabelow:2019] was developed as an SPM [@ashburner:2012] module that expands on the multi-parametric mapping method [@weiskopf:2008]. Other tools such as mrQ [@mezer:2016] and QMAP [@samsonov:2011] are also primarily designed for brain imaging. In addition to the arrival of community-developed tools for multi-modal qMRI processing, the field of diffusion MRI (dMRI) has recently witnessed an increase in the development of open-source software, bringing more transparency to the diffusion-based microstructural characterization of the brain. For example, the Dmipy Toolbox implemented an array of multi-compartment diffusion models in Python [@fick:2019], another Python package DIPY brought together dMRI processing methods at multiple levels [@garyfallidis:2014], Camino was developed in Java to provide users with yet another dMRI pipeline [@cook:2006] and TractoFlow [@theaud:2020] introduced container-based reproducible dMRI workflows developed in Nextflow pipeline orchestration tool [@di:2017]. Yet, brain imaging is not the only qMRI area slowed down by lack of consistency. Recently we published a preprint demonstrating notable disagreements between cardiac qMRI methods [@hafyane:2018]. Open-source software can go a long way in explaining these discrepancies, and the cardiac imaging community was recently introduced to TOMATO [@werys:2020], an open C++ framework for parametric cardiac MRI.
 
 As open-source practices in the realm of qMRI become more popular, the need for effective communication of these tools also increases. This is important not only because we need consistency and transparency in the implementations, but also because non-specialist qMRI users would benefit from better understanding of the methodology. To this end, we envision qMRLab as a powerful tool with which users can easily interact with various techniques, perform simulations, design their experiments and fit their data. We reinforce this vision through our web portal (https://qmrlab.org) that includes interactive tutorials, blog posts and Jupyter Notebooks running on BinderHub, all tailored to a wide range of qMRI methods. The qMRLab portal is open for community contributions.
 
