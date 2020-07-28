@@ -9,8 +9,10 @@ classdef mt_sat < AbstractModel
 %            pulse
 %   T1w     3D T1-weighted data. Spoiled Gradient Echo (or FLASH)
 %   PDw     3D PD-weighted data. Spoiled Gradient Echo (or FLASH)
-%  (B1map)  B1+ map. B1map = 1 : perfectly accurate flip angle. Optional.
-%  (Mask)   Binary mask. DOES NOT ACCELERATE FITTING. Just for visualisation
+%   (B1map)         Normalized transmit excitation field map (B1+). B1+ is defined 
+%                   as a  normalized multiplicative factor such that:
+%                   FA_actual = B1+ * FA_nominal. (OPTIONAL).
+%  (Mask)   Binary mask. DOES NOT ACCELERATE FITTING. Just for visualisation. (OPTIONAL)
 %
 % Outputs:
 %	  MTSAT         MT saturation map (%), T1-corrected

@@ -22,8 +22,8 @@ classdef charmed < AbstractModel
 %
 % Inputs:
 %   DiffusionData       4D DWI
-%   (SigmaNoise)        map of the standard deviation of the noise per voxel
-%   (Mask)              Binary mask to accelerate the fitting
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel. (OPTIONAL)
+%   (Mask)              Binary mask to accelerate the fitting. (OPTIONAL)
 %
 % Outputs:
 %   fr                  Fraction of water in the restricted compartment.

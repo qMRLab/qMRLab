@@ -5,12 +5,14 @@ classdef mp2rage < AbstractModel
 % N/A
 % Inputs:
 %   (MP2RAGE)       MP2RAGE UNI image.
-%   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional).
-%   (Mask)          Binary mask to a desired region (optional).
-%   (INV1mag)       Magnitude image from the first GRE readout (optional).
-%   (INV1phase)     Phase image from the first GRE readout (optional).
-%   (INV2mag)       Magnitude image from the second GRE readout (optional).
-%   (INV2phase)     Phase image from the second GRE readout (optional).
+%   (B1map)         Normalized transmit excitation field map (B1+). B1+ is defined 
+%                   as a  normalized multiplicative factor such that:
+%                   FA_actual = B1+ * FA_nominal. (OPTIONAL).
+%   (Mask)          Binary mask to a desired region (OPTIONAL).
+%   (INV1mag)       Magnitude image from the first GRE readout (OPTIONAL).
+%   (INV1phase)     Phase image from the first GRE readout (OPTIONAL).
+%   (INV2mag)       Magnitude image from the second GRE readout (OPTIONAL).
+%   (INV2phase)     Phase image from the second GRE readout (OPTIONAL).
 %
 % Outputs:
 %   T1              Longitudinal relaxation time [s].

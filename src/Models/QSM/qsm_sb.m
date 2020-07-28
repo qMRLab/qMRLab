@@ -13,7 +13,7 @@ classdef qsm_sb < AbstractModel
 %       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
 % Inputs:
 %   PhaseGRE      3D GRE acquisition. <<Wrapped phase image>>
-%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>>
+%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>> (OPTIONAL)
 %   Mask          Brain extraction mask.
 %
 % Outputs:

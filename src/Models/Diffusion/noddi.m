@@ -19,7 +19,7 @@ classdef noddi < AbstractModel
 %       diffusion coefficient (Dh)      Constant
 %
 % Inputs:
-%   DiffusionData       4D diffusion weighted dataset
+%   DiffusionData        4D diffusion weighted dataset
 %   (Mask)               Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
