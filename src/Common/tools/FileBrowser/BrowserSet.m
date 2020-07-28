@@ -74,6 +74,8 @@ classdef BrowserSet
                 Position = [Location + [0.27, 0], 0.58, 0.1];
                 obj.FileBox = uicontrol(obj.parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
                     'BackgroundColor', [1 1 1]);
+                if  InputOptional, set(obj.FileBox,'string','OPTIONAL'); end
+                if ~InputOptional, set(obj.FileBox,'string','REQUIRED'); end
 
                 % add View button
                 Position = [Location + [0.87, 0], 0.10, 0.1];
@@ -111,6 +113,9 @@ classdef BrowserSet
         % -- GetFileName
         function FileName = GetFileName(obj)
             FileName = get(obj.FileBox, 'string');
+            if ~(exist(FileName,'file')==2 || exist(FileName,'dir')==7)
+                   FileName = char.empty;
+            end
         end
 
 
