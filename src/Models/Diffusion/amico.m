@@ -204,6 +204,15 @@ end
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+
+            if checkanteriorver(version,[2 4 1])
+            
+                obj.tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
+                {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
+                'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
+                
+            end
+
         end
     end
 
