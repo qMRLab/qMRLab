@@ -21,7 +21,11 @@ After selecting a model from the dropdown menu, you can use *Download Data* (blu
 You will be prompted for a directory where the example dataset will be saved. After the dataset has been downloaded, qMRLab will 
 automatically set *Path data* to the download directory and load the input files.
 
-*Please note that* such auto-loading takes effect only if the name of the images (e.g. VFAData.nii.gz) in the Path data directory are identical with that of the data fields (e.g., VFAData) listed in the data panel.
+.. note::
+   **Please note that** such auto-loading takes effect only if the name of the images (e.g. VFAData.nii.gz) in the Path data directory are identical to that of the data fields (e.g., VFAData) listed in the data panel. There are no filename assumptions for the user data. Any file name is acceptable as long as the data format and the data dimensions are in agreement with the method's inputs. 
+
+.. warning::
+   **The default `Protocol` parameters are intended for the example datasets.** Users are required to update these values with regards to their data. 
 
 Step by step instructions to get started with GUI are available at :ref:`Beginner's example with GUI`.
 
