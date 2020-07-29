@@ -18,12 +18,27 @@ After selecting a model from the dropdown menu, you can use *Download Data* (blu
    :scale: 100 %
 
 You will be prompted for a directory where the example dataset will be saved. After the dataset has been downloaded, qMRLab will 
-automatically set *Path data* to the download directory and load the input files. *Required* input labels are displayed in bold (e.g., `VFAData`), whereas the labels of the *Optional* inputs are in faded color (e.g., `B1map` and `Mask`). You can get more information about the input fields by clicking question mark buttons next to the input labels.
+automatically set *Path data* to the download directory and load the input files.
 
 :: 
 
   Please note that such auto-loading takes effect only if the name of the images (e.g. VFAData.nii.gz) in the Path data directory are identical with that of the data fields (e.g., VFAData) listed in the data panel.
 
+Step by step instructions to get started with GUI are available at :ref:`Beginner's example with GUI`.
 
 Download example datasets via CLI
 ------------------------------------
+
+qMRlab can automatically generate an m-script (`model_name_batch.m`) or a Jupyter Notebook (`model_name_batch.ipynb`)for every model and download corresponding datasets for fitting by `qMRGenBatch` and `qMRGenJNB` functions, respectively.
+
+Step by step instructions to get started with CLI are available at :ref:`Beginner's example with CLI`.
+
+Note: You can execute Jupyter Notebooks online by clicking the Binder badge located at the top of the respective method's `documentation <qmrlab.readthedocs.io/en/master/>`_. page. See an example for `variable flip angle T1 mapping <https://mybinder.org/v2/gh/qMRLab/doc_notebooks/master?filepath=vfa_t1_notebook.ipynb>`_.
+
+If you would like to download the example dataset without generating scripts ::
+
+  Model = model_name;
+  path = 'directory/to/download/the/data/';
+  downloadData(Model, path);
+
+
