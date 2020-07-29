@@ -260,10 +260,12 @@ classdef MethodBrowser
         function WD_BrowseBtn_callback(obj, WorkDir_FullPath)
             if ~exist('WorkDir_FullPath','var')
                 WorkDir_FullPath = uigetdir;
+                assignin('base','DataPath',WorkDir_FullPath);
             end
             
             if WorkDir_FullPath == 0
-                errordlg('Invalid path');
+                set(obj.WorkDir_FileNameArea,'String','');
+                warndlg(['Current folder is set to: ' pwd]);
                 return;
             end
             
