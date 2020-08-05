@@ -70,13 +70,15 @@ classdef BrowserSet
                 Position = [Location + [0.14, 0], 0.05, 0.11];
                 obj.BrowseBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', '', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
-                im = imread('./src/Common/icons/plus.png');
+                cur_m = mfilename('fullpath');
+                cur_loc = strfind(cur_m,[filesep 'src' filesep 'Common']);
+                im = imread([cur_m(1:cur_loc-1) filesep 'src' filesep 'Common' filesep 'icons' filesep 'plus.png']);
                 obj.BrowseBtn.CData = im;
                 
                 Position = [Location + [0.19, 0], 0.05, 0.11];
                 obj.ClearBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', '', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
-                im = imread('./src/Common/icons/minus.png');
+                im = imread([cur_m(1:cur_loc-1) filesep 'src' filesep 'Common' filesep 'icons' filesep 'minus.png']);
                 obj.ClearBtn.CData = im;
 
                 % add Browse button
@@ -213,6 +215,7 @@ classdef BrowserSet
                 if strfind(fileList{ii}(1:end-4), DataName{1})
                     obj.FullFile = fullfile(Path,fileList{ii});
                     set(obj.FileBox, 'String', obj.FullFile);
+                    warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
                     obj.DataLoad(warnmissing);
                 end
             end

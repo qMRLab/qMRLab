@@ -115,8 +115,10 @@ end
            TR = obj.Prot.VFAData.Mat(1,2)';
            subplot(2,1,1)
            if exist('data','var')
-               if ~isempty(data.B1map)
+               if isfield(data,'B1map')
+                  if ~isempty(data.B1map)
                    B1map=data.B1map;
+                  end
                else
                    B1map=1;
                end
