@@ -10,7 +10,9 @@ classdef mtv < AbstractModel
 %
 % Inputs:
 %   SPGR                Spoiled Gradient Echo data
-%   (B1map)             Excitation (B1+) field map. Used to correct flip angle
+%   (B1map)             Normalized transmit excitation field map (B1+). B1+ is defined 
+%                       as a  normalized multiplicative factor such that:
+%                       FA_actual = B1+ * FA_nominal. (OPTIONAL).
 %   (CSFMask)           CerebroSpinal Fluid Mask. Used for proton density
 %                           normalization (assuming ProtonCSF = 1)
 %

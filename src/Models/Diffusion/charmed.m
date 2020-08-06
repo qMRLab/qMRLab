@@ -22,8 +22,8 @@ classdef charmed < AbstractModel
 %
 % Inputs:
 %   DiffusionData       4D DWI
-%   (SigmaNoise)        map of the standard deviation of the noise per voxel
-%   (Mask)              Binary mask to accelerate the fitting
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel. (OPTIONAL)
+%   (Mask)              Binary mask to accelerate the fitting. (OPTIONAL)
 %
 % Outputs:
 %   fr                  Fraction of water in the restricted compartment.
@@ -114,6 +114,11 @@ end
             'Display Type',{'q-value','b-value'},...
             'S0 normalization',{'Use b=0','Single T2 compartment'},...
             'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
+        
+        tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
+        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
+        'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
+
         options= struct(); % structure filled by the buttons. Leave empty in the code
         Sim_Single_Voxel_Curve_buttons = {'SNR',50};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};

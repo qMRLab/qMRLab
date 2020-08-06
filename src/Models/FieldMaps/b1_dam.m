@@ -9,7 +9,7 @@ classdef b1_dam < AbstractModel & FilterClass
 % Inputs:
 %   SFalpha            SPGR data at a flip angle of Alpha degree
 %   SF2alpha           SPGR data at a flip angle of AlphaX2 degree
-%   (Mask)             Binary mask to exclude non-brain voxels (better when smoothing)
+%   (Mask)             Binary mask to exclude non-brain voxels (OPTIONAL) (better when smoothing)
 %
 % Outputs:
 %	B1map_raw          Excitation (B1+) field map

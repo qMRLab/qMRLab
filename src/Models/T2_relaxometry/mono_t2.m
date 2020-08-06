@@ -7,7 +7,7 @@ classdef mono_t2 < AbstractModel
     % Inputs:
     %   SEdata          Multi-echo spin-echo data, 4D volume with different 
     %                   echo times in time dimension
-    %   (Mask)          Binary mask to accelerate the fitting (optional)
+    %   (Mask)          Binary mask to accelerate the fitting (OPTIONAL)
     %
     % Outputs:
     %   T2              Transverse relaxation time [s]

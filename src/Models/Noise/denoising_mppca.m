@@ -10,7 +10,7 @@ classdef denoising_mppca < AbstractModel
 %
 % Inputs:
 %   Data4D              4D data (any modality)
-%  (Mask)                Binary mask with region-of-interest
+%  (Mask)               Binary mask with region-of-interest. (OPTIONAL)
 %
 % Outputs:
 %   Data4D_denoised     denoised 4D data

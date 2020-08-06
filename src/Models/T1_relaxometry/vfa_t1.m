@@ -4,9 +4,11 @@ classdef vfa_t1 < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
-%   (B1map)         excitation (B1+) fieldmap. Used to correct flip angles. (optional)
-%   (Mask)          Binary mask to accelerate the fitting (optional)
+%   VFAData         Spoiled Gradient echo data, 4D volume with different flip angles in time dimension
+%   (B1map)         Normalized transmit excitation field map (B1+). B1+ is defined 
+%                   as a  normalized multiplicative factor such that:
+%                   FA_actual = B1+ * FA_nominal. (OPTIONAL).
+%   (Mask)          Binary mask to accelerate the fitting. (OPTIONAL)
 %
 % Outputs:
 %   T1              Longitudinal relaxation time [s]
@@ -113,8 +115,10 @@ end
            TR = obj.Prot.VFAData.Mat(1,2)';
            subplot(2,1,1)
            if exist('data','var')
-               if ~isempty(data.B1map)
+               if isfield(data,'B1map')
+                  if ~isempty(data.B1map)
                    B1map=data.B1map;
+                  end
                else
                    B1map=1;
                end

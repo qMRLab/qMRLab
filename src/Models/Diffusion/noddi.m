@@ -19,7 +19,7 @@ classdef noddi < AbstractModel
 %       diffusion coefficient (Dh)      Constant
 %
 % Inputs:
-%   DiffusionData       4D diffusion weighted dataset
+%   DiffusionData        4D diffusion weighted dataset
 %   (Mask)               Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
@@ -91,7 +91,7 @@ end
         
         tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
         {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
-        'delta (s): Diffusion duration\nTE (s): Echo time.\nPlease visit our documentation for the computation of Delta and delta.\nRelevant issue #299 on GitHub (qMRLab / qMRLab).'])}});
+        'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
         options= struct();
 
     end

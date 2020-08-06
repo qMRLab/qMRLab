@@ -5,8 +5,8 @@ classdef qmt_bssfp < AbstractModel
 %
 % Inputs:
 %   MTdata        4D Magnetization Transfer data
-%   (R1map)       1/T1map (optional)
-%   (Mask)        Binary mask to accelerate the fitting (optional)
+%   (R1map)       1/T1map (OPTIONAL)
+%   (Mask)        Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
 %     F         Ratio of number of restricted pool to free pool, defined

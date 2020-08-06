@@ -9,7 +9,7 @@ classdef mt_ratio < AbstractModel
 % Inputs:
 %   MTon     MT-weighted data. Spoiled Gradient Echo (or FLASH) with MT
 %   MToff    Data before MT pulse. Spoiled Gradient Echo (or FLASH) without MT
-%  (Mask)    Binary mask.
+%  (Mask)    Binary mask. (OPTIONAL)
 %
 % Outputs:
 %	  MTR        Magnetization transfer ratio map (%)

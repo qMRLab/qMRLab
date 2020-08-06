@@ -1,4 +1,3 @@
-
 classdef qmt_spgr < AbstractModel
 %qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)
 %<a href="matlab: figure, imshow qmt_spgr.png ;">Pulse Sequence Diagram</a>
@@ -7,11 +6,13 @@ classdef qmt_spgr < AbstractModel
 %   FILL
 %
 % Inputs:
-%   MTdata              Magnetization Transfert data
-%   (R1map)             1/T1map (VFA RECOMMENDED Boudreau 2017 MRM)
-%   (B1map)             B1 field map, used for flip angle correction (=1 if not provided)
-%   (B0map)             B0 field map, used for offset correction (=0Hz if not provided)
-%   (Mask)              Binary mask to accelerate the fitting
+%  MTdata              Magnetization Transfer data
+%  R1map               Longitudinal relaxation rate (VFA RECOMMENDED Boudreau 2017 MRM).
+%  (B1map)             Normalized transmit excitation field map (B1+). B1+ is defined 
+%                       as a  normalized multiplicative factor such that:
+%                       FA_actual = B1+ * FA_nominal. (OPTIONAL). (=1 if not provided)
+%  (B0map)             B0 field map, used for offset correction  (OPTIONAL) (=0Hz if not provided)
+%  (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
 %   F                   Ratio of number of restricted pool to free pool, defined
