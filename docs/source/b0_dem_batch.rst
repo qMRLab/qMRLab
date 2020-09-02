@@ -102,11 +102,9 @@ b0_dem map :  Dual Echo Method for B0 mapping
 	73, 1662?1668. Schofield, M.A., Zhu, Y., 2003. Fast phase unwrapping
 	algorithm for interferometric applications. Opt. Lett. 28, 1194?1196
 	In addition to citing the package:
-	Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
-	Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
-	Stikov N. (2016), Quantitative magnetization transfer imaging made
-	easy with qMTLab: Software for data simulation, analysis, and
-	visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+    Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+    Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+    Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 	
 	Reference page in Doc Center
 	doc b0_dem
