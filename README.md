@@ -95,8 +95,7 @@ If you use qMRLab in you work, please cite:
 
 Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
-[![RRID](https://img.shields.io/badge/RRID-SCR__016256-green.svg?style=for-the-badge)](https://scicrunch.org/scicrunch/Resources/record/nlx_144509-1/SCR_016256/resolver?q=qmrlab&l=)
-[![OSF](https://img.shields.io/badge/DOI-10.17605%2FOSF.IO%2FTMDFU-green.svg?style=for-the-badge)](https://osf.io/tmdfu/)
+[![OSF](https://img.shields.io/badge/10.21105/joss.02343-green.svg?style=for-the-badge)](https://doi.org/10.21105/joss.02343)
 
 ***
 
