@@ -1,5 +1,5 @@
 ---
-title: 'qMRLab: Quantitative MRI Analysis, under one umbrella'
+title: 'qMRLab: Quantitative MRI analysis, under one umbrella'
 tags:
   - Matlab
   - Octave
