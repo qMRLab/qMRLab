@@ -36,7 +36,7 @@ classdef b1_afi < AbstractModel & FilterClass
 %
 %   For more examples: <a href="matlab: qMRusage(b1_afi);">qMRusage(b1_afi)</a>
 %
-% Authors: Juan Velazquez
+% Authors: Juan Velazquez, 2020
 %
 % References:
 %   Please cite the following if you use this module:
@@ -100,15 +100,7 @@ classdef b1_afi < AbstractModel & FilterClass
             %
             %   params: Struct.
             %           Properties: T1, TR1, TR2, EXC_FA, constant (optional)
-            %
-            %% Setup parameters
-            %
-            
-%             T1 = params.T1;
-%             TR1 = params.TR1;
-%             TR2 = params.TR2;
-%             EXC_FA = params.EXC_FA;
-            
+            %            
             
             [Mz1, Mz2] = afi_equation(params);
             
