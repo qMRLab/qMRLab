@@ -5,12 +5,11 @@ classdef b1_afi < AbstractModel & FilterClass
 %   Compute a B1map
 %   Smoothing can be done with different filters and optional size
 %   Spurious B1 values and those outside the mask (optional) are set to a constant before smoothing
-%   
 %
 % Inputs:
 %   AFIData1     3D Actual Flip Imaging (AFI) data 1
 %   AFIData2     3D Actual Flip Imaging (AFI) data 2
-%  (Mask)    Binary mask to exclude non-brain voxels
+%   (Mask)    Binary mask to exclude non-brain voxels
 %
 % Outputs:
 %	B1map_raw          Actual/Nominal FA field map (B1+) 
@@ -46,7 +45,7 @@ classdef b1_afi < AbstractModel & FilterClass
 
 
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/csjgx/download/';
+        onlineData_url = 'https://osf.io/csjgx/download?version=6';
     end
 
     properties
