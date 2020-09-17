@@ -7,13 +7,16 @@ How to install
 qMRLab in MATLAB
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * Minimum required version: `R2014b`
+* Required MATLAB products:
+	* Image Processing Toolbox
+	* Optimization Toolbox
 * Available interfaces: 
 	* Graphical User interface (GUI) 🖥
 	* Command Line Interface (CLI) ⌨️
 
 If you have a MATLAB license, you can easily start using qMRLab:
 
-1. Download the latest stable release `here <https://github.com/qMRLab/qMRLab/releases/latest/download/qMRLab_latest.zip>`_.
+1. Download the latest stable release `here <https://github.com/qMRLab/qMRLab/releases>`_.
 	* Scroll down to the page, download links are under the `Assets` tab.
 2. Extract the downloaded `.zip` or `.tar.gz` file to a directory of your choice.
 3. Open MATLAB point your current directory to the `qMRLab` folder.

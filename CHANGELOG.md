@@ -1,9 +1,28 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## Release [2.4.1] - 2020-09-02
 
-## WIP [2.4.0] - 2020-02-14
+## New ✨
+- 🆕 model: `inversion_recovery` 
+    - Add general equation fitting in addition to Barral's model.
+
+### Improvements 🚀
+- GUI (JOSS review by @mfroeling)
+    - Please see changes [here](https://github.com/qMRLab/qMRLab/pull/400).
+- Documentation (JOSS review by @grlee77)
+    - Please see changes [here](https://github.com/qMRLab/qMRLab/pull/399)
+
+### Bug Fixes🐛
+- `FilterClas` bug [fix](https://github.com/qMRLab/qMRLab/pull/385).
+
+### Other
+- Change citation reference to JOSS paper
+    - Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+    Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+    Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
+
+## Release [2.4.0] - 2020-02-14
 
 ### New ✨
 - 🆕 model: `mp2rage` 

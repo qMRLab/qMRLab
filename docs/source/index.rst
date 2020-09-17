@@ -37,6 +37,7 @@ Welcome to qMRLab, a software for quantitative MR image analysis. Please take a 
 
    gui-example.rst
    batch_example.rst
+   example_datasets.rst
 
 .. toctree::
    :maxdepth: 1

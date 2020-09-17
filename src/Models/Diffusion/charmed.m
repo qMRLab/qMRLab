@@ -22,8 +22,8 @@ classdef charmed < AbstractModel
 %
 % Inputs:
 %   DiffusionData       4D DWI
-%   (SigmaNoise)        map of the standard deviation of the noise per voxel
-%   (Mask)              Binary mask to accelerate the fitting
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel. (OPTIONAL)
+%   (Mask)              Binary mask to accelerate the fitting. (OPTIONAL)
 %
 % Outputs:
 %   fr                  Fraction of water in the restricted compartment.
@@ -84,8 +84,9 @@ classdef charmed < AbstractModel
 %   Please cite the following if you use this module:
 %     Assaf, Y., Basser, P.J., 2005. Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage 27, 48?58.
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 properties (Hidden=true)
 % Hidden proprties goes here.
     onlineData_url = 'https://osf.io/u8n56/download?version=3';
@@ -114,6 +115,11 @@ end
             'Display Type',{'q-value','b-value'},...
             'S0 normalization',{'Use b=0','Single T2 compartment'},...
             'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
+        
+        tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
+        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
+        'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
+
         options= struct(); % structure filled by the buttons. Leave empty in the code
         Sim_Single_Voxel_Curve_buttons = {'SNR',50};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};

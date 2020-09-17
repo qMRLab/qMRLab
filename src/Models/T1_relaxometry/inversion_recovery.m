@@ -20,13 +20,17 @@ classdef inversion_recovery < AbstractModel
 %
 % Protocol:
 %	IRData  [TI1 TI2...TIn] inversion times [ms]
+%   TimingTable   [TR] repetition time [ms]
 %
 % Options:
-%   Method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
-%     'complex'         RD-NLS (Reduced-Dimension Non-Linear Least Squares)
-%                         S=a + b*exp(-TI/T1)
-%      'magnitude'      RD-NLS-PR (Reduced-Dimension Non-Linear Least Squares with Polarity Restoration)
-%                         S=|a + b*exp(-TI/T1)|
+%   method          Method to use in order to fit the data, based on whether complex or only magnitude data acquired.
+%     'complex'     Complex dataset.
+%     'magnitude'   Magnitude dataset.
+%
+%
+%   fitModel        T1 fitting moddel.
+%     'Barral'      Fitting equation: a+bexp(-TI/T1)
+%     'General'     Fitting equation: c(1-2exp(-TI/T1)+exp(-TR/T1))
 %
 % Example of command line usage (see also <a href="matlab: showdemo inversion_recovery_batch">showdemo inversion_recovery_batch</a>):
 %   Model = inversion_recovery;  % Create class from model
@@ -45,8 +49,9 @@ classdef inversion_recovery < AbstractModel
 %   Please cite the following if you use this module:
 %       A robust methodology for in vivo T1 mapping. Barral JK, Gudmundson E, Stikov N, Etezadi-Amoli M, Stoica P, Nishimura DG. Magn Reson Med. 2010 Oct;64(4):1057-67. doi: 10.1002/mrm.22497.
 %   In addition to citing the package:
-%       Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-%
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/cmg9z/download?version=3';
@@ -64,10 +69,10 @@ end
         fx           = [    0        0        0 ]; % fix parameters
 
         % Protocol
-        Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]')); %default protocol
-
+        Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
+                      'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
         % Model options
-        buttons = {'method',{'Magnitude','Complex'}}; %selection buttons
+        buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulation Options
@@ -154,15 +159,66 @@ end
         function FitResults = fit(obj,data)
             % Fits the data
             %
-
+            
             data = data.IRData;
-            [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
-            FitResults.T1  = T1;
-            FitResults.rb  = rb;
-            FitResults.ra  = ra;
-            FitResults.res = res;
-            if (strcmp(obj.options.method, 'Magnitude'))
-                FitResults.idx = idx;
+            
+            switch obj.options.fitModel
+                case 'Barral'
+                    [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
+                    FitResults.T1  = T1;
+                    FitResults.rb  = rb;
+                    FitResults.ra  = ra;
+                    FitResults.res = res;
+                    if (strcmp(obj.options.method, 'Magnitude'))
+                        FitResults.idx = idx;
+                    end
+                case 'General'
+                    approxFlag = 3; % Selects the equation c(1-2exp(-TI/T1)+exp(TR/T1))
+
+                    params.TI = obj.Prot.IRData.Mat';
+                    params.TR = obj.Prot.TimingTable.Mat;
+                    
+                    if strcmp(obj.options.method, 'Magnitude')
+                        % Make sure data vector is a column vector
+                        data = data(:);
+
+                        % Find the min of the data (which is nearest to
+                        % signal null to flip
+                        [~, minInd] = min(data);
+                        
+                        % Signal inversion algorithm to fir the T1 curve
+                        for ii = 1:2
+                            % Fit the data by inverting the sign of the
+                            % datapoints up until the TI where signal is
+                            % null, then also without that point. The
+                            % fit with the smallest residual is our best
+                            % guess for up to where to flip the sign of the
+                            % signal.
+                            if ii == 1
+                                % First, we set all elements up to and including
+                                % the smallest element to minus
+                                dataTmp = data.*[-ones(minInd,1); ones(length(data) - minInd,1)];
+                            elseif ii == 2
+                                % Second, we set all elements up to (not including)
+                                % the smallest element to minus
+                                dataTmp = data.*[-ones(minInd-1,1); ones(length(data) - (minInd-1),1)];
+                            end
+                            [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
+                        end
+                        [~,ind] = min(resnorm); % Index of the minimum residual will be which signal fit results to choose.
+                        FitResults.T1 = fitVals{ind}.T1;
+                        FitResults.ra = fitVals{ind}.ra;
+                        FitResults.rb = fitVals{ind}.rb;
+                        FitResults.res = resnorm(ind);
+                        FitResults.idx = ind;
+                    elseif strcmp(obj.options.method, 'Complex')
+                        params.dataType = 'complex';
+                        [fitVals, resnorm] = inversion_recovery.fit_lm(data(:), params, 3);
+                        FitResults.T1 = fitVals.T1;
+                        FitResults.ra = fitVals.ra;
+                        FitResults.rb = fitVals.rb;
+                        FitResults.res = resnorm;
+                    end
             end
         end
 
@@ -433,16 +489,71 @@ end
                     TI = params.TI;
                     TR = params.TR;
 
-                    %    [constant, T1]
-                    x0 = [1, 1000];
+                    % Find the min of the data
+                    [~, minInd] = min(abs(data));
 
-                    options.Algorithm = 'levenberg-marquardt';
-                    options.Display = 'off';
+                    T1est = -TI(minInd)/log(1/2); % Estimate from null (or min) of data and the equation in Case 4. Used as the first guess for the fitting point.
 
-                    [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, data), x0, [], [], options);
+                    if isfield(params, 'dataType') && strcmp(params.dataType,'complex')
+                        % Fit comlex data
+                        %    [constant, T1]
+                        if max(abs(data)) > 0
+                            dataNorm = data/max(abs(data)); % Normalize the data to fit with the initial constant guess of 1.
+                        else
+                            dataNorm = data;
+                        end
+                        
+                        % Initial fit estimates
+                        %    [Re(constant), Im(constant), T1)]
+                        x0 = [1, 0, T1est];
 
-                    fitVals.T1 = x(2);
-                    fitVals.c = x(1);
+                        options.Algorithm = 'trust-region-reflective';
+                        options.Display = 'off';
+                        
+                        % Bound the fitting variables to -2 to 2
+                        % (constant) and 0 to 5000 (T1 in ms).
+                        [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)', params.dataType), x0, [-2, -2, 0], [2, 2, 5000], options);
+                        
+                        fitVals.T1 = x(3);
+                        
+                        % ra and rb calculation from Equation 3
+                        if max(abs(data)) > 0
+                            fitVals.ra = (x(1)+1i*x(2))*max(abs(data)) * (1 + exp(-TR/fitVals.T1));
+                            fitVals.rb = -2*(x(1)+1i*x(2))*max(abs(data));
+                        else
+                            fitVals.ra = (x(1)+1i*x(2)) * (1 + exp(-TR/fitVals.T1));
+                            fitVals.rb = -2*(x(1)+1i*x(2));
+                        end
+                    else
+                        % Fit magnitude data
+                        %    [constant, T1]
+                        x0 = [1, T1est];
+                        if max(abs(data)) > 0
+                            dataNorm = data/max(abs(data)); % Normalize the data to fit with the initial constant guess of 1.
+                        else
+                            dataNorm = data;
+                        end
+
+                        options.Algorithm = 'trust-region-reflective';
+                        options.Display = 'off';
+
+                        % Bound the fitting variables to -2 to 2
+                        % (constant) and 0 to 5000 (T1 in ms).
+                        [x, resnorm] = lsqnonlin(@(x)ir_loss_func_3(x, TR, TI, dataNorm(:)'), x0, [0, 0], [2, 5000], options);
+
+                        fitVals.T1 = x(2);
+                        
+                        % ra and rb calculation from Equation 3
+                        if max(abs(data)) > 0
+                            fitVals.ra = x(1)*max(abs(data)) * (1 + exp(-TR/fitVals.T1));
+                            fitVals.rb = -2*x(1)*max(abs(data));
+                        else
+                            fitVals.ra = x(2) * (1 + exp(-TR/fitVals.T1));
+                            fitVals.rb = -2*x(2);
+                        end
+
+                    end
+
 
                 case 4
                     TI = params.TI;
@@ -470,6 +581,14 @@ end
                 % Update buttons for simulation
                 snrValue = obj.Sim_Single_Voxel_Curve_buttons{2};
                 obj.Sim_Single_Voxel_Curve_buttons = {'SNR' snrValue 'T1' 600 'M0' 1000 'TR' 3000 'FAinv' 180 'FAexcite' 90 'Update input variables' 'pushbutton'};
+            end
+             if checkanteriorver(version,[2 4 1])
+                % Update buttons for simulation
+                obj.Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
+                                  'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
+                % Model options
+                obj.buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
+                obj.options = button2opts(obj.buttons);
             end
         end
     end

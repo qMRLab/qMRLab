@@ -9,7 +9,7 @@ classdef b1_dam < AbstractModel & FilterClass
 % Inputs:
 %   SFalpha            SPGR data at a flip angle of Alpha degree
 %   SF2alpha           SPGR data at a flip angle of AlphaX2 degree
-%   (Mask)             Binary mask to exclude non-brain voxels (better when smoothing)
+%   (Mask)             Binary mask to exclude non-brain voxels (OPTIONAL) (better when smoothing)
 %
 % Outputs:
 %	B1map_raw          Excitation (B1+) field map
@@ -43,11 +43,9 @@ classdef b1_dam < AbstractModel & FilterClass
 %     Insko, E.K., Bolinger, L., 1993. Mapping of the Radiofrequency Field.
 %     J. Magn. Reson. A 103, 82?85.
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
-%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
-%     Stikov N. (2016), Quantitative magnetization transfer imaging made
-%     easy with qMTLab: Software for data simulation, analysis, and
-%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/mw3sq/download?version=3';
