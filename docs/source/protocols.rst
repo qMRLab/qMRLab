@@ -13,7 +13,7 @@ the basics of the ``MP2RAGE`` method.
 ``NumberOfShots``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This section of the ``Protocol`` pane expects two ``NumberOfShots`` values: ``Pre`` and ``Post``.
+This section of the ``Protocol`` panel expects two ``NumberOfShots`` values: ``Pre`` and ``Post``.
 
 In the `original implementation <https://github.com/JosePMarques/MP2RAGE-related-scripts>`_, the
 ``NumberOfShots`` is referred as ``nZSlices``, and ``before/after`` designates the number of segments
@@ -22,8 +22,16 @@ before and after the center of k-space.
 To calculate these values, you need to know the values of ``Slices Per Slab`` **(NSlices)** and ``Slice Partial Fourier``
 **(PF)** parameters. To calculate ``Pre`` and ``Post``::
 
-    Pre  = NSlice(PF - 0.5)
-    Post = NSlice/2
+Pre
+  Formula::
+
+        Pre  = NSlices(PF - 0.5)
+
+Post
+  Formula::
+
+        Post = NSlices/2
+
 
 ``Repetition Times``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

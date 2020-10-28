@@ -5,7 +5,7 @@ OSX
 -------------------------------------------------------------------------------
 Due to security updates in OSX release 10.15 (macOS Catalina), the `Gatekeeper`
 may flag `*.mex*` files in qMRLab as unsafe and quarantine them. In this case, 
-you won't be able to start qMRLab and be prompted the following error: 
+you won't be able to start qMRLab and the following error will appear: 
 
 .. warning::
     **filename.mexmaci64 cannot be opened because the developer cannot be verified.**
@@ -18,4 +18,4 @@ start a terminal and run the following::
     sudo find /full/path/to/qMRLab -name \*.mexmaci64 -exec spctl --add {} \;
 
 Please open `a new issue <https://github.com/qMRLab/qMRLab/issues/new/choose>`_ if this
-solutoin did not work for you. 
+solution did not work for you. 
