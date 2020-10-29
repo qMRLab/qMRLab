@@ -1,6 +1,7 @@
 if ~isdeployed
 addpath(genpath(fileparts(mfilename('fullpath'))))
 
+% This is a line change
 
 % Remove temp temp dir from path if it exists
 tmpDir = fullfile(pwd, 'tmp');
