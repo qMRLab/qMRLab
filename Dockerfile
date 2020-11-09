@@ -10,7 +10,7 @@ RUN apt-get update && \
         inkscape \
         jed \
         libsm6 \
-        libxext-dev \
+        libxext-dev \ 
         libxrender1 \
         lmodern \
         netcat \
