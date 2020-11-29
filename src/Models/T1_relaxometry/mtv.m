@@ -1,62 +1,64 @@
 classdef mtv < AbstractModel
-% mtv :  Macromolecular Tissue Volume
-%<a href="matlab: figure, imshow mtv.png ;">Pulse Sequence Diagram</a>
-%
+% mtv :  Macromolecular Tissue Volume if the Brain
+% 
 % ASSUMPTIONS: 
-% (1) FILL
-% (2) 
+% (1) Organ: brain (mtv needs to be adapted for other organs)
+% (2) Reception profile (B1-)is approximated through a spline approximation
+%     Contrary to the original paper (see citation), multi-coil data are
+%     not necessary. Although more simple, more validation is needed.
+%     Use mrQ package for multi-coil datasets (https://github.com/mezera/mrQ/)
 % (3) 
 % (4) 
 %
 % Inputs:
-%   SPGR                Spoiled Gradient Echo data
-%   (B1map)             Normalized transmit excitation field map (B1+). B1+ is defined 
-%                       as a  normalized multiplicative factor such that:
-%                       FA_actual = B1+ * FA_nominal. (OPTIONAL).
-%   (CSFMask)           CerebroSpinal Fluid Mask. Used for proton density
-%                           normalization (assuming ProtonCSF = 1)
+%   T1           T1 from Spoiled Gradient Echo data (use vfa_t1 module)
+%   M0           M0 from Spoiled Gradient Echo data (use vfa_t1 module)
+%   BrainMask         Mask of the brain. This mask is clustured into 
+%                        white matter (WM) and CerebroSpinal Fluid Mask (CSF). 
+%                       In the WM mask coil sensitivity is computed assuming:
+%                        M0 = g * PD = g * 1 / (A + B/T1) with A~0.916 & B~0.436 
+%                       The CSF mask is used for proton density normalization 
+%                        (assuming ProtonDensity_CSF = 1)
 %
 % Outputs:
-%	T1                  Longitudinal relaxation time
 %	CoilGain            Reception profile of the antenna (B1- map)
 %	PD                  Proton Density
 %	MTV                 Macromolecular Tissue Volume
 %
 % Protocol:
-%	Flip Angle(degree)
-%       TR              Repetition time of the whole sequence (s)
+%   none
 %
 % Options:
-%   NONE
+%   Voxel Size          [1x3] Size of the voxels (in mm)
+%   Spline Smoothness   Smoothness parameter for the coil gain. The larger S 
+%                       is, the smoother the coil gain map will be.
 %
 % Example of command line usage:
 %   For more examples: <a href="matlab: qMRusage(mtv);">qMRusage(mtv)</a>
 %
-% Author: Ian Gagnon, 2017
+% Author: Tanguy Duval, 2020
 %
 % References:
 %   Please cite the following if you use this module:
-%     FILL
+%     Mezer A, Yeatman JD, Stikov N, Kay KN, Cho NJ, Dougherty RF, Perry ML, Parvizi J, Hua le H, Butts-Pauly K, Wandell BA. Quantifying the local tissue volume and composition in individual brains with magnetic resonance imaging. Nat Med. 2013
 %   In addition to citing the package:
 %     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
-% Hidden proprties goes here.    
+% Hidden properties goes here. 
+onlineData_url = 'https://osf.io/7wcvh/download?version=3';
 end
 
     properties
-        MRIinputs = {'SPGR','B1map','CSFMask'};
+        MRIinputs = {'T1','M0','BrainMask'};
         xnames = {};
         voxelwise = 0;
         
         % Protocol
-        Prot  = struct('MTV',struct('Format',{{'FlipAngle' 'TR'}},...
-                                     'Mat', [4 0.025; 10 0.025; 20 0.025])); % You can define a default protocol here.
-        
+        Prot  = struct(); % You can define a default protocol here.
+
         % Model options
-        buttons = {'PANEL','CoilGain_Fitting',4,...
-                    'Polynomial',true,'Order',{'1','2','3','4','5','6','7','8','9','10'},...
-                    'Spline',false,'Smoothness',10};
+        buttons = {'Voxel Size',[2 2 2],'Spline Smoothness',100};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
@@ -73,54 +75,42 @@ end
         end
         
         function obj = UpdateFields(obj)
-            if obj.options.CoilGain_Fitting_Polynomial && obj.options.CoilGain_Fitting_Spline
-                obj.options.CoilGain_Fitting_Polynomial = false;
-                obj.options.CoilGain_Fitting_Spline = false;
-            end   
         end
         
         function FitResult = fit(obj,data)           
-            % T1 and M0
-            flipAngles = (obj.Prot.MTV.Mat(:,1))';
-            TR = obj.Prot.MTV.Mat(1,2);
-            [M0, FitResult.T1] = mtv_compute_m0_t1(double(data.SPGR), flipAngles(1:length(flipAngles)), TR, data.B1map);
+            % get mask
+            [FitResult.CSF, FitResult.seg] = mtv_mrQ_Seg_kmeans_simple(data.T1,data.BrainMask,data.M0,obj.options.VoxelSize);
+            WM = FitResult.seg==3;
+            %%relative PD:
+            FitResult.CoilGain = mtv_correct_receive_profile_v2( data.M0, data.T1, WM, obj.options.SplineSmoothness,obj.options.VoxelSize);
+            PD = data.M0./FitResult.CoilGain;
             
-            %[PD,coilgain] = mtv_correct_receive_profile_v2( fname_M0, fname_T1, WMMask, CSFMask , smoothness, pixdim);
-
-            % CoilGain           
-            % Option 1: Polynomial 
-            if obj.options.CoilGain_Fitting_Polynomial
-                Order = str2double(obj.options.CoilGain_Fitting_Order);
-                FitResult.CoilGain = mtv_fit3dpolynomialmodel(M0,data.CSFMask,Order);
-            % Option 2: Spline   
-            elseif obj.options.CoilGain_Fitting_Spline
-                Smoothness = obj.options.CoilGain_Fitting_Smoothness;
-                if any(size(data.SPGR) == 1)
-                    if isfield(data,'hdr') 
-                        Spacing = data.hdr.dime.pixdim(2:3); 
-                    else
-                        Spacing = [0.5 0.5];
-                    end
-                else
-                    if isfield(data,'hdr') 
-                        Spacing = data.hdr.dime.pixdim(2:4); 
-                    else
-                        Spacing = [0.5 0.5 0.5];
-                    end
-                end
-                FitResult.CoilGain= mtv_fit3dsplinemodel(M0, data.CSFMask, [], Smoothness, Spacing);
-            else
-                errordlg('You must chose a CoilGain fitting option!','Error');                
-            end
+            %% absolute PD:
+            % calcute the CSF PD
+            FitResult.CSF(isnan(FitResult.CSF))=0;
             
-            %PD
-            FitResult.PD = M0./FitResult.CoilGain;
+            % find the white matter mean pd value from segmentation.
+            wmV=mean(PD(WM & PD>0));
             
-            % MTV
-            PDwater = mean(FitResult.PD(logical(data.CSFMask)));
-            PD = FitResult.PD/PDwater;
-            FitResult.MTV = 1 - PD;          
+            % assure that the CSF ROI have pd value that are resnable.  The csf roi is a reslut of segmentation algoritim runed on the
+            % T1wighted image and cross section with T1 values. Yet  the ROI may have some contaminations or segmentation faules .
+            %Therefore, we create some low and up bonderies. No CSF with PD values that are the white matter PD value(too low) or double the white matter values (too high).
+            CSF1=FitResult.CSF & PD>wmV & PD< wmV*2;
+            
+            %To calibrate the PD we find the scaler that shift the csf ROI to be eqal to 1. --> PD(CSF)=1;
+            % To find the scale we look at the histogram of PD value in the CSF. Since it's not trivial to find the peak we compute the kernel density (or
+            % distribution estimates). for detail see ksdensity.m
+            %The Calibrain vhistogram of the PD values in the let find the scalre from the maxsimum of the csf values histogram
+            [csfValues, csfDensity]= ksdensity(PD(CSF1), [min(PD(CSF1)):0.001:max(PD(CSF1))] );
+            CalibrationVal= csfDensity(csfValues==max(csfValues));% median(PD(find(CSF)));
+            
+            % calibrate the pd by the pd of the csf roi
+            FitResult.PD=PD./CalibrationVal(1);
+            
+            %% MTV
+            FitResult.MTV = 1 - FitResult.PD;          
         end
+        
         
     end
 end
