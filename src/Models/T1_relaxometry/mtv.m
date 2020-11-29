@@ -77,7 +77,8 @@ end
         function obj = UpdateFields(obj)
         end
         
-        function FitResult = fit(obj,data)           
+        function FitResult = fit(obj,data)        
+            FitResult = struct('MTV',[],'CoilGain',[],'CSF',[],'seg',[])
             % get mask
             [FitResult.CSF, FitResult.seg] = mtv_mrQ_Seg_kmeans_simple(data.T1,data.BrainMask,data.M0,obj.options.VoxelSize);
             WM = FitResult.seg==3;
@@ -105,10 +106,10 @@ end
             CalibrationVal= csfDensity(csfValues==max(csfValues));% median(PD(find(CSF)));
             
             % calibrate the pd by the pd of the csf roi
-            FitResult.PD=PD./CalibrationVal(1);
+            PD=PD./CalibrationVal(1);
             
             %% MTV
-            FitResult.MTV = 1 - FitResult.PD;          
+            FitResult.MTV = 1 - PD;          
         end
         
         
