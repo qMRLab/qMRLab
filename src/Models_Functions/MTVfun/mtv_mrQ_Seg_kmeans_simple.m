@@ -128,7 +128,7 @@ CSF2= CSF1 & R1<0.25 & R1>0.2 & M0<prctile(M0(BM),99);
 %% V. Some issues
 
 if length(find(CSF2))<200
-           fprintf(['\n Warning: We could find only ' num2str(length(find(CSF1))) ' csf voxels. This makes the CSF WF estimation very noisy. Consider editing csf_seg_T1.nii.gz file, see below \n']);
+           fprintf(['\n Warning: We could find only ' num2str(length(find(CSF2))) ' csf voxels. This makes the CSF WF estimation very noisy. Consider adapting CSF.nii and normalizing on your own              \n']);
 end
 
 % Larger ventricles region. 

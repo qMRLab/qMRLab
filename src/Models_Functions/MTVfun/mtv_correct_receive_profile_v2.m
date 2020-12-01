@@ -1,5 +1,7 @@
 function g = mtv_correct_receive_profile_v2( M0, T1, WMMask, smoothness, pixdim)
 
+fprintf('\n Performing receive profile correction on white matter mask...              \n');
+
 M0=double(M0);
 if ~exist('smoothness','var'), smoothness = 30; end
 T1=double(T1);

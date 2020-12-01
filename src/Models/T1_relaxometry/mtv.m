@@ -13,17 +13,25 @@ classdef mtv < AbstractModel
 % Inputs:
 %   T1           T1 from Spoiled Gradient Echo data (use vfa_t1 module)
 %   M0           M0 from Spoiled Gradient Echo data (use vfa_t1 module)
-%   BrainMask         Mask of the brain. This mask is clustured into 
-%                        white matter (WM) and CerebroSpinal Fluid Mask (CSF). 
-%                       In the WM mask coil sensitivity is computed assuming:
-%                        M0 = g * PD = g * 1 / (A + B/T1) with A~0.916 & B~0.436 
-%                       The CSF mask is used for proton density normalization 
-%                        (assuming ProtonDensity_CSF = 1)
+%   Mask         Mask of the entire brain (mandatory). This mask is eroded for 
+%                 border effects and clustured into white matter (WM) and 
+%                 CerebroSpinal Fluid Mask (CSF). 
+%                 In the WM mask, coil sensitivity is computed assuming:
+%                 M0 = g * PD = g * 1 / (A + B/T1) with A~0.916 & B~0.436 
+%                 The CSF mask is used for proton density normalization 
+%                 (assuming ProtonDensity_CSF = 1)
 %
 % Outputs:
-%	CoilGain            Reception profile of the antenna (B1- map)
-%	PD                  Proton Density
-%	MTV                 Macromolecular Tissue Volume
+%	MTV                 Macromolecular Tissue Volume (normal values in the brain range [0 0.4])
+%	CoilGain            Reception profile of the antenna (B1- map).
+%                        relative (pixel-wise) normalization of M0
+%   CSF                 CSF mask (cleaned).
+%                        absolute (global) normalization of M0
+%   seg                 Clustering of the eroded input mask in four categories:
+%                        1: Gray Matter
+%                        2: Deep Gray
+%                        3: White matter (used for Coil Gain)
+%                        4: CSF
 %
 % Protocol:
 %   none
