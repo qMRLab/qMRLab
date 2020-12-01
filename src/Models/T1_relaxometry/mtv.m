@@ -58,7 +58,7 @@ onlineData_url = 'https://osf.io/rsh9e/download';
 end
 
     properties
-        MRIinputs = {'T1','M0','BrainMask'};
+        MRIinputs = {'T1','M0','Mask'};
         xnames = {};
         voxelwise = 0;
         
@@ -66,7 +66,7 @@ end
         Prot  = struct(); % You can define a default protocol here.
 
         % Model options
-        buttons = {'Voxel Size',[2 2 2],'Spline Smoothness',100};
+        buttons = {'Voxel Size',[1 1 1],'Spline Smoothness',100};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
@@ -86,9 +86,14 @@ end
         end
         
         function FitResult = fit(obj,data)        
-            FitResult = struct('MTV',[],'CoilGain',[],'CSF',[],'seg',[])
+            FitResult = struct('MTV',[],'CoilGain',[],'CSF',[],'seg',[]);
+            % Erode Mask to prevent border effects
+            se = strel('cube',3);
+            Maskero = imerode(data.Mask,se);
+            for ii=1:5, Maskero = imerode(Maskero,se); end
+            
             % get mask
-            [FitResult.CSF, FitResult.seg] = mtv_mrQ_Seg_kmeans_simple(data.T1,data.BrainMask,data.M0,obj.options.VoxelSize);
+            [FitResult.CSF, FitResult.seg] = mtv_mrQ_Seg_kmeans_simple(data.T1,Maskero,data.M0,obj.options.VoxelSize);
             WM = FitResult.seg==3;
             %%relative PD:
             FitResult.CoilGain = mtv_correct_receive_profile_v2( data.M0, data.T1, WM, obj.options.SplineSmoothness,obj.options.VoxelSize);
