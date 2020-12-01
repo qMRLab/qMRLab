@@ -23,7 +23,7 @@ for ii=2:7
     RPp=M0./PDp;
     
     % Raw estimate
-    g = mtv_fit3dsplinemodel(RPp,mask,[],smoothness,pixdim(1:ndims(M0)));  % Spline approximation
+    g = mtv_fit3dsplinemodel(RPp,mask & ~isnan(RPp) & ~isinf(RPp),[],smoothness,pixdim(1:ndims(M0)));  % Spline approximation
     %tool.setImage(cat(4,tool.getImage,g))
     % calculate PD from M0 and RP
     PDi=M0./g;
