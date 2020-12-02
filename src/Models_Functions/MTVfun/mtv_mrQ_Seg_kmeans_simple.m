@@ -1,4 +1,4 @@
-function [CSF, seg]=mtv_mrQ_Seg_kmeans_simple(T1,BM,M0,mmPerVox)
+function [CSF, seg]=mtv_mrQ_Seg_kmeans_simple(T1,BM,M0,mmPerVox,CSFVal)
 % function [CSF, seg]=mtv_mrQ_Seg_kmeans_simple(T1,BM,M0)
 %
 % Clips brain to ventricles area, then segments using k-means with three
@@ -17,6 +17,7 @@ function [CSF, seg]=mtv_mrQ_Seg_kmeans_simple(T1,BM,M0,mmPerVox)
 %       T1: VFA T1.
 %       BM: Brain Mask.
 %       M0: VFA M0.
+%       CSFVal: Threshold on the R1 value of CSF (default=0.35s-1)
 %
 % ~OUTPUTS~
 %       CSF: Refined mask of ventricules (box in the center + smooth)
@@ -30,8 +31,9 @@ function [CSF, seg]=mtv_mrQ_Seg_kmeans_simple(T1,BM,M0,mmPerVox)
 
 
 %% I. Loading and definitions
-
-CSFVal=0.35; % R1 (in 1/sec) of water at body temp  (minimum value) 
+if ~exist('CSFVal','var')
+    CSFVal=1/0.35; % R1 (in 1/sec) of water at body temp  (minimum value)
+end
 R1=1./T1;
 BM = BM & ~isinf(R1);
 %% II. Perform k-means in a "while" loop
@@ -128,7 +130,7 @@ CSF2= CSF1 & R1<0.25 & R1>0.2 & M0<prctile(M0(BM),99);
 %% V. Some issues
 
 if length(find(CSF2))<200
-           fprintf(['\n Warning: We could find only ' num2str(length(find(CSF2))) ' csf voxels. This makes the CSF WF estimation very noisy. Consider adapting CSF.nii and normalizing on your own              \n']);
+           fprintf(['\n Warning: We could find only ' num2str(length(find(CSF2))) ' csf voxels. This makes the CSF WF estimation noisy. Consider reducing the CSF T1 threshold.              \n']);
 end
 
 % Larger ventricles region. 

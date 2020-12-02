@@ -40,6 +40,7 @@ classdef mtv < AbstractModel
 %   Voxel Size          [1x3] Size of the voxels (in mm)
 %   Spline Smoothness   Smoothness parameter for the coil gain. The larger S 
 %                       is, the smoother the coil gain map will be.
+%   CSF T1 threshold    Threshold on T1 for the CSF mask (in s).
 %
 % Example of command line usage:
 %   For more examples: <a href="matlab: qMRusage(mtv);">qMRusage(mtv)</a>
@@ -66,7 +67,7 @@ end
         Prot  = struct(); % You can define a default protocol here.
 
         % Model options
-        buttons = {'Voxel Size',[1 1 1],'Spline Smoothness',100};
+        buttons = {'Voxel Size',[1 1 1],'Spline Smoothness',100, 'CSF T1 threshold',1/0.35};
         options = struct(); % structure filled by the buttons. Leave empty in the code
         
     end
@@ -93,7 +94,7 @@ end
             for ii=1:5, Maskero = imerode(Maskero,se); end
             
             % get mask
-            [FitResult.CSF, FitResult.seg] = mtv_mrQ_Seg_kmeans_simple(data.T1,Maskero,data.M0,obj.options.VoxelSize);
+            [FitResult.CSF, FitResult.seg] = mtv_mrQ_Seg_kmeans_simple(data.T1,Maskero,data.M0,obj.options.VoxelSize,1/obj.options.CSFT1threshold);
             WM = FitResult.seg==3;
             %%relative PD:
             FitResult.CoilGain = mtv_correct_receive_profile_v2( data.M0, data.T1, WM, obj.options.SplineSmoothness,obj.options.VoxelSize);
