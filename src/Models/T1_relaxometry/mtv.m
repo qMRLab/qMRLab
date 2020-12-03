@@ -1,25 +1,25 @@
 classdef mtv < AbstractModel
-% mtv :  Macromolecular Tissue Volume if the Brain
+% mtv :  Macromolecular Tissue Volume in brain
 % 
 % ASSUMPTIONS: 
-% (1) Organ: brain (mtv needs to be adapted for other organs)
-% (2) Reception profile (B1-)is approximated through a spline approximation
+% (1) Organ: brain (MTV needs to be adapted for other organs)
+% (2) Reception profile (B1-) is estimated through a spline approximation.
 %     Contrary to the original paper (see citation), multi-coil data are
-%     not necessary. Although more simple, more validation is needed.
-%     Use mrQ package for multi-coil datasets (https://github.com/mezera/mrQ/)
+%     not necessary. Although simpler, more validation is needed.
+%     For multi-coil datasets, please use mrQ (https://github.com/mezera/mrQ/)
 % (3) 
 % (4) 
 %
 % Inputs:
-%   T1           T1 from Spoiled Gradient Echo data (use vfa_t1 module)
+%   T1           T1 map from Spoiled Gradient Echo data (use vfa_t1 module)
 %   M0           M0 from Spoiled Gradient Echo data (use vfa_t1 module)
-%   Mask         Mask of the entire brain (mandatory). This mask is eroded for 
-%                 border effects and clustured into white matter (WM) and 
-%                 CerebroSpinal Fluid Mask (CSF). 
-%                 In the WM mask, coil sensitivity is computed assuming:
-%                 M0 = g * PD = g * 1 / (A + B/T1) with A~0.916 & B~0.436 
-%                 The CSF mask is used for proton density normalization 
-%                 (assuming ProtonDensity_CSF = 1)
+%   Mask         Mask of the entire brain (REQUIRED). This mask is eroded for 
+%                border effects and clustured into white matter (WM) and 
+%                CerebroSpinal Fluid Mask (CSF). 
+%                In the WM mask, coil sensitivity is computed assuming:
+%                M0 = g * PD = g * 1 / (A + B/T1) with A~0.916 & B~0.436 
+%                The CSF mask is used for proton density normalization 
+%                (assuming ProtonDensity_CSF = 1)
 %
 % Outputs:
 %	MTV                 Macromolecular Tissue Volume (normal values in the brain range [0 0.4])
