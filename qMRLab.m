@@ -205,9 +205,9 @@ set(handles.MethodSelection,'FontUnits','normalized')
 set(handles.MethodSelection,'FontSize',.5)
 
 
-%###########################################################################################
+% ###########################################################################################
 %                                 COMMON FUNCTIONS
-%###########################################################################################
+% ###########################################################################################
 
 % METHODSELECTION
 function MethodMenu(hObject, eventdata, handles, Method)
@@ -386,6 +386,13 @@ function FitGO_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
 FitGo_FitData(hObject, eventdata, handles);
+% The counterSfMiss variable is assigned by the GetSf.m function
+% to keep track of how many times a warning has been printed.
+% After fit has been completed, we can remove this from the base 
+% workspace to avoid confusion.
+if ~evalin('base','exist(''counterSfMiss'')')
+    evalin('base','clear(''counterSfMiss'')');
+end
 
 
 % Original FitGo function
@@ -939,4 +946,4 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 function ChooseMethod_Callback(hObject, eventdata, handles)
-%----------------------------------------- END ------------------------------------------%
+% ----------------------------------------- END ------------------------------------------%
