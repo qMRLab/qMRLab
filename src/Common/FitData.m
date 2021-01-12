@@ -64,7 +64,7 @@ if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
 end
 
 if Model.voxelwise % process voxelwise
-    %############################# INITIALIZE #################################
+    % ############################# INITIALIZE #################################
     % Get dimensions
     MRIinputs = fieldnames(data);
     MRIinputs(structfun(@isempty,data))=[];
@@ -115,13 +115,17 @@ if Model.voxelwise % process voxelwise
         
     else
         Voxels = find(~computed)';
+        % To prevent warnings invading the command window.
+        if ~moxunit_util_platform_is_octave
+          warning('off','MATLAB:illConditionedMatrix');
+        end
     end
     numVox = length(Voxels);
     
     % Travis?
     if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
 
-    %############################# FITTING LOOP ###############################
+    % ############################# FITTING LOOP ###############################
     % Create waitbar
     if exist('wait','var') && (wait)
         h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
@@ -151,13 +155,15 @@ if Model.voxelwise % process voxelwise
             [xii,yii,zii] = ind2sub([x y z],vox);
             %fprintf(2, 'Error in voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
             if fitFailedCounter < 10
-              cprintf('magenta','>> Solution not found for voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+              % It is important that errmsg is assigned here but not passed in-line.  
+              errmsg = err.message;  
+              cprintf('magenta','Solution not found for the voxel [%d,%d,%d]: %s \n',xii,yii,zii,errmsg);
             elseif fitFailedCounter == 11
               cprintf('blue','%s','Errorenous fit warnings will be silenced for this process.');
               if ~isfield(data,'Mask')
-                  cprintf('orange','%s','>> Please condiser providing a binary mask to accelerate fitting.');
+                  cprintf('orange','%s','Please condiser providing a binary mask to accelerate fitting.');
               else
-                  cprintf('orange','%s','>> The provided mask probably contains some background voxels.'); 
+                  cprintf('orange','%s','The provided mask probably contains some background voxels.'); 
               end
             end
             
