@@ -149,11 +149,26 @@ if Model.voxelwise % process voxelwise
             fitFailed = false;
         catch err
             [xii,yii,zii] = ind2sub([x y z],vox);
-            fprintf(2, 'Error in voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+            %fprintf(2, 'Error in voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+            if fitFailedCounter < 10
+              cprintf('magenta','>> Solution not found for voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+            elseif fitFailedCounter == 11
+              cprintf('blue','%s','Errorenous fit warnings will be silenced for this process.');
+              if ~isfield(data,'Mask')
+                  cprintf('orange','%s','>> Please condiser providing a binary mask to accelerate fitting.');
+              else
+                  cprintf('orange','%s','>> The provided mask probably contains some background voxels.'); 
+              end
+            end
+            
             fitFailed = true;
             fitFailedCounter = fitFailedCounter + 1;
         end
-        if isempty(tempFit), Fit=[]; return; end
+        % The variable tempFit won't be declared until the 
+        % first successful fit. 
+        if exist('tempFit','var')
+            if isempty(tempFit), Fit=[]; return; end
+        end
 
         % initialize the outputs
         if ~exist('Fit','var') && ~fitFailed
