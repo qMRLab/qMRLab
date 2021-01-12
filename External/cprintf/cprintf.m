@@ -1,9 +1,23 @@
-
-% A hacky wrapper for Octave/Matlab compatibility. 
+% This script includes a simple wraper to provide Octave/Matlab compatibility
+% based on two sources:
+%
+%         MATLAB cprintf: https://www.mathworks.com/matlabcentral/fileexchange/24093-cprintf-display-formatted-colored-text-in-the-command-wind
+%         Octave cprintf: https://sourceforge.net/p/cprintf-m/code/ci/default/tree/cprintf.m
+%
 % Available colors: 
-% red, green, blue, magenta, yellow, cyan, orange 
+%         - red 
+%         - green
+%         - blue
+%         - magenta 
+%         - yellow
+%         - cyan
+%         - orange 
 % Example: 
-% cprintf('magenta', '%d %d this is a test %s!',1,2,' for colored text');
+%         cprintf('magenta', '%d %d this is a test %s!',1,2,' for colored text');
+% Notes:
+%         - Not tested for Octave's GUI
+%         - Uses eval to pass varargins 
+% -------------------------------------------------------------------------------
 
 function cprintf(color,format,varargin)
 
@@ -307,7 +321,7 @@ function count = mcprintf(style,format,varargin)
 %    2011-03-04: Performance improvement
 %    2010-06-27: Fix for R2010a/b; fixed edge case reported by Sharron; CPRINTF with no args runs the demo
 %    2009-09-28: Fixed edge-case problem reported by Swagat K
-%    2009-05-28: corrected nargout behavior suggested by Andreas Gäb
+%    2009-05-28: corrected nargout behavior suggested by Andreas Gï¿½b
 %    2009-05-13: First version posted on <a href="http://www.mathworks.com/matlabcentral/fileexchange/authors/27420">MathWorks File Exchange</a>
 %
 % See also:
