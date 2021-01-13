@@ -229,9 +229,12 @@ if Model.voxelwise % process voxelwise
             end 
                  parM(itPar).Fit.(cur_field)(ii,:) = [xii,yii,zii,NaN];
         else
-            
-           for ff = 1:length(parM(itPar).fields)
-                cur_field = parM(itPar).fields{ff};
+           
+           % Hits here when fit failed. Exclusive err case
+           % For now, substitute fields with xnames 
+           
+           for ff = 1:length(Model.xnames)
+                cur_field = Model.xnames{ff};
                 [xii,yii,zii] = ind2sub([x,y,z],parM(itPar).NativeIdx(ii));
                 parM(itPar).Fit.(cur_field)(ii,:) = [xii,yii,zii,NaN];
            end 
@@ -325,7 +328,23 @@ Fit.Version = qMRLabVer;
 % completed.
 if Model.voxelwise
 
-cur_fields = parM(1).fields;
+foundFields = true;
+it = 1;
+% To be on the safe side in case 
+while foundFields
+    
+    if isfield(parM(it),'fields')
+        cur_fields = parM(it).fields;
+        foundFields = false;
+    end
+    
+    if it == length(parM)
+        foundFields = false;
+    end
+    
+    it = it + 1;
+end
+
 Fit.fields = cur_fields;
 
 for ii = 1:length(cur_fields)
