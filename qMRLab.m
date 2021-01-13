@@ -409,8 +409,17 @@ data = data.(Method);
 ErrMsg = Model.sanityCheck(data);
 if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
+if ~moxunit_util_platform_is_octave
+   p = gcp('nocreate');
+   if ~isempty(p)
+       FitResults = FitDataPar(data,Model,1);
+   else
+       FitResults = FitData(data,Model,1);
+   end
+else
 % Do the fitting
-FitResults = FitData(data,Model,1);
+  FitResults = FitData(data,Model,1);
+end
 
 % Save info with results
 FileBrowserList = GetAppData('FileBrowserList');
