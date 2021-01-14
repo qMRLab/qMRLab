@@ -6,9 +6,9 @@ jobs:
     - checkout: self
       fetchDepth: 1
     - task: InstallMATLAB@0
-      displayName: Install MATLAB R2020b
+      displayName: Install MATLAB R2020a
       inputs:
-        release: R2020b
+        release: R2020a
     - task: RunMATLABCommand@0
       displayName: Run qMRLab
       inputs:
