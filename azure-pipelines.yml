@@ -1,7 +1,7 @@
 jobs:
 - job: Ubuntu_R2020b
   pool:
-    vmImage: 'Ubuntu-20.04'
+    vmImage: 'Ubuntu-16.04'
   steps:
     - checkout: self
       fetchDepth: 1
