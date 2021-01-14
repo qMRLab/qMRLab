@@ -1,14 +1,32 @@
-# Docker image
-# Build a Docker image to run, deploy, or push to a container registry.
-# Add steps that use Docker Compose, tag images, push to a registry, run an image, and more:
-# https://docs.microsoft.com/vsts/pipelines/languages/docker
-
 pool:
   vmImage: 'Ubuntu 16.04'
 
-variables:
-  imageName: 'neuropoly/qmrlab2:$(build.buildId)'
-
 steps:
-- script: echo $PATH
-  displayName: 'docker build'
+  - task: RunMATLABCommand@0
+    inputs:
+      command: |
+         exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
+         act = pwd; 
+         assert(strcmp(act, exp), strjoin({act exp}, '\n'));
+         disp('Test Done');
+
+jobs:
+- job: Windows
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  steps:
+    - task: RunMATLABCommand@0
+    inputs:
+      command: |
+         exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
+         act = pwd; 
+         assert(strcmp(act, exp), strjoin({act exp}, '\n'));
+         disp('Test Done');
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.14'
+  steps:
+    - task: RunMATLABCommand@0
+    inputs:
+      command: |
+        disp('Test in OSX');
