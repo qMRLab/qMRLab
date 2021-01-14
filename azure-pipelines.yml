@@ -4,6 +4,7 @@ jobs:
     vmImage: 'Ubuntu 16.04'
   steps:
     - checkout: none
+    - task: InstallMATLAB@0
     - task: RunMATLABCommand@0
       displayName: Run matlab in Ubuntu
       inputs:
