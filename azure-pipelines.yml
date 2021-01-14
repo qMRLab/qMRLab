@@ -15,5 +15,8 @@ jobs:
           ls;
           startup;
           qMRLabVer;
+          mod = vfa_t1;
+          x = lsqnonlin(@(x) sin(3*x),[1 4]);
+          disp(x);
           disp('Test Done');
           exit;
