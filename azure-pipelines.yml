@@ -1,15 +1,3 @@
-pool:
-  vmImage: 'Ubuntu 16.04'
-
-steps:
-  - task: RunMATLABCommand@0
-    inputs:
-      command: |
-         exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
-         act = pwd; 
-         assert(strcmp(act, exp), strjoin({act exp}, '\n'));
-         disp('Test Done');
-
 jobs:
 - job: Windows
   pool:
