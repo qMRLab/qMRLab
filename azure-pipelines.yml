@@ -16,7 +16,6 @@ jobs:
           exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
           act = pwd;
           ls;
-          startup; 
-          assert(strcmp(act, exp), strjoin({act exp}, '\n'));
+          ver;
           disp('Test Done');
           exit;
