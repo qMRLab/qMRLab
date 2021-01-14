@@ -11,12 +11,8 @@ jobs:
       inputs:
         command: |
           setenv('ISAZURE','1');
-          act = pwd;
-          ls;
           startup;
           qMRLabVer;
-          mod = vfa_t1;
-          x = lsqnonlin(@(x) sin(3*x),[1 4]);
-          disp(x);
-          disp('Test Done');
+          cd('Test/MoxUnitCompatible/quickMoxTests');
+          res=moxunit_runtests(pwd,'-recursive');
           exit;
