@@ -14,6 +14,6 @@ jobs:
           qMRLabVer;
           tic;
           res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive');
-          res2=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests/BatchExample_test.m']);
+          res2=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/BatchExample_test.m']);
           toc;
           exit(~all([res1 res2]));
