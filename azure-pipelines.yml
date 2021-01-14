@@ -3,36 +3,20 @@ jobs:
   pool:
     vmImage: 'Ubuntu-20.04'
   steps:
-    - checkout: none
+    - checkout: self
+      fetchDepth: 1
     - task: InstallMATLAB@0
       displayName: Install MATLAB R2020b
       inputs:
         release: R2020b
     - task: RunMATLABCommand@0
-      displayName: Run matlab Ubuntu
+      displayName: Run qMRLab
       inputs:
         command: |
           exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
-          act = pwd; 
+          act = pwd;
+          ls;
+          startup; 
           assert(strcmp(act, exp), strjoin({act exp}, '\n'));
-          disp('Test Done');
-          exit;
-- job: Catalina_R2020a
-  pool:
-    vmImage: 'macOS-latest'
-  steps:
-    - checkout: none
-    - task: InstallMATLAB@0
-      displayName: Install MATLAB R2020a
-      inputs:
-        release: R2020a
-    - task: RunMATLABCommand@0
-      displayName: Run matlab OSX
-      inputs:
-        command: |
-          exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
-          act = pwd; 
-          disp(exp);
-          disp(act);
           disp('Test Done');
           exit;
