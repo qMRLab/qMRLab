@@ -1,7 +1,7 @@
 jobs:
-- job: Ubuntu R2020b
+- job: Ubuntu_R2020b
   pool:
-    vmImage: 'Ubuntu 20.04'
+    vmImage: 'Ubuntu-20.04'
   steps:
     - checkout: none
     - task: InstallMATLAB@0
@@ -17,7 +17,7 @@ jobs:
           assert(strcmp(act, exp), strjoin({act exp}, '\n'));
           disp('Test Done');
           exit;
-- job: Catalina R2020a
+- job: Catalina_R2020a
   pool:
     vmImage: 'macOS-latest'
   steps:
