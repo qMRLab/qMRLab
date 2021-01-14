@@ -1,25 +1,38 @@
 jobs:
-- job: Windows
+- job: Ubuntu R2020b
   pool:
-    vmImage: 'Ubuntu 16.04'
+    vmImage: 'Ubuntu 20.04'
   steps:
     - checkout: none
     - task: InstallMATLAB@0
+      displayName: Install MATLAB R2020b
+      inputs:
+        release: R2020b
     - task: RunMATLABCommand@0
-      displayName: Run matlab in Ubuntu
+      displayName: Run matlab Ubuntu
       inputs:
         command: |
           exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
           act = pwd; 
           assert(strcmp(act, exp), strjoin({act exp}, '\n'));
           disp('Test Done');
-- job: macOS
+          exit;
+- job: Catalina R2020a
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'macOS-latest'
   steps:
     - checkout: none
+    - task: InstallMATLAB@0
+      displayName: Install MATLAB R2020a
+      inputs:
+        release: R2020a
     - task: RunMATLABCommand@0
       displayName: Run matlab OSX
       inputs:
         command: |
-          disp('Test in OSX');
+          exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
+          act = pwd; 
+          disp(exp);
+          disp(act);
+          disp('Test Done');
+          exit;
