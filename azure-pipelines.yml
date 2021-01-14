@@ -10,11 +10,10 @@ jobs:
       displayName: Run qMRLab
       inputs:
         command: |
-          setenv('ISAZURE','1');
-          blddir = getenv('BUILD_REPOSITORY_LOCALPATH');
-          disp(['ENV VAR FROM AZURE' blddir]);
           init_qmrlab;
           qMRLabVer;
-          cd('Test/MoxUnitCompatible/quickMoxTests');
-          res=moxunit_runtests(pwd,'-recursive');
-          exit(~res);
+          tic;
+          res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive');
+          res2=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests/BatchExample_test.m']);
+          toc;
+          exit(~all([res1 res2]));
