@@ -19,15 +19,21 @@ function report=run(obj,report)
 
     try
         runner=matlab.unittest.TestRunner.withNoPlugins();
+        runner.addPlugin(matlab.unittest.plugins.DiagnosticsRecordingPlugin);
         result=runner.run(obj.matlab_unittest_test_obj);
 
         if isequal(result.Passed,1)
             test_outcome_constructor=@MOxUnitPassedTestOutcome;
             test_outcome_args={};
         else
-            % everything else fails
-            test_outcome_constructor=@MOxUnitFailedTestOutcome;
-            test_outcome_args={make_failed_error(obj)};
+            try
+                test_outcome_constructor=@MOxUnitFailedTestOutcome;
+                test_outcome_args={make_failed_error_from_result(obj, result)};
+            catch
+                % everything else fails
+                test_outcome_constructor=@MOxUnitFailedTestOutcome;
+                test_outcome_args={make_failed_error(obj)};
+            end
         end
     catch
         e=lasterror();
@@ -40,9 +46,14 @@ function report=run(obj,report)
 
     report = reportTestOutcome(report, test_outcome);
 
+function e=make_failed_error_from_result(obj, result)
+    e=struct();
+    e.message=result.Details.DiagnosticRecord.Exception.message;
+    e.identifier=result.Details.DiagnosticRecord.Exception.identifier;
+    e.stack=result.Details.DiagnosticRecord.Stack;
 
-function make_failed_error(obj)
+function e=make_failed_error(obj)
     e=struct();
     e.message=sprintf('Test failed: %s', str(obj));
     e.identifier='';
-    e.stack=struct(zeros(0,1));
+    e.stack=struct('file',{},'name',{},'line',{});

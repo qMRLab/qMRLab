@@ -1,7 +1,7 @@
-function assertEqual(a, b, message)
-% assert that two inputs are equal
+function assertNotEqual(a, b, message)
+% assert that two inputs are not equal
 %
-% assertEqual(a,b,[msg])
+% assertNotEqual(a,b,[msg])
 %
 % Inputs:
 %   a           first input  } of any
@@ -9,51 +9,36 @@ function assertEqual(a, b, message)
 %   msg             optional custom message
 %
 % Raises:
-%   'assertEqual:nonEqual'             a and b are of different
-%                                      size or values are not equal
-%   'assertEqual:classNotEqual         a and b are of different class
-%   'assertEqual:sparsityNotEqual'     a is sparse and b is not, or
-%                                      vice versa
+%   'assertNotEqual:equal'                a and b are equal, and are either
+%                                         both sparse or both not sparse
 %
 % Examples:
-%   assertEqual('foo','foo');
+%   assertNotEqual('foo','bar');
 %   %|| % passes without output
 %
-%   assertEqual('foo','bar');
-%   %|| error('elements are not equal');
+%   assertNotEqual(1,sparse(1));
+%   %|| % passes without output
 %
-%   assertEqual([1 2],[1;2]);
-%   %|| error('inputs are not of the same size');
+%   assertNotEqual('foo','foo');
+%   %|| error('elements are equal');
 %
 % Notes:
 %   - If a custom message is provided, then any error message is prefixed
 %     by this custom message
+%   - In this function, NaN values are considered equal.
 %   - This function attempts to show similar behaviour as in
 %     Steve Eddins' MATLAB xUnit Test Framework (2009-2012)
 %     URL: http://www.mathworks.com/matlabcentral/fileexchange/
 %                           22846-matlab-xunit-test-framework
 %
-% NNO Jan 2014
 
     % Note: although it may seem more logical to compare class before size,
     % for compatibility reasons the order of tests matches that of the
     % MATLAB xUnit framework
 
-    if ~isequal(size(a), size(b))
-        whatswrong='inputs are not of the same size';
-        error_id='assertEqual:nonEqual';
-
-    elseif ~isequal(class(a), class(b))
-        whatswrong='inputs are not of the same class';
-        error_id='assertEqual:classNotEqual';
-
-    elseif issparse(a)~=issparse(b)
-        whatswrong='inputs do not have the same sparsity';
-        error_id='assertEqual:sparsityNotEqual';
-
-    elseif ~isequaln_wrapper(a, b)
-        whatswrong='elements are not equal';
-        error_id='assertEqual:nonEqual';
+    if isequaln_wrapper(a,b) && issparse(a)==issparse(b)
+        whatswrong='inputs are equal';
+        error_id='assertNotEqual:equal';
 
     else
         % elements are equal
