@@ -9,7 +9,7 @@ initTestSuite;
 function test_main
 testCase.modelObject = qmt_spgr;
 testCase.modelObject.st(1) = 0; % do a arbitrary modification
-testCase.tempFileName = 'tmp.qMRLab.mat';
+testCase.tempFileName = 'tmp.qmrlab.mat';
 if exist(testCase.tempFileName, 'file') == 2
     delete(testCase.tempFileName)
 end
