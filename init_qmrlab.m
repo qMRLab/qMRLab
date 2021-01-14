@@ -1,6 +1,6 @@
 if ~isdeployed
 addpath(genpath(fileparts(mfilename('fullpath'))))
-disp(['GenPath from' fileparts(mfilename('fullpath'))]);
+disp(['GenPath generated:' fileparts(mfilename('fullpath'))]);
 
 
 % Remove temp temp dir from path if it exists

@@ -12,8 +12,8 @@ jobs:
         command: |
           setenv('ISAZURE','1');
           blddir = getenv('BUILD_REPOSITORY_LOCALPATH');
-          disp(blddir);
-          startup;
+          disp(['ENV VAR FROM AZURE' blddir]);
+          init_qmrlab;
           qMRLabVer;
           cd('Test/MoxUnitCompatible/quickMoxTests');
           res=moxunit_runtests(pwd,'-recursive');

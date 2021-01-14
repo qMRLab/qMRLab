@@ -41,7 +41,11 @@ ls;
 %
 
 loadedObject = testCase.modelObject;
+% See if it passes with absolute dir
+loadedObject.loadObj([pwd filesep testCase.tempFileName]);
+disp('Passed load abs');
 loadedObject.loadObj(testCase.tempFileName);
+disp('Passed load rel');
 
 %% Test
 %
