@@ -33,6 +33,9 @@ originalObject = testCase.modelObject;
 %
 
 testCase.modelObject.saveObj(testCase.tempFileName);
+disp('DEBUG AZURE');
+disp(pwd);
+ls;
 
 %% Load
 %

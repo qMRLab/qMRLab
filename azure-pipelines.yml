@@ -11,6 +11,8 @@ jobs:
       inputs:
         command: |
           setenv('ISAZURE','1');
+          blddir = getenv('BUILD_REPOSITORY_LOCALPATH');
+          disp(blddir);
           startup;
           qMRLabVer;
           cd('Test/MoxUnitCompatible/quickMoxTests');
