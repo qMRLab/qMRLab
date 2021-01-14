@@ -15,4 +15,4 @@ jobs:
           qMRLabVer;
           cd('Test/MoxUnitCompatible/quickMoxTests');
           res=moxunit_runtests(pwd,'-recursive');
-          exit;
+          exit(~res);
