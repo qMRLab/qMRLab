@@ -3,18 +3,22 @@ jobs:
   pool:
     vmImage: 'Ubuntu 16.04'
   steps:
+    - checkout: none
     - task: RunMATLABCommand@0
-    inputs:
-      command: |
-         exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
-         act = pwd; 
-         assert(strcmp(act, exp), strjoin({act exp}, '\n'));
-         disp('Test Done');
+      displayName: Run matlab in Ubuntu
+      inputs:
+        command: |
+          exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
+          act = pwd; 
+          assert(strcmp(act, exp), strjoin({act exp}, '\n'));
+          disp('Test Done');
 - job: macOS
   pool:
     vmImage: 'macOS-10.14'
   steps:
+    - checkout: none
     - task: RunMATLABCommand@0
-    inputs:
-      command: |
-        disp('Test in OSX');
+      displayName: Run matlab OSX
+      inputs:
+        command: |
+          disp('Test in OSX');
