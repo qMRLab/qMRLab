@@ -13,9 +13,10 @@ jobs:
       displayName: Run qMRLab
       inputs:
         command: |
-          exp = getenv('SYSTEM_DEFAULTWORKINGDIRECTORY');
+          setenv('ISAZURE','1');
           act = pwd;
           ls;
-          ver;
+          startup;
+          qMRLabVer;
           disp('Test Done');
           exit;
