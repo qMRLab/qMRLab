@@ -16,7 +16,22 @@ jobs:
           testDir = '/Test/MoxUnitCompatible/quickMoxTests'
           res1=moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_quickMoxTests.json']);
           ls([[qmrlabRoot testDir]]);
-          exit(~all([res0 res1]));
+          exit(~res1);
     - script: |
         bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F matlab
       displayName: 'Upload to Codecov.io'
+jobs:
+- job: parpool_test
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  steps:
+    - task: InstallMATLAB@0
+    - task: RunMATLABCommand@0
+      displayName: parpool
+      inputs:
+        command: |
+          parpool(2);
+          parfor ii=1:4
+            b = get(getCurrentTask(),'ID');
+            display(b)
+          end
