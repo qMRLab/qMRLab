@@ -54,12 +54,11 @@ TEST=$(ADDPATH);if(isempty(which('moxunit_runtests'))),error('MOxUnit is require
 MATLAB_BIN=$(shell which $(MATLAB))
 OCTAVE_BIN=$(shell which $(OCTAVE))
 
-
 ifeq ($(MATLAB_BIN),)
 	# for Apple OSX, try to locate Matlab elsewhere if not found
     MATLAB_BIN=$(shell ls /Applications/MATLAB_R20*/bin/${MATLAB} 2>/dev/null | tail -1)
 endif
-
+	
 MATLAB_RUN=$(MATLAB_BIN) -nojvm -nodisplay -nosplash -r
 OCTAVE_RUN=$(OCTAVE_BIN) --no-gui --quiet --eval
 

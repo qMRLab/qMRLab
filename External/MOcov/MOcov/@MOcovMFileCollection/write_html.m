@@ -1,5 +1,5 @@
 function write_html(obj, output_dir)
-    if ~isdir(output_dir)
+    if ~mocov_util_isfolder(output_dir)
         mkdir(output_dir);
     end
 
@@ -12,7 +12,7 @@ function write_html(obj, output_dir)
     n=numel(mfiles);
     mfile_node_fns=cell(n,1);
 
-    notify(monitor,'Writing html files in %s', output_dir);
+    notify(monitor,sprintf('Writing html files in %s', output_dir));
 
     for k=1:n
         node_rel_fn=sprintf('node%d.html',k);

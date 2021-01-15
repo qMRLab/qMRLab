@@ -1,4 +1,8 @@
 function test_suite = test_MOcovMFile_recognizes_classdef_syntax
+    try % assignment of 'localfunctions' is necessary in Matlab >= 2016
+            test_functions=localfunctions();
+        catch % no problem; early Matlab versions can use initTestSuite fine
+    end
     initTestSuite;
 end
 
