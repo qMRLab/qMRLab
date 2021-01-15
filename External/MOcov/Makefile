@@ -62,10 +62,10 @@ endif
 
 $(info    AZURE_PATH is $(AZURE_PATH))
 ifeq ($(AZURE_PATH),)
-	@echo $(AZURE_PATH)
     MATLAB_BIN=matlab
     MATLAB_RUN=$(MATLAB_BIN) -batch
-	$(info    MATLAB_RUN is $(MATLAB_RUN))
+    $(info    MATLAB_RUN is $(MATLAB_RUN))
+	$(info    INSTALL is $(INSTALL))
 else
     MATLAB_RUN=$(MATLAB_BIN) -nojvm -nodisplay -nosplash -r
 endif
