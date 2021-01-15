@@ -1,4 +1,8 @@
 function test_suite = test_mocov_line_covered
+    try % assignment of 'localfunctions' is necessary in Matlab >= 2016
+            test_functions=localfunctions();
+        catch % no problem; early Matlab versions can use initTestSuite fine
+    end
     initTestSuite;
 
 
@@ -42,7 +46,7 @@ function test_mocov_line_covered_basics()
     for k=1:n
         s_lines=s.line_count{k};
 
-        s2_pos=strmatch(s.keys{k},s2.keys);
+        s2_pos=find(strcmp(s.keys{k},s2.keys));
         assert(numel(s2_pos)==1);
 
         s2_lines=s2.line_count{s2_pos};
