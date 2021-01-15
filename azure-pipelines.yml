@@ -11,7 +11,7 @@ jobs:
       inputs:
         command: |
           init_qmrlab;
-          success=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH' /External/MOcov/tests]);
+          success=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/External/MOcov/tests']);
           res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive','-with_coverage','-cover','$BUILD_REPOSITORY_LOCALPATH/src','-cover_exclude','*GUI*','-cover_json_file','coverage_quickMoxTests.json');
           exit(~all[res1 success]);
     - script: |
