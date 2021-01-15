@@ -10,7 +10,7 @@ jobs:
       displayName: run_quickMox_and_BatchExample
       inputs:
         command: |
-          init_qmrlab;
+          startup;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
           testDir = '/Test/MoxUnitCompatible/quickMoxTests'
@@ -34,7 +34,7 @@ jobs:
       displayName: run_qmt_spgr_bssfp_sirfse_tests
       inputs:
         command: |
-          init_qmrlab;
+          startup;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
           testDir = '/Test/MoxUnitCompatible';
@@ -60,7 +60,7 @@ jobs:
       displayName: run_sim_tests
       inputs:
         command: |
-          init_qmrlab;
+          startup;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
           testDir = '/Test/MoxUnitCompatible';
