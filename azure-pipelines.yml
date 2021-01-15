@@ -15,7 +15,7 @@ jobs:
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
           testDir = '/Test/MoxUnitCompatible/quickMoxTests'
           res1=moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_quickMoxTests.json']);
-          testDir = '/Test/MoxUnitCompatible/MoxUnitCompatible';
+          testDir = '/Test/MoxUnitCompatible';
           res2=moxunit_runtests([qmrlabRoot testDir '/BatchExample_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_test.json']);
           exit(~all([res1 res2]));
     - script: |
@@ -37,7 +37,7 @@ jobs:
           init_qmrlab;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
-          testDir = '/Test/MoxUnitCompatible/MoxUnitCompatible';
+          testDir = '/Test/MoxUnitCompatible';
           res1=moxunit_runtests([qmrlabRoot testDir '/BatchExample_qmt_spgr_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_qmt_spgr_test.json']);
           res2=moxunit_runtests([qmrlabRoot testDir '/BatchExample_qmt_bssfp_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_qmt_bssfp_test.json']);
           res3=moxunit_runtests([qmrlabRoot testDir '/BatchExample_qmt_sirfse_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_qmt_sirfse_test.json']);
@@ -63,7 +63,7 @@ jobs:
           init_qmrlab;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
-          testDir = '/Test/MoxUnitCompatible/MoxUnitCompatible';
+          testDir = '/Test/MoxUnitCompatible';
           res1=moxunit_runtests([qmrlabRoot testDir '/SimTest_charmed.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_charmed.json']);
           res2=moxunit_runtests([qmrlabRoot testDir '/SimTest_dti.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_dti.json']);
           res3=moxunit_runtests([qmrlabRoot testDir '/SimTest_noddi.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_noddi.json']);
