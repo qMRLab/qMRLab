@@ -64,7 +64,7 @@ if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
 end
 
 if Model.voxelwise % process voxelwise
-    %############################# INITIALIZE #################################
+    % ############################# INITIALIZE #################################
     % Get dimensions
     MRIinputs = fieldnames(data);
     MRIinputs(structfun(@isempty,data))=[];
@@ -115,13 +115,17 @@ if Model.voxelwise % process voxelwise
         
     else
         Voxels = find(~computed)';
+        % To prevent warnings invading the command window.
+        if ~moxunit_util_platform_is_octave
+          warning('off','MATLAB:illConditionedMatrix');
+        end
     end
     numVox = length(Voxels);
     
     % Travis?
     if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
 
-    %############################# FITTING LOOP ###############################
+    % ############################# FITTING LOOP ###############################
     % Create waitbar
     if exist('wait','var') && (wait)
         h = waitbar(0,'0%','Name','Fitting data','CreateCancelBtn',...
@@ -134,6 +138,7 @@ if Model.voxelwise % process voxelwise
         disp(['Operation has been started: ' Model.ModelName]);
     end
     fitFailedCounter = 0;
+    firstHit = false;
     tic;
     for ii = 1:numVox
         vox = Voxels(ii);
@@ -149,21 +154,46 @@ if Model.voxelwise % process voxelwise
             fitFailed = false;
         catch err
             [xii,yii,zii] = ind2sub([x y z],vox);
-            fprintf(2, 'Error in voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+            %fprintf(2, 'Error in voxel [%d,%d,%d]: %s\n',xii,yii,zii,err.message);
+            if fitFailedCounter < 10
+              % It is important that errmsg is assigned here but not passed in-line.  
+              errmsg = err.message;  
+              cprintf('magenta','Solution not found for the voxel [%d,%d,%d]: %s \n',xii,yii,zii,errmsg);
+            elseif fitFailedCounter == 11
+              cprintf('blue','%s','Errorenous fit warnings will be silenced for this process.');
+              if isfield(data,'Mask') && isempty(data.Mask)
+                  cprintf('orange','%s','Please condiser providing a binary mask to accelerate fitting.');
+              else
+                  cprintf('orange','%s','The provided mask probably contains some background voxels.'); 
+              end
+            end
+            
             fitFailed = true;
             fitFailedCounter = fitFailedCounter + 1;
         end
-        if isempty(tempFit), Fit=[]; return; end
+        
+        % The variable tempFit won't be declared until the
+        % first successful fit. Therefore it is important that
+        % we check it. Otherwise, if a fit starts with errorenous voxels,
+        % the execution is interrupted.
+        if exist('tempFit','var') 
+                
+            if isempty(tempFit);  Fit=[]; return; end
+                
+            if ~firstHit
+                % Initialize outputs fields
+                % This happens only once.
+                fields =  fieldnames(tempFit)';
 
-        % initialize the outputs
-        if ~exist('Fit','var') && ~fitFailed
-            fields =  fieldnames(tempFit)';
-
-            for ff = 1:length(fields)
-                Fit.(fields{ff}) = nan(x,y,z,length(tempFit.(fields{ff})));
+                for ff = 1:length(fields)
+                    Fit.(fields{ff}) = nan(x,y,z,length(tempFit.(fields{ff})));
+                end
+                Fit.fields = fields;
+                Fit.computed = zeros(x,y,z);
+                % Ensure that initialization happens only once when the first
+                % solution exists.
+                firstHit = true;    
             end
-            Fit.fields = fields;
-            Fit.computed = zeros(x,y,z);
         end
 
         % Assign current voxel fitted values

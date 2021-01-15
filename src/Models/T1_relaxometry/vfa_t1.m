@@ -99,10 +99,17 @@ end
             % T1 and M0
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
             TR = obj.Prot.VFAData.Mat(:,2);
-            if (length(unique(TR))~=1), error('VFA data must have same TR'); end
-            if ~isfield(data, 'B1map'), data.B1map = []; end
-            if ~isfield(data, 'Mask'), data.Mask = []; end
-            [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+            if obj.voxelwise == 0
+                if (length(unique(TR))~=1), error('VFA data must have same TR'); end
+                if ~isfield(data, 'B1map'), data.B1map = []; end
+                if ~isfield(data, 'Mask'), data.Mask = []; end
+                [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+            elseif obj.voxelwise == 1
+                if ~isfield(data,'B1map'), data.B1map=1; end
+                [m0, t1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                FitResult.T1 = t1;
+                FitResult.M0 = m0;
+            end
        end
 
        function plotModel(obj,x,data)
