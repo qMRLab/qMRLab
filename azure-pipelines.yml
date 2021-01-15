@@ -6,15 +6,14 @@ jobs:
     - checkout: self
       fetchDepth: 1
     - task: InstallMATLAB@0
-    - bash: |
-        make -C $BUILD_REPOSITORY_LOCALPATH/External/MOcov install
     - task: RunMATLABCommand@0
       displayName: quickMox_and_BatchExample
       inputs:
         command: |
           init_qmrlab;
+          success=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH' /External/MOcov/tests]);
           res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive','-with_coverage','-cover','$BUILD_REPOSITORY_LOCALPATH/src','-cover_exclude','*GUI*','-cover_json_file','coverage_quickMoxTests.json');
-          exit(res1);
+          exit(~all[res1 success]);
     - script: |
-        bash <(curl -s https://codecov.io/bash) -f "./$BUILD_REPOSITORY_LOCALPATH//Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F misc
+        bash <(curl -s https://codecov.io/bash) -f "./$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F misc
       displayName: 'Upload to Codecov.io'
