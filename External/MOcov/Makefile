@@ -60,10 +60,12 @@ ifeq ($(MATLAB_BIN),)
     MATLAB_BIN=$(shell ls /Applications/MATLAB_R20*/bin/${MATLAB} 2>/dev/null | tail -1)
 endif
 
+$(info    AZURE_PATH is $(AZURE_PATH))
 ifeq ($(AZURE_PATH),)
 	@echo $(AZURE_PATH)
     MATLAB_BIN=matlab
-	MATLAB_RUN=$(MATLAB_BIN) -batch
+    MATLAB_RUN=$(MATLAB_BIN) -batch
+	$(info    MATLAB_RUN is $(MATLAB_RUN))
 else
     MATLAB_RUN=$(MATLAB_BIN) -nojvm -nodisplay -nosplash -r
 endif
