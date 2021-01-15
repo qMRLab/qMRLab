@@ -1,24 +1,24 @@
-function assertExceptionThrown(func, expected_id, message)
-% Assert that an exception is thrown
+function assertWarning(func, expected_id, message)
+% Assert that an warning is thrown
 %
-% assertExceptionThrown(func, [expected_id,[message]])
+% assertWarning(func, [expected_id,[message]])
 %
 % Inputs:
 %   func            Function handle that is expected to throw, with the
 %                   prototype
 %                       [varargout{:}] = func()
-%   expected_id     Identifier of the expected exception (optional). If
-%                   not provided, then func can raise any exception.
-%                   To allow for any exception to be raised, use '*'.
+%   expected_id     Identifier of the expected warning (optional). If
+%                   not provided, then func can raise any warning.
+%                   To allow for any warning to be raised, use '*'.
 %                   Multiple ids can be provided in a cell string; the
 %                   assertion means that at least one id matches the one
 %                   that is thrown.
 %   message         Custom message to be included when func fails to throw
 %
 % Throws:
-%   'moxunit:exceptionNotRaised'    func() does not raise an exception but
+%   'moxunit:warningNotRaised'    func() does not raise an warning but
 %                                   was expected to do so.
-%   'moxunit:wrongExceptionRaised'  func() does raise an exception but with
+%   'moxunit:wrongWarningRaised'  func() does raise an warning but with
 %                                   an identifier different from
 %                                   expected_id
 %   'moxunit:illegalParameter'      the input arguments are of the wrong
@@ -26,26 +26,22 @@ function assertExceptionThrown(func, expected_id, message)
 %
 %
 % Examples:
-%   % Assert that sin will throw an exception when its argument is a struct
-%   assertExceptionThrown( @()sin( struct([]) ));
+%   % Assert that solving with a singular matrix give  a warning
+%   assertWarning( @() zeros(2) \ ones(2,1) );
 %   %|| % ok
 %
-%   % Assert that sin throws an exception AND that the ID is
-%   % either '' or 'MATLAB:UndefinedFunction'
-%   allowed_ids={'','MATLAB:UndefinedFunction'};
-%   assertExceptionThrown( @()sin( struct([]) ), allowed_ids);
+%   % Assert that solving with a singular matrix give a warning
+%   % AND that the ID is either 'Octave:singular-matrix' or
+%   % 'MATLAB:singularMatrix'
+%   allowed_ids={'Octave:singular-matrix','MATLAB:singularMatrix'};
+%   assertWarning( @() zeros(2) \ ones(2,1), allowed_ids);
 %
-%   % No exception raised
-%   assertExceptionThrown(@()disp('hello world'));
-%   %|| error('No exception was raised');
-%
-%   % Wrong exception raised
-%   assertExceptionThrown(@()[1 2]*[1 2 3],'MATLAB:UndefinedFunction')
-%   %|| error(['exception ''MATLAB:innerdim'' was raised, '...
-%   %||               'expected ''MATLAB:UndefinedFunction''.'])
+%   % No warning raised
+%   assertWarning(@()disp('hello world'));
+%   %|| error('No warning was raised');
 %
 % Notes:
-% - This function allows one to test for exceptions being thrown, and
+% - This function allows one to test for warnings being thrown, and
 %   optionally, pass a custome message in response to a failure.
 % - It is assumed that all input variables are of the correct type, valid
 %   (if applicable), and given in the correct order.
@@ -62,23 +58,62 @@ function assertExceptionThrown(func, expected_id, message)
 
     verify_inputs(func, expected_id, message);
 
+    state = warning('query');
+    try
+        % In octave, silencing warnings does not allow us to
+        % get them through lastwarn
+        warning('error', 'all');
+    catch
+        % In matlab, setting all warnings to errors is not allowed
+        warning('off', 'all');
+        if ~is_wildcard_id(expected_id)
+            if ~iscellstr(expected_id)
+                expected_id = {expected_id};
+            end
+            for i=expected_id
+                if ~isempty(i{:})
+                    warning('error', i{:});
+                end
+            end
+        end
+    end
+
+    lastwarn('', '');
+
     try
         func();
 
-        [id,whats_wrong]=exception_not_raised(expected_id);
+        [message,warning_id] = lastwarn();
+
+        if ~isempty(message) || ~isempty(warning_id)
+            if ~isempty(warning_id)
+                error(warning_id, message);
+            else
+                error(message);
+            end
+        end
+
+        [id,whats_wrong]=warning_not_raised(expected_id);
     catch
         % (Avoiding '~' for Octave compatibility)
         [unused,found_id] = lasterr();
 
-        if exception_id_matches(expected_id,found_id)
-            % the expected exception was raised, we're done
+        if warning_id_matches(expected_id,found_id)
+            % the expected warning was raised, we're done
+            for i=1:numel(state)
+                warning(state(i).state, state(i).identifier);
+            end
             return;
         end
 
-        [id,whats_wrong]=wrong_exception_raised(found_id, expected_id);
+        [id,whats_wrong]=wrong_warning_raised(found_id, expected_id);
     end
 
-    full_message=moxunit_util_input2str(message,whats_wrong);
+    for i=1:numel(state)
+        warning(state(i).state, state(i).identifier);
+    end
+
+    full_message = moxunit_util_input2str(message, whats_wrong);
 
     if moxunit_util_platform_is_octave()
         error(id,'%s',full_message);
@@ -87,18 +122,18 @@ function assertExceptionThrown(func, expected_id, message)
     end
 
 
-function [id,whats_wrong]=exception_not_raised(expected_id)
-    id = 'moxunit:exceptionNotRaised';
-    whats_wrong='No exception was raised';
+function [id,whats_wrong]=warning_not_raised(expected_id)
+    id = 'moxunit:warningNotRaised';
+    whats_wrong='No warning was raised';
 
     if ~any(strcmp(expected_id,'*'))
         % add suffix with expected id
-        whats_wrong=sprintf('%s, expected exception %s',...
-                                whats_wrong,expected_id2str(expected_id));
+        whats_wrong=sprintf('%s, expected warning %s',...
+                            whats_wrong,expected_id2str(expected_id));
     end
 
 
-function [id,whatswrong]=wrong_exception_raised(found_id, expected_id)
+function [id,whatswrong]=wrong_warning_raised(found_id, expected_id)
     last_err=lasterror();
     stack=last_err.stack;
 
@@ -107,9 +142,9 @@ function [id,whatswrong]=wrong_exception_raised(found_id, expected_id)
     %stack_indent='    | '
     stack_trace_str=moxunit_util_stack2str(stack,stack_indent);
 
-    id='moxunit:wrongExceptionRaised';
+    id='moxunit:wrongWarningRaised';
     whatswrong = sprintf(...
-        ['exception ''%s'' was raised, expected %s. '...
+        ['warning ''%s'' was raised, expected %s. '...
         'Stack trace:\n\n%s'],...
         found_id, expected_id2str(expected_id), stack_trace_str);
 
@@ -166,15 +201,14 @@ function tf=is_valid_error_id(expected_id)
 
 
 function tf=is_wildcard_id(id)
-    tf=strcmp(id,'*');
+    tf=any(strcmp(id,'*'));
 
-function tf=exception_id_matches(expected_id,found_id)
+function tf=warning_id_matches(expected_id,found_id)
     if iscellstr(expected_id)
         % recursive call
-        tf=any(cellfun(@(x)exception_id_matches(x,found_id),expected_id));
+        tf=any(cellfun(@(x)warning_id_matches(x,found_id),expected_id));
         return;
     end
 
     tf=is_wildcard_id(expected_id) ...
             || isequal(expected_id,found_id);
-
