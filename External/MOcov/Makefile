@@ -61,9 +61,9 @@ ifeq ($(MATLAB_BIN),)
 endif
 
 ifeq ($(AZURE_PATH),)
-	echo "Found Azure DevOps variable..."
+	@echo $(AZURE_PATH)
     MATLAB_BIN=matlab
-	MATLAB_RUN=-batch
+	MATLAB_RUN=$(MATLAB_BIN) -batch
 else
     MATLAB_RUN=$(MATLAB_BIN) -nojvm -nodisplay -nosplash -r
 endif
