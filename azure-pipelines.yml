@@ -13,9 +13,10 @@ jobs:
           init_qmrlab;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
-          res0=moxunit_runtests([qmrlabRoot '/External/MOcov/tests']);
-          res1=moxunit_runtests([qmrlabRoot '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file','coverage_quickMoxTests.json');
+          testDir = '/Test/MoxUnitCompatible/quickMoxTests'
+          res1=moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_quickMoxTests.json']);
+          ls([[qmrlabRoot testDir]]);
           exit(~all([res0 res1]));
     - script: |
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F misc
+        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F matlab
       displayName: 'Upload to Codecov.io'
