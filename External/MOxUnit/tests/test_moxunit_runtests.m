@@ -6,14 +6,20 @@ function test_suite=test_moxunit_runtests
     initTestSuite;
 
 function test_moxunit_runtests_basics
+    slow_flag = ispc() && moxunit_util_platform_is_octave();
+    if slow_flag
+        % Skip if running in octave on windows. From some reason Octave
+        % chokes heavilly on temporary file access and deletion.
+        reason = '''test_moxunit_runtests_basics'' is very slow in Octave on Windows!';
+        moxunit_throw_test_skipped_exception(reason)
+        fprintf('This test will take a very long time\n');
+    end
     passed_cell={'','abs(2);','for k=1:10,2+k;end'};
     failed_cell={'error(''expected'');','[1,2]+[1,2,3];'};
     skipped_cell={'moxunit_throw_test_skipped_exception(''skip'')'};
 
     combis=all_binary_combinations(8);
     for k=1:size(combis,1)
-        cleaner=onCleanup(@()cleanup_helper('cleanup'));
-
         log_fn=tempname();
         cleanup_helper('add_file',log_fn);
 
@@ -86,8 +92,10 @@ function test_moxunit_runtests_basics
                                     test_stats,test_labels)
 
         end
-
-        cleaner=[];
+        cleanup_helper('cleanup');
+        if slow_flag
+            fprintf('Combination test #%d/%d\n',k,size(combis,1))
+        end
     end
 
 function test_moxunit_runtests_partitions
@@ -139,10 +147,6 @@ function test_moxunit_runtests_partitions
     end
 
 
-
-
-
-
 function count=add_tests(test_dir,do_add,cell_with_tests)
     count=0;
     if do_add
@@ -177,8 +181,6 @@ function assert_logfile_matches(log_fn,verbose_output,...
 
     labels=test_labels(labels_row,:);
     n_labels=numel(labels);
-
-
 
     for k=1:n_labels
         pat=regexptranslate('escape',labels{k});
@@ -263,10 +265,28 @@ function c=cleanup_helper(task,varargin)
         case 'cleanup'
             assert(numel(varargin)==0);
             if iscell(files)
-                for k=1:numel(files)
-                    file=files{k};
-                    if exist(file,'file');
-                        delete(file);
+
+                if moxunit_util_platform_is_octave()
+                    for k=1:numel(files)
+                        file = files{k};
+                        if exist(file,'file')
+                            %tic
+                            unlink(file); % This is a bit faster in Octave
+                            %toc
+                        end
+                    end
+
+                else
+                    s = warning('error','MATLAB:DELETE:Permission'); %#ok<CTPCT>
+                    c = onCleanup(@() warning(s)); % Reset warning state
+
+                    for k=1:numel(files)
+                        file = files{k};
+                        if exist(file,'file')
+                            try %#ok<TRYNC>
+                                delete(file);
+                            end
+                        end
                     end
                 end
 
@@ -277,7 +297,7 @@ function c=cleanup_helper(task,varargin)
                 if moxunit_util_platform_is_octave()
                     % GNU Octave requires, by defaualt, confirmation when
                     % using rmdir - unless confirm_recursive_rmdir is set
-                    % explicityly
+                    % explicitly
                     % Here the state of confirm_recursive_rmdir is stored,
                     % and set back to its original value when leaving this
                     % function.
@@ -287,7 +307,7 @@ function c=cleanup_helper(task,varargin)
 
                 for k=1:numel(directories)
                     directory=directories{k};
-                    if isdir(directory)
+                    if moxunit_util_isfolder(directory)
                         rmdir(directory,'s');
                     end
                 end
@@ -301,5 +321,3 @@ function c=cleanup_helper(task,varargin)
         otherwise
             assert(false,'illegal task')
     end
-
-

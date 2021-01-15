@@ -104,5 +104,5 @@ function s=rand_str()
     s=char(20*rand(1,10)+65);
 
 function assert_contains(a,b)
-    assert(~isempty(findstr(a,b)))
+    assert(~isempty(strfind(a,b)))
 
