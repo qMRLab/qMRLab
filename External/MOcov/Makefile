@@ -53,13 +53,22 @@ TEST=$(ADDPATH);if(isempty(which('moxunit_runtests'))),error('MOxUnit is require
 
 MATLAB_BIN=$(shell which $(MATLAB))
 OCTAVE_BIN=$(shell which $(OCTAVE))
+AZURE_PATH='${BUILD_REPOSITORY_LOCALPATH}'
 
 ifeq ($(MATLAB_BIN),)
 	# for Apple OSX, try to locate Matlab elsewhere if not found
     MATLAB_BIN=$(shell ls /Applications/MATLAB_R20*/bin/${MATLAB} 2>/dev/null | tail -1)
 endif
-	
-MATLAB_RUN=$(MATLAB_BIN) -nojvm -nodisplay -nosplash -r
+
+ifeq ($(AZURE_PATH),)
+	echo "Found Azure DevOps variable..."
+    MATLAB_BIN=matlab
+	MATLAB_RUN=-batch
+else
+    MATLAB_RUN=$(MATLAB_BIN) -nojvm -nodisplay -nosplash -r
+endif
+
+
 OCTAVE_RUN=$(OCTAVE_BIN) --no-gui --quiet --eval
 
 install-matlab:
