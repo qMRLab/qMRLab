@@ -17,5 +17,5 @@ jobs:
           res1=moxunit_runtests([qmrlabRoot '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file','coverage_quickMoxTests.json');
           exit(~all([res0 res1]));
     - script: |
-        bash <(curl -s https://codecov.io/bash) -f "./$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F misc
+        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F misc
       displayName: 'Upload to Codecov.io'
