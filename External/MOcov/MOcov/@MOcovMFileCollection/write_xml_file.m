@@ -14,11 +14,11 @@ function write_xml_file(obj, output_fn)
     branch_rate=0;
 
     monitor=obj.monitor;
-    notify(monitor,'Writing xml files in %s', output_fn);
+    notify(monitor,sprintf('Writing xml files in %s', output_fn));
 
     % write header
     overall_coverage=compute_coverage(obj);
-    notify(monitor,'Overal coverage is %.3f', overall_coverage);
+    notify(monitor,sprintf('Overall coverage is %.3f', overall_coverage));
     header=sprintf(['<?xml version="1.0"?>\n'...
                     '<coverage line-rate="%.3f" branch-rate="%.3f">'],...
                     overall_coverage,branch_rate);

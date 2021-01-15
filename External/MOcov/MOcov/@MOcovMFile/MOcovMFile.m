@@ -90,8 +90,7 @@ function props=get_mfile_props(fn)
             line_is_else_statement(line_code) || ...
             line_is_sole_end_statement(line_code_trimmed));
 
-        in_line_continuation=numel(line_code_trimmed)>=3 && ...
-                               strcmp(line_code_trimmed(end+(-2:0)),'...');
+        in_line_continuation=line_has_line_continuation(line_code);
     end
 
     % put results in struct
@@ -140,3 +139,8 @@ function tf=line_is_else_statement(line)
 function tf=line_ends_with_end_statement(line)
     % returns true if the line has a finishing 'end'
     tf=~isempty(regexp(line,'(^|\W)end\s*[,;]?\s*$','once'));
+
+function tf=line_has_line_continuation(line)
+    % returns true if the line contains a line continuation
+    tf=~isempty(regexp(line,'\.\.\.','once'));
+

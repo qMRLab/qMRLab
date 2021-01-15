@@ -1,6 +1,9 @@
 function test_suite = test_mocov_is_absolute_path()
+    try % assignment of 'localfunctions' is necessary in Matlab >= 2016
+            test_functions=localfunctions();
+        catch % no problem; early Matlab versions can use initTestSuite fine
+    end
     initTestSuite;
-
 
 function test_mocov_is_absolute_path_basics()
     if ispc()

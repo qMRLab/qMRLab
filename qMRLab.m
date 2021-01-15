@@ -61,8 +61,15 @@ if ~isfield(handles,'opened') % qMRI already opened?
         handles.Default = fullfile(qMRLabDir,'DefaultMethod.mat');
     else
         handles.Default = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
-        if ~license('test', 'Optimization_Toolbox'), error('Optimization Toolbox is not installed on your system: most qMR models won''t fit. Please consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''OP'');">Optimization Toolbox</a> if you want to use qMRLab in MATLAB.'); end
-            if ~license('test', 'Image_Toolbox'), warning('Image Toolbox is not installed: ROI Analysis tool not available in the GUI. Consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''IP'');">Image Processing Toolbox</a>'); end
+        if isempty(getenv('ISAZURE')) || ~str2double(getenv('ISAZURE')) 
+            ISAZURE=false; 
+        else
+            ISAZURE=true; 
+        end
+        if ~ISAZURE
+          if ~license('test', 'Optimization_Toolbox'), error('Optimization Toolbox is not installed on your system: most qMR models won''t fit. Please consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''OP'');">Optimization Toolbox</a> if you want to use qMRLab in MATLAB.'); end
+          if ~license('test', 'Image_Toolbox'), warning('Image Toolbox is not installed: ROI Analysis tool not available in the GUI. Consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''IP'');">Image Processing Toolbox</a>'); end
+        end    
     end
     handles.CurrentData = [];
     handles.dcm_obj = [];
