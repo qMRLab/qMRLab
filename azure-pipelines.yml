@@ -6,87 +6,15 @@ jobs:
     - checkout: self
       fetchDepth: 1
     - task: InstallMATLAB@0
+    - bash: |
+        make -C $BUILD_REPOSITORY_LOCALPATH/External/MOcov install
     - task: RunMATLABCommand@0
       displayName: quickMox_and_BatchExample
       inputs:
         command: |
           init_qmrlab;
-          res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive');
-          res2=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/BatchExample_test.m']);
-          exit(~all([res1 res2]));
-- job: qMRLab_Test_Job2
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-    - checkout: self
-      fetchDepth: 1
-    - task: InstallMATLAB@0
-    - task: RunMATLABCommand@0
-      displayName: qMT_SPGR_test
-      inputs:
-        command: |
-          init_qmrlab;
-          res=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/BatchExample_qmt_spgr_test.m']);
-          exit(~res);
-- job: qMRLab_Test_Job3
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-    - checkout: self
-      fetchDepth: 1
-    - task: InstallMATLAB@0
-    - task: RunMATLABCommand@0
-      displayName: qMT_BSSFP_test
-      inputs:
-        command: |
-          init_qmrlab;
-          res=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/BatchExample_qmt_bssfp_test.m']);
-          exit(~res);
-- job: qMRLab_Test_Job4
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-    - checkout: self
-      fetchDepth: 1
-    - task: InstallMATLAB@0
-    - task: RunMATLABCommand@0
-      displayName: qMT_SIRFSE_test
-      inputs:
-        command: |
-          init_qmrlab;
-          res=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/BatchExample_qmt_sirfse_test.m']);
-          exit(~res);
-- job: qMRLab_Test_Job5
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-    - checkout: self
-      fetchDepth: 1
-    - task: InstallMATLAB@0
-    - task: RunMATLABCommand@0
-      displayName: Diffusion_sim_tests
-      inputs:
-        command: |
-          init_qmrlab;
-          res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_charmed.m']);
-          res2=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_dti.m']);
-          res3=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_noddi.m']);
-          exit(~all([res1 res2 res3]));
-- job: qMRLab_Test_Job6
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-    - checkout: self
-      fetchDepth: 1
-    - task: InstallMATLAB@0
-    - task: RunMATLABCommand@0
-      displayName: Remaining_sim_tests
-      inputs:
-        command: |
-          init_qmrlab;
-          res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_qmt_sirfse.m']);
-          res2=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_inversion_recovery.m']);
-          res3=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_vfa_t1.m']);
-          res4=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_montecarlo.m']);
-          res5=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/SimTest_mwf.m']);
-          exit(~all([res1 res2 res3 res4 res5]));
+          res1=moxunit_runtests([getenv('BUILD_REPOSITORY_LOCALPATH') '/Test/MoxUnitCompatible/quickMoxTests'],'-recursive','-with_coverage','-cover','$BUILD_REPOSITORY_LOCALPATH/src','-cover_exclude','*GUI*','-cover_json_file','coverage_quickMoxTests.json');
+          exit(res1);
+    - script: |
+        bash <(curl -s https://codecov.io/bash) -f "./$BUILD_REPOSITORY_LOCALPATH//Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F misc
+      displayName: 'Upload to Codecov.io'
