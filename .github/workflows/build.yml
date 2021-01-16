@@ -1,4 +1,4 @@
-name: CI
+name: OMG
 
 on: push
 
@@ -12,12 +12,12 @@ jobs:
     - uses: joergbrech/moxunit-action@master
       with:
         tests: /Test/MoxUnitCompatible/quickMoxTests
-        src: src ./
+        src: src
         ext: External
         pkg: image io optim struct statistics
         with_coverage: true
         cover_xml_file: coverage_gha.xml
     - uses: codecov/codecov-action@v1
       with:
-       file:  coverage_gha.xml # optional
+       file: coverage_gha.xml # optional
        flags: octave
