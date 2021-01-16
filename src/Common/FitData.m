@@ -138,8 +138,6 @@ if Model.voxelwise % process voxelwise
         disp(['Operation has been started: ' Model.ModelName]);
     end
     fitFailedCounter = 0;
-    
-    
     firstHit = false;
     tic;
     for ii = 1:numVox

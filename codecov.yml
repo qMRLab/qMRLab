@@ -1,0 +1,31 @@
+codecov:
+  require_ci_to_pass: yes
+  bot: "qmrlab-coverage"
+  require_ci_to_pass: yes
+  notify:
+    wait_for_ci: yes
+    after_n_builds: 14
+
+coverage:
+  precision: 2
+  round: down
+  range: "45...100"
+  status:
+    patch: off
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: no
+
+ignore:
+  - "src/Common/tools/FileBrowser"
+  - "src/Common/tools/FileBrowser/dicomLoadAllSeries.m"

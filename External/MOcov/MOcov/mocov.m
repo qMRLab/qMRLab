@@ -234,7 +234,7 @@ function opt=parse_inputs(varargin)
 
 
 function check_inputs(opt)
-    if ~isdir(opt.coverage_dir)
+    if ~mocov_util_isfolder(opt.coverage_dir)
         error('input dir ''%s'' does not exist', opt.coverage_dir);
     end
 

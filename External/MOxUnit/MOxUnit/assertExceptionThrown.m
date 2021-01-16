@@ -91,7 +91,7 @@ function [id,whats_wrong]=exception_not_raised(expected_id)
     id = 'moxunit:exceptionNotRaised';
     whats_wrong='No exception was raised';
 
-    if ~strcmp(expected_id,'*')
+    if ~any(strcmp(expected_id,'*'))
         % add suffix with expected id
         whats_wrong=sprintf('%s, expected exception %s',...
                                 whats_wrong,expected_id2str(expected_id));

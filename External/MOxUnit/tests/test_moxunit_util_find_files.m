@@ -89,7 +89,7 @@ function [full_paths,is_dir]=make_files(root_dir,to_add,ext)
 
 
     counter=0;
-    if ~isdir(root_dir)
+    if ~moxunit_util_isfolder(root_dir)
         counter=counter+1;
         mkdir(root_dir);
         full_paths{counter}=root_dir;
@@ -132,7 +132,7 @@ function remove_paths(full_paths)
             continue;
         end
 
-        if isdir(p)
+        if moxunit_util_isfolder(p)
             if(numel(dir(p))>2)
                 error('Directory %s not empty',p);
             end

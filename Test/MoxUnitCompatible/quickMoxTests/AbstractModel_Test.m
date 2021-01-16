@@ -9,7 +9,11 @@ initTestSuite;
 function test_main
 testCase.modelObject = qmt_spgr;
 testCase.modelObject.st(1) = 0; % do a arbitrary modification
-testCase.tempFileName = 'tmp.qMRLab.mat';
+% Fun fact: MATLAB will complain (at least from R2020 on)
+% if you save this as tmp.qMRLab.mat, because it'll be attempted 
+% to be read as tmp.qmrlab.mat and on Linux matlab is case sensitive.
+% Octave is not. Then again, Matlab is not case sensitive on windows. 
+testCase.tempFileName = 'tmp.qmrlab.mat';
 if exist(testCase.tempFileName, 'file') == 2
     delete(testCase.tempFileName)
 end
@@ -34,11 +38,14 @@ originalObject = testCase.modelObject;
 
 testCase.modelObject.saveObj(testCase.tempFileName);
 
+
 %% Load
 %
 
 loadedObject = testCase.modelObject;
+% See if it passes with absolute dir
 loadedObject.loadObj(testCase.tempFileName);
+
 
 %% Test
 %
