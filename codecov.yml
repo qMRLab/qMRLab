@@ -1,8 +1,10 @@
 codecov:
   require_ci_to_pass: yes
-  bot: qmrlab-coverage
-  ci:
-    - "travis.org"
+  bot: "qmrlab-coverage"
+  require_ci_to_pass: yes
+  notify:
+    wait_for_ci: yes
+    after_n_builds: 14
 
 coverage:
   precision: 2
@@ -23,8 +25,5 @@ comment:
   require_changes: no
 
 ignore:
-  - "/src/Common/tools/FileBrowser"
-  - "/src/Common/tools/FileBrowser/dicomLoadAllSeries.m"
-
-notify:
-  wait_for_ci: yes
+  - "src/Common/tools/FileBrowser"
+  - "src/Common/tools/FileBrowser/dicomLoadAllSeries.m"
