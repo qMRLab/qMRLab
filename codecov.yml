@@ -25,3 +25,6 @@ comment:
 ignore:
   - "/src/Common/tools/FileBrowser"
   - "/src/Common/tools/FileBrowser/dicomLoadAllSeries.m"
+
+notify:
+  wait_for_ci: yes
