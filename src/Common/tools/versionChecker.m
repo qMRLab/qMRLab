@@ -10,13 +10,24 @@ elseif isunix
     [isOnline,~]=system('ping -c 1 www.github.com');
 end
 if isOnline==0 % Connected
-    response = webread('https://api.github.com/repos/qmrlab/qmrlab/releases/latest');
+        if moxunit_util_platform_is_octave
+            if compare_versions(OCTAVE_VERSION,'6.0.0','<') 
+              command=['curl --silent ','"','https://api.github.com/repos/qmrlab/qmrlab/releases/latest','"'];
+              [~,response]=system(command);
+            else % From Octave 6 on, this is OK (but the output is still string, not formatted similar to that of curl)
+              response = webread('https://api.github.com/repos/qmrlab/qmrlab/releases/latest');
+            end
+        else
+            response = webread('https://api.github.com/repos/qmrlab/qmrlab/releases/latest');
+        end
     if ~isempty(response)
         if ~moxunit_util_platform_is_octave
             latest_ver = regexp(response.tag_name, 'v(\d*)\.(\d*).(\d*)?', 'tokens');
         else
             % Octave does not convert web response into struct right away.
             latest_ver = regexp(response, '"tag_name":"v(\d*)\.(\d*).(\d*)?', 'tokens');
+            % Try other format
+            if isempty(latest_ver); latest_ver = regexp(response, '"tag_name": "v(\d*)\.(\d*).(\d*)?', 'tokens'); end
         end
         latest_ver = str2double(latest_ver{1});
         if any((qMRLabVer-latest_ver)<0) % Using an older version
