@@ -4,11 +4,11 @@ cur_ver = qMRLabVer;
 cprintf('magenta','----------------%s','-------------------------------');
 cprintf('magenta','Release v%d.%d.%d',cur_ver(1),cur_ver(2),cur_ver(3));
 % Check if online
-if ispc
-    [isOnline,~]=system('ping -n 1 www.github.com');
-elseif isunix
-    [isOnline,~]=system('ping -c 1 www.github.com');
-end
+
+% This is so far the most xross compatible option
+command=['curl --silent ','"','https://api.github.com/repos/qmrlab/qmrlab/license','"'];
+[isOnline,~]=system(command);
+
 if isOnline==0 % Connected
         if moxunit_util_platform_is_octave
             if compare_versions(OCTAVE_VERSION,'6.0.0','<') 

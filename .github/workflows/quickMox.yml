@@ -11,7 +11,7 @@ jobs:
         fetch-depth: 1
     - uses: agahkarakuzu/moxunit-action@master
       with:
-        tests: /Test/MoxUnitCompatible/quickMoxTests
+        tests: /Test/MoxUnitCompatible/quickMoxTests /Test/MoxUnitCompatible/other
         src: src
         pkg: image io optim struct statistics
         with_coverage: true
