@@ -41,10 +41,18 @@ if isOnline==0 % Connected
         elseif sum(qMRLabVer-latest_ver) == 0 % Using latest
            % Cheer up dedicated users :)  
            emoji = [ 40   239   190   137   226   151   149   227   131   174   226   151   149    41   239   190   137    42    58   239   189   165 239 190 159]; 
+           try
            cprintf('magenta','%s You are running the latest version of %s',native2unicode(emoji,'UTF-8'),'qMRLab!');
+           catch
+            cprintf('magenta','%s You are running the latest version of %s','qMRLab!');              
+           end
         else % Development branch
            emoji = [224   178   160    95   224   178   160];
+           try
            cprintf('blue','%s The version specified in version.txt is ahead of the latest published release v%d.%d.%d.',native2unicode(emoji,'UTF-8'),latest_ver(1),latest_ver(2),latest_ver(3));
+           catch
+           cprintf('blue','%s The version specified in version.txt is ahead of the latest published release v%d.%d.%d.','Hawdy developer! ',latest_ver(1),latest_ver(2),latest_ver(3)); 
+           end
            cprintf('magenta','Please do not forget pushing a new commit tag upon merge or publish the %s','new release.') ;
         end
     end
