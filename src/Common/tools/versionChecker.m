@@ -21,7 +21,11 @@ if isOnline==0 % Connected
         latest_ver = str2double(latest_ver{1});
         if any((qMRLabVer-latest_ver)<0) % Using an older version
            cprintf('magenta','There is a newer version available for  %s','download!');
-           cprintf('magenta','Click %s to download the latest qMRLab release v%d.%d.%d.','<a href = "https://github.com/qMRLab/qMRLab/releases/latest">here</a>',latest_ver(1),latest_ver(2),latest_ver(3));
+           if ~moxunit_util_platform_is_octave
+             cprintf('magenta','Click %s to download the latest qMRLab release v%d.%d.%d.','<a href = "https://github.com/qMRLab/qMRLab/releases/latest">here</a>',latest_ver(1),latest_ver(2),latest_ver(3));
+           else
+             cprintf('magenta','You can download the latest qMRLab release v%d.%d.%d at: %s',latest_ver(1),latest_ver(2),latest_ver(3),'https://github.com/qMRLab/qMRLab/releases/latest');               
+           end
            status = latest_ver;
         elseif sum(qMRLabVer-latest_ver) == 0 % Using latest
            % Cheer up dedicated users :)  

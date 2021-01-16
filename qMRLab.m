@@ -47,6 +47,7 @@ end
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
 if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 if ~isfield(handles,'opened') % qMRI already opened?
+    warning('off','all');
     % Add qMRLab to path
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
@@ -179,9 +180,8 @@ if length(varargin)>1
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
-
-
 set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+warning('on','all');
     
 
 
@@ -995,6 +995,7 @@ function text_doc_model_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to text_doc_model (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+set(hObject, 'Enable', 'Inactive');
 Method = class(GetAppData('Model'));
 web(['https://qmrlab.readthedocs.io/en/latest/' Method '_batch.html']);
 
@@ -1006,4 +1007,5 @@ function upgrade_message_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to upgrade_message (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+set(hObject, 'Enable', 'Inactive');
 web('https://github.com/qMRLab/qMRLab/releases/latest');
