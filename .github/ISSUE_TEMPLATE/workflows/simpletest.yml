@@ -1,0 +1,23 @@
+name: CI
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - uses: joergbrech/moxunit-action@master
+      with:
+        tests: /Test/MoxUnitCompatible/quickMoxTests
+        src: src ./
+        ext: External
+        pkg: image io optim struct statistics
+        with_coverage: true
+        cover_xml_file: coverage_gha.xml
+    - uses: codecov/codecov-action@v1
+      with:
+       file:  coverage_gha.xml # optional
+       flags: octave
