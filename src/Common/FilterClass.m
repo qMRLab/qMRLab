@@ -115,7 +115,7 @@ classdef (Abstract) FilterClass
             s=S(1); %just 1 values for the smoothness
             if(strcmp(obj.options.Smoothingfilter_Dimension,'2D')) %if want 2D smoothing
                 if(ndims(data)==2) %if a 2D volume
-                    filtered = smoothn(dataw,s);
+                    filtered = smoothn(data,s);
                 else %if a 3D volume, do each slice separately
                     filtered=zeros(size(data));
                     for i=1:size(data,3)

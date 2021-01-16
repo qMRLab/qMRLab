@@ -17,7 +17,7 @@ function result=moxunit_util_find_files(root_dir,re,add_recursive)
 %
 % NNO 2015
 
-    if ~isdir(root_dir)
+    if ~moxunit_util_isfolder(root_dir)
         error('Diectory input argument must be a directory');
     end
 
@@ -33,7 +33,7 @@ function result=moxunit_util_find_files(root_dir,re,add_recursive)
 
 
 function result=find_files_helper(root_dir,re,add_recursive)
-    if isdir(root_dir)
+    if moxunit_util_isfolder(root_dir)
         d=dir(root_dir);
         n=numel(d);
 
@@ -48,7 +48,7 @@ function result=find_files_helper(root_dir,re,add_recursive)
 
             path_fn=fullfile(root_dir,fn);
 
-            if isdir(path_fn)
+            if moxunit_util_isfolder(path_fn)
                 if add_recursive
                     result_cell{k}=find_files_helper(path_fn,re,...
                                                         add_recursive);

@@ -12,5 +12,5 @@ function test_test_node_basics
     nd=MOxUnitTestNode(name);
 
     assertEqual(getName(nd),name);
-    assertFalse(isempty(findstr(str(nd), 'MOxUnitTestNode')));
+    assertFalse(isempty(strfind(str(nd), 'MOxUnitTestNode')));
 

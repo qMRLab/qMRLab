@@ -92,6 +92,16 @@ function test_no_space_subfunction_short_vars
 function test_different_args_subfunction
     % test with various types of whitespace, number of input arguments, and
     % number of output arguments
+
+    slow_flag = ispc() && moxunit_util_platform_is_octave();
+    if slow_flag
+        % Skip if running in octave on windows. From some reason Octave
+        % chokes heavilly on temporary file access and deletion.
+        reason = '''test_different_args_subfunction'' is very slow in Octave on Windows!';
+        moxunit_throw_test_skipped_exception(reason)
+        fprintf('This test will take a very long time\n');
+    end
+
     whitespace_cell={' ',...
                      '  ',...
                      sprintf('\t'),...
@@ -107,6 +117,9 @@ function test_different_args_subfunction
                 parts={'function',arg_out,func_name,arg_in};
                 line=moxunit_util_strjoin(parts,whitespace);
                 helper_test_with_lines({func_name},max(n_out,0),{line});
+                if slow_flag
+                    fprintf('i_sp: %0f, n_out: %0f, n_in: %0f\n',i_sp,n_out,n_in)
+                end
             end
         end
     end
@@ -136,7 +149,11 @@ function helper_test_with_lines(func_names, n_out, lines)
     assert(iscell(lines));
 
     tmp_fn=tempname();
-    file_deleter=onCleanup(@()delete(tmp_fn));
+    if moxunit_util_platform_is_octave
+        cleaner=onCleanup(@()unlink(tmp_fn)); % Faster in Octave
+    else
+        cleaner=onCleanup(@()delete(tmp_fn));
+    end
 
     % try different line endings
     line_ending_cell={'\r\n',...  % MS Windows

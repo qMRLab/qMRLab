@@ -39,7 +39,6 @@ function test_assert_exception_thrown_passes
 
 function test_assert_exception_thrown_illegal_arguments
     args_cell={ ...
-                {@()error('foo')},...
                 {@()error('foo'),'message'},...
                 {@()error('foo'),'not:id:_entifier','message'},...
                 {@()error('foo'),struct},...
@@ -81,12 +80,8 @@ function test_assert_exception_thrown_wrong_exception
             error_exception_not_thrown('moxunit:wrongExceptionRaised');
         catch
             [unused,error_id]=lasterr();
-            try
             error_if_wrong_id_thrown('moxunit:wrongExceptionRaised',...
                                                             error_id);
-            catch
-                                                        2
-            end
         end
     end
 
@@ -119,15 +114,13 @@ function test_assert_exception_thrown_exceptions_not_thrown
 
 
 function error_exception_not_thrown(error_id)
-    error(error_id,'Exception ''%s'' not thrown',error_id);
+    error('moxunit:exceptionNotRaised', 'Exception ''%s'' not thrown', error_id);
 
 function error_if_wrong_id_thrown(expected_error_id, thrown_error_id)
-    if ~strcmp(thrown_error_id,...
-                    expected_error_id)
-        error_id='moxunit:wrongExceptionRaised';
-        error(error_id,['Exception raised with id ''%s'', expected '...
-                        'id ''%s'''],...
-                        thrown_error_id,expected_error_id);
+    if ~strcmp(thrown_error_id, expected_error_id)
+        error('moxunit:wrongExceptionRaised',...
+              'Exception raised with id ''%s'' expected id ''%s''',...
+              thrown_error_id,expected_error_id);
     end
 
 

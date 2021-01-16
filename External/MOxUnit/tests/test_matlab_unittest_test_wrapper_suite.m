@@ -14,6 +14,12 @@ function test_matlab_unittest_test_test_suite_basics
         return;
     end
 
+    if ~moxunit_util_platform_supports('diagnostics_recording_plugin')
+        reason=sprintf('DiagnosticsRecordingPlugin is not available');
+        moxunit_throw_test_skipped_exception(reason);
+        return;
+    end
+
     [fn,is_passing]=helper_build_matlab_unittest_test();
     cleaner=onCleanup(@()delete_path_and_file_and_dir(fn));
 

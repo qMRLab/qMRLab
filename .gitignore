@@ -52,6 +52,7 @@ FitResults*
 FitTempResults*
 SimResults*
 MTSAT/interface.jpg
+qMRLab.prj
 
 # Files created by the documentation
 docs/build/*
@@ -67,3 +68,4 @@ tmp/
 reports/
 *coverage*
 docs/source/.doctrees
+External/AMICO/AMICO_matlab/exports/

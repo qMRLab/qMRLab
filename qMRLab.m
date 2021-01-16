@@ -1,12 +1,16 @@
 function varargout = qMRLab(varargin)
+%         __  __ ____  _          _     
+%    __ _|  \/  |  _ \| |    __ _| |__  
+%   / _` | |\/| | |_) | |   / _` | '_ \ 
+%  | (_| | |  | |  _ <| |__| (_| | |_) |
+%   \__, |_|  |_|_| \_\_____\__,_|_.__/ 
+%      |_|
+
 % qmrlab MATLAB code for qMRLab.fig
 % GUI to simulate/fit qMRI data
 
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�is Cabana, 2016
-%
-% -- MTSAT functionality: P. Beliveau, 2017
-% -- File Browser changes: P. Beliveau 2017
+% See the list of contributors: https://github.com/qMRLab/qMRLab/graphs/contributors
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
@@ -43,12 +47,38 @@ end
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
 if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 if ~isfield(handles,'opened') % qMRI already opened?
+    warning('off','all');
     % Add qMRLab to path
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
     
-    GUI_animation;
+    % Do not let this break anything if things go wrong.
+    try
+        GUI_animation;
+        cur_ver = qMRLabVer;
+    catch
+        cur_ver = qMRLabVer;
+        fprintf('qMRLab version: v%d.%d.%d \n',cur_ver(1),cur_ver(2),cur_ver(3));
+    end
     
+    try
+        [verStatus] = versionChecker;
+    catch
+        verStatus = [];
+    end
+    
+    % Display version under qMRLab text
+    set(handles.text_version_check, 'String',sprintf('v%d.%d.%d',cur_ver(1),cur_ver(2),cur_ver(3)));
+    
+    % Handle new version message
+    % varstatus is empty unless there is a new release.
+    if isempty(verStatus)
+        set(handles.upgrade_message, 'Visible','off');
+    else
+        set(handles.upgrade_message, 'Visible','on');
+        set(handles.upgrade_message, 'String',sprintf('Upgrade to v%d.%d.%d',verStatus(1),verStatus(2),verStatus(3)));
+    end
+
     handles.opened = 1;
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
@@ -57,6 +87,15 @@ if ~isfield(handles,'opened') % qMRI already opened?
         handles.Default = fullfile(qMRLabDir,'DefaultMethod.mat');
     else
         handles.Default = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
+        if isempty(getenv('ISAZURE')) || ~str2double(getenv('ISAZURE')) 
+            ISAZURE=false; 
+        else
+            ISAZURE=true; 
+        end
+        if ~ISAZURE
+          if ~license('test', 'Optimization_Toolbox'), error('Optimization Toolbox is not installed on your system: most qMR models won''t fit. Please consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''OP'');">Optimization Toolbox</a> if you want to use qMRLab in MATLAB.'); end
+          if ~license('test', 'Image_Toolbox'), warning('Image Toolbox is not installed: ROI Analysis tool not available in the GUI. Consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''IP'');">Image Processing Toolbox</a>'); end
+        end    
     end
     handles.CurrentData = [];
     handles.dcm_obj = [];
@@ -141,6 +180,10 @@ if length(varargin)>1
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
+set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+warning('on','all');
+    
+
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
@@ -180,6 +223,9 @@ delete(wh);
 function MethodSelection_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 MethodMenu(hObject,eventdata,handles,Method);
+set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+
+
 
 function addModelMenu(hObject, eventdata, handles)
 % Display all the options in the popupmenu
@@ -199,9 +245,9 @@ set(handles.MethodSelection,'FontUnits','normalized')
 set(handles.MethodSelection,'FontSize',.5)
 
 
-%###########################################################################################
+% ###########################################################################################
 %                                 COMMON FUNCTIONS
-%###########################################################################################
+% ###########################################################################################
 
 % METHODSELECTION
 function MethodMenu(hObject, eventdata, handles, Method)
@@ -212,8 +258,16 @@ SetAppData(Method)
 if isappdata(0,'Model') && strcmp(class(getappdata(0,'Model')),Method) % if same method, load the current class with parameters
     Model = getappdata(0,'Model');
 else % otherwise create a new object of this method
-    modelfun  = str2func(Method);
-    Model = modelfun();
+    Modeltobesaved = getappdata(0,'Model');
+    savedModel = getappdata(0,'savedModel');
+    savedModel.(class(Modeltobesaved)) = Modeltobesaved;
+    setappdata(0,'savedModel',savedModel);
+    if isfield(savedModel,Method) && ~isempty(savedModel.(Method))
+        Model = savedModel.(Method);
+    else
+        modelfun  = str2func(Method);
+        Model = modelfun();
+    end
 end
 SetAppData(Model)
 % Create empty Data
@@ -265,8 +319,38 @@ MethodNum = find(strcmp({FileBrowserList.MethodID},Method));
 for i=1:length(FileBrowserList)
     FileBrowserList(i).Visible('off');
 end
+
 FileBrowserList(MethodNum).Visible('on');
 
+scl_str = json2struct('ScalePanels.json');
+
+for ii = 1:length(scl_str)
+
+    if strcmp(Method,scl_str(ii).ModelName)
+        
+        attachScrollPanelTo(handles.(scl_str(ii).PanelName));
+        set(handles.(scl_str(ii).PanelName),'Position',scl_str(ii).Position);
+
+    else
+        attachScrollPanelTo(handles.('FitDataFileBrowserPanel'));
+        set(handles.FitDataFileBrowserPanel,'Position',[0.0117 0.7391 0.9749 0.2493]);
+    end
+       
+        
+end
+
+% Scale the main panel by a super small factor and 
+% bring it back to the original to get rid of 
+% artificial duplication of the top portion of the data 
+% panel that occurs upon switching to another model 
+% after selecting mp2rage. 
+
+% Caused by attachScrollToPanel. 
+
+curpos = get(handles.qMRILab,'Position');
+set(handles.qMRILab,'Position',curpos.*[1 1 1.0001 1.0001]);
+set(handles.qMRILab,'Position',curpos);
+        
 % enable/disable viewdatafit
 if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
@@ -342,6 +426,13 @@ function FitGO_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
 FitGo_FitData(hObject, eventdata, handles);
+% The counterSfMiss variable is assigned by the GetSf.m function
+% to keep track of how many times a warning has been printed.
+% After fit has been completed, we can remove this from the base 
+% workspace to avoid confusion.
+if ~evalin('base','exist(''counterSfMiss'')')
+    evalin('base','clear(''counterSfMiss'')');
+end
 
 
 % Original FitGo function
@@ -413,13 +504,16 @@ for ii = 1:length(FitResults.fields)
     if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
-        save_nii_datas(FitResults.(map),hdr,fullfile(outputdir,file));
+        nii_save(FitResults.(map),hdr,fullfile(outputdir,file));
     end
 end
 
 SetAppData(FileBrowserList);
 % Show results
 handles.CurrentData = FitResults;
+if exist('hdr','var')
+    handles.CurrentData.hdr = hdr;
+end
 guidata(hObject,handles);
 DrawPlot(handles);
 
@@ -506,7 +600,7 @@ set(hObject, 'Enable', 'on');
 
 I = handles.tool.getImage(1);
 Iraw = handles.CurrentData;
-fields = setdiff(Iraw.fields,'Mask')';
+fields = setdiff(Iraw.fields,'Mask','stable')';
 Maskall = handles.tool.getMask(1);
 Color = handles.tool.getMaskColor;
 StatsGUI(I,Maskall, fields, Color);
@@ -818,12 +912,18 @@ set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
 
-I = handles.tool.getImage(1);
+I.img = handles.tool.getImage(1);
+I.label = cellstr(get(handles.SourcePop,'String'));
 Mask = handles.tool.getMask(1);
 if isfield(handles.CurrentData,'hdr')
-    tool = imtool3D_nii_3planes(I,Mask,handles.CurrentData.hdr);
+    I.hdr = handles.CurrentData.hdr;
+
+    tool = imtool3D_nii_3planes(I,Mask);
 else
-    tool = imtool3D_3planes(I,Mask);
+
+    tool = imtool3D_3planes(I.img,Mask);
+
+    for ii=1:3, tool(ii).setlabel(I.label); end
 end
 clims = handles.tool.getClimits;
 for ii=1:3
@@ -886,4 +986,26 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 function ChooseMethod_Callback(hObject, eventdata, handles)
-%----------------------------------------- END ------------------------------------------%
+% ----------------------------------------- END ------------------------------------------%
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over text_doc_model.
+function text_doc_model_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to text_doc_model (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject, 'Enable', 'Inactive');
+Method = class(GetAppData('Model'));
+web(['https://qmrlab.readthedocs.io/en/latest/' Method '_batch.html']);
+
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over upgrade_message.
+function upgrade_message_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to upgrade_message (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject, 'Enable', 'Inactive');
+web('https://github.com/qMRLab/qMRLab/releases/latest');

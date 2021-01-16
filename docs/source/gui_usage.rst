@@ -1,5 +1,5 @@
-Graphical User Interface Usage
-====================================
+Graphical User Interface (GUI)
+======================================
 This section describes the various features and functionality of the user interface.
 
 1. Startup
@@ -12,63 +12,63 @@ Then open the GUI by typing::
 
     qMRLab
 
-2. Interface
+2. Layout
 ----------------------------------
 When you first launch qMRLab, you will be presented with a blank interface. The interface consists of three columns, or panels. On the left, you have the *Menu* panel, in the center you have the *Main panel*, and on the right, in a separate floating window, you have the *Options* panel.
 
 .. figure:: _static/gui_default.png
    :scale: 100 %
 
-   Default interface with 3 panels: (1) Menu, (2) Main and (3) floating Options
+   Default interface with 3 panels: (1) ``Menu``, (2) ``Main`` and (3) floating ``Options``
 
 2.1 Menu Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
-The *Menu panel* is where you can choose the task you want to perform. It is divided in three sections: **Method**, **qMR Data Fit** and **qMR Data Simulator**
+The ``Menu panel`` is where you can choose the task you want to perform. It is divided in three sections: ``Method``, ``qMR Data Fit`` and ``qMR Data Simulator``.
 
 2.1.1 Method
 ++++++++++++++++
 At the top, you will find a drop-down menu where you can choose the MR acquisition method that you want to be working with. An updated list of the available methods is here: :ref:`Methods available`
 
-Note that the *Main* and *Options* panel will update to the appropriate window according to your selection.
-If you plan to be working mainly with a particular method, select it from the drop-down menu first, and the click on the **Set Default** button next to it. Next time you open qMRLab, your preferred method will be selected by default.
+Note that the ``Main`` and ``Options`` panels will update to the appropriate window according to your selection.
+If you plan to be working mainly with a particular method, select it from the drop-down menu first, and the click on the ``Set Default`` button next to it. Next time you open qMRLab, your preferred method will be selected by default.
 
-Clicking on the **Open Options Panel** below the method drop-down menu will open the *Options* panel window and set its position on the right side of the *Main* panel. This is useful to bring back the *Options* panel window to the front if it’s hidden behind another window, to reset its position if you have resized the windows, or to reopen it in case you closed it.
+Clicking on the ``Open Options Panel`` below the method drop-down menu will open the *Options* panel window and set its position on the right side of the ``Main`` panel. This is useful to bring back the ``Options`` panel window to the front if it’s hidden behind another window, to reset its position if you have resized the windows, or to reopen it in case you closed it.
 
 2.1.2 qMR Data Fit
 +++++++++++++++++++++++
-Click on the big **Fit Data** button only when you have selected your data files, set up your protocol and fitting options and are ready to begin the fitting process, which, depending on the size of your data and the method, can take from a few minutes to a couple of hours. The **Save Results** button will prompt you to save a .mat file with the results of your data fit. **Load Results** will load previously saved results and display them. Refer to this section :ref:`4.	Data Fitting` for more information.
+Click on the big ``Fit Data`` button only when you have selected your data files, set up your protocol and fitting options and are ready to begin the fitting process, which, depending on the size of your data and the method, can take from a few minutes to a couple of hours. The ``Save Results`` button will prompt you to save a .mat file with the results of your data fit. ``Load Results`` will load previously saved results and display them. Refer to this section :ref:`4.	Data Fitting` for more information.
 
 2.1.3 qMR Data Simulator
 ++++++++++++++++++++++++++++++++
-The buttons of this menu allow you to choose between different data simulation mode. All Methods that involve a data fitting procedure present at least the following simulations: **Single Voxel Curve**, **Sensitivity Analysis** and **Multi Voxel Distribution**. Clicking on any one of these buttons will bring the corresponding interface in a floating window. When any of these interfaces are opened, clicking on the **update** button will launch the simulation using the current options (defined in the *Options* panel). The **Save Results** button will prompt you to save a .mat file with the current simulation results. **Load Results** will load previously saved simulation results and display them in the appropriate panel. Refer to this section :ref:`5.	Simulation` for more information.
+The buttons of this menu allow you to choose between different data simulation mode. All Methods that involve a data fitting procedure present at least the following simulations: ``Single Voxel Curve``, ``Sensitivity Analysis`` and ``Multi Voxel Distribution``. Clicking on any one of these buttons will bring the corresponding interface in a floating window. When any of these interfaces are opened, clicking on the ``update`` button will launch the simulation using the current options (defined in the ``Options`` panel). The ``Save Results`` button will prompt you to save a .mat file with the current simulation results. ``Load Results`` will load previously saved simulation results and display them in the appropriate panel. Refer to this section :ref:`5.	Simulation` for more information.
 
 Single Voxel Curve
 ______________________
-The *Single Voxel Curve* panel is a simple interface to simulate MR data from a single voxel, using the defined MR parameters and protocol. It is the fastest way to evaluate various acquisition protocols, the performance of the model and fitting options. Refer to section :ref:`5.1.	Single Voxel Curve` for more information.
+The ``Single Voxel Curve`` panel is a simple interface to simulate MR data from a single voxel, using the defined MR parameters and protocol. It is the fastest way to evaluate various acquisition protocols, the performance of the model and fitting options. Refer to section :ref:`5.1.	Single Voxel Curve` for more information.
 
 Sensitivity Analysis
 _______________________
-The *Sensitivity Analysis* simulation allows you to systematically vary one MR parameter, over a defined range and number of points, while keeping the others fixed. For each simulated data point, noise is added with a given SNR, and the fit is run multiple times while adding Gaussian noise. This allows you to evaluate the variance of the fit at each point. When the simulation is done, a plot shows any variable input parameters as the independent variable, as well as the mean values and variance of any fitted parameters. Refer to section :ref:`5.2.	Sensitivity Analysis` for more information.
+The ``Sensitivity Analysis`` simulation allows you to systematically vary one MR parameter, over a defined range and number of points, while keeping the others fixed. For each simulated data point, noise is added with a given SNR, and the fit is run multiple times while adding Gaussian noise. This allows you to evaluate the variance of the fit at each point. When the simulation is done, a plot shows any variable input parameters as the independent variable, as well as the mean values and variance of any fitted parameters. Refer to section :ref:`5.2.	Sensitivity Analysis` for more information.
 
 Multi Voxel Distribution
 ___________________________
-The *Multi Voxel Distribution* is a tool to simulate any number of voxels, where any parameters combination are allowed to be varied simultaneously. You can choose how many voxels to simulate and which parameters are to be normally distributed, with its mean value and variance. The results can be displayed in a number of ways such as distribution histograms, scatter plots of input vs fitted parameters, error histograms, etc. Refer to section :ref:`5.3. Multi Voxel Distribution` for more information.
+The ``Multi Voxel Distribution`` is a tool to simulate any number of voxels, where any parameters combination are allowed to be varied simultaneously. You can choose how many voxels to simulate and which parameters are to be normally distributed, with its mean value and variance. The results can be displayed in a number of ways such as distribution histograms, scatter plots of input vs fitted parameters, error histograms, etc. Refer to section :ref:`5.3. Multi Voxel Distribution` for more information.
 
 2.2 Main Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
-The *Main* panel is where you can load your data files for fitting and for viewing the resulting parameters maps. This panel changes correspondingly to the Method selected in the *Menu* panel.
+The ``Main`` panel is where you can load your data files for fitting and for viewing the resulting parameters maps. This panel changes correspondingly to the Method selected in the *Menu* panel.
 
 2.3 Options Panel
 ~~~~~~~~~~~~~~~~~~~~~~~
-This is where you can set up all the parameters that are related to the simulation, the fitting and the protocol. The *Options* panel is displayed in a separate window than the *Menu* panel or *Main* panel. This is because each qMR acquisition method has its own particular options, and this window needs to be changed correspondingly. It can also be closed at any time, if it is not currently needed, to provide for a simpler interface. The *Options* panel consists of three sub-panels: ‘Protocol’, ‘Fitting’, and ‘Options’. At the bottom of all these sub-panels you will find buttons to **Reset** the changes you made, **Save** the current settings as a .mat file, **Load** a .mat file of settings, or go back to the **Default** settings. Refer to section :ref:`6. Options Panel` for more information.
+This is where you can set up all the parameters that are related to the simulation, the fitting and the protocol. The ``Options`` panel is displayed in a separate window than the ``Menu`` panel or ``Main`` panel. This is because each qMR acquisition method has its own particular options, and this window needs to be changed correspondingly. It can also be closed at any time, if it is not currently needed, to provide for a simpler interface. The *Options* panel consists of three sub-panels: ``Protocol``, ``Fitting``, and ``Options``. At the bottom of all these sub-panels you will find buttons to ``Reset`` the changes you made, ``Save`` the current settings as a .mat file, ``Load`` a .mat file of settings, or go back to the ``Default`` settings. Refer to section :ref:`6. Options Panel` for more information.
 
 2.3.1	Protocol
 +++++++++++++++++++
-Here you define the acquisition protocol that you wish to use for simulation, or in the case of data fitting, the protocol you used to acquire the data. See :ref:`6.1 Protocol` for more information.
+Here you define the ``acquisition protocol`` that you wish to use for simulation, or in the case of data fitting, the protocol you used to acquire the data. See :ref:`6.1 Protocol` for more information.
 
 2.3.2	Fitting
 +++++++++++++++++++
-This is where you set up your fitting options. The fit parameters table lists all the variables that are available for fitting in the current method, a tick box to select which variables are to be held fixed, a starting value and lower/upper bounds. Note that some methods do not have fitting procedures, this table is empty in this case. Depending on the method, additional options may be available. See :ref:`6.2.	Fitting` for more information.
+This is where you set up your ``fitting options``. The fit parameters table lists all the variables that are available for fitting in the current method, a tick box to select which variables are to be held fixed, a starting value and lower/upper bounds. Note that some methods do not have fitting procedures, this table is empty in this case. Depending on the method, additional options may be available. See :ref:`6.2.	Fitting` for more information.
 
 
 2.3.3 Options
@@ -78,7 +78,7 @@ This is where you set up all the options related to the simulations. Depending o
 
 3.  Data Viewer
 ----------------------
-The viewer allows you to navigate through your 5-D dataset easily using arrows:
+The viewer allows you to navigate through your (up tp) ``5D`` dataset easily using arrows:
 
 .. figure:: _static/imtool3D/imtool3D_volume.gif
    :scale: 100 %
@@ -95,7 +95,7 @@ The viewer allows you to navigate through your 5-D dataset easily using arrows:
 
 
 The viewer provides ROI tools to create and modify a multi-label mask that is overlaid on the image.  
-The *Mask* in the file browser is loaded automatically, you can delete it using right click on the button *label 1*.  
+The ``Mask`` in the file browser is loaded automatically, you can delete it using right click on the button ``label 1``.  
 The mask can be hidden/shown using the checkbox on the top (or use spacebar)... make sure the mask is toggle on when you draw it!  
 The mask can have 5 different labels (1-5). Select the label on which you want to operate. One voxel can be attributed only one label (no overlaps between labels). The locker button prevents any modification and overwrite to labels that are not selected.  
 ROI tools such as square or polygon can be converted to mask (right click on an ROI object) and conversely (mask2poly button).
@@ -132,7 +132,7 @@ qMRLab provides a convenient interface to fit your  data and visualize the param
 ~~~~~~~~~~~~~~~~~~~~~~
 Currently supported file types are .mat and .nii files. Your files should respect the following:
 
-* For .mat files, the name of the file can be anything, but the array it contains should be named appropriately. The list of input names is case sensitive and is specified at the top of the *Data* dialog box. For example, for a qMT SPGR experiment, *MTdata* (for the actual MT data array) or *R1map* / *B1map* / *B0map* / *Mask* respectively for a R1 / B1 / B0 or Mask file.
+* For .mat files, the name of the file can be anything, but the array it contains should be named appropriately. The list of input names is case sensitive and is specified at the top of the ``Data`` dialog box. For example, for a qMT SPGR experiment, ``MTdata`` (for the actual MT data array) or *R1map* / *B1map* / *B0map* / *Mask* respectively for a R1 / B1 / B0 or Mask file.
 
 .. figure:: _static/inputs.png
    :scale: 100 %
@@ -146,7 +146,7 @@ For a more detailed description of the format required for each input, type this
 
       help Modelname
 
-where *Modelname* is name of the available models (e.g. in this example *help SPGR*). Alternatively, in the *Options* panel, you can press on the **Help** button
+where ``Modelname`` is name of the available models (e.g. in this example *help SPGR*). Alternatively, in the ``Options`` panel, you can press on the ``Help`` button
 
 4.2	Fitting Procedure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,10 +155,10 @@ where *Modelname* is name of the available models (e.g. in this example *help SP
 
 This is useful when you want to preview the fit of a single voxel (note this option is only available on voxelwise computations)
 
-1.	Select the acquisition method of your data using the ‘Method’ drop-down menu in the *Menu* panel.
-2.	In the *Menu* panel, in the ‘Fit qMR data’ panel, enter your study ID in the ‘Study ID’ box (optional).
-3.	Load your data by clicking the browse button beside the ‘Data:’ line, or enter the full file path to it in the textbox.
-4.	You can view any of these maps by clicking its **View** button.
+1.	Select the acquisition method of your data using the ‘Method’ drop-down menu in the ``Menu`` panel.
+2.	In the ``Menu`` panel, in the ``Fit qMR data`` panel, enter your study ID in the ``Study ID`` box (optional).
+3.	Load your data by clicking the browse button beside the ``Data:`` line, or enter the full file path to it in the textbox.
+4.	You can view any of these maps by clicking its ``View`` button.
 
 .. figure:: _static/view_data.png
    :scale: 100 %
@@ -167,8 +167,8 @@ This is useful when you want to preview the fit of a single voxel (note this opt
 
 5.	Define or load the appropriate protocol in the *Options* panel (see :ref:`6.1 Protocol` for details).
 6.	Define your fitting options in the Options panel (see :ref:`6.2.	Fitting` for details).
-7.  You can preview the fitted curve for a selected voxel by using the **View Data Fit** button. Make sure a dataset is loaded by clicking **View** beside the data file field
-8.  Click **Select** button in the 'Cursor' section to activate voxel selection mode, select a voxel to preview and click **View Data Fit**. You can now see the fitted curve and the parameters computed for that voxel.
+7.  You can preview the fitted curve for a selected voxel by using the ``View Data Fit`` button. Make sure a dataset is loaded by clicking ``View`` beside the data file field
+8.  Click ``Select`` button in the ``Cursor`` section to activate voxel selection mode, select a voxel to preview and click ``View Data Fit``. You can now see the fitted curve and the parameters computed for that voxel.
 
 .. figure:: _static/imtool3D/imtool3D_fit.gif
    :scale: 100 %
@@ -179,13 +179,13 @@ This is useful when you want to preview the fit of a single voxel (note this opt
 +++++++++++++++++++++
 Follow steps 1-6 above, then
 
-7.	In the *Menu* panel, click on **Fit data** to start the fitting process.
-8.	Once the fitting is done, a temporary file will be saved in the ‘FitResults’ subfolder of the current working directory. You can save the current fit results elsewhere by clicking **Save Results** in the ‘qMR data fit’ section of the *Menu* panel.
-9.	Use the controls in the ‘Fit Results’ section to visualize the results (ssee :ref:`4.3	Viewing the fit results` for details).
+7.	In the *Menu* panel, click on ``Fit data`` to start the fitting process.
+8.	Once the fitting is done, a temporary file will be saved in the ‘FitResults’ subfolder of the current working directory. You can save the current fit results elsewhere by clicking ``Save Results`` in the ‘qMR data fit’ section of the *Menu* panel.
+9.	Use the controls in the ``Fit Results`` section to visualize the results (ssee :ref:`4.3	Viewing the fit results` for details).
 
 4.3	Viewing the fit results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Once you have finished fitting your qMR data, or when you load previously saved fit results by clicking **Load Results** in the ‘qMR data fit’ section of the *Menu* panel, the maps will be displayed in the ‘Fit Results’ section. Use controls on the left side of the figure to navigate the maps:
+Once you have finished fitting your qMR data, or when you load previously saved fit results by clicking ``Load Results`` in the ``qMR data fit`` section of the ``Menu`` panel, the maps will be displayed in the ``Fit Results`` section. Use controls on the left side of the figure to navigate the maps:
 
 *	*Source*: select the parameter map to display
 *	*View*: select the side from which to view the data (available only on 3D maps)
@@ -211,11 +211,11 @@ The Single Voxel Curve simulation interface allows you to simulate qMR data for 
 2.	In the *Menu* panel, click on **Single Voxel Curve** to display the interface in the *Main* panel.
 3.	Using the *Options* panel, define or load the protocol you wish to use (see section 5.1).
 4.	Using the *Options* panel, define or load your initial fitting options (see section 5.2).
-5.  Using the *Options* panel, define or load your simulation parameters (see section 5.3).
-6.	In the *Menu* panel, click on the big **Simulate data** button. A progress bar will appear to show the progression of the simulation. Clicking **Cancel** in the progress bar window will stop the current simulation.
-7.	Once the simulation is done, the results are displayed in the *Main* panel.
-8.	If you want to see the effect of changing fitting options, use the *Options* panel to make your changes. Then, in the *Main* panel inside the ‘Simulation Fit Results’ panel, click on **Update Fit**. Clicking this button without changing fitting options will also generate a new noisy data distribution and recalculate the fitted curve.
-9.	Once the fitting is done, a temporary file (SimCurveTempResults) will be saved in the ‘SimResults’ subfolder of the current active method (e.g. *qMTLab/SPGR/SimResults/*). You can save the current simulation results by clicking **Save Results** in the ‘qMR Data Simulator fit’ section of the *Menu* panel. You can later load it using the **Load Results** button.
+5.  Using the ``Options`` panel, define or load your simulation parameters (see section 5.3).
+6.	In the ``Menu`` panel, click on the big ``Simulate data`` button. A progress bar will appear to show the progression of the simulation. Clicking ``Cancel`` in the progress bar window will stop the current simulation.
+7.	Once the simulation is done, the results are displayed in the ``Main`` panel.
+8.	If you want to see the effect of changing fitting options, use the *Options* panel to make your changes. Then, in the ``Main`` panel inside the ‘Simulation Fit Results’ panel, click on ``Update Fit``. Clicking this button without changing fitting options will also generate a new noisy data distribution and recalculate the fitted curve.
+9.	Once the fitting is done, a temporary file (SimCurveTempResults) will be saved in the ‘SimResults’ subfolder of the current active method (e.g. *qMTLab/SPGR/SimResults/*). You can save the current simulation results by clicking ``Save Results`` in the ``qMR Data Simulator fit`` section of the *Menu* panel. You can later load it using the ``Load Results`` button.
 
 .. figure:: _static/single_voxel_curve.png
    :scale: 100 %

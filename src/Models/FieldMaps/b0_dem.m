@@ -38,11 +38,10 @@ classdef b0_dem < AbstractModel
 %     73, 1662?1668. Schofield, M.A., Zhu, Y., 2003. Fast phase unwrapping
 %     algorithm for interferometric applications. Opt. Lett. 28, 1194?1196
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
-%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
-%     Stikov N. (2016), Quantitative magnetization transfer imaging made
-%     easy with qMTLab: Software for data simulation, analysis, and
-%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
+
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/zkefh/download?version=5';
 end
@@ -75,7 +74,6 @@ end
 
         function obj = UpdateFields(obj)
             obj.options.Magnthresh = max(obj.options.Magnthresh,0);
-            obj.options.Magnthresh = min(obj.options.Magnthresh,1);
         end
 
         function FitResult = fit(obj,data)
@@ -101,20 +99,20 @@ end
             end
 
             % MATLAB "sunwrap" for 2D data
+            Phase_uw = Phase;
             if TwoD
                 Complex = Magn.*exp(Phase*1i);
-                Phase_uw = Phase;
-                for it = 1:size(Magn,4)
-                    Phase_uw(:,:,:,it) = sunwrap(Complex(:,:,:,it));
+                for iEcho = 1:size(Magn,4)
+                    Phase_uw(:,:,:,iEcho) = sunwrap(Complex(:,:,:,iEcho));
                 end
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
-
             % MATLAB "laplacianUnwrap" for 3D data
             else
-                Phase_uw = laplacianUnwrap(Phase, magn>obj.options.Magnthresh);
-                FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
+                for iEcho = 1:size(Phase,4)
+                    Phase_uw(:,:,:,iEcho) = laplacianUnwrap(Phase(:,:,:,iEcho), Magn>obj.options.Magnthresh);
+                end
             end
-
+            FitResult.B0map = (Phase_uw(:,:,:,2) - Phase_uw(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
+            
             % Save unwrapped phase
             FitResult.Phase_uw = Phase_uw;
         end

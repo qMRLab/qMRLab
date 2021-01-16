@@ -9,8 +9,10 @@ classdef mt_sat < AbstractModel
 %            pulse
 %   T1w     3D T1-weighted data. Spoiled Gradient Echo (or FLASH)
 %   PDw     3D PD-weighted data. Spoiled Gradient Echo (or FLASH)
-%  (B1map)  B1+ map. B1map = 1 : perfectly accurate flip angle. Optional.
-%  (Mask)   Binary mask. DOES NOT ACCELERATE FITTING. Just for visualisation
+%   (B1map)         Normalized transmit excitation field map (B1+). B1+ is defined 
+%                   as a  normalized multiplicative factor such that:
+%                   FA_actual = B1+ * FA_nominal. (OPTIONAL).
+%  (Mask)   Binary mask. DOES NOT ACCELERATE FITTING. Just for visualisation. (OPTIONAL)
 %
 % Outputs:
 %	  MTSAT         MT saturation map (%), T1-corrected
@@ -18,8 +20,10 @@ classdef mt_sat < AbstractModel
 %
 % Options:
 %     B1 correction factor     Correction factor (empirical) for the transmit RF. Only
-%                               corrects MTSAT, not T1.
-%                               Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
+%                              corrects MTSAT, not T1. From Helms 2015 (below), the default value (0.4)
+%                              was empirically determined for a Gaussian 4ms MT-pulse at 2kHz offset and 220 deg nominal flip angle.
+%                              Weiskopf, N., Suckling, J., Williams, G., CorreiaM.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
+%                              Helms, G., Correction for residual effects of B1+ inhomogeniety on MT saturation in FLASH-based multi-parameter mapping of the brain. Proceedings of the 23rd Annual Meeting of ISMRM 2015, 3360.
 %
 % Protocol:
 %     MTw    [FA  TR  Offset]  flip angle [deg], TR [s], Offset Frequency [Hz]
@@ -45,9 +49,11 @@ classdef mt_sat < AbstractModel
 % References:
 %   Please cite the following if you use this module:
 %     Helms, G., Dathe, H., Kallenberg, K., Dechent, P., 2008. High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magn. Reson. Med. 60, 1396?1407.
+%     Helms, G., Correction for residual effects of B1+ inhomogeniety on MT saturation in FLASH-based multi-parameter mapping of the brain. Proceedings of the 23rd Annual Meeting of ISMRM 2015, 3360.
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
-
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
     properties (Hidden=true)
         onlineData_url = 'https://osf.io/c5wdb/download?version=3';
@@ -66,6 +72,10 @@ classdef mt_sat < AbstractModel
                       'PDw',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [6 0.028]));
         % Model options
+        
+        ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
+        'style',repmat({'TableNoButton'},[1,3]));
+
         buttons = {'B1 correction factor', 0.4};
         options= struct();
 
@@ -113,6 +123,13 @@ classdef mt_sat < AbstractModel
                     obj.Prot.MTw.Mat(:,3)  = [];
                 end
             end
+
+            % 2.3.1 --> Remove buttons from prot
+            if checkanteriorver(version,[2 3 1])
+                obj.ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
+                'style',repmat({'TableNoButton'},[1,3]));
+            end
+
         end
     end
 

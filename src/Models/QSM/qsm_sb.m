@@ -1,5 +1,5 @@
 classdef qsm_sb < AbstractModel
-% qsm_sb: Compute a T1 map using Variable Flip Angle
+% qsm_sb: Fast quantitative susceptibility mapping
 %
 % Assumptions:
 % Type/number of outputs will depend on the selected options. 
@@ -13,7 +13,7 @@ classdef qsm_sb < AbstractModel
 %       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
 % Inputs:
 %   PhaseGRE      3D GRE acquisition. <<Wrapped phase image>>
-%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>>
+%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>> (OPTIONAL)
 %   Mask          Brain extraction mask.
 %
 % Outputs:
@@ -58,10 +58,9 @@ classdef qsm_sb < AbstractModel
 %     L1-regularization and automatic parameter selection. Magn. Reson. Med.,
 %     72: 1444-1459. doi:10.1002/mrm.25029
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, 
-%     Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging 
-%     made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. 
-%     Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 
 properties
@@ -109,8 +108,8 @@ options= struct();
 end % Public properties
 
 properties (Hidden = true)
-
-onlineData_url = getLink;
+% See the constructor.
+onlineData_url;
 
 end % Hidden public properties
 
@@ -123,6 +122,7 @@ function obj = qsm_sb
   obj.options = button2opts(obj.buttons);
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
+  obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4');
 
 end % fx: Constructor
 
@@ -208,57 +208,65 @@ function FitResults = fit(obj,data)
 
   persistent phaseLUnwrap maskGlobal
 
-  if FitOpt.sharp_Flag % SHARP BG removal
-
-    padSize = FitOpt.padSize;
-
-    phaseWrapPad = padVolumeForSharp(data.PhaseGRE, padSize);
-    maskPad      = padVolumeForSharp(data.Mask, padSize);
-
-    data.PhaseGRE = []; % Release
-
-    disp('Started   : Laplacian phase unwrapping ...');
-    phaseLUnwrap_tmp = unwrapPhaseLaplacian(phaseWrapPad);
-    disp('Completed : Laplacian phase unwrapping');
-    disp('-----------------------------------------------');
-
-    clear('phaseWrapPad'); % Release
-
+  % Pad data for SHARP (this is done before phase unwrapping only for
+  % reproducibility's sake).
+  if FitOpt.sharp_Flag
+      padSize = FitOpt.padSize;
+      data.PhaseGRE = padVolumeForSharp(data.PhaseGRE, padSize);
+      maskPad = padVolumeForSharp(data.Mask, padSize);
+      magnGREPad = padVolumeForSharp(data.MagnGRE, padSize);
+  else
+      padSize = [0,0,0];
+      magnGREPad = data.MagnGRE;
+  end
+  
+  % Estimate frequency from phase data
+  nEcho = numel(TE);
+  assert(nEcho == size(data.PhaseGRE,4));  
+  
+  if nEcho > 1 && not(isempty(data.MagnGRE))
+      freqEstimate = averageEchoesWithWeights(data.PhaseGRE, magnGREPad, TE);
+      clear magnGREPad % Release
+  else
+      disp('Started   : Laplacian phase unwrapping ...');
+      for iEcho = nEcho:-1:1
+          freqEstimate(:,:,:,iEcho) = unwrapPhaseLaplacian(data.PhaseGRE(:,:,:,iEcho));
+      end
+      disp('Completed : Laplacian phase unwrapping');
+      disp('-----------------------------------------------');
+      freqEstimate = mean(freqEstimate ./ reshape(TE, [1,1,1,numel(TE)]), 4);
+  end
+  data.phaseGRE = []; % Release
+  
+  % Scale frequency to ppm
+  freqEstimatePpm = freqEstimate / (B0 * gyro);
+  
+  % SHARP BG removal
+  if FitOpt.sharp_Flag
     disp('Started   : SHARP background removal ...');
-    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
-
+    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(freqEstimatePpm, maskPad, FitOpt.sharpMode);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
-    clear('phaseLUnwrap_tmp','maskPad')
+    clear('freqEstimatePadPpm','maskPad')
     data.Mask = []; % Release
-
-
   else
-
-    disp('Started   : Laplacian phase unwrapping ...');
-    phaseLUnwrap = unwrapPhaseLaplacian(data.PhaseGRE);
-    disp('Completed : Laplacian phase unwrapping');
-    disp('-----------------------------------------------');
-
-    data.phaseGRE = []; % Release
-
-    % DEV Note:
-    % I assumed that even w/o SHARP, magn weight is possible by passing
-    % brainmask and padding size as 0 0 0.
-
-    % If there is sharp, phaseLUnwrap is the SHARP masked one
-    % If there is not sharp phaseLUnwrap is just laplacian unwrapped phase.
-
-    maskGlobal = data.Mask;
-    padSize    = [0 0 0];
-    data.Mask = [];
-
+      % DEV Note:
+      % I assumed that even w/o SHARP, magn weight is possible by passing
+      % brainmask and padding size as 0 0 0.
+      
+      % If there is sharp, phaseLUnwrap is the SHARP masked one
+      % If there is not sharp phaseLUnwrap is just laplacian unwrapped phase.
+      phaseLUnwrap = freqEstimatePpm;
+      maskGlobal = data.Mask;
+      data.Mask = [];
   end % SHARP BG removal
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
 
-
+    if nEcho > 1
+        data.MagnGRE = sqrt(sum(data.MagnGRE.^2, 4));
+    end
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
     disp('Completed : Calculation of gradient masks for magn weighting');
@@ -391,7 +399,7 @@ function FitResults = fit(obj,data)
     disp('-----------------------------------------------');
 
   end
-
+  
   if FitOpt.noreg_Flag
 
     FitResults.nfm = abs(phaseLUnwrap(1+padSize(1):end-padSize(1),1+padSize(2):end-padSize(2),1+padSize(3):end-padSize(3)));

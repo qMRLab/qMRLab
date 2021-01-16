@@ -1,4 +1,3 @@
-
 classdef qmt_spgr < AbstractModel
 %qmt_spgr:  quantitative Magnetizatoion Transfer (qMT) using Spoiled Gradient Echo (or FLASH)
 %<a href="matlab: figure, imshow qmt_spgr.png ;">Pulse Sequence Diagram</a>
@@ -7,11 +6,13 @@ classdef qmt_spgr < AbstractModel
 %   FILL
 %
 % Inputs:
-%   MTdata              Magnetization Transfert data
-%   (R1map)             1/T1map (VFA RECOMMENDED Boudreau 2017 MRM)
-%   (B1map)             B1 field map, used for flip angle correction (=1 if not provided)
-%   (B0map)             B0 field map, used for offset correction (=0Hz if not provided)
-%   (Mask)              Binary mask to accelerate the fitting
+%  MTdata              Magnetization Transfer data
+%  R1map               Longitudinal relaxation rate (VFA RECOMMENDED Boudreau 2017 MRM).
+%  (B1map)             Normalized transmit excitation field map (B1+). B1+ is defined 
+%                       as a  normalized multiplicative factor such that:
+%                       FA_actual = B1+ * FA_nominal. (OPTIONAL). (=1 if not provided)
+%  (B0map)             B0 field map, used for offset correction  (OPTIONAL) (=0Hz if not provided)
+%  (Mask)              Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
 %   F                   Ratio of number of restricted pool to free pool, defined
@@ -107,7 +108,9 @@ classdef qmt_spgr < AbstractModel
 %   Please cite the following if you use this module:
 %     Sled, J.G., Pike, G.B., 2000. Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. J. Magn. Reson. 145, 24?36.
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
  properties (Hidden=true)
     onlineData_url = 'https://osf.io/pzqyn/download?version=2';
