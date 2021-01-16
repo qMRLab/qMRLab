@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 1
-    - uses: joergbrech/moxunit-action@master
+    - uses: agahkarakuzu/moxunit-action@master
       with:
         tests: /Test/MoxUnitCompatible/quickMoxTests
         src: src
