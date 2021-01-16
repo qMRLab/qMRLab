@@ -1,6 +1,6 @@
 name: Try_gha
 
-on: push
+on: [push, pull_request]
 
 jobs:
   build:
