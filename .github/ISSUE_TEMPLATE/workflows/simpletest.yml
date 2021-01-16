@@ -1,4 +1,4 @@
-name: CI
+name: Try_gha
 
 on: push
 
@@ -11,12 +11,14 @@ jobs:
         fetch-depth: 1
     - uses: joergbrech/moxunit-action@master
       with:
+        src: src
         tests: Test/MoxUnitCompatible/quickMoxTests
-        src: src External
-        pkg: image io optim struct statistics
+        pkg: image io optim struct
+        ext: External
         with_coverage: true
-        cover_xml_file: coverage_gha.xml
+        cover_xml_file: coverage.xml
     - uses: codecov/codecov-action@v1
       with:
-       file: coverage_gha.xml # optional
-       flags: octave
+       file:  coverage.xml # optional
+       flags: octtest # optional
+       fail_ci_if_error: true # optional (default = false)
