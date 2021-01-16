@@ -1,56 +1,67 @@
 classdef qsm_sb < AbstractModel
-% qsm_sb :  Fast reconstruction quantitative susceptibility maps with total
-% variation penalty and automatic regularization parameter selection.
-%
-% Inputs:
-%   PhaseGRE    3D GRE acquisition. << Wrapped phase image. >>
-%   (MagnGRE)   3D GRE acquisition. << Magnitude part of the image. >>
-%   Mask        Brain extraction mask.
+% qsm_sb: Fast quantitative susceptibility mapping
 %
 % Assumptions:
-% (1)
-% (2)
-%
-% Fitted Parameters:
-%
-%    Case - Split-Bregman:
+% Type/number of outputs will depend on the selected options. 
+% (1) Case - Split-Bregman:
 %       i)  W/ magnitude weighting:  chiSBM, chiL2M, chiL2, unwrappedPhase, maskOut
 %       ii) W/O magnitude weighting: chiSM, chiL2, unwrappedPhase, maskOut
-%
-%    Case - L2 Regularization:
+% (2) Case - L2 Regularization:
 %       i)  W/ magnitude weighting:  chiL2M, chiL2, unwrappedPhase, maskOut
 %       ii) W/O magnitude weighting: chiL2, unwrappedPhase, maskOut
-%
-%    Case - No Regularization:
+% (3) Case - No Regularization: 
 %       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
+% Inputs:
+%   PhaseGRE      3D GRE acquisition. <<Wrapped phase image>>
+%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>> (OPTIONAL)
+%   Mask          Brain extraction mask.
 %
-%    Explanation of all parameters:
-%       chiSBM
-%       chiSB
-%       chiL2M
-%       chiL2
-%       nfm
-%       unwrappedPhase
-%       maskOut (maskSharp, gradientMask or same as the input)
-%
+% Outputs:
+%   chiSBM          Susceptibility map created using Split-Bregman method with magnitude weighting 
+%   chiSB           Susceptibility map created using Split-Bregman method without magnitude weighting.
+%   chiL2M          Susceptibility map created using L2 regularization with magnitude weighting
+%   chiL2           Susceptibility map created using L2 regularization without magnitude weighting
+%   nfm             Susceptibility map created without regularization
+%   unwrappedPhase  Unwrapped phase image using Laplacian-based method
+%   maskOut         Binary mask (maskSharp, gradientMask or same as the input)
 %
 % Options:
-%   To be listed.
+%   Derivative direction               Direction of the derivation 
+%                                        - forward 
+%                                        - backward
+%   SHARP Filtering                    Sophisticated harmonic artifact reduction for phase data
+%                                        - State: true/false
+%                                        - Mode: once/iterative 
+%                                        - Padding Size: [1X3 array]
+%                                        - Magnitude Weighting: on/off
+%   L1-Regularization                  Apply L1-regularization 
+%                                        - State: true/false
+%                                        - Reoptimize parameters:
+%                                        true/false
+%                                        - Lambda-L1: [double]
+%                                        - L1-Range:  [1X2 array]
+%   L2-Regularization                  Apply L2-regularization 
+%                                        - State: true/false
+%                                        - Reoptimize parameters:
+%                                        true/false
+%                                        - Lambda-L2: [double]
+%                                        - L2-Range:  [1X2 array]
+%   Split-Bregman                       Apply Split-Bregman method 
+%                                        - State: true/false
+%                                        - Reoptimize parameters:
 %
-%
-%
-%
-% Authors: Agah Karakuzu
+% Authors: Agah Karakuzu, 2018
 %
 % References:
 %   Please cite the following if you use this module:
-%
 %     Bilgic et al. (2014), Fast quantitative susceptibility mapping with
 %     L1-regularization and automatic parameter selection. Magn. Reson. Med.,
 %     72: 1444-1459. doi:10.1002/mrm.25029
-%
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
+
 
 properties
 
@@ -97,8 +108,8 @@ options= struct();
 end % Public properties
 
 properties (Hidden = true)
-
-onlineData_url = getLink;
+% See the constructor.
+onlineData_url;
 
 end % Hidden public properties
 
@@ -111,6 +122,7 @@ function obj = qsm_sb
   obj.options = button2opts(obj.buttons);
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
+  obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4');
 
 end % fx: Constructor
 
@@ -196,57 +208,65 @@ function FitResults = fit(obj,data)
 
   persistent phaseLUnwrap maskGlobal
 
-  if FitOpt.sharp_Flag % SHARP BG removal
-
-    padSize = FitOpt.padSize;
-
-    phaseWrapPad = padVolumeForSharp(data.PhaseGRE, padSize);
-    maskPad      = padVolumeForSharp(data.Mask, padSize);
-
-    data.PhaseGRE = []; % Release
-
-    disp('Started   : Laplacian phase unwrapping ...');
-    phaseLUnwrap_tmp = unwrapPhaseLaplacian(phaseWrapPad);
-    disp('Completed : Laplacian phase unwrapping');
-    disp('-----------------------------------------------');
-
-    clear('phaseWrapPad'); % Release
-
+  % Pad data for SHARP (this is done before phase unwrapping only for
+  % reproducibility's sake).
+  if FitOpt.sharp_Flag
+      padSize = FitOpt.padSize;
+      data.PhaseGRE = padVolumeForSharp(data.PhaseGRE, padSize);
+      maskPad = padVolumeForSharp(data.Mask, padSize);
+      magnGREPad = padVolumeForSharp(data.MagnGRE, padSize);
+  else
+      padSize = [0,0,0];
+      magnGREPad = data.MagnGRE;
+  end
+  
+  % Estimate frequency from phase data
+  nEcho = numel(TE);
+  assert(nEcho == size(data.PhaseGRE,4));  
+  
+  if nEcho > 1 && not(isempty(data.MagnGRE))
+      freqEstimate = averageEchoesWithWeights(data.PhaseGRE, magnGREPad, TE);
+      clear magnGREPad % Release
+  else
+      disp('Started   : Laplacian phase unwrapping ...');
+      for iEcho = nEcho:-1:1
+          freqEstimate(:,:,:,iEcho) = unwrapPhaseLaplacian(data.PhaseGRE(:,:,:,iEcho));
+      end
+      disp('Completed : Laplacian phase unwrapping');
+      disp('-----------------------------------------------');
+      freqEstimate = mean(freqEstimate ./ reshape(TE, [1,1,1,numel(TE)]), 4);
+  end
+  data.phaseGRE = []; % Release
+  
+  % Scale frequency to ppm
+  freqEstimatePpm = freqEstimate / (B0 * gyro);
+  
+  % SHARP BG removal
+  if FitOpt.sharp_Flag
     disp('Started   : SHARP background removal ...');
-    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(phaseLUnwrap_tmp, maskPad, [TE B0 gyro], FitOpt.sharpMode);
-
+    [phaseLUnwrap, maskGlobal] = backgroundRemovalSharp(freqEstimatePpm, maskPad, FitOpt.sharpMode);
     disp('Completed : SHARP background removal');
     disp('-----------------------------------------------');
 
-    clear('phaseLUnwrap_tmp','maskPad')
+    clear('freqEstimatePadPpm','maskPad')
     data.Mask = []; % Release
-
-
   else
-
-    disp('Started   : Laplacian phase unwrapping ...');
-    phaseLUnwrap = unwrapPhaseLaplacian(data.PhaseGRE);
-    disp('Completed : Laplacian phase unwrapping');
-    disp('-----------------------------------------------');
-
-    data.phaseGRE = []; % Release
-
-    % DEV Note:
-    % I assumed that even w/o SHARP, magn weight is possible by passing
-    % brainmask and padding size as 0 0 0.
-
-    % If there is sharp, phaseLUnwrap is the SHARP masked one
-    % If there is not sharp phaseLUnwrap is just laplacian unwrapped phase.
-
-    maskGlobal = data.Mask;
-    padSize    = [0 0 0];
-    data.Mask = [];
-
+      % DEV Note:
+      % I assumed that even w/o SHARP, magn weight is possible by passing
+      % brainmask and padding size as 0 0 0.
+      
+      % If there is sharp, phaseLUnwrap is the SHARP masked one
+      % If there is not sharp phaseLUnwrap is just laplacian unwrapped phase.
+      phaseLUnwrap = freqEstimatePpm;
+      maskGlobal = data.Mask;
+      data.Mask = [];
   end % SHARP BG removal
 
   if not(isempty(data.MagnGRE)) && FitOpt.magnW_Flag % Magnitude weighting
 
-
+    if nEcho > 1
+        data.MagnGRE = sqrt(sum(data.MagnGRE.^2, 4));
+    end
     disp('Started   : Calculation of gradient masks for magn weighting ...');
     magnWeight = calcGradientMaskFromMagnitudeImage(data.MagnGRE, maskGlobal, padSize, FitOpt.direction);
     disp('Completed : Calculation of gradient masks for magn weighting');
@@ -297,7 +317,7 @@ function FitResults = fit(obj,data)
       [FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize);
       disp('Completed  : Calculation of chi_L2 map without magnitude weighting.');
       disp('-----------------------------------------------');
-
+      genBatch_
     end
 
   elseif FitOpt.regL2_Flag && not(FitOpt.reoptL2_Flag ) % || DO NOT reopt Lambda L2 case chi_L2 generation
@@ -379,7 +399,7 @@ function FitResults = fit(obj,data)
     disp('-----------------------------------------------');
 
   end
-
+  
   if FitOpt.noreg_Flag
 
     FitResults.nfm = abs(phaseLUnwrap(1+padSize(1):end-padSize(1),1+padSize(2):end-padSize(2),1+padSize(3):end-padSize(3)));

@@ -281,13 +281,30 @@ if ~isempty(Model.Prot)
     for ii = 1:N
 
         handles.(fields{ii}).CellSelect = [];
-
+        
         % Create PANEL
+        % Panels function as a namespace for protocols. 
+        % Unlike options panel, here they are REQUIRED. 
+        
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-
-        % Create TABLE
-        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
-
+        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .08*N .9 (1-.08*N)]);
+        
+        % TODO: Condition to be improved.
+        if isprop(Model,'tabletip')
+        
+        tbl_cur = Model.tabletip.table_name;
+        tip_cur = {Model.tabletip.tip};
+        
+        if ismember(fields{ii},tbl_cur)
+            
+            [~,tbidx] = ismember(fields{ii},tbl_cur);
+            set(handles.(fields{ii}).table,'Tooltip',char(tip_cur{tbidx}));    
+        
+        end
+        
+        end
+        
+        
         % add Callbacks
 
         set(handles.(fields{ii}).table,'CellEditCallback', @(hObject,Prot) UpdateProt(fields{ii},Prot,handles));
@@ -301,6 +318,28 @@ if ~isempty(Model.Prot)
             set(handles.(fields{ii}).table,'ColumnName','');
         else
             set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
+            
+            if isprop(Model,'tabletip')
+        
+                tbl_cur = Model.tabletip.table_name;
+                tip_cur = {Model.tabletip.tip};
+                
+                if ismember(fields{ii},tbl_cur)
+                    
+                    [~,tbidx] = ismember(fields{ii},tbl_cur);
+                    Tip = struct();
+                    Tip.tip = tip_cur{tbidx};
+                    if isfield(Model.tabletip,'link')
+                        Tip.link = cell2mat(Model.tabletip.link);
+                    else
+                        Tip.link = [];
+                    end
+                    
+                    uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[0.468 0 .066 .061*N],'Style','pushbutton','String','?','BackGroundColor', [0, 0.65, 1],'Callback',@(hObject, eventdata) PointHelp_Callback(hObject, eventdata, handles,Tip));
+                end
+                
+            end
+            
             % Create BUTTONS
             % ADD
             uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(hObject, eventdata, handles,fields{ii}));
@@ -311,10 +350,34 @@ if ~isempty(Model.Prot)
             % Move down
             uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(hObject, eventdata, handles,fields{ii}));
             % LOAD
-            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0    .94 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0      .44 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(hObject, eventdata, handles,fields{ii}));
+            % Create
+            uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.53 0      .44 .02*N],'Style','pushbutton','String','Create','Callback',@(hObject, eventdata) CreateProt_Callback(hObject, eventdata, handles,fields{ii}));
         end
-
-    end
+        
+        % Make buttons invisible on condition.
+        if isprop(Model,'ProtStyle')
+            
+            prot_names  = Model.ProtStyle.prot_namespace;
+            styles = {Model.ProtStyle.style};
+            [~,prtidx] = ismember(fields{ii},prot_names);
+           
+            if strcmp(styles(prtidx),'TableNoButton') && length(handles.(fields{ii}).panel.Children)>1
+             
+              for chil_iter = 1:length(handles.(fields{ii}).panel.Children)
+                  
+                  if isa(handles.(fields{ii}).panel.Children(chil_iter),'matlab.ui.control.UIControl')
+                  if strcmp(handles.(fields{ii}).panel.Children(chil_iter).Style,'pushbutton')
+                      handles.(fields{ii}).panel.Children(chil_iter).Visible = 'off';
+                  end
+                  end
+              end
+              
+            end
+        end
+    
+        
+     end
 end
 
 if ismethod(Model,'plotProt')
@@ -465,14 +528,41 @@ set(handles.ProtFileName,'String','Protocol Filename');
 OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
 
 function LoadProt_Callback(hObject, eventdata, handles, MRIinput)
-[FileName,PathName] = uigetfile({'*.mat;*.xls;*.xlsx;*.txt;*.scheme'},'Load Protocol Matrix');
+FileFormat = '*.mat;*.xls;*.xlsx;*.txt';
+if strcmp(MRIinput,'DiffusionData')
+    FileFormat = ['*.bvec;*.scheme;' FileFormat];
+end
+[FileName,PathName] = uigetfile({FileFormat},'Load Protocol Matrix');
 if PathName == 0, return; end
 fullfilepath = [PathName, FileName];
 Prot = ProtLoad(fullfilepath);
+if Prot == 0, return; end
 if ~isnumeric(Prot), errordlg('Invalid protocol file'); return; end
 set(handles.(MRIinput).table,'Data',Prot)
 Model = getappdata(0,'Model');
 Model.Prot.(MRIinput).Mat = Prot;
+UpdateProt(MRIinput,Prot,handles)
+
+function CreateProt_Callback(hObject, eventdata, handles, MRIinput)
+Model = getappdata(0,'Model');
+Fmt = Model.Prot.(MRIinput).Format; if ischar(Fmt), Fmt = {Fmt}; end
+answer = inputdlg(Fmt,'Enter values, vectors or Matlab expressions',[1 100]);
+if isempty(answer), return; end
+Prot = cellfun(@str2num,answer,'uni',0);
+Prot = cellfun(@(x) x(:),Prot,'uni',0);
+Nlines = max(cell2mat(cellfun(@length,Prot,'uni',0)));
+Model.Prot.(MRIinput).Mat = NaN(Nlines,length(Fmt));
+for ic = 1:length(Fmt)
+    if length(Prot{ic})>1
+        Lmax = length(Prot{ic}); % if vector, fill as many as possible
+    else
+        Lmax = Nlines; % if scalar, all lines get this value
+    end
+    if isempty(Prot{ic}), Prot{ic} = NaN; end
+    Model.Prot.(MRIinput).Mat(1:Lmax,ic) = Prot{ic};
+end
+Prot = Model.Prot.(MRIinput).Mat;
+set(handles.(MRIinput).table,'Data',Prot)
 UpdateProt(MRIinput,Prot,handles)
 
 
@@ -525,10 +615,21 @@ function Default_Callback(hObject, eventdata, handles)
 oldModel = getappdata(0,'Model');
 modelfun = str2func(class(oldModel));
 Model = modelfun();
-Model.Prot = oldModel.Prot;
-setappdata(0,'Model',Model);
+
+answer = questdlg('What do you want to set to default?','Reset protocol?','Reset options','Reset options AND protocol','Reset protocol','Reset options');
+if strfind(answer,'options')
+    newModel = Model;
+    newModel.Prot = oldModel.Prot;
+else
+    newModel = oldModel;
+end
+if strfind(answer,'protocol')
+    newModel.Prot = Model.Prot;
+end
+
+setappdata(0,'Model',newModel);
 set(handles.ParametersFileName,'String','Parameters Filename');
-OptionsGUI_OpeningFcn(hObject, eventdata, handles, Model, handles.caller)
+OptionsGUI_OpeningFcn(hObject, eventdata, handles, newModel, handles.caller)
 
 % --- Executes on button press in Load.
 function Load_Callback(hObject, eventdata, handles)
@@ -559,6 +660,15 @@ ti = get(handles.TiBox,'String');
 td = get(handles.TdBox,'String');
 [Prot.ti,Prot.td] = SIRFSE_GetSeq( eval(ti), eval(td) );
 SetProt(Prot,handles);
+
+% SHOW PROT HELP 
+function PointHelp_Callback(hObject,eventdata, handles, Tip)
+if ~isempty(Tip.link)
+    web(Tip.link)
+end
+helpdlg(Tip.tip)
+
+
 
 % REMOVE POINT
 function PointRem_Callback(hObject, eventdata, handles, field)

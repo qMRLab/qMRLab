@@ -21,6 +21,7 @@ function dict = dicm_dict(vendor, flds)
 % 160411 dict contains group and element.
 % 171211 Add Siemens grp 0021 and more.
 % 180514 Guess more Siemens grp 0021 tags, correct BandwidthPerPixelPhaseEncode.
+% 180914 Add vendor UIH.
 
 if nargin<1, vendor = 'SIEMENS'; end
 dict.vendor = vendor;
@@ -112,6 +113,9 @@ C = {
     '0010' '2110' 'LO' 'ContrastAllergies'
     '0010' '21B0' 'LT' 'AdditionalPatientHistory'
     '0010' '21C0' 'US' 'PregnancyStatus'
+	'0010' '2201' 'LO' 'PatientSpeciesDescription'
+	'0010' '2210' 'CS' 'AnatomicalOrientationType'
+    '0010' '2299' 'LO' 'ResponsibleOrganization'
     '0010' '4000' 'LT' 'PatientComments'
     '0012' '0062' 'CS' 'PatientIdentityRemoved'
     '0012' '0063' 'LO' 'DeidentificationMethod'
@@ -231,6 +235,9 @@ C = {
     '0018' '9058' 'US' 'MRAcquisitionFrequencyEncodingSteps'
     '0018' '9059' 'CS' 'Decoupling'
     '0018' '9064' 'CS' 'KSpaceFiltering'
+    '0018' '9065' 'CS' 'TimeDomainFiltering'
+    '0018' '9066' 'US' 'NumberOfZeroFills'
+    '0018' '9067' 'CS' 'BaselineCorrection'
     '0018' '9069' 'FD' 'ParallelReductionFactorInPlane'
     '0018' '9073' 'FD' 'AcquisitionDuration'
     '0018' '9074' 'DT' 'FrameAcquisitionDatetime'
@@ -248,20 +255,29 @@ C = {
     '0018' '9091' 'FD' 'VelocityEncodingMinimumValue'
     '0018' '9093' 'US' 'NumberOfKSpaceTrajectories'
     '0018' '9094' 'CS' 'CoverageOfKSpace'
+    '0018' '9095' 'UL' 'SpectroscopyAcquisitionPhaseRows'
     '0018' '9098' 'FD' 'TransmitterFrequency'
     '0018' '9100' 'CS' 'ResonantNucleus'
     '0018' '9101' 'CS' 'FrequencyCorrection'
     '0018' '9103' 'SQ' 'MRSpectroscopyFOVGeometrySequence'
+    '0018' '9104' 'FD' 'SlabThickness'
+    '0018' '9105' 'FD' 'SlabOrientation'
+    '0018' '9106' 'FD' 'MidSlabPosition'
     '0018' '9112' 'SQ' 'MRTimingAndRelatedParametersSequence'
     '0018' '9114' 'SQ' 'MREchoSequence'
     '0018' '9115' 'SQ' 'MRModifierSequence'
     '0018' '9117' 'SQ' 'MRDiffusionSequence'
+    '0018' '9118' 'SQ' 'CardiacTriggerSequence'
     '0018' '9119' 'SQ' 'MRAveragesSequence'
     '0018' '9125' 'SQ' 'MRFOVGeometrySequence'
+    '0018' '9127' 'UL' 'SpectroscopyAcquisitionDataColumns'
     '0018' '9147' 'CS' 'DiffusionAnisotropyType'
     '0018' '9151' 'DT' 'FrameReferenceDatetime'
     '0018' '9152' 'SQ' 'MRMetaboliteMapSequence'
+    '0018' '9054' 'CS' 'VolumeLocalizationTechnique'
     '0018' '9155' 'FD' 'ParallelReductionFactorOutOfPlane'
+    '0018' '9159' 'UL' 'SpectroscopyAcquisitionOutOfPlanePhaseSteps'
+    '0018' '9126' 'SQ' 'VolumeLocalizationSequence'
     '0018' '9168' 'FD' 'ParallelReductionFactorSecondInPlane'
     '0018' '9170' 'CS' 'RespiratoryMotionCompensationTechnique'
     '0018' '9171' 'CS' 'RespiratorySignalSource'
@@ -275,12 +291,16 @@ C = {
     '0018' '9181' 'FD' 'SpecificAbsorptionRateValue'
     '0018' '9182' 'FD' 'GradientOutput'
     '0018' '9183' 'CS' 'FlowCompensationDirection'
+    '0018' '9198' 'CS' 'FirstOrderPhaseCorrection'
     '0018' '9199' 'CS' 'WaterReferencedPhaseCorrection'
+    '0018' '9200' 'CS' 'MRSpectroscopyAcquisitionType'
     '0018' '9218' 'FD' 'TagSpacingSecondDimension'
     '0018' '9220' 'FD' 'FrameAcquisitionDuration'
     '0018' '9226' 'SQ' 'MRImageFrameTypeSequence'
+    '0018' '9227' 'SQ' 'MRSpectroscopyFrameTypeSequence'
     '0018' '9231' 'US' 'MRAcquisitionPhaseEncodingStepsInPlane'
     '0018' '9232' 'US' 'MRAcquisitionPhaseEncodingStepsOutOfPlane'
+    '0018' '9234' 'UL' 'SpectroscopyAcquisitionPhaseColumns'
     '0018' '9239' 'SQ' 'SpecificAbsorptionRateSequence'
     '0018' '9240' 'US' 'RFEchoTrainLength'
     '0018' '9241' 'US' 'GradientEchoTrainLength'
@@ -324,13 +344,16 @@ C = {
     '0020' '9113' 'SQ' 'PlanePositionSequence'
     '0020' '9116' 'SQ' 'PlaneOrientationSequence'
     '0020' '9128' 'UL' 'TemporalPositionIndex'
+    '0020' '9153' 'FD' 'CardiacTriggerDelayTime'
     '0020' '9156' 'US' 'FrameAcquisitionNumber'
     '0020' '9157' 'UL' 'DimensionIndexValues'
+    '0020' '9158' 'LT' 'FrameComments'
     '0020' '9164' 'UI' 'DimensionOrganizationUID'
     '0020' '9165' 'AT' 'DimensionIndexPointer'
     '0020' '9167' 'AT' 'FunctionalGroupPointer'
     '0020' '9221' 'SQ' 'DimensionOrganizationSequence'
     '0020' '9222' 'SQ' 'DimensionIndexSequence'
+    '0020' '9251' 'FD' 'RRIntervalTimeMeasured'
     '0020' '9254' 'FD' 'RespiratoryIntervalTime'
     '0020' '9255' 'FD' 'RespiratoryTriggerDelayTime'
     '0020' '9421' 'LO' 'DimensionDescriptionLabel'
@@ -376,6 +399,8 @@ C = {
     '0028' '3003' 'LO' 'LUTExplanation'
     '0028' '9001' 'UL' 'DataPointRows'
     '0028' '9002' 'UL' 'DataPointColumns'
+    '0028' '9003' 'CS' 'SignalDomainColumns'
+    '0028' '9108' 'CS' 'DataRepresentation'
     '0028' '9110' 'SQ' 'PixelMeasuresSequence'
     '0028' '9132' 'SQ' 'FrameVOILUTSequence'
     '0028' '9145' 'SQ' 'PixelValueTransformationSequence'
@@ -464,6 +489,7 @@ C = {
     '2050' '0020' 'CS' 'PresentationLUTShape'
     '5200' '9229' 'SQ' 'SharedFunctionalGroupsSequence'
     '5200' '9230' 'SQ' 'PerFrameFunctionalGroupsSequence'
+    '5600' '0020' 'OF' 'PixelData' % SpectroscopyData
     '7FE0' '0010' 'OW' 'PixelData' };
 
 % Following add vendor specific tags
@@ -537,7 +563,7 @@ if strncmpi(vendor, 'SIEMENS', 7)
 	'0021' '1044' 'DS' 'B1rms' % 100 1.09702 ?
 	'0021' '1045' 'CS' 'B1rmsSupervision' % YES ?
 	'0021' '1046' 'DS' 'TalesReferencePower' % 2333.36 ?
-% 	'0021' '1049' 'CS' 'Private_0021_1049' % DIFFUSION
+	'0021' '1049' 'CS' 'AcquisitionContrast' % DIFFUSION ?
 	'0021' '1050' 'US' 'RFEchoTrainLength' % 1 
 	'0021' '1051' 'US' 'EchoTrainLength' % 71 ?
 	'0021' '1053' 'CS' 'Laterality4MF' % U ?
@@ -549,11 +575,11 @@ if strncmpi(vendor, 'SIEMENS', 7)
 	'0021' '1103' 'DS' 'SliceMeasurementDuration' % 90000 ? 
 	'0021' '1104' 'DS' 'TimeAfterStart'
 	'0021' '1106' 'LO' 'ICE_Dims'
-	'0021' '111A' 'SH' 'RFSWDDataType' % measured
-	'0021' '111C' 'IS' 'PhaseEncodingDirectionPositive' % 1 ?
+	'0021' '111A' 'SH' 'RFSWDDataType' % measured/predicted
+	'0021' '111C' 'IS' 'PhaseEncodingDirectionPositive' % 1/0
 	'0021' '1124' 'IS' 'ProtocolSliceNumber' % 0 ?
 	'0021' '1133' 'IS' 'EchoLinePosition' % 96 ?
-	'0021' '1141' 'SH' 'GSWDDataType' % measured
+	'0021' '1141' 'SH' 'GSWDDataType' % measured/predicted
 	'0021' '1142' 'IS' 'RealDwellTime' % 2400 ?
 	'0021' '1145' 'SL' 'AbsTablePosition' % 0 0 -1129 
 	'0021' '1148' 'IS' 'EchoPartitionPosition' % 32?
@@ -561,7 +587,7 @@ if strncmpi(vendor, 'SIEMENS', 7)
 	'0021' '114E' 'IS' 'Actual3DImaPartNumber' % 0 ?
 	'0021' '114F' 'LO' 'CoilString' % HE1-4
 	'0021' '1151' 'UL' 'SequenceMask' % 134217734
-	'0021' '1153' 'FD' 'BandwidthPerPixelPhaseEncode' % 5.157 ?
+	'0021' '1153' 'FD' 'BandwidthPerPixelPhaseEncode'
 	'0021' '1156' 'LO' 'PATModeText' % p2
 	'0021' '1158' 'SH' 'AcquisitionMatrixText' % 384p*384 I
 	'0021' '1159' 'IS' 'RelTablePosition' % 0 0 0 ?
@@ -575,7 +601,7 @@ if strncmpi(vendor, 'SIEMENS', 7)
 % 	'0021' '1179' 'CS' 'Private_0021_1179' % ND / DIS2D
 	'0021' '1188' 'DS' 'SliceLocation'
 	'0021' '1189' 'FD' 'InversionTimes' % 900 ?
-	'0021' '118A' 'IS' 'InStackPositionNumber'
+	'0021' '118A' 'IS' 'FrameNumberInSeries' % ? xiangrui names it
 	'0021' '11FE' 'SQ' 'CSAImageHeaderInfo'
 % 	'0021' '1201' 'LO' 'Private_0021_1201' % ACQUISITION
 % 	'0021' '1202' 'LO' 'Private_0021_1202' % ACQUISITION
@@ -1205,7 +1231,49 @@ elseif strncmpi(vendor, 'Philips', 7)
     '2005' '1585' 'DS' 'PIIM_GRADIENT_SLEW_RATE'
     '2005' '1587' 'DS' 'PIIM_MR_STUDY_B1RMS'
     '2050' '0020' 'CS' 'PresentationLUTShape' }];
+elseif strncmpi(vendor, 'UIH', 3)
+    C = [C; {
+    '0061' '1002' 'US' 'GeneratePrivate'
+    '0061' '4002' 'SH' 'FOV'
+    '0065' '1000' 'UL' 'MeasurmentUID'
+    '0065' '1002' 'SH' 'ImageOrientationDisplayed'
+    '0065' '1003' 'LO' 'ReceiveCoil'
+    '0065' '1004' 'SH' 'Interpolation'
+    '0065' '1005' 'SH' 'PEDirectionDisplayed'
+    '0065' '1006' 'IS' 'SliceGroupID'
+    '0065' '1007' 'OB' 'Uprotocol'
+    '0065' '1009' 'FD' 'B_value' % 'BActualValue'
+    '0065' '100A' 'FD' 'BUserValue'
+    '0065' '100B' 'DS' 'BlockSize'
+    '0065' '100C' 'SH' 'ExperimentalStatus'
+    '0065' '100D' 'SH' 'ParallelInformation'
+    '0065' '100F' 'SH' 'SlicePosition'
+    '0065' '1011' 'SH' 'Sections'
+    '0065' '1013' 'FD' 'InPlaneRotAngle'
+    '0065' '1014' 'DS' 'SliceNormalVector'
+    '0065' '1015' 'DS' 'SliceCenterPosition'
+    '0065' '1016' 'UL' 'PixelRotateModel'
+    '0065' '1017' 'LO' 'SARModel'
+    '0065' '1018' 'LO' 'dBdtModel'
+    '0065' '1023' 'LO' 'TablePosition'
+    '0065' '1025' 'DS' 'SliceGap'
+    '0065' '1029' 'SH' 'AcquisitionDurationUIH'
+    '0065' '102B' 'LT' 'ApplicationCategory'
+    '0065' '102C' 'IS' 'RepeatitionIndex'
+    '0065' '102D' 'ST' 'SequenceDisplayName'
+    '0065' '102E' 'LO' 'NoiseDecovarFlag'
+    '0065' '102F' 'FL' 'ScaleFactor'
+    '0065' '1031' 'SH' 'MRSequenceVariant'
+    '0065' '1032' 'SH' 'MRKSpaceFilter'
+    '0065' '1033' 'SH' 'MRTableMode'
+    '0065' '1036' 'OB' 'MRDiscoParameter'
+    '0065' '1037' 'FD' 'MRDiffusionGradOrientation'
+    '0065' '1038' 'FD' 'MRPerfusionNoiseLevel'
+    '0065' '1039' 'SH' 'MRGradRange'
+    '0065' '1050' 'DS' 'LocationsInAcquisition' % MRNumberOfSliceInVolume
+    '0065' '1051' 'SQ' 'MRVFrameSequence'}];
 % elseif strncmpi(vendor, 'OtherVendor', n)
+%     C = [C; {}];
 end
 
 dict.group = uint16(hex2dec(C(:,1)));

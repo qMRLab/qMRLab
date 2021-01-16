@@ -7,11 +7,11 @@ classdef dti < AbstractModel
 %
 % Inputs:
 %   DiffusionData       4D DWI
-%   (SigmaNoise)        map of the standard deviation of the noise per voxel
-%   (Mask)              Binary mask to accelerate the fitting
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel. (OPTIONAL)
+%   (Mask)              Binary mask to accelerate the fitting. (OPTIONAL)
 %
 % Outputs:
-%   D                   [Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Difffusion Tensor
+%   D                   [Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Diffusion Tensor
 %   L1                  1rst eigenvalue of D
 %   L2                  2nd eigenvalue of D
 %   L3                  3rd eigenvalue of D
@@ -69,7 +69,9 @@ classdef dti < AbstractModel
 %   Please cite the following if you use this module:
 %     Basser, P.J., Mattiello, J., LeBihan, D., 1994. MR diffusion tensor spectroscopy and imaging. Biophys. J. 66, 259?267.
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/qh87b/download?version=4';
@@ -95,6 +97,10 @@ end
         buttons = {'fitting type',{'non-linear (Rician Likelihood)','linear'},'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10};
         options = struct();
 
+        tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
+        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
+        'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
+
     end
 
 methods (Hidden=true)
@@ -112,16 +118,16 @@ end
             Prot(Prot(:,4)==0,1:6) = 0;
             [~,c,ind] = consolidator(Prot(:,1:7),[],'count');
             cmax = max(c); % find images repeated more than 5 times (for relevant STD)
+            if ~strcmp(obj.options.fittingtype,'linear') && ~strcmp(obj.options.Riciannoisebias_Method,'fix sigma')
             if cmax<2
-                warndlg({'Your dataset doesn''t have 2 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
-                obj.options.Riciannoisebias_Method = 'fix sigma';
+                warndlg({'Your dataset doesn''t have 2 repeated measures (same bvec/bvals) --> you can''t estimate noise STD per voxel.' 'Using linear fitting instead (noise bias will impact your results).'},'Noise estimation method')
+                obj.options.fittingtype = 'linear';
             elseif cmax<4
-                warndlg({'Your dataset doesn''t have 4 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately. Specify a fixed Sigma Noise in the option panel instead.'  'See Methods Noise/NoiseLevel.m to estimate the noise standard deviation.'},'Noise estimation method')
+                warndlg({'Your dataset doesn''t have 4 repeated measures (same bvec/bvals) --> you can''t estimate noise STD voxel-wise accurately.'},'Noise estimation method')
+            end
             end
             if strcmp(obj.options.Riciannoisebias_Method,'Compute Sigma per voxel')
                 obj.options.Riciannoisebias_value  = 'auto';
-            elseif isempty(obj.options.Riciannoisebias_value)
-                obj.options.Riciannoisebias_value=10;
             end
 
             % disable Rician noise panel if linear
@@ -179,6 +185,7 @@ end
                 else
                     SigmaNoise = obj.options.Riciannoisebias_value;
                 end
+                if isempty(SigmaNoise), SigmaNoise = max(data.DiffusionData/100); end
 
 
                 if ~moxunit_util_platform_is_octave && SigmaNoise

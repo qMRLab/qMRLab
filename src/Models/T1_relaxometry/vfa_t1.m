@@ -4,9 +4,11 @@ classdef vfa_t1 < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   VFAData         spoiled Gradient echo data, 4D volume with different flip angles in time dimension
-%   (B1map)         excitation (B1+) fieldmap. Used to correct flip angles. (optional)
-%   (Mask)          Binary mask to accelerate the fitting (optional)
+%   VFAData         Spoiled Gradient echo data, 4D volume with different flip angles in time dimension
+%   (B1map)         Normalized transmit excitation field map (B1+). B1+ is defined 
+%                   as a  normalized multiplicative factor such that:
+%                   FA_actual = B1+ * FA_nominal. (OPTIONAL).
+%   (Mask)          Binary mask to accelerate the fitting. (OPTIONAL)
 %
 % Outputs:
 %   T1              Longitudinal relaxation time [s]
@@ -40,11 +42,9 @@ classdef vfa_t1 < AbstractModel
 %     T1 using variable flip angle gradient refocused imaging. Magn. Reson.
 %     Imaging 5, 201?208
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG,
-%     Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and
-%     Stikov N. (2016), Quantitative magnetization transfer imaging made
-%     easy with qMTLab: Software for data simulation, analysis, and
-%     visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
  onlineData_url = 'https://osf.io/7wcvh/download?version=3';  
@@ -53,8 +53,8 @@ end
     properties
         MRIinputs = {'VFAData','B1map','Mask'};
         xnames = {'M0','T1'};
-        voxelwise = 1;
-
+        voxelwise = 0;
+        
         % Protocol
         Prot  = struct('VFAData',struct('Format',{{'FlipAngle' 'TR'}},...
                                          'Mat', [3 0.015; 20 0.015])); % You can define a default protocol here.
@@ -92,12 +92,16 @@ end
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
             TR = obj.Prot.VFAData.Mat(:,2)';
             E = exp(-TR/x.T1);
+
             Smodel = x.M0*sin(flipAngles/180*pi).*(1-E)./(1-E.*cos(flipAngles/180*pi));
+
+
         end
 
        function FitResult = fit(obj,data)
             % T1 and M0
             flipAngles = (obj.Prot.VFAData.Mat(:,1))';
+
             TR = obj.Prot.VFAData.Mat(:,2)';
             if ~isfield(data,'B1map'), data.B1map=1; end
             if length(unique(TR))>1
@@ -113,6 +117,7 @@ end
             FitResult.M0 = m0;
 
 
+
        end
 
        function plotModel(obj,x,data)
@@ -122,6 +127,7 @@ end
            Smodel = equation(obj,x);
 
            flipAngles = obj.Prot.VFAData.Mat(:,1)';
+
 
            TR = obj.Prot.VFAData.Mat(:,2)';
            if length(unique(TR))==1
@@ -135,6 +141,7 @@ end
                    end
                    % Plot data and fitted signal
                    plot(flipAngles,data.VFAData,'.','MarkerSize',16)
+
                else
                    B1map=1;
                end

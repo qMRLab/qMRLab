@@ -11,7 +11,7 @@ function write_html_dir(obj, output_dir)
 %   - this function writes a file index.html, as well as node*.html files
 %     for each individual MOcovMFile.
 
-    if ~isdir(output_dir)
+    if ~mocov_util_isfolder(output_dir)
         mkdir(output_dir);
     end
 
@@ -25,7 +25,7 @@ function write_html_dir(obj, output_dir)
     mfile_node_fns=cell(n,1);
 
     % write single HTML file for each m-file
-    notify(monitor,'Writing html files in %s', output_dir);
+    notify(monitor,sprintf('Writing html files in %s', output_dir));
 
     for k=1:n
         node_rel_fn=sprintf('node%d.html',k);

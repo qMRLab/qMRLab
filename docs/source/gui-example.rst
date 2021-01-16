@@ -1,6 +1,6 @@
-Beginners example with GUI
+Beginner's example with GUI
 =========================================
-This will guide you step by step in processing a sample dataset with the user interface. 
+This will guide you step by step in processing a sample dataset with the user interface.
 
 1. Open matlab
 ----------------------------------
@@ -15,25 +15,13 @@ Setup your path (note: you only need to do it once) ::
 
 	startup
 
-3. Download example data
-------------------------------
-In this case we will be working with Variable Flip Angle Data to compute a T1map. The main input data is stored as a 4D volume, where the 4th dimension is different flip angles. 
-For example, in this test dataset, 1 slice at 2 different flip angles were acquired: volume 1 was FA=3degrees and volumes 2 was FA=20degrees, such that *VFAData.nii.gz* is 128x128x1x2. The other optional inputs are a *Mask.nii.gz* and a *B1Map.nii.gz*.
-
-Run this in matlab to get the data::
-
-	Model=vfa_t1;
-	downloadData(Model,[])
-
-When prompted, select a folder where you would like to put the sample data 
-
-4. Launch the GUI
+3. Launch the GUI
 -----------------------------
 Type this is matlab to launch the main GUI::
 
 	qMRLab
 
-5. Model Selection
+4. Model selection
 -------------------------
 On the top left-hand side pull-down menu, select the method we are going to use, in this case, *vfa_t1        (T1_relaxometry/)* :
 
@@ -47,35 +35,48 @@ At any time, you may use the *Help* button in the *Options* panel to get a descr
 
 For the list of available models, please check :ref:`Methods available`
 
-6. Load the data
---------------------------
-Load the raw data in qMRLab by selecting *Browse* next to *Work Dir*. Select the folder where you have previously saved the sample data (this will load all the data into the correct locations automatically):
+5. Download example data
+------------------------------
+In this case we will be working with Variable Flip Angle Data to compute a T1map. The main input data is stored as a 4D volume, where the 4th dimension is different flip angles. 
+For example, in this test dataset, 1 slice at 2 different flip angles were acquired: volume 1 was FA=3degrees and volumes 2 was FA=20degrees, such that *VFAData.nii.gz* is 128x128x1x2. The other optional inputs are a *Mask.nii.gz* and a *B1Map.nii.gz*.
 
-.. figure:: _static/load-data.png
-   :scale: 45 %
+Click *Download Data* (blue) button located at the upper right corner of the data panel:
 
-For a more detailed description of what the input data should look like, please refer to :ref:`3.1	Data format`
+.. figure:: _static/gui_download.png
+   :width: 800px
+   :height: 158px
 
-7. View the data
+You will be prompted for a directory where the example dataset will be saved. After the dataset has been downloaded, qMRLab will 
+automatically set *Path data* to the download directory and load the input files.
+
+.. note::
+   **Please note that** such auto-loading takes effect only if the name of the images (e.g. VFAData.nii.gz) in the Path data directory are identical to that of the data fields (e.g., VFAData) listed in the data panel. There are no filename assumptions for the user data. Any file name is acceptable as long as the data format and the data dimensions are in agreement with the method's inputs. 
+
+.. warning::
+   **The default `Protocol` parameters are intended for the example datasets.** Users are required to update these values with regards to their data. 
+
+For a more detailed description about input data formats, please refer to :ref:`4.1	Data format`
+
+6. View the data
 -------------------------
 You can look at your data by clicking *View* next to the name of the file:
 
 .. figure:: _static/view-data.png
    :scale: 45 %
 
-You can browse through slices or volumes of the data files by using the sliding bars on the left-hand side of the image.
+You can browse through slices or volumes of the data files by using arrows and mouse controls.  
+Please refer to :ref:`3.	Data Viewer`.
 
-8. Set up the protocol
+7. Set up the protocol
 ------------------------
 For this dataset, the protocol will be set up by default with the flip angles and TRs: 
-
 
 .. figure:: _static/protocol.png
    :scale: 55 %
 
-For your own acquisition, you will have to use an external txt file to load the parameters, please refer to :ref:`5.1 Protocol`. 
+For your own acquisition, you will have to use an external txt file to load the parameters, please refer to :ref:`6.1 Protocol`. 
 
-9. View the data fit in 1 voxel
+8. View the data fit in 1 voxel
 -----------------------------------
 
 Before fitting the whole volume, it's a good idea to take a look at your data and how it fits the model. Here, we can visualize the fit in 1 voxel at a time. In the *Cursor* section, press *Select*. Then select a voxel in the image and the press *View data fit*:
@@ -89,7 +90,7 @@ A new window will pop-up with the results of the fit in that voxel:
    :scale: 30 %
 
 
-10. Fit the whole dataset
+9. Fit the whole dataset
 ---------------------------
 We can now fit the whole volume by pressing the large *Fit Data* button.
 
