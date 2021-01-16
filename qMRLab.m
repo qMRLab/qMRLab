@@ -47,12 +47,38 @@ end
 function qMRLab_OpeningFcn(hObject, eventdata, handles, varargin)
 if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
 if ~isfield(handles,'opened') % qMRI already opened?
+    warning('off','all');
     % Add qMRLab to path
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
     
-    GUI_animation;
+    % Do not let this break anything if things go wrong.
+    try
+        GUI_animation;
+        cur_ver = qMRLabVer;
+    catch
+        cur_ver = qMRLabVer;
+        fprintf('qMRLab version: v%d.%d.%d \n',cur_ver(1),cur_ver(2),cur_ver(3));
+    end
     
+    try
+        [verStatus] = versionChecker;
+    catch
+        verStatus = [];
+    end
+    
+    % Display version under qMRLab text
+    set(handles.text_version_check, 'String',sprintf('v%d.%d.%d',cur_ver(1),cur_ver(2),cur_ver(3)));
+    
+    % Handle new version message
+    % varstatus is empty unless there is a new release.
+    if isempty(verStatus)
+        set(handles.upgrade_message, 'Visible','off');
+    else
+        set(handles.upgrade_message, 'Visible','on');
+        set(handles.upgrade_message, 'String',sprintf('Upgrade to v%d.%d.%d',verStatus(1),verStatus(2),verStatus(3)));
+    end
+
     handles.opened = 1;
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
@@ -154,6 +180,10 @@ if length(varargin)>1
     butobj.ViewBtn_callback(butobj,[],[],handles)
 end
 
+set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+warning('on','all');
+    
+
 
 % Outputs from this function are returned to the command line.
 function varargout = qMRLab_OutputFcn(hObject, eventdata, handles)
@@ -193,6 +223,9 @@ delete(wh);
 function MethodSelection_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 MethodMenu(hObject,eventdata,handles,Method);
+set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+
+
 
 function addModelMenu(hObject, eventdata, handles)
 % Display all the options in the popupmenu
@@ -954,3 +987,25 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 function ChooseMethod_Callback(hObject, eventdata, handles)
 % ----------------------------------------- END ------------------------------------------%
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over text_doc_model.
+function text_doc_model_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to text_doc_model (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject, 'Enable', 'Inactive');
+Method = class(GetAppData('Model'));
+web(['https://qmrlab.readthedocs.io/en/latest/' Method '_batch.html']);
+
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over upgrade_message.
+function upgrade_message_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to upgrade_message (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(hObject, 'Enable', 'Inactive');
+web('https://github.com/qMRLab/qMRLab/releases/latest');

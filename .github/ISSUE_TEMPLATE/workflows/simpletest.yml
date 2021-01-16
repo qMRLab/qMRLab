@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - master
+      - minor_gui
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: joergbrech/moxunit-action@master
+      with:
+        src: src
+        tests: Test/MoxUnitCompatible/quickMoxTests
+        pkg: image io optim struct statistics
+        ext: External
+        with_coverage: true
+        cover_xml_file: coverage.xml
+    - uses: codecov/codecov-action@v1
+      with:
+       file:  coverage.xml # optional
+       flags: octtest # optional
+       fail_ci_if_error: true # optional (default = false)
