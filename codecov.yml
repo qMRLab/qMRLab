@@ -1,6 +1,8 @@
 codecov:
   require_ci_to_pass: yes
   bot: qmrlab-coverage
+  ci:
+    - "travis.org"
 
 coverage:
   precision: 2
