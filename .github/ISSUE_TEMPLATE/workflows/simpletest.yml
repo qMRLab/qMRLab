@@ -1,19 +1,19 @@
-name: Try_gha
-
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - minor_gui
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
     - uses: joergbrech/moxunit-action@master
       with:
         src: src
         tests: Test/MoxUnitCompatible/quickMoxTests
-        pkg: image io optim struct
+        pkg: image io optim struct statistics
         ext: External
         with_coverage: true
         cover_xml_file: coverage.xml
