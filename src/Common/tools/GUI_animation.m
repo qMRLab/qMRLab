@@ -52,8 +52,12 @@ txt =[...
 {' ..............................................'}];
    
 
-
+try
+for ii = 1:length(umbrlla); pause(0.02); cprintf('red','%s',umbrlla{ii}); end
+catch
 for ii = 1:length(umbrlla); pause(0.02); disp(umbrlla{ii}); end
+    
+end
 pause(0.8);
 clc;
 
@@ -70,6 +74,7 @@ end
 
 
 fprintf('\n');
+
 
 end 
 

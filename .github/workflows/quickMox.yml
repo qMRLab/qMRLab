@@ -1,0 +1,22 @@
+name: OCTAVE_quickMox
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - uses: agahkarakuzu/moxunit-action@master
+      with:
+        tests: /Test/MoxUnitCompatible/quickMoxTests /Test/MoxUnitCompatible/other
+        src: src
+        pkg: image io optim struct statistics
+        with_coverage: true
+        cover_xml_file: coverage_octave_quickMox.xml
+    - uses: codecov/codecov-action@v1
+      with:
+       file: coverage_octave_quickMox.xml # optional
+       flags: octave

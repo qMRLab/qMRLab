@@ -1,5 +1,5 @@
 jobs:
-- job: qMRLab_1_quickMox_and_BatchExample_tests
+- job: MATLAB_quickMox_and_BatchExample_tests
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
@@ -23,7 +23,7 @@ jobs:
         sleep 2
         bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_test.json" -F matlab
       displayName: 'Upload to Codecov.io'
-- job: qMRLab_2_qmt_batch_tests
+- job: MATLAB_2_qmt_batch_tests
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
@@ -49,7 +49,7 @@ jobs:
         sleep 1
         bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_qmt_sirfse_test.json" -F matlab
       displayName: 'Upload to Codecov.io'
-- job: qMRLab_3_SimTests
+- job: MATLAB_3_SimTests
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
