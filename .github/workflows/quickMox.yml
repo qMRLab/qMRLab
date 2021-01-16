@@ -1,4 +1,4 @@
-name: OMG
+name: OCTAVE_quickMox
 
 on: push
 
@@ -13,11 +13,10 @@ jobs:
       with:
         tests: /Test/MoxUnitCompatible/quickMoxTests
         src: src
-        ext: External
         pkg: image io optim struct statistics
         with_coverage: true
-        cover_xml_file: coverage_gha.xml
+        cover_xml_file: coverage_octave_quickMox.xml
     - uses: codecov/codecov-action@v1
       with:
-       file: coverage_gha.xml # optional
+       file: coverage_octave_quickMox.xml # optional
        flags: octave
