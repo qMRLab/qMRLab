@@ -450,14 +450,28 @@ ErrMsg = Model.sanityCheck(data);
 if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
 if ~moxunit_util_platform_is_octave
+   
    p = gcp('nocreate');
+   if license('test','Distrib_Computing_Toolbox') && Model.voxelwise && isempty(p)
+        cprintf('blue', 'MATLAB detected %d physical cores.',feature('numcores'));
+        cprintf('magenta', '<< Tip >> You can accelerate fitting by starting a parallel pool by running: \n parpool(%d);',feature('numcores'));
+        dlgTitle    = 'Parallel Processing';
+        dlgQuestion = sprintf('Would you like to start a parallel pool with %d cores?',feature('numcores'));
+        choice = questdlg(dlgQuestion,dlgTitle,'Yes','No', 'Yes');
+        if strcmp(choice,'Yes')
+            parpool(feature('numcores'));
+            p = gcp('nocreate');
+        end
+   end
+
    if ~isempty(p)
-       FitResults = FitDataPar(data,Model,1);
+       FitResults = ParFitData(data,Model);
    else
        FitResults = FitData(data,Model,1);
    end
+
 else
-% Do the fitting
+% Do the fitting in Octave
   FitResults = FitData(data,Model,1);
 end
 

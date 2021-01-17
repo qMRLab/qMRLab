@@ -1,4 +1,4 @@
-function Fit = FitDataPar(data, Model, wait , Fittmp)
+function Fit = ParFitData(data, Model, Fittmp)
 %         __  __ ____  _          _     
 %    __ _|  \/  |  _ \| |    __ _| |__  
 %   / _` | |\/| | |_) | |   / _` | '_ \ 
@@ -16,16 +16,26 @@ function Fit = FitDataPar(data, Model, wait , Fittmp)
 %                                          z = image depth and nT is the number of
 %                                          data points for each voxel
 %     Model                      [class]  Model object
-%     wait                       [binary] display a wait bar?
 %     FitTempResults_filename    [string] filename of a temporary fitting file
 %
 % Output
 %     Fit                        [struct] with fitted parameters
 %
+% The input data will be split into each core for processing. In GUI, this script
+% will be run instead of FitData if parpool object exists. In CLI, can be called similarly
+% with FitData in batch examples. Again, parpool must be initialized first.
+%
+% Not compatible for Octave yet, which requires refactoring this script for parcellfun. In Octave, parfor
+% is the same with for, just there for compatibility. Warning is set in case this function is called 
+% directly from Octave.
+%
 % ----------------------------------------------------------------------------------------------------
-% Written by: 
+% Written by: Agah Karakuzu
 % ----------------------------------------------------------------------------------------------------
-% If you use qMRLab in your work, please cite :
+% References
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 %
 % ----------------------------------------------------------------------------------------------------
 
@@ -36,14 +46,18 @@ tStart = tic;
 tsaved = 0;
 tsavedwb = 0;
 
-
-p = gcp('nocreate'); % If no pool, do not create new one.
-if isempty(p)
-    nW = 1;
+if moxunit_util_platform_is_octave 
+   nW = 1;
+   cprintf('red','<< ! >> Data will be processed serially! ParFitData has not been implemented for  %s yet. \n','Octave');
 else
-    nW = p.NumWorkers;
+    p = gcp('nocreate'); % If no pool, do not create new one.
+    if isempty(p)
+        nW = 1;
+    else
+        nW = p.NumWorkers;
+    end
 end
-    
+
 h=[]; hwarn=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
     try, Model = Model.Precompute; end
@@ -59,9 +73,6 @@ if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
     data.Mask(isnan(data.Mask))=0;
     msg = 'NaNs will be set to 0. We recommend you to check your mask.';
     titlemsg = 'NaN values detected in the Mask';
-    if exist('wait','var') && (wait)
-        hwarn = warndlg(msg,titlemsg);
-    end
     fprintf('\n')
     warning(titlemsg)
     fprintf('%s\n\n',msg)
@@ -107,9 +118,6 @@ if Model.voxelwise % process voxelwise
            data.Mask(isnan(data.Mask))=0;
             msg = 'NaNs will be set to 0. We recommend you to check your mask.';
             titlemsg = 'NaN values detected in the Mask';
-            if exist('wait','var') && (wait)
-                hwarn = warndlg(msg,titlemsg);
-            end
             fprintf('\n')
             warning(titlemsg)
             fprintf('%s\n\n',msg) 
@@ -205,11 +213,14 @@ if Model.voxelwise % process voxelwise
                 % Initialize outputs fields
                 % This happens only once.
                 parM(itPar).fields =  fieldnames(parM(itPar).tempFit)';
-
+                
+                if ~isfield(parM(itPar),'Fit')
                 for ff = 1:length(parM(itPar).fields)
                     cur_field = parM(itPar).fields{ff};
+                    % Initialize only when it does not exist.    
                     % N x 4 for x,y,z and fit value
                     parM(itPar).Fit.(cur_field) = nan(length(parM(itPar).NativeIdx),4);
+                end
                 end
                 parM(itPar).Fit.fields = parM(itPar).fields;
                 parM(itPar).Fit.computed = zeros(length(parM(itPar).NativeIdx),3);
@@ -221,18 +232,34 @@ if Model.voxelwise % process voxelwise
 
         % Assign current voxel fitted values
         if ~parM(itPar).fitFailed
+            
             for ff = 1:length(parM(itPar).fields)
                 cur_field = parM(itPar).fields{ff};
                 [xii,yii,zii] = ind2sub([x,y,z],parM(itPar).NativeIdx(ii));
                 % Less memory footprint
                 parM(itPar).Fit.(cur_field)(ii,:) = [xii,yii,zii,parM(itPar).tempFit.(cur_field)];
             end 
-                 parM(itPar).Fit.(cur_field)(ii,:) = [xii,yii,zii,NaN];
+           
         else
            
            % Hits here when fit failed. Exclusive err case
-           % For now, substitute fields with xnames 
+           % For now, substitute fields with xnames, because tempFit does
+           % not exist yet. They may be interchangeable, but if they are
+           % not some models and there is an unexpected behaviour, this is
+           % a good place to start with debugging.
            
+           % If first hit did not happen but the flow made its way 
+           % here, means that we need to initialize the
+           % Fit.(cur_field) matrices here.
+           
+           if ~isfield(parM(itPar),'Fit')
+           for ff = 1:length(Model.xnames)
+               cur_field = Model.xnames{ff};
+               % Initialized from failed fit. 
+               parM(itPar).Fit.(cur_field) = nan(length(parM(itPar).NativeIdx),4); 
+           end
+           end
+                
            for ff = 1:length(Model.xnames)
                 cur_field = Model.xnames{ff};
                 [xii,yii,zii] = ind2sub([x,y,z],parM(itPar).NativeIdx(ii));

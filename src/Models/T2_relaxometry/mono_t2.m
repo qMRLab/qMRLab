@@ -137,7 +137,7 @@ end
                     fit_out = lsqnonlin(fT2,[pdInit t2Init],[],[],options);
                 end
                 
-                FitResults.T2 = fit_out(2);
+                FitResults.T2 = fit_out(2)/1000;
                 FitResults.M0 = fit_out(1);
                 
                 
@@ -169,7 +169,7 @@ end
                 if isnan(t2); t2 = 0; end
                 if t2<0; t2 = 0; end
                 
-                FitResults.T2 = t2;
+                FitResults.T2 = t2/1000;
                 FitResults.M0 = fit_out(1);
                 
                 
