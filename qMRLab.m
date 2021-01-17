@@ -454,7 +454,7 @@ if ~moxunit_util_platform_is_octave
    p = gcp('nocreate');
    if license('test','Distrib_Computing_Toolbox') && Model.voxelwise && isempty(p)
         cprintf('blue', 'MATLAB detected %d physical cores.',feature('numcores'));
-        cprintf('magenta', '<< Tip >> You can accelerate fitting by starting a parallel pool by running: \n parpool(%d);',feature('numcores'));
+        cprintf('blue', '<< Tip >> You can accelerate fitting by starting a parallel pool by running: \n parpool(%d);',feature('numcores'));
         dlgTitle    = 'Parallel Processing';
         dlgQuestion = sprintf('Would you like to start a parallel pool with %d cores?',feature('numcores'));
         choice = questdlg(dlgQuestion,dlgTitle,'Yes','No', 'Yes');
