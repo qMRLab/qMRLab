@@ -29,3 +29,4 @@ comment:
 ignore:
   - "src/Common/tools/FileBrowser"
   - "src/Common/tools/FileBrowser/dicomLoadAllSeries.m"
+  - "src/Common/ParFitData.m"
