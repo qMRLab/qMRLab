@@ -1,48 +1,122 @@
-function Fit = ParFitData(data, Model,autoSavedDir)
+function Fit = ParFitData(data, Model,varargin)
 %         __  __ ____  _          _
 %    __ _|  \/  |  _ \| |    __ _| |__
 %   / _` | |\/| | |_) | |   / _` | '_ \
 %  | (_| | |  | |  _ <| |__| (_| | |_) |
 %   \__, |_|  |_|_| \_\_____\__,_|_.__/
 %      |_|
-% ----------------------------------------------------------------------------------------------------
-% Fit = ParFitData( data, Model, autoSavedDir)
-% Takes 2D or 3D MTdata and returns fitted parameters maps
-% ----------------------------------------------------------------------------------------------------
-% Inputs
-%     data                       [struct] with fields Model.MRIinputs. Contains MRI data.
-%                                          data fields are array of size [x,y,z,(nT or 1)],
-%                                          where x = image height, y = image width,
-%                                          z = image depth and nT is the number of
-%                                          data points for each voxel
-%     Model                      [class]  Model object
-%     autoSavedDir               [string] Directory that contains mat files
-%                                         that are saved from a previous
-%                                         parallel session. Not compatible
-%                                         with serialized FitTempResults
-%                                         files.
+% -------------------------------------------------------------------------
+% Fit = ParFitData(data, Model,varargin)
+% Takes 2D or 3D qMRI data and returns fitted parameters maps
+% -------------------------------------------------------------------------
+% Required inputs:
 %
-% Output
-%     Fit                        [struct] with fitted parameters
+%     data                          Struct with fields containing the data
+%                                   for quantitative parameter estimation.
+%                                   See details below. (struct)    
+%
+%     Model                         An object instantiated from a qMRLab
+%                                   model class. (object)
+%
+% Output:
+%
+%     Fit                           Struct with fields containing the
+%                                   quantitative maps. (struct)
+%
+% 
+% ParFitData(___,PARAM1, VAL1, PARAM2, VAL2,___)
+%
+% Optional parameters include:
+%
+%
+%   'AutosaveEnabled'               Enable/disable autosave of the fitted
+%                                   parameters at a specified time interval.
+%                                   Default: true (logical)
+%
+%   'AutosaveInterval'              Time interval (in minutes) at which
+%                                   the fitted parameters will be saved.
+%                                   Default: 5 (int)
+%                                   
+%
+%   'RecoverDirectory'              Directory containing previously
+%                                   autosaved data. When provided, the
+%                                   process will pick up from where it
+%                                   was left off at the time of the latest
+%                                   autosave. 
+%                                   Default: [] (string)
+%
+% Notes about data: 
+%
+%    Field names                    Field names of the `data` struct MUST 
+%                                   be identical with that of the MRIinputs
+%                                   property of the respective Model.
+%
+%    Input dimensions               Extents of the volume will be inferred
+%                                   from the first 2/3 dimensions of the
+%                                   input data [x, y, (z), __].
+%                          
+%    2D/3D input data               If multiple intensity values are stored
+%    multiple scalars               at each voxel (for example, voxel
+%                                   intensity values at different TIs),
+%                                   these values MUST be stored from 4th
+%                                   dimension onwards.
+%  
+%                                   2D inputs [x, y, 1, nT, __]           
+%                                   3D inputs [x, y, z, nT, __]
+%                                             
+%    2D/3D input data
+%    with a single scalar           If a single intensity value is stored
+%                                   at each voxel (for example, B1map,
+%                                   Mask, R1map) the inputs can be provided
+%                                   without a singleton dimension.
+%                                   
+%                                   2D inputs [x, y]
+%                                   3D inputs [x, y, z]
 %
 % Functionality:
 %
-%     The input data will be split into N chunks to be proccessed in N cores. In GUI, this script
-%     will be run instead of FitData if parpool object exists. In CLI, can be called similarly
-%     with FitData in batch examples. Again, parpool must be initialized first.
+%     The input data will be split into N chunks to be proccessed in N cores.
+%     In GUI, this script will be run instead of FitData if parpool object 
+%     exists. In CLI, can be called similarly with FitData in batch examples.
+%     Again, parpool must be initialized first.
 %
-%     Not compatible for Octave yet, which requires refactoring this script for parcellfun. In Octave, parfor
-%     is the same with for, just there for compatibility. Warning is set in case this function is called
-%     directly from Octave.
+%     Not compatible for Octave yet, which requires refactoring this script
+%     for parcellfun. In Octave, parfor is the same with for, just there for
+%     compatibility. Warning is set in case this function is called from
+%     Octave.
 %
-% ----------------------------------------------------------------------------------------------------
+% -------------------------------------------------------------------------
 % Written by: Agah Karakuzu
-% ----------------------------------------------------------------------------------------------------
+% -------------------------------------------------------------------------
 % References
 %     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F.,
 %     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab:
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
-% ----------------------------------------------------------------------------------------------------
+% -------------------------------------------------------------------------
+
+
+p = inputParser();
+
+%Input parameters conditions
+validData  = @(x) exist('x','var') && isstruct(x);
+validModel = @(x) exist('x','var') && isobject(x);
+validDir   = @(x) exist(x,'dir');
+
+addRequired(p,'data',validData);
+addRequired(p,'Model',validModel);
+addParameter(p,'RecoverDirectory',[],validDir);
+addParameter(p,'AutosaveInterval',5,@isnumeric);
+addParameter(p,'AutosaveEnabled',true,@isnumeric);
+
+parse(p,data,Model,varargin{:});
+
+% Extract parsed inputs and delete the parser object
+data = p.Results.data;
+Model = p.Results.Model;
+saveInterval = ceil(p.Results.AutosaveInterval);
+recoveryDir  = p.Results.RecoverDirectory;
+isAutosave = p.Results.AutosaveEnabled;
+clear('p');
 
 % Before fitting, do a sanity check on the input data and protocol
 Model.sanityCheck(data);
@@ -64,15 +138,15 @@ end
 
 h=[]; hwarn=[];
 if moxunit_util_platform_is_octave % ismethod not working properly on Octave
-    try, Model = Model.Precompute; end
-    try, Model = Model.PrecomputeData(data); end
+    try Model = Model.Precompute; end
+    try Model = Model.PrecomputeData(data); end
     
 else
     if ismethod(Model,'Precompute'), Model = Model.Precompute; end
     if ismethod(Model,'PrecomputeData'), Model = Model.PrecomputeData(data); end
 end
 
-% NaN in Mask
+% Zero-out NaN values in Mask if they exist.
 if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
     data.Mask(isnan(data.Mask))=0;
     msg = 'NaNs will be set to 0. We recommend you to check your mask.';
@@ -138,14 +212,27 @@ if Model.voxelwise % process voxelwise
         % data from the whole if exists. This corresponds to removing
         % linearized indexes from voxels!
         
-        % This part is a bit tricky. EXPLAIN HERE LATER
-        if exist('autoSavedDir','var')
+        bypassLoad = true; % Initialize
+        
+        % If recovery data is found
+        if ~isempty(recoveryDir)
             
-            [Voxels_reduced, bypassLoad] = rmAutoSavedIndexes(autoSavedDir,1:nV,x,y,z, Model);
+            % First, reduce data from the WHOLE list of linearized indexes
+            % (1:nV). This will also validate whether the loaded data is 
+            % compatible with the current process.
+            [Voxels_reduced, bypassLoad] = rmAutoSavedIndexes(recoveryDir,1:nV,x,y,z, Model);
+            
+            % Now we have the linearized indexes of the remaining data.
+            % From this remaining data, we will discard those intersecting
+            % with the mask==1 indexes, which are assigned to the Voxels 
+            % variable at L202. We should do this only when the loaded data
+            % is valid. 
             
             if ~bypassLoad
                 [Voxels_masked_reduced,validIdx] = intersect(Voxels,Voxels_reduced,'stable');
                 for iii = 1:length(MRIinputs)
+                    % Reduce the data in correspondance with the reduxed
+                    % idx, so that we cam map it properly later on.
                     data.(MRIinputs{iii}) = data.(MRIinputs{iii})(validIdx,:);
                 end
             end
@@ -158,10 +245,10 @@ if Model.voxelwise % process voxelwise
         % record of NativeIdx (original linearized index of nV elements
         % before the reduction), so that we can put them in the right place
         % in the image domain once the processing is completed.
-        if ~bypassLoad
-            [parM,~] = mapData(Model,data,MRIinputs,Voxels_masked_reduced,nW);
-        else
+        if bypassLoad
             [parM,~] = mapData(Model,data,MRIinputs,Voxels,nW);
+        else
+            [parM,~] = mapData(Model,data,MRIinputs,Voxels_masked_reduced,nW);
         end
     else
         % If you are not familiar with the idea of linearized indexing,
@@ -191,9 +278,9 @@ if Model.voxelwise % process voxelwise
         
         % Here we are doing the same thing we did above, but this time
         % we have no reduction in data by Masks.
-        if exist('autoSavedDir','var')
+        if ~isempty(recoveryDir)
             
-            [Voxels, bypassLoad] = rmAutoSavedIndexes(autoSavedDir,Voxels,x,y,z, Model);
+            [Voxels, bypassLoad] = rmAutoSavedIndexes(recoveryDir,Voxels,x,y,z, Model);
             
             if ~bypassLoad
                 for iii = 1:length(MRIinputs)
@@ -209,13 +296,16 @@ if Model.voxelwise % process voxelwise
     cprintf('magenta', '<< i >> Operation has been started:  %s \n',Model.ModelName);
     cprintf('blue',    '<< : >> Parallel:  %d workers \n',nW);
     cprintf('orange',  '<< - >> Modal windows have been disabled \n',nW);
-    cprintf('blue',    '<< ! >> Temporary results will be saved every %d minutes. \n',5);
+    cprintf('blue',    '<< ! >> Temporary results will be saved every %d minutes. \n',saveInterval);
     
     tStart = tic;
     % Keeping eye on the parfor progress is tricky. This external
     % function is doing its best, still not that good :)
-    parfor_progress(nW);
+    % More sophisticated functions usually come with an overhead. 
+    % There is parfor_progressbar on GitHub, which is cool, but depends
+    % on another toolbox. 
     
+    parfor_progress(nW);
     % Developer:
     %          You can monitor per-core performance by commenting in
     %
@@ -258,20 +348,14 @@ if Model.voxelwise % process voxelwise
                 % Especially when there is not a mask, many many fits will fail.
                 % Limit the number of warnings, as there is no point in showing
                 % them all.
-                if parM(itPar).fitFailedCounter < 10
+                if parM(itPar).fitFailedCounter < ceil(10/nW)
                     % It is important that errmsg is explicitly assigned here but not passed in-line.
                     % These are recognized as temporary variables by MATLAB
                     % parpool, which manages them fairly good.
                     errmsg = err.message;
                     cprintf('magenta','Solution not found for the voxel [%d,%d,%d]: %s \n',xii,yii,zii,errmsg);
-                elseif parM(itPar).fitFailedCounter == 11
-                    cprintf('blue','%s','Errorenous fit warnings will be silenced for this process.');
-                    % Some messaging
-                    if isMask
-                        cprintf('orange','%s','Please condiser providing a binary mask to accelerate fitting.');
-                    else
-                        cprintf('orange','%s','The provided mask probably contains some background voxels.');
-                    end
+                elseif parM(itPar).fitFailedCounter == ceil(11/nW)
+                    cprintf('blue','Message from worker %d: Errorenous fit warnings are now silenced.',itPar);
                 end
                 
                 parM(itPar).fitFailed = true;
@@ -358,29 +442,31 @@ if Model.voxelwise % process voxelwise
             %  you've processed in case things go sideways.
             
             %  Notice that this is again handled in a "sliced" manner
-            telapsed = toc(tStart);
-            if (mod(floor(telapsed/60),5) == 0 && (telapsed-parM(itPar).tsaved)/60>5)
-                
-                if ~exist(tmpFolderName, 'dir')
-                    mkdir(tmpFolderName);
+            if isAutosave
+                telapsed = toc(tStart);
+                if (mod(floor(telapsed/60),saveInterval) == 0 && (telapsed-parM(itPar).tsaved)/60>saveInterval)
+
+                    if ~exist(tmpFolderName, 'dir')
+                        mkdir(tmpFolderName);
+                    end
+
+                    if ~exist([tmpFolderName filesep Model.ModelName '.qmrlab.mat'], 'file')
+                        % We need some small navigation as saveObj saves to
+                        % the current directory only for now.
+                        orDir = pwd;
+                        cd(tmpFolderName);
+                        Model.saveObj;
+                        cd(orDir);
+                    end
+
+                    parM(itPar).tsaved = telapsed;
+                    % save function cannot be called from parfor directly.
+                    parSaveTemp(parM(itPar).Fit,tmpFolderName,itPar);
+                    parM(itPar).tsaved = telapsed;
                 end
-                
-                if ~exist([tmpFolderName filesep Model.ModelName '.qmrlab.mat'], 'file')
-                    % We need some small navigation as saveObj saves to
-                    % the current directory only for now.
-                    orDir = pwd;
-                    cd(tmpFolderName);
-                    Model.saveObj;
-                    cd(orDir);
-                end
-                
-                parM(itPar).tsaved = telapsed;
-                % save function cannot be called from parfor directly.
-                parSaveTemp(parM(itPar).Fit,tmpFolderName,itPar);
-                parM(itPar).tsaved = telapsed;
             end
             
-            
+           
         end
         parfor_progress;
         %p(itPar) = Par.toc;
@@ -487,34 +573,20 @@ if Model.voxelwise
     end
     
     % If there is autosaved data, collect them!
-    if exist('autoSavedDir','var') && ~bypassLoad
-        Fit = patchData(Fit,autoSavedDir,x,y,z);
+    if ~isempty(recoveryDir) && ~bypassLoad
+        Fit = patchData(Fit,recoveryDir,x,y,z);
     end
     
-    if z ==1
+    for jj = 1:length(parM)
         for ii = 1:length(cur_fields)
             cur_field = cur_fields{ii};
-            for jj = 1:length(parM)
-                xx = parM(jj).Fit.(cur_field)(:,1);
-                yy = parM(jj).Fit.(cur_field)(:,2);
-                % Write those freshly processed in 2D nV where z=1
-                idxs = sub2ind([x,y,z],xx,yy);
-                Fit.(cur_field)(idxs) = parM(jj).Fit.(cur_field)(:,4);
-            end
-        end
-    else % Means 3D
-        for ii = 1:length(cur_fields)
-            cur_field = cur_fields{ii};
-            for jj = 1:length(parM)
-                xx = parM(jj).Fit.(cur_field)(:,1);
-                yy = parM(jj).Fit.(cur_field)(:,2);
-                zz = parM(jj).Fit.(cur_field)(:,3);
-                % Write those freshly processed in 3D nV
-                idxs = sub2ind([x,y,z],xx,yy,zz);
-                Fit.(cur_field)(idxs) = parM(jj).Fit.(cur_field)(:,4);
-            end
+            [output, idx] = parseOutput(x, y, z, ...
+                                        parM(jj).Fit.(cur_field));
+            Fit.(cur_field)(idx) = output;
         end
     end
+    
+
 end % Voxelwise parse
 
 end
@@ -604,21 +676,21 @@ save([folder filesep 'ParFitTempResults_worker-' num2str(worker) '.mat'], '-stru
 
 end
 
-function [Voxels,bypass] = rmAutoSavedIndexes(autoSavedDir,Voxels,x,y,z,Model)
+function [Voxels,bypass] = rmAutoSavedIndexes(recoveryDir,Voxels,x,y,z,Model)
 % Read autosaved data and drop those proccesed ones from the
 % data.
 
 % This whole thing will bypassed if there is protocol mismatch.
 try
-    file = dir(fullfile([autoSavedDir filesep],'*.qmrlab.mat'));
+    file = dir(fullfile([recoveryDir filesep],'*.qmrlab.mat'));
     if isempty(file)
         cprintf('blue','<< %s >> --------------------------------------------------','!');
-        cprintf('red','<< WARNING >> %s.qmrlab.mat cannot be find at %s:',Model.ModelName,autoSavedDir);
+        cprintf('red','<< WARNING >> %s.qmrlab.mat cannot be find at %s:',Model.ModelName,recoveryDir);
         cprintf('red','              Cannot restore previously %s','processed data.');
         cprintf('blue','<< %s >> --------------------------------------------------','!');
         pause(3);
     end
-    savedModel = qMRloadObj([autoSavedDir filesep file.name]);
+    savedModel = qMRloadObj([recoveryDir filesep file.name]);
     bypass = false;
 catch
     bypass = true;
@@ -638,10 +710,10 @@ catch
     bypass = true;
 end
 
-files = dir(fullfile(autoSavedDir,'ParFitTempREsults*.mat'));
+files = dir(fullfile(recoveryDir,'ParFitTempREsults*.mat'));
 if isempty(files)
     cprintf('blue','<< %s >> --------------------------------------------------','!');
-    cprintf('red','<< WARNING >> Autosaved data cannot be find at %s',autoSavedDir);
+    cprintf('red','<< WARNING >> Autosaved data cannot be find at %s',recoveryDir);
     cprintf('red','              The whole dataset will be %s','processed');
     cprintf('blue','<< %s >> --------------------------------------------------','!');
     bypass =  true;
@@ -651,7 +723,7 @@ if ~bypass
     fulLen = length(Voxels);
     those = [];
     for ii=1:length(files)
-        this = load([autoSavedDir filesep files(ii).name]);
+        this = load([recoveryDir filesep files(ii).name]);
         % Get native indexes only
         this = this.(this.fields{1})(:,1:3);
         % Get rid of NaN (unprocessed) parts
@@ -672,31 +744,40 @@ end
 
 end
 
-function Fit = patchData(Fit,autoSavedDir,x,y,z)
-% L617-630 is the same with L465-488. Shame on me :)
+function Fit = patchData(Fit,recoveryDir,x,y,z)
 
-files = dir(fullfile(autoSavedDir,'ParFitTempResults*.mat'));
+files = dir(fullfile(recoveryDir,'ParFitTempResults*.mat'));
 for ii=1:length(files)
-    thisf = load([autoSavedDir filesep files(ii).name]);
+    thisf = load([recoveryDir filesep files(ii).name]);
     
     for jj=1:length(thisf.fields)
         cur_field = thisf.fields{jj};
         that = thisf.(cur_field);
         that = that(all(~isnan(that),2),:);
-        if z==1
-            xx = that(:,1);
-            yy = that(:,2);
-            val = that(:,4);
-            idxs = sub2ind([x,y],xx,yy);
-            Fit.(cur_field)(idxs) = val;
-        else
-            xx = that(:,1);
-            yy = that(:,2);
-            zz = that(:,3);
-            val = that(:,4);
-            idxs = sub2ind([x,y,z],xx,yy,zz);
-            Fit.(cur_field)(idxs) = val;
-        end
+        
+        [output, idx] = parseOutput(x,y,z,that);
+        Fit.(cur_field)(idx) = output;
+
     end
 end
+end
+
+function [output, idx] = parseOutput(x,y,z,input)
+% [x, y, z] are the volumetric dimensions
+% Input is the [NX4] matrix, where N is the number of voxels
+%              [i,:] x,y,z,val 
+
+        if z==1
+            idx = sub2ind([x,y],...
+                          input(:,1), ...
+                          input(:,2));
+            output = input(:,4);    
+        else
+            idx = sub2ind([x,y,z],...
+                          input(:,1), ...
+                          input(:,2),...
+                          input(:,3));
+            output = input(:,4);    
+        end
+
 end
