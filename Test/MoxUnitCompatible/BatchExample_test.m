@@ -6,7 +6,7 @@ end
 initTestSuite;
 
 function TestSetup
-setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
+setenv('ISCITEST','1') % go faster! Fit only 2 voxels in FitData.m
 
 function test_batch
 curdir = pwd;
@@ -54,7 +54,7 @@ for iModel = 1:length(Modellist)
     % Run Batch
     if isdata
         starttime = tic;
-        eval([Modellist{iModel} '_batch'])
+        aa = eval([Modellist{iModel} '_batch']);
         toc(starttime)
     end
     close all
@@ -65,5 +65,5 @@ cd(curdir)
 
 
 function TestTeardown
-setenv('ISTRAVIS','0')
+setenv('ISCITEST','0')
 

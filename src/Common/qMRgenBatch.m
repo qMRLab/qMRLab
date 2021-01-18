@@ -142,8 +142,8 @@ end
 % Please do not use underscores or any other special chars.
 % foo_model --> genBatchfoomodel.qmr
 
-if ~isempty(getenv('ISTRAVIS')) % TEST ENV
-    if str2double(getenv('ISTRAVIS')) || strcmp(varNames.modelName,'qsm_sb')   
+if ~isempty(getenv('ISCITEST')) % TEST ENV
+    if str2double(getenv('ISCITEST')) || strcmp(varNames.modelName,'qsm_sb')   
         allScript = getTemplateFile('genBatchqsm.qmr');   
     else
         allScript = getTemplateFile('genBatch.qmr'); 
