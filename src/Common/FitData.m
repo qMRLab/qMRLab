@@ -228,7 +228,8 @@ if Model.voxelwise % process voxelwise
         
         if ISCITEST && ii>2
             try
-                Fit = load(fullfile('.','FitResults','FitResults.mat'));
+                % Fit = load(fullfile('.','FitResults','FitResults.mat'));
+                disp('returning 3 voxels');
             end
             break;
         end

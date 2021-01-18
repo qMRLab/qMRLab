@@ -1,0 +1,68 @@
+% This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
+% Command Line Interface (CLI) is well-suited for automatization 
+% purposes and Octave. 
+%
+% Please execute this m-file section by section to get familiar with batch
+% processing for *-modelName-* on CLI.
+%
+% Demo files are downloaded into *-modelName-*_data folder. 
+%
+% Written by: Agah Karakuzu, 2017
+% =========================================================================
+
+%% I- DESCRIPTION
+
+qMRinfo('*-modelName-*');
+
+Model = *-modelName-*; 
+
+*-dataExplain-*
+
+data = struct();
+*-dataCommand-*
+
+
+% This will get only 3 voxels computed if env is ISCITEST
+FitResults = FitData(data,Model,0);
+
+FitResults_old = load('FitResults/FitResults.mat');
+
+intrFields = intersect(FitResults.fields,FitResults_old.fields);
+
+% Assert new fit with the old one within 5% accuracy
+for k=1:length(intrFields)
+
+                crField = intrFields{k};
+                crMask = FitResults.computed;
+                expected = FitResults_old.(crField);
+                calculated = FitResults.(crField);
+
+                if ~isequal(size(expected),size(calculated))
+                    message = ['FAILED assertion at 5% : ' crField '--->' Model.ModelName]; 
+                    whatswrong='Inputs are not of the same size.';
+                    error_id='assertEqual:nonEqual';
+                    full_message=moxunit_util_input2str(message,whatswrong,expected,calculated);
+                    % Assuming ISTRAVIS is always Octave for now.
+                    error(error_id,'%s',full_message);
+                end
+
+                % Allow 5% difference
+                assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),...
+                    'relative',0.05,['FAILED assertion at 5% : ' crField '--->' Model.ModelName]);
+
+
+end
+disp(['PASSED assertion at 5% : ' Model.ModelName])
+
+% Not that it'll show, just to hit those lines.
+qMRshowOutput(FitResults_old,data,Model);
+
+*-saveCommand-*
+Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
+
+
+% *-SingleVoxelCurve-*
+
+
+% *-SensitivityAnalysis-*
+

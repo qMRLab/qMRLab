@@ -54,7 +54,7 @@ for iModel = 1:length(Modellist)
     % Run Batch
     if isdata
         starttime = tic;
-        aa = eval([Modellist{iModel} '_batch']);
+        eval([Modellist{iModel} '_batch']);
         toc(starttime)
     end
     close all

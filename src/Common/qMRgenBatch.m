@@ -143,11 +143,15 @@ end
 % foo_model --> genBatchfoomodel.qmr
 
 if ~isempty(getenv('ISCITEST')) % TEST ENV
-    if str2double(getenv('ISCITEST')) || strcmp(varNames.modelName,'qsm_sb')   
-        allScript = getTemplateFile('genBatchqsm.qmr');   
+
+    if str2double(getenv('ISCITEST')) && strcmp(varNames.modelName,'qsm_sb')
+        % There is an exceptional case for qsm_sb as it is not voxelwise 
+        % and takes long to process.
+        allScript = getTemplateFile('genBatchNoAssert.qmr');
     else
-        allScript = getTemplateFile('genBatch.qmr'); 
+        allScript = getTemplateFile('genBatchTestAssert.qmr');
     end    
+
 else % USER 
    allScript = getTemplateFile('genBatch.qmr'); 
 end
