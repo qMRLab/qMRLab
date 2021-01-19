@@ -12,6 +12,7 @@
 
 %% I- DESCRIPTION
 
+warning('off','all'); % Too verbose otherwise
 qMRinfo('*-modelName-*');
 
 Model = *-modelName-*; 
@@ -33,7 +34,11 @@ intrFields = intersect(FitResults.fields,FitResults_old.fields);
 for k=1:length(intrFields)
 
                 crField = intrFields{k};
-                crMask = FitResults.computed;
+                if Model.voxelwise
+                    crMask = FitResults.computed;
+                else
+                    crMask = ones(size(FitResults.(crField)));
+                end
                 expected = FitResults_old.(crField);
                 calculated = FitResults.(crField);
 
@@ -42,7 +47,6 @@ for k=1:length(intrFields)
                     whatswrong='Inputs are not of the same size.';
                     error_id='assertEqual:nonEqual';
                     full_message=moxunit_util_input2str(message,whatswrong,expected,calculated);
-                    % Assuming ISTRAVIS is always Octave for now.
                     error(error_id,'%s',full_message);
                 end
 
@@ -66,3 +70,4 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 
 % *-SensitivityAnalysis-*
 
+warning('on','all');
