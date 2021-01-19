@@ -464,7 +464,7 @@ if ~moxunit_util_platform_is_octave
         end
    end
 
-   if ~isempty(p)
+   if ~isempty(p) && Model.voxelwise
        FitResults = ParFitData(data,Model);
    else
        FitResults = FitData(data,Model,1);
