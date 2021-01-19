@@ -29,7 +29,7 @@ classdef filter_map < AbstractModel & FilterClass
     %     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
     %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/d8p4h/download?version=1';
+        onlineData_url = 'https://osf.io/d8p4h/download?version=2';
     end
     
     properties

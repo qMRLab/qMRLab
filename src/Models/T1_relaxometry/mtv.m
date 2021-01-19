@@ -55,7 +55,7 @@ classdef mtv < AbstractModel
 
 properties (Hidden=true)
 % Hidden properties goes here. 
-onlineData_url = 'https://osf.io/rsh9e/download';
+onlineData_url = 'https://osf.io/rsh9e/download?version=2';
 end
 
     properties
