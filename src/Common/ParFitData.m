@@ -366,7 +366,8 @@ if Model.voxelwise % process voxelwise
             % first successful fit. Therefore it is important that
             % we check it. Otherwise, if a fit starts with errorenous voxels,
             % the execution is interrupted.
-            if isfield(parM(itPar),'tempFit')
+            % Numeric value assigned to initialize the field (used numeric)
+            if isfield(parM(itPar),'tempFit') && ~isnumeric(parM(itPar).tempFit)
                 
                 if isempty(parM(itPar).tempFit);  parM(itPar).Fit=[]; error('Nope'); end
                 
@@ -613,6 +614,9 @@ for iii = 1:length(MRIinputs)
         parM(jjj).fitFailedCounter = 0;
         parM(jjj).firstHit = false;
         parM(jjj).Model = Model;
+        parM(jjj).tempFit = 999;
+        parM(jjj).Fit = struct();
+        parM(jjj).tsaved = [];
     end
     if isfield(data,'hdr'), parM(jjj).hdr = data.hdr; end
 end
