@@ -362,37 +362,20 @@ if Model.voxelwise % process voxelwise
                 parM(itPar).fitFailedCounter = parM(itPar).fitFailedCounter + 1;
             end
             
-            % The variable tempFit won't be declared until the
-            % first successful fit. Therefore it is important that
-            % we check it. Otherwise, if a fit starts with errorenous voxels,
-            % the execution is interrupted.
-            % Numeric value assigned to initialize the field (used numeric)
-            if isfield(parM(itPar),'tempFit') && ~isnumeric(parM(itPar).tempFit)
+            % The variable tempFit won't be non-numeric and non-empty 
+            % untill the first successful fit.
+            % I casted it as numeric on decleration in order not to defeat
+            % the purpose of the condition L375.
+
+            if  ~isnumeric(parM(itPar).tempFit)
                 
-                if isempty(parM(itPar).tempFit);  parM(itPar).Fit=[]; error('Nope'); end
+                if isempty(parM(itPar).tempFit);  parM(itPar).Fit=[]; error('Fatal fit.'); end
                 
                 if ~parM(itPar).firstHit
                     % Initialize outputs fields
                     % This happens only once.
                     parM(itPar).fields =  fieldnames(parM(itPar).tempFit)';
                     
-                    if ~isfield(parM(itPar),'Fit')
-                        for ff = 1:length(parM(itPar).fields)
-                            cur_field = parM(itPar).fields{ff};
-                            % Here, we preallocate outputs per worker. Which is
-                            % really really critical for performance in MATLAB.
-                            % You need to exercise due diligence to manage the flow
-                            % so that the preallocation happens only once!
-                            % In this script, we have two cases where a
-                            % preallocation may happen:
-                            %   - Fail-first
-                            %   - Success-first
-                            
-                            % Here, we are preallocating in the success-first condition.
-                            % N x 4 for x,y,z and fit value
-                            parM(itPar).Fit.(cur_field) = nan(length(parM(itPar).NativeIdx),4);
-                        end
-                    end
                     parM(itPar).Fit.fields = parM(itPar).fields;
                     %parM(itPar).Fit.computed = zeros(length(parM(itPar).NativeIdx),3);
                     % Ensure that initialization happens only once when the first
@@ -411,25 +394,7 @@ if Model.voxelwise % process voxelwise
                 end
                 
             else
-                
-                % Hits here when fit failed. Exclusive err case
-                % For now, substitute fields with xnames, because tempFit does
-                % not exist yet. They may be interchangeable, but if they are
-                % not some models and there is an unexpected behaviour, this is
-                % a good place to start with debugging.
-                
-                % If first hit did not happen but the flow made its way
-                % here, means that we need to initialize the
-                % Fit.(cur_field) matrices here.
-                
-                if ~isfield(parM(itPar),'Fit')
-                    for ff = 1:length(Model.xnames)
-                        cur_field = Model.xnames{ff};
-                        % So, this is the preallocation for fail-first case.
-                        parM(itPar).Fit.(cur_field) = nan(length(parM(itPar).NativeIdx),4);
-                    end
-                end
-                
+                                
                 for ff = 1:length(Model.xnames)
                     cur_field = Model.xnames{ff};
                     [xii,yii,zii] = ind2sub([x,y,z],parM(itPar).NativeIdx(ii));
@@ -609,16 +574,30 @@ splits = splitIdx(length(Voxels),nW);
 
 for iii = 1:length(MRIinputs)
     for jjj = 1:length(splits)
+        % Initialize all the fields that are going to be 
+        % created/assigned in the parfor, otherwise MATLAB
+        % won't be able to hand it for versions older than 
+        % R2019. Non-uniform struct concat issue.
         parM(jjj).(MRIinputs{iii}) = data.(MRIinputs{iii})(splits(jjj).from:splits(jjj).to,:);
         parM(jjj).NativeIdx = Voxels(splits(jjj).from:splits(jjj).to);
-        parM(jjj).fitFailedCounter = 0;
+        % This one is safe
+        parM(jjj).fitFailedCounter = 0; 
+        % This one is safe
         parM(jjj).firstHit = false;
+        % This one is safe
         parM(jjj).Model = Model;
+        % Determines flow 
         parM(jjj).tempFit = 999;
-        parM(jjj).Fit = struct();
+        % This one is safe
         parM(jjj).tsaved = [];
+        % Determines flow
         parM(jjj).fitFailed = [];
+        % Determines flow
         parM(jjj).fields = [];
+        % Initialize
+        for kk=1:length(Model.xnames)
+            parM(jjj).Fit.(Model.xnames{kk}) = nan(length(parM(jjj).NativeIdx),4);
+        end
     end
     if isfield(data,'hdr'), parM(jjj).hdr = data.hdr; end
 end
