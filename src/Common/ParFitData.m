@@ -617,6 +617,8 @@ for iii = 1:length(MRIinputs)
         parM(jjj).tempFit = 999;
         parM(jjj).Fit = struct();
         parM(jjj).tsaved = [];
+        parM(jjj).fitFailed = [];
+        parM(jjj).fields = [];
     end
     if isfield(data,'hdr'), parM(jjj).hdr = data.hdr; end
 end
