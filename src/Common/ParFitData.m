@@ -45,6 +45,12 @@ function Fit = ParFitData(data, Model,varargin)
 %                                   autosave. 
 %                                   Default: [] (string)
 %
+%   'Granularity'                   Determines the split factor:
+%                                       nChunks = nWorkers * granularity
+%                                   This helps update the CLI progress bar
+%                                   more frequently.
+%                                   Default: 5 (int) Allowed range [2:8]
+%
 % Notes about data: 
 %
 %    Field names                    Field names of the `data` struct MUST 
@@ -107,6 +113,7 @@ addRequired(p,'Model',validModel);
 addParameter(p,'RecoverDirectory',[],validDir);
 addParameter(p,'AutosaveInterval',5,@isnumeric);
 addParameter(p,'AutosaveEnabled',true,@isnumeric);
+addParameter(p,'Granularity',5,@isnumeric);
 
 parse(p,data,Model,varargin{:});
 
@@ -116,7 +123,15 @@ Model = p.Results.Model;
 saveInterval = ceil(p.Results.AutosaveInterval);
 recoveryDir  = p.Results.RecoverDirectory;
 isAutosave = p.Results.AutosaveEnabled;
+granularity = p.Results.Granularity;
 clear('p');
+
+if granularity<2; granularity = 2; end
+if granularity>8; granularity = 8; end
+
+% @JUAN-0 I set granularity to 1 temporarily to ensure minimum viable functionality,
+% I am not sure if we can properly traffic autosave with nChunks > nW.
+granularity  = 1;
 
 % Before fitting, do a sanity check on the input data and protocol
 Model.sanityCheck(data);
@@ -158,6 +173,7 @@ end
 
 if Model.voxelwise % process voxelwise
     
+    % Create folder name for temp outputs
     tmpFolderName = ['.' filesep 'ParFitTempResults_' datestr(now,'yyyy-mm-dd_HH-MM')];
 
     % Get dimensions
@@ -219,7 +235,7 @@ if Model.voxelwise % process voxelwise
             % First, reduce data from the WHOLE list of linearized indexes
             % (1:nV). This will also validate whether the loaded data is 
             % compatible with the current process.
-            [Voxels_reduced, bypassLoad] = rmAutoSavedIndexes(recoveryDir,1:nV,x,y,z, Model);
+            [Voxels_reduced, bypassLoad] = rmAutoSavedIndexes(recoveryDir,1:nV, Model);
             
             % Now we have the linearized indexes of the remaining data.
             % From this remaining data, we will discard those intersecting
@@ -245,9 +261,9 @@ if Model.voxelwise % process voxelwise
         % before the reduction), so that we can put them in the right place
         % in the image domain once the processing is completed.
         if bypassLoad
-            [parM,~] = mapData(Model,data,MRIinputs,Voxels,nW);
+            [parM,~] = mapData(Model,data,MRIinputs,Voxels,nW,granularity);
         else
-            [parM,~] = mapData(Model,data,MRIinputs,Voxels_masked_reduced,nW);
+            [parM,~] = mapData(Model,data,MRIinputs,Voxels_masked_reduced,nW,granularity);
         end
     else
         % If you are not familiar with the idea of linearized indexing,
@@ -278,7 +294,7 @@ if Model.voxelwise % process voxelwise
         % we have no reduction in data by Masks.
         if ~isempty(recoveryDir)
             
-            [Voxels, bypassLoad] = rmAutoSavedIndexes(recoveryDir,Voxels,x,y,z, Model);
+            [Voxels, bypassLoad] = rmAutoSavedIndexes(recoveryDir,Voxels, Model);
             
             if ~bypassLoad
                 for iii = 1:length(MRIinputs)
@@ -286,19 +302,20 @@ if Model.voxelwise % process voxelwise
                 end
             end
         end
-        [parM,~] = mapData(Model,data,MRIinputs,Voxels,nW);
+        [parM,~] = mapData(Model,data,MRIinputs,Voxels,nW,granularity);
         
     end
     
     disp('=============== qMRLab::Fit ======================')
     cprintf('magenta', '<< i >> Operation has been started:  %s \n',Model.ModelName);
     cprintf('blue',    '<< : >> Parallel:  %d workers \n',nW);
+    cprintf('blue',    '<< : >> Input is split into  %d chunks. \n',nW*granularity);
     cprintf('orange',  '<< - >> Modal windows have been disabled \n',nW);
     cprintf('blue',    '<< ! >> Temporary results will be saved every %d minutes. \n',saveInterval);
     
 
     
-    % parfor_progress(nW); % Useless
+    
     % Developer:
     %          You can monitor per-core performance by commenting in
     %
@@ -308,7 +325,7 @@ if Model.voxelwise % process voxelwise
     
    
 
-
+    parfor_progress(nW*granularity); % Granularity to update progress more often.
     % Take functions outside the parfor not to register objects as broadcast
     % variables.
     fitfun = @Model.fit;
@@ -320,7 +337,7 @@ if Model.voxelwise % process voxelwise
     % this application. The data is already sliced per core.
     
     tStart = tic;
-    parfor itPar = 1:nW
+    parfor itPar = 1:nW*granularity
         %Par.tic;
         parM(itPar).tsaved = 0;
         for ii = 1:length(parM(itPar).NativeIdx)
@@ -341,7 +358,8 @@ if Model.voxelwise % process voxelwise
             % In MATLAB's parallel computing nomenclature, these are called
             % sliced variables, a good way to inform parallel task manager
             % about how to manage threads.
-            % Collect computed indexes
+            
+            % Collect computed linearized indexes
             parM(itPar).computedIdx(ii) = parM(itPar).NativeIdx(ii);
             try
                 parM(itPar).tempFit = fitfun(Mi);
@@ -363,33 +381,12 @@ if Model.voxelwise % process voxelwise
                     errmsg = err.message;
                     cprintf('magenta','Solution not found for the voxel [%d,%d,%d]: %s \n',xii,yii,zii,errmsg);
                 elseif parM(itPar).fitFailedCounter == ceil(11/nW)
-                    cprintf('blue','Message from worker %d: Errorenous fit warnings are now silenced.',itPar);
+                    cprintf('blue','Errorenous fit warnings are now %s.','silenced');
                 end
                 
                 parM(itPar).fitFailed = true;
                 parM(itPar).fitFailedCounter = parM(itPar).fitFailedCounter + 1;
             end
-            
-            % The variable tempFit won't be non-numeric and non-empty 
-            % untill the first successful fit.
-            % I casted it as numeric on decleration in order not to defeat
-            % the purpose of the condition L375.
-
-            %if  ~isempty(parM(itPar).tempFit)
-                
-                % AK: I removed this, never hit. 
-                %if isempty(parM(itPar).tempFit);  parM(itPar).Fit=[]; error('Fatal fit.'); end
-                
-                %if ~parM(itPar).firstHit
-                    % Initialize outputs fields
-                    % This happens only once.
-                    %parM(itPar).fields =  fieldnames(parM(itPar).tempFit)';
-                    
-                    %parM(itPar).Fit.fields = parM(itPar).fields;
-                    %parM(itPar).firstHit = true;
-                %end
-                
-           %end
             
             % If fit is successful
             if ~parM(itPar).fitFailed
@@ -409,6 +406,11 @@ if Model.voxelwise % process voxelwise
             %  you've processed in case things go sideways.
             
             %  Notice that this is again handled in a "sliced" manner
+            %  @JUAN-1 now that the number of workers is not equal to number
+            %  of chunks (data splits) I am not sure how this autosave is
+            %  going to behave. As a first step, choose a lenghty fit and 
+            %  see if this is going to save nW*granularity outputs. For 4
+            %  workers, with default granularity, it should give 20.
             if isAutosave
                 telapsed = toc(tStart);
                 if (mod(floor(telapsed/60),saveInterval) == 0 && (telapsed-parM(itPar).tsaved)/60>saveInterval)
@@ -428,18 +430,18 @@ if Model.voxelwise % process voxelwise
 
                     parM(itPar).tsaved = telapsed;
                     % save function cannot be called from parfor directly.
-                    parSaveTemp(parM(itPar).Fit,tmpFolderName,itPar);
+                    parSaveTemp(parM(itPar).Fit,parM(itPar).computedIdx,tmpFolderName,itPar);
                     parM(itPar).tsaved = telapsed;
                 end
             end
            
         end
-         
-        %parfor_progress;
+        
+        parfor_progress;
         %p(itPar) = Par.toc;
         %updateParallel();
     end % Parallelize
-    %parfor_progress(0);
+    parfor_progress(0);
     toc(tStart);
     %stop(p);
     %figure(); plot(p);
@@ -538,7 +540,7 @@ end % Voxelwise parse
 
 end
 
-function [parM,splits,dene] = mapData(Model,data,MRIinputs,Voxels,nW)
+function [parM,splits,dene] = mapData(Model,data,MRIinputs,Voxels,nW,granularity)
 % Takes (reduced if masked) data struct and returns and struct array
 % to be processed by eack worker.
 % data: Struct
@@ -546,12 +548,14 @@ function [parM,splits,dene] = mapData(Model,data,MRIinputs,Voxels,nW)
 %       - If autoloaded, only those autoloaded
 % MRIInputs: Field from the model
 % Voxels: Native linearized indices of Voxels
-% nW: Number of workers to split data into
+% nW: Number of workers
+% granularity: A factor to split data further so that progressbar makes
+%              some sense.
 
 parM = struct();
 
 
-splits = splitIdx(length(Voxels),nW);
+splits = splitIdx(length(Voxels),nW*granularity);
 
 dene = struct();
 for iii = 1:length(MRIinputs)
@@ -569,7 +573,7 @@ for iii = 1:length(MRIinputs)
         parM(jjj).tsaved = [];
         parM(jjj).fitFailed = [];
         parM(jjj).fields = [];
-        parM(jjj).computedIdx = [];
+        parM(jjj).computedIdx = nan(1,length(parM(jjj).NativeIdx));
         for kk=1:length(Model.xnames)
             parM(jjj).Fit.(Model.xnames{kk}) = nan(1,length(parM(jjj).NativeIdx));
         end
@@ -629,14 +633,16 @@ end
 
 end
 
-function parSaveTemp(payload,folder,worker)
+function parSaveTemp(payload,computedIdx,folder,chunk)
 % You cannot evoke this function within parfor, but you can do this.
 
-save([folder filesep 'ParFitTempResults_worker-' num2str(worker) '.mat'], '-struct','payload');
+% It'll overwrite existing ones.
+save([folder filesep 'ParFitTempResults_chunk-' num2str(chunk) '.mat'], '-struct','payload');
+save([folder filesep 'ParIdxTempResults_chunk-' num2str(chunk) '.mat'], 'computedIdx');
 
 end
 
-function [Voxels,bypass] = rmAutoSavedIndexes(recoveryDir,Voxels,x,y,z,Model)
+function [Voxels,bypass] = rmAutoSavedIndexes(recoveryDir,Voxels,Model)
 % Read autosaved data and drop those proccesed ones from the
 % data.
 
@@ -670,7 +676,9 @@ catch
     bypass = true;
 end
 
-files = dir(fullfile(recoveryDir,'ParFitTempREsults*.mat'));
+% @JUAN-2 here, it'll load ParIdxTempResults* files that store 
+% linearized indexes of the voxels that are solved for.
+files = dir(fullfile(recoveryDir,'ParIdxTempResults*.mat'));
 if isempty(files)
     cprintf('blue','<< %s >> --------------------------------------------------','!');
     cprintf('red','<< WARNING >> Autosaved data cannot be find at %s',recoveryDir);
@@ -679,19 +687,19 @@ if isempty(files)
     bypass =  true;
 end
 
+% @JUAN-3 can you make sure that this works properly to collect
+% indexes for the processed voxels and remove them from the Voxels 
+% indexes that comes as input? 
 if ~bypass
     fulLen = length(Voxels);
     those = [];
     for ii=1:length(files)
         this = load([recoveryDir filesep files(ii).name]);
         % Get native indexes only
-        this = this.(this.fields{1})(:,1:3);
-        % Get rid of NaN (unprocessed) parts
-        that = this(all(~isnan(this),2),:);
-        % Linearized indexes of that are to be removed from Voxels
-        % Collect all of them
-        rmLin = sub2ind([x,y,z],that(:,1),that(:,2),that(:,3));
-        those = [those;rmLin];
+        this = this.computedIdx;
+        % Take entries that are not NaN
+        this = this(~isnan(this));
+        those = [those;this];
     end
     
     % That's how you drop items from an array.
@@ -706,17 +714,28 @@ end
 
 function Fit = patchData(Fit,recoveryDir,x,y,z)
 
-files = dir(fullfile(recoveryDir,'ParFitTempResults*.mat'));
-for ii=1:length(files)
-    thisf = load([recoveryDir filesep files(ii).name]);
-    
+filesFit = dir(fullfile(recoveryDir,'ParFitTempResults*.mat'));
+filesIdx = dir(fullfile(recoveryDir,'ParIdxTempResults*.mat'));
+
+for ii=1:length(filesFit)
+    thisf = load([recoveryDir filesep filesFit(ii).name]);
+    thisIdx = load([recoveryDir filesep filesIdx(ii).name]);
     for jj=1:length(thisf.fields)
         cur_field = thisf.fields{jj};
-        that = thisf.(cur_field);
-        that = that(all(~isnan(that),2),:);
-        
-        [output, idx] = parseOutput(x,y,z,that);
-        Fit.(cur_field)(idx) = output;
+        cur_idx   = thisIdx.computedIdx;
+        that = thisf.(cur_field); % This contains respective Fit for 
+        % the linear index of cur_idx
+        % @JUAN-4 this should be now similar to L531. Please edit the part I 
+        % commented out properly to parse results in "that" with the
+        % indexes "cur_idx" into [x,y,z] sized matrices, which are stored 
+        % as Fit.(cur_field) in the struct. Use x,y,z to determine the
+        % matrix size. parseOutput function no longer exists, no need. 
+        % ------------
+        % [output, idx] = parseOutput(x,y,z,that);
+        %            cur_field = Fit.fields{ii};
+        % Fit.(cur_field)(ind2sub([x,y,z],parM(jj).NativeIdx)) = parM(jj).Fit.(cur_field);
+        % Fit.(cur_field)(idx) = output;
+        % ------------
 
     end
 end
