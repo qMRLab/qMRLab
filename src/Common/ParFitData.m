@@ -187,7 +187,6 @@ if Model.voxelwise % process voxelwise
     % Reduce the data (nV) based on the presence of a Mask.
     if isfield(data,'Mask') && (~isempty(data.Mask))
         
-        isMask = true;
         % Set NaN values to zero if there are any
         if any(isnan(data.Mask(:)))
             data.Mask(isnan(data.Mask))=0;
@@ -273,7 +272,6 @@ if Model.voxelwise % process voxelwise
         % Matlab/Octave linear indexing logic is fundamental to the
         % understanding of this script.
         
-        isMask = false; % To use later on
         Voxels = 1:nV; % Linear indexing!
         
         % Here we are doing the same thing we did above, but this time
@@ -298,20 +296,30 @@ if Model.voxelwise % process voxelwise
     cprintf('orange',  '<< - >> Modal windows have been disabled \n',nW);
     cprintf('blue',    '<< ! >> Temporary results will be saved every %d minutes. \n',saveInterval);
     
-    tStart = tic;
-    % Keeping eye on the parfor progress is tricky. This external
-    % function is doing its best, still not that good :)
-    % More sophisticated functions usually come with an overhead. 
-    % There is parfor_progressbar on GitHub, which is cool, but depends
-    % on another toolbox. 
+
     
-    parfor_progress(nW);
+    % parfor_progress(nW); % Useless
     % Developer:
     %          You can monitor per-core performance by commenting in
     %
     % p; Par.tic; p(itPar) = Par.toc; and %figure(); plot(p); stop(p); lines.
     %
     %p = Par(nW);
+    
+   
+
+
+    % Take functions outside the parfor not to register objects as broadcast
+    % variables.
+    fitfun = @Model.fit;
+    fLen = length(Model.xnames);
+    xnames = Model.xnames;
+    modelName = Model.ModelName;
+    svObj = @Model.saveObj;
+    % Sending data by parallel.pool.Constant() won't make it faster for 
+    % this application. The data is already sliced per core.
+    
+    tStart = tic;
     parfor itPar = 1:nW
         %Par.tic;
         parM(itPar).tsaved = 0;
@@ -333,22 +341,22 @@ if Model.voxelwise % process voxelwise
             % In MATLAB's parallel computing nomenclature, these are called
             % sliced variables, a good way to inform parallel task manager
             % about how to manage threads.
+            % Collect computed indexes
+            parM(itPar).computedIdx(ii) = parM(itPar).NativeIdx(ii);
             try
-                % Variables that are not sliced or assigned within a parfor
-                % loop are called "broadcast variables. Here, Model is a
-                % broadcast variable.
-                parM(itPar).tempFit = Model.fit(Mi);
+                parM(itPar).tempFit = fitfun(Mi);
                 parM(itPar).fitFailed = false;
             catch err
-                % ind2sub converts linearized indezes to matrix indexes
-                % Remember that nativeidx stores the original linearized
-                % indices
-                [xii,yii,zii] = ind2sub([x y z],parM(itPar).NativeIdx(ii));
                 
                 % Especially when there is not a mask, many many fits will fail.
                 % Limit the number of warnings, as there is no point in showing
                 % them all.
                 if parM(itPar).fitFailedCounter < ceil(10/nW)
+                    
+                % ind2sub converts linearized indezes to matrix indexes
+                % Remember that nativeidx stores the original linearized
+                % indices
+                    [xii,yii,zii] = ind2sub([x y z],parM(itPar).NativeIdx(ii));
                     % It is important that errmsg is explicitly assigned here but not passed in-line.
                     % These are recognized as temporary variables by MATLAB
                     % parpool, which manages them fairly good.
@@ -367,41 +375,34 @@ if Model.voxelwise % process voxelwise
             % I casted it as numeric on decleration in order not to defeat
             % the purpose of the condition L375.
 
-            if  ~isnumeric(parM(itPar).tempFit)
+            %if  ~isempty(parM(itPar).tempFit)
                 
-                if isempty(parM(itPar).tempFit);  parM(itPar).Fit=[]; error('Fatal fit.'); end
+                % AK: I removed this, never hit. 
+                %if isempty(parM(itPar).tempFit);  parM(itPar).Fit=[]; error('Fatal fit.'); end
                 
-                if ~parM(itPar).firstHit
+                %if ~parM(itPar).firstHit
                     % Initialize outputs fields
                     % This happens only once.
-                    parM(itPar).fields =  fieldnames(parM(itPar).tempFit)';
+                    %parM(itPar).fields =  fieldnames(parM(itPar).tempFit)';
                     
-                    parM(itPar).Fit.fields = parM(itPar).fields;
-                    %parM(itPar).Fit.computed = zeros(length(parM(itPar).NativeIdx),3);
-                    % Ensure that initialization happens only once when the first
-                    % solution exists.
-                    parM(itPar).firstHit = true;
-                end
-            end
+                    %parM(itPar).Fit.fields = parM(itPar).fields;
+                    %parM(itPar).firstHit = true;
+                %end
+                
+           %end
             
             % If fit is successful
             if ~parM(itPar).fitFailed
                 
-                for ff = 1:length(parM(itPar).fields)
-                    cur_field = parM(itPar).fields{ff};
-                    [xii,yii,zii] = ind2sub([x,y,z],parM(itPar).NativeIdx(ii));
-                    parM(itPar).Fit.(cur_field)(ii,:) = [xii,yii,zii,parM(itPar).tempFit.(cur_field)];
-                end
-                
-            else
-                                
-                for ff = 1:length(Model.xnames)
-                    cur_field = Model.xnames{ff};
-                    [xii,yii,zii] = ind2sub([x,y,z],parM(itPar).NativeIdx(ii));
-                    parM(itPar).Fit.(cur_field)(ii,:) = [xii,yii,zii,NaN];
+                for ff = 1:fLen
+                    cur_field = xnames{ff};
+                    %[xii,yii,zii] = ind2sub([x,y,z],parM(itPar).NativeIdx(ii));
+                    parM(itPar).Fit.(cur_field)(1,ii) = parM(itPar).tempFit.(cur_field);
                 end
                 
             end
+            
+            % If fit is not successful, the value is NaN already.
             
             %  Autosave results every 5 minutes.
             %  Some models are painfully slow, it is of value to keep what
@@ -416,12 +417,12 @@ if Model.voxelwise % process voxelwise
                         mkdir(tmpFolderName);
                     end
 
-                    if ~exist([tmpFolderName filesep Model.ModelName '.qmrlab.mat'], 'file')
+                    if ~exist([tmpFolderName filesep modelName '.qmrlab.mat'], 'file')
                         % We need some small navigation as saveObj saves to
                         % the current directory only for now.
                         orDir = pwd;
                         cd(tmpFolderName);
-                        Model.saveObj;
+                        svObj();
                         cd(orDir);
                     end
 
@@ -431,24 +432,24 @@ if Model.voxelwise % process voxelwise
                     parM(itPar).tsaved = telapsed;
                 end
             end
-            
            
         end
-        parfor_progress;
+         
+        %parfor_progress;
         %p(itPar) = Par.toc;
+        %updateParallel();
     end % Parallelize
-    parfor_progress(0);
+    %parfor_progress(0);
     toc(tStart);
     %stop(p);
     %figure(); plot(p);
-    
     cprintf('magenta','<< * >> Operation has been completed:  %s \n',Model.ModelName);
     cprintf('blue','<< i >> FitResults will be saved to your %s \n','working directory:');
     cprintf('blue','      - If specified in the GUI, to the %s \n','Path Data.');
     cprintf('blue','      - Otherwise at %s \n',pwd);
     disp('==================================================')
     
-    %reduceData
+
 else % process entire volume not a parfor case
     
     
@@ -512,43 +513,23 @@ Fit.Version = qMRLabVer;
 % completed.
 if Model.voxelwise
     
-    foundFields = true;
-    it = 1;
-    % To be on the safe side. Maybe one poor processor had all the
-    % bad voxels and does not contain 'fields'. May happen when someone
-    % throws 100s of cores to the process. If computing is super, so should
-    % be the conditional checks :)
-    while foundFields
-        
-        if isfield(parM(it),'fields')
-            cur_fields = parM(it).fields;
-            foundFields = false;
-        end
-        
-        if it == length(parM)
-            foundFields = false;
-        end
-        
-        it = it + 1;
-    end
+    Fit.fields = fieldnames(parM(1).Fit);
     
-    Fit.fields = cur_fields;
-    
-    for ii = 1:length(cur_fields)
-        Fit.(cur_fields{ii}) = zeros(x,y,z);
+    for ii = 1:length(Fit.fields)
+        cur_field = Fit.fields{ii};
+        Fit.(cur_field) = zeros(x,y,z);
     end
     
     % If there is autosaved data, collect them!
+    % UPDATE
     if ~isempty(recoveryDir) && ~bypassLoad
         Fit = patchData(Fit,recoveryDir,x,y,z);
     end
     
     for jj = 1:length(parM)
-        for ii = 1:length(cur_fields)
-            cur_field = cur_fields{ii};
-            [output, idx] = parseOutput(x, y, z, ...
-                                        parM(jj).Fit.(cur_field));
-            Fit.(cur_field)(idx) = output;
+        for ii = 1:length(Fit.fields)
+            cur_field = Fit.fields{ii};
+            Fit.(cur_field)(ind2sub([x,y,z],parM(jj).NativeIdx)) = parM(jj).Fit.(cur_field);
         end
     end
     
@@ -557,7 +538,7 @@ end % Voxelwise parse
 
 end
 
-function [parM,splits] = mapData(Model,data,MRIinputs,Voxels,nW)
+function [parM,splits,dene] = mapData(Model,data,MRIinputs,Voxels,nW)
 % Takes (reduced if masked) data struct and returns and struct array
 % to be processed by eack worker.
 % data: Struct
@@ -572,6 +553,7 @@ parM = struct();
 
 splits = splitIdx(length(Voxels),nW);
 
+dene = struct();
 for iii = 1:length(MRIinputs)
     for jjj = 1:length(splits)
         % Initialize all the fields that are going to be 
@@ -580,23 +562,16 @@ for iii = 1:length(MRIinputs)
         % R2019. Non-uniform struct concat issue.
         parM(jjj).(MRIinputs{iii}) = data.(MRIinputs{iii})(splits(jjj).from:splits(jjj).to,:);
         parM(jjj).NativeIdx = Voxels(splits(jjj).from:splits(jjj).to);
-        % This one is safe
         parM(jjj).fitFailedCounter = 0; 
-        % This one is safe
         parM(jjj).firstHit = false;
-        % This one is safe
         parM(jjj).Model = Model;
-        % Determines flow 
-        parM(jjj).tempFit = 999;
-        % This one is safe
+        parM(jjj).tempFit = [];
         parM(jjj).tsaved = [];
-        % Determines flow
         parM(jjj).fitFailed = [];
-        % Determines flow
         parM(jjj).fields = [];
-        % Initialize
+        parM(jjj).computedIdx = [];
         for kk=1:length(Model.xnames)
-            parM(jjj).Fit.(Model.xnames{kk}) = nan(length(parM(jjj).NativeIdx),4);
+            parM(jjj).Fit.(Model.xnames{kk}) = nan(1,length(parM(jjj).NativeIdx));
         end
     end
     if isfield(data,'hdr'), parM(jjj).hdr = data.hdr; end
@@ -745,24 +720,4 @@ for ii=1:length(files)
 
     end
 end
-end
-
-function [output, idx] = parseOutput(x,y,z,input)
-% [x, y, z] are the volumetric dimensions
-% Input is the [NX4] matrix, where N is the number of voxels
-%              [i,:] x,y,z,val 
-
-        if z==1
-            idx = sub2ind([x,y],...
-                          input(:,1), ...
-                          input(:,2));
-            output = input(:,4);    
-        else
-            idx = sub2ind([x,y,z],...
-                          input(:,1), ...
-                          input(:,2),...
-                          input(:,3));
-            output = input(:,4);    
-        end
-
 end
