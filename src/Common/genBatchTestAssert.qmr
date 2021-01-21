@@ -37,7 +37,11 @@ for k=1:length(intrFields)
                 if Model.voxelwise
                     crMask = FitResults.computed;
                 else
-                    crMask = ones(size(FitResults.(crField)));
+                    if isfield(data,'Mask')
+                      crMask = data.Mask;
+                    else
+                      crMask = ones(size(FitResults.(crField)));
+                    end
                 end
                 expected = FitResults_old.(crField);
                 calculated = FitResults.(crField);
