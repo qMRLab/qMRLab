@@ -16,7 +16,7 @@ tmpDir = tempdir;
 mkdir(tmpDir);
 cd(tmpDir)
 
-Modellist = {'qmt_bssfp'};
+Modellist = {'mtv'};
 
 for iModel = 1:length(Modellist)
     disp('===============================================================')
