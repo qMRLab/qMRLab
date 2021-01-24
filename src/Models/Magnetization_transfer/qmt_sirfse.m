@@ -132,7 +132,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'T2f (Used in Block equation)',0.040};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation assuming M=0 after Tr (full recovery) (slow)','Bloch equation with full FSE (very slow)'},'T2f (Used in Bloch equation)',0.040};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100};
 
@@ -166,15 +166,15 @@ end
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             Sim.Param = mat2struct(x,obj.xnames);
             Protocol = GetProt(obj);
-            if strcmp(Opt.Method,'Block equation assuming M=0 after Tr (full recovery) (slow)')
+            if strcmp(Opt.Method,'Bloch equation assuming M=0 after Tr (full recovery) (slow)')
                 Sim.Opt.method = 'FastSim';
-                Opt.Method = 'Block equation';
-            elseif strcmp(Opt.Method,'Block equation with full FSE (very slow)')
+                Opt.Method = 'Bloch equation';
+            elseif strcmp(Opt.Method,'Bloch equation with full FSE (very slow)')
                 Sim.Opt.method = 'FullSim';
-                Opt.Method = 'Block equation';
+                Opt.Method = 'Bloch equation';
             end
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch equation'
                     Sim.Param.M0f = 1;
                     Sim.Param.R2f = 1/Opt.T2fUsedinBlockequation;
                     Sim.Param.G   = 1.4176e-5;
