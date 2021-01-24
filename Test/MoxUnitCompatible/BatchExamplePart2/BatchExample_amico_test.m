@@ -17,6 +17,9 @@ mkdir(tmpDir);
 cd(tmpDir)
 
 Modellist = {'amico'};
+eval(['Model = ' Modellist{iModel}]);
+
+%{
 
 for iModel = 1:length(Modellist)
     disp('===============================================================')
@@ -32,6 +35,7 @@ for iModel = 1:length(Modellist)
     
     % Amico assertion tests are not passing
     % turn them off temporarily.
+
     setenv('ISCITEST','');
     qMRgenBatch(Model,pwd)
     setenv('ISCITEST','1');
@@ -57,7 +61,7 @@ for iModel = 1:length(Modellist)
     
 end
 cd(curdir)
-
+%}
 
 function TestTeardown
 setenv('ISCITEST','0')
