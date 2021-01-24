@@ -1,4 +1,4 @@
-function test_suite=SimTest_charmed
+function test_suite=SimTest_montecarlo_test
     try % assignment of 'localfunctions' is necessary in Matlab >= 2016
     test_functions=localfunctions();
     catch % no problem; early Matlab versions can use initTestSuite fine
@@ -7,6 +7,7 @@ function test_suite=SimTest_charmed
     
     function TestSetup
     setenv('ISDISPLAY','0') % go faster! Fit only 2 voxels in FitData.m
+    setenv('ISCITEST','1')
     
     function test_Sim
     disp('===========================================')
@@ -32,5 +33,6 @@ function test_suite=SimTest_charmed
     
     
     function TestTeardown
-    setenv('ISDISPLAY','') % go faster! Fit only 2 voxels in FitData.m
+    setenv('ISDISPLAY','')
+    setenv('ISCITEST','')% go faster! Fit only 2 voxels in FitData.m
     
