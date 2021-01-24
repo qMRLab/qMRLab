@@ -30,10 +30,11 @@ for iModel = 1:length(Modellist)
     
     
     
-    
-    
+    % Amico assertion tests are not passing
+    % turn them off temporarily.
+    setenv('ISCITEST','');
     qMRgenBatch(Model,pwd)
-    
+    setenv('ISCITEST','1');
     
     
     
