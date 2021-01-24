@@ -20,7 +20,7 @@ Modellist = list_models';
 % directory with BatchExample_test.m, they will be discarded from the list
 % to split tasks on different Azure agents.
 BatchExampleFiles = cellfun(@(x) ['BatchExample_' x '_test.m'],Modellist,'uni',0)';
-Modellist(~~cellfun(@(x) exist(x,'file'),BatchExampleFiles)) = [];
+Modellist(~~cellfun(@(x) exist(['BatchExamplePart2' filesep x],'file'),BatchExampleFiles)) = [];
 
 for iModel = 1:length(Modellist)
     disp('===============================================================')

@@ -1,5 +1,5 @@
 jobs:
-- job: MATLAB_quickMox_and_BatchExample_tests
+- job: MATLAB_1_quickMox_BatchExamplePart1
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
@@ -23,7 +23,7 @@ jobs:
         sleep 2
         bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_test.json" -F matlab
       displayName: 'Upload to Codecov.io'
-- job: MATLAB_2_qmt_batch_tests
+- job: MATLAB_2_BatchExamplePart2
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
@@ -37,27 +37,13 @@ jobs:
           startup;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
-          testDir = '/Test/MoxUnitCompatible';
-          res1=moxunit_runtests([qmrlabRoot testDir '/BatchExample_qmt_spgr_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_qmt_spgr_test.json']);
-          res2=moxunit_runtests([qmrlabRoot testDir '/BatchExample_qmt_bssfp_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_qmt_bssfp_test.json']);
-          res3=moxunit_runtests([qmrlabRoot testDir '/BatchExample_qmt_sirfse_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_qmt_sirfse_test.json']);
-          res4=moxunit_runtests([qmrlabRoot testDir '/BatchExample_mtv_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_mtv_test.json']);
-          res5=moxunit_runtests([qmrlabRoot testDir '/BatchExample_b1_afi_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_b1_afi_test.json']);
-          res6=moxunit_runtests([qmrlabRoot testDir '/BatchExample_filter_map_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_filter_map_test.json']);
+          testDir = '/Test/MoxUnitCompatible/BatchExamplePart2'
+          res1=moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExamplePart2.json']);
+          exit(~res1);
 
           exit(~all([res1 res2 res3 res4 res5]));
     - script: |
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_qmt_spgr_test.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_qmt_bssfp_test.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_qmt_sirfse_test.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_mtv_test.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_b1_afi_test.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_BatchExample_filter_map_test.json" -F matlab
+        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/BatchExamplePart2/coverage_BatchExamplePart2.json" -F matlab
       displayName: 'Upload to Codecov.io'
 - job: MATLAB_3_SimTests
   pool:
@@ -73,30 +59,9 @@ jobs:
           startup;
           qMRLabVer;
           qmrlabRoot = getenv('BUILD_REPOSITORY_LOCALPATH');
-          testDir = '/Test/MoxUnitCompatible';
-          res1=moxunit_runtests([qmrlabRoot testDir '/SimTest_charmed.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_charmed.json']);
-          res2=moxunit_runtests([qmrlabRoot testDir '/SimTest_dti.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_dti.json']);
-          res3=moxunit_runtests([qmrlabRoot testDir '/SimTest_noddi.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_noddi.json']);
-          res4=moxunit_runtests([qmrlabRoot testDir '/SimTest_qmt_sirfse.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_qmt_sirfse.json']);
-          res5=moxunit_runtests([qmrlabRoot testDir '/SimTest_inversion_recovery.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_inversion_recovery.json']);
-          res6=moxunit_runtests([qmrlabRoot testDir '/SimTest_vfa_t1.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_vfa_t1.json']);
-          res7=moxunit_runtests([qmrlabRoot testDir '/SimTest_montecarlo.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_montecarlo.json']);
-          res8=moxunit_runtests([qmrlabRoot testDir '/SimTest_mwf.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_SimTest_mwf.json']);
-          exit(~all([res1 res2 res3 res4 res5 res6 res7 res8]));
+          testDir = '/Test/MoxUnitCompatible/simTests'
+          res1=moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_simTests.json']);
+          exit(~res1);
     - script: |
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_charmed.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_dti.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_noddi.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_qmt_sirfse.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_inversion_recovery.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_vfa_t1.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_montecarlo.json" -F matlab
-        sleep 1
-        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/coverage_SimTest_mwf.json" -F matlab
+        bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/simTests/coverage_SimTests.json" -F matlab
       displayName: 'Upload to Codecov.io'
