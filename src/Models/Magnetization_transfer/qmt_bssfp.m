@@ -80,7 +80,7 @@ classdef qmt_bssfp < AbstractModel
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
-    onlineData_url = 'https://osf.io/r64tk/download?version=2';
+    onlineData_url = 'https://osf.io/r64tk/download?version=3';
 end
 
     properties
