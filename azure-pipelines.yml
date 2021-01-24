@@ -40,8 +40,6 @@ jobs:
           testDir = '/Test/MoxUnitCompatible/BatchExamplePart2'
           res1=moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExamplePart2.json']);
           exit(~res1);
-
-          exit(~all([res1 res2 res3 res4 res5]));
     - script: |
         bash <(curl -s https://codecov.io/bash) -f "$BUILD_REPOSITORY_LOCALPATH/Test/MoxUnitCompatible/BatchExamplePart2/coverage_BatchExamplePart2.json" -F matlab
       displayName: 'Upload to Codecov.io'
