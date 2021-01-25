@@ -28,7 +28,7 @@ classdef mt_ratio < AbstractModel
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/erm2s/download?version=1';
+        onlineData_url = 'https://osf.io/erm2s/download?version=2';
     end
 
     properties

@@ -6,20 +6,16 @@ end
 initTestSuite;
 
 function TestSetup
-setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
+setenv('ISCITEST','1') % go faster! Fit only 2 voxels in FitData.m
 
 function test_batch
 curdir = pwd;
 
-if exist('/home/travis','dir')
-    tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
-else
-    tmpDir = tempdir;
-end
+tmpDir = tempdir;
 mkdir(tmpDir);
-cd(tmpDir)
+cd(tmpDir);
 
-Modellist = {'qmt_bssfp'};
+Modellist = {'filter_map'};
 
 for iModel = 1:length(Modellist)
     disp('===============================================================')
@@ -62,5 +58,5 @@ cd(curdir)
 
 
 function TestTeardown
-setenv('ISTRAVIS','0')
+setenv('ISCITEST','0')
 
