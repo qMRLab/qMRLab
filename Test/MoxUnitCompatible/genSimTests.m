@@ -16,7 +16,7 @@ for ii = 1:length(MethodList)
         
         newScript = replaceJoker('*-modelName-*',MethodList{ii},allScript,1);
         
-        writeName = ['SimTest_' MethodList{ii} '.m'];
+        writeName = ['SimTest_' MethodList{ii} '_test' '.m'];
         
         
         fileID = fopen(writeName,'w');
