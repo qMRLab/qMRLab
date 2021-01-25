@@ -144,7 +144,7 @@ end
 
 if ~isempty(getenv('ISCITEST')) % TEST ENV
 
-    if str2double(getenv('ISCITEST')) && strcmp(varNames.modelName,'qsm_sb')
+    if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico'))
         % There is an exceptional case for qsm_sb as it is not voxelwise 
         % and takes long to process.
         allScript = getTemplateFile('genBatchNoAssert.qmr');
