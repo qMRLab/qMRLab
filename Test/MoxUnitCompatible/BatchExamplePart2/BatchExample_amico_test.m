@@ -12,14 +12,14 @@ setenv('ISCITEST','1') % go faster! Fit only 2 voxels in FitData.m
 function test_batch
 curdir = pwd;
 
-tmpDir = tempdir;
-mkdir(tmpDir);
-cd(tmpDir)
+% tmpDir = tempdir;
+% mkdir(tmpDir);
+% cd(tmpDir)
 
+%{
 Modellist = {'amico'};
 eval(['Model = ' Modellist{iModel}]);
 
-%{
 
 for iModel = 1:length(Modellist)
     disp('===============================================================')
