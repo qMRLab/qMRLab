@@ -129,8 +129,9 @@ clear('p');
 if granularity<2; granularity = 2; end
 if granularity>8; granularity = 8; end
 
-% @JUAN-0 I set granularity to 1 temporarily to ensure minimum viable functionality,
-% I am not sure if we can properly traffic autosave with nChunks > nW.
+% TODO:
+% This is set to 1 for now, see if >1 works. 
+% As another save condition, add completed chunks.
 granularity  = 1;
 
 % Before fitting, do a sanity check on the input data and protocol
@@ -404,13 +405,6 @@ if Model.voxelwise % process voxelwise
             %  Autosave results every 5 minutes.
             %  Some models are painfully slow, it is of value to keep what
             %  you've processed in case things go sideways.
-            
-            %  Notice that this is again handled in a "sliced" manner
-            %  @JUAN-1 now that the number of workers is not equal to number
-            %  of chunks (data splits) I am not sure how this autosave is
-            %  going to behave. As a first step, choose a lenghty fit and 
-            %  see if this is going to save nW*granularity outputs. For 4
-            %  workers, with default granularity, it should give 20.
             if isAutosave
                 telapsed = toc(tStart);
                 if (mod(floor(telapsed/60),saveInterval) == 0 && (telapsed-parM(itPar).tsaved)/60>saveInterval)
@@ -430,7 +424,7 @@ if Model.voxelwise % process voxelwise
 
                     parM(itPar).tsaved = telapsed;
                     % save function cannot be called from parfor directly.
-                    parSaveTemp(parM(itPar).Fit,parM(itPar).computedIdx,tmpFolderName,itPar);
+                    parSaveTemp(parM(itPar).Fit,parM(itPar).computedIdx,parM(itPar).fields,tmpFolderName,itPar);
                     parM(itPar).tsaved = telapsed;
                 end
             end
@@ -589,12 +583,11 @@ end
 function out = splitIdx(x,n)
 % Nothing interesting, this like some comp101 assignment :)
 % 5/2 should give [3 2]
-% 8/4 should give [2 2 2] (whoa what kind of sorcery is that)
+% 8/4 should give [2 2 2 2]
 % Here x is the nV (whatever remained)
 % n is the number of cores.
 % We return from:to indexes for each worker to collect their vagon
 % from a train of linearized data.
-
 spidx = [];
 if mod(x, n) == 0
     for ii=1:n
@@ -633,12 +626,12 @@ end
 
 end
 
-function parSaveTemp(payload,computedIdx,folder,chunk)
+function parSaveTemp(payload,computedIdx,fields,folder,chunk)
 % You cannot evoke this function within parfor, but you can do this.
 
-% It'll overwrite existing ones.
+% It'll overwrite existing ones if there's any.
 save([folder filesep 'ParFitTempResults_chunk-' num2str(chunk) '.mat'], '-struct','payload');
-save([folder filesep 'ParIdxTempResults_chunk-' num2str(chunk) '.mat'], 'computedIdx');
+save([folder filesep 'ParIdxTempResults_chunk-' num2str(chunk) '.mat'], 'computedIdx', 'fields');
 
 end
 
@@ -676,8 +669,8 @@ catch
     bypass = true;
 end
 
-% @JUAN-2 here, it'll load ParIdxTempResults* files that store 
-% linearized indexes of the voxels that are solved for.
+% Load ParIdxTempResults* files that store
+% linearized indexes of the voxels which have been solved for.
 files = dir(fullfile(recoveryDir,'ParIdxTempResults*.mat'));
 if isempty(files)
     cprintf('blue','<< %s >> --------------------------------------------------','!');
@@ -687,9 +680,6 @@ if isempty(files)
     bypass =  true;
 end
 
-% @JUAN-3 can you make sure that this works properly to collect
-% indexes for the processed voxels and remove them from the Voxels 
-% indexes that comes as input? 
 if ~bypass
     fulLen = length(Voxels);
     those = [];
@@ -714,29 +704,17 @@ end
 
 function Fit = patchData(Fit,recoveryDir,x,y,z)
 
-filesFit = dir(fullfile(recoveryDir,'ParFitTempResults*.mat'));
-filesIdx = dir(fullfile(recoveryDir,'ParIdxTempResults*.mat'));
+    filesFit = dir(fullfile(recoveryDir,'ParFitTempResults*.mat'));
+    filesIdx = dir(fullfile(recoveryDir,'ParIdxTempResults*.mat'));
 
-for ii=1:length(filesFit)
-    thisf = load([recoveryDir filesep filesFit(ii).name]);
-    thisIdx = load([recoveryDir filesep filesIdx(ii).name]);
-    for jj=1:length(thisf.fields)
-        cur_field = thisf.fields{jj};
-        cur_idx   = thisIdx.computedIdx;
-        that = thisf.(cur_field); % This contains respective Fit for 
-        % the linear index of cur_idx
-        % @JUAN-4 this should be now similar to L531. Please edit the part I 
-        % commented out properly to parse results in "that" with the
-        % indexes "cur_idx" into [x,y,z] sized matrices, which are stored 
-        % as Fit.(cur_field) in the struct. Use x,y,z to determine the
-        % matrix size. parseOutput function no longer exists, no need. 
-        % ------------
-        % [output, idx] = parseOutput(x,y,z,that);
-        %            cur_field = Fit.fields{ii};
-        % Fit.(cur_field)(ind2sub([x,y,z],parM(jj).NativeIdx)) = parM(jj).Fit.(cur_field);
-        % Fit.(cur_field)(idx) = output;
-        % ------------
-
+    for ii=1:length(filesFit)
+        thisf = load([recoveryDir filesep filesFit(ii).name]);
+        thisIdx = load([recoveryDir filesep filesIdx(ii).name]);
+        for jj=1:length(thisf.fields)
+            cur_field = thisf.fields{jj};
+            cur_idx   = thisIdx.computedIdx;
+            that = thisf.(cur_field);
+            Fit.(cur_field)(ind2sub([x,y,z],cur_idx)) = Fit.(cur_field);
+        end
     end
-end
 end
