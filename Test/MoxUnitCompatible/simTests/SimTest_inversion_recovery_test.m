@@ -1,4 +1,4 @@
-function test_suite=SimTest_amico
+function test_suite=SimTest_inversion_recovery_test
 try % assignment of 'localfunctions' is necessary in Matlab >= 2016
 test_functions=localfunctions();
 catch % no problem; early Matlab versions can use initTestSuite fine
@@ -7,15 +7,16 @@ initTestSuite;
 
 function TestSetup
 setenv('ISDISPLAY','0') % go faster! Fit only 2 voxels in FitData.m
+setenv('ISCITEST','1')
 
 function test_Sim
 disp('===========================================')
-disp('Running simulation test for amico');
+disp('Running simulation test for inversion_recovery');
 disp('testing Simulation Single Voxel Curve...');
 
 
-Model = str2func('amico'); Model = Model();
-savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['amico.qmrlab.mat']);
+Model = str2func('inversion_recovery'); Model = Model();
+savedModel_fname = fullfile(fileparts(which('qMRLab')),'Test','MoxUnitCompatible','static_savedModelsforRetrocompatibility',['inversion_recovery.qmrlab.mat']);
 if ~exist(savedModel_fname,'file')
 Model.saveObj(savedModel_fname);
 else
@@ -45,3 +46,4 @@ disp ..ok
 
 function TestTeardown
 setenv('ISDISPLAY','') % go faster! Fit only 2 voxels in FitData.m
+setenv('ISCITEST','')

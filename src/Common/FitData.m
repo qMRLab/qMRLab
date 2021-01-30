@@ -121,7 +121,7 @@ if Model.voxelwise % process voxelwise
     numVox = length(Voxels);
     
     % Travis?
-    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
+    if isempty(getenv('ISCITEST')) || ~str2double(getenv('ISCITEST')), ISCITEST=false; else ISCITEST=true; end
 
     % ############################# FITTING LOOP ###############################
     % Create waitbar
@@ -224,9 +224,10 @@ if Model.voxelwise % process voxelwise
             end
         end
         
-        if ISTRAVIS && ii>2
+        if ISCITEST && ii>2
             try
-                Fit = load(fullfile('.','FitResults','FitResults.mat'));
+                % Fit = load(fullfile('.','FitResults','FitResults.mat'));
+                disp('returning 3 voxels');
             end
             break;
         end
