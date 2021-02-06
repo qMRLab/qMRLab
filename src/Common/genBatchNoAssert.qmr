@@ -40,11 +40,6 @@ FitResults = FitData(data,Model,0);
 %%       c- show fitting results 
 %           |- Output map will be displayed.
 %           |- If available, a graph will be displayed to show fitting in a voxel.
-%           |- To make documentation generation and our CI tests faster for this model, 
-%              we used a subportion of the data (40X40X40) in our testing environment.
-%           |- Therefore, this example will use FitResults that comes with OSF data for display purposes.  
-%           |- Users will get the whole dataset (384X336X224) and the script that uses it for demo
-%              via qMRgenBatch(qsm_sb) command.  
 
 FitResults_old = load('FitResults/FitResults.mat');
 qMRshowOutput(FitResults_old,data,Model);
@@ -77,3 +72,5 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 
 % *-SensitivityAnalysis-*
 
+%% VI- NOTES
+% *-SpecificNotes-*

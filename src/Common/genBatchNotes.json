@@ -1,0 +1,21 @@
+{
+"notes": [
+      {
+        "model": "qsm_sb",
+        "note": ["%           |- To make documentation generation and our CI tests faster for this model,",
+                 "%              we used a subportion of the data (40X40X40) in our testing environment.",
+                 "%           |- Therefore, this example will use FitResults that comes with OSF data for display purposes:",
+                 "%                 ```                                                ",
+                 "%                 FitResults_old = load('FitResults/FitResults.mat');",
+                 "%                 qMRshowOutput(FitResults_old,data,Model);",
+                 "%                 ```                                                ",
+                 "%           |- Users will get the whole dataset (384X336X224) and the proper demo script",
+                 "%              when re-generated this script using `qMRgenBatch(qsm_sb)` command in MATLAB/Octave:",
+                 "%                 ```                                                ",
+                 "%                 FitResults = FitData(data,Model,0);",
+                 "%                 qMRshowOutput(FitResults,data,Model);",
+                 "%                 ```                                                "                
+                ]
+      }
+    ]
+}

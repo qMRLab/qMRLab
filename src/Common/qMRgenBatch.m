@@ -54,6 +54,10 @@ simTexts = struct();
 simTexts.jokerSVC = '*-SingleVoxelCurve-*';
 simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
+noteTexts = struct();
+noteTexts.jokerNote = '*-SpecificNotes-*';
+notesJson = json2struct('genBatchNotes.json');
+
 saveJoker = '*-saveCommand-*';
 
 % Define jokers and get class info ====================== END
@@ -131,6 +135,15 @@ end
 % Generate model specific commands ====================== END
 
 
+for ii =1:length(notesJson.notes)
+    
+    if strcmp(Model.ModelName,notesJson.notes{ii}.model)
+        noteTexts.notes = cellstr(notesJson.notes{ii}.note');
+    else
+        noteTexts.notes = {'% No method specific notes available.'};
+    end
+    
+end
 % Replace jokers ====================== START
 
 % Read template line by line into cell array
@@ -144,16 +157,22 @@ end
 
 if ~isempty(getenv('ISCITEST')) % TEST ENV
 
-    if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico'))
+    if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico') || moxunit_util_platform_is_octave)
         % There is an exceptional case for qsm_sb as it is not voxelwise 
         % and takes long to process.
         allScript = getTemplateFile('genBatchNoAssert.qmr');
-    else
+    elseif str2double(getenv('ISDOC')) && str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico'))
+        % If DOC and TEST fit reduction but not qsm or amico
+        % TODO: 
+        % Improve the condition checks for qsm
+        allScript = getTemplateFile('genBatchDoc.qmr'); 
+    elseif ~str2double(getenv('ISDOC')) && str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico'))
+        % If not DOC, but MATLAB CI, run assertion to all but qsm and amico
         allScript = getTemplateFile('genBatchTestAssert.qmr');
     end    
 
-else % USER 
-   allScript = getTemplateFile('genBatch.qmr'); 
+else % USER whole datasets
+   allScript = getTemplateFile('genBatchUser.qmr'); 
 end
 
 % Recursively update newScript.
@@ -173,6 +192,8 @@ newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScr
 newScript = replaceJoker(simTexts.jokerSVC,simTexts.SVCcommands,newScript,2); % Sim 1
 
 newScript = replaceJoker(simTexts.jokerSA,simTexts.SAcommands,newScript,2); % Sim 2
+
+newScript = replaceJoker(noteTexts.jokerNote,noteTexts.notes,newScript,2); % Sim 2
 
 % Replace jokers ====================== END
 
@@ -205,12 +226,12 @@ function [explain] = cell2Explain(str,modelName,itemName)
 
 explain = cell(length(str)+1,1);
 
-fs1 = ['%%           |- ' modelName ' object needs %d ' itemName ' to be assigned:'];
+fs1 = ['%%          |- ' modelName ' object needs %d ' itemName ' to be assigned:'];
 exp1 = sprintf(fs1,length(str));
 explain(1) = {exp1};
 
 for i = 1:length(str)
-    explain(i+1) = {['%           |-   ' str{i}]};
+    explain(i+1) = {['%          |-   ' str{i}]};
 end
 
 end

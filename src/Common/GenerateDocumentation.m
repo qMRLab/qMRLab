@@ -1,3 +1,4 @@
+function GenerateDocumentation(docDirectory)
 %% Launch from any folder --> this script will create a folder qMRLab/Data
 cd([fileparts(which('qMRLab.m')),'/src']);
 
@@ -21,30 +22,27 @@ Modellist = list_models';
 for iModel = 1:length(Modellist)
     eval(['Model = ' Modellist{iModel}]);
     qMRgenBatch(Model,pwd)
-    
-    
     publish([Modellist{iModel} '_batch.m'])
-    
     cd ..
     close all
 end
 setenv('ISCITEST','')
 setenv('ISDOC','')
 
-%% Generate restructured text files (docs/source/.rst)
-cd(fileparts(which('qMRLab.m')));
-cd docs
 % delete old batch
-list = sct_tools_ls('source/*_batch.rst',1,1);
-delete(list{:})
+list = sct_tools_ls([docDirectory filesep 'source/*_batch.rst'],1,1);
+if ~isempty(list)
+    delete(list{:})
+end
 
 % create new ones
 
-system('python auto_TOC.py'); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
+system(['python ' docDirectory filesep 'auto_TOC.py ' fileparts(which('qMRLab.m'))]); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
 
 %% Build
-system('make')
+%system('make')
 
 % Remove tmp folder 
 rmdir([mainDir filesep 'tmp'],'s')
 rmdir(tmpDir,'s')
+end
