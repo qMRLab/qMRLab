@@ -198,7 +198,7 @@ if ~isempty(getenv('ISCITEST')) % TEST ENV
         % There is an exceptional case for qsm_sb as it is not voxelwise 
         % and takes long to process.
         allScript = getTemplateFile('genBatchNoAssert.qmr');
-    elseif str2double(getenv('ISDOC')) % Means documentation generation
+    elseif ISDOC % Means documentation generation
         % During documentation generation, fit functions won't be called.
         allScript = getTemplateFile('genBatchDoc.qmr'); 
     elseif str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico')) % Means MATLAB CU

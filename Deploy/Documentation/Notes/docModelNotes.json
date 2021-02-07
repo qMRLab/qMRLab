@@ -2,7 +2,8 @@
 "notes": [
       {
         "model": "qsm_sb",
-        "note": ["% Availability of fit options are tied. For example, enabling |L1 Normalization| calls for selecting |Split-Bregman|."]
+        "note": ["% Availability of fit options are tied. For example, enabling |L1 Normalization| calls for selecting |Split-Bregman|."
+                ]
       },
       {
         "model": "mp2rage",

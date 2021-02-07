@@ -53,7 +53,7 @@ function GenerateDocumentation(docDirectory)
     disp(['Documentation sources are saved and built at: ' docDirectory]);
     gitInf = getGitInfo;
     gitInf.vertxt = qMRLabVer;
-    savejson([],gitInf,[docDirectory filesep 'latestGitInfo.json'])
+    savejson([],gitInf,[docDirectory filesep 'latestGitInfo.json']);
     disp('Information about current qMRLab branch and hash have been saved: latestGitInfo.json');
     cd(mainDir);
 end
