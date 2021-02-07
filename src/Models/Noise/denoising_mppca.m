@@ -1,7 +1,7 @@
 classdef denoising_mppca < AbstractModel
-% denoising_mppca :  4d image denoising and noise map estimation by exploiting
-%                      data redundancy in the PCA domain using universal properties 
-%                      of the eigenspectrum of random covariance matrices, 
+% denoising_mppca :  4d image denoising and noise map estimation 
+%                      by exploiting data redundancy in the PCA domain using universal
+%                      properties of the eigenspectrum or random covariance matrices,
 %                      i.e. Marchenko Pastur distribution
 %
 % Assumptions:

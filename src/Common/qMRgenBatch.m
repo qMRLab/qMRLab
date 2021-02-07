@@ -56,7 +56,7 @@ simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
 noteTexts = struct();
 noteTexts.jokerNote = '*-SpecificNotes-*';
-notesJson = json2struct('genBatchNotes.json');
+notesJson = json2struct('docModelNotes.json');
 
 saveJoker = '*-saveCommand-*';
 
@@ -112,14 +112,51 @@ else % Unlikely yet ..
     commandTexts.dataCommands = {' '}; % Set empty
 end
 
-
-
-if strcmp(type,'nii')
-    saveCommand = ['FitResultsSave_nii(FitResults,' ' '''  Model.ModelName '_data' filesep Model.MRIinputs{1} '.nii.gz''' ');'];
-elseif strcmp(type,'mat')
-    saveCommand = 'FitResultsSave_nii(FitResults);';
+if ~isempty(str2double(getenv('ISDOC')))
+    if str2double(getenv('ISDOC')) == 1
+        ISDOC = true;
+    else
+        ISDOC = false;
+    end
+else
+    ISDOC = false;
 end
 
+if strcmp(type,'nii')
+    if ISDOC
+        saveCommand = ['FitResultsSave_nii(FitResults_old,' ' '''  Model.ModelName '_data' filesep Model.MRIinputs{1} '.nii.gz''' ');'];
+    else
+        saveCommand = ['FitResultsSave_nii(FitResults,' ' '''  Model.ModelName '_data' filesep Model.MRIinputs{1} '.nii.gz''' ');'];
+    end
+elseif strcmp(type,'mat')
+    if ISDOC
+        saveCommand = 'FitResultsSave_mat(FitResults_old);';
+    else
+        saveCommand = 'FitResultsSave_mat(FitResults);';
+    end
+end
+
+if ISDOC
+    % Display red-colored box when no sim is available
+    notAvail = [{'% <html>'},...
+    {'% <div class="danger" style="text-align:justify;">'},...
+    {'% <p style="margin:0px!important;"><strong><i class="fa fa-info-circle" style="color:red;margin-left:5px;"></i></strong> Not available for the current model.</p>'},...
+    {'% </div>'},...
+    {'% </html>'}];
+else
+    notAvail = {'% _Not available for the current model._'};
+end
+
+if ISDOC
+    % Display yellow-colored box when no sim is available
+    noNotes = [{'% <html>'},...
+    {'% <div class="warning" style="text-align:justify;">'},...
+    {'% <p style="margin:0px!important;"><strong><i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Not provided.</p>'},...
+    {'% </div>'},...
+    {'% </html>'}];
+else
+    noNotes = {'% _No notes are available for this model._'};
+end
 
 if Model.voxelwise && ~isempty(qMRusage(Model,'Sim_Single_Voxel_Curve'))
     svc = qMRusage(Model,'Sim_Single_Voxel_Curve');
@@ -128,8 +165,8 @@ if Model.voxelwise && ~isempty(qMRusage(Model,'Sim_Single_Voxel_Curve'))
     sa = qMRusage(Model,'Sim_Sensitivity_Analysis');
     simTexts.SAcommands = qMRUsage2CLI(sa);
 else
-    simTexts.SVCcommands = {'% Not available for the current model.'};
-    simTexts.SAcommands = {'% Not available for the current model.'};
+    simTexts.SVCcommands = notAvail;
+    simTexts.SAcommands = notAvail;
 end
 
 % Generate model specific commands ====================== END
@@ -140,7 +177,7 @@ for ii =1:length(notesJson.notes)
     if strcmp(Model.ModelName,notesJson.notes{ii}.model)
         noteTexts.notes = cellstr(notesJson.notes{ii}.note');
     else
-        noteTexts.notes = {'% No method specific notes available.'};
+        noteTexts.notes = noNotes;
     end
     
 end
@@ -157,22 +194,20 @@ end
 
 if ~isempty(getenv('ISCITEST')) % TEST ENV
 
-    if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico') || moxunit_util_platform_is_octave)
+    if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico') || moxunit_util_platform_is_octave) % Octave and models avoiding assertion
         % There is an exceptional case for qsm_sb as it is not voxelwise 
         % and takes long to process.
         allScript = getTemplateFile('genBatchNoAssert.qmr');
-    elseif str2double(getenv('ISDOC')) && str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico'))
-        % If DOC and TEST fit reduction but not qsm or amico
-        % TODO: 
-        % Improve the condition checks for qsm
+    elseif str2double(getenv('ISDOC')) % Means documentation generation
+        % During documentation generation, fit functions won't be called.
         allScript = getTemplateFile('genBatchDoc.qmr'); 
-    elseif ~str2double(getenv('ISDOC')) && str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico'))
+    elseif str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico')) % Means MATLAB CU
         % If not DOC, but MATLAB CI, run assertion to all but qsm and amico
         allScript = getTemplateFile('genBatchTestAssert.qmr');
     end    
 
 else % USER whole datasets
-   allScript = getTemplateFile('genBatchUser.qmr'); 
+   allScript = getTemplateFile('genBatchUser.qmr');
 end
 
 % Recursively update newScript.

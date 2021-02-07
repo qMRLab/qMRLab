@@ -1,6 +1,5 @@
 % This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
-% Command Line Interface (CLI) is well-suited for automatization 
-% purposes and Octave. 
+% for tests with CI assertions.
 %
 % Please execute this m-file section by section to get familiar with batch
 % processing for *-modelName-* on CLI.

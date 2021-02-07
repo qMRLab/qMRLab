@@ -1,0 +1,32 @@
+% This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
+% for tests w/o assertion checks. 
+%
+%
+% Written by: Agah Karakuzu, 2017
+% =========================================================================
+
+qMRinfo('*-modelName-*'); % Describe the model
+
+Model = *-modelName-*; 
+
+Model = Custom_OptionsGUI(Model);
+
+*-dataExplain-*
+
+data = struct();
+*-dataCommand-*
+
+FitResults = FitData(data,Model,0);
+
+FitResults_old = load('FitResults/FitResults.mat');
+qMRshowOutput(FitResults_old,data,Model);
+
+*-saveCommand-*
+Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
+
+% *-SingleVoxelCurve-*
+
+% *-SensitivityAnalysis-*
+
+%% VI- NOTES
+% *-SpecificNotes-*

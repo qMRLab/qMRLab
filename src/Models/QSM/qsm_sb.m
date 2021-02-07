@@ -122,7 +122,7 @@ function obj = qsm_sb
   obj.options = button2opts(obj.buttons);
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
-  obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4');
+  obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4','https://osf.io/549ke/download?version=4');
 
 end % fx: Constructor
 

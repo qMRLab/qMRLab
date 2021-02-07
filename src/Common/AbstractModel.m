@@ -452,12 +452,20 @@ classdef (Abstract) AbstractModel
             
         end    
 
-        function URL = getLink(urlFull,urlPartial)
+        function URL = getLink(urlFull,urlPartial,docException)
               
              if ~isempty(getenv('ISCITEST')) && str2double(getenv('ISCITEST'))
                 URL = urlPartial;
               else
                 URL  = urlFull;
+            end
+
+            if exist('docException','var') &&  ~isempty(str2double(getenv('ISDOC')))
+                try
+                    URL = docException;
+                catch
+                    URL = urlPartial;
+                end
             end
 
         end
