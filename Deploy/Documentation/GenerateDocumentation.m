@@ -18,6 +18,9 @@ function GenerateDocumentation(docDirectory)
     % Set CITEST condition empty. During documentation generation, 
     % FIT won't happen. So, there's no point to enable testing conditions 
     % and dealing with partial datasets.
+    % Example datasets requiring partial datasets are dealth with 
+    % getLink abstract methods' third argument.
+    
     setenv('ISCITEST','0'); 
     setenv('ISDOC','1');
     
