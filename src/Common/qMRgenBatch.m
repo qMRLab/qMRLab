@@ -160,7 +160,6 @@ end
 
 if Model.voxelwise && ~isempty(qMRusage(Model,'Sim_Single_Voxel_Curve'))
     svc = qMRusage(Model,'Sim_Single_Voxel_Curve');
-
     simTexts.SVCcommands = qMRUsage2CLI(svc);
     sa = qMRusage(Model,'Sim_Sensitivity_Analysis');
     simTexts.SAcommands = qMRUsage2CLI(sa);
