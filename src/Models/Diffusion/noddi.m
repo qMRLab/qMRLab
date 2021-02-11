@@ -218,7 +218,9 @@ end
             % Skip this altogether if Octave CI test. Matlab CItests will cover.
             % TODO: Test in on-test Octave manually later on.
             ISOCTEST = false;
-            if moxunit_util_platform_is_octave && str2double(getenv('ISCITEST')); ISOCTEST = true; end
+            if ~isempty(getenv('ISCITEST'))
+                if moxunit_util_platform_is_octave && str2double(getenv('ISCITEST')); ISOCTEST = true; end
+            end
                 
             if ~ISOCTEST
                 if nargin<2, x=obj.st; end
