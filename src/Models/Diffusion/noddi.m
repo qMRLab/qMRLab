@@ -215,37 +215,30 @@ end
 
         function plotModel(obj, x, data)
 
-            % Skip this altogether if Octave CI test. Matlab CItests will cover.
-            % TODO: Test in on-test Octave manually later on.
-            ISOCTEST = false;
-            if ~isempty(getenv('ISCITEST'))
-                if moxunit_util_platform_is_octave && str2double(getenv('ISCITEST')); ISOCTEST = true; end
-            end
                 
-            if ~ISOCTEST
-                if nargin<2, x=obj.st; end
-                [Smodel, fibredir] = obj.equation(x);
-                Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
+            if nargin<2, x=obj.st; end
+            [Smodel, fibredir] = obj.equation(x);
+            Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
 
-                % plot
-                if exist('data','var')
-                    h = scd_display_qspacedata3D(data.DiffusionData,Prot,fibredir);
-                    hold on
-                    % remove data legends
-                    for iD = 1:length(h)
-                        if ~moxunit_util_platform_is_octave
-                            hAnnotation = get(h(iD),'Annotation');
-                            hLegendEntry = get(hAnnotation','LegendInformation');
-                            set(hLegendEntry,'IconDisplayStyle','off');
-                        end
-                    end
+            % plot
+            if exist('data','var')
+                h = scd_display_qspacedata3D(data.DiffusionData,Prot,fibredir);
+                hold on
+                % remove data legends
+                for iD = 1:length(h)
+
+                        hAnnotation = get(h(iD),'Annotation');
+                        hLegendEntry = get(hAnnotation','LegendInformation');
+                        set(hLegendEntry,'IconDisplayStyle','off');
+
                 end
-
-                % plot fitting curves
-                scd_display_qspacedata3D(Smodel,Prot,fibredir,'none','-');
-
-                hold off
             end
+
+            % plot fitting curves
+            scd_display_qspacedata3D(Smodel,Prot,fibredir,'none','-');
+
+            hold off
+
 
         end
 
@@ -272,11 +265,11 @@ end
                 set(h,'LineWidth',.5)
                 % remove data legends
                 for iD = 1:length(h)
-                    if ~moxunit_util_platform_is_octave
+
                         hAnnotation  = get(h(iD),'Annotation');
                         hLegendEntry = get(hAnnotation','LegendInformation');
                         set(hLegendEntry,'IconDisplayStyle','off');
-                    end
+
                 end
                 hold on
                 plotModel(obj, FitResults, data);
