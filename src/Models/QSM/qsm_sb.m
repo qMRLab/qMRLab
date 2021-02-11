@@ -13,7 +13,7 @@ classdef qsm_sb < AbstractModel
 %       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
 % Inputs:
 %   PhaseGRE      3D GRE acquisition. <<Wrapped phase image>>
-%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>>
+%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>> (OPTIONAL)
 %   Mask          Brain extraction mask.
 %
 % Outputs:
@@ -58,10 +58,9 @@ classdef qsm_sb < AbstractModel
 %     L1-regularization and automatic parameter selection. Magn. Reson. Med.,
 %     72: 1444-1459. doi:10.1002/mrm.25029
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, 
-%     Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging 
-%     made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. 
-%     Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 
 properties
@@ -109,8 +108,8 @@ options= struct();
 end % Public properties
 
 properties (Hidden = true)
-
-onlineData_url = getLink_qsm();
+% See the constructor.
+onlineData_url;
 
 end % Hidden public properties
 
@@ -123,6 +122,7 @@ function obj = qsm_sb
   obj.options = button2opts(obj.buttons);
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
+  obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4');
 
 end % fx: Constructor
 

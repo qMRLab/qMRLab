@@ -72,7 +72,7 @@ function result=moxunit_runtests(varargin)
     params=get_params(varargin{:});
 
     if params.fid>2
-        % not standard or error output; file most be closed
+        % not standard or error output; file must be closed
         % afterwards
         cleaner=onCleanup(@()fclose(params.fid));
     end
@@ -80,7 +80,7 @@ function result=moxunit_runtests(varargin)
     suite=MOxUnitTestSuite();
 
     % build pattern for filenames by combining the test name pattern with
-    % extension.
+    % extension
     mfile_ext_pattern='.m$';
     mfile_test_filename_pattern=get_test_file_pattern(mfile_ext_pattern);
 
@@ -133,7 +133,7 @@ function suite=add_from_to_test_spec(suite, ...
         to_test=to_test_spec{k};
         if isa(to_test,'MOxUnitTestSuite')
             suite=addFromSuite(suite,to_test);
-        elseif isdir(to_test)
+        elseif moxunit_util_isfolder(to_test)
             suite=addFromDirectory(suite,...
                                     to_test,...
                                     mfile_test_filename_pattern,...
@@ -176,7 +176,7 @@ function test_report=run_all_tests(suite, test_report, params)
             elseif iscell(value)
                 n_values=numel(value);
                 param_elem_matrix=[repmat({key_arg},1,n_values);...
-                                           value(:)];
+                                           value(:)'];
                 param_elem=param_elem_matrix(:)';
             else
                 error('moxunit:illegalParameterValue',...
@@ -270,53 +270,11 @@ function params=get_params(varargin)
                     error('Could not open file %s for writing', fn);
                 end
 
-             case '-cover'
-                 if k==n
-                    error('moxunit:missingParameter',...
-                           'Missing parameter after option ''%s''',arg);
-                end
+            case {'-cover','-cover_xml_file','-junit_xml_file',...
+                        '-cover_json_file','-cover_html_dir',...
+                        '-cover_method'}
+                params=set_key_value(params,varargin,k);
                 k=k+1;
-                params.cover=varargin{k};
-
-             case '-cover_xml_file'
-                if k==n
-                    error('moxunit:missingParameter',...
-                           'Missing parameter after option ''%s''',arg);
-                end
-                k=k+1;
-                params.cover_xml_file=varargin{k};
-
-            case '-junit_xml_file'
-                if k==n
-                    error('moxunit:missingParameter',...
-                           'Missing parameter after option ''%s''',arg);
-                end
-                k=k+1;
-                params.junit_xml_file=varargin{k};
-
-            case '-cover_json_file'
-                if k==n
-                    error('moxunit:missingParameter',...
-                           'Missing parameter after option ''%s''',arg);
-                end
-                k=k+1;
-                params.cover_json_file=varargin{k};
-
-            case '-cover_html_dir'
-                if k==n
-                    error('moxunit:missingParameter',...
-                           'Missing parameter after option ''%s''',arg);
-                end
-                k=k+1;
-                params.cover_html_dir=varargin{k};
-
-            case '-cover_method'
-                if k==n
-                    error('moxunit:missingParameter',...
-                           'Missing parameter after option ''%s''',arg);
-                end
-                k=k+1;
-                params.cover_method=varargin{k};
 
              case '-cover_exclude'
                 if k==n
@@ -362,6 +320,12 @@ function params=get_params(varargin)
                 if ~isempty(dir(arg))
                     to_test_spec{k}=arg;
                 else
+                    % Close the file if it has been already open before
+                    % throwing an error. This prevents resource leak and,
+                    % eventually 'Too many files open' error.
+                    try
+                        fclose(params.fid);
+                    end %#ok<TRYNC>
                     error('moxunit:illegalParameter',...
                     'Parameter not recognised or file missing: %s', arg);
                 end
@@ -386,6 +350,21 @@ function params=get_params(varargin)
     params.to_test_spec=to_test_spec;
 
     check_cover_consistency(params)
+
+
+function params = set_key_value(params,args,k)
+    n=numel(args);
+
+    arg = args{k};
+    assert(arg(1)=='-');
+    key=arg(2:end);
+
+    if k==n
+        error('moxunit:missingParameter',...
+               'Missing parameter after option ''%s''',arg);
+    end
+
+    params.(key)=args{k+1};
 
 function check_cover_consistency(params)
     keys=fieldnames(params);

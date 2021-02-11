@@ -43,6 +43,6 @@ function tf=has_in_dir(needle, child_dir)
 
     names={d.name};
 
-    tf=~isempty(strmatch(needle,names,'exact'));
+    tf=(sum(strcmp(needle,names))>=1);
 
 

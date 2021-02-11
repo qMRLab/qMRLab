@@ -46,7 +46,7 @@ function write_lines_with_prefix(obj, fn, decorator)
 
 
 function mkdir_recursively(pth)
-    if ~isempty(pth) && ~isdir(pth)
+    if ~isempty(pth) && ~mocov_util_isfolder(pth)
         parent=fileparts(pth);
         mkdir_recursively(parent);
         mkdir(pth);

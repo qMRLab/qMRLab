@@ -9,10 +9,24 @@ function test_moxunit_util_platform_supports_localfunctions_in_script
     flag=moxunit_util_platform_supports('localfunctions_in_script');
 
     if moxunit_util_platform_is_octave()
-        expected_flag=true;
+        v=moxunit_util_platform_version();
+        expected_flag=version_less_than(v,[6,0]);
     else
         v=moxunit_util_platform_version();
         expected_flag=version_less_than(v,[9,0]);
+    end
+
+    assertEqual(flag,expected_flag);
+
+
+function test_moxunit_util_platform_supports_diagnostics_recording_plg
+    flag=moxunit_util_platform_supports('diagnostics_recording_plugin');
+
+    if moxunit_util_platform_is_octave()
+        expected_flag=false;
+    else
+        s='matlab.unittest.plugins.DiagnosticsRecordingPlugin';
+        expected_flag=~isempty(which(s));
     end
 
     assertEqual(flag,expected_flag);

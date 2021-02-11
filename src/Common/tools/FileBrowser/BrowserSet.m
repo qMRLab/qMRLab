@@ -23,6 +23,7 @@ classdef BrowserSet
     properties(Hidden = true)
         NameText;
         BrowseBtn;
+        ClearBtn;
         InfoBtn;
         FileBox;
         ViewBtn;
@@ -66,14 +67,28 @@ classdef BrowserSet
                 end
 
                 % add Browse button
-                Position = [Location + [0.14, 0], 0.1, 0.1];
+                Position = [Location + [0.14, 0], 0.05, 0.11];
                 obj.BrowseBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'Browse', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
+                    'String', '', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
+                cur_m = mfilename('fullpath');
+                cur_loc = strfind(cur_m,[filesep 'src' filesep 'Common']);
+                im = imread([cur_m(1:cur_loc-1) filesep 'src' filesep 'Common' filesep 'icons' filesep 'plus.png']);
+                obj.BrowseBtn.CData = im;
+                
+                Position = [Location + [0.19, 0], 0.05, 0.11];
+                obj.ClearBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
+                    'String', '', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
+                im = imread([cur_m(1:cur_loc-1) filesep 'src' filesep 'Common' filesep 'icons' filesep 'minus.png']);
+                obj.ClearBtn.CData = im;
 
                 % add Browse button
-                Position = [Location + [0.27, 0], 0.58, 0.1];
+                Position = [Location + [0.25, 0], 0.58, 0.1];
                 obj.FileBox = uicontrol(obj.parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
                     'BackgroundColor', [1 1 1]);
+                
+                if InputOptional && ~isempty(info), set(obj.FileBox,'string',info); end
+                if InputOptional && isempty(info), set(obj.FileBox,'string','OPTIONAL'); end
+                if ~InputOptional, set(obj.FileBox,'string',['REQUIRED ' info]); end
 
                 % add View button
                 Position = [Location + [0.87, 0], 0.10, 0.1];
@@ -81,8 +96,10 @@ classdef BrowserSet
                     'String', 'View', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
 
                 % Set Callbacks
-                set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
-                set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj)});
+                set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj,info,InputOptional)});
+                set(obj.FileBox,'Callback', {@(src, event)BrowserSet.ClearBtn_callback(obj,info,InputOptional)});
+                set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj,info,InputOptional)});
+                set(obj.ClearBtn,'Callback', {@(src, event)BrowserSet.ClearBtn_callback(obj,info,InputOptional)});
                 set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
                 
                 if strcmp(InputName,'Mask')
@@ -100,6 +117,7 @@ classdef BrowserSet
         function Visible(obj, Visibility)
             set(obj.NameText, 'Visible', Visibility);
             set(obj.BrowseBtn, 'Visible', Visibility);
+            set(obj.ClearBtn, 'Visible', Visibility);
             set(obj.FileBox, 'Visible', Visibility);
             if ~strcmp(obj.NameID{1},'Mask')
                 set(obj.ViewBtn, 'Visible', Visibility);
@@ -111,6 +129,9 @@ classdef BrowserSet
         % -- GetFileName
         function FileName = GetFileName(obj)
             FileName = get(obj.FileBox, 'string');
+            if ~(exist(FileName,'file')==2 || exist(FileName,'dir')==7)
+                   FileName = char.empty;
+            end
         end
 
 
@@ -147,7 +168,9 @@ classdef BrowserSet
                     end
                     tmp = File;
                 else
-                    warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                    if exist(obj.FullFile,'file')==2
+                        warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                    end
                 end
             end
 
@@ -192,6 +215,7 @@ classdef BrowserSet
                 if strfind(fileList{ii}(1:end-4), DataName{1})
                     obj.FullFile = fullfile(Path,fileList{ii});
                     set(obj.FileBox, 'String', obj.FullFile);
+                    warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
                     obj.DataLoad(warnmissing);
                 end
             end
@@ -203,25 +227,46 @@ classdef BrowserSet
         %------------------------------------------------------------------
         % -- BROWSE BUTTONS
         %------------------------------------------------------------------
-        function BrowseBtn_callback(obj,FileName)
+        function BrowseBtn_callback(obj,info,InputOptional,FileName)
+
+            origdir = pwd;
             if ~exist('FileName','var')
                 obj.FullFile = get(obj.FileBox, 'String');
+                W = evalin('base','whos');
+                pathExist = ismember('DataPath',{W(:).name});
+                if pathExist && ~(isnumeric(evalin('base','DataPath')))
+                    dataDir = evalin('base','DataPath'); 
+                    if exist(dataDir,'dir')==7
+                        cd(dataDir);
+                    end
+                end
                 if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
                     [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file');
                 else
                     [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file',obj.FullFile);
                 end
+                cd(origdir);
             else
                 PathName = '';
             end
             if FileName
                 obj.FullFile = fullfile(PathName,FileName);
             else
-                obj.FullFile = '';
+                if InputOptional && ~isempty(info), obj.FullFile=info; end
+                if InputOptional && isempty(info),  obj.FullFile='OPTIONAL'; end
+                if ~InputOptional, obj.FullFile=['REQUIRED ' info]; end
             end
             set(obj.FileBox,'String',obj.FullFile);
 
             DataLoad(obj);
+        end
+
+        function ClearBtn_callback(obj,info,InputOptional)
+            set(obj.FileBox,'String','');
+            DataLoad(obj);
+            if InputOptional && ~isempty(info), set(obj.FileBox,'string',info); end
+            if InputOptional && isempty(info), set(obj.FileBox,'string','OPTIONAL'); end
+            if ~InputOptional, set(obj.FileBox,'string',['REQUIRED ' info]); end
         end
 
         %------------------------------------------------------------------

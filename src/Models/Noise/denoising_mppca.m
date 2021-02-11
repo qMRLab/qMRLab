@@ -10,7 +10,7 @@ classdef denoising_mppca < AbstractModel
 %
 % Inputs:
 %   Data4D              4D data (any modality)
-%  (Mask)                Binary mask with region-of-interest
+%  (Mask)               Binary mask with region-of-interest. (OPTIONAL)
 %
 % Outputs:
 %   Data4D_denoised     denoised 4D data
@@ -34,10 +34,12 @@ classdef denoising_mppca < AbstractModel
 %   Please cite the following if you use this module:
 %     Veraart, J.; Fieremans, E. & Novikov, D.S. Diffusion MRI noise mapping using random matrix theory Magn. Res. Med., 2016, early view, doi:10.1002/mrm.26059
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
     
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/ve3xy/download/';
+        onlineData_url = 'https://osf.io/j5239/download?version=2';
     end
 
     properties

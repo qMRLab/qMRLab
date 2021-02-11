@@ -1,11 +1,11 @@
 function write_cobertura_xml(obj, output_fn)
     monitor=obj.monitor;
-    notify(monitor,'Writing xml files in %s', output_fn);
+    notify(monitor,sprintf('Writing xml files in %s', output_fn));
 
 
 
     overall_coverage=compute_coverage(obj);
-    notify(monitor,'Overal coverage is %.3f', overall_coverage);
+    notify(monitor,sprintf('Overall coverage is %.3f', overall_coverage));
     header=sprintf(['<?xml version="1.0"?>\n'...
                     '<coverage line-rate="%.3f" branch-rate="1.0">'],...
                     overall_coverage);

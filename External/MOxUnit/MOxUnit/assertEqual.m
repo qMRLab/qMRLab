@@ -9,11 +9,11 @@ function assertEqual(a, b, message)
 %   msg             optional custom message
 %
 % Raises:
-%   'moxunit:differentSize'         a and b are of different size
-%   'moxunit:differentClass         a and b are of different class
-%   'moxunit:differentSparsity'     a is sparse and b is not, or
-%                                         vice versa
-%   'moxunit:elementsNotEqual'      values in a and b are not equal
+%   'assertEqual:nonEqual'             a and b are of different
+%                                      size or values are not equal
+%   'assertEqual:classNotEqual         a and b are of different class
+%   'assertEqual:sparsityNotEqual'     a is sparse and b is not, or
+%                                      vice versa
 %
 % Examples:
 %   assertEqual('foo','foo');

@@ -5,12 +5,14 @@ classdef mp2rage < AbstractModel
 % N/A
 % Inputs:
 %   (MP2RAGE)       MP2RAGE UNI image.
-%   (B1map)         Excitation (B1+) fieldmap. Used to correct flip angles. (optional).
-%   (Mask)          Binary mask to a desired region (optional).
-%   (INV1mag)       Magnitude image from the first GRE readout (optional).
-%   (INV1phase)     Phase image from the first GRE readout (optional).
-%   (INV2mag)       Magnitude image from the second GRE readout (optional).
-%   (INV2phase)     Phase image from the second GRE readout (optional).
+%   (B1map)         Normalized transmit excitation field map (B1+). B1+ is defined 
+%                   as a  normalized multiplicative factor such that:
+%                   FA_actual = B1+ * FA_nominal. (OPTIONAL).
+%   (Mask)          Binary mask to a desired region (OPTIONAL).
+%   (INV1mag)       Magnitude image from the first GRE readout (OPTIONAL).
+%   (INV1phase)     Phase image from the first GRE readout (OPTIONAL).
+%   (INV2mag)       Magnitude image from the second GRE readout (OPTIONAL).
+%   (INV2phase)     Phase image from the second GRE readout (OPTIONAL).
 %
 % Outputs:
 %   T1              Longitudinal relaxation time [s].
@@ -31,13 +33,13 @@ classdef mp2rage < AbstractModel
 %    Marques, José P., et al. "MP2RAGE, a self bias-field corrected sequence for
 %    improved segmentation and T1-mapping at high field." Neuroimage 49.2 (2010): 1271-1281.
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, 
-%     Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging 
-%     made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. 
-%     Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
- onlineData_url = getLink_mp2rage();
+    % See the constructor.
+    onlineData_url;
 end
 
 properties
@@ -81,6 +83,7 @@ methods
     function obj = mp2rage()
     
         obj.options = button2opts(obj.buttons);
+        obj.onlineData_url = obj.getLink('https://osf.io/8x2c9/download?version=4','https://osf.io/k3shf/download?version=1');
     
     end
 

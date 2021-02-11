@@ -7,8 +7,8 @@ classdef dti < AbstractModel
 %
 % Inputs:
 %   DiffusionData       4D DWI
-%   (SigmaNoise)        map of the standard deviation of the noise per voxel
-%   (Mask)              Binary mask to accelerate the fitting
+%   (SigmaNoise)        map of the standard deviation of the noise per voxel. (OPTIONAL)
+%   (Mask)              Binary mask to accelerate the fitting. (OPTIONAL)
 %
 % Outputs:
 %   D                   [Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Diffusion Tensor
@@ -69,7 +69,9 @@ classdef dti < AbstractModel
 %   Please cite the following if you use this module:
 %     Basser, P.J., Mattiello, J., LeBihan, D., 1994. MR diffusion tensor spectroscopy and imaging. Biophys. J. 66, 259?267.
 %   In addition to citing the package:
-%     Cabana J-F, Gu Y, Boudreau M, Levesque IR, Atchia Y, Sled JG, Narayanan S, Arnold DL, Pike GB, Cohen-Adad J, Duval T, Vuong M-T and Stikov N. (2016), Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
     onlineData_url = 'https://osf.io/qh87b/download?version=4';
@@ -94,6 +96,10 @@ end
         % Model options
         buttons = {'fitting type',{'non-linear (Rician Likelihood)','linear'},'PANEL','Rician noise bias',2,'Method', {'Compute Sigma per voxel','fix sigma'}, 'value',10};
         options = struct();
+
+        tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
+        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
+        'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
 
     end
 

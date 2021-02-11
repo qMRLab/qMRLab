@@ -27,7 +27,7 @@ if nargin && ischar(varargin{1})
 end
 
 if nargout
-    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS'))
+    if isempty(getenv('ISCITEST')) || ~str2double(getenv('ISCITEST'))
         varargin{end+1}='wait';
     end
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
@@ -287,7 +287,7 @@ if ~isempty(Model.Prot)
         % Unlike options panel, here they are REQUIRED. 
         
         handles.(fields{ii}).panel = uipanel(handles.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .06*N .9 (1-.06*N)]);
+        handles.(fields{ii}).table = uitable(handles.(fields{ii}).panel,'Data',Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .08*N .9 (1-.08*N)]);
         
         % TODO: Condition to be improved.
         if isprop(Model,'tabletip')
@@ -318,6 +318,28 @@ if ~isempty(Model.Prot)
             set(handles.(fields{ii}).table,'ColumnName','');
         else
             set(handles.(fields{ii}).table,'ColumnName',Model.Prot.(fields{ii}).Format);
+            
+            if isprop(Model,'tabletip')
+        
+                tbl_cur = Model.tabletip.table_name;
+                tip_cur = {Model.tabletip.tip};
+                
+                if ismember(fields{ii},tbl_cur)
+                    
+                    [~,tbidx] = ismember(fields{ii},tbl_cur);
+                    Tip = struct();
+                    Tip.tip = tip_cur{tbidx};
+                    if isfield(Model.tabletip,'link')
+                        Tip.link = cell2mat(Model.tabletip.link);
+                    else
+                        Tip.link = [];
+                    end
+                    
+                    uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[0.468 0 .066 .061*N],'Style','pushbutton','String','?','BackGroundColor', [0, 0.65, 1],'Callback',@(hObject, eventdata) PointHelp_Callback(hObject, eventdata, handles,Tip));
+                end
+                
+            end
+            
             % Create BUTTONS
             % ADD
             uicontrol(handles.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(hObject, eventdata, handles,fields{ii}));
@@ -381,8 +403,8 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if ~isempty(getenv('ISTRAVIS')) && isempty(getenv('ISDOC'))
-        warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.');
+    if ~isempty(getenv('ISCITEST')) && isempty(getenv('ISDOC'))
+        warning('Environment Variable ''ISCITEST''=1: close window immediately. run >>setenv(''ISCITEST'','''') to change this behavior.');
         delete(findobj('Name','OptionsGUI'));
     end
 end
@@ -643,6 +665,15 @@ ti = get(handles.TiBox,'String');
 td = get(handles.TdBox,'String');
 [Prot.ti,Prot.td] = SIRFSE_GetSeq( eval(ti), eval(td) );
 SetProt(Prot,handles);
+
+% SHOW PROT HELP 
+function PointHelp_Callback(hObject,eventdata, handles, Tip)
+if ~isempty(Tip.link)
+    web(Tip.link)
+end
+helpdlg(Tip.tip)
+
+
 
 % REMOVE POINT
 function PointRem_Callback(hObject, eventdata, handles, field)

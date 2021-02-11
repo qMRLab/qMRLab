@@ -28,8 +28,7 @@ function helper_test_with_subdir(subdir)
 
     % must be now in path
     directories_added_cell=func();
-    new_path=path();
-    assert(is_elem(new_path(),relative_dir,pathsep()));
+    assert(is_elem(path(),relative_dir,pathsep()));
 
     % directory must have been added and part of the output
     assert(numel(directories_added_cell)>0)
@@ -39,7 +38,4 @@ function helper_test_with_subdir(subdir)
 
 
 function tf=is_elem(haystack, needle, sep)
-    tf=~isempty(findstr([sep haystack sep], [sep needle sep]));
-
-
-
+    tf=~isempty(strfind([sep haystack sep], [sep needle sep]));

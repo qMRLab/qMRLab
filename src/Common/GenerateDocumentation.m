@@ -14,7 +14,7 @@ dlmwrite([mainDir filesep 'tmp' filesep 'tmpDocDir.txt'],tmpDir,'delimiter','');
 %% Generate Batch examples and publish
 % Navigate to the temporary (private) folder. 
 cd(tmpDir);
-setenv('ISTRAVIS','1')
+setenv('ISCITEST','1')
 setenv('ISDOC','1')
 
 Modellist = list_models';
@@ -28,7 +28,7 @@ for iModel = 1:length(Modellist)
     cd ..
     close all
 end
-setenv('ISTRAVIS','')
+setenv('ISCITEST','')
 setenv('ISDOC','')
 
 %% Generate restructured text files (docs/source/.rst)
