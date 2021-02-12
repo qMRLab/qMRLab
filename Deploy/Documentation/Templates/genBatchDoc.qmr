@@ -152,7 +152,7 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 %
 % <html>
 % <div class="success" style="text-align:justify;">
-% <p>|*-modelName-*|</p>
+% <p>*-modelCitation-*</p>
 % </div>
 % </html>
 %

@@ -56,6 +56,7 @@ simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
 noteTexts = struct();
 noteTexts.jokerNote = '*-SpecificNotes-*';
+noteTexts.jokerCite = '*-modelCitation-*';
 notesJson = json2struct('docModelNotes.json');
 
 saveJoker = '*-saveCommand-*';
@@ -154,8 +155,16 @@ if ISDOC
     {'% <p style="margin:0px!important;"><strong><i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Not provided.</p>'},...
     {'% </div>'},...
     {'% </html>'}];
+
+    noCitation = [{'% <html>'},...
+    {'% <div class="success" style="text-align:justify;">'},...
+    {'% <p style="margin:0px!important;"> Not provided.</p>'},...
+    {'% </div>'},...
+    {'% </html>'}];
+
 else
     noNotes = {'% _No notes are available for this model._'};
+    noCitation = {'% _Not provided._'};
 end
 
 if Model.voxelwise && ~isempty(qMRusage(Model,'Sim_Single_Voxel_Curve'))
@@ -174,9 +183,11 @@ end
 for ii =1:length(notesJson.notes)
     
     if strcmp(Model.ModelName,notesJson.notes{ii}.model)
-        noteTexts.notes = cellstr(notesJson.notes{ii}.note');
+        noteTexts.notes = cellstr(notesJson.notes{ii}.note')
+        noteTexts.citation = cellstr(notesJson.notes{ii}.citation)
     else
         noteTexts.notes = noNotes;
+        noteTexts.citation = noCitation;
     end
     
 end
@@ -227,7 +238,9 @@ newScript = replaceJoker(simTexts.jokerSVC,simTexts.SVCcommands,newScript,2); % 
 
 newScript = replaceJoker(simTexts.jokerSA,simTexts.SAcommands,newScript,2); % Sim 2
 
-newScript = replaceJoker(noteTexts.jokerNote,noteTexts.notes,newScript,2); % Sim 2
+newScript = replaceJoker(noteTexts.jokerNote,noteTexts.notes,newScript,2);
+
+newScript = replaceJoker(noteTexts.jokerCite,noteTexts.citation,newScript,2); % Sim 2
 
 % Replace jokers ====================== END
 
