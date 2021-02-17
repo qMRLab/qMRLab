@@ -25,6 +25,7 @@ function GenerateDocumentation(docDirectory)
     setenv('ISDOC','1');
     
     Modellist = list_models';
+    Modellist = {'inversion_recovery'};
     for iModel = 1:length(Modellist)
         eval(['Model = ' Modellist{iModel}]);
         qMRgenBatch(Model,pwd)

@@ -58,6 +58,8 @@ noteTexts = struct();
 noteTexts.jokerNote = '*-SpecificNotes-*';
 noteTexts.jokerCite = '*-modelCitation-*';
 notesJson = json2struct('docModelNotes.json');
+notesGeneric = getGenericNotes(Model);
+noteTexts.jokerNotesGeneric = '*-GenericNotes-*';
 
 saveJoker = '*-saveCommand-*';
 
@@ -145,8 +147,11 @@ if ISDOC
     {'% </div>'},...
     {'% </html>'}];
 else
-    notAvail = {'% _Not available for the current model._'};
+    notAvail = {'% Not available for the current model.'};
 end
+
+% Inline substitution either way, so just define as a string.
+noCitation = {'% _Reference article is not defined for this model._'};
 
 if ISDOC
     % Display yellow-colored box when no sim is available
@@ -156,15 +161,9 @@ if ISDOC
     {'% </div>'},...
     {'% </html>'}];
 
-    noCitation = [{'% <html>'},...
-    {'% <div class="success" style="text-align:justify;">'},...
-    {'% <p style="margin:0px!important;"> Not provided.</p>'},...
-    {'% </div>'},...
-    {'% </html>'}];
-
 else
     noNotes = {'% _No notes are available for this model._'};
-    noCitation = {'% _Not provided._'};
+    notesGeneric = {['% More information is available at https://qmrlab.readthedocs.io/en/master/' Model.ModelName '_batch.html']};
 end
 
 if Model.voxelwise && ~isempty(qMRusage(Model,'Sim_Single_Voxel_Curve'))
@@ -183,8 +182,19 @@ end
 for ii =1:length(notesJson.notes)
     
     if strcmp(Model.ModelName,notesJson.notes{ii}.model)
-        noteTexts.notes = cellstr(notesJson.notes{ii}.note')
-        noteTexts.citation = cellstr(notesJson.notes{ii}.citation)
+        if isfield(notesJson.notes{ii},'note')
+            noteTexts.notes = cellstr(notesJson.notes{ii}.note');
+        else
+            noteTexts.notes = noNotes;
+        end
+
+        if isfield(notesJson.notes{ii},'citation')
+            noteTexts.citation =cellstr(['% ' notesJson.notes{ii}.citation]);
+        else
+            noteTexts.citation = noCitation;
+        end
+
+        break;
     else
         noteTexts.notes = noNotes;
         noteTexts.citation = noCitation;
@@ -240,7 +250,12 @@ newScript = replaceJoker(simTexts.jokerSA,simTexts.SAcommands,newScript,2); % Si
 
 newScript = replaceJoker(noteTexts.jokerNote,noteTexts.notes,newScript,2);
 
-newScript = replaceJoker(noteTexts.jokerCite,noteTexts.citation,newScript,2); % Sim 2
+newScript = replaceJoker(noteTexts.jokerNotesGeneric,notesGeneric,newScript,2); % Generic notes
+
+newScript = replaceJoker(noteTexts.jokerCite,noteTexts.citation,newScript,2); % Model specific notes
+
+% Substitute model name jokers once again
+newScript = replaceJoker(varNames.jokerModel,varNames.modelName,newScript,1);
 
 % Replace jokers ====================== END
 
@@ -600,4 +615,29 @@ function allScript = getTemplateFile(fileName)
     fclose(fid);
     allScript = allScript{1}; % This is a cell aray that contains template
 
+end
+
+function notes  = getGenericNotes(Model)
+    notesJsonGeneric = json2struct('docGenericNotes.json');
+    fixedNotes = [];
+    condNotes = [];
+    for ii=1:length(notesJsonGeneric.notes)
+    if strcmp(notesJsonGeneric.notes{ii}.type,'fixed')
+        % Assumption there is only one fixed field.
+        fixedNotes = cellstr(notesJsonGeneric.notes{ii}.note');
+    elseif strcmp(notesJsonGeneric.notes{ii}.type,'conditional')
+        
+        if Model.voxelwise
+            if notesJsonGeneric.notes{ii}.voxelwise
+                condNotes = cellstr(notesJsonGeneric.notes{ii}.note');
+            end
+        else
+            if ~notesJsonGeneric.notes{ii}.voxelwise
+                condNotes = cellstr(notesJsonGeneric.notes{ii}.note');
+            end
+        end
+    
+    end
+    end
+    notes = [fixedNotes;condNotes];
 end

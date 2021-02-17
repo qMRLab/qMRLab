@@ -21,16 +21,16 @@ qMRinfo('*-modelName-*');
 Model = *-modelName-*;
 
 %% 2.b. Modify the options
-% This section will pop-up the |options| GUI for demonstration purposes.
+% This section will pop-up the |options GUI| for demonstration purposes.
 %
 % _You need to close this window to proceed._
 %
-% * If you are using Octave, or would like to serialize your operations without GUI involvement, you can assign method options directly in CLI.
+% * If you are using Octave, or would like to serialize your operations without |GUI| involvement, you can assign method options directly in CLI.
 
 %%
 % <html>
 % <div class="info">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#17">generic notes</a> section below for further details. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for further details. </p>
 % </div>
 % </html>
 
@@ -45,7 +45,7 @@ Model = Custom_OptionsGUI(Model); % You need to close GUI to move on.
 %%
 % <html>
 % <div class="info">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#17">generic notes</a> section below for BIDS compatible wrappers and scalable qMRLab workflows. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for BIDS compatible wrappers and scalable qMRLab workflows. </p>
 % </div>
 % </html>
 
@@ -59,7 +59,7 @@ data = struct();
 %%
 % <html>
 % <div class="info">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> Visit the <a href="#17">generic notes</a> section below for instructions to accelerate fitting by parallelization using <code>ParFitData</code>. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> Visit the <a href="#21">generic notes</a> section below for instructions to accelerate fitting by parallelization using <code>ParFitData</code>. </p>
 % </div>
 % </html>
 
@@ -94,7 +94,7 @@ qMRshowOutput(FitResults_old,data,Model);
 %%
 % <html>
 % <div class="info">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> <code>FitResults.mat</code> files can be loaded to qMRLab GUI for <a href="l#data-viewer" target="_blank">visualization and ROI analyses</a>. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:navy;margin-left:5px;"></i></strong> <code>FitResults.mat</code> files can be loaded to qMRLab <code>GUI</code> for <a href="l#data-viewer" target="_blank">visualization and ROI analyses</a>. </p>
 % </div>
 % </html>
 %
@@ -132,11 +132,11 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 % *-SensitivityAnalysis-*
 
 %% 5. Notes
-%%    5.1. Notes specific to |*-modelName-*|
+%%    5.a. Notes specific to |*-modelName-*|
 % *-SpecificNotes-*
 
-%% 5.2. Generic notes
-% To be edited
+%% 5.b. Generic notes
+% *-GenericNotes-*
 
 %% 6. Citations
 % *qMRLab JOSS article*

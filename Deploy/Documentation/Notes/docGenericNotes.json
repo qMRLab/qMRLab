@@ -1,124 +1,130 @@
 {
 "notes": [
       {
-        "model": "b1_dam",
-        "note": [""               
-                ],
-	"citation": "Insko, E.K., & Bolinger, L. (1993). Mapping of the Radifrequency Field. Journal of Magnetic Resonance Series A, 1(1), 82-85. https://doi.org/10.1006/jmra.1993.1133"
-      }
+        "type": "fixed",
+        "note": [
+          "%%     5.b.1. Batch friendly |option| and |protocol| conventions",
+          "% If you would like to load a desired set of |options|/|protocols| programatically,",
+          "% you can use |*.qmrlab.mat| files. To save a configuration from the |protocol| panel",
+          "% of |*-modelName-*|, first open the respective panel by running the following command ",
+          "% in your MATLAB command window (MATLAB only):",
+          "% ",
+          "%   Custom_OptionsGUI(*-modelName-*); ",
+          "%",
+          "% In this panel, you can arrange available |options| and |protocols| according to your needs,",
+          "% then click the |save| button to save |my_*-modelName-*.qmrlab.mat| file. This file can be later",
+          "% loaded into a |*-modelName-*| object in batch by:",
+          "% ",
+          "%   Model = *-modelName-*;",
+          "%   Model = Model.loadObj('my_*-modelName-*.qmrlab.mat');",
+          "%%",
+          "% <html>",
+          "% <div class=\"info\">",
+          "% <p style=\"margin:0px!important;\"><strong>&nbsp<i class=\"fa fa-info-circle\" style=\"color:navy;margin-left:5px;\"></i></strong> <code>Model.loadObj('my_*-modelName-*.qmrlab.mat')</code> call won't update the fields in the <code>Model</code> object, unless the output is assigned to the object as shown above. This compromise on convenience is to retain Octave CLI compatibility. </p>",
+          "% </div>",
+          "% </html>",
+          "% ",
+          "% *If you don't have MATLAB, hence cannot access the |GUI|, two alternatives are available to populate |options|:*",
+          "% ",
+          "% # Use |qmrlab/mcrgui:latest| Docker image to access |GUI|. The instructions are available <https://hub.docker.com/r/qmrlab/mcrgui here>.",
+          "% # Set |options| and |protocols| in |CLI|:",
+          "%",
+          "% * List available option fields using tab completion in Octave's command prompt (or window)",
+          "% ",
+          "%   Model = *-modelName-*;",
+          "%   Model.option. % click the tab button on your keyboard and list the available fields.",
+          "% ",
+          "% * Assign the desired field. *For example*, for a |mono_t2| object:",
+          "% ",
+          "%   Model = mono_t2;",
+          "%   Model.options.DropFirstEcho = true;",
+          "%   Model.options.OffsetTerm = false;",
+          "%%",
+          "% <html>",
+          "% <div class=\"info\">",
+          "% <p style=\"margin:0px!important;\"><strong><i class=\"fa fa-info-circle\" style=\"color:navy;margin-left:5px;\"></i></strong> Some option fields may be mutually exclusive or interdependent. Such cases are handled  by the <code>GUI</code> options panel; however, not exposed to the <code>CLI</code>. Therefore, manual <code>CLI</code> <code>options</code> assignments may be challenging for some involved methods such as <code>qmt_spgr</code> or <code>qsm_sb</code>. If above options are not working for you and you cannot infer how to set options solely in batch, please feel free to <a href=\"https://github.com/qmrlab/qmrlab\" target=\"_blank\">open an issue in qMRLab</a> and request the protocol file you need. </p>",
+          "% </div>",
+          "% </html>",
+          "%",
+          "% *Similarly, in CLI, you can inspect and assign the |protocols|:*",
+          "% ",
+          "%   Model = *-modelName-*;",
+          "%   Model.Prot. % click the tab button on your keyboard and list the available fields.",
+          "%",
+          "% Each protocol field has two subfields of |Format| and |Mat|. The first one is a |cell| indicating the name of the protocol parameter (such as |EchoTime (ms)|)",
+          "% and the latter one contains the respective values (such as |30 x 1 double| array containing |EchoTimes|).",
+          "%%",
+          "% <html>",
+          "% <div class=\"warning\">",
+          "% <p style=\"margin:0px!important;\"> The default <code>Mat</code> protocol values are set according to the example datasets served via <a href=\"https://osf.io/tmdfu\" target=\"_blank\">OSF</a>.</p>",
+          "% </div>",
+          "% </html>"
+        ]
+      },
+      { "type": "conditional",
+        "voxelwise": true,
+        "note": [
+          "%%     5.b.2 Parallelization",
+          "% Beginning from release |2.5.0|, you can accelerate fitting for the |voxelwise| models",
+          "% using parallelization.",
+          "%%",
+          "% <html>",
+          "% <div class=\"danger\">",
+          "% <p style=\"margin:0px!important;\"> <strong>Available in MATLAB only. Requires <code>parallel processing toolbox</code>.</strong></p>",
+          "% </div>",
+          "% </html>",
+          "%",
+          "% In |CLI|, you can perform parallel fitting by:",
+          "% ",
+          "%   parpool();",
+          "%   FitResults = ParFitData(data,Model);",
+          "% ",
+          "% If a |parpool| exists, the |ParFitData| will use it. If not, a new pool will be created using the local profile. By default, ",
+          "% |ParFitData| saves outputs automatically every 5 minutes. You can disable this feature by:",
+          "% ",
+          "%   FitResults = ParFitData(data, Model, 'AutosaveEnabled', false);",
+          "% ",
+          "% Alternatively, you can change the autosave interval (min 1 min) by:",
+          "% ",
+          "%   FitResults = ParFitData(data,Model,'AutoSaveInterval',10);",
+          "% ",
+          "% If something went wrong during the fitting (e.g. your computer had to be restarted), you can recover ",
+          "% the autosaved data by:",
+          "% ",
+          "%   FitResults = ParFitData(data,Model,'RecoverDirectory','/ParFitTempResults_*/folder/from/the/previous/session');",
+          "% ",
+          "% |GUI| users will be prompted a question about whether they would like to use parallelization after clicking the |Fit Data| button, if the conditions are met.",
+          "% When called from |GUI|, |ParFitData| will be run with default options: ",
+          "% ",
+          "% * Save temporary results every |5| minutes or whenever a chunk has finished processing",
+          "% * Split data into chunks with a |granularity| factor of |3|",
+          "% * Do not remove temporary fit results upon completion",
+          "% ",
+          "% For further information:",
+          "% ",
+          "%   help ParFitData",
+          "% ",
+          "% The default |parallelization| options can be changed in the |preferences.json| file located at the root qMRLab directory."
+                ]
+      },
       {
-        "model": "b0_dem",
-        "note": [""               
-                ],
-	"citation": "Maier, F., et al. (2015). Robust phase unwrapping for MR temperature imaging using a magnitude-sorted list, multi-clustering algorithm. Magnetic Resonance in Medicine, 73(4), 1662-1668. 10.1002/mrm.25279"
-      }
-      {
-        "model": "b1_afi",
-        "note": [""               
-                ],
-	"citation": "Yarnykh, V.L. (2007). Actual flip-angle imaging in the pulsed steady state: a method for rapid three-dimensional mapping of the transmitted radiofrequency field. Magnetic Resonance in Medicine, 57(1), 192-200. 10.1002/mrm.21120"
-      }
-      {
-        "model": "mono_t2",
-        "note": [""               
-                ],
-	"citation": "Milford, D., et al. (2015). Mono-Exponential Fitting in T2-Relaxometry: Relevance of Offset and First Echo. PLoS One, 10(12), e0145255. 10.1371/journal.pone.0145255"
-      }
-      {
-        "model": "mwf",
-        "note": [""               
-                ],
-	"citation": "MacKay, M., et al. (1994). In vivo visualization of myeling water in brain by magnetic resonance. Magnetic Resonance in Medicine, 31(6), 673-677. 10.1002/mrm.1910310614"
-      }
-      {
-        "model": "mp2rage",
-        "note": [""               
-                ],
-	"citation": "Marques, José P., et al. (2010). MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. Neuroimage, 49(2), 1271-1281. 10.1016/j.neuroimage.2009.10.002"
-      }
-      {
-        "model": "vfa_t1",
-        "note": [""               
-                ],
-	"citation": "Fram, E.K., et al. (1987). Rapid calculation of T1 using variable flip angle gradient refocused imaging. Magnetic Resonance in Medicine, 5(3), 201-208. 10.1016/0730-725x(87)90021-x"
-      }
-      {
-        "model": "inversion_recovery",
-        "note": [""               
-                ],
-	"citation": "Barral, J.K., et al. (2010). A robust methodology for in vivo T1 mapping. Magnetic Resonance in Medicine, 64(4), 1057-1067. 10.1002/mrm.22497"
-      }
-      {
-        "model": "qmt_bssfp",
-        "note": [""               
-                ],
-	"citation": ""
-      }
-      {
-        "model": "qmt_spgr",
-        "note": [""               
-                ],
-	"citation": "Sled, J.G., & Pike, G.B. (2000). Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. Journal of Magnetic Resonance, 145(1), 24-36. 10.1006/jmre.2000.2059"
-      }
-      {
-        "model": "mt_sat",
-        "note": [""               
-                ],
-	"citation": "Helms, G., et al. (2008). High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magnetic Resonance in Medicine, 60(6), 1396-1407. 10.1002/mrm.21732"
-      }
-      {
-        "model": "mt_ratio",
-        "note": [""               
-                ],
-	"citation": ""
-      }
-      {
-        "model": "qmt_sirfse",
-        "note": [""               
-                ],
-	"citation": "Li, K., et al. (2010). Optimized inversion recovery sequences for quantitative T1 and magnetization transfer imaging. Magnetic Resonance in Medicine, 64(2), 491-500. 10.1002/mrm.22440"
-      }
-      {
-        "model": "dti",
-        "note": [""               
-                ],
-	"citation": "Basser, P.J., et al. (1994). MR diffusion tensor spectroscopy and imaging. Biophysical Journal, 66(1), 259-267. 10.1016/S0006-3495(94)80775-1"
-      }
-      {
-        "model": "amico",
-        "note": [""               
-                ],
-	"citation": "Daducci, A., et al. (2015). Accelerated Microstructure Imaging via Convex Optimization (AMICO) from difussion MRI data. Neuroimage, 105, 32-44. 10.1016/j.neuroimage.2014.10.026"
-      }
-      {
-        "model": "noddi",
-        "note": [""               
-                ],
-	"citation": "Zhang, H., et al. (2012). NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage, 61(4), 1000-1016. 10.1016/j.neuroimage.2012.03.072"
-      }
-      {
-        "model": "charmed",
-        "note": [""               
-                ],
-	"citation": "Assaf, Y., & Basser, P.J. (2005). Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage, 27(1), 48-58.  10.1016/j.neuroimage.2005.03.042"
-      }
-      {
-        "model": "qsm_sb",
-        "note": ["%           |- To make documentation generation and our CI tests faster for this model,",
-                 "%              we used a subportion of the data (40X40X40) in our testing environment.",
-                 "%           |- Therefore, this example will use FitResults that comes with OSF data for display purposes:",
-                 "%                 ```                                                ",
-                 "%                 FitResults_old = load('FitResults/FitResults.mat');",
-                 "%                 qMRshowOutput(FitResults_old,data,Model);",
-                 "%                 ```                                                ",
-                 "%           |- Users will get the whole dataset (384X336X224) and the proper demo script",
-                 "%              when re-generated this script using `qMRgenBatch(qsm_sb)` command in MATLAB/Octave:",
-                 "%                 ```                                                ",
-                 "%                 FitResults = FitData(data,Model,0);",
-                 "%                 qMRshowOutput(FitResults,data,Model);",
-                 "%                 ```                                                "                
-                ],
-	"citation": "Bilgic, B., et al. (2014). Fast quantitative susceptibility mapping with L1-regularization and automatic parameter selection. Magnetic Resonance in Medicine, 72(5), 1444-1459. 10.1002/mrm.25029"
+        "type": "conditional",
+        "voxelwise": false,
+        "note":[
+          "%%     5.b.2 Parallelization:",
+          "%%",
+          "% <html>",
+          "% <div class=\"danger\">",
+          "% <p style=\"margin:0px!important;\"> The current model does not perform voxelwise fitting. Therefore, parallelization is not enabled.</p>",
+          "% </div>",
+          "% </html>"
+               ] 
       }
     ]
 }
+
+
+
+
+
+
