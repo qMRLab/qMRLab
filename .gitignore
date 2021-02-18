@@ -64,6 +64,9 @@ Data
 # Temporary folder
 tmp/
 
+# Large files in AMICO
+External/AMICO/SPAMS
+
 # Coveralls.io reports
 reports/
 *coverage*

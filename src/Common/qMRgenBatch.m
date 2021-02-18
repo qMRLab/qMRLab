@@ -157,7 +157,7 @@ end
 % Do not create these fields in CI tests either (ISCITEST)
 % * Or the model is amico 
 % * Or the moodel is .... (please update when added new conditions)
-if protFlag || strcmp(Model.ModelName,'amico') || ~isempty(getenv('ISCITEST'))
+if protFlag || strcmp(Model.ModelName,'amico')
     commandTexts.protCommands = notAvail; % Set empty
 end
 
