@@ -1,4 +1,4 @@
-function test_suite=BatchExample_test
+function test_suite=BatchExample_amico_test
 try % assignment of 'localfunctions' is necessary in Matlab >= 2016
     test_functions=localfunctions();
 catch % no problem; early Matlab versions can use initTestSuite fine
@@ -15,16 +15,8 @@ tmpDir = tempdir;
 mkdir(tmpDir);
 cd(tmpDir)
 
-Modellist = list_models';
-% If test scripts with BatchExample_*_test.m are located in the same 
-% directory with BatchExample_test.m, they will be discarded from the list
-% to split tasks on different Azure agents.
-BatchExampleFiles = cellfun(@(x) ['BatchExample_' x '_test.m'],Modellist,'uni',0)';
-Modellist(~~cellfun(@(x) exist(['BatchExamplePart2' filesep x],'file'),BatchExampleFiles)) = [];
-if moxunit_util_platform_is_octave
-    Modellist(~~cellfun(@(x) exist(['BatchMatlabOnly' filesep x],'file'),BatchExampleFiles)) = [];
-end
-Modellist(~~cellfun(@(x) exist(['BatchExamplePart2' filesep x],'file'),BatchExampleFiles)) = [];
+Modellist = {'amico'};
+
 for iModel = 1:length(Modellist)
     disp('===============================================================')
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
@@ -55,7 +47,7 @@ for iModel = 1:length(Modellist)
     % Run Batch
     if isdata
         starttime = tic;
-        eval([Modellist{iModel} '_batch']);
+        eval([Modellist{iModel} '_batch'])
         toc(starttime)
     end
     close all
