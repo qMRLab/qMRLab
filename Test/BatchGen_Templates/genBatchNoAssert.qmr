@@ -52,7 +52,12 @@ for k=1:length(intrFields)
                 end
 
                  if islogical(expected) && islogical(calculated)
-                    assertEqual(expected,calculated);
+                    try
+                        assertEqual(expected,calculated);
+                    catch
+                         caught = true;
+                         msg = [msg {['FAILED assertion logical: ' crField '--->' Model.ModelName]}];
+                    end
                  else
                     % Allow 5% difference
                     try
