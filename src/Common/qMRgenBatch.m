@@ -141,18 +141,30 @@ end
 
 if ISDOC
     % Display red-colored box when no sim is available
+    % TODO: Create a function that can return these formatted boxes with a custom text. 
+    % A great intern task.
     notAvail = [{'% <html>'},...
     {'% <div class="danger" style="text-align:justify;">'},...
     {'% <p style="margin:0px!important;"><strong><i class="fa fa-info-circle" style="color:red;margin-left:5px;"></i></strong> Not available for the current model.</p>'},...
     {'% </div>'},...
     {'% </html>'}];
-
-    if protFlag % Means no prot avail
-        explainTexts.protExplain = notAvail;
-        commandTexts.protCommands = {' '}; % Set empty
-    end
 else
     notAvail = {'% Not available for the current model.'};
+end
+
+% MODEL SPECIFIC EXCEPTIONS FOR PROTOCOL CLI SECTION:
+% In doc generation, send empty cell if no prot is available (protFlag==True)
+% Do not create these fields in CI tests either (ISCITEST)
+% * Or the model is amico 
+% * Or the moodel is .... (please update when added new conditions)
+if protFlag || strcmp(Model.ModelName,'amico') || ~isempty(getenv('ISCITEST'))
+    commandTexts.protCommands = notAvail; % Set empty
+end
+
+if ~isempty(getenv('ISCITEST')) % TEST ENV
+    if str2double(getenv('ISCITEST'))==1
+        commandTexts.protCommands = {'% Skipped in CI tests.'} ;
+    end
 end
 
 % Inline substitution either way, so just define as a string.

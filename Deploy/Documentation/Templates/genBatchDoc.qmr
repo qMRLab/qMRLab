@@ -42,8 +42,7 @@ Model = *-modelName-*;
 %% 2.b.1 Set |protocol| _the CLI way_
 %
 % If you are using Octave, or would like to serialize your operations any without |GUI| involvement, you can assign |protocol| directly in CLI:
-
-%%
+%
 *-protExplain-*
 
 %%

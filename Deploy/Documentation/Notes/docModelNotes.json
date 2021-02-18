@@ -61,7 +61,13 @@
       },
       {
         "model": "noddi",
-	      "citation": "Zhang, H., et al. (2012). NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage, 61(4), 1000-1016. 10.1016/j.neuroimage.2012.03.072"
+	      "citation": "Zhang, H., et al. (2012). NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage, 61(4), 1000-1016. 10.1016/j.neuroimage.2012.03.072",
+        "note": [
+          "% *Note 1:*",
+          "% ",
+          "% Section |2.b.1| is disabled for this model on purpose. The |amico| protocol contains a relatively larger matrix (|109x7|) of",
+          "% parameters, which is not favorable for including in the documentation in text form."
+        ]
       },
       {
         "model": "charmed",

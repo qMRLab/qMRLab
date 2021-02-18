@@ -25,7 +25,8 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
     setenv('ISDOC','1');
     
     Modellist = list_models';
-    for iModel = 2:length(Modellist)
+    Modellist = {'amico'};
+    for iModel = 1:length(Modellist)
         eval(['Model = ' Modellist{iModel}]);
         qMRgenBatch(Model,pwd)
         publish([Modellist{iModel} '_batch.m'])
