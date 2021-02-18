@@ -42,13 +42,17 @@ for k=1:length(intrFields)
                 end
                 expected = FitResults_old.(crField);
                 calculated = FitResults.(crField);
-
+                try
                 if ~isequal(size(expected),size(calculated))
                     message = ['FAILED assertion at 5% : ' crField '--->' Model.ModelName]; 
                     whatswrong='Inputs are not of the same size.';
                     error_id='assertEqual:nonEqual';
                     full_message=moxunit_util_input2str(message,whatswrong,expected,calculated);
                     error(error_id,'%s',full_message);
+                end
+                catch
+                    caught = true;
+                    msg = [msg {['FAILED dimension mismatch: ' crField '--->' Model.ModelName]}];
                 end
 
                  if islogical(expected) && islogical(calculated)
