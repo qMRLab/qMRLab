@@ -26,7 +26,9 @@ Model = *-modelName-*;
 Model = Custom_OptionsGUI(Model); % You need to close GUI to move on. 
 
 %% III- FIT EXPERIMENTAL DATASET
-%%       a- load experimental data 
+%%       a- set protocols via gui 
+*-protExplain-*
+%%       b- load experimental data 
 *-dataExplain-*
 
 data = struct();
@@ -73,3 +75,7 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 
 %% VI- NOTES
 % *-SpecificNotes-*
+
+% *-GenericNotes-*
+
+% *-modelCitation-*

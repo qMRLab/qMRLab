@@ -1,4 +1,4 @@
-function GenerateDocumentation(docDirectory)
+function GenerateDocumentation(docDirectory,sysEnvPATH)
     %% Launch from any folder --> this script will create a folder qMRLab/Data
     cd([fileparts(which('qMRLab.m')),'/src']);
     
@@ -25,8 +25,7 @@ function GenerateDocumentation(docDirectory)
     setenv('ISDOC','1');
     
     Modellist = list_models';
-    Modellist = {'inversion_recovery'};
-    for iModel = 1:length(Modellist)
+    for iModel = 2:length(Modellist)
         eval(['Model = ' Modellist{iModel}]);
         qMRgenBatch(Model,pwd)
         publish([Modellist{iModel} '_batch.m'])
@@ -45,10 +44,31 @@ function GenerateDocumentation(docDirectory)
     % create new ones
     % This should be called from the docs directory.
     cd(docDirectory);
-    system(['python ' docDirectory filesep 'auto_TOC.py ' fileparts(which('qMRLab.m'))]); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
+    % It is important to make this call from python3. MATLAB can give you
+    % trouble while importing the libs.
+    % If the python libs are imported from 2.7, then the documentation fails 
+    % only for charmed and b1_dam (such a mystery :) ). But when you ensure
+    % that the libs are imported from py3 then, it is OK. And no, in this
+    % case <<python3 auto_TOC.py>> call won't work unless you properly set 
+    % the environment with matlab.
     
+    % If you run into the same problem, just sync PATH from your shell with
+    % the PATH env var in MATLAB. In Unix, you can easily copy path to
+    % clipboard by <<echo $PATH | pbcopy>> in terminal.
+    % Then you can call this script like this: 
+    % GenerateDocumentation('~/Desktop/neuropoly/documentation','Users/agah/opt/anaconda3/bin:/Users/agah/opt/anaconda3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin');
+    
+    if exist(sysEnvPATH,'var')
+        setenv('PATH',sysEnvPATH);
+    end
+    % Plots python version to ensure that the right version is used.
+    system(['python --version; python auto_TOC.py ' fileparts(which('qMRLab.m'))]); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
+    
+    % Insert Binder badges to the rst files in the source dir
+    insertBadge([docDirectory filesep 'source']);
     %% Build
     % See requirements.txt in the docsDir
+    % Same applies regarding the PATH
     system('make')
     
     % Remove both tmp folders 

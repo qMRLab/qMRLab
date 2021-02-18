@@ -17,6 +17,7 @@ qMRinfo('*-modelName-*');
 rng(123);
 Model = *-modelName-*; 
 
+*-protExplain-*
 *-dataExplain-*
 
 data = struct();
@@ -80,4 +81,8 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 warning('on','all');
 
 %% VI- NOTES
-*-SpecificNotes-*
+% *-SpecificNotes-*
+
+% *-GenericNotes-*
+
+% % *-modelCitation-*

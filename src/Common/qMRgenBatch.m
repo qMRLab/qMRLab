@@ -146,6 +146,11 @@ if ISDOC
     {'% <p style="margin:0px!important;"><strong><i class="fa fa-info-circle" style="color:red;margin-left:5px;"></i></strong> Not available for the current model.</p>'},...
     {'% </div>'},...
     {'% </html>'}];
+
+    if protFlag % Means no prot avail
+        explainTexts.protExplain = notAvail;
+        commandTexts.protCommands = {' '}; % Set empty
+    end
 else
     notAvail = {'% Not available for the current model.'};
 end
@@ -211,7 +216,7 @@ end
 %
 % Please do not use underscores or any other special chars.
 % foo_model --> genBatchfoomodel.qmr
-
+doFinSubs = false;
 if ~isempty(getenv('ISCITEST')) % TEST ENV
 
     if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico') || moxunit_util_platform_is_octave) % Octave and models avoiding assertion
@@ -221,6 +226,7 @@ if ~isempty(getenv('ISCITEST')) % TEST ENV
     elseif ISDOC % Means documentation generation
         % During documentation generation, fit functions won't be called.
         allScript = getTemplateFile('genBatchDoc.qmr'); 
+        doFinSubs = true;
     elseif str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico')) % Means MATLAB CU
         % If not DOC, but MATLAB CI, run assertion to all but qsm and amico
         allScript = getTemplateFile('genBatchTestAssert.qmr');
@@ -240,6 +246,8 @@ newScript = replaceJoker(varNames.jokerDemoDir,demoDir,newScript,1);
 
 newScript = replaceJoker(saveJoker,saveCommand,newScript,1);
 
+newScript = replaceJoker(explainTexts.jokerProt, commandTexts.protCommands, newScript,2);
+
 newScript = replaceJoker(explainTexts.jokerData,explainTexts.dataExplain,newScript,2); % Data Exp
 
 newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScript,2); % Data Code
@@ -254,8 +262,10 @@ newScript = replaceJoker(noteTexts.jokerNotesGeneric,notesGeneric,newScript,2); 
 
 newScript = replaceJoker(noteTexts.jokerCite,noteTexts.citation,newScript,2); % Model specific notes
 
-% Substitute model name jokers once again
-newScript = replaceJoker(varNames.jokerModel,varNames.modelName,newScript,1);
+if doFinSubs
+    % Substitute model name jokers once again
+    newScript = replaceJoker(varNames.jokerModel,varNames.modelName,newScript,1);
+end    
 
 % Replace jokers ====================== END
 
@@ -350,14 +360,14 @@ for i=1:length(fNames)
                 part = sprintf(cont,curStr.Mat(:,j));
                 cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
                 expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' num2str(max(szM)) 'X' '1' ']' ];
-                newCommand = [newCommand expln];
                 newCommand = [newCommand cmmnd];
+                newCommand = [newCommand expln];
             else
                 part = sprintf(cont,curStr.Mat(j,:));
                 cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
                 expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' '1' 'X' num2str(max(szM)) ']' ];
-                newCommand = [newCommand expln];
                 newCommand = [newCommand cmmnd];
+                newCommand = [newCommand expln];
             end
             
             
@@ -378,7 +388,7 @@ for i=1:length(fNames)
 
     
     newCommand = [newCommand assgn];
-    newCommand = [newCommand '% -----------------------------------------'];
+    newCommand = [newCommand '%%   '];
     
     
 end

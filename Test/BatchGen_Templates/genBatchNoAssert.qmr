@@ -11,6 +11,8 @@ Model = *-modelName-*;
 
 Model = Custom_OptionsGUI(Model);
 
+*-protExplain-*
+
 *-dataExplain-*
 
 data = struct();
@@ -30,3 +32,7 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 
 %% VI- NOTES
 % *-SpecificNotes-*
+
+% *-GenericNotes-*
+
+% *-modelCitation-*
