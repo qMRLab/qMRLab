@@ -56,11 +56,12 @@ for k=1:length(intrFields)
                  else
                     % Allow 5% difference
                     try
-                    assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),'relative',0.05,['FAILED assertion at 5% : ' crField '--->' Model.ModelName]);
+                        assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),'relative',0.05,['FAILED assertion at 5% : ' crField '--->' Model.ModelName]);
                     catch
-                    caught = true;
-                    msg = [msg {['FAILED assertion at 5% : ' crField '--->' Model.ModelName]};
+                        caught = true;
+                        msg = [msg {['FAILED assertion at 5% : ' crField '--->' Model.ModelName]}];
                     end
+
                  end
 
 
@@ -71,6 +72,7 @@ if caught
         mkdir([fileparts(which('qMRLab.m')),filesep,'mismatchOM']);
     end
 
+    if ~isempty(msg)
     fileID = fopen([fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'mismatch.txt'],'w');
     formatSpec = '%s\n';
     nrows = length(msg);
@@ -81,6 +83,11 @@ if caught
 
     disp(['Written mismatch file: ',fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'mismatch.txt']);
     ls([fileparts(which('qMRLab.m')),filesep,'mismatchOM']);
+
+    end
+
+else
+    disp(['SUCCESSFUl OM match for ' Model.ModelName]);
 end
 
 qMRshowOutput(FitResults_old,data,Model);
