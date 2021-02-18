@@ -24,7 +24,6 @@ Modellist(~~cellfun(@(x) exist(['BatchExamplePart2' filesep x],'file'),BatchExam
 if moxunit_util_platform_is_octave
     Modellist(~~cellfun(@(x) exist(['BatchMatlabOnly' filesep x],'file'),BatchExampleFiles)) = [];
 end
-Modellist(~~cellfun(@(x) exist(['BatchExamplePart2' filesep x],'file'),BatchExampleFiles)) = [];
 for iModel = 1:length(Modellist)
     disp('===============================================================')
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
