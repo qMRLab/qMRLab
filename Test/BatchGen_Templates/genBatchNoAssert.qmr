@@ -7,6 +7,14 @@
 
 qMRinfo('*-modelName-*'); % Describe the model
 
+if ~moxunit_util_platform_is_octave
+% Seed random number generator
+  rng(123);
+else
+  randn("seed",123);
+  rand("seed",123);
+end
+
 Model = *-modelName-*; 
 
 Model = Custom_OptionsGUI(Model);

@@ -13,8 +13,15 @@
 
 warning('off','all'); % Too verbose otherwise
 qMRinfo('*-modelName-*');
-% Seed random number generator
-rng(123);
+if ~moxunit_util_platform_is_octave
+% Seed random number generator MATLAB
+  rng(123);
+else
+% Seed rng octave
+  randn("seed",123);
+  rand("seed",123);
+end
+
 Model = *-modelName-*; 
 
 *-protExplain-*
