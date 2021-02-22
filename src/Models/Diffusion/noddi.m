@@ -226,7 +226,7 @@ end
                 hold on
                 % remove data legends
                 for iD = 1:length(h)
-                    if ~moxunit_util_platform_is_ || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
+                    if ~moxunit_util_platform_is_octave || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
                         hAnnotation = get(h(iD),'Annotation');
                         hLegendEntry = get(hAnnotation','LegendInformation');
                         set(hLegendEntry,'IconDisplayStyle','off');
