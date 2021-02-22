@@ -7,11 +7,7 @@
 %
 % Demo files are downloaded into *-modelName-*_data folder. 
 %
-%
-% If you use qMRLab in your work, please cite:
-%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
-%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
-%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
+% Written by: Agah Karakuzu, 2017
 % =========================================================================
 
 %% I- DESCRIPTION
@@ -29,46 +25,6 @@ Model = *-modelName-*;
 
 Model = Custom_OptionsGUI(Model); % You need to close GUI to move on. 
 
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Usage tip on automation friendly option/protocol settings:
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-%    If you would like to load a desired set of options/protocols programatically,
-%    you can save the current configuration from the Custom_OptionsGUI panel using
-%    the `save` button.
-%    This will save a mat file named (model_name.qmrlab.mat), which can be later loaded
-%    into the respective model object by:
-%       --------------------------------------------------
-%       Model = model_name;
-%       Model = Model.loadObj('../model_name.qmrlab.mat');
-%       --------------------------------------------------
-$    Note:
-%      `Model.loadObj('model_name.qmrlab.mat')` call won't update the fields in
-%      the `Model` object, unless the output is re-assigned to the object itself by
-%      `Model = Model.loadObj('model_name.qmrlab.mat')`. This compromise on convenience
-%      is to retain Octave compatibility.
-%
-%    If you don't have MATLAB, hence cannot access the GUI there are 2 options:
-%    Option 1:
-%        Use `qmrlab/mrgui:latest` Docker image to access GUI. The instructions are available at:
-%        https://hub.docker.com/r/qmrlab/mcrgui
-%    Option 2: 
-%        To set options without GUI:
-%          i)  List available option fields using tab completion
-%       --------------------------------------------------
-%          Model.option. <<then hit tab on your keyboard>>
-%       --------------------------------------------------
-%          ii) Assign the desired field. For example, in a mono_t2 object:
-%       --------------------------------------------------
-%          Model.options.DropFirstEcho = true;
-%          Model.options.OffsetTerm = false;
-%       --------------------------------------------------
-%     Note:
-%         Some options fields may be mutually exclusive. Such cases are handled by
-%         the GUI options panel; however, the relationships may be elusive in CLI
-%         especially for complex methods such as qmt_spgr. If options (i) or (ii)
-%         are not working for you, please feel free to open an issue in qMRLab and
-%         request the protocol file you need: https://github.com/qmrlab/qmrlab.
-
 %% III- FIT EXPERIMENTAL DATASET
 %%       a- load experimental data 
 *-dataExplain-*
@@ -77,22 +33,9 @@ data = struct();
 *-dataCommand-*
 
 %%      b- fit dataset 
-%             |- This section will fit the data. 
+%             |- This section will fit data. 
 
 FitResults = FitData(data,Model,0);
-
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Usage tip on accelerating the fitting (MATLAB only):
-% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-%    To accelerate fitting for voxelwise models (if Model.voxelwise is 1),
-%    you can parallelize this operation if you are using Matlab and the
-%    parallel processing toolbox is available by:
-%       ---------------------------------------
-%       parpool();
-%       FitResults = ParFitData(data,Model);
-%       ---------------------------------------
-%    Note: 
-%     This feature has not been implemented for Octave yet.
 
 %%       c- show fitting results 
 %           |- Output map will be displayed.
@@ -127,4 +70,3 @@ Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
 %                  (3) Compute mean and std across runs
 
 % *-SensitivityAnalysis-*
-
