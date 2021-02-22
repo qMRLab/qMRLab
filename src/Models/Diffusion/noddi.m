@@ -226,11 +226,11 @@ end
                 hold on
                 % remove data legends
                 for iD = 1:length(h)
-
+                    if ~moxunit_util_platform_is_ || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
                         hAnnotation = get(h(iD),'Annotation');
                         hLegendEntry = get(hAnnotation','LegendInformation');
                         set(hLegendEntry,'IconDisplayStyle','off');
-
+                    end
                 end
             end
 
@@ -262,14 +262,16 @@ end
             if display
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
                 h = scd_display_qspacedata3D(Smodel,Prot,fibredir,'o','none');
-                set(h,'LineWidth',.5)
+                if ~moxunit_util_platform_is_octave || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
+                    set(h,'LineWidth',.5)
+                end
                 % remove data legends
                 for iD = 1:length(h)
-
+                    if ~moxunit_util_platform_is_octave || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
                         hAnnotation  = get(h(iD),'Annotation');
                         hLegendEntry = get(hAnnotation','LegendInformation');
                         set(hLegendEntry,'IconDisplayStyle','off');
-
+                    end
                 end
                 hold on
                 plotModel(obj, FitResults, data);
