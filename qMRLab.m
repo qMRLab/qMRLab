@@ -14,10 +14,9 @@ function varargout = qMRLab(varargin)
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
-% Cabana, JF. et al (2016).
-% Quantitative magnetization transfer imaging made easy with qMRLab
-% Software for data simulation, analysis and visualization.
-% Concepts in Magnetic Resonance Part A
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 % ----------------------------------------------------------------------------------------------------
 
 if logical(exist('OCTAVE_VERSION', 'builtin')), warndlg('Graphical user interface not available on octave... use command lines instead'); return; end

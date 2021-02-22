@@ -1,4 +1,4 @@
-name: OCTAVE_quickMox
+name: OCTAVE_CI_TESTS
 
 on: push
 
