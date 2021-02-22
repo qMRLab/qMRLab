@@ -1,0 +1,3 @@
+[submodule "External/qMRWrappers"]
+	path = External/qMRWrappers
+	url = https://github.com/qMRLab/qMRWrappers.git
