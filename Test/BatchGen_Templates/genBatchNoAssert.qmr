@@ -90,7 +90,7 @@ if caught
     end
 
     if ~isempty(msg)
-    fileID = fopen([fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'mismatch.txt'],'w');
+    fileID = fopen([fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'_mismatch.txt'],'w');
     formatSpec = '%s\n';
     nrows = length(msg);
     for row = 1:nrows
@@ -98,13 +98,13 @@ if caught
     end
     fclose(fileID);
 
-    disp(['Written mismatch file: ',fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'mismatch.txt']);
+    disp(['Written mismatch file: ',fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'_mismatch.txt']);
     ls([fileparts(which('qMRLab.m')),filesep,'mismatchOM']);
 
     end
 
 else
-    disp(['SUCCESSFUl OM match for ' Model.ModelName]);
+    disp(['SUCCESSFUL Octave-MATLAB match for ' Model.ModelName]);
 end
 
 qMRshowOutput(FitResults_old,data,Model);

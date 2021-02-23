@@ -1,4 +1,4 @@
-name: OCTAVE_CI_TESTS
+name: OCTAVE
 
 on: push
 
@@ -37,3 +37,7 @@ jobs:
       with:
        file: coverage_octave_batch1.xml # optional
        flags: octave
+    - uses: actions/upload-artifact@v2
+      with:
+        name: upload-miscmatch-txts
+        path: mismatchOM
