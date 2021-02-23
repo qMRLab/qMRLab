@@ -1,0 +1,103 @@
+{
+"notes": [
+      {
+        "model": "b1_dam",
+      	"citation": "Insko, E.K., & Bolinger, L. (1993). Mapping of the Radifrequency Field. Journal of Magnetic Resonance Series A, 1(1), 82-85. https://doi.org/10.1006/jmra.1993.1133"
+      },
+      {
+        "model": "b0_dem",
+	      "citation": "Maier, F., et al. (2015). Robust phase unwrapping for MR temperature imaging using a magnitude-sorted list, multi-clustering algorithm. Magnetic Resonance in Medicine, 73(4), 1662-1668. 10.1002/mrm.25279"
+      },
+      {
+        "model": "b1_afi",
+	      "citation": "Yarnykh, V.L. (2007). Actual flip-angle imaging in the pulsed steady state: a method for rapid three-dimensional mapping of the transmitted radiofrequency field. Magnetic Resonance in Medicine, 57(1), 192-200. 10.1002/mrm.21120"
+      },
+      {
+        "model": "mono_t2",
+	      "citation": "Milford, D., et al. (2015). Mono-Exponential Fitting in T2-Relaxometry: Relevance of Offset and First Echo. PLoS One, 10(12), e0145255. 10.1371/journal.pone.0145255"
+      },
+      {
+        "model": "mwf",
+	      "citation": "MacKay, M., et al. (1994). In vivo visualization of myeling water in brain by magnetic resonance. Magnetic Resonance in Medicine, 31(6), 673-677. 10.1002/mrm.1910310614"
+      },
+      {
+        "model": "mp2rage",
+	      "citation": "Marques, José P., et al. (2010). MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. Neuroimage, 49(2), 1271-1281. 10.1016/j.neuroimage.2009.10.002"
+      },
+      {
+        "model": "vfa_t1",
+        "citation": "Fram, E.K., et al. (1987). Rapid calculation of T1 using variable flip angle gradient refocused imaging. Magnetic Resonance in Medicine, 5(3), 201-208. 10.1016/0730-725x(87)90021-x"
+
+      },
+      {
+        "model": "inversion_recovery",
+      	"citation": "Barral, J.K., et al. (2010). A robust methodology for in vivo T1 mapping. Magnetic Resonance in Medicine, 64(4), 1057-1067. 10.1002/mrm.22497"
+      },
+      {
+        "model": "qmt_bssfp"
+      },
+      {
+        "model": "qmt_spgr",
+	      "citation": "Sled, J.G., & Pike, G.B. (2000). Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. Journal of Magnetic Resonance, 145(1), 24-36. 10.1006/jmre.2000.2059"
+      },
+      {
+        "model": "mt_sat",
+	      "citation": "Helms, G., et al. (2008). High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magnetic Resonance in Medicine, 60(6), 1396-1407. 10.1002/mrm.21732"
+      },
+      {
+        "model": "mt_ratio"
+      },
+      {
+        "model": "qmt_sirfse",
+	      "citation": "Li, K., et al. (2010). Optimized inversion recovery sequences for quantitative T1 and magnetization transfer imaging. Magnetic Resonance in Medicine, 64(2), 491-500. 10.1002/mrm.22440"
+      },
+      {
+        "model": "dti",
+	      "citation": "Basser, P.J., et al. (1994). MR diffusion tensor spectroscopy and imaging. Biophysical Journal, 66(1), 259-267. 10.1016/S0006-3495(94)80775-1"
+      },
+      {
+        "model": "amico",
+	      "citation": "Daducci, A., et al. (2015). Accelerated Microstructure Imaging via Convex Optimization (AMICO) from difussion MRI data. Neuroimage, 105, 32-44. 10.1016/j.neuroimage.2014.10.026"
+      },
+      {
+        "model": "noddi",
+	      "citation": "Zhang, H., et al. (2012). NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage, 61(4), 1000-1016. 10.1016/j.neuroimage.2012.03.072",
+        "note": [
+          "% *Note 1:*",
+          "% ",
+          "% Section |2.b.1| is disabled for this model on purpose. The |amico| protocol contains a relatively larger matrix (|109x7|) of",
+          "% parameters, which is not favorable for including in the documentation in text form."
+        ]
+      },
+      {
+        "model": "charmed",
+	      "citation": "Assaf, Y., & Basser, P.J. (2005). Composite hindered and restricted model of diffusion (CHARMED) MR imaging of the human brain. Neuroimage, 27(1), 48-58.  10.1016/j.neuroimage.2005.03.042"
+      },
+      {
+        "model": "qsm_sb",
+        "note": [
+                 "% *Note 1:*",
+                 "% ",
+                 "% To make documentation generation and our CI tests faster for this model,",
+                 "% we used a subportion of the data |40x40x40| in our testing environment.",
+                 "% ",
+                 "% Therefore , the dimensions displayed in the section _3.a_ of this automatically",
+                 "% generated documentation is different than those provided to the user.",
+                 "% ",
+                 "%   qMRgenBatch(qsm_sb)",
+                 "% ",
+                 "% When the command above is called from MATLAB/Octave by the user, the complete high resolution (|0.6mm iso| resolution) dataset",
+                 "% (|384x336x224| dimensions) will be downloaded.",
+                 "% ",
+                 "% *Note 2:*",
+                 "% ",
+                 "% * |L1 regularization| is performed as a sub-process to |Split-Bregman| regularization. Therefore, L1 (lambda) reoptimization panel is enabled only when |Split-Bregman| is activated. The |Chimap| (inn ppm) calculated upon this selection are |chiSB| and |chiL2|.",
+                 "% * Unlike |L1|, |L2 regularization| can be run independently. The |Chimap| (in ppm) calculated upon this selection is |chiL2|.",
+                 "% * When the |magnitude weighting| optio`n is enbled, associated the output maps attains an |M| suffix: |chiL2M| or |chiSBM|.",
+                 "% * A susceptibility map can be also generated without regularization. For this selection, the output |Chimap| is |nfm|, which is displayed as an example in this page.",
+                 "% * Unwrapped phase images are provided in the output: |unwrappedPhase|."
+                ],
+	       "citation": "Bilgic, B., et al. (2014). Fast quantitative susceptibility mapping with L1-regularization and automatic parameter selection. Magnetic Resonance in Medicine, 72(5), 1444-1459. 10.1002/mrm.25029"
+      }
+    ]
+}

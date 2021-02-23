@@ -266,7 +266,7 @@ end
                 hold on
                 % remove data legends
                 for iD = 1:length(h)
-                    if ~moxunit_util_platform_is_octave
+                    if ~moxunit_util_platform_is_octave || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
                         hAnnotation  = get(h(iD),'Annotation');
                         hLegendEntry = get(hAnnotation','LegendInformation');
                         set(hLegendEntry,'IconDisplayStyle','off');
@@ -307,10 +307,12 @@ end
             if display
                 Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
                 h = scd_display_qspacedata(Smodel,Prot,strcmp(obj.options.DisplayType,'b-value'),'o','none');
-                set(h,'LineWidth',.5)
+                if ~moxunit_util_platform_is_octave || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
+                    set(h,'LineWidth',.5)
+                end
                 % remove data legends
                 for iD = 1:length(h)
-                    if ~moxunit_util_platform_is_octave
+                    if ~moxunit_util_platform_is_octave || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
                         hAnnotation  = get(h(iD),'Annotation');
                         hLegendEntry = get(hAnnotation','LegendInformation');
                         set(hLegendEntry,'IconDisplayStyle','off');
@@ -335,6 +337,7 @@ end
             scheme = obj.Prot.DiffusionData.Mat;
             [Signal, signal_intra, signal_extra] = Sim_MonteCarlo_Diffusion(numelparticle, trans_mean, D, scheme, packing, axons);
             
+            if ~moxunit_util_platform_is_octave || (moxunit_util_platform_is_octave && ~str2double(getenv('ISCITEST')))
             % plot and fit synthetic signal
             fig = figure(293);
             set(fig,'Name','Monte-Carlo simulated Signal')
@@ -363,7 +366,7 @@ end
             set(txt,'String',sprintf(['full signal:\n' get(txt,'String')]));
             
             uicontrol(293,'Style','pushbutton','String','Save','Callback',@(src,evnt) Sim_MonteCarlo_saveSignal(Signal(end,:),signal_intra,signal_extra),'BackgroundColor',[0.0 0.65 1]);
-            
+            end
         end
         
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
