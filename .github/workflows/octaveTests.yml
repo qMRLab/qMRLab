@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 1
-    - uses: agahkarakuzu/moxunit-action@master
+    - uses: qmrlab/moxunit-action@master
       with:
         tests: /Test/MoxUnitCompatible/quickMoxTests /Test/MoxUnitCompatible/other
         src: src
@@ -26,7 +26,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 1
-    - uses: agahkarakuzu/moxunit-action@master
+    - uses: qmrlab/moxunit-action@master
       with:
         tests: /Test/MoxUnitCompatible/BatchExample_test.m
         src: src

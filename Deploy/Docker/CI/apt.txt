@@ -29,6 +29,12 @@ octave-io
 octave-statistics
 octave-optim
 octave-image
+octave-control
+octave-data-smoothing
+octave-dataframe
+octave-dicom
+octave-financial
+octave-strings
 ca-certificates
 fonts-freefont-otf
 freetype2-doc
