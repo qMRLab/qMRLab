@@ -13,7 +13,7 @@ coverage:
     patch: off
     project:
       Octave:
-        target: 45%
+        target: 36%
         flags:
           - octave
       Matlab:
