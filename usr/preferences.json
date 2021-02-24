@@ -1,0 +1,17 @@
+{
+    "ParFitData": 
+       {
+            "AutosaveEnabled": true,
+            "AutosaveInterval": 5,
+            "Granularity": 3,
+            "RemoveTmpOnSuccess": true
+       },
+     "SavedMapUnits":  {
+           "Time": "seconds",
+           "RatioScale": "normalized",
+           "B1maps": "normalized",
+           "B0maps": "hertz"
+       },
+    "SaveProvenance": true,
+    "ReportBug": true
+}
