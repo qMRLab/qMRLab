@@ -102,6 +102,7 @@ function Fit = ParFitData(data, Model,varargin)
 
 
 p = inputParser();
+preferences = json2struct(fullfile(fileparts(which('qMRLab')),'usr','preferences.json'));
 
 %Input parameters conditions
 validData  = @(x) exist('x','var') && isstruct(x);
@@ -111,9 +112,10 @@ validDir   = @(x) exist(x,'dir');
 addRequired(p,'data',validData);
 addRequired(p,'Model',validModel);
 addParameter(p,'RecoverDirectory',[],validDir);
-addParameter(p,'AutosaveInterval',5,@isnumeric);
-addParameter(p,'AutosaveEnabled',true,@islogical);
-addParameter(p,'Granularity',3,@isnumeric);
+addParameter(p,'AutosaveInterval',preferences.ParFitData.AutosaveInterval,@isnumeric);
+addParameter(p,'AutosaveEnabled',preferences.ParFitData.AutosaveEnabled,@islogical);
+addParameter(p,'Granularity',preferences.ParFitData.Granularity,@isnumeric);
+addParameter(p,'RemoveTmpOnSuccess',preferences.ParFitData.RemoveTmpOnSuccess,@islogical);
 
 parse(p,data,Model,varargin{:});
 
@@ -124,6 +126,8 @@ saveInterval = ceil(p.Results.AutosaveInterval);
 recoveryDir  = p.Results.RecoverDirectory;
 isAutosave = p.Results.AutosaveEnabled;
 granularity = p.Results.Granularity;
+rmOnSuccess = p.Results.RemoveTmpOnSuccess;
+
 clear('p');
 
 if granularity<2; granularity = 2; end
@@ -169,7 +173,7 @@ end
 if Model.voxelwise % process voxelwise
     
     % Create folder name for temp outputs
-    tmpFolderName = ['.' filesep 'ParFitTempResults_' datestr(now,'yyyy-mm-dd_HH-MM')];
+    tmpFolderName = [pwd filesep 'ParFitTempResults_' datestr(now,'yyyy-mm-dd_HH-MM')];
     
     
     % Get dimensions
@@ -538,10 +542,14 @@ if Model.voxelwise
         end
     end
     
-if isAutosave
+if isAutosave && ~rmOnSuccess
         cprintf('magenta',    '<< ! >> The process has been completed, but the temporary results folder will NOT be removed %s \n','automatically.');
         cprintf('magenta',    '<< ! >> Please consider removing: %s \n','');
         cprintf('blue',    '        %s\n',tmpFolderName);
+elseif isAutosave && rmOnSuccess
+        cprintf('magenta',    '<< ! >> Removing autosave directory: %s \n','');
+        cprintf('blue',    '        %s\n',tmpFolderName); 
+        rmdir(tmpFolderName,'s');
 end
 
 end % Voxelwise parse
