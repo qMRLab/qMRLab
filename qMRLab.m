@@ -167,6 +167,12 @@ set(handles.MethodSelection, 'Value', indice);
 
 
 MethodMenu(hObject, eventdata, handles, Method);
+
+% Add Try/Catch to all uicontrol
+listobj = findobj(hObject,'-depth',100,'Type','UIControl');
+addtryfunc(listobj);
+
+% Wait if output
 if wait
 uiwait(hObject)
 end
@@ -464,15 +470,10 @@ if ~moxunit_util_platform_is_octave
    end
 
    if ~isempty(p) && Model.voxelwise
-        dlgTitle    = 'Autosave temporary results';
-        dlgQuestion = 'Would you like to save temporary results? If enabled, processed chunks will be saved every 5 minutes or when they are completed.';
-        choice = questdlg(dlgQuestion,dlgTitle,'Yes','No', 'Yes');
-        if strcmp(choice,'Yes')
-           FitResults = ParFitData(data,Model);
-        else
-           FitResults = ParFitData(data,Model,'AutosaveEnabled',false);
-        end
+      
+       FitResults = ParFitData(data,Model);
    else
+       
        FitResults = FitData(data,Model,1);
    end
 
