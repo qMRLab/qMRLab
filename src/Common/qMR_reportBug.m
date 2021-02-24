@@ -48,17 +48,22 @@ if any(~cellfun(@isempty,qmrexcep))
     title = '[USER]';
     
     % report
-    answer = questdlg('Report Bug on GitHub?','OUPS... A BUG OCCURED','Yes','No','Yes');    
-    if strcmp(answer,'Yes')
-        try
-            web(['https://github.com/qMRLab/qMRLab/issues/new?assignees=&labels=bug&body=' body '&title=' title], '-browser')
-        catch ME2
-            warning('Nofifier:webError','%s',ME2.message);
+    preferences = json2struct(fullfile(fileparts(which('qMRLab')),'usr','preferences.json'));
+    if preferences.ReportBug
+        answer = questdlg('Would you like to help improve qMRLab by reporting this bug on GitHub?','New GitHub Issue','Yes','No','Yes');
+        if strcmp(answer,'Yes')
+            try
+                web(['https://github.com/qMRLab/qMRLab/issues/new?assignees=&labels=bug&body=' body '&title=' title], '-browser')
+            catch ME2
+                warning('Nofifier:webError','%s',ME2.message);
+            end
+        else
+            cprintf('magenta', '<< i >> The issue will not be %s \n','reported.');
         end
-    else
-        disp('not reporting error...')
     end
-    
+
 else
-    warning('last error is not a qMRLab error');
+
+    cprintf('red', '<< i >> This exception is not handled by %s \n','qMRLab.');
+
 end

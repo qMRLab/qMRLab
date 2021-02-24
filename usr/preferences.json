@@ -12,5 +12,6 @@
            "B1maps": "normalized",
            "B0maps": "hertz"
        },
-    "SaveProvenance": true
+    "SaveProvenance": true,
+    "ReportBug": true
 }
