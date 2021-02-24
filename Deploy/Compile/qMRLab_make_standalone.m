@@ -23,7 +23,7 @@ function qMRLab_make_standalone(outDir)
     for imodel = 1:length(MethodList)
         hh.(MethodList{imodel}) = help(MethodList{imodel});
     end
-    save(fullfile(fileparts(which('qMRLab')),'docs','iqmr_gethelp.mat'),'-struct','hh');
+    save(fullfile(fileparts(which('qMRLab')),'Deploy','Documentation','iqmr_gethelp.mat'),'-struct','hh');
     
     % Compile
     mcc('-o', 'qMRLab', '-W', 'main:qMRLab', '-T', 'link:exe',...

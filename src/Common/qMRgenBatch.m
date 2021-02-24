@@ -54,6 +54,13 @@ simTexts = struct();
 simTexts.jokerSVC = '*-SingleVoxelCurve-*';
 simTexts.jokerSA = '*-SensitivityAnalysis-*';
 
+noteTexts = struct();
+noteTexts.jokerNote = '*-SpecificNotes-*';
+noteTexts.jokerCite = '*-modelCitation-*';
+notesJson = json2struct('docModelNotes.json');
+notesGeneric = getGenericNotes(Model);
+noteTexts.jokerNotesGeneric = '*-GenericNotes-*';
+
 saveJoker = '*-saveCommand-*';
 
 % Define jokers and get class info ====================== END
@@ -108,29 +115,109 @@ else % Unlikely yet ..
     commandTexts.dataCommands = {' '}; % Set empty
 end
 
-
-
-if strcmp(type,'nii')
-    saveCommand = ['FitResultsSave_nii(FitResults,' ' '''  Model.ModelName '_data' filesep Model.MRIinputs{1} '.nii.gz''' ');'];
-elseif strcmp(type,'mat')
-    saveCommand = 'FitResultsSave_nii(FitResults);';
+if ~isempty(str2double(getenv('ISDOC')))
+    if str2double(getenv('ISDOC')) == 1
+        ISDOC = true;
+    else
+        ISDOC = false;
+    end
+else
+    ISDOC = false;
 end
 
+if strcmp(type,'nii')
+    if ISDOC
+        saveCommand = ['FitResultsSave_nii(FitResults_old,' ' '''  Model.ModelName '_data' filesep Model.MRIinputs{1} '.nii.gz''' ');'];
+    else
+        saveCommand = ['FitResultsSave_nii(FitResults,' ' '''  Model.ModelName '_data' filesep Model.MRIinputs{1} '.nii.gz''' ');'];
+    end
+elseif strcmp(type,'mat')
+    if ISDOC
+        saveCommand = 'FitResultsSave_mat(FitResults_old);';
+    else
+        saveCommand = 'FitResultsSave_mat(FitResults);';
+    end
+end
+
+if ISDOC
+    % Display red-colored box when no sim is available
+    % TODO: Create a function that can return these formatted boxes with a custom text. 
+    % A great intern task.
+    notAvail = [{'% <html>'},...
+    {'% <div class="danger" style="text-align:justify;">'},...
+    {'% <p style="margin:0px!important;"><strong><i class="fa fa-info-circle" style="color:red;margin-left:5px;"></i></strong> Not available for the current model.</p>'},...
+    {'% </div>'},...
+    {'% </html>'}];
+else
+    notAvail = {'% Not available for the current model.'};
+end
+
+% MODEL SPECIFIC EXCEPTIONS FOR PROTOCOL CLI SECTION:
+% In doc generation, send empty cell if no prot is available (protFlag==True)
+% Do not create these fields in CI tests either (ISCITEST)
+% * Or the model is amico 
+% * Or the moodel is .... (please update when added new conditions)
+if protFlag || strcmp(Model.ModelName,'amico')
+    commandTexts.protCommands = notAvail; % Set empty
+end
+
+if ~isempty(getenv('ISCITEST')) % TEST ENV
+    if str2double(getenv('ISCITEST'))==1
+        commandTexts.protCommands = {'% Skipped in CI tests.'} ;
+    end
+end
+
+% Inline substitution either way, so just define as a string.
+noCitation = {'% _Reference article is not defined for this model._'};
+
+if ISDOC
+    % Display yellow-colored box when no sim is available
+    noNotes = [{'% <html>'},...
+    {'% <div class="warning" style="text-align:justify;">'},...
+    {'% <p style="margin:0px!important;"><strong><i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Not provided.</p>'},...
+    {'% </div>'},...
+    {'% </html>'}];
+
+else
+    noNotes = {'% _No notes are available for this model._'};
+    notesGeneric = {['% More information is available at https://qmrlab.readthedocs.io/en/master/' Model.ModelName '_batch.html']};
+end
 
 if Model.voxelwise && ~isempty(qMRusage(Model,'Sim_Single_Voxel_Curve'))
     svc = qMRusage(Model,'Sim_Single_Voxel_Curve');
-
     simTexts.SVCcommands = qMRUsage2CLI(svc);
     sa = qMRusage(Model,'Sim_Sensitivity_Analysis');
     simTexts.SAcommands = qMRUsage2CLI(sa);
 else
-    simTexts.SVCcommands = {'% Not available for the current model.'};
-    simTexts.SAcommands = {'% Not available for the current model.'};
+    simTexts.SVCcommands = notAvail;
+    simTexts.SAcommands = notAvail;
 end
 
 % Generate model specific commands ====================== END
 
 
+for ii =1:length(notesJson.notes)
+    
+    if strcmp(Model.ModelName,notesJson.notes{ii}.model)
+        if isfield(notesJson.notes{ii},'note')
+            noteTexts.notes = cellstr(notesJson.notes{ii}.note');
+        else
+            noteTexts.notes = noNotes;
+        end
+
+        if isfield(notesJson.notes{ii},'citation')
+            noteTexts.citation =cellstr(['% ' notesJson.notes{ii}.citation]);
+        else
+            noteTexts.citation = noCitation;
+        end
+
+        break;
+    else
+        noteTexts.notes = noNotes;
+        noteTexts.citation = noCitation;
+    end
+    
+end
 % Replace jokers ====================== START
 
 % Read template line by line into cell array
@@ -141,19 +228,24 @@ end
 %
 % Please do not use underscores or any other special chars.
 % foo_model --> genBatchfoomodel.qmr
-
+doFinSubs = false;
 if ~isempty(getenv('ISCITEST')) % TEST ENV
 
-    if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico'))
+    if str2double(getenv('ISCITEST')) && (strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico') || moxunit_util_platform_is_octave) % Octave and models avoiding assertion
         % There is an exceptional case for qsm_sb as it is not voxelwise 
         % and takes long to process.
         allScript = getTemplateFile('genBatchNoAssert.qmr');
-    else
+    elseif ISDOC % Means documentation generation
+        % During documentation generation, fit functions won't be called.
+        allScript = getTemplateFile('genBatchDoc.qmr'); 
+        doFinSubs = true;
+    elseif str2double(getenv('ISCITEST')) && ~(strcmp(varNames.modelName,'qsm_sb') || strcmp(varNames.modelName,'amico')) % Means MATLAB CU
+        % If not DOC, but MATLAB CI, run assertion to all but qsm and amico
         allScript = getTemplateFile('genBatchTestAssert.qmr');
     end    
 
-else % USER 
-   allScript = getTemplateFile('genBatch.qmr'); 
+else % USER whole datasets
+   allScript = getTemplateFile('genBatchUser.qmr');
 end
 
 % Recursively update newScript.
@@ -166,6 +258,8 @@ newScript = replaceJoker(varNames.jokerDemoDir,demoDir,newScript,1);
 
 newScript = replaceJoker(saveJoker,saveCommand,newScript,1);
 
+newScript = replaceJoker(explainTexts.jokerProt, commandTexts.protCommands, newScript,2);
+
 newScript = replaceJoker(explainTexts.jokerData,explainTexts.dataExplain,newScript,2); % Data Exp
 
 newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScript,2); % Data Code
@@ -173,6 +267,17 @@ newScript = replaceJoker(commandTexts.jokerData,commandTexts.dataCommands,newScr
 newScript = replaceJoker(simTexts.jokerSVC,simTexts.SVCcommands,newScript,2); % Sim 1
 
 newScript = replaceJoker(simTexts.jokerSA,simTexts.SAcommands,newScript,2); % Sim 2
+
+newScript = replaceJoker(noteTexts.jokerNote,noteTexts.notes,newScript,2);
+
+newScript = replaceJoker(noteTexts.jokerNotesGeneric,notesGeneric,newScript,2); % Generic notes
+
+newScript = replaceJoker(noteTexts.jokerCite,noteTexts.citation,newScript,2); % Model specific notes
+
+if doFinSubs
+    % Substitute model name jokers once again
+    newScript = replaceJoker(varNames.jokerModel,varNames.modelName,newScript,1);
+end    
 
 % Replace jokers ====================== END
 
@@ -205,12 +310,12 @@ function [explain] = cell2Explain(str,modelName,itemName)
 
 explain = cell(length(str)+1,1);
 
-fs1 = ['%%           |- ' modelName ' object needs %d ' itemName ' to be assigned:'];
+fs1 = ['%%          |- ' modelName ' object needs %d ' itemName ' to be assigned:'];
 exp1 = sprintf(fs1,length(str));
 explain(1) = {exp1};
 
 for i = 1:length(str)
-    explain(i+1) = {['%           |-   ' str{i}]};
+    explain(i+1) = {['%          |-   ' str{i}]};
 end
 
 end
@@ -267,14 +372,14 @@ for i=1:length(fNames)
                 part = sprintf(cont,curStr.Mat(:,j));
                 cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
                 expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' num2str(max(szM)) 'X' '1' ']' ];
-                newCommand = [newCommand expln];
                 newCommand = [newCommand cmmnd];
+                newCommand = [newCommand expln];
             else
                 part = sprintf(cont,curStr.Mat(j,:));
                 cmmnd = {[remParant(curStr.Format{j}) ' = [' part '];']};
                 expln = [ '% ' curStr.Format{j} ' is a vector of ' '[' '1' 'X' num2str(max(szM)) ']' ];
-                newCommand = [newCommand expln];
                 newCommand = [newCommand cmmnd];
+                newCommand = [newCommand expln];
             end
             
             
@@ -295,7 +400,7 @@ for i=1:length(fNames)
 
     
     newCommand = [newCommand assgn];
-    newCommand = [newCommand '% -----------------------------------------'];
+    newCommand = [newCommand '%%   '];
     
     
 end
@@ -532,4 +637,29 @@ function allScript = getTemplateFile(fileName)
     fclose(fid);
     allScript = allScript{1}; % This is a cell aray that contains template
 
+end
+
+function notes  = getGenericNotes(Model)
+    notesJsonGeneric = json2struct('docGenericNotes.json');
+    fixedNotes = [];
+    condNotes = [];
+    for ii=1:length(notesJsonGeneric.notes)
+    if strcmp(notesJsonGeneric.notes{ii}.type,'fixed')
+        % Assumption there is only one fixed field.
+        fixedNotes = cellstr(notesJsonGeneric.notes{ii}.note');
+    elseif strcmp(notesJsonGeneric.notes{ii}.type,'conditional')
+        
+        if Model.voxelwise
+            if notesJsonGeneric.notes{ii}.voxelwise
+                condNotes = cellstr(notesJsonGeneric.notes{ii}.note');
+            end
+        else
+            if ~notesJsonGeneric.notes{ii}.voxelwise
+                condNotes = cellstr(notesJsonGeneric.notes{ii}.note');
+            end
+        end
+    
+    end
+    end
+    notes = [fixedNotes;condNotes];
 end

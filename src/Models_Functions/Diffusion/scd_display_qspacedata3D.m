@@ -30,7 +30,6 @@ if size(scheme,2)<9
 end
 
 
-
 seq=unique(scheme(:,9)); ND=length(seq);
 if ~exist('color','var')
     color=jet(ND);
@@ -42,10 +41,11 @@ for iD=1:ND
     datavoxel=mean(squeeze(data),2);
     
     g(iD)=plot(absc(seqiD,:),datavoxel(seqiD),'LineStyle',Linestyle, 'Marker',Marker,'Color',color(min(iD,end),:),'LineWidth',2);
-    hold on
     
-    set(g(iD),'DisplayName',['bvalue=' num2str(max(bval(seqiD))*1e3,'%.0f') 's/mm^2 G=' num2str(max(scheme(seqiD,4))*1e6,'%.0f') 'mT/m \Delta=' num2str(mean(scheme(seqiD,5)),'%.0f') 'ms \delta=' num2str(mean(scheme(seqiD,6)),'%.0f') 'ms TE=' num2str(mean(scheme(seqiD,7)),'%.0f') 'ms']);
-    
+    if ~moxunit_util_platform_is_octave
+        hold on
+        set(g(iD),'DisplayName',['bvalue=' num2str(max(bval(seqiD))*1e3,'%.0f') 's/mm^2 G=' num2str(max(scheme(seqiD,4))*1e6,'%.0f') 'mT/m \Delta=' num2str(mean(scheme(seqiD,5)),'%.0f') 'ms \delta=' num2str(mean(scheme(seqiD,6)),'%.0f') 'ms TE=' num2str(mean(scheme(seqiD,7)),'%.0f') 'ms']);
+    end
     
     if exist('noise','var')==1
         
@@ -67,17 +67,16 @@ for iD=1:ND
     end
 end
 
-xlabel('G_{//}/|G|','FontSize',15); 
-ylabel('Signal','FontSize',15);
-
 if ~moxunit_util_platform_is_octave
+    xlabel('G_{//}/|G|','FontSize',15); 
+    ylabel('Signal','FontSize',15);
     legend('show','Location','Best')
     set(gca,'FontSize',15)
+    %ylim([0 1.2])
+    grid on, box off
+    hold off
 end
-%ylim([0 1.2])
-grid on, box off
 
-hold off
 
 % Add legend about linestyle
 switch Linestyle
@@ -95,7 +94,10 @@ switch Linestyle
         pos = [0.75, 0.97];
 end
 t = text(pos(1),pos(2),txt,'Units','normalized');
-set(t,'FontSize',10);
-set(t,'BackgroundColor',[0.9  0.9 0.9]);
+
+if ~moxunit_util_platform_is_octave
+    set(t,'FontSize',10);
+    set(t,'BackgroundColor',[0.9  0.9 0.9]);
+end
 
 end

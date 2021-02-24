@@ -1,0 +1,43 @@
+name: OCTAVE
+
+on: push
+
+jobs:
+  QuickMoxAndOthers:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - uses: qmrlab/moxunit-action@master
+      with:
+        tests: /Test/MoxUnitCompatible/quickMoxTests /Test/MoxUnitCompatible/other
+        src: src
+        pkg: image io optim struct statistics
+        with_coverage: true
+        cover_xml_file: coverage_octave_quickMox.xml
+    - uses: codecov/codecov-action@v1
+      with:
+       file: coverage_octave_quickMox.xml # optional
+       flags: octave
+  BatchPart1:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - uses: qmrlab/moxunit-action@master
+      with:
+        tests: /Test/MoxUnitCompatible/BatchExample_test.m
+        src: src
+        pkg: image io optim struct statistics
+        with_coverage: true
+        cover_xml_file: coverage_octave_batch1.xml
+    - uses: codecov/codecov-action@v1
+      with:
+       file: coverage_octave_batch1.xml # optional
+       flags: octave
+    - uses: actions/upload-artifact@v2
+      with:
+        name: upload-miscmatch-txts
+        path: mismatchOM

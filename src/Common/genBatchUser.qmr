@@ -1,0 +1,81 @@
+% This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
+% Command Line Interface (CLI) is well-suited for automatization 
+% purposes and Octave. 
+%
+% Please execute this m-file section by section to get familiar with batch
+% processing for *-modelName-* on CLI.
+%
+% Demo files are downloaded into *-modelName-*_data folder. 
+%
+% Written by: Agah Karakuzu, 2017
+% =========================================================================
+
+%% I- DESCRIPTION
+
+qMRinfo('*-modelName-*'); % Describe the model
+
+%% II- MODEL PARAMETERS
+%%       a- create object    
+
+Model = *-modelName-*; 
+
+%%       b- modify options
+%           |- This section will pop-up the options GUI. Close window to continue.
+%           |- Octave is not GUI compatible. Modify Model.options directly.
+
+Model = Custom_OptionsGUI(Model); % You need to close GUI to move on. 
+
+%% III- FIT EXPERIMENTAL DATASET
+%%       a- set protocols via gui 
+*-protExplain-*
+%%       b- load experimental data 
+*-dataExplain-*
+
+data = struct();
+*-dataCommand-*
+
+%%      b- fit dataset 
+%             |- This section will fit data. 
+
+FitResults = FitData(data,Model,0);
+
+%%       c- show fitting results 
+%           |- Output map will be displayed.
+%           |- If available, a graph will be displayed to show fitting in a voxel.
+
+qMRshowOutput(FitResults,data,Model);
+
+%%       d- Save results
+%           |-  qMR maps are saved in NIFTI and in a structure FitResults.mat
+%                that can be loaded in qMRLab graphical user interface
+%           |-  Model object stores all the options and protocol.
+%                It can be easily shared with collaborators to fit their 
+%                own data or can be used for simulation.
+
+*-saveCommand-*
+Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
+
+%% V- SIMULATIONS
+%     |- This section can be executed to run simulations for *-modelName-*.
+%%       a- Single Voxel Curve
+%           |- Simulates Single Voxel curves:
+%                (1) use equation to generate synthetic MRI data
+%                (2) add rician noise
+%                (3) fit and plot curve
+
+% *-SingleVoxelCurve-*
+
+%%       b- Sensitivity Analysis 
+%           |-    Simulates sensitivity to fitted parameters:
+%                  (1) vary fitting parameters from lower (lb) to upper (ub) bound.
+%                  (2) run Sim_Single_Voxel_Curve Nofruns times
+%                  (3) Compute mean and std across runs
+
+% *-SensitivityAnalysis-*
+
+%% VI- NOTES
+% *-SpecificNotes-*
+
+% *-GenericNotes-*
+
+% *-modelCitation-*

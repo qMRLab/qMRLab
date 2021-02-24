@@ -27,7 +27,7 @@ if nargin && ischar(varargin{1})
 end
 
 if nargout
-    if isempty(getenv('ISCITEST')) || ~str2double(getenv('ISCITEST'))
+    if (isempty(getenv('ISCITEST')) || ~str2double(getenv('ISCITEST'))) && (isempty(getenv('ISDOC')) || ~str2double(getenv('ISDOC')))
         varargin{end+1}='wait';
     end
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});

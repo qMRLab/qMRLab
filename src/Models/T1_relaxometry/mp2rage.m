@@ -83,7 +83,7 @@ methods
     function obj = mp2rage()
     
         obj.options = button2opts(obj.buttons);
-        obj.onlineData_url = obj.getLink('https://osf.io/8x2c9/download?version=4','https://osf.io/k3shf/download?version=1');
+        obj.onlineData_url = obj.getLink('https://osf.io/8x2c9/download?version=4','https://osf.io/k3shf/download?version=1','https://osf.io/k3shf/download?version=1');
     
     end
 
