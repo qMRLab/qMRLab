@@ -20,19 +20,9 @@ RUN apt-get update && \
     xargs -d '\n' -- apt-get install -y --no-install-recommends < /tmp/apt.txt && \
     apt-get clean && \
     apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-COPY . /tmp/
-
-ARG TAG 
-RUN echo ${TAG}; \
-    mkdir $HOME/work; \
-    cd $HOME/work; \    
-    git clone -b master --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
-    chmod -R 777 $HOME/work/qMRLab; \
-    octave --eval "cd $HOME/work/qMRLab; \
-                      startup; \
-                      savepath(); \
-                      pkg list;"
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    mkdir $HOME/work && \
+    chmod -R 777 $HOME/work
 COPY . /tmp/
 
 WORKDIR $HOME/work

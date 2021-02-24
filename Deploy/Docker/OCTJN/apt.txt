@@ -1,4 +1,4 @@
-build-essential=12.4ubuntu1
+build-essential
 emacs
 git
 inkscape
@@ -14,7 +14,7 @@ curl
 wget
 gfortran
 cmake
-bsdtar
+libarchive-tools
 rsync
 imagemagick
 ghostscript
@@ -31,3 +31,7 @@ octave-optim
 octave-image
 python3-dev
 ttf-dejavu
+ca-certificates
+fonts-freefont-otf
+freetype2-doc
+zlib1g

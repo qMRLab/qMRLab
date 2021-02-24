@@ -14,16 +14,20 @@
 # Author: Agah Karakuzu, 2019
 # ==========================================================================
 
-FROM jupyter/base-notebook:8ccdfc1da8d5
+FROM jupyter/base-notebook:016833b15ceb
 
 # PASSED ENV VARS: 
 #   TAG: Version identified by version.txt 
 
 USER root
 
-# Install apt dependencies 
+ENV DEBIAN_FRONTEND=noninteractive
+# Install apt dependencies
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Moscow
 COPY apt.txt /tmp/
 RUN apt-get update && \
+    apt-get -y install tzdata && \
     cat /tmp/apt.txt | xargs sudo apt-get install -y --no-install-recommends &&\
     apt-get clean && \
     apt-get autoremove && \
@@ -36,7 +40,6 @@ COPY . /tmp/
 
 # Following argument is neccesary. Please see build.sh. 
 ARG TAG 
-
 COPY requirements.txt /tmp/
 RUN echo ${TAG};\
     pip install --upgrade pip; \
