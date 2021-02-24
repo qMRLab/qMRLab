@@ -67,7 +67,7 @@ end
         function obj = mono_t2()
             
             obj.options = button2opts(obj.buttons);
-            obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=1','https://osf.io/ns3wx/download?version=1');
+            obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=2','https://osf.io/ns3wx/download?version=1','https://osf.io/kujp3/download?version=2');
         end
         
         function Smodel = equation(obj, x)

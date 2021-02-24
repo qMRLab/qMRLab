@@ -27,7 +27,7 @@ if nargin && ischar(varargin{1})
 end
 
 if nargout
-    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS'))
+    if (isempty(getenv('ISCITEST')) || ~str2double(getenv('ISCITEST'))) && (isempty(getenv('ISDOC')) || ~str2double(getenv('ISDOC')))
         varargin{end+1}='wait';
     end
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
@@ -398,8 +398,8 @@ function varargout = OptionsGUI_OutputFcn(hObject, eventdata, handles)
 if nargout
     varargout{1} = getappdata(0,'Model');
     rmappdata(0,'Model');
-    if ~isempty(getenv('ISTRAVIS')) && isempty(getenv('ISDOC'))
-        warning('Environment Variable ''ISTRAVIS''=1: close window immediately. run >>setenv(''ISTRAVIS'','''') to change this behavior.');
+    if ~isempty(getenv('ISCITEST')) && isempty(getenv('ISDOC'))
+        warning('Environment Variable ''ISCITEST''=1: close window immediately. run >>setenv(''ISCITEST'','''') to change this behavior.');
         delete(findobj('Name','OptionsGUI'));
     end
 end

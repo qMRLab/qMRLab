@@ -1,0 +1,124 @@
+% This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
+% for tests w/o assertion checks. 
+%
+%
+% Written by: Agah Karakuzu, 2017
+% =========================================================================
+
+qMRinfo('*-modelName-*'); % Describe the model
+
+if ~moxunit_util_platform_is_octave
+% Seed random number generator
+  rng(123);
+else
+  randn("seed",123);
+  rand("seed",123);
+end
+
+Model = *-modelName-*; 
+
+Model = Custom_OptionsGUI(Model);
+
+*-protExplain-*
+
+*-dataExplain-*
+
+data = struct();
+*-dataCommand-*
+
+FitResults = FitData(data,Model,0);
+
+FitResults_old = load('FitResults/FitResults.mat');
+
+
+intrFields = intersect(FitResults.fields,FitResults_old.fields);
+
+% Assert new fit with the old one within 5% accuracy
+msg = [];
+caught = false;
+for k=1:length(intrFields)
+
+                crField = intrFields{k};
+                if Model.voxelwise
+                    crMask = FitResults.computed;
+                else
+                    if isfield(data,'Mask')
+                      crMask = data.Mask;
+                    else
+                      crMask = ones(size(FitResults.(crField)));
+                    end
+                end
+                expected = FitResults_old.(crField);
+                calculated = FitResults.(crField);
+                try
+                if ~isequal(size(expected),size(calculated))
+                    message = ['FAILED assertion at 5% : ' crField '--->' Model.ModelName]; 
+                    whatswrong='Inputs are not of the same size.';
+                    error_id='assertEqual:nonEqual';
+                    full_message=moxunit_util_input2str(message,whatswrong,expected,calculated);
+                    error(error_id,'%s',full_message);
+                end
+                catch
+                    caught = true;
+                    msg = [msg {['FAILED dimension mismatch: ' crField '--->' Model.ModelName]}];
+                end
+
+                 if islogical(expected) && islogical(calculated)
+                    try
+                        assertEqual(expected,calculated);
+                    catch
+                         caught = true;
+                         msg = [msg {['FAILED assertion logical: ' crField '--->' Model.ModelName]}];
+                    end
+                 else
+                    % Allow 5% difference
+                    try
+                        assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),'relative',0.05,['FAILED assertion at 5% : ' crField '--->' Model.ModelName]);
+                    catch
+                        caught = true;
+                        msg = [msg {['FAILED assertion at 5% : ' crField '--->' Model.ModelName]}];
+                    end
+
+                 end
+
+
+end
+
+if caught
+    if ~exist([fileparts(which('qMRLab.m')),filesep,'mismatchOM'],'dir')
+        mkdir([fileparts(which('qMRLab.m')),filesep,'mismatchOM']);
+    end
+
+    if ~isempty(msg)
+    fileID = fopen([fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'_mismatch.txt'],'w');
+    formatSpec = '%s\n';
+    nrows = length(msg);
+    for row = 1:nrows
+    fprintf(fileID,formatSpec,msg{row});
+    end
+    fclose(fileID);
+
+    disp(['Written mismatch file: ',fileparts(which('qMRLab.m')),filesep,'mismatchOM',filesep,Model.ModelName,'_mismatch.txt']);
+    ls([fileparts(which('qMRLab.m')),filesep,'mismatchOM']);
+
+    end
+
+else
+    disp(['SUCCESSFUL Octave-MATLAB match for ' Model.ModelName]);
+end
+
+qMRshowOutput(FitResults_old,data,Model);
+
+*-saveCommand-*
+Model.saveObj('*-modelName-*_Demo.qmrlab.mat');
+
+% *-SingleVoxelCurve-*
+
+% *-SensitivityAnalysis-*
+
+%% VI- NOTES
+% *-SpecificNotes-*
+
+% *-GenericNotes-*
+
+% *-modelCitation-*

@@ -45,7 +45,7 @@ classdef b1_afi < AbstractModel & FilterClass
 
 
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/csjgx/download?version=7';
+        onlineData_url = 'https://osf.io/csjgx/download?version=9';
     end
 
     properties

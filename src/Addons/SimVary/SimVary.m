@@ -19,7 +19,7 @@ Nsteps = 10;
 
 if ~exist('OptTable','var') || isempty(OptTable), OptTable = obj; end % use fitting boundaries
 if ~exist('Opts','var') || isempty(Opts), Opts.SNR = 50; end
-if isempty(getenv('ISTRAVIS')) || str2double(getenv('ISTRAVIS'))==0
+if isempty(getenv('ISCITEST')) || str2double(getenv('ISCITEST'))==0
     waitbarcreate = true;
 else
     waitbarcreate = false;

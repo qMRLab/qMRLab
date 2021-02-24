@@ -11,10 +11,11 @@
 # Author: Agah Karakuzu, 2020
 # ==========================================================================
 
-FROM neurodebian:xenial  
+FROM neurodebian:focal
 
 # Install apt dependencies 
 COPY apt.txt /tmp/
+ENV DEBIAN_FRONTEND=noninteractive 
 RUN apt-get update && \
     xargs -d '\n' -- apt-get install -y --no-install-recommends < /tmp/apt.txt && \
     apt-get clean && \
@@ -26,7 +27,7 @@ ARG TAG
 RUN echo ${TAG}; \
     mkdir $HOME/work; \
     cd $HOME/work; \    
-    git clone -b ${TAG} --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
+    git clone --recurse-submodules -b ${TAG} --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
     chmod -R 777 $HOME/work/qMRLab; \
     octave --eval "cd $HOME/work/qMRLab; \
                       startup; \

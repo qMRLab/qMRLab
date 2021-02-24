@@ -6,24 +6,24 @@ end
 initTestSuite;
 
 function TestSetup
-setenv('ISTRAVIS','1') % go faster! Fit only 2 voxels in FitData.m
+setenv('ISCITEST','1') % go faster! Fit only 2 voxels in FitData.m
 
 function test_batch
 curdir = pwd;
 
-if exist('/home/travis','dir')
-    tmpDir = '/home/travis/build/neuropoly/qMRLab/osfData';
-else
-    tmpDir = tempdir;
-end
+tmpDir = tempdir;
 mkdir(tmpDir);
 cd(tmpDir)
 
 Modellist = list_models';
-%***TEMP(Sept 9th 2019): skip Models with specific BatchExample tests to shorten TRAVIS***
+% If test scripts with BatchExample_*_test.m are located in the same 
+% directory with BatchExample_test.m, they will be discarded from the list
+% to split tasks on different Azure agents.
 BatchExampleFiles = cellfun(@(x) ['BatchExample_' x '_test.m'],Modellist,'uni',0)';
-Modellist(~~cellfun(@(x) exist(x,'file'),BatchExampleFiles)) = [];
-%***TEMP(May 8th 2018): skip qmt_spgr to shorten TRAVIS test***
+Modellist(~~cellfun(@(x) exist(['BatchExamplePart2' filesep x],'file'),BatchExampleFiles)) = [];
+if moxunit_util_platform_is_octave
+    Modellist(~~cellfun(@(x) exist(['BatchMatlabOnly' filesep x],'file'),BatchExampleFiles)) = [];
+end
 for iModel = 1:length(Modellist)
     disp('===============================================================')
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
@@ -54,7 +54,7 @@ for iModel = 1:length(Modellist)
     % Run Batch
     if isdata
         starttime = tic;
-        eval([Modellist{iModel} '_batch'])
+        eval([Modellist{iModel} '_batch']);
         toc(starttime)
     end
     close all
@@ -65,5 +65,5 @@ cd(curdir)
 
 
 function TestTeardown
-setenv('ISTRAVIS','0')
+setenv('ISCITEST','0')
 

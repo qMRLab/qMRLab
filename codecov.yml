@@ -4,7 +4,6 @@ codecov:
   require_ci_to_pass: yes
   notify:
     wait_for_ci: yes
-    after_n_builds: 14
 
 coverage:
   precision: 2
@@ -12,6 +11,15 @@ coverage:
   range: "45...100"
   status:
     patch: off
+    project:
+      Octave:
+        target: 36%
+        flags:
+          - octave
+      Matlab:
+        target: 45%
+        flags:
+          - matlab
 
 parsers:
   gcov:
@@ -29,3 +37,4 @@ comment:
 ignore:
   - "src/Common/tools/FileBrowser"
   - "src/Common/tools/FileBrowser/dicomLoadAllSeries.m"
+  - "src/Common/ParFitData.m"

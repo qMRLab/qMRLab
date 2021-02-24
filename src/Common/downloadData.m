@@ -30,7 +30,7 @@ while count == err_count
     try
         % DOWNLOAD
         if moxunit_util_platform_is_octave
-            if isunix && ~isempty(getenv('ISTRAVIS')) && str2double(getenv('ISTRAVIS')) % issue #113 --> no outputs on TRAVIS
+            if isunix && ~isempty(getenv('ISCITEST')) && str2double(getenv('ISCITEST')) % issue #113 --> no outputs on TRAVIS
                 cmd = ['curl -L -o ' filename ' ' url];
                 disp(cmd)
                 [STATUS,MESSAGE] = unix(cmd);

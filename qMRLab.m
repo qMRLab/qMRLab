@@ -14,10 +14,9 @@ function varargout = qMRLab(varargin)
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
 
-% Cabana, JF. et al (2016).
-% Quantitative magnetization transfer imaging made easy with qMRLab
-% Software for data simulation, analysis and visualization.
-% Concepts in Magnetic Resonance Part A
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 % ----------------------------------------------------------------------------------------------------
 
 if logical(exist('OCTAVE_VERSION', 'builtin')), warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
@@ -449,8 +448,38 @@ data = data.(Method);
 ErrMsg = Model.sanityCheck(data);
 if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
-% Do the fitting
-FitResults = FitData(data,Model,1);
+if ~moxunit_util_platform_is_octave
+   
+   p = gcp('nocreate');
+   if license('test','Distrib_Computing_Toolbox') && Model.voxelwise && isempty(p)
+        cprintf('blue', 'MATLAB detected %d physical cores.',feature('numcores'));
+        cprintf('blue', '<< Tip >> You can accelerate fitting by starting a parallel pool by running: \n parpool(%d);',feature('numcores'));
+        dlgTitle    = 'Parallel Processing';
+        dlgQuestion = sprintf('Would you like to start a parallel pool with %d cores?',feature('numcores'));
+        choice = questdlg(dlgQuestion,dlgTitle,'Yes','No', 'Yes');
+        if strcmp(choice,'Yes')
+            parpool(feature('numcores'));
+            p = gcp('nocreate');
+        end
+   end
+
+   if ~isempty(p) && Model.voxelwise
+        dlgTitle    = 'Autosave temporary results';
+        dlgQuestion = 'Would you like to save temporary results? If enabled, processed chunks will be saved every 5 minutes or when they are completed.';
+        choice = questdlg(dlgQuestion,dlgTitle,'Yes','No', 'Yes');
+        if strcmp(choice,'Yes')
+           FitResults = ParFitData(data,Model);
+        else
+           FitResults = ParFitData(data,Model,'AutosaveEnabled',false);
+        end
+   else
+       FitResults = FitData(data,Model,1);
+   end
+
+else
+% Do the fitting in Octave
+  FitResults = FitData(data,Model,1);
+end
 
 % Save info with results
 FileBrowserList = GetAppData('FileBrowserList');

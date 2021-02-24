@@ -14,7 +14,7 @@ curl
 wget
 gfortran
 cmake
-bsdtar
+libarchive-tools
 rsync
 imagemagick
 ghostscript
@@ -29,3 +29,7 @@ octave-io
 octave-statistics
 octave-optim
 octave-image
+ca-certificates
+fonts-freefont-otf
+freetype2-doc
+zlib1g

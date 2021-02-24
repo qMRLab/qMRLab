@@ -1,0 +1,202 @@
+% This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
+% for publishing documentation.
+% Command Line Interface (CLI) is well-suited for automatization 
+% purposes and Octave. 
+%
+% Please execute this m-file section by section to get familiar with batch
+% processing for *-modelName-* on CLI.
+%
+% Demo files are downloaded into *-modelName-*_data folder. 
+%
+% Written by: Agah Karakuzu, 2017
+% ==============================================================================
+
+%% 1. Print |*-modelName-*| information
+
+qMRinfo('*-modelName-*');
+
+%% 2. Setting model parameters
+%% 2.a. Create |*-modelName-*| object
+
+Model = *-modelName-*;
+
+%% 2.b. Set |protocol| and |options|
+%%
+% <html>
+% <div class="info">
+% <p style="margin:0px!important;"> <b><u>Protocol:</u></b> <i>MRI acquisition parameters that are accounted for by the respective model.</i></p>
+% </div>
+% </html>
+%
+% For example: |TE|, |TR|, |FA| |FieldStrength|. The assigned |protocol| values are subjected to a sanity check to ensure that they are in agreement with the |data| attributes.
+%
+%%
+% <html>
+% <div class="info">
+% <p style="margin:0px!important;"> <b><u>Options:</u></b> <i>Fitting preferences that are left at user's discretion.</i></p>
+% </div>
+% </html>
+%
+% For example: |linear fit|, |exponential fit|, |drop first echo|.
+
+%% 2.b.1 Set |protocol| _the CLI way_
+%
+% If you are using Octave, or would like to serialize your operations any without |GUI| involvement, you can assign |protocol| directly in CLI:
+%
+*-protExplain-*
+
+%%
+% <html>
+% <div class="warning">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for further information. </p>
+% </div>
+% </html>
+
+%% 2.b.2 Set |protocol| and |options| _the GUI way_
+%%
+% The following command opens a panel to set |protocol| and |options| (if |GUI| is available to the user):
+
+Model = Custom_OptionsGUI(Model);
+
+%%
+% _You need to close this window for the remaining of the script to proceed._
+
+%%
+% <html>
+% <div class="warning">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Using this panel, you can save qMRLab protocol files that can be used in both interfaces. See the <a href="#21">generic notes</a> section below for details. </p>
+% </div>
+% </html>
+
+%% 3. Fit MRI data
+%% 3.a. *Load* input data 
+% This section shows how you can load data into a(n) |*-modelName-*| object.
+%
+% * At the CLI level, qMRLab accepts structs containing (|double|) data in the fields named in accordance with a qMRLab model.
+
+%%
+% <html>
+% <div class="info">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-umbrella" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for BIDS compatible wrappers and scalable <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  qMRLab workflows. </p>
+% </div>
+% </html>
+
+*-dataExplain-*
+
+data = struct();
+*-dataCommand-*
+
+%% 3.b. Execute fitting process
+% This section will fit the loaded data.
+
+%%
+%   FitResults = FitData(data,Model,0);
+
+%%
+% <html>
+% <div class="danger">
+% <p style="margin:0px!important;"><strong><i class="fa fa-umbrella" style="color:red;margin-left:5px;"></i></strong> Visit the <a href="#21">generic notes</a> section below for instructions to accelerate fitting by <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parallelization using <code>ParFitData</code>. </p>
+% </div>
+% </html>
+
+%% 3.c. Display |FitResults|
+% You can display the current outputs by:
+%
+%   qMRshowOutput(FitResults,data,Model);
+%
+% _A representative fit curve will be plotted if available._
+%
+% To render images in this page, we will load the fit results that had been saved before. You can skip the following code block;
+
+% Load FitResults that comes with the example dataset.
+FitResults_old = load('FitResults/FitResults.mat');
+qMRshowOutput(FitResults_old,data,Model);
+
+%% 3.d. Save fit results
+% Outputs can be saved as |*.nii.(gz)| if |NIfTI| inputs are available:
+%  
+%   % Generic function call to save nifti outputs
+%   FitResultsSave_nii(FitResults, 'reference/nifti/file.nii.(gz)');
+%
+% If not, |FitResults.mat| file can be saved. This file contains 
+% all the outputs as workspace variables:
+%
+%   % Generic function call to save FitResults.mat
+%   FitResultsSave_mat(FitResults);
+%
+%%
+% <html>
+% <div class="info">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-clone" style="color:navy;margin-left:5px;"></i></strong> <code>FitResults.mat</code> files can be loaded to qMRLab <code>GUI</code> for <a href="l#data-viewer" target="_blank">visualization and ROI <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; analyses</a>. </p>
+% </div>
+% </html>
+%
+% The section below will be dynamically generated in accordance with the example data format (|mat| or |nii|). You can substitute |FitResults_old| with |FitResults| if you executed the fitting using example dataset for this model in section *3.b.*.
+
+*-saveCommand-*
+
+%% 3.e. Re-use or share fit configuration files
+% qMRLab's fit configuration files (|*-modelName-*_Demo.qmrlab.mat|) store all the |options| and |protocol| in relation to the used model and the release version.
+%
+% <html>
+% <div class="info">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-retweet" style="color:navy;margin-left:5px;"></i></strong> <code>*.qmrlab.mat</code> files can be easily shared with collaborators to allow them fit their own <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data or run simulations using identical <code>option</code> and <code>protocol</code> configurations. </p>
+% </div>
+% </html>
+%
+
+Model.saveObj('my_*-modelName-*_config.qmrlab.mat');
+
+%% 4. Simulations
+
+%%     4.a. |Single Voxel Curve|
+% Simulates single voxel curves:
+%
+% # Analytically generate synthetic MRI data
+% # Add _rician_ noise
+% # |Fit| and |plot| the respective curve
+%
+% *-SingleVoxelCurve-*
+
+%% 4.b. |Sensitivity Analysis|
+% Simulates sensitivity to fitted parameters:
+%
+% # Iterate fitting parameters from lower (|lb|) to upper (|ub|) bound
+% # Run |Sim_Single_Voxel_Curve| for |Nofruns| times
+% # Compute the |mean| and |std| across runs
+%
+% *-SensitivityAnalysis-*
+
+%% 5. Notes
+%%    5.a. Notes specific to |*-modelName-*|
+% *-SpecificNotes-*
+
+%% 5.b. Generic notes
+% *-GenericNotes-*
+
+%% 6. Citations
+% *qMRLab JOSS article*
+
+%%
+% <html>
+% <div class="success" style="text-align:justify;">
+% <p> Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: Quantitative MRI analysis, under one umbrella <a href="https://doi.org/10.21105/joss.02343" target="_blank">10.21105/joss.02343</a></p>
+% </div>
+% </html>
+%
+% *Reference article for |*-modelName-*|*
+%
+% <html>
+% <div class="success" style="text-align:justify;">
+% <p>*-modelCitation-*</p>
+% </div>
+% </html>
+%
+% <html>
+% <hr>
+% <center><i class="fa fa-umbrella" style="color:black;font-size:2em;"></i></center>
+% <center><p>Quantitative MRI, under one umbrella.</p></center>
+% <center>| <a href="https://github.com/qmrlab/pulse_sequences" target="_blank">qMRPullseq</a> | <a href="https://github.com/qmrlab/qmrflow" target="_blank">qMRFlow</a> | <a href="https://qmrlab.org/blog.html" target="_blank">Interactive Tutorials</a> | </p></center>
+% <center><p><a href="https://www.neuro.polymtl.ca/doku.php" target="_blank">NeuroPoly Lab</a>, Montreal, Canada</p></center>
+% <hr>
+% </html>

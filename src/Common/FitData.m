@@ -26,11 +26,9 @@ function Fit = FitData(data, Model, wait , Fittmp)
 % Written by: Jean-Fran??ois Cabana, 2016
 % ----------------------------------------------------------------------------------------------------
 % If you use qMRLab in your work, please cite :
-%
-% Cabana, J.-F., Gu, Y., Boudreau, M., Levesque, I. R., Atchia, Y., Sled, J. G., Narayanan, S.,
-% Arnold, D. L., Pike, G. B., Cohen-Adad, J., Duval, T., Vuong, M.-T. and Stikov, N. (2016),
-% Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
-% analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 % ----------------------------------------------------------------------------------------------------
 
 % Before fitting, do a sanity check on the input data and protocol
@@ -123,7 +121,7 @@ if Model.voxelwise % process voxelwise
     numVox = length(Voxels);
     
     % Travis?
-    if isempty(getenv('ISTRAVIS')) || ~str2double(getenv('ISTRAVIS')), ISTRAVIS=false; else ISTRAVIS=true; end
+    if isempty(getenv('ISCITEST')) || ~str2double(getenv('ISCITEST')), ISCITEST=false; else ISCITEST=true; end
 
     % ############################# FITTING LOOP ###############################
     % Create waitbar
@@ -226,9 +224,10 @@ if Model.voxelwise % process voxelwise
             end
         end
         
-        if ISTRAVIS && ii>2
+        if ISCITEST && ii>2
             try
-                Fit = load(fullfile('.','FitResults','FitResults.mat'));
+                % Fit = load(fullfile('.','FitResults','FitResults.mat'));
+                disp('returning 3 voxels');
             end
             break;
         end
