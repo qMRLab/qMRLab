@@ -6,10 +6,11 @@
             "Granularity": 3,
             "RemoveTmpOnSuccess": true
        },
-
-     "Units":  {
-           "setting": "Units",
-           "MapsTimeUnit": "seconds",
-           "MapsRatioScale": "normalized"
-       }
+     "SavedMapUnits":  {
+           "Time": "seconds",
+           "RatioScale": "normalized",
+           "B1maps": "normalized",
+           "B0maps": "hertz"
+       },
+    "SaveProvenance": true
 }
