@@ -104,7 +104,6 @@ function Fit = ParFitData(data, Model,varargin)
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 % -------------------------------------------------------------------------
 
-
 p = inputParser();
 preferences = json2struct(fullfile(fileparts(which('qMRLab')),'usr','preferences.json'));
 
