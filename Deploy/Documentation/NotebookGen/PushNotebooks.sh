@@ -3,12 +3,18 @@
 # going to be exposed!!!!!
 
 if [ -z "${AGENT_RELEASEDIRECTORY}" ]; then
-    qMRdir=$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
-    version=`cat $qMRdir/version.txt`
-else # Otherwise use relative path. 
+
+    echo Starting build on lcl computer qMRLab path passed $qMRdir
     qMRdir=$1
     version=`cat $qMRdir/version.txt`
-    echo From terminal $qMRdir
+    GITHUB_TOKEN=$2
+
+else # User will pass qMRLab path 
+    
+    echo Starting build on Azure 
+    qMRdir=$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
+    version=`cat $qMRdir/version.txt`
+    GITHUB_TOKEN=$1
 fi
 
 echo "Compiling for version: $version"
@@ -39,8 +45,8 @@ git add .
 git commit -m "For $version on $NOW"
 git tag -a "$version" -m "version $version"
 if [ -z "${AGENT_RELEASEDIRECTORY}" ]; then
-    git push https://$1@github.com/qMRLab/doc_notebooks.git -f
-    git push https://$1@github.com/qMRLab/doc_notebooks.git --tags
+    git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git -f
+    git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git --tags
 fi
 # Remove temporary files 
 rm -rf /tmp/qMRLabJNB
