@@ -42,6 +42,8 @@ git clone https://github.com/qMRLab/doc_notebooks.git
 mv -v $nbSub/* $nbSub/doc_notebooks
 
 cd $nbSub/doc_notebooks
+git config --global user.email "agahkarakuzu@gmail.com"
+git config --global user.name "agahkarakuzu"
 git add .
 git commit -m "For $version on $NOW"
 git tag -a "$version" -m "version $version"
