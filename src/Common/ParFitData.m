@@ -51,6 +51,10 @@ function Fit = ParFitData(data, Model,varargin)
 %                                   more frequently.
 %                                   Default: 3 (int) Allowed range [2:5]
 %
+%   'RmTempOnSuccess'               Enable/disable removing the temporary
+%                                   directory following a successful fit.
+%                                   Default: true (logical)
+%
 % Notes about data: 
 %
 %    Field names                    Field names of the `data` struct MUST 
@@ -99,7 +103,6 @@ function Fit = ParFitData(data, Model,varargin)
 %     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab:
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 % -------------------------------------------------------------------------
-
 
 p = inputParser();
 preferences = json2struct(fullfile(fileparts(which('qMRLab')),'usr','preferences.json'));

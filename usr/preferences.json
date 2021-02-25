@@ -1,6 +1,7 @@
 {
     "ParFitData": 
        {
+
             "AutosaveEnabled": true,
             "AutosaveInterval": 5,
             "Granularity": 3,
@@ -12,6 +13,6 @@
            "B1maps": "normalized",
            "B0maps": "hertz"
        },
-    "SaveProvenance": true,
-    "ReportBug": true
+    "SaveProvenance": true
+
 }

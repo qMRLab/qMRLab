@@ -38,6 +38,3 @@ ignore:
   - "src/Common/tools/FileBrowser"
   - "src/Common/tools/FileBrowser/dicomLoadAllSeries.m"
   - "src/Common/ParFitData.m"
-  - "src/Common/qMR_reportBug.m"
-  - "src/Common/tryfunc.m"
-  - "src/Common/addtryfunc.m"
