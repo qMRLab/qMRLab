@@ -42,11 +42,10 @@ git clone https://github.com/qMRLab/doc_notebooks.git
 mv -v $nbSub/* $nbSub/doc_notebooks
 
 cd $nbSub/doc_notebooks
-git config remote.origin.url https://agahkarakuzu:$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git
 git add .
 git commit -m "For $version on $NOW"
 git tag -a "$version" -m "version $version"
-git push -f
-git push --tags
+git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git -f
+git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git --tags
 # Remove temporary files 
 rm -rf /tmp/qMRLabJNB
