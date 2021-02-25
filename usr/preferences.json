@@ -1,7 +1,8 @@
 {
     "ParFitData": 
        {
-            "AutosaveEnabled": false,
+
+            "AutosaveEnabled": true,
             "AutosaveInterval": 5,
             "Granularity": 3,
             "RemoveTmpOnSuccess": true
@@ -13,4 +14,5 @@
            "B0maps": "hertz"
        },
     "SaveProvenance": true
+
 }
