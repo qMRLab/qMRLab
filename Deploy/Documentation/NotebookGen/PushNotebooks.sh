@@ -8,6 +8,8 @@ if [ -z "${AGENT_RELEASEDIRECTORY}" ]; then
     qMRdir=$1
     version=`cat $qMRdir/version.txt`
     GITHUB_TOKEN=$2
+    GITHUB_MAIL=$3
+    GITHUB_NAME = $4
 
 else # User will pass qMRLab path 
     
@@ -15,6 +17,8 @@ else # User will pass qMRLab path
     qMRdir=$AGENT_RELEASEDIRECTORY/$RELEASE_PRIMARYARTIFACTSOURCEALIAS
     version=`cat $qMRdir/version.txt`
     GITHUB_TOKEN=$1
+    GITHUB_MAIL=$2
+    GITHUB_NAME = $3
 fi
 
 echo "Compiling for version: $version"
@@ -42,8 +46,8 @@ git clone https://github.com/qMRLab/doc_notebooks.git
 mv -v $nbSub/* $nbSub/doc_notebooks
 
 cd $nbSub/doc_notebooks
-git config --global user.email "agahkarakuzu@gmail.com"
-git config --global user.name "agahkarakuzu"
+git config user.email "$GITHUB_MAIL"
+git config user.name "$GITHUB_NAME"
 git add .
 git commit -m "For $version on $NOW"
 git tag -a "$version" -m "version $version"
