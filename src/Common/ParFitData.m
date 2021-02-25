@@ -51,6 +51,10 @@ function Fit = ParFitData(data, Model,varargin)
 %                                   more frequently.
 %                                   Default: 3 (int) Allowed range [2:5]
 %
+%   'RmTempOnSuccess'               Enable/disable removing the temporary
+%                                   directory following a successful fit.
+%                                   Default: true (logical)
+%
 % Notes about data: 
 %
 %    Field names                    Field names of the `data` struct MUST 
