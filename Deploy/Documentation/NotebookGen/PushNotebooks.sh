@@ -41,6 +41,7 @@ git clone https://github.com/qMRLab/doc_notebooks.git
 # Move new notebooks to repo
 mv -v $nbSub/* $nbSub/doc_notebooks
 
+cd $nbSub/doc_notebooks
 git add .
 git commit -m "For $version on $NOW"
 git tag -a "$version" -m "version $version"
