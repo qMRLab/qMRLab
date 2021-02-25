@@ -36,8 +36,8 @@ mv -v $nbSub/* $nbSub/doc_notebooks
 git add .
 git commit -m "For $version on $NOW"
 git tag -a "$version" -m "version $version"
-git push
-git push --tags
+git push https://$1@github.com/qMRLab/doc_notebooks.git -f
+git push https://$1@github.com/qMRLab/doc_notebooks.git --tags
 
 # Remove temporary files 
 rm -rf /tmp/qMRLabJNB
