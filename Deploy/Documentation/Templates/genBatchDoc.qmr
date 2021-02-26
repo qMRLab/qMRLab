@@ -55,9 +55,9 @@ Model = *-modelName-*;
 %% 2.b.2 Set |protocol| and |options| _the GUI way_
 %%
 % The following command opens a panel to set |protocol| and |options| (if |GUI| is available to the user):
-
 %   Model = Custom_OptionsGUI(Model);
-
+%
+% <<https://github.com/qMRLab/documentation/blob/master/source/_static/*-modelName-*_batch_01.png?raw=true>>
 %%
 % _You need to close this window for the remaining of the script to proceed._
 
