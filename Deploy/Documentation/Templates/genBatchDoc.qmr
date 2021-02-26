@@ -56,7 +56,7 @@ Model = *-modelName-*;
 %%
 % The following command opens a panel to set |protocol| and |options| (if |GUI| is available to the user):
 
-Model = Custom_OptionsGUI(Model);
+%   Model = Custom_OptionsGUI(Model);
 
 %%
 % _You need to close this window for the remaining of the script to proceed._

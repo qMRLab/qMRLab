@@ -32,18 +32,18 @@ cd $docRoot
 git clone https://github.com/qMRLab/documentation.git
 cd $docDir
 NOW=$(date +"%m_%d_%Y_%H_%M")
-branchNameQMRLAB=${{ Build.SourceBranchName }}
+#branchNameQMRLAB=${{ Build.SourceBranchName }}
 # Generate a branch on the documentation repo that has the same 
 # qMRLab branch name.
-git checkout -b $branchNameQMRLAB
+#git checkout -b $branchNameQMRLAB
 #Generate new documentation sources in this new branch
 matlab -batch "cd('$qMRdir'); startup; GenerateDocumentation('$docDir'); exit;"
 cd $docDir
 git status
-git config user.email "$GITHUB_MAIL"
-git config user.name "$GITHUB_NAME"
-git add .
-git commit -m "$NOW from $branchNameQMRLAB"
-git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git $branchNameQMRLAB
+#git config user.email "$GITHUB_MAIL"
+#git config user.name "$GITHUB_NAME"
+#git add .
+#git commit -m "$NOW from $branchNameQMRLAB"
+#git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git $branchNameQMRLAB
 # Remove temporary files 
 rm -rf $docRoot
