@@ -51,7 +51,7 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
     % WARNING 
     % SKIP NEW DOC GENERATION FOR AMICO
     % If you need to re-gen doc for amico, please comment out following two lines
-    [~,amicoloc] = ismember(['../documentation' filesep 'source/amico_batch.rst'],list);
+    [~,amicoloc] = ismember([docDirectory filesep 'source/amico_batch.rst'],list);
     list(amicoloc) = [];
     if ~isempty(list)
         delete(list{:})
