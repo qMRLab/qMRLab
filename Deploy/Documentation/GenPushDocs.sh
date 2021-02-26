@@ -42,10 +42,10 @@ git checkout -b $BUILD_SOURCEBRANCH
 matlab -batch "cd('$qMRdir'); startup; GenerateDocumentation('$docDir','$PATH'); exit;"
 cd $docDir
 git status
-#git config user.email "$GITHUB_MAIL"
-#git config user.name "$GITHUB_NAME"
-#git add .
-#git commit -m "$NOW from $branchNameQMRLAB"
-#git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git $branchNameQMRLAB
+git config user.email "$GITHUB_MAIL"
+git config user.name "$GITHUB_NAME"
+git add .
+git commit -m "$BUILD_SOURCEBRANCH commit $BUILD_SOURCEVERSION"
+git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git $BUILD_SOURCEBRANCH
 # Remove temporary files 
 rm -rf $docRoot
