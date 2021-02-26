@@ -38,7 +38,8 @@ branchNameQMRLAB=${{ Build.SourceBranchName }}
 git checkout -b $branchNameQMRLAB
 #Generate new documentation sources in this new branch
 matlab -batch "cd('$qMRdir'); startup; GenerateDocumentation('$docDir'); exit;"
-
+cd $documentation
+git status
 git config user.email "$GITHUB_MAIL"
 git config user.name "$GITHUB_NAME"
 git add .
