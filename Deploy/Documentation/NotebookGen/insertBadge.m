@@ -7,7 +7,7 @@ function insertBadge(rstDir)
 
 
     Modellist = list_models';
-    for iModel = 8:9
+    for iModel = 1:length(Modellist)
     
         disp('==============================');
         disp(['Inserting badge ' Modellist{iModel}]);
