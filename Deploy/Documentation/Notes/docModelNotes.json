@@ -22,7 +22,15 @@
       },
       {
         "model": "mp2rage",
-	      "citation": "Marques, José P., et al. (2010). MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. Neuroimage, 49(2), 1271-1281. 10.1016/j.neuroimage.2009.10.002"
+	      "citation": "Marques, José P., et al. (2010). MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. Neuroimage, 49(2), 1271-1281. 10.1016/j.neuroimage.2009.10.002",
+        "note": [
+          "% *Note 1:*",
+          "% ",
+          "% Detailed information about |mp2rage| protocol settings is available <protocols#mp2rage here>.",
+          "% ",
+          "% Original repository: <https://github.com/JosePMarques/MP2RAGE-related-scripts https://github.com/JosePMarques/MP2RAGE-related-scripts>"
+          
+        ]
       },
       {
         "model": "vfa_t1",
@@ -95,7 +103,9 @@
                  "% * Unlike |L1|, |L2 regularization| can be run independently. The |Chimap| (in ppm) calculated upon this selection is |chiL2|.",
                  "% * When the |magnitude weighting| optio`n is enbled, associated the output maps attains an |M| suffix: |chiL2M| or |chiSBM|.",
                  "% * A susceptibility map can be also generated without regularization. For this selection, the output |Chimap| is |nfm|, which is displayed as an example in this page.",
-                 "% * Unwrapped phase images are provided in the output: |unwrappedPhase|."
+                 "% * Unwrapped phase images are provided in the output: |unwrappedPhase|.",
+                 "%",
+                 "% Full dataset and the original code are available <https://www.dropbox.com/s/expg1i1emrwdegn/Fast_QSM_Magnitude_Toolbox.zip?dl=0 here>"
                 ],
 	       "citation": "Bilgic, B., et al. (2014). Fast quantitative susceptibility mapping with L1-regularization and automatic parameter selection. Magnetic Resonance in Medicine, 72(5), 1444-1459. 10.1002/mrm.25029"
       }
