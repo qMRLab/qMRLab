@@ -30,7 +30,7 @@ docDir=$docRoot/documentation
 mkdir -p $docRoot
 cd $docRoot
 git clone https://github.com/qMRLab/documentation.git
-cd $documentation
+cd $docDir
 NOW=$(date +"%m_%d_%Y_%H_%M")
 branchNameQMRLAB=${{ Build.SourceBranchName }}
 # Generate a branch on the documentation repo that has the same 
@@ -38,7 +38,7 @@ branchNameQMRLAB=${{ Build.SourceBranchName }}
 git checkout -b $branchNameQMRLAB
 #Generate new documentation sources in this new branch
 matlab -batch "cd('$qMRdir'); startup; GenerateDocumentation('$docDir'); exit;"
-cd $documentation
+cd $docDir
 git status
 git config user.email "$GITHUB_MAIL"
 git config user.name "$GITHUB_NAME"
