@@ -32,12 +32,17 @@ cd $docRoot
 git clone https://github.com/qMRLab/documentation.git
 cd $docDir
 NOW=$(date +"%m_%d_%Y_%H_%M")
+echo ${{ Build.SourceBranchName }}
+echo '$(Build.SourceBranchName)'
+echo $(Build.DefinitionName)
+declare -xp
 #branchNameQMRLAB=${{ Build.SourceBranchName }}
 # Generate a branch on the documentation repo that has the same 
 # qMRLab branch name.
 #git checkout -b $branchNameQMRLAB
-#Generate new documentation sources in this new branch
-matlab -batch "cd('$qMRdir'); startup; GenerateDocumentation('$docDir'); exit;"
+# Generate new documentation sources in this new branch
+# we also pass $PATH variable so that matlab knows which py to use
+matlab -batch "cd('$qMRdir'); startup; GenerateDocumentation('$docDir','$PATH'); exit;"
 cd $docDir
 git status
 #git config user.email "$GITHUB_MAIL"
