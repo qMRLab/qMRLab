@@ -62,7 +62,7 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
         setenv('PATH',sysEnvPATH);
     end
     % Plots python version to ensure that the right version is used.
-    system(['python3 --version; python auto_TOC.py ' fileparts(which('qMRLab.m'))]); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
+    system(['python3 --version; python3 auto_TOC.py ' fileparts(which('qMRLab.m'))]); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
     
     % Insert Binder badges to the rst files in the source dir
     insertBadge([docDirectory filesep 'source']);
