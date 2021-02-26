@@ -23,8 +23,17 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
     
     setenv('ISCITEST','0'); 
     setenv('ISDOC','1');
+
+    % Do not show warns in doc pages
+    warning('off','all');
     
     Modellist = list_models';
+    % SKIP NEW DOC GENERATION FOR AMICO
+    % If you need to re-gen doc for amico, please comment out following two lines
+    % Similar changes are required in
+    % - InsertBadge.m 
+    [~,amicoloc] = ismember(['amico'],Modellist);
+    Modellist(amicoloc) = [];
     for iModel = 1:length(Modellist)
         eval(['Model = ' Modellist{iModel}]);
         qMRgenBatch(Model,pwd)
@@ -34,9 +43,16 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
     end
     setenv('ISDOC','');
     setenv('ISCITEST','');
-    
+    % Enable warnings
+    warning('on','all');
+
     % delete old batch
     list = sct_tools_ls([docDirectory filesep 'source/*_batch.rst'],1,1);
+    % WARNING 
+    % SKIP NEW DOC GENERATION FOR AMICO
+    % If you need to re-gen doc for amico, please comment out following two lines
+    [~,amicoloc] = ismember(['../documentation' filesep 'source/amico_batch.rst'],list);
+    list(amicoloc) = [];
     if ~isempty(list)
         delete(list{:})
     end
