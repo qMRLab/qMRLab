@@ -46,6 +46,6 @@ git config user.email "$GITHUB_MAIL"
 git config user.name "$GITHUB_NAME"
 git add .
 git commit -m "$BUILD_SOURCEBRANCH commit $BUILD_SOURCEVERSION"
-git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git $BUILD_SOURCEBRANCH
+git push https://$GITHUB_TOKEN@github.com/qMRLab/documentation.git $BUILD_SOURCEBRANCH
 # Remove temporary files 
 rm -rf $docRoot
