@@ -28,11 +28,11 @@ docDir=$docRoot/documentation
 
 # Crate tmp directory
 mkdir -p $docRoot
-cd docRoot
+cd $docRoot
 git clone https://github.com/qMRLab/documentation.git
-cd documentation
+cd $documentation
 NOW=$(date +"%m_%d_%Y_%H_%M")
-branchNameQMRLAB=${Build.SourceBranchName}
+branchNameQMRLAB=$(Build.SourceBranchName)
 # Generate a branch on the documentation repo that has the same 
 # qMRLab branch name.
 git checkout -b $branchNameQMRLAB
