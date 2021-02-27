@@ -161,6 +161,7 @@ Model.saveObj('my_*-modelName-*_config.qmrlab.mat');
 % <li>Add <i>rician</i> noise</li>
 % <li><tt>Fit</tt> and <tt>plot</tt> the respective curve</li>
 % </ol>
+% </details>
 % </html>
 %
 % *-SingleVoxelCurve-*
@@ -175,6 +176,7 @@ Model.saveObj('my_*-modelName-*_config.qmrlab.mat');
 % <li>Run <tt>Sim_Single_Voxel_Curve</tt> for <tt>Nofruns</tt> times</li>
 % <li>Compute the <tt>mean</tt> and <tt>std</tt> across runs</li>
 % </ol>
+% </details>
 % </html>
 %
 % *-SensitivityAnalysis-*
