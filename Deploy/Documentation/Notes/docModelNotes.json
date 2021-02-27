@@ -4,7 +4,7 @@
         "model": "b1_dam",
       	"citation": "Insko, E.K., & Bolinger, L. (1993). Mapping of the Radifrequency Field. Journal of Magnetic Resonance Series A, 1(1), 82-85. https://doi.org/10.1006/jmra.1993.1133",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -20,9 +20,11 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ fmap/",
+          "%   |~~~~~~~~~~ sub-01/fmap/",
           "%   |-------------- sub-01_TB1map.nii.gz",
-          "%   |-------------- sub-01_TB1map.json"
+          "%   |-------------- sub-01_TB1map.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
@@ -33,7 +35,7 @@
         "model": "b1_afi",
 	      "citation": "Yarnykh, V.L. (2007). Actual flip-angle imaging in the pulsed steady state: a method for rapid three-dimensional mapping of the transmitted radiofrequency field. Magnetic Resonance in Medicine, 57(1), 192-200. 10.1002/mrm.21120",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -49,16 +51,18 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ fmap/",
+          "%   |~~~~~~~~~~ sub-01/fmap/",
           "%   |-------------- sub-01_TB1map.nii.gz",
-          "%   |-------------- sub-01_TB1map.json"
+          "%   |-------------- sub-01_TB1map.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
         "model": "mono_t2",
 	      "citation": "Milford, D., et al. (2015). Mono-Exponential Fitting in T2-Relaxometry: Relevance of Offset and First Echo. PLoS One, 10(12), e0145255. 10.1371/journal.pone.0145255",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -78,18 +82,20 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ sub-01/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_T2map.nii.gz",
           "%   |-------------- sub-01_T2map.json",
           "%   |-------------- sub-01_M0map.nii.gz",
-          "%   |-------------- sub-01_M0map.json"
+          "%   |-------------- sub-01_M0map.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
         "model": "mwf",
 	      "citation": "MacKay, M., et al. (1994). In vivo visualization of myeling water in brain by magnetic resonance. Magnetic Resonance in Medicine, 31(6), 673-677. 10.1002/mrm.1910310614",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -109,20 +115,22 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ sub-01/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_MWFmap.nii.gz",
           "%   |-------------- sub-01_MWFmap.json",
           "%   |-------------- sub-01_T2MW.nii.gz (Not defined in BIDS yet)",
           "%   |-------------- sub-01_T2MW.json",
           "%   |-------------- sub-01_T2IEW.nii.gz (Not defined in BIDS yet)",
-          "%   |-------------- sub-01_T2IEW.json"
+          "%   |-------------- sub-01_T2IEW.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
         "model": "mp2rage",
 	      "citation": "Marques, José P., et al. (2010). MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. Neuroimage, 49(2), 1271-1281. 10.1016/j.neuroimage.2009.10.002",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -140,12 +148,12 @@
           "%   |== derivatives/",
           "%   |~~~~~~ Siemens/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ sub-01/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_UNIT1.nii.gz (Vendor-generated UNIT1)",
           "%   |-------------- sub-01_UNIT1.json",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ sub-01/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_T1map.nii.gz",
           "%   |-------------- sub-01_T1map.json",
           "%   |-------------- sub-01_R1map.nii.gz",
@@ -153,7 +161,9 @@
           "%   |-------------- sub-01_UNIT1.nii.gz (If calculated by qMRLab)",
           "%   |-------------- sub-01_UNIT1.json",
           "% ",
-          "% *Note 1:*",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>.",
+          "% ",
+          "%% 5.a.2 Note-1",
           "% ",
           "% Further details about |mp2rage| protocol settings are available <protocols.html#mp2rage here>.",
           "% ",
@@ -165,7 +175,7 @@
         "model": "vfa_t1",
         "citation": "Fram, E.K., et al. (1987). Rapid calculation of T1 using variable flip angle gradient refocused imaging. Magnetic Resonance in Medicine, 5(3), 201-208. 10.1016/0730-725x(87)90021-x",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -185,20 +195,22 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ anat/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_T1map.nii.gz",
           "%   |-------------- sub-01_T1map.json",
           "%   |-------------- sub-01_R1map.nii.gz",
           "%   |-------------- sub-01_R1map.json",
           "%   |-------------- sub-01_M0map.nii.gz",
-          "%   |-------------- sub-01_M0map.json"
+          "%   |-------------- sub-01_M0map.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
         "model": "inversion_recovery",
       	"citation": "Barral, J.K., et al. (2010). A robust methodology for in vivo T1 mapping. Magnetic Resonance in Medicine, 64(4), 1057-1067. 10.1002/mrm.22497",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -218,13 +230,15 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ anat/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_T1map.nii.gz",
           "%   |-------------- sub-01_T1map.json",
           "%   |-------------- sub-01_R1map.nii.gz",
           "%   |-------------- sub-01_R1map.json",
           "%   |-------------- sub-01_M0map.nii.gz",
-          "%   |-------------- sub-01_M0map.json"
+          "%   |-------------- sub-01_M0map.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
@@ -232,13 +246,58 @@
       },
       {
         "model": "qmt_spgr",
+        "note": [
+          "%% 5.a.1 BIDS-like convention",
+          "% |qMT-SPGR| has not been defined in BIDS yet. However, following convention is suggested:",
+          "% ",
+          "%   |== sub-01/",
+          "%   |~~~~~~ anat/",
+          "%   |---------- sub-01_flip-1_mt-1_QMTSPGR.json",
+          "%   |---------- sub-01_flip-1_mt-1_QMTSPGR.nii",
+          "%   |---------- sub-01_flip-2_mt-1_QMTSPGR.json",
+          "%   |---------- sub-01_flip-2_mt-1_QMTSPGR.nii",
+          "%   |---------- sub-01_flip-1_mt-2_QMTSPGR.json",
+          "%   |---------- sub-01_flip-1_mt-2_QMTSPGR.nii",
+          "%   |---------- sub-01_flip-2_mt-2_QMTSPGR.json",
+          "%   |---------- sub-01_flip-2_mt-2_QMTSPGR.nii",
+          "%   |---------- .",
+          "%   |---------- .",
+          "%   |---------- sub-01_flip-1_mt-N_QMTSPGR.json",
+          "%   |---------- sub-01_flip-1_mt-N_QMTSPGR.nii",
+          "%   |---------- sub-01_flip-2_mt-N_QMTSPGR.json",
+          "%   |---------- sub-01_flip-2_mt-N_QMTSPGR.nii",
+          "%   |",
+          "%   |== derivatives/",
+          "%   |~~~~~~ qMRLab/",
+          "%   |---------- dataset_description.json",
+          "%   |~~~~~~~~~~ sub-01/anat/",
+          "%   |-------------- sub-01_R1map.nii.gz (pre-exists)",
+          "%   |-------------- sub-01_R1map.json",
+          "%   |-------------- sub-01_Fmap.nii.gz",
+          "%   |-------------- sub-01_Fmap.json",
+          "%   |-------------- sub-01_kRmap.nii.gz",
+          "%   |-------------- sub-01_kRmap.json",
+          "%   |-------------- sub-01_R1Fmap.nii.gz",
+          "%   |-------------- sub-01_R1Fmap.json",
+          "%   |-------------- sub-01_R1Rmap.nii.gz",
+          "%   |-------------- sub-01_R1Rmap.json",
+          "%   |-------------- sub-01_T2Fmap.nii.gz",
+          "%   |-------------- sub-01_T2Fmap.json",
+          "%   |-------------- sub-01_T2Rmap.nii.gz",
+          "%   |-------------- sub-01_T2Rmap.json",
+          "%   |~~~~~~~~~~ sub-01/fmap/",
+          "%   |-------------- sub-01_TB1map.nii.gz",
+          "%   |-------------- sub-01_TB1map.json",
+          "% ",
+          "% Please visit <https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/01-magnetic-resonance-imaging-data.html#sequence-specifics sequence-specific metadata fields> for applicable |json| keys."
+        ],
 	      "citation": "Sled, J.G., & Pike, G.B. (2000). Quantitative interpretation of magnetization transfer in spoiled gradient echo MRI sequences. Journal of Magnetic Resonance, 145(1), 24-36. 10.1006/jmre.2000.2059"
       },
       {
         "model": "mt_sat",
 	      "citation": "Helms, G., et al. (2008). High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magnetic Resonance in Medicine, 60(6), 1396-1407. 10.1002/mrm.21732",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -256,7 +315,7 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ anat/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_MTsat.nii.gz",
           "%   |-------------- sub-01_MTsat.json",
           "%   |-------------- sub-01_T1map.nii.gz",
@@ -264,17 +323,19 @@
           "%   |-------------- sub-01_R1map.nii.gz",
           "%   |-------------- sub-01_R1map.json",
           "%   |-------------- sub-01_M0map.nii.gz",
-          "%   |-------------- sub-01_M0map.json"
+          "%   |-------------- sub-01_M0map.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
         "model": "mt_ratio",
         "note": [
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
-          "%% ",
+          "%% 5.a.1 BIDS",
           "% ",
           "%   |== sub-01/",
           "%   |~~~~~~ anat/",
@@ -286,9 +347,11 @@
           "%   |== derivatives/",
           "%   |~~~~~~ qMRLab/",
           "%   |---------- dataset_description.json",
-          "%   |~~~~~~~~~~ anat/",
+          "%   |~~~~~~~~~~ sub-01/anat/",
           "%   |-------------- sub-01_MTRmap.nii.gz",
-          "%   |-------------- sub-01_MTRmap.json"
+          "%   |-------------- sub-01_MTRmap.json",
+          "% ",
+          "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
@@ -307,7 +370,7 @@
         "model": "noddi",
 	      "citation": "Zhang, H., et al. (2012). NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage, 61(4), 1000-1016. 10.1016/j.neuroimage.2012.03.072",
         "note": [
-          "% *Note 1:*",
+          "%% Note-1",
           "% ",
           "% Section |2.b.1| is disabled for this model on purpose. The |amico| protocol contains a relatively larger matrix (|109x7|) of",
           "% parameters, which is not favorable for including in the documentation in text form."
@@ -320,7 +383,7 @@
       {
         "model": "qsm_sb",
         "note": [
-                 "%% ",
+                 "%% 5.a.1 BIDS",
                  "% <html>",
                  "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
                  "% </html>",
@@ -335,16 +398,18 @@
                  "%   |== derivatives/",
                  "%   |~~~~~~ qMRLab/",
                  "%   |---------- dataset_description.json",
-                 "%   |~~~~~~~~~~ sub-01/",
+                 "%   |~~~~~~~~~~ sub-01/anat/",
                  "%   |-------------- sub-01_Chimap.nii.gz",
                  "%   |-------------- sub-01_Chimap.json",
                  "%   |~~~~~~ pipeline/",
                  "%   |---------- dataset_description.json",
-                 "%   |~~~~~~~~~~ sub-01/",
+                 "%   |~~~~~~~~~~ sub-01/anat/",
                  "%   |-------------- sub-01_label-brain_mask.nii.gz",
                  "%   |-------------- sub-01_label-brain_mask.json",
                  "% ",
-                 "% *Note 1:*",
+                 "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>.",
+                 "% ",
+                 "%% 5.a.2 Note-1",
                  "% ",
                  "% To make documentation generation and our CI tests faster for this model,",
                  "% we used a subportion of the data |40x40x40| in our testing environment.",
@@ -357,7 +422,7 @@
                  "% When the command above is called from MATLAB/Octave by the user, the complete high resolution (|0.6mm iso| resolution) dataset",
                  "% (|384x336x224| dimensions) will be downloaded.",
                  "% ",
-                 "% *Note 2:*",
+                 "%% 5.a.3 Note-2",
                  "% ",
                  "% * |L1 regularization| is performed as a sub-process to |Split-Bregman| regularization. Therefore, L1 (lambda) reoptimization panel is enabled only when |Split-Bregman| is activated. The |Chimap| (inn ppm) calculated upon this selection are |chiSB| and |chiL2|.",
                  "% * Unlike |L1|, |L2 regularization| can be run independently. The |Chimap| (in ppm) calculated upon this selection is |chiL2|.",
@@ -365,11 +430,49 @@
                  "% * A susceptibility map can be also generated without regularization. For this selection, the output |Chimap| is |nfm|, which is displayed as an example in this page.",
                  "% * Unwrapped phase images are provided in the output: |unwrappedPhase|.",
                  "%",
-                 "% *Note 3:*",
+                 "%% 5.a.4 Note-3",
                  "%",
                  "% Full dataset and the original code are available <https://www.dropbox.com/s/expg1i1emrwdegn/Fast_QSM_Magnitude_Toolbox.zip?dl=0 here.>"
                 ],
 	       "citation": "Bilgic, B., et al. (2014). Fast quantitative susceptibility mapping with L1-regularization and automatic parameter selection. Magnetic Resonance in Medicine, 72(5), 1444-1459. 10.1002/mrm.25029"
+      },
+      {
+        "model": "mtv",
+        "note": [
+                 "%% 5.a.1 BIDS",
+                 "% <html>",
+                 "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
+                 "% </html>",
+                 "%% ",
+                 "% ",
+                 "%   |== sub-01/",
+                 "%   |~~~~~~ anat/",
+                 "%   |---------- sub-01_flip-1_VFA.json",
+                 "%   |---------- sub-01_flip-1_VFA.nii.gz",
+                 "%   |---------- sub-01_flip-2_VFA.json",
+                 "%   |---------- sub-01_flip-2_VFA.nii.gz",
+                 "%   |---------- .",
+                 "%   |---------- .",
+                 "%   |---------- sub-01_flip-N_VFA.json",
+                 "%   |---------- sub-01_flip-N_VFA.nii.gz",
+                 "%   |",
+                 "%   |== derivatives/",
+                 "%   |~~~~~~ qMRLab/",
+                 "%   |---------- dataset_description.json",
+                 "%   |~~~~~~~~~~ sub-01/anat/",
+                 "%   |-------------- sub-01_T1map.nii.gz",
+                 "%   |-------------- sub-01_T1map.json",
+                 "%   |-------------- sub-01_M0map.nii.gz",
+                 "%   |-------------- sub-01_M0map.json",
+                 "%   |-------------- sub-01_MTVmap.nii.gz (Not defined in BIDS yet)",
+                 "%   |-------------- sub-01_MTVmap.json",
+                 "%   |~~~~~~ pipeline/",
+                 "%   |---------- dataset_description.json",
+                 "%   |~~~~~~~~~~ sub-01/anat/",
+                 "%   |-------------- sub-01_label-brain_mask.nii.gz",
+                 "%   |-------------- sub-01_label-brain_mask.json"
+                ],
+	       "citation": "Mezer A, Yeatman JD, Stikov N, Kay KN, Cho NJ, Dougherty RF, Perry ML, Parvizi J, Hua le H, Butts-Pauly K, Wandell BA. Quantifying the local tissue volume and composition in individual brains with magnetic resonance imaging. Nat Med. 2013"
       }
     ]
 }
