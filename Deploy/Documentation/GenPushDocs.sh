@@ -21,37 +21,31 @@ else # User will pass qMRLab path
     GITHUB_NAME=$3
 fi
 
-echo "Compiling for version: $version"
+echo "Generating documentation: $version"
 
-nbRoot=/tmp/qMRLabJNB
-nbSub=$nbRoot/notebooks
+docRoot=/tmp/docGen
+docDir=$docRoot/documentation
 
 # Crate tmp directory
-mkdir -p $nbSub
-
+mkdir -p $docRoot
+cd $docRoot
+git clone https://github.com/qMRLab/documentation.git
+cd $docDir
 NOW=$(date +"%m_%d_%Y_%H_%M")
-branchName=$version$NOW
-
-
-matlab -nodisplay -nosplash -r "cd('$qMRdir'); startup; qMRdeployJNB('$nbRoot'); exit;"
-
-
-# Cherry pick notebooks and move them 
-find $nbRoot -name '*.ipynb*' -exec mv {} $nbSub \;
-
-cd $nbSub
-git clone https://github.com/qMRLab/doc_notebooks.git
-
-# Move new notebooks to repo
-mv -v $nbSub/* $nbSub/doc_notebooks
-
-cd $nbSub/doc_notebooks
+declare -xp
+echo $PATH
+# Generate a branch on the documentation repo that has the same 
+# qMRLab branch name.
+git checkout -b $BUILD_SOURCEBRANCH
+# Generate new documentation sources in this new branch
+# we also pass $PATH variable so that matlab knows which py to use
+matlab -batch "cd('$qMRdir'); startup; GenerateDocumentation('$docDir','$PATH'); exit;"
+cd $docDir
+git status
 git config user.email "$GITHUB_MAIL"
 git config user.name "$GITHUB_NAME"
 git add .
-git commit -m "For $version on $NOW"
-git tag -a "$version" -m "version $version"
-git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git -f
-git push https://$GITHUB_TOKEN@github.com/qMRLab/doc_notebooks.git --tags
+git commit -m "$BUILD_SOURCEBRANCH commit $BUILD_SOURCEVERSION"
+git push https://$GITHUB_TOKEN@github.com/qMRLab/documentation.git $BUILD_SOURCEBRANCH -f
 # Remove temporary files 
-rm -rf /tmp/qMRLabJNB
+rm -rf $docRoot

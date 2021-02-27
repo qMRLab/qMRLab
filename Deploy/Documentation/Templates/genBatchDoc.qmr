@@ -48,23 +48,25 @@ Model = *-modelName-*;
 %%
 % <html>
 % <div class="warning">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for further information. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> See the <a href="#36">generic notes</a> section below for further information. </p>
 % </div>
 % </html>
 
 %% 2.b.2 Set |protocol| and |options| _the GUI way_
 %%
 % The following command opens a panel to set |protocol| and |options| (if |GUI| is available to the user):
-
-Model = Custom_OptionsGUI(Model);
+%
+%   Model = Custom_OptionsGUI(Model);
 
 %%
-% _You need to close this window for the remaining of the script to proceed._
+% <<https://github.com/qMRLab/doc_images/blob/main/usr/protPanels/*-modelName-*.png?raw=true>>
+%
+% _If available, you need to close this panel for the remaining of the script to proceed._
 
 %%
 % <html>
 % <div class="warning">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Using this panel, you can save qMRLab protocol files that can be used in both interfaces. See the <a href="#21">generic notes</a> section below for details. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Using this panel, you can save qMRLab protocol files that can be used in both interfaces. See the <a href="#36">generic notes</a> section below for details. </p>
 % </div>
 % </html>
 
@@ -77,7 +79,7 @@ Model = Custom_OptionsGUI(Model);
 %%
 % <html>
 % <div class="info">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-umbrella" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for BIDS compatible wrappers and scalable <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  qMRLab workflows. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-umbrella" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#36">generic notes</a> section below for BIDS compatible wrappers and scalable <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  qMRLab workflows. </p>
 % </div>
 % </html>
 
@@ -95,7 +97,7 @@ data = struct();
 %%
 % <html>
 % <div class="danger">
-% <p style="margin:0px!important;"><strong><i class="fa fa-umbrella" style="color:red;margin-left:5px;"></i></strong> Visit the <a href="#21">generic notes</a> section below for instructions to accelerate fitting by <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parallelization using <code>ParFitData</code>. </p>
+% <p style="margin:0px!important;"><strong><i class="fa fa-umbrella" style="color:red;margin-left:5px;"></i></strong> Visit the <a href="#36">generic notes</a> section below for instructions to accelerate fitting by <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parallelization using <code>ParFitData</code>. </p>
 % </div>
 % </html>
 
@@ -150,20 +152,32 @@ Model.saveObj('my_*-modelName-*_config.qmrlab.mat');
 %% 4. Simulations
 
 %%     4.a. |Single Voxel Curve|
-% Simulates single voxel curves:
-%
-% # Analytically generate synthetic MRI data
-% # Add _rician_ noise
-% # |Fit| and |plot| the respective curve
+%%
+% <html>
+% <details>
+% <summary>Simulates single voxel curves</summary>
+% <ol>
+% <li>Analytically generate synthetic MRI data</li>
+% <li>Add <i>rician</i> noise</li>
+% <li><tt>Fit</tt> and <tt>plot</tt> the respective curve</li>
+% </ol>
+% </details>
+% </html>
 %
 % *-SingleVoxelCurve-*
 
 %% 4.b. |Sensitivity Analysis|
-% Simulates sensitivity to fitted parameters:
-%
-% # Iterate fitting parameters from lower (|lb|) to upper (|ub|) bound
-% # Run |Sim_Single_Voxel_Curve| for |Nofruns| times
-% # Compute the |mean| and |std| across runs
+%%
+% <html>
+% <details>
+% <summary>Simulates sensitivity to fitted parameters</summary>
+% <ol>
+% <li>Iterate fitting parameters from lower (<tt>lb</tt>) to upper (<tt>ub</tt>) bound</li>
+% <li>Run <tt>Sim_Single_Voxel_Curve</tt> for <tt>Nofruns</tt> times</li>
+% <li>Compute the <tt>mean</tt> and <tt>std</tt> across runs</li>
+% </ol>
+% </details>
+% </html>
 %
 % *-SensitivityAnalysis-*
 

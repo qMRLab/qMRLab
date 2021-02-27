@@ -3,8 +3,8 @@
       {
         "type": "fixed",
         "note": [
-          "%%     5.b.1. Batch friendly |option| and |protocol| conventions",
-          "% If you would like to load a desired set of |options|/|protocols| programatically,",
+          "%%   5.b.1. Batch friendly |option| and |protocol| conventions",
+          "% If you would like to load a desired set of |options| / |protocols| programatically,",
           "% you can use |*.qmrlab.mat| files. To save a configuration from the |protocol| panel",
           "% of |*-modelName-*|, first open the respective panel by running the following command ",
           "% in your MATLAB command window (MATLAB only):",
