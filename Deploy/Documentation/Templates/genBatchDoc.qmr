@@ -48,7 +48,7 @@ Model = *-modelName-*;
 %%
 % <html>
 % <div class="warning">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for further information. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> See the <a href="#36">generic notes</a> section below for further information. </p>
 % </div>
 % </html>
 
@@ -66,7 +66,7 @@ Model = *-modelName-*;
 %%
 % <html>
 % <div class="warning">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Using this panel, you can save qMRLab protocol files that can be used in both interfaces. See the <a href="#21">generic notes</a> section below for details. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> Using this panel, you can save qMRLab protocol files that can be used in both interfaces. See the <a href="#36">generic notes</a> section below for details. </p>
 % </div>
 % </html>
 
@@ -79,7 +79,7 @@ Model = *-modelName-*;
 %%
 % <html>
 % <div class="info">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-umbrella" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#21">generic notes</a> section below for BIDS compatible wrappers and scalable <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  qMRLab workflows. </p>
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-umbrella" style="color:navy;margin-left:5px;"></i></strong> See the <a href="#36">generic notes</a> section below for BIDS compatible wrappers and scalable <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  qMRLab workflows. </p>
 % </div>
 % </html>
 
@@ -97,7 +97,7 @@ data = struct();
 %%
 % <html>
 % <div class="danger">
-% <p style="margin:0px!important;"><strong><i class="fa fa-umbrella" style="color:red;margin-left:5px;"></i></strong> Visit the <a href="#21">generic notes</a> section below for instructions to accelerate fitting by <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parallelization using <code>ParFitData</code>. </p>
+% <p style="margin:0px!important;"><strong><i class="fa fa-umbrella" style="color:red;margin-left:5px;"></i></strong> Visit the <a href="#36">generic notes</a> section below for instructions to accelerate fitting by <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parallelization using <code>ParFitData</code>. </p>
 % </div>
 % </html>
 
