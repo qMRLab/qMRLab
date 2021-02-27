@@ -26,7 +26,7 @@
         "note": [
           "% *Note 1:*",
           "% ",
-          "% Detailed information about |mp2rage| protocol settings is available <protocols#mp2rage here>.",
+          "% Further details about |mp2rage| protocol settings are available <protocols.html#mp2rage here>.",
           "% ",
           "% Original repository: <https://github.com/JosePMarques/MP2RAGE-related-scripts https://github.com/JosePMarques/MP2RAGE-related-scripts>"
           
@@ -84,6 +84,25 @@
       {
         "model": "qsm_sb",
         "note": [
+                 "% <<https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true>>",
+                 "% ",
+                 "%   |-- sub-01/",
+                 "%       |-- anat/",
+                 "%           |-- sub-01_T1w.json",
+                 "%           |-- sub-01_part-mag_T1w.json",
+                 "%           |-- sub-01_part-phase_T1w.json",
+                 "%   |-- derivatives/",
+                 "%       |-- qMRLab/",
+                 "%           |-- dataset_description.json",
+                 "%           |-- sub-01/",
+                 "%               |-- sub-01_Chimap.nii.gz",
+                 "%               |-- sub-01_Chimap.json",
+                 "%       |-- pipeline/",
+                 "%           |-- dataset_description.json",
+                 "%           |-- sub-01/",
+                 "%               |-- sub-01_label-brain_mask.nii.gz",
+                 "%               |-- sub-01_label-brain_mask.json",
+                 "% ",
                  "% *Note 1:*",
                  "% ",
                  "% To make documentation generation and our CI tests faster for this model,",
@@ -104,6 +123,8 @@
                  "% * When the |magnitude weighting| optio`n is enbled, associated the output maps attains an |M| suffix: |chiL2M| or |chiSBM|.",
                  "% * A susceptibility map can be also generated without regularization. For this selection, the output |Chimap| is |nfm|, which is displayed as an example in this page.",
                  "% * Unwrapped phase images are provided in the output: |unwrappedPhase|.",
+                 "%",
+                 "% *Note 3:*",
                  "%",
                  "% Full dataset and the original code are available <https://www.dropbox.com/s/expg1i1emrwdegn/Fast_QSM_Magnitude_Toolbox.zip?dl=0 here>"
                 ],

@@ -6,21 +6,31 @@ classdef qsm_sb < AbstractModel
 % (1) Case - Split-Bregman:
 %       i)  W/ magnitude weighting:  chiSBM, chiL2M, chiL2, unwrappedPhase, maskOut
 %       ii) W/O magnitude weighting: chiSM, chiL2, unwrappedPhase, maskOut
+%
 % (2) Case - L2 Regularization:
 %       i)  W/ magnitude weighting:  chiL2M, chiL2, unwrappedPhase, maskOut
 %       ii) W/O magnitude weighting: chiL2, unwrappedPhase, maskOut
+%
 % (3) Case - No Regularization: 
 %       i) Magnitude weighting is not enabled: nfm, unwrappedPhase, maskOut
 % Inputs:
-%   PhaseGRE      3D GRE acquisition. <<Wrapped phase image>>
-%   (MagnGRE)     3D GRE acquisition. <<Magnitude part of the image>> (OPTIONAL)
-%   Mask          Brain extraction mask.
+%   PhaseGRE        3D GRE acquisition. |Wrapped phase image|
+%   (MagnGRE)       3D GRE acquisition. |Magnitude part of the image| (OPTIONAL)
+%   Mask            Brain extraction mask.
 %
 % Outputs:
-%   chiSBM          Susceptibility map created using Split-Bregman method with magnitude weighting 
-%   chiSB           Susceptibility map created using Split-Bregman method without magnitude weighting.
-%   chiL2M          Susceptibility map created using L2 regularization with magnitude weighting
-%   chiL2           Susceptibility map created using L2 regularization without magnitude weighting
+%   chiSBM          Susceptibility map created using Split-Bregman method with 
+%                   magnitude weighting
+%
+%   chiSB           Susceptibility map created using Split-Bregman method without
+%                   magnitude weighting.
+%
+%   chiL2M          Susceptibility map created using L2 regularization with 
+%                   magnitude weighting
+%
+%   chiL2           Susceptibility map created using L2 regularization without 
+%                   magnitude weighting
+%
 %   nfm             Susceptibility map created without regularization
 %   unwrappedPhase  Unwrapped phase image using Laplacian-based method
 %   maskOut         Binary mask (maskSharp, gradientMask or same as the input)
@@ -29,23 +39,27 @@ classdef qsm_sb < AbstractModel
 %   Derivative direction               Direction of the derivation 
 %                                        - forward 
 %                                        - backward
+%
 %   SHARP Filtering                    Sophisticated harmonic artifact reduction for phase data
 %                                        - State: true/false
 %                                        - Mode: once/iterative 
 %                                        - Padding Size: [1X3 array]
 %                                        - Magnitude Weighting: on/off
+%
 %   L1-Regularization                  Apply L1-regularization 
 %                                        - State: true/false
 %                                        - Reoptimize parameters:
 %                                        true/false
 %                                        - Lambda-L1: [double]
 %                                        - L1-Range:  [1X2 array]
+%
 %   L2-Regularization                  Apply L2-regularization 
 %                                        - State: true/false
 %                                        - Reoptimize parameters:
 %                                        true/false
 %                                        - Lambda-L2: [double]
 %                                        - L2-Range:  [1X2 array]
+%
 %   Split-Bregman                       Apply Split-Bregman method 
 %                                        - State: true/false
 %                                        - Reoptimize parameters:

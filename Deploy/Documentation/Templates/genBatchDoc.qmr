@@ -152,20 +152,30 @@ Model.saveObj('my_*-modelName-*_config.qmrlab.mat');
 %% 4. Simulations
 
 %%     4.a. |Single Voxel Curve|
-% Simulates single voxel curves:
-%
-% # Analytically generate synthetic MRI data
-% # Add _rician_ noise
-% # |Fit| and |plot| the respective curve
+%%
+% <html>
+% <details>
+% <summary>Simulates single voxel curves</summary>
+% <ol>
+% <li>Analytically generate synthetic MRI data</li>
+% <li>Add <i>rician</i> noise</li>
+% <li><tt>Fit</tt> and <tt>plot</tt> the respective curve</li>
+% </ol>
+% </html>
 %
 % *-SingleVoxelCurve-*
 
 %% 4.b. |Sensitivity Analysis|
-% Simulates sensitivity to fitted parameters:
-%
-% # Iterate fitting parameters from lower (|lb|) to upper (|ub|) bound
-% # Run |Sim_Single_Voxel_Curve| for |Nofruns| times
-% # Compute the |mean| and |std| across runs
+%%
+% <html>
+% <details>
+% <summary>Simulates sensitivity to fitted parameters</summary>
+% <ol>
+% <li>Iterate fitting parameters from lower (<tt>lb</tt>) to upper (<tt>ub</tt>) bound</li>
+% <li>Run <tt>Sim_Single_Voxel_Curve</tt> for <tt>Nofruns</tt> times</li>
+% <li>Compute the <tt>mean</tt> and <tt>std</tt> across runs</li>
+% </ol>
+% </html>
 %
 % *-SensitivityAnalysis-*
 
