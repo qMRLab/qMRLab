@@ -105,7 +105,7 @@ function Fit = ParFitData(data, Model,varargin)
 % -------------------------------------------------------------------------
 
 p = inputParser();
-preferences = json2struct(fullfile(fileparts(which('qMRLab')),'usr','preferences.json'));
+preferences = getUserPreferences();
 
 %Input parameters conditions
 validData  = @(x) exist('x','var') && isstruct(x);

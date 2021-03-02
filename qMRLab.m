@@ -82,7 +82,7 @@ if ~isfield(handles,'opened') % qMRI already opened?
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
-    usrpreferences = json2struct(fullfile(qMRLabDir,'usr','preferences.json'));
+    usrpreferences = getUserPreferences();
     handles.Default  = usrpreferences.GUIDefault.Method;
     if ~isdeployed
         if isempty(getenv('ISAZURE')) || ~str2double(getenv('ISAZURE')) 
@@ -381,9 +381,9 @@ function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
 qMRLabDir = fileparts(which(mfilename()));
-usrpreferences = json2struct(fullfile(qMRLabDir,'usr','preferences.json'));
+usrpreferences = getUserPreferences();
 usrpreferences.GUIDefault.Method = Method;
-savejson([],usrpreferences,fullfile(qMRLabDir,'usr','preferences.json'));
+saveUserPreferences(usrpreferences);
 cprintf('magenta', '<< i >> %s has been updated to set <<%s>> as the new default qMRLab method in the GUI. \n',fullfile(qMRLabDir,'usr','preferences.json'),Method);
 
 function PanelOn(panel, handles)
