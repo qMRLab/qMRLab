@@ -82,10 +82,9 @@ if ~isfield(handles,'opened') % qMRI already opened?
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
-    if isdeployed
-        handles.Default = fullfile(qMRLabDir,'DefaultMethod.mat');
-    else
-        handles.Default = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
+    usrpreferences = json2struct(fullfile(qMRLabDir,'usr','preferences.json'));
+    handles.Default  = usrpreferences.GUIDefault.Method;
+    if ~isdeployed
         if isempty(getenv('ISAZURE')) || ~str2double(getenv('ISAZURE')) 
             ISAZURE=false; 
         else
@@ -138,9 +137,10 @@ if ~isfield(handles,'opened') % qMRI already opened?
     
     
     SetAppData(FileBrowserList);
-    if exist(handles.Default,'file')
-        load(handles.Default);
+    if ischar(handles.Default)
+        Method = handles.Default;
     else
+        % If there's something wrong set default to inv rec
         Method = 'inversion_recovery';
     end
 else
@@ -380,7 +380,11 @@ end
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
-save(handles.Default,'Method');
+qMRLabDir = fileparts(which(mfilename()));
+usrpreferences = json2struct(fullfile(qMRLabDir,'usr','preferences.json'));
+usrpreferences.GUIDefault.Method = Method;
+savejson([],usrpreferences,fullfile(qMRLabDir,'usr','preferences.json'));
+cprintf('magenta', '<< i >> %s has been updated to set <<%s>> as the new default qMRLab method in the GUI. \n',fullfile(qMRLabDir,'usr','preferences.json'),Method);
 
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
