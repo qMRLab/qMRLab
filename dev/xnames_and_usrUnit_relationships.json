@@ -1,0 +1,130 @@
+{
+    "Time": 
+    {
+        "xnames":
+            [
+                "T1",
+                "T1map",
+                "T2",
+                "T2map",
+                "T2IEW",
+                "T2MW",
+                "T2f",
+                "T2r"
+            ],
+        "qMapNames":
+            [
+                "Longitidunal relaxation time (T1) map",
+                "Longitidunal relaxation time (T1) map",
+                "Transverse relaxation time (T1) map",
+                "Transverse relaxation time (T1) map",
+                "Spin relaxation time (T2) for intra/extracellular water (IEW)",
+                "Spin relaxation time (T2) myelin water (MW)",
+                "Tranverse relaxation time (T2) of the free (f) pool",
+                "Tranverse relaxation time (T2) of the restricted (r) pool"
+
+            ]
+    },
+
+    "Rate":
+    { 
+        "xnames":
+            [   
+                "R1",
+                "R1r",
+                "R1f",
+                "kf",
+                "kr"
+            ],
+        "qMapNames":
+            [
+                "Longitidunal relaxation rate (R1) map",
+                "Longitidunal relaxation rate (R1) of the restricted (r) pool",
+                "Longitidunal relaxation rate (R1) of the free (f) pool",
+                "Exchange rate from the restricted to the free pool (kf: r --> f)",
+                "Exchange rate from the free to the restricted pool (kr: f --> r)"
+            ]
+    },
+
+    "Fraction": 
+    [
+        "MTR",
+        "MWF",
+        "F",
+        "Sf",
+        "Sr",
+        "ficv",
+        "fiso",
+        "fr",
+        "irfrac",
+        "fcsf",
+        "fh"
+
+    ],
+
+    "B1": 
+    [
+        "B1map_raw",
+        "B1map_filtered"
+    ],
+
+    "B0": [
+        "B0map"
+    ],
+
+    "MagnSusceptibility":
+    [
+        "chiSB",
+        "chiSBM",
+        "chiL2",
+        "chiL2M",
+        "nfm"
+    ],
+
+    "Phase":
+    [
+        "unwrappedPhase"
+    ],
+
+    "Diffusivity":
+    [
+        "di",
+        "diso",
+        "Dh"
+    ],
+
+    "Orientation":
+    [
+        "theta",
+        "phi"
+    ],
+    
+    "Arbitrary":
+    [
+        "kappa",
+        "b0",
+        "residue",
+        "L1",
+        "L2",
+        "L3",
+        "FA",
+        "S0_TE%02d",
+        "spurious",
+        "MTSAT",
+        "M0f",
+        "M0r",
+        "M0",
+        "resnorm",
+        "rb",
+        "ra",
+        "res",
+        "MP2RAGEcor",
+        "MTV",
+        "CoilGain"
+    ],
+    "Categorical":
+    [
+        "seg",
+        "idx"
+    ]
+}

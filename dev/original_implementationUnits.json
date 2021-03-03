@@ -258,14 +258,16 @@
         {
             "MTData":
                 {
-                    "Ti": "second",
-                    "Td": "second"
+                    "Angle": "degree",
+                    "Offset": "hertz"
                 },
-            "FSESequence":
+            "TimingTable":
             {
-                "Trf": "second",
+                "Tmt": "second",
+                "Ts": "second",
+                "Tp": "second",
                 "Tr": "second",
-                "Npulse": "arbitrary"
+                "TR":"second"
             }
         },
         "Outputs":
@@ -439,21 +441,24 @@
 	},
 
     "model_name": {
-		"InputProtUnits": {
-        "ParentFieldNameA":
+		"InputDataUnits": {
+            "inputmapname": "unit-type"
+        },
+        "InputProtUnits": {
+            "ParentFieldNameA":
+                {
+                    "parameternamex": "unit-type",
+                    "parameternamey": "unit-type"
+                },
+            "ParentFieldNameB":
             {
-                "parameternamex": "unit-name",
-                "parameternamey": "unit-name"
-            },
-        "ParentFieldNameB":
-        {
-            "parameternamep": "unit-name",
-            "parameternameq": "unit-name"
-        }
+                "parameternamep": "unit-type",
+                "parameternameq": "unit-type"
+            }
         },
         "Outputs":{
-            "outputfieldnamex": "unit-name",
-            "outputfieldnamey": "unit-name"
+            "outputfieldnamex": "unit-type",
+            "outputfieldnamey": "unit-type"
         }
 	}
 }

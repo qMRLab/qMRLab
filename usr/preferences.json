@@ -8,7 +8,8 @@
 		"Granularity": 3,
 		"RemoveTmpOnSuccess": 1
 	},
-	"OutputMapUnits": {
+	"UnifyOutputMapUnits": {
+		"Enabled": false,
 		"Time": "second",
 		"Rate": "reciprocal-second",
 		"Fraction": "fraction-decimal",
@@ -18,5 +19,27 @@
 		"UnwrappedPhase":"radian",
 		"Diffusivity": "square-meter-per-second"
 	},
-	"SaveProvenance": 1
+	"UnifyInputProtocolUnits": {
+		"Enabled": false,
+		"EchoTime": "second",
+		"RepetitionTime": "second",
+		"InversionTime": "second",
+		"FlipAngle": "degree",
+		"MTOffsetFrequency": "megahertz",
+		"MagneticFieldStrength": "tesla",
+		"GradientMagnitude": "tesla-per-meter",
+		"Resolution": "millimeter",
+		"DiffusionSeparationDelta": "second",
+		"DiffusionDurationDelta": "second"
+	},
+	"ModifyInputMapUnits": {
+		"Enabled": false,
+		"Time": "second",
+		"Rate": "reciprocal-second",
+		"B1": "relative-scaling-factor-1",
+		"B0": "offset-factor-hertz",
+		"Phase":"radian"
+	},
+	"SaveProvenance": true,
+	"SaveReciprocalMaps": false
 }

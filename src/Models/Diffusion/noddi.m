@@ -43,7 +43,7 @@ classdef noddi < AbstractModel
 %     Gx                Diffusion Gradient x
 %     Gy                Diffusion Gradient y
 %     Gz                Diffusion Gradient z
-%     Gnorm (T/m)         Diffusion gradient magnitude
+%     Gnorm (T/m)       Diffusion gradient magnitude
 %     Delta (s)         Diffusion separation
 %     delta (s)         Diffusion duration
 %     TE (s)            Echo time
