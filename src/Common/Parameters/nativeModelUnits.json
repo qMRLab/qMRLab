@@ -337,7 +337,7 @@
         "InputDataUnits":{
             "INV1phase": "radian",
             "INV2phase": "radian",
-            "B1map":"relative-scaling-factor-900"
+            "B1map":"relative-scaling-factor-1"
         },
         "InputProtUnits":
         {
