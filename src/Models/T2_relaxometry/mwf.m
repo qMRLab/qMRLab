@@ -4,11 +4,11 @@ classdef mwf < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   MET2data    Multi-Exponential T2 data
+%   MET2data      Multi-Exponential T2 data
 %   (Mask)        Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
-%   MWF       Myelin Wanter Fraction
+%   MWF       Myelin Water Fraction
 %   T2MW      Spin relaxation time for Myelin Water (MW) [ms]
 %   T2IEW     Spin relaxation time for Intra/Extracellular Water (IEW) [ms]
 %
@@ -17,7 +17,7 @@ classdef mwf < AbstractModel
 %   Sigma           Noise standard deviation. Currently not corrected for rician bias
 %   Relaxation Type
 %        'T2'       For a SE sequence
-%       'T2*'      For a GRE sequence
+%        'T2*'      For a GRE sequence
 %
 % Protocol:
 %  MET2data   [TE1 TE2 ...] % list of echo times [ms]

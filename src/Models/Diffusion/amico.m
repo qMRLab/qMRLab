@@ -32,8 +32,8 @@ classdef amico < noddi
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
 %   kappa               Orientation dispersion index
 %   b0                  Signal at b=0
-%   theta               angle of the fibers
-%   phi                 angle of the fibers
+%   theta               Inclination angle of the fibers
+%   phi                 Azimuth angle of the fibers
 %
 % Protocol:
 %   Multi-shell diffusion-weighted acquisition

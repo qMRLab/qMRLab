@@ -5,8 +5,8 @@ classdef mp2rage < AbstractModel
 % N/A
 % Inputs:
 %   (MP2RAGE)       MP2RAGE UNI image.
-%   (B1map)         Normalized transmit excitation field map (B1+). B1+ is defined 
-%                   as a  normalized multiplicative factor such that:
+%   (B1map)         Transmit excitation field map (B1+) with a relative
+%                   scaling factor of 900.
 %                   FA_actual = B1+ * FA_nominal. (OPTIONAL).
 %   (Mask)          Binary mask to a desired region (OPTIONAL).
 %   (INV1mag)       Magnitude image from the first GRE readout (OPTIONAL).

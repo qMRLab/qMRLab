@@ -1,0 +1,459 @@
+{
+	"amico": {
+		"InputProtUnits": 
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "GNorm": "tesla-per-meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "di": "square-meter-per-second",
+            "ficv": "fraction-decimal",
+            "fiso": "fraction-decimal",
+            "fr": "fraction-decimal",
+            "irfrac": "fraction-decimal",
+            "diso": "square-meter-per-second",
+            "kappa": "arbitrary",
+            "b0":"arbitrary",
+            "theta": "radian",
+            "phi": "radian"
+        }
+	},
+
+    "charmed": {
+		"InputProtUnits":
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "GNorm": "tesla-per-meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "fr": "fraction-decimal",
+            "Dh": "square-meter-per-second",
+            "diameter_mean": "micrometer",
+            "fcsf": "fraction-decimal",
+            "lc": "arbitrary",
+            "fh": "fraction-decimal",
+            "residue": "arbitrary"
+        }
+	},
+
+    "dti": {
+		"InputProtUnits":
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "GNorm": "tesla-per-meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "D": "tensor",
+            "L1": "arbitrary",
+            "L2": "arbitrary",
+            "L3": "arbitrary",
+            "FA": "arbitrary",
+            "S0_TE%02d": "arbitrary",
+            "residue": "arbitrary"
+        }
+	},
+
+	"noddi": {
+		"InputProtUnits": 
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "GNorm": "tesla-per-meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "di": "square-meter-per-second",
+            "ficv": "fraction-decimal",
+            "fiso": "fraction-decimal",
+            "fr": "fraction-decimal",
+            "irfrac": "fraction-decimal",
+            "diso": "square-meter-per-second",
+            "kappa": "arbitrary",
+            "b0":"arbitrary",
+            "theta": "radian",
+            "phi": "radian"
+        }
+	},
+
+    "b0_dem": {
+		"InputProtUnits": 
+        {
+        "TimingTable":
+            {
+                "deltaTE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "B0map": "offset-factor-hertz"
+        }
+	},
+
+    "b1_afi": {
+		"InputProtUnits":
+        {
+        "Sequence":
+            {
+                "nomFA": "degree",
+                "TR1": "milliseconds",
+                "TR2": "milliseconds"
+            }
+        },
+        "Outputs":
+        {
+            "B1map_raw": "relative-scaling-factor-1",
+            "B1map_filtered": "relative-scaling-factor-1",
+            "spurious": "arbitrary"
+        }
+	},
+
+    "b1_dam": {
+		"InputProtUnits":
+        {
+        "Alpha":
+            {
+                "FlipAngle": "degree"
+            }
+        },
+        "Outputs":
+        {
+            "B1map_raw": "relative-scaling-factor-1",
+            "B1map_filtered": "relative-scaling-factor-1",
+            "spurious": "arbitrary"
+        }
+	},
+
+    "mt_ratio": {
+        "Outputs":
+        {
+            "MTR": "fraction-percent"
+        }
+	},
+
+    "mt_sat": {
+        "InputProtUnits":
+        {
+        "MTw":
+            {
+                "FlipAngle": "degree",
+                "TR": "second"
+            },
+        "T1w":
+        {
+            "FlipAngle": "degree",
+            "TR": "second"
+        },
+        "PDw":
+        {
+            "FlipAngle": "degree",
+            "TR": "second"
+        }
+        },
+        "Outputs":
+        {
+            "MTSAT": "arbitrary",
+            "T1": "second"
+        }
+	},
+
+    "qmt_bssfp": {
+        "InputDataUnits":{
+            "R1map": "reciprocal-second"
+        },
+        "InputProtUnits":
+        {
+        "MTData":
+            {
+                "Alpha": "degree",
+                "Trf": "second"
+            }
+        },
+        "Outputs":
+        {
+            "F": "fraction-decimal",
+            "R1f": "reciprocal-second",
+            "R1r": "reciprocal-second",
+            "kf": "reciprocal-second",
+            "kr": "reciprocal-second",
+            "T2f": "second",
+            "M0f": "arbitrary",
+            "M0r": "arbitrary"
+        }
+	},
+
+    "qmt_sirfse": {
+        "InputDataUnits":{
+            "R1map": "reciprocal-second"
+        },
+        "InputProtUnits":
+        {
+        "MTData":
+            {
+                "Ti": "second",
+                "Td": "second"
+            },
+        "FSESequence":
+            {
+                "Trf": "second",
+                "Tr": "second",
+                "Npulse": "arbitrary"
+            }
+        },
+        "Outputs":
+        {
+            "F": "fraction-decimal",
+            "R1f": "reciprocal-second",
+            "R1r": "reciprocal-second",
+            "kf": "reciprocal-second",
+            "kr": "reciprocal-second",
+            "Sf": "fraction-decimal",
+            "Sr": "fraction-decimal",
+            "M0f": "arbitrary",
+            "M0r": "arbitrary",
+            "resnorm": "arbitrary"
+        }
+	},
+
+    "qmt_spgr": {
+        "InputDataUnits":{
+            "R1map": "reciprocal-second",
+            "B1map": "relative-scaling-factor-1",
+            "B0map": "offset-factor-hertz"
+        },
+        "InputProtUnits":
+        {
+            "MTData":
+                {
+                    "Ti": "second",
+                    "Td": "second"
+                },
+            "FSESequence":
+            {
+                "Trf": "second",
+                "Tr": "second",
+                "Npulse": "arbitrary"
+            }
+        },
+        "Outputs":
+        {
+            "F": "fraction-decimal",
+            "R1f": "reciprocal-second",
+            "R1r": "reciprocal-second",
+            "T2f": "second",
+            "T2r": "second",
+            "kf": "reciprocal-second",
+            "kr": "reciprocal-second",
+            "resnorm": "arbitrary"
+        }
+	},
+
+    "qsm_sb": {
+        "InputProtUnits":
+        {
+            "Resolution":
+                {
+                    "xDim": "millimeter",
+                    "yDim": "millimeter",
+                    "zDim": "millimeter"
+                },
+            "Timing":
+            {
+                "TE": "second"
+            },
+            "Magnetization":
+            {
+                "FieldStrength": "tesla",
+                "CentralFreq": "megahertz"
+            }
+        },
+        "Outputs":
+        {
+            "chiSB": "part-per-million",
+            "chiSBM": "part-per-million",
+            "chiL2": "part-per-million",
+            "chiL2M": "part-per-million",
+            "nfm": "part-per-million",
+            "unwrappedPhase": "radian"
+        }
+	},
+
+    "inversion_recovery": {
+        "InputProtUnits":
+        {
+            "IRData":
+                {
+                    "TI": "millisecond"
+                },
+            "TimingTable":
+            {
+                "TR": "millisecond"
+            }
+        },    
+        "Outputs":
+        {
+            "T1": "millisecond",
+            "rb": "arbitrary",
+            "ra": "arbitrary",
+            "res": "arbitrary",
+            "idx": "categorical"
+        }
+	},
+
+    "mp2rage": {
+        "InputDataUnits":{
+            "INV1phase": "radian",
+            "INV2phase": "radian",
+            "B1map":"relative-scaling-factor-900"
+        },
+        "InputProtUnits":
+        {
+            "Hardware":
+                {
+                    "B0": "tesla"
+                },
+            "RepetitionTime":
+            {
+                "Inv": "second",
+                "Exc": "second"
+            },
+            "Timing":
+            {
+                "InversionTimes": "second"
+            },
+            "Sequence":
+            {
+                "FlipAngles": "degree"
+            },
+            "NumberOfShots":
+            {
+                "Pre": "arbitrary",
+                "Post": "arbitrary"
+            }
+        },    
+        "Outputs":
+        {
+            "T1": "second",
+            "R1": "reciprocal-second",
+            "MP2RAGEcor": "arbitrary"
+        }
+	},
+
+    "mtv": {
+        "InputDataUnits":
+        {
+            "T1": "second",
+            "M0": "arbitrary"
+        },    
+        "Outputs":
+        {
+            "MTV": "arbitrary",
+            "CoilGain": "arbitrary",
+            "CSF": "boolean",
+            "seg": "categorical"
+        }
+	},
+
+    "vfa_t1": {
+        "InputDataUnits":
+        {
+            "B1map": "relative-scaling-factor-1"
+        },
+        "InputProtUnits":
+        {
+            "VFAData":
+                {
+                    "FlipAngle": "degree",
+                    "TR":"second"
+                }
+        },    
+        "Outputs":
+        {
+            "T1": "second",
+            "M0": "arbitrary"
+        }
+	},
+
+    "mono_t2": {
+        "InputProtUnits":
+        {
+            "SEData":
+                {
+                    "EchoTime": "millisecond"
+                }
+        },    
+        "Outputs":
+        {
+            "T2": "millisecond",
+            "M0": "arbitrary"
+        }
+	},
+
+    "mwf": {
+        "InputProtUnits":
+        {
+            "MET2Data":
+                {
+                    "EchoTime": "millisecond"
+                }
+        },    
+        "Outputs":
+        {   
+            "MWF":"fraction-percent",
+            "T2IEW": "millisecond",
+            "T2MW": "millisecond"
+        }
+	},
+
+    "model_name": {
+		"InputProtUnits": {
+        "ParentFieldNameA":
+            {
+                "parameternamex": "unit-name",
+                "parameternamey": "unit-name"
+            },
+        "ParentFieldNameB":
+        {
+            "parameternamep": "unit-name",
+            "parameternameq": "unit-name"
+        }
+        },
+        "Outputs":{
+            "outputfieldnamex": "unit-name",
+            "outputfieldnamey": "unit-name"
+        }
+	}
+}
