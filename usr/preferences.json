@@ -8,11 +8,15 @@
 		"Granularity": 3,
 		"RemoveTmpOnSuccess": 1
 	},
-	"SavedMapUnits": {
-		"Time": "seconds",
-		"RatioScale": "normalized",
-		"B1maps": "normalized",
-		"B0maps": "hertz"
+	"OutputMapUnits": {
+		"Time": "second",
+		"Rate": "reciprocal-second",
+		"Fraction": "fraction-decimal",
+		"B1": "relative-scaling-factor-1",
+		"B0": "offset-factor-hertz",
+		"MagnSusceptibility": "part-per-million",
+		"UnwrappedPhase":"radian",
+		"Diffusivity": "square-meter-per-second"
 	},
 	"SaveProvenance": 1
 }
