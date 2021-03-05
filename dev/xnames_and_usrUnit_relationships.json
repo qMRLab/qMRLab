@@ -64,17 +64,17 @@
             ],
 	"qMapNames":
             [
-		"Magnetization transfer ratio map (%)",
-		"Myelin Water Fraction",
-		"Ratio of number of restricted pool to free pool, defined as F = M0r/M0f = kf/kr",
-		"Instantaneous fraction of magnetization after vs. before the pulse in the free pool. Starting point is computed using Block simulation",
-		"Instantaneous fraction of magnetization after vs. before the pulse in the restricted pool. Starting point is computed using block simulation",
-		"Fraction of water in the restricted compartment",
-		"Fraction of water in the isotropic compartment (e.g. CSF/Veins)",
-		"Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction) fr = ficvf*(1-fiso)",
-		"Fraction of isotropically restricted compartment (Dot for ex vivo model)",
+		"Magnetization Transfer Ratio (MTR) map",
+		"Myelin Water Fraction (MWF) map",
+		"Ratio of number of restricted (r) pool to free (f) pool, defined as F = M0r/M0f = kf/kr",
+		"Instantaneous fraction of magnetization after vs. before the pulse in the free pool. Starting point is computed using Bloch simulation",
+		"Instantaneous fraction of magnetization after vs. before the pulse in the restricted pool. Starting point is computed using Bloch simulation",
+		"Fraction of water in the restricted compartment: (f)raction of (i)ntra (c)ellular (v)olume.",
+		"Fraction of water in the (iso)tropic compartment (for example, CSF/Veins)",
+		"Fraction of restricted (r) water in the entire voxel (for example, intra-cellular volume fraction) fr = ficvf*(1-fiso)",
+		"Fraction of isotropically restricted compartment (Dot for ex vivo model): (i)sotropic (r)estricted (frac)tion",
 		"Fraction of water in the CSF compartment. (fixed to 0 by default)",
-		"Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf"
+		"Fraction of water in the hindered (h) compartment, calculated as: 1 - fr - fcsf"
             ]
     },
 
@@ -87,7 +87,7 @@
             ],
 	"qMapNames":
             [
-		"Excitation (B1+) field map",
+		"RF transmit field (B1+) map",
 		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)"
             ]
     },
@@ -100,7 +100,7 @@
             ],
 	"qMapNames":
             [
-		"B0 field map [Hz]"
+		"Static main magnetic field (B0) inhomogeneity map"
             ]
     },
 
@@ -116,11 +116,11 @@
             ],
 	"qMapNames":
             [
-		"Susceptibility map created using Split-Bregman method without magnitude weighting",
-		"Susceptibility map created using Split-Bregman method with magnitude weighting"
-		"Susceptibility map created using L2 regularization without magnitude weighting",
-		"Susceptibility map created using L2 regularization with magnitude weighting",
-		"Susceptibility map created without regularization"
+		"Quantitative susceptibility map created using Split-Bregman method without magnitude weighting",
+		"Quantitative susceptibility map created using Split-Bregman method with magnitude weighting",
+		"Quantitative susceptibility map created using L2 regularization without magnitude weighting",
+		"Quantitative susceptibility map created using L2 regularization with magnitude weighting",
+		"Quantitative susceptibility map created without regularization"
             ]
     },
 
@@ -132,7 +132,7 @@
             ],
 	"qMapNames":
             [
-		"Unwrapped phase image using Laplacian-based method"
+		"Unwrapped phase image"
             ]
     },
 
@@ -148,7 +148,7 @@
             [
 		"Diffusion coefficient in the restricted compartment",
 		"Diffusion coefficient of the isotropic compartment (CSF)",
-		"Apparent diffusion coefficient of the hindered compartment"
+		"Apparent diffusion coefficient of the hindered (h) compartment"
             ]
     },
 
@@ -161,8 +161,8 @@
             ],
 	"qMapNames":
             [
-		"Angle of the fibers",
-		"Angle of the fibers"
+		"Azimuth angle of the fibers",
+		"Elevation of the fibers"
             ]
     },
     
@@ -193,7 +193,7 @@
             ],
 	"qMapNames":
             [
-		"Orientation dispersion index",
+		"Orientation dispersion index derived from concentration parameter of Watson distribution",
 		"Signal at b=0",
 		"Fitting residuals",
 		"1rst eigenvalue of D",
@@ -211,7 +211,7 @@
 		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
 		"Fitting residual",
 		"MP2RAGE image corrected for B1+ bias if B1map is provided",
-		"Macromolecular Tissue Volume (normal values in the brain range [0 0.4])"
+		"Macromolecular Tissue Volume (normal values in the brain range [0 0.4])",
 		"Reception profile of the antenna (B1- map)"
             ]
     },
@@ -226,7 +226,7 @@
 	"qMapNames":
             [
 		"Clustering of the eroded input mask in four categories: 1: Gray Matter 2: Deep Gray 3: White matter (used for Coil Gain) 4: CSF",
-		"Index of last polarity restored datapoint (only used for magnitude data)"
+		"Index of the last polarity restored datapoint (only used for magnitude data)"
             ]
     }
 }
