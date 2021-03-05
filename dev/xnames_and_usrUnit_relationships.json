@@ -14,8 +14,8 @@
             ],
         "qMapNames":
             [
-                "Longitidunal relaxation time (T1) map",
-                "Longitidunal relaxation time (T1) map",
+                "Longitudinal relaxation time (T1) map",
+                "Longitudinal relaxation time (T1) map",
                 "Transverse relaxation time (T1) map",
                 "Transverse relaxation time (T1) map",
                 "Spin relaxation time (T2) for intra/extracellular water (IEW)",
@@ -47,84 +47,186 @@
     },
 
     "Fraction": 
-    [
-        "MTR",
-        "MWF",
-        "F",
-        "Sf",
-        "Sr",
-        "ficv",
-        "fiso",
-        "fr",
-        "irfrac",
-        "fcsf",
-        "fh"
-
-    ],
+    {
+        "xnames":
+            [
+		"MTR",
+		"MWF",
+		"F",
+		"Sf",
+		"Sr",
+		"ficv",
+		"fiso",
+		"fr",
+		"irfrac",
+		"fcsf",
+		"fh"
+            ],
+	"qMapNames":
+            [
+		"Magnetization transfer ratio map (%)",
+		"Myelin Water Fraction",
+		"Ratio of number of restricted pool to free pool, defined as F = M0r/M0f = kf/kr",
+		"Instantaneous fraction of magnetization after vs. before the pulse in the free pool. Starting point is computed using Block simulation",
+		"Instantaneous fraction of magnetization after vs. before the pulse in the restricted pool. Starting point is computed using block simulation",
+		"Fraction of water in the restricted compartment",
+		"Fraction of water in the isotropic compartment (e.g. CSF/Veins)",
+		"Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction) fr = ficvf*(1-fiso)",
+		"Fraction of isotropically restricted compartment (Dot for ex vivo model)",
+		"Fraction of water in the CSF compartment. (fixed to 0 by default)",
+		"Fraction of water in the hindered compartment, calculated as: 1 - fr - fcsf"
+            ]
+    },
 
     "B1": 
-    [
-        "B1map_raw",
-        "B1map_filtered"
-    ],
+    {
+        "xnames":
+            [
+		"B1map_raw",
+		"B1map_filtered"
+            ],
+	"qMapNames":
+            [
+		"Excitation (B1+) field map",
+		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)"
+            ]
+    },
 
-    "B0": [
-        "B0map"
-    ],
+    "B0": 
+    {
+        "xnames":
+            [
+		"B0map"
+            ],
+	"qMapNames":
+            [
+		"B0 field map [Hz]"
+            ]
+    },
 
     "MagnSusceptibility":
-    [
-        "chiSB",
-        "chiSBM",
-        "chiL2",
-        "chiL2M",
-        "nfm"
-    ],
+    {
+        "xnames":
+            [
+		"chiSB",
+		"chiSBM",
+		"chiL2",
+		"chiL2M",
+		"nfm"
+            ],
+	"qMapNames":
+            [
+		"Susceptibility map created using Split-Bregman method without magnitude weighting",
+		"Susceptibility map created using Split-Bregman method with magnitude weighting"
+		"Susceptibility map created using L2 regularization without magnitude weighting",
+		"Susceptibility map created using L2 regularization with magnitude weighting",
+		"Susceptibility map created without regularization"
+            ]
+    },
 
     "Phase":
-    [
-        "unwrappedPhase"
-    ],
+    {
+        "xnames":
+            [
+		"unwrappedPhase"
+            ],
+	"qMapNames":
+            [
+		"Unwrapped phase image using Laplacian-based method"
+            ]
+    },
 
     "Diffusivity":
-    [
-        "di",
-        "diso",
-        "Dh"
-    ],
+    {
+        "xnames":
+            [
+		"di",
+		"diso",
+		"Dh"
+            ],
+	"qMapNames":
+            [
+		"Diffusion coefficient in the restricted compartment",
+		"Diffusion coefficient of the isotropic compartment (CSF)",
+		"Apparent diffusion coefficient of the hindered compartment"
+            ]
+    },
 
     "Orientation":
-    [
-        "theta",
-        "phi"
-    ],
+    {
+        "xnames":
+            [
+		"theta",
+		"phi"
+            ],
+	"qMapNames":
+            [
+		"Angle of the fibers",
+		"Angle of the fibers"
+            ]
+    },
     
     "Arbitrary":
-    [
-        "kappa",
-        "b0",
-        "residue",
-        "L1",
-        "L2",
-        "L3",
-        "FA",
-        "S0_TE%02d",
-        "spurious",
-        "MTSAT",
-        "M0f",
-        "M0r",
-        "M0",
-        "resnorm",
-        "rb",
-        "ra",
-        "res",
-        "MP2RAGEcor",
-        "MTV",
-        "CoilGain"
-    ],
+    {
+        "xnames":
+            [
+		"kappa",
+		"b0",
+		"residue",
+		"L1",
+		"L2",
+		"L3",
+		"FA",
+		"S0_TEXX",
+		"Spurious",
+		"MTSAT",
+		"M0f",
+		"M0r",
+		"M0",
+		"resnorm",
+		"rb",
+		"ra",
+		"res",
+		"MP2RAGEcor",
+		"MTV",
+		"CoilGain"
+            ],
+	"qMapNames":
+            [
+		"Orientation dispersion index",
+		"Signal at b=0",
+		"Fitting residuals",
+		"1rst eigenvalue of D",
+		"2nd eigenvalue of D",
+		"3rd eigenvalue of D",
+		"Fractional Anisotropy: FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2))",
+		"Signal at b=0 at TE=XX",
+		"Map of datapoints that were set to 1 prior to smoothing",
+		"MT saturation map (%), T1-corrected",
+		"Equilibrium value of the free pool longitudinal magnetization",
+		"Equilibrium value of the restricted pool longitudinal magnetization",
+		"Equilibrium magnetization",
+		"Fitting residual",
+		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
+		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
+		"Fitting residual",
+		"MP2RAGE image corrected for B1+ bias if B1map is provided",
+		"Macromolecular Tissue Volume (normal values in the brain range [0 0.4])"
+		"Reception profile of the antenna (B1- map)"
+            ]
+    },
+
     "Categorical":
-    [
-        "seg",
-        "idx"
-    ]
+    {
+        "xnames":
+            [
+		"seg",
+		"idx"
+            ],
+	"qMapNames":
+            [
+		"Clustering of the eroded input mask in four categories: 1: Gray Matter 2: Deep Gray 3: White matter (used for Coil Gain) 4: CSF",
+		"Index of last polarity restored datapoint (only used for magnitude data)"
+            ]
+    }
 }
