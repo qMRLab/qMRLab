@@ -1,13 +1,14 @@
 {
 	"amico": {
-		"InputProtUnits": 
+        "ModelPath": "Diffusion/",
+		"InputProtUnits":
         {
         "DiffusionData":
             {
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla-per-meter",
+                "GNorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"
@@ -15,12 +16,12 @@
         },
         "Outputs":
         {
-            "di": "square-meter-per-second",
-            "ficv": "fraction-decimal",
-            "fiso": "fraction-decimal",
-            "fr": "fraction-decimal",
-            "irfrac": "fraction-decimal",
-            "diso": "square-meter-per-second",
+            "di": "square_meter_per_second",
+            "ficv": "fraction_decimal",
+            "fiso": "fraction_decimal",
+            "fr": "fraction_decimal",
+            "irfrac": "fraction_decimal",
+            "diso": "square_meter_per_second",
             "kappa": "arbitrary",
             "b0":"arbitrary",
             "theta": "radian",
@@ -29,6 +30,7 @@
 	},
 
     "charmed": {
+        "ModelPath": "Diffusion/",
 		"InputProtUnits":
         {
         "DiffusionData":
@@ -36,7 +38,7 @@
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla-per-meter",
+                "GNorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"
@@ -44,17 +46,18 @@
         },
         "Outputs":
         {
-            "fr": "fraction-decimal",
-            "Dh": "square-meter-per-second",
+            "fr": "fraction_decimal",
+            "Dh": "square_meter_per_second",
             "diameter_mean": "micrometer",
-            "fcsf": "fraction-decimal",
+            "fcsf": "fraction_decimal",
             "lc": "arbitrary",
-            "fh": "fraction-decimal",
+            "fh": "fraction_decimal",
             "residue": "arbitrary"
         }
 	},
 
     "dti": {
+        "ModelPath": "Diffusion/",
 		"InputProtUnits":
         {
         "DiffusionData":
@@ -62,7 +65,7 @@
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla-per-meter",
+                "GNorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"
@@ -81,6 +84,7 @@
 	},
 
 	"noddi": {
+        "ModelPath": "Diffusion/",
 		"InputProtUnits": 
         {
         "DiffusionData":
@@ -88,7 +92,7 @@
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla-per-meter",
+                "GNorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"
@@ -96,12 +100,12 @@
         },
         "Outputs":
         {
-            "di": "square-meter-per-second",
-            "ficv": "fraction-decimal",
-            "fiso": "fraction-decimal",
-            "fr": "fraction-decimal",
-            "irfrac": "fraction-decimal",
-            "diso": "square-meter-per-second",
+            "di": "square_meter_per_second",
+            "ficv": "fraction_decimal",
+            "fiso": "fraction_decimal",
+            "fr": "fraction_decimal",
+            "irfrac": "fraction_decimal",
+            "diso": "square_meter_per_second",
             "kappa": "arbitrary",
             "b0":"arbitrary",
             "theta": "radian",
@@ -110,6 +114,7 @@
 	},
 
     "b0_dem": {
+        "ModelPath": "FieldMaps/",
 		"InputProtUnits": 
         {
         "TimingTable":
@@ -119,11 +124,12 @@
         },
         "Outputs":
         {
-            "B0map": "offset-factor-hertz"
+            "B0map": "offset_factor_hertz"
         }
 	},
 
     "b1_afi": {
+        "ModelPath": "FieldMaps/",
 		"InputProtUnits":
         {
         "Sequence":
@@ -135,13 +141,14 @@
         },
         "Outputs":
         {
-            "B1map_raw": "relative-scaling-factor-1",
-            "B1map_filtered": "relative-scaling-factor-1",
+            "B1map_raw": "relative_scaling_factor_decimal",
+            "B1map_filtered": "relative_scaling_factor_decimal",
             "spurious": "arbitrary"
         }
 	},
 
     "b1_dam": {
+        "ModelPath": "FieldMaps/",
 		"InputProtUnits":
         {
         "Alpha":
@@ -151,13 +158,14 @@
         },
         "Outputs":
         {
-            "B1map_raw": "relative-scaling-factor-1",
-            "B1map_filtered": "relative-scaling-factor-1",
+            "B1map_raw": "relative_scaling_factor_decimal",
+            "B1map_filtered": "relative_scaling_factor_decimal",
             "spurious": "arbitrary"
         }
 	},
 
     "mt_ratio": {
+        "ModelPath": "Magnetization_transfer/",
         "Outputs":
         {
             "MTR": "fraction-percent"
@@ -165,6 +173,7 @@
 	},
 
     "mt_sat": {
+        "ModelPath": "Magnetization_transfer/",
         "InputProtUnits":
         {
         "MTw":
@@ -191,8 +200,9 @@
 	},
 
     "qmt_bssfp": {
+        "ModelPath": "Magnetization_transfer/",
         "InputDataUnits":{
-            "R1map": "reciprocal-second"
+            "R1map": "reciprocal_second"
         },
         "InputProtUnits":
         {
@@ -204,11 +214,11 @@
         },
         "Outputs":
         {
-            "F": "fraction-decimal",
-            "R1f": "reciprocal-second",
-            "R1r": "reciprocal-second",
-            "kf": "reciprocal-second",
-            "kr": "reciprocal-second",
+            "F": "fraction_decimal",
+            "R1f": "reciprocal_second",
+            "R1r": "reciprocal_second",
+            "kf": "reciprocal_second",
+            "kr": "reciprocal_second",
             "T2f": "second",
             "M0f": "arbitrary",
             "M0r": "arbitrary"
@@ -216,8 +226,9 @@
 	},
 
     "qmt_sirfse": {
+        "ModelPath": "Magnetization_transfer/",
         "InputDataUnits":{
-            "R1map": "reciprocal-second"
+            "R1map": "reciprocal_second"
         },
         "InputProtUnits":
         {
@@ -235,13 +246,13 @@
         },
         "Outputs":
         {
-            "F": "fraction-decimal",
-            "R1f": "reciprocal-second",
-            "R1r": "reciprocal-second",
-            "kf": "reciprocal-second",
-            "kr": "reciprocal-second",
-            "Sf": "fraction-decimal",
-            "Sr": "fraction-decimal",
+            "F": "fraction_decimal",
+            "R1f": "reciprocal_second",
+            "R1r": "reciprocal_second",
+            "kf": "reciprocal_second",
+            "kr": "reciprocal_second",
+            "Sf": "fraction_decimal",
+            "Sr": "fraction_decimal",
             "M0f": "arbitrary",
             "M0r": "arbitrary",
             "resnorm": "arbitrary"
@@ -249,10 +260,11 @@
 	},
 
     "qmt_spgr": {
+        "ModelPath": "Magnetization_transfer/",
         "InputDataUnits":{
-            "R1map": "reciprocal-second",
-            "B1map": "relative-scaling-factor-1",
-            "B0map": "offset-factor-hertz"
+            "R1map": "reciprocal_second",
+            "B1map": "relative_scaling_factor_decimal",
+            "B0map": "offset_factor_hertz"
         },
         "InputProtUnits":
         {
@@ -272,18 +284,19 @@
         },
         "Outputs":
         {
-            "F": "fraction-decimal",
-            "R1f": "reciprocal-second",
-            "R1r": "reciprocal-second",
+            "F": "fraction_decimal",
+            "R1f": "reciprocal_second",
+            "R1r": "reciprocal_second",
             "T2f": "second",
             "T2r": "second",
-            "kf": "reciprocal-second",
-            "kr": "reciprocal-second",
+            "kf": "reciprocal_second",
+            "kr": "reciprocal_second",
             "resnorm": "arbitrary"
         }
 	},
 
     "qsm_sb": {
+        "ModelPath": "QSM/",
         "InputProtUnits":
         {
             "Resolution":
@@ -304,16 +317,18 @@
         },
         "Outputs":
         {
-            "chiSB": "part-per-million",
-            "chiSBM": "part-per-million",
-            "chiL2": "part-per-million",
-            "chiL2M": "part-per-million",
-            "nfm": "part-per-million",
-            "unwrappedPhase": "radian"
+            "chiSB": "part_per_million",
+            "chiSBM": "part_per_million",
+            "chiL2": "part_per_million",
+            "chiL2M": "part_per_million",
+            "nfm": "part_per_million",
+            "unwrappedPhase": "radian",
+            "maskOut": "categorical"
         }
 	},
 
     "inversion_recovery": {
+        "ModelPath": "T1_relaxometry/",
         "InputProtUnits":
         {
             "IRData":
@@ -336,10 +351,11 @@
 	},
 
     "mp2rage": {
+        "ModelPath": "T1_relaxometry/",
         "InputDataUnits":{
             "INV1phase": "radian",
             "INV2phase": "radian",
-            "B1map":"relative-scaling-factor-1"
+            "B1map":"relative_scaling_factor_decimal"
         },
         "InputProtUnits":
         {
@@ -369,12 +385,14 @@
         "Outputs":
         {
             "T1": "second",
-            "R1": "reciprocal-second",
-            "MP2RAGEcor": "arbitrary"
+            "R1": "reciprocal_second",
+            "MP2RAGEcor": "arbitrary",
+            "MP2RAGE": "arbitrary"
         }
 	},
 
     "mtv": {
+        "ModelPath": "T1_relaxometry/",
         "InputDataUnits":
         {
             "T1": "second",
@@ -390,9 +408,10 @@
 	},
 
     "vfa_t1": {
+        "ModelPath": "T1_relaxometry/",
         "InputDataUnits":
         {
-            "B1map": "relative-scaling-factor-1"
+            "B1map": "relative_scaling_factor_decimal"
         },
         "InputProtUnits":
         {
@@ -410,6 +429,7 @@
 	},
 
     "mono_t2": {
+        "ModelPath": "T2_relaxometry/",
         "InputProtUnits":
         {
             "SEData":
@@ -425,6 +445,7 @@
 	},
 
     "mwf": {
+        "ModelPath": "T2_relaxometry/",
         "InputProtUnits":
         {
             "MET2Data":
@@ -440,7 +461,23 @@
         }
 	},
 
-    "model_name": {
+    "denoising_mppca":
+    {
+        "ModelPath": "Noise/"
+    },
+
+    "noise_level":
+    {
+        "ModelPath": "Noise/"
+    },
+
+    "filter_map":
+    {
+        "ModelPath": "Processing/"
+    },
+
+    "CustomExample": {
+        "ModelPath": "UnderDevelopment/",
 		"InputDataUnits": {
             "inputmapname": "unit-type"
         },

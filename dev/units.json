@@ -1,0 +1,124 @@
+{
+    "Time": 
+    {
+        "second": 
+        {
+            "factor2base": 1,
+            "label": "second",
+            "shorthand": "(s)"
+        },
+        "millisecond": 
+        {
+            "factor2base": 0.001,
+            "label": "millisecond",
+            "shorthand": "(ms)"
+        },
+        "microsecond": 
+        {
+            "factor2base": 0.000001,
+            "label": "microsecond",
+            "shorthand": "(us)"
+        }      
+    },
+
+    "Fraction":
+    {
+        "fraction_decimal":
+        {
+            "factor2base": 1,
+            "label": "ratio",
+            "shorthand": "[0-1]"
+        },
+        "fraction_percent": 
+        {
+            "factor2base": 0.01,
+            "label": "ratio",
+            "shorthand": "(%)"
+        }
+    },
+
+    "Rate":
+    {
+        "reciprocal_second": 
+        {
+            "factor2base": 1,
+            "label": "rate",
+            "shorthand": "1/s"
+        },
+        "reciprocal_millisecond":
+        {
+            "factor2base": 1000,
+            "label": "rate",
+            "shorthand": "(1/ms)"
+        },
+        "reciprocal_microsecond":
+        {
+            "factor2base": 1000000,
+            "label": "rate",
+            "shorthand": "(1/us)"
+        }
+    },
+
+    "B0":
+    {
+        "offset_factor_hertz": 
+        {
+            "factor2base": 1,
+            "label": "Hertz",
+            "shorthand": "(Hz)"
+        }
+    },
+
+    "B1":
+    {
+        "relative_scaling_factor_decimal": 
+        {
+            "factor2base": 1,
+            "label": "rel-B1+",
+            "shorthand": "(-inf,1,inf)"
+        },
+        "relative_scaling_factor_percent": 
+        {
+            "factor2base": 0.01,
+            "label": "rel-B1+",
+            "shorthand": "(-inf,100,inf)"
+        }
+    },
+
+    "Susceptibility":
+    {
+        "part_per_million": 
+        {
+            "factor2base": 1,
+            "label": "part_per_million",
+            "shorthand": "(ppm)"
+        }
+    },
+
+    "Phase":
+    {
+        "radian":
+        {
+            "factor2base": 1,
+            "label": "radian",
+            "shorthand": "(rad)"
+        },
+        "degree":
+        {
+            "factor2base": 0.0175,
+            "label": "degree",
+            "shorthand": "(deg)"
+        }
+    },
+
+    "Diffusivity":
+    {
+        "square_meter_per_second":
+        {
+            "factor2base": 1,
+            "label": "diffusivity",
+            "shorthand": "m^2/s"
+        }
+    }
+
+}

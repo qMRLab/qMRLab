@@ -1,6 +1,9 @@
 {
     "Time": 
-    {
+    {   "description": "Time-relevant qMRLab model output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes time (e.g. FitResults.T1), whether required or optional (e.g. FitResults.T1prime), MUST be listed here.",
+        "warning_xnames": "The xnames field MUST be a unique array. Concatenatoion of xnames arrays of all namespaces (e.g. [Time.xnames, Rate.xnames] MUST yield a unique array as well.",
+        "warning_addition": "Please append to the lists, do NOT prepend. Make sure that you append an entry to all subfields (qMapNames, suffixBIDS, isOfficialBIDS, folderBIDS)",
         "xnames":
             [
                 "T1",
@@ -12,6 +15,7 @@
                 "T2f",
                 "T2r"
             ],
+        "warning_qMapNames": "Please be descriptive and omit abbreviations (e.g. DO exclude (s) or (ms) etc.)",
         "qMapNames":
             [
                 "Longitudinal relaxation time (T1) map",
@@ -22,20 +26,23 @@
                 "Spin relaxation time (T2) myelin water (MW)",
                 "Tranverse relaxation time (T2) of the free (f) pool",
                 "Tranverse relaxation time (T2) of the restricted (r) pool"
-
             ],
+        "warning_suffixBIDS": "The suffixBIDS field does NOT have to be a unique array, however, MUST respect the correcsponding BIDS suffix (if available) & the respective xnames entry.",
         "suffixBIDS":
             [
                 "T1map",
                 "T1map",
+                "T2map",
                 "T2map",
                 "T2IEWmap",
                 "T2MWmap",
                 "T2Fmap",
                 "T2Rmap"
             ],
+        "warning_isOfficialBIDS": "Based on: https://bids-specification.readthedocs.io/en/stable/",
         "isOfficialBIDS":
             [
+                true,
                 true,
                 true,
                 true,
@@ -44,8 +51,10 @@
                 false,
                 false
             ],
+        "warning_folderBIDS": "Anything that is not dwi or fmap is anat. At least as of 2021 (BIDS v1.5.0).", 
         "folderBIDS":
             [
+                "anat",
                 "anat",
                 "anat",
                 "anat",
@@ -56,8 +65,11 @@
             ]
     },
 
+
+
     "Rate":
-    { 
+    { "description": "Rate-relevant qMRLab model output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+      "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes rate (e.g. FitResults.R1), whether required or optional (e.g. FitResults.R1f), MUST be listed here.",
         "xnames":
             [   
                 "R1",
@@ -96,14 +108,15 @@
             "anat",
             "anat",
             "anat",
-            "anat",
-            "anat",
             "anat"
         ]
     },
 
+
+
     "Fraction": 
-    {
+    {   "description": "Any qMRLab model output (FitResults.my_output) variable (my_output) that defines ratio MUST be defined in this namespace.",
+        "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes fraction (e.g. FitResults.MTR), whether required or optional (e.g. FitResults.kf), MUST be listed here.",
         "xnames":
             [
 		"MTR",
@@ -176,8 +189,11 @@
     ]
     },
 
+
+
     "B1": 
-    {
+    {  "description": "Transmit RF field mapping models' B1+ output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes B1+ (e.g. FitResults.B1map), whether required or optional (e.g. FitResults.B1map_filtered), MUST be listed here.",
         "xnames":
             [
 		"B1map_raw",
@@ -205,8 +221,10 @@
     ]
     },
 
+
+
     "B0": 
-    {
+    {   "description": "Magnetic field inhomonegeity mapping models' B0-relevant output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
 		"B0map"
@@ -229,8 +247,10 @@
         ]
     },
 
-    "MagnSusceptibility":
-    {
+
+
+    "Susceptibility":
+    {   "decription": "QSM models' susceptibility output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
 		"chiSB",
@@ -273,8 +293,11 @@
     ]
     },
 
+
+
+
     "Phase":
-    {
+    {   "description":"Phase output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
 		"unwrappedPhase"
@@ -293,8 +316,10 @@
         ["anat"]
     },
 
+
+
     "Diffusivity":
-    {
+    {   "decription": "Diffusivity output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
 		"di",
@@ -327,8 +352,10 @@
         ]
     },
 
+
+
     "Orientation":
-    {
+    {   "decription": "Fiber (e.g. WM tract) orientation output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
 		"theta",
@@ -355,9 +382,11 @@
         "dwi"
     ]
     },
-    
+
+
+
     "Arbitrary":
-    {
+    {   "decription": "Any output of arbitrary unit (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
 		"kappa",
@@ -378,6 +407,7 @@
 		"ra",
 		"res",
 		"MP2RAGEcor",
+        "MP2RAGE",
 		"MTV",
 		"CoilGain"
             ],
@@ -400,7 +430,8 @@
 		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
 		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
 		"Fitting residual",
-		"MP2RAGE image corrected for B1+ bias if B1map is provided",
+		"MP2RAGE UNI image corrected for B1+ bias if B1map is provided",
+        "MP2RAGE UNI image calculated using input data (if mag,phase,inv1,inv2 available) in qMRLab. Not the one Siemens calculates inline.",
 		"Macromolecular Tissue Volume (normal values in the brain range [0 0.4])",
 		"Reception profile of the antenna (B1- map)"
             ],
@@ -408,11 +439,10 @@
     [
         "ODImap",
         "sigb0",
-        "DHmap",
         "residual",
         "L1map",
         "L2map",
-        "L2map",
+        "L3map",
         "FAmap",
         "S0TE%02",
         "spurious",
@@ -424,6 +454,7 @@
         "RBmap",
         "RAmap",
         "residual",
+        "UNIT1",
         "UNIT1",
         "MTVmap",
         "RB1map"
@@ -439,7 +470,6 @@
         false,
         false,
         false,
-        false,
         true,
         false,
         false,
@@ -448,13 +478,13 @@
         false,
         false,
         false,
+        true,
         true,
         false,
         true
     ],
     "folderBIDS":
     [
-        "dwi",
         "dwi",
         "dwi",
         "dwi",
@@ -474,34 +504,42 @@
         "anat",
         "anat",
         "anat",
+        "anat",
         "fmap"
     ]
     },
 
+
+
     "Categorical":
-    {
+    {   "decription": "Categorical output (FitResults.my_output) variables (my_output), such as segmentation regions, are defined in this namespace.",
         "xnames":
             [
 		"seg",
-		"idx"
+		"idx",
+        "maskOut"
             ],
 	"qMapNames":
             [
 		"Clustering of the eroded input mask in four categories: 1: Gray Matter 2: Deep Gray 3: White matter (used for Coil Gain) 4: CSF",
-		"Index of the last polarity restored datapoint (only used for magnitude data)"
+		"Index of the last polarity restored datapoint (only used for magnitude data)",
+        "Binary mask (maskSharp, gradientMask or same as the input)"
             ],
     "suffixBIDS":
             [
             "dseg",
-            "dseg"
+            "dseg",
+            "mask"
             ],
     "isOfficialBIDS":
             [
+            true,
             true,
             true
             ],
     "folderBIDS":
             [
+            "anat",
             "anat",
             "anat"
             ]

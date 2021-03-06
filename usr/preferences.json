@@ -11,13 +11,13 @@
 	"UnifyOutputMapUnits": {
 		"Enabled": false,
 		"Time": "second",
-		"Rate": "reciprocal-second",
-		"Fraction": "fraction-decimal",
-		"B1": "relative-scaling-factor-1",
-		"B0": "offset-factor-hertz",
-		"MagnSusceptibility": "part-per-million",
-		"UnwrappedPhase":"radian",
-		"Diffusivity": "square-meter-per-second"
+		"Rate": "reciprocal_second",
+		"Fraction": "fraction_decimal",
+		"B1": "relative_scaling_factor_decimal",
+		"B0": "offset_factor_hertz",
+		"Susceptibility": "part_per_million",
+		"Phase":"radian",
+		"Diffusivity": "square_meter_per_second"
 	},
 	"UnifyInputProtocolUnits": {
 		"Enabled": false,
@@ -27,7 +27,7 @@
 		"FlipAngle": "degree",
 		"MTOffsetFrequency": "megahertz",
 		"MagneticFieldStrength": "tesla",
-		"GradientMagnitude": "tesla-per-meter",
+		"GradientMagnitude": "tesla_per_meter",
 		"Resolution": "millimeter",
 		"DiffusionSeparationDelta": "second",
 		"DiffusionDurationDelta": "second"
@@ -35,9 +35,9 @@
 	"ModifyInputMapUnits": {
 		"Enabled": false,
 		"Time": "second",
-		"Rate": "reciprocal-second",
-		"B1": "relative-scaling-factor-1",
-		"B0": "offset-factor-hertz",
+		"Rate": "reciprocal_second",
+		"B1": "relative_scaling_factor_decimal",
+		"B0": "offset_factor_hertz",
 		"Phase":"radian"
 	},
 	"SaveProvenance": true,
