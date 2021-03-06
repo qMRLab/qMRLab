@@ -23,6 +23,36 @@
                 "Tranverse relaxation time (T2) of the free (f) pool",
                 "Tranverse relaxation time (T2) of the restricted (r) pool"
 
+            ],
+        "suffixBIDS":
+            [
+                "T1map",
+                "T1map",
+                "T2map",
+                "T2IEWmap",
+                "T2MWmap",
+                "T2Fmap",
+                "T2Rmap"
+            ],
+        "isOfficialBIDS":
+            [
+                true,
+                true,
+                true,
+                false,
+                false,
+                false,
+                false
+            ],
+        "folderBIDS":
+            [
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat"
             ]
     },
 
@@ -43,7 +73,33 @@
                 "Longitidunal relaxation rate (R1) of the free (f) pool",
                 "Exchange rate from the restricted to the free pool (kf: r --> f)",
                 "Exchange rate from the free to the restricted pool (kr: f --> r)"
-            ]
+            ],
+        "suffixBIDS":
+            [
+                "R1map",
+                "R1Rmap",
+                "R1Fmap",
+                "KFmap",
+                "KRmap"
+            ],
+        "isOfficialBIDS":
+            [
+                true,
+                false,
+                false,
+                false,
+                false
+            ],
+        "folderBIDS":
+        [
+            "anat",
+            "anat",
+            "anat",
+            "anat",
+            "anat",
+            "anat",
+            "anat"
+        ]
     },
 
     "Fraction": 
@@ -66,7 +122,7 @@
             [
 		"Magnetization Transfer Ratio (MTR) map",
 		"Myelin Water Fraction (MWF) map",
-		"Ratio of number of restricted (r) pool to free (f) pool, defined as F = M0r/M0f = kf/kr",
+		"Ratio of number of restricted (r) pool to free (f) pool, defined as F = M0r/M0f = kf/kr. Also known as macromolecular pool fraction (MPF)",
 		"Instantaneous fraction of magnetization after vs. before the pulse in the free pool. Starting point is computed using Bloch simulation",
 		"Instantaneous fraction of magnetization after vs. before the pulse in the restricted pool. Starting point is computed using Bloch simulation",
 		"Fraction of water in the restricted compartment: (f)raction of (i)ntra (c)ellular (v)olume.",
@@ -75,7 +131,49 @@
 		"Fraction of isotropically restricted compartment (Dot for ex vivo model): (i)sotropic (r)estricted (frac)tion",
 		"Fraction of water in the CSF compartment. (fixed to 0 by default)",
 		"Fraction of water in the hindered (h) compartment, calculated as: 1 - fr - fcsf"
-            ]
+            ],
+    "suffixBIDS":
+    [
+        "MTRmap",
+        "MWFmap",
+        "MPFmap",
+        "SFmap",
+        "SRmap",
+        "FICVmap",
+        "FISOmap",
+        "FRmap",
+        "IRFRACmap",
+        "FCSFmap",
+        "FHmap"
+    ],
+    "isOfficialBIDS":
+    [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    ],
+    "folderBIDS":
+    [
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi"
+    ]
     },
 
     "B1": 
@@ -89,7 +187,22 @@
             [
 		"RF transmit field (B1+) map",
 		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)"
-            ]
+            ],
+    "suffixBIDS":
+    [
+        "TB1map",
+        "TB1map"
+    ],
+    "isOfficialBIDS":
+    [
+        true,
+        true
+    ],
+    "folderBIDS":
+    [   
+        "fmap",
+        "fmap"
+    ]
     },
 
     "B0": 
@@ -101,7 +214,19 @@
 	"qMapNames":
             [
 		"Static main magnetic field (B0) inhomogeneity map"
-            ]
+            ],
+    "suffixBIDS":
+            [
+        "B0map" 
+            ],
+    "isOfficialBIDS":
+            [
+        false 
+            ],
+    "folderBIDS":
+        [
+        "fmap"
+        ]
     },
 
     "MagnSusceptibility":
@@ -121,7 +246,31 @@
 		"Quantitative susceptibility map created using L2 regularization without magnitude weighting",
 		"Quantitative susceptibility map created using L2 regularization with magnitude weighting",
 		"Quantitative susceptibility map created without regularization"
-            ]
+            ],
+    "suffixBIDS":
+    [
+        "Chimap",
+        "Chimap",
+        "Chimap",
+        "Chimap",
+        "Chimap"
+    ],
+    "isOfficialBIDS":
+    [
+       true,
+       true,
+       true,
+       true,
+       true
+    ],
+    "folderBIDS":
+    [
+       "anat",
+       "anat",
+       "anat",
+       "anat",
+       "anat"
+    ]
     },
 
     "Phase":
@@ -133,7 +282,15 @@
 	"qMapNames":
             [
 		"Unwrapped phase image"
-            ]
+            ],
+    "suffixBIDS":
+        [
+            "inherit_part-phase"
+        ],
+    "isOfficialBIDS":
+        [true],
+    "folderBIDS":
+        ["anat"]
     },
 
     "Diffusivity":
@@ -149,7 +306,25 @@
 		"Diffusion coefficient in the restricted compartment",
 		"Diffusion coefficient of the isotropic compartment (CSF)",
 		"Apparent diffusion coefficient of the hindered (h) compartment"
-            ]
+            ],
+    "suffixBIDS":
+        [
+            "DImap",
+            "DISOmap",
+            "DHmap"
+        ],
+    "isOfficialBIDS":
+        [   
+            false,
+            false,
+            false
+        ],
+    "folderBIDS":
+        [
+            "dwi",
+            "dwi",
+            "dwi"
+        ]
     },
 
     "Orientation":
@@ -163,7 +338,22 @@
             [
 		"Azimuth angle of the fibers",
 		"Elevation of the fibers"
-            ]
+            ],
+    "suffixBIDS":
+    [
+        "THETAmap",
+        "PHImap"
+    ],
+    "isOfficialBIDS":
+    [   
+        false,
+        false
+    ],
+    "folderBIDS":
+    [
+        "dwi",
+        "dwi"
+    ]
     },
     
     "Arbitrary":
@@ -177,7 +367,7 @@
 		"L2",
 		"L3",
 		"FA",
-		"S0_TEXX",
+		"S0_TE%02d",
 		"Spurious",
 		"MTSAT",
 		"M0f",
@@ -213,7 +403,79 @@
 		"MP2RAGE image corrected for B1+ bias if B1map is provided",
 		"Macromolecular Tissue Volume (normal values in the brain range [0 0.4])",
 		"Reception profile of the antenna (B1- map)"
-            ]
+            ],
+    "suffixBIDS":
+    [
+        "ODImap",
+        "sigb0",
+        "DHmap",
+        "residual",
+        "L1map",
+        "L2map",
+        "L2map",
+        "FAmap",
+        "S0TE%02",
+        "spurious",
+        "MTsat",
+        "M0Fmap",
+        "M0Rmap",
+        "M0map",
+        "resnorm",
+        "RBmap",
+        "RAmap",
+        "residual",
+        "UNIT1",
+        "MTVmap",
+        "RB1map"
+    ],
+    "isOfficialBIDS":
+    [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true
+    ],
+    "folderBIDS":
+    [
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "fmap",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "fmap"
+    ]
     },
 
     "Categorical":
@@ -227,6 +489,21 @@
             [
 		"Clustering of the eroded input mask in four categories: 1: Gray Matter 2: Deep Gray 3: White matter (used for Coil Gain) 4: CSF",
 		"Index of the last polarity restored datapoint (only used for magnitude data)"
+            ],
+    "suffixBIDS":
+            [
+            "dseg",
+            "dseg"
+            ],
+    "isOfficialBIDS":
+            [
+            true,
+            true
+            ],
+    "folderBIDS":
+            [
+            "anat",
+            "anat"
             ]
     }
 }
