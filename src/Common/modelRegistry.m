@@ -3,6 +3,7 @@ function response = modelRegistry(varargin)
 p = inputParser();
 addParameter(p,'get','modellist',@ischar);
 
+
 parse(p,varargin{:});
 
 request = p.Results.get;
@@ -13,8 +14,22 @@ switch request
     
     case 'modellist'
        
-        response = fieldnames(register);
+        response = fieldnames(register)';
+        [~,idxc] = ismember('CustomExample',response);
+        response(idxc) = [];
+        
     
+    case 'pathonly'
+        
+        response = fieldnames(register);
+        [~,idxc] = ismember('CustomExample',response);
+        response(idxc) = [];
+        res2 = cell(1,length(response));
+        for ii = 1:length(res2)
+            res2{1,ii} = register.(response{ii}).ModelPath;
+        end
+        response = res2;
+        
     otherwise
         
         isAModel = isModel(request,register);
@@ -59,6 +74,19 @@ end
 % This one includes both optional and non-optional (xnames) outputs.
 [~,idxs2] = ismember(fieldnames(register.(model).Outputs),lut.xname);
 
+% Partial match at N=4 to look for templates lie SE_TE*
+if any(idxs2==0)
+    fnms = fieldnames(register.(model).Outputs);
+    notHit = fnms(idxs2==0);
+    notHitIdx = find(idxs2==0);
+    xnms = lut.xname;
+    for jj=1:length(notHit)
+        idxn = cellfun(@(S) strncmp(notHit(jj),S,4), xnms);
+        if any(idxn)
+            idxs2(notHitIdx(jj)) = find(idxn==1);
+        end
+    end
+end
 % This is a struct array. One struct per xname
     % family Namespace of the output type (Time, Ratio ... etc)
     % xname (Output name) 

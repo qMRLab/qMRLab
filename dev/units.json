@@ -125,6 +125,48 @@
             "label": "diffusivity",
             "symbol": "u^2/ms"
         }
+    },
+
+    "Length":
+    {
+        "micrometer":
+        {
+            "factor2base": 1,
+            "label": "micrometer",
+            "symbol": "(um)"
+        },
+        "millimeter":
+        {
+            "factor2base": 1e-3,
+            "label": "millimeter",
+            "symbol": "(mm)"
+        }
+    },
+
+    "Tensor":
+    {
+        "tensor_2":
+        {
+            "factor2base": 1,
+            "label": "2nd order",
+            "symbol": ""
+        },
+        "tensor_3":
+        {
+            "factor2base": 1,
+            "label": "3rd order",
+            "symbol": ""
+        }
+    },
+
+    "Arbitrary":
+    {
+        "arbitrary":
+        {
+            "factor2base": 1,
+            "label": "arbitrary",
+            "symbol": ""
+        }
     }
 
 }

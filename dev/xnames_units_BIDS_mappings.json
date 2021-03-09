@@ -197,25 +197,30 @@
         "xnames":
             [
 		"B1map_raw",
-		"B1map_filtered"
+		"B1map_filtered",
+        "Filtered"
             ],
 	"qMapNames":
             [
 		"RF transmit field (B1+) map",
-		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)"
+		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)",
+        "Smoothed B1+ field map."
             ],
     "suffixBIDS":
     [
+        "TB1map",
         "TB1map",
         "TB1map"
     ],
     "isOfficialBIDS":
     [
         true,
+        true,
         true
     ],
     "folderBIDS":
     [   
+        "fmap",
         "fmap",
         "fmap"
     ]
@@ -380,7 +385,7 @@
 		"L2",
 		"L3",
 		"FA",
-		"S0_TE%02d",
+		"S0_TE_N",
 		"Spurious",
         "spurious",
 		"MTSAT",
@@ -394,7 +399,12 @@
 		"MP2RAGEcor",
         "MP2RAGE",
 		"MTV",
-		"CoilGain"
+		"CoilGain",
+        "lc",
+        "Data4D_denoised",
+        "sigma_g",
+        "eta",
+        "N"
             ],
 	"qMapNames":
             [
@@ -420,7 +430,12 @@
 		"MP2RAGE UNI image corrected for B1+ bias if B1map is provided",
         "MP2RAGE UNI image calculated using input data (if mag,phase,inv1,inv2 available) in qMRLab. Not the one Siemens calculates inline.",
 		"Macromolecular Tissue Volume (normal values in the brain range [0 0.4])",
-		"Reception profile of the antenna (B1- map)"
+		"Reception profile of the antenna (B1- map)",
+        "Length of coherence. Interpretation is not perfectly known, experimental.",
+        "4D denoised data",
+        "standard deviation of the rician noise",
+        "eta parameter of noise estimation",
+        "N parameter of noise estimation"
             ],
     "suffixBIDS":
     [
@@ -432,7 +447,7 @@
         "L2map",
         "L3map",
         "FAmap",
-        "S0TE%02",
+        "S0TE_N",
         "spurious",
         "spurious",
         "MTsat",
@@ -446,7 +461,12 @@
         "UNIT1",
         "UNIT1",
         "MTVmap",
-        "RB1map"
+        "RB1map",
+        "LCmap",
+        "dwi_denoised",
+        "sigmag",
+        "eta",
+        "N"
     ],
     "isOfficialBIDS":
     [
@@ -472,7 +492,12 @@
         true,
         true,
         false,
-        true
+        true,
+        false,
+        false,
+        false,
+        false,
+        false
     ],
     "folderBIDS":
     [
@@ -498,7 +523,12 @@
         "anat",
         "anat",
         "anat",
-        "fmap"
+        "fmap",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi"
     ]
     },
 
@@ -510,22 +540,26 @@
             [
 		"seg",
 		"idx",
-        "maskOut"
+        "maskOut",
+        "CSF"
             ],
 	"qMapNames":
             [
 		"Clustering of the eroded input mask in four categories: 1: Gray Matter 2: Deep Gray 3: White matter (used for Coil Gain) 4: CSF",
 		"Index of the last polarity restored datapoint (only used for magnitude data)",
-        "Binary mask (maskSharp, gradientMask or same as the input)"
+        "Binary mask (maskSharp, gradientMask or same as the input)",
+        "CSF mask."
             ],
     "suffixBIDS":
             [
             "dseg",
             "dseg",
-            "mask"
+            "mask",
+            "dseg"
             ],
     "isOfficialBIDS":
             [
+            true,
             true,
             true,
             true
@@ -534,7 +568,56 @@
             [
             "anat",
             "anat",
+            "anat",
             "anat"
+            ]
+    },
+
+    "Length":
+    {   "decription": "Length output (FitResults.my_output) variables (my_output), such as axon diameter, are defined in this namespace.",
+        "xnames":
+            [
+		"diameter_mean"
+            ],
+	"qMapNames":
+            [
+		"Mean axonal diameter weighted by the axonal area --> biased toward the larger axons. RECOMMENDED Gmax >= 300mT/m"
+            ],
+    "suffixBIDS":
+            [
+            "AxDIAmap"
+            ],
+    "isOfficialBIDS":
+            [
+            false
+            ],
+    "folderBIDS":
+            [
+            "dwi"
+            ]
+    },
+
+    "Tensor":
+    {   "decription": "Tensor output (FitResults.my_output) variables (my_output), such as DT, are defined in this namespace.",
+        "xnames":
+            [
+		"D"
+            ],
+	"qMapNames":
+            [
+		"[Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Diffusion Tensor"
+            ],
+    "suffixBIDS":
+            [
+            "D"
+            ],
+    "isOfficialBIDS":
+            [
+            false
+            ],
+    "folderBIDS":
+            [
+            "dwi"
             ]
     }
 }

@@ -73,12 +73,12 @@
         },
         "Outputs":
         {
-            "D": "tensor",
+            "D": "tensor_2",
             "L1": "arbitrary",
             "L2": "arbitrary",
             "L3": "arbitrary",
             "FA": "arbitrary",
-            "S0_TE%02d": "arbitrary",
+            "S0_TE_N": "arbitrary",
             "residue": "arbitrary"
         }
 	},
@@ -168,7 +168,7 @@
         "ModelPath": "Magnetization_transfer/",
         "Outputs":
         {
-            "MTR": "fraction-percent"
+            "MTR": "fraction_percent"
         }
 	},
 
@@ -455,7 +455,7 @@
         },    
         "Outputs":
         {   
-            "MWF":"fraction-percent",
+            "MWF":"fraction_percent",
             "T2IEW": "millisecond",
             "T2MW": "millisecond"
         }
@@ -463,17 +463,32 @@
 
     "denoising_mppca":
     {
-        "ModelPath": "Noise/"
+        "ModelPath": "Noise/",
+        "Outputs":
+        {   
+            "Data4D_denoised":"arbitrary",
+            "sigma_g": "arbitrary"
+        }
     },
 
     "noise_level":
     {
-        "ModelPath": "Noise/"
+        "ModelPath": "Noise/",
+        "Outputs":
+        {   
+            "eta":"arbitrary",
+            "N":"arbitrary",
+            "sigma_g": "arbitrary"
+        }
     },
 
     "filter_map":
     {
-        "ModelPath": "Processing/"
+        "ModelPath": "Processing/",
+        "Outputs":
+        {   
+            "Filtered":"relative_scaling_factor_decimal"
+        }
     },
 
     "CustomExample": {
