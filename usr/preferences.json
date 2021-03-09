@@ -36,7 +36,7 @@
 		"DiffusionSeparationDelta": "second",
 		"DiffusionDurationDelta": "second"
 	},
-	"ModifyInputMapUnits": {
+	"ChangeChangeProvidedInputMapUnits": {
 		"Enabled": false,
 		"Time": "second",
 		"Rate": "reciprocal_second",

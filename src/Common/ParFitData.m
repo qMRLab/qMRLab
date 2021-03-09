@@ -530,6 +530,7 @@ end
 tmp = modelRegistry('get',Model.ModelName);
 Fit.Registry = tmp.Registry;
 Fit.UnitBIDSMappings = tmp.UnitBIDSMappings;
+Fit.UserConfig = usr;
 
 % Parse data back into the volumetric format
 % after a voxelwise fit has been

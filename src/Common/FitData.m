@@ -312,6 +312,7 @@ if usr.SaveProvenance
 end
 % From release v2.5.0 on save unit information
 tmp = modelRegistry('get',Model.ModelName);
+Fit.UserConfig = usr;
 Fit.Registry = tmp.Registry;
 Fit.UnitBIDSMappings = tmp.UnitBIDSMappings;
 

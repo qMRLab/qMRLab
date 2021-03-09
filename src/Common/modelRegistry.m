@@ -67,14 +67,12 @@ for ii=1:length(fields)
     suffix = cellstr(unitmaps.(fields{ii}).suffixBIDS)';
     isBIDS = cell2mat(unitmaps.(fields{ii}).isOfficialBIDS)';
     folderBIDS = cellstr(unitmaps.(fields{ii}).folderBIDS)';
-    aa = cell(length(parent),5);
-    aa(:,1) = parent;
-    aa(:,2) = xnames;
-    aa(:,3) = suffix;
-    aa(:,4) = cellstr(num2str(double(isBIDS)));
-    aa(:,5) = folderBIDS;
-    cur_lut = aa;
-    %cur_lut = table(parent,xnames,suffix,isBIDS,folderBIDS,'VariableNames',{'Family','xname','suffixBIDS','isOfficialBIDS','folderBIDS'});
+    cur_lut = cell(length(parent),5);
+    cur_lut(:,1) = parent;
+    cur_lut(:,2) = xnames;
+    cur_lut(:,3) = suffix;
+    cur_lut(:,4) = cellstr(num2str(double(isBIDS)));
+    cur_lut(:,5) = folderBIDS;
     lut = [lut;cur_lut];
 end
 
@@ -103,7 +101,6 @@ end
     % usrRequestedUnit
     % originalCodeUnit
 pre_out = cell2struct(lut(idxs2,:),{'Family','xname','suffixBIDS','isOfficialBIDS','folderBIDS'},2);
-%pre_out = table2struct(lut(idxs2,:));
 
 % User settings
 usr = getUserPreferences();
@@ -183,13 +180,13 @@ for ii=1:length(inputs)
     if strcmp(inputs{ii},'Mask')
         new_out.Input.(inputs{ii}).Family = 'Categorical';
         new_out.Input.(inputs{ii}).ActiveUnit = 'categorical';
-        new_out.Input.(inputs{ii}).ScalingFactor = 1;
+        new_out.Input.(inputs{ii}).ScaleFactor = 1;
         new_out.Input.(inputs{ii}).Symbol = '';
         new_out.Input.(inputs{ii}).Label = 'categorical';
     else
         new_out.Input.(inputs{ii}).Family = 'Arbitrary';
         new_out.Input.(inputs{ii}).ActiveUnit = 'arbitrary';
-        new_out.Input.(inputs{ii}).ScalingFactor = 1;
+        new_out.Input.(inputs{ii}).ScaleFactor = 1;
         new_out.Input.(inputs{ii}).Symbol = '';
         new_out.Input.(inputs{ii}).Label = 'arbitrary';
     end
@@ -204,6 +201,12 @@ end
 
 
 function out = getInputDataDetails(unitName)
+% unitName is the FIXED input unit required by the implementation. Here, 
+% we don't have the liberty to change it into something user wants.
+% If user provided their input in a different unit, then they'll specify it
+% in the /usr/preferences.json file (ChangeProvidedInputMapUnits). 
+% Scaling is applied to non-arbitrary/non-categorical inputs when
+% required. 
 
 out = struct();
 unitDefs = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'units.json']);
@@ -211,13 +214,11 @@ fields = fieldnames(unitDefs);
 % Not Louis Litt, but lookup table
 lut = [];
 for ii=1:length(fields)
-
     parent = cellstr(repmat(fields{ii},[length(fieldnames(unitDefs.(fields{ii}))) 1]));
     %cur_lut = table(parent,fieldnames(unitDefs.(fields{ii})),'VariableNames',{'Family','unit'});
-    aa = cell(length(parent),2);
-    aa(:,1) = parent;
-    aa(:,2) = fieldnames(unitDefs.(fields{ii}));
-    cur_lut = aa;
+    cur_lut = cell(length(parent),2);
+    cur_lut(:,1) = parent;
+    cur_lut(:,2) = fieldnames(unitDefs.(fields{ii}));
     lut = [lut;cur_lut];
 end
 
@@ -227,16 +228,23 @@ out.Family = cell2mat(lut(idxs2,1));
 
 
 usr = getUserPreferences();
+% These are required to infer unit family types
+usr.ChangeProvidedInputMapUnits.Arbitrary = "arbitrary";
+usr.ChangeProvidedInputMapUnits.Categorical = "categorical";
 
-if usr.ModifyInputMapUnits.Enabled
-    out.ActiveUnit = usr.ModifyInputMapUnits.(out.Family);
+if usr.ChangeProvidedInputMapUnits.Enabled
+    % The name of the input unit is always fixed to that defined in the
+    % model registry. MapScale explains with which factor was the user
+    % input was multiplied to obtain a map compatible with the qMRLab
+    % method.
+    out.ActiveUnit = unitName;
     out.Symbol = unitDefs.(out.Family).(out.ActiveUnit).symbol;
     out.Label = unitDefs.(out.Family).(out.ActiveUnit).label;
     % Here we are getting the scaling factor that works for qMRLab 
     % during data load. Lets say, user provided % input for a map where qMRLab 
     % accepts decimal by default. A scaling factor of 0.01 is needed. 
     % So here it should be qmrlab/user 
-    out.ScaleFactor = unitDefs.(out.Family).(out.ActiveUnit).factor2base/unitDefs.(out.Family).(unitName).factor2base;
+    out.ScaleFactor = unitDefs.(out.Family).(usr.ChangeProvidedInputMapUnits.(out.Family)).factor2base/unitDefs.(out.Family).(unitName).factor2base;
 else
     out.ActiveUnit = unitName;
     out.ScaleFactor = 1;

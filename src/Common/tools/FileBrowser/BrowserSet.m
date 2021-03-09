@@ -184,6 +184,12 @@ classdef BrowserSet
                 Data = rmfield(Data,[class(Model) '_hdr']);
             end
 
+            % ======= SCALE INPUT DATA W.R.T. USER SETTINGS ======= 
+            reg = modelRegistry('get',class(Model));
+            Data.(class(Model)).(obj.NameID{1}) = Data.(class(Model)).(obj.NameID{1})...
+            .*reg.UnitBIDSMappings.Input.(obj.NameID{1}).ScaleFactor;
+            
+
             setappdata(0, 'Data', Data);
             set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
 
