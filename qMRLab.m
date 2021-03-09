@@ -472,10 +472,13 @@ data = data.(Method);
 ErrMsg = Model.sanityCheck(data);
 if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
+usr = getUserPreferences();
 if ~moxunit_util_platform_is_octave
    
    p = gcp('nocreate');
    if license('test','Distrib_Computing_Toolbox') && Model.voxelwise && isempty(p)
+       if ~usr.FitParallelWheneverPossible 
+        % If set to false still ask user if they'd like to use FitPar
         cprintf('blue', 'MATLAB detected %d physical cores.',feature('numcores'));
         cprintf('blue', '<< Tip >> You can accelerate fitting by starting a parallel pool by running: \n parpool(%d);',feature('numcores'));
         dlgTitle    = 'Parallel Processing';
@@ -485,6 +488,12 @@ if ~moxunit_util_platform_is_octave
             parpool(feature('numcores'));
             p = gcp('nocreate');
         end
+        
+       else
+            parpool(feature('numcores'));
+            p = gcp('nocreate');
+           
+       end
    end
 
    if ~isempty(p) && Model.voxelwise

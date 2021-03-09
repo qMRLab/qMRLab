@@ -25,7 +25,7 @@ switch request
             % - Input Data
             % - Input Protocols
             % - Output Data 
-            response.Mappings = getUnitBIDSMap(register,request);
+            response.UnitBIDSMappings = getUnitBIDSMap(register,request);
         else
             response = [];
             cprintf('red','<< ! >> Cannot find %s in the qMRLab model registry. \n',request);
@@ -86,7 +86,7 @@ for ii=1:length(pre_out)
         pre_out(ii).Label = unitDefs.(pre_out(ii).Family).(usrUnitName).label;
         
     else
-        pre_out(ii).MapScaleFactor = 1;
+        pre_out(ii).ScaleFactor = 1;
         origUnitName = register.(model).Outputs.(pre_out(ii).xname);
         pre_out(ii).ActiveUnit = origUnitName;
         pre_out(ii).Symbol = unitDefs.(pre_out(ii).Family).(origUnitName).symbol;
@@ -95,7 +95,7 @@ for ii=1:length(pre_out)
     
     else
         
-        pre_out(ii).MapScaleFactor = 1;
+        pre_out(ii).ScaleFactor = 1;
         if strcmp(pre_out(ii).Family,'Arbitrary')
             pre_out(ii).ActiveUnit = 'arbitrary'; 
             pre_out(ii).Symbol = '';
@@ -195,7 +195,7 @@ if usr.ModifyInputMapUnits.Enabled
     % during data load. Lets say, user provided % input for a map where qMRLab 
     % accepts decimal by default. A scaling factor of 0.01 is needed. 
     % So here it should be qmrlab/user 
-    out.MapScaleFactor = unitDefs.(out.Family).(out.ActiveUnit).factor2base/unitDefs.(out.Family).(unitName).factor2base;
+    out.ScaleFactor = unitDefs.(out.Family).(out.ActiveUnit).factor2base/unitDefs.(out.Family).(unitName).factor2base;
 else
     out.ActiveUnit = unitName;
     out.ScaleFactor = 1;

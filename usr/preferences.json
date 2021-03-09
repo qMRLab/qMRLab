@@ -2,6 +2,9 @@
 	"GUIDefault": {
 		"Method": "inversion_recovery"
 	},
+	"SaveProvenance": true,
+	"SaveRateMapsWhereverAvailable": false,
+	"FitParallelWheneverPossible": true,
 	"ParFitData": {
 		"AutosaveEnabled": 1,
 		"AutosaveInterval": 5,
@@ -39,7 +42,5 @@
 		"B1": "relative_scaling_factor_decimal",
 		"B0": "offset_factor_hertz",
 		"Angle":"radian"
-	},
-	"SaveProvenance": true,
-	"SaveReciprocalMaps": false
+	}
 }

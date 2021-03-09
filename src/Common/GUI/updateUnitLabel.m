@@ -9,21 +9,45 @@ Method = GetMethod(handles);
 reg = modelRegistry('get',Method);
 if ~strcmp(get(handles.SourcePop,'String'),' ')
 cur_sel = handles.SourcePop.String{get(handles.SourcePop,'Value')};
-if ismember(cur_sel,fieldnames(reg.Mappings.Output))
-    dispUnit = reg.Mappings.Output.(cur_sel);
+if ismember(cur_sel,fieldnames(reg.UnitBIDSMappings.Output))
+    dispUnit = reg.UnitBIDSMappings.Output.(cur_sel);
 else
-    dispUnit = reg.Mappings.Input.(cur_sel);
+    dispUnit = reg.UnitBIDSMappings.Input.(cur_sel);
 end
  set(handles.text101,'String',sprintf([dispUnit.Label '\n' dispUnit.Symbol]));
 else
  set(handles.text101,'String','');    
 end
 
+% Either user executed fit or loaded prev results.
 if ~isempty(handles.CurrentData) && isfield(handles.CurrentData,'Version') && ~viewException
     % Change this to 2.4.9 before release 2.5.0!!!
     if checkanteriorver(handles.CurrentData.Version, [2 4 0])
         set(handles.text101,'String',sprintf(['n/a \nv' num2str(handles.CurrentData.Version(1)) '.' num2str(handles.CurrentData.Version(2)) '.' num2str(handles.CurrentData.Version(3))])); 
-    end 
+    end
+    
+    % If loaded results > v2.5.0 do not use current user's settings, but
+    % use those coming with the FitResults.
+    try
+    if isfield(handles.CurrentData,'UnitBIDSMappings')
+        reg.UnitBIDSMappings = handles.CurrentData.UnitBIDSMappings;
+        if ~strcmp(get(handles.SourcePop,'String'),' ')
+        cur_sel = handles.SourcePop.String{get(handles.SourcePop,'Value')};
+        if ismember(cur_sel,fieldnames(reg.UnitBIDSMappings.Output))
+            dispUnit = reg.UnitBIDSMappings.Output.(cur_sel);
+        else
+            dispUnit = reg.UnitBIDSMappings.Input.(cur_sel);
+        end
+         set(handles.text101,'String',sprintf([dispUnit.Label '\n' dispUnit.Symbol]));
+        else
+         set(handles.text101,'String','');    
+        end
+
+        
+    end
+    catch
+      set(handles.text101,'String','Not registered');    
+    end
 end
 catch
   set(handles.text101,'String','Not registered');    

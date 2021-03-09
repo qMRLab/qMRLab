@@ -305,6 +305,32 @@ Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
 Fit.Version = qMRLabVer;
+usr = getUserPreferences;
+% Embed provenance in FitResults if enabled.
+if usr.SaveProvenance
+   Fit.Provenance = Model.getProvenance(); 
+end
+% From release v2.5.0 on save unit information
+tmp = modelRegistry('get',Model.ModelName);
+Fit.Registry = tmp.Registry;
+Fit.UnitBIDSMappings = tmp.UnitBIDSMappings;
+
+% ================ SCALE OUTPUTS ====================
+% Scale maps to user defined units if enabled 
+% Non-trivial operation! Behaviour determined by: 
+% - /usr/prefrecenes.json 
+% - /dev/units.json
+% - /dev/qmrlab_model_registry.json 
+% - /dev/xnames_units_BIDS_mappings.json
+if usr.UnifyOutputMapUnits.Enabled
+    
+    for ii=1:length(Fit.fields)
+       
+        Fit.(Fit.fields{ii}) = Fit.(Fit.fields{ii}).*Fit.UnitBIDSMappings.Output.(Fit.fields{ii}).ScaleFactor;
+    end
+
+end
+% =====================================================
 if exist(fullfile('.','FitTempResults.mat'),'file')
     delete FitTempResults.mat
 end
