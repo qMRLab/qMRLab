@@ -172,6 +172,7 @@ function out = getInputDataDetails(unitName)
 out = struct();
 unitDefs = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'units.json']);
 fields = fieldnames(unitDefs);
+% Not Louis Litt, but lookup table
 lut = [];
 for ii=1:length(fields)
     parent = cellstr(repmat(fields{ii},[length(fieldnames(unitDefs.(fields{ii}))) 1]));

@@ -60,6 +60,12 @@ if ~isfield(handles,'opened') % qMRI already opened?
         fprintf('qMRLab version: v%d.%d.%d \n',cur_ver(1),cur_ver(2),cur_ver(3));
     end
     
+    % There is an issue about this on GitHub. This warning has to do with
+    % AttachScrollTo function required for properly displaying MP2RAGE
+    % input fields. If future releases of MATLAB makes it easy, please
+    % switch to that.
+    warning('off','MATLAB:ui:javacomponent:FunctionToBeRemoved');
+    
     try
         [verStatus] = versionChecker;
     catch
@@ -226,8 +232,9 @@ Method = GetMethod(handles);
 MethodMenu(hObject,eventdata,handles,Method);
 if ~isempty(handles.CurrentData)
     tmp = eval(Method);
-    if (all(ismember(handles.CurrentData.fields,tmp.MRIinputs)) || all(ismember(handles.CurrentData.fields,tmp.xnames)))
+    if (all(ismember(handles.CurrentData.fields,tmp.MRIinputs)) || all(ismember(tmp.MRIinputs,handles.CurrentData.fields)) || all(ismember(tmp.xnames,handles.CurrentData.fields)) || all(ismember(handles.CurrentData.fields,tmp.xnames)))
         set(handles.SourcePop,'String',handles.CurrentData.fields);
+        
     else
         set(handles.SourcePop,'String',{' '});
     end
@@ -555,6 +562,9 @@ if exist('hdr','var')
 end
 guidata(hObject,handles);
 DrawPlot(handles);
+% Upon Fit completion, the Version in the CurrentData updates 
+% with the latest.
+updateUnitLabel(handles,false)
 
 % FITRESULTSSAVE
 function FitResultsSave_Callback(hObject, eventdata, handles)
@@ -604,6 +614,9 @@ SetAppData(FileBrowserList);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
+% Version check must be performed, otherwise faulty units are possible to
+% be displayed depending on usr's current settings.
+updateUnitLabel(handles,false)
 
 
 % #########################################################################
@@ -617,6 +630,7 @@ set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
 
+updateUnitLabel(handles,false);
 handles.tool.setNvol(get(handles.SourcePop,'Value'));
 
 % VIEW
@@ -630,6 +644,7 @@ UpdateSlice(handles)
 View = get(handles.ViewPop,'String');
 if ~iscell(View), View = {View}; end
 handles.tool.setviewplane(View{get(handles.ViewPop,'Value')})
+updateUnitLabel(handles,false);
 
 % STATS Table
 function Stats_Callback(hObject, eventdata, handles)
@@ -1048,3 +1063,4 @@ function upgrade_message_ButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(hObject, 'Enable', 'Inactive');
 web('https://github.com/qMRLab/qMRLab/releases/latest');
+

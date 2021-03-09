@@ -1618,31 +1618,7 @@ classdef imtool3D < handle
             end
             set(tool.handles.LabelText,'String',label);
             
-            qmrHandles = guihandles(tool.getHandles.parent);
-            % When SourcePop (source pop-up) menu is empty or set to 
-            % empty string, bypass unit display.
-            % Slows down the scroll a bit, maybe integrate elsewhere
-            if isfield(qmrHandles,'SourcePop')
-                if ~strcmp(qmrHandles.SourcePop.String,' ')
-                % If not, see for which model     
-                qmrModels = list_models;    
-                reg = modelRegistry('get',qmrModels{qmrHandles.MethodSelection.Value});    
-                cur_sel = qmrHandles.SourcePop.String{tool.Nvol};
-                if ismember(cur_sel,fieldnames(reg.Mappings.Output))
-                    dispUnit = reg.Mappings.Output.(cur_sel);
-                else
-                    dispUnit = reg.Mappings.Input.(cur_sel);
-                end
-                else
-                  dispUnit.Label = '';
-                  dispUnit.Symbol = ''; 
-                end
-            
-            else
-                dispUnit.Label = '';
-                dispUnit.Symbol = '';
-            end
-            set(tool.handles.SliceText,'String',[dispUnit.Label ' ' dispUnit.Symbol '    Vol: ' num2str(tool.Nvol) '/' num2str(length(tool.I)) '    Time: ' num2str(tool.Ntime) '/' num2str(size(tool.I{tool.Nvol},4)) '    Slice: ' num2str(n) '/' num2str(size(tool.I{tool.Nvol},tool.viewplane))])
+            set(tool.handles.SliceText,'String',['Vol: ' num2str(tool.Nvol) '/' num2str(length(tool.I)) '    Time: ' num2str(tool.Ntime) '/' num2str(size(tool.I{tool.Nvol},4)) '    Slice: ' num2str(n) '/' num2str(size(tool.I{tool.Nvol},tool.viewplane))])
 
             if isfield(tool.handles.Tools,'Hist') && get(tool.handles.Tools.Hist,'value')
                 In(In<tool.centers(1) | In>tool.centers(end)) = [];

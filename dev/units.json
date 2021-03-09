@@ -74,14 +74,14 @@
         "relative_scaling_factor_decimal": 
         {
             "factor2base": 1,
-            "label": "B1+",
-            "symbol": "(-inf,1=ideal,inf)"
+            "label": "rel B1+",
+            "symbol": "(1=ideal)"
         },
         "relative_scaling_factor_percent": 
         {
             "factor2base": 1e-2,
-            "label": "B1+",
-            "symbol": "(-inf,100=ideal,inf)"
+            "label": "rel B1+",
+            "symbol": "(100=ideal)"
         }
     },
 

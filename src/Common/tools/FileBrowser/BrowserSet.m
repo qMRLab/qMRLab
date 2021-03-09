@@ -290,6 +290,10 @@ classdef BrowserSet
             handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
             DrawPlot(handles,obj.NameID{1,1});
+            % The second argument set to True to show the registered label
+            % regardless of the version of the CurrentData. For details,
+            % see updateUnitLabel.
+            updateUnitLabel(handles,true);
         end
 
 
