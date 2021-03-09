@@ -67,12 +67,19 @@ for ii=1:length(fields)
     suffix = cellstr(unitmaps.(fields{ii}).suffixBIDS)';
     isBIDS = cell2mat(unitmaps.(fields{ii}).isOfficialBIDS)';
     folderBIDS = cellstr(unitmaps.(fields{ii}).folderBIDS)';
-    cur_lut = table(parent,xnames,suffix,isBIDS,folderBIDS,'VariableNames',{'Family','xname','suffixBIDS','isOfficialBIDS','folderBIDS'});
+    aa = cell(length(parent),5);
+    aa(:,1) = parent;
+    aa(:,2) = xnames;
+    aa(:,3) = suffix;
+    aa(:,4) = cellstr(num2str(double(isBIDS)));
+    aa(:,5) = folderBIDS;
+    cur_lut = aa;
+    %cur_lut = table(parent,xnames,suffix,isBIDS,folderBIDS,'VariableNames',{'Family','xname','suffixBIDS','isOfficialBIDS','folderBIDS'});
     lut = [lut;cur_lut];
 end
 
 % This one includes both optional and non-optional (xnames) outputs.
-[~,idxs2] = ismember(fieldnames(register.(model).Outputs),lut.xname);
+[~,idxs2] = ismember(fieldnames(register.(model).Outputs),lut(:,2));
 
 % Partial match at N=4 to look for templates lie SE_TE*
 if any(idxs2==0)
@@ -95,7 +102,8 @@ end
     % folderBIDS
     % usrRequestedUnit
     % originalCodeUnit
-pre_out = table2struct(lut(idxs2,:));
+pre_out = cell2struct(lut(idxs2,:),{'Family','xname','suffixBIDS','isOfficialBIDS','folderBIDS'},2);
+%pre_out = table2struct(lut(idxs2,:));
 
 % User settings
 usr = getUserPreferences();
@@ -203,14 +211,19 @@ fields = fieldnames(unitDefs);
 % Not Louis Litt, but lookup table
 lut = [];
 for ii=1:length(fields)
+
     parent = cellstr(repmat(fields{ii},[length(fieldnames(unitDefs.(fields{ii}))) 1]));
-    cur_lut = table(parent,fieldnames(unitDefs.(fields{ii})),'VariableNames',{'Family','unit'});
+    %cur_lut = table(parent,fieldnames(unitDefs.(fields{ii})),'VariableNames',{'Family','unit'});
+    aa = cell(length(parent),2);
+    aa(:,1) = parent;
+    aa(:,2) = fieldnames(unitDefs.(fields{ii}));
+    cur_lut = aa;
     lut = [lut;cur_lut];
 end
 
-[~,idxs2] = ismember(unitName,lut.unit);
+[~,idxs2] = ismember(unitName,lut(:,2));
 
-out.Family = cell2mat(lut.Family(idxs2));
+out.Family = cell2mat(lut(idxs2,1));
 
 
 usr = getUserPreferences();
