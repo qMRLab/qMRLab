@@ -4,6 +4,7 @@
 	},
 	"SaveProvenance": true,
 	"SaveRateMapsWhereverAvailable": false,
+	"SaveBIDSLikeFitResults": true,
 	"FitParallelWheneverPossible": true,
 	"ParFitData": {
 		"AutosaveEnabled": 1,
@@ -36,7 +37,7 @@
 		"DiffusionSeparationDelta": "second",
 		"DiffusionDurationDelta": "second"
 	},
-	"ChangeChangeProvidedInputMapUnits": {
+	"ChangeProvidedInputMapUnits": {
 		"Enabled": false,
 		"Time": "second",
 		"Rate": "reciprocal_second",
