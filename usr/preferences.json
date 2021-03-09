@@ -16,8 +16,8 @@
 		"B1": "relative_scaling_factor_decimal",
 		"B0": "offset_factor_hertz",
 		"Susceptibility": "part_per_million",
-		"Phase":"radian",
-		"Diffusivity": "square_meter_per_second"
+		"Angle":"radian",
+		"Diffusivity": "square_micrometer_per_millisecon"
 	},
 	"UnifyInputProtocolUnits": {
 		"Enabled": false,
@@ -38,7 +38,7 @@
 		"Rate": "reciprocal_second",
 		"B1": "relative_scaling_factor_decimal",
 		"B0": "offset_factor_hertz",
-		"Phase":"radian"
+		"Angle":"radian"
 	},
 	"SaveProvenance": true,
 	"SaveReciprocalMaps": false

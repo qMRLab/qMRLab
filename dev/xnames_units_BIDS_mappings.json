@@ -296,24 +296,38 @@
 
 
 
-    "Phase":
+    "Angle":
     {   "description":"Phase output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
-		"unwrappedPhase"
+		"unwrappedPhase",
+        "theta",
+        "phi"
             ],
 	"qMapNames":
             [
-		"Unwrapped phase image"
+		"Unwrapped phase image",
+        "Azimuth angle of the fibers",
+		"Elevation of the fibers"
             ],
     "suffixBIDS":
         [
-            "inherit_part-phase"
+            "inherit_part-phase",
+            "THETAmap",
+            "PHImap"
         ],
     "isOfficialBIDS":
-        [true],
+        [
+            true,
+            false,
+            false
+        ],
     "folderBIDS":
-        ["anat"]
+        [
+            "anat",
+            "dwi",
+            "dwi"
+        ]
     },
 
 
@@ -354,41 +368,11 @@
 
 
 
-    "Orientation":
-    {   "decription": "Fiber (e.g. WM tract) orientation output (FitResults.my_output) variables (my_output) are defined in this namespace.",
-        "xnames":
-            [
-		"theta",
-		"phi"
-            ],
-	"qMapNames":
-            [
-		"Azimuth angle of the fibers",
-		"Elevation of the fibers"
-            ],
-    "suffixBIDS":
-    [
-        "THETAmap",
-        "PHImap"
-    ],
-    "isOfficialBIDS":
-    [   
-        false,
-        false
-    ],
-    "folderBIDS":
-    [
-        "dwi",
-        "dwi"
-    ]
-    },
-
-
-
     "Arbitrary":
     {   "decription": "Any output of arbitrary unit (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "xnames":
             [
+        "ODI",
 		"kappa",
 		"b0",
 		"residue",
@@ -398,6 +382,7 @@
 		"FA",
 		"S0_TE%02d",
 		"Spurious",
+        "spurious",
 		"MTSAT",
 		"M0f",
 		"M0r",
@@ -414,6 +399,7 @@
 	"qMapNames":
             [
 		"Orientation dispersion index derived from concentration parameter of Watson distribution",
+        "Concentration parameter of Watson distribution",
 		"Signal at b=0",
 		"Fitting residuals",
 		"1rst eigenvalue of D",
@@ -422,6 +408,7 @@
 		"Fractional Anisotropy: FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2))",
 		"Signal at b=0 at TE=XX",
 		"Map of datapoints that were set to 1 prior to smoothing",
+        "Map of datapoints that were set to 1 prior to smoothing",
 		"MT saturation map (%), T1-corrected",
 		"Equilibrium value of the free pool longitudinal magnetization",
 		"Equilibrium value of the restricted pool longitudinal magnetization",
@@ -438,6 +425,7 @@
     "suffixBIDS":
     [
         "ODImap",
+        "KAPPAmap",
         "sigb0",
         "residual",
         "L1map",
@@ -445,6 +433,7 @@
         "L3map",
         "FAmap",
         "S0TE%02",
+        "spurious",
         "spurious",
         "MTsat",
         "M0Fmap",
@@ -461,6 +450,8 @@
     ],
     "isOfficialBIDS":
     [
+        false,
+        false,
         false,
         false,
         false,
@@ -493,6 +484,8 @@
         "dwi",
         "dwi",
         "dwi",
+        "dwi",
+        "fmap",
         "fmap",
         "anat",
         "anat",

@@ -224,6 +224,17 @@ delete(wh);
 function MethodSelection_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 MethodMenu(hObject,eventdata,handles,Method);
+if ~isempty(handles.CurrentData)
+    tmp = eval(Method);
+    if (all(ismember(handles.CurrentData.fields,tmp.MRIinputs)) || all(ismember(handles.CurrentData.fields,tmp.xnames)))
+        set(handles.SourcePop,'String',handles.CurrentData.fields);
+    else
+        set(handles.SourcePop,'String',{' '});
+    end
+else
+    set(handles.SourcePop,'String',{' '});
+end
+
 set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
 
 

@@ -29,7 +29,8 @@ classdef noddi < AbstractModel
 %   fr                  Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
 %                        fr = ficvf*(1-fiso)
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
-%   kappa               Orientation dispersion index
+%   kappa               Concentration parameter of Watson distribution
+%   ODI                 Orientation dispersion index
 %   b0                  Signal at b=0
 %   theta               Inclination angle of the fibers
 %   phi                 Azimuth angle of the fibers

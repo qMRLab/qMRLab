@@ -16,12 +16,12 @@
         },
         "Outputs":
         {
-            "di": "square_meter_per_second",
+            "di": "square_micrometer_per_millisecond",
             "ficv": "fraction_decimal",
             "fiso": "fraction_decimal",
             "fr": "fraction_decimal",
             "irfrac": "fraction_decimal",
-            "diso": "square_meter_per_second",
+            "diso": "square_micrometer_per_millisecond",
             "kappa": "arbitrary",
             "b0":"arbitrary",
             "theta": "radian",
@@ -47,7 +47,7 @@
         "Outputs":
         {
             "fr": "fraction_decimal",
-            "Dh": "square_meter_per_second",
+            "Dh": "square_micrometer_per_millisecond",
             "diameter_mean": "micrometer",
             "fcsf": "fraction_decimal",
             "lc": "arbitrary",
@@ -100,12 +100,12 @@
         },
         "Outputs":
         {
-            "di": "square_meter_per_second",
+            "di": "square_micrometer_per_millisecond",
             "ficv": "fraction_decimal",
             "fiso": "fraction_decimal",
             "fr": "fraction_decimal",
             "irfrac": "fraction_decimal",
-            "diso": "square_meter_per_second",
+            "diso": "square_micrometer_per_millisecond",
             "kappa": "arbitrary",
             "b0":"arbitrary",
             "theta": "radian",
@@ -143,7 +143,7 @@
         {
             "B1map_raw": "relative_scaling_factor_decimal",
             "B1map_filtered": "relative_scaling_factor_decimal",
-            "spurious": "arbitrary"
+            "Spurious": "arbitrary"
         }
 	},
 

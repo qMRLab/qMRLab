@@ -5,19 +5,19 @@
         {
             "factor2base": 1,
             "label": "second",
-            "shorthand": "(s)"
+            "symbol": "(s)"
         },
         "millisecond": 
         {
-            "factor2base": 0.001,
+            "factor2base": 1e-3,
             "label": "millisecond",
-            "shorthand": "(ms)"
+            "symbol": "(ms)"
         },
         "microsecond": 
         {
-            "factor2base": 0.000001,
+            "factor2base": 1e-6,
             "label": "microsecond",
-            "shorthand": "(us)"
+            "symbol": "(us)"
         }      
     },
 
@@ -27,13 +27,13 @@
         {
             "factor2base": 1,
             "label": "ratio",
-            "shorthand": "[0-1]"
+            "symbol": "[0-1]"
         },
         "fraction_percent": 
         {
-            "factor2base": 0.01,
+            "factor2base": 1e-2,
             "label": "ratio",
-            "shorthand": "(%)"
+            "symbol": "(%)"
         }
     },
 
@@ -43,19 +43,19 @@
         {
             "factor2base": 1,
             "label": "rate",
-            "shorthand": "1/s"
+            "symbol": "1/s"
         },
         "reciprocal_millisecond":
         {
-            "factor2base": 1000,
+            "factor2base": 1e3,
             "label": "rate",
-            "shorthand": "(1/ms)"
+            "symbol": "(1/ms)"
         },
         "reciprocal_microsecond":
         {
-            "factor2base": 1000000,
+            "factor2base": 1e6,
             "label": "rate",
-            "shorthand": "(1/us)"
+            "symbol": "(1/us)"
         }
     },
 
@@ -65,7 +65,7 @@
         {
             "factor2base": 1,
             "label": "Hertz",
-            "shorthand": "(Hz)"
+            "symbol": "(0 Hz=ideal)"
         }
     },
 
@@ -74,14 +74,14 @@
         "relative_scaling_factor_decimal": 
         {
             "factor2base": 1,
-            "label": "rel-B1+",
-            "shorthand": "(-inf,1,inf)"
+            "label": "B1+",
+            "symbol": "(-inf,1=ideal,inf)"
         },
         "relative_scaling_factor_percent": 
         {
-            "factor2base": 0.01,
-            "label": "rel-B1+",
-            "shorthand": "(-inf,100,inf)"
+            "factor2base": 1e-2,
+            "label": "B1+",
+            "symbol": "(-inf,100=ideal,inf)"
         }
     },
 
@@ -90,24 +90,24 @@
         "part_per_million": 
         {
             "factor2base": 1,
-            "label": "part_per_million",
-            "shorthand": "(ppm)"
+            "label": "qsm",
+            "symbol": "(ppm)"
         }
     },
 
-    "Phase":
+    "Angle":
     {
         "radian":
         {
             "factor2base": 1,
             "label": "radian",
-            "shorthand": "(rad)"
+            "symbol": "(rad)"
         },
         "degree":
         {
             "factor2base": 0.0175,
             "label": "degree",
-            "shorthand": "(deg)"
+            "symbol": "(deg)"
         }
     },
 
@@ -117,7 +117,13 @@
         {
             "factor2base": 1,
             "label": "diffusivity",
-            "shorthand": "m^2/s"
+            "symbol": "m^2/s"
+        },
+        "square_micrometer_per_millisecond":
+        {
+            "factor2base": 1e-9,
+            "label": "diffusivity",
+            "symbol": "u^2/ms"
         }
     }
 
