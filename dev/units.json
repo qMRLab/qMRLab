@@ -1,12 +1,27 @@
 {
     "Time": 
     {
+        "hour": 
+        {
+            "factor2base": 3600,
+            "label": "hour",
+            "symbol": "(hr)"
+        },
+
+        "minute": 
+        {
+            "factor2base": 60,
+            "label": "minute",
+            "symbol": "(min)"
+        },
+
         "second": 
         {
             "factor2base": 1,
             "label": "second",
             "symbol": "(s)"
         },
+
         "millisecond": 
         {
             "factor2base": 0.001,
