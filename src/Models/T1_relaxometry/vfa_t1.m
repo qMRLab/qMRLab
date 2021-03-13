@@ -82,6 +82,9 @@ end
 
         function obj = vfa_t1()
             obj.options = button2opts(obj.buttons);
+            % If requested by the user, update Prot field names and 
+            % default Protocol values to the desired units.
+            obj.Prot = obj.getScaledProtocols(obj);
         end
 
         function Smodel = equation(obj,x)

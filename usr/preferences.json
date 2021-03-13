@@ -2,19 +2,25 @@
 	"GUIDefault": {
 		"Method": "inversion_recovery"
 	},
+
 	"SaveProvenance": true,
+
 	"SaveRateMapsWhereverAvailable": false,
+
 	"SaveBIDSLikeFitResults": true,
+
 	"FitParallelWheneverPossible": true,
+
 	"ParFitData": {
 		"AutosaveEnabled": 1,
 		"AutosaveInterval": 5,
 		"Granularity": 3,
 		"RemoveTmpOnSuccess": 1
 	},
+
 	"UnifyOutputMapUnits": {
 		"Enabled": false,
-		"Time": "second",
+		"Time": "millisecond",
 		"Rate": "reciprocal_second",
 		"Fraction": "fraction_decimal",
 		"B1": "relative_scaling_factor_decimal",
@@ -24,19 +30,17 @@
 		"Diffusivity": "square_micrometer_per_millisecon",
 		"Length": "micrometer"
 	},
+
 	"UnifyInputProtocolUnits": {
-		"Enabled": false,
-		"EchoTime": "second",
-		"RepetitionTime": "second",
-		"InversionTime": "second",
-		"FlipAngle": "degree",
-		"MTOffsetFrequency": "megahertz",
+		"Enabled": true,
+		"Time":"second",
+		"Frequency": "hertz",
 		"MagneticFieldStrength": "tesla",
 		"GradientMagnitude": "tesla_per_meter",
 		"Resolution": "millimeter",
-		"DiffusionSeparationDelta": "second",
-		"DiffusionDurationDelta": "second"
+		"Angle": "degree"
 	},
+
 	"ChangeProvidedInputMapUnits": {
 		"Enabled": false,
 		"Time": "second",

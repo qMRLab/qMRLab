@@ -69,8 +69,8 @@ end
         fx           = [    0        0        0 ]; % fix parameters
 
         % Protocol
-        Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
-                      'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
+        Prot = struct('IRData', struct('Format',{'TI'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
+                      'TimingTable', struct('Format',{{'TR'}},'Mat',2500)); %default protocol
         % Model options
         buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
@@ -89,6 +89,9 @@ end
         % -------------CONSTRUCTOR-------------------------------------------------------------------------
         function  obj = inversion_recovery()
             obj.options = button2opts(obj.buttons);
+            % If requested by the user, update Prot field names and 
+            % default Protocol values to the desired units.
+            obj.Prot = obj.getScaledProtocols(obj);
         end
 
         function obj = UpdateFields(obj)

@@ -409,6 +409,7 @@ classdef (Abstract) AbstractModel
 
         end
 
+
     end
 
     methods(Static)
@@ -468,6 +469,38 @@ classdef (Abstract) AbstractModel
                 end
             end
 
+        end
+
+        function prot = getScaledProtocols(obj)
+
+            prot =  obj.Prot;
+            reg = modelRegistry('get',obj.ModelName);
+            protUnitMaps = reg.UnitBIDSMappings.Protocol;
+        
+            % baba.Prot.TimingTable.Format (5x1 cell array olabilir)
+
+            % This is the same with the fieldnames of protUnitMaps 
+            protNames = fieldnames(obj.Prot);
+
+            for ii=1:length(protNames)
+                % Format fields in classnames omit unit from v2.5.0 onward
+                % A format field is not necessarily 1x1, so we need to iterate over it
+                curFormat = obj.Prot.(protNames{ii}).Format;
+                % This is not cell in all the models, so ensure that 
+                % it is casted to cell when it is initially not.
+                if ~iscell(curFormat)
+                    curFormat = cellstr(curFormat);
+                    prot.(protNames{ii}).Format = curFormat;
+                end
+                % Format may include more than one fields
+                for jj = 1:length(curFormat)
+                % Update Format with the respective unit
+                prot.(protNames{ii}).Format(jj) = {[curFormat{jj}  ' ' protUnitMaps.(protNames{ii}).(curFormat{jj}).Symbol]};
+                % Scale protocol parameters according to the user configs 
+                prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                end
+            end
+        
         end
 
     end

@@ -134,7 +134,7 @@ end
             'Mat', [142 443; 426 443; 142 1088; 426 1088; 142 2732
             426 2732; 142 6862; 426 6862; 142 17235; 426 17235]),...
             'TimingTable',...
-            struct('Format',{{'Tmt (s)'; 'Ts (s)'; 'Tp (s)'; 'Tr (s)'; 'TR (s)'}},...
+            struct('Format',{{'Tmt'; 'Ts'; 'Tp'; 'Tr'; 'TR'}},...
             'Mat',[0.0102; 0.0030; 0.0018; 0.0100; 0.0250]));
 
         ProtSfTable = load('DefaultSFTable.mat'); % SfTable declaration
@@ -143,7 +143,7 @@ end
         buttons = {'PANEL','MT_Pulse', 5,...
             'Shape',{'gausshann','gaussian','hard','sinc','sinchann','sincgauss','fermi'},...
             'Sinc TBW',4,...
-            'Bandwidth',200,...
+            'Bandwidth (Hz)',200,...
             'Fermi transition (a)',0.0102/33.81,...
             '# of MT pulses',600,...
             'Model',{'SledPikeRP','SledPikeCW','Yarnykh','Ramani'},...
@@ -171,6 +171,9 @@ end
         function obj = qmt_spgr
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % If requested by the user, update Prot field names and 
+            % default Protocol values to the desired units.
+            obj.Prot = obj.getScaledProtocols(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -205,7 +208,7 @@ end
 
             % Disable/enable some MT pulse options --> Add ### to the button
             % Name you want to disable
-            disablelist = {'Fermi transition (a)','Bandwidth','Sinc TBW'};
+            disablelist = {'Fermi transition (a)','Bandwidth (Hz)','Sinc TBW'};
             switch  obj.options.MT_Pulse_Shape
                 case {'sinc','sinchann'}
                     disable = [true, true, false];
@@ -373,12 +376,12 @@ end
 
         function plotProt(obj)
             Prot = GetProt(obj);
-            subplot(3,1,1)
+            subplot(2,1,1)
             plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
             ylabel('Angle')
             xlabel('offset (Hz)')
             title('MT parameter (FA, Offset)')
-            subplot(3,1,2)
+            subplot(2,1,2)
             angles = Prot.Angles(1);
             offsets = Prot.Offsets(1);
             shape = Prot.MTpulse.shape;
@@ -387,9 +390,10 @@ end
             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
             ViewPulse(Pulse,'b1');
             title('MTpulse shape')
-            subplot(3,1,3)
-            imshow qmt_spgr.png
-            title('Pulse sequence diagram')
+            % These are moved to documentation
+            %subplot(3,1,3)
+            %imshow qmt_spgr.png 
+            %title('Pulse sequence diagram')
         end
 
         function Prot = GetProt(obj)
@@ -401,10 +405,10 @@ end
                 case {'sinc','sinchann'}
                     Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;
                 case {'gausshann','gaussian'}
-                    Prot.MTpulse.opt.bw = obj.options.MT_Pulse_Bandwidth;
+                    Prot.MTpulse.opt.bw = obj.options.MT_Pulse_BandwidthHz;
                 case 'sincgauss'
                     Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;
-                    Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_Bandwidth;
+                    Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_BandwidthHz;
                 case 'fermi'
                     Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
                 otherwise

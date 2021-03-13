@@ -153,8 +153,11 @@ end
 
 % INPUT DATA MAPPINGS -----------------------------------------
 
-Model = eval(model);
-inputs = Model.MRIinputs;
+% Corresponds to MRInputs. Here, you CANNOT get this list by instantiating an
+% object. Because, there are some scaled operations required (to populate
+% GUI) during construction (endless recursion otherwise). 
+
+inputs = fieldnames(register.(model).InputDataUnits);
     
 if isfield(register.(model),'InputDataUnits')
     
@@ -195,6 +198,15 @@ end
 
 % Protocol MAPPINGS -----------------------------------------
 
+if isfield(register.(model),'InputProtUnits')
+
+    fnames = fieldnames(register.(model).InputProtUnits);
+    for ii =1:length(fnames)
+       new_out.Protocol.(fnames{ii}) = getInputProtocolDetails(register.(model).InputProtUnits.(fnames{ii}));
+
+    end
+
+end
 
 
 out = new_out;
@@ -214,11 +226,10 @@ function out = getInputDataDetails(unitName)
 out = struct();
 unitDefs = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'units.json']);
 fields = fieldnames(unitDefs);
-% Not Louis Litt, but lookup table
+
 lut = [];
 for ii=1:length(fields)
     parent = cellstr(repmat(fields{ii},[length(fieldnames(unitDefs.(fields{ii}))) 1]));
-    %cur_lut = table(parent,fieldnames(unitDefs.(fields{ii})),'VariableNames',{'Family','unit'});
     cur_lut = cell(length(parent),2);
     cur_lut(:,1) = parent;
     cur_lut(:,2) = fieldnames(unitDefs.(fields{ii}));
@@ -239,7 +250,9 @@ if usr.ChangeProvidedInputMapUnits.Enabled
     % The name of the input unit is always fixed to that defined in the
     % model registry. MapScale explains with which factor was the user
     % input was multiplied to obtain a map compatible with the qMRLab
-    % method.
+    % method. For example, user has relative B1+ in percents. Models use
+    % B1+ maps in decimal format, so transform. 
+
     out.ActiveUnit = unitName;
     out.Symbol = unitDefs.(out.Family).(out.ActiveUnit).symbol;
     out.Label = unitDefs.(out.Family).(out.ActiveUnit).label;
@@ -254,5 +267,59 @@ else
     out.Symbol = unitDefs.(out.Family).(out.ActiveUnit).symbol;
     out.Label = unitDefs.(out.Family).(out.ActiveUnit).label;
 end
+
+end
+
+
+function out = getInputProtocolDetails(protClass)
+% unitName is the FIXED input unit required by the implementation. Here, 
+% we don't have the liberty to change it into something user wants.
+% If user's would like to provide protocol inputs in a different unit 
+% (e.g. inversion_recovery inputs are in msec), but user would like to pass
+% TI(s) in seconds. 
+
+out = struct();
+unitDefs = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'units.json']);
+fields = fieldnames(unitDefs);
+
+lut = [];
+for ii=1:length(fields)
+    parent = cellstr(repmat(fields{ii},[length(fieldnames(unitDefs.(fields{ii}))) 1]));
+    cur_lut = cell(length(parent),2);
+    cur_lut(:,1) = parent;
+    cur_lut(:,2) = fieldnames(unitDefs.(fields{ii}));
+    lut = [lut;cur_lut];
+end
+
+protNames = fieldnames(protClass);
+usr = getUserPreferences();
+% These are required to infer unit family types
+usr.ChangeProvidedInputMapUnits.Arbitrary = "arbitrary";
+usr.ChangeProvidedInputMapUnits.Categorical = "categorical";
+
+for ii=1:length(protNames)
+% Protocol key/value pairs are wrapped in a namespace that we need to
+% iterate over here. 
+
+[~,idxs2] = ismember(protClass.(protNames{ii}),lut(:,2));
+unitFamilyName = cell2mat(lut(idxs2,1));
+out.(protNames{ii}).Family = unitFamilyName;
+
+if usr.UnifyInputProtocolUnits.Enabled
+    out.(protNames{ii}).ActiveUnit = usr.UnifyInputProtocolUnits.(unitFamilyName);
+    out.(protNames{ii}).Symbol = unitDefs.(unitFamilyName).(out.(protNames{ii}).ActiveUnit).symbol;
+    out.(protNames{ii}).Label = unitDefs.(unitFamilyName).(out.(protNames{ii}).ActiveUnit).label;
+    out.(protNames{ii}).ScaleFactor = unitDefs.(unitFamilyName).(usr.UnifyInputProtocolUnits.(unitFamilyName)).factor2base/unitDefs.(unitFamilyName).(protClass.(protNames{ii})).factor2base;
+else
+    % Then the active unit is the original one.
+    out.(protNames{ii}).ActiveUnit = protClass.(protNames{ii});
+    % Therefore scaling is 1. 
+    out.(protNames{ii}).ScaleFactor = 1;
+    out.(protNames{ii}).Symbol = unitDefs.(out.(protNames{ii}).Family).(out.(protNames{ii}).ActiveUnit).symbol;
+    out.(protNames{ii}).Label = unitDefs.(out.(protNames{ii}).Family).(out.(protNames{ii}).ActiveUnit).label;
+end
+
+end
+
 
 end

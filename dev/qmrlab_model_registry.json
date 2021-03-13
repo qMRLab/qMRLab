@@ -1,6 +1,10 @@
 {
 	"amico": {
         "ModelPath": "Diffusion/",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "Mask": "categorical"
+        },
 		"InputProtUnits":
         {
         "DiffusionData":
@@ -31,6 +35,11 @@
 
     "charmed": {
         "ModelPath": "Diffusion/",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "SigmaNoise": "arbitrary",
+            "Mask": "categorical"
+        },
 		"InputProtUnits":
         {
         "DiffusionData":
@@ -58,6 +67,11 @@
 
     "dti": {
         "ModelPath": "Diffusion/",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "SigmaNoise": "arbitrary",
+            "Mask": "categorical"
+        },
 		"InputProtUnits":
         {
         "DiffusionData":
@@ -85,6 +99,10 @@
 
 	"noddi": {
         "ModelPath": "Diffusion/",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "Mask": "categorical"
+        },
 		"InputProtUnits": 
         {
         "DiffusionData":
@@ -115,6 +133,10 @@
 
     "b0_dem": {
         "ModelPath": "FieldMaps/",
+        "InputDataUnits":{
+            "Phase": "radian",
+            "Magn":  "arbitrary"
+        },
 		"InputProtUnits": 
         {
         "TimingTable":
@@ -130,6 +152,11 @@
 
     "b1_afi": {
         "ModelPath": "FieldMaps/",
+        "InputDataUnits":{
+            "AFIData1": "arbitrary",
+            "AFIData2":  "arbitrary",
+            "Mask": "categorical"
+        },
 		"InputProtUnits":
         {
         "Sequence":
@@ -149,6 +176,11 @@
 
     "b1_dam": {
         "ModelPath": "FieldMaps/",
+        "InputDataUnits":{
+            "SFalpha": "arbitrary",
+            "SF2alpha":  "arbitrary",
+            "Mask": "categorical"
+        },
 		"InputProtUnits":
         {
         "Alpha":
@@ -166,6 +198,11 @@
 
     "mt_ratio": {
         "ModelPath": "Magnetization_transfer/",
+        "InputDataUnits":{
+            "MTon": "arbitrary",
+            "MToff":  "arbitrary",
+            "Mask": "categorical"
+        },
         "Outputs":
         {
             "MTR": "fraction_percent"
@@ -174,6 +211,13 @@
 
     "mt_sat": {
         "ModelPath": "Magnetization_transfer/",
+        "InputDataUnits":{
+            "MTw": "arbitrary",
+            "T1w":  "arbitrary",
+            "PDw": "arbitrary",
+            "B1map": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
+        },
         "InputProtUnits":
         {
         "MTw":
@@ -202,11 +246,13 @@
     "qmt_bssfp": {
         "ModelPath": "Magnetization_transfer/",
         "InputDataUnits":{
-            "R1map": "reciprocal_second"
+            "MTdata": "arbitrary",
+            "R1map": "reciprocal_second",
+            "Mask": "categorical"
         },
         "InputProtUnits":
         {
-        "MTData":
+        "MTdata":
             {
                 "Alpha": "degree",
                 "Trf": "second"
@@ -228,11 +274,13 @@
     "qmt_sirfse": {
         "ModelPath": "Magnetization_transfer/",
         "InputDataUnits":{
-            "R1map": "reciprocal_second"
+            "MTdata": "arbitrary",
+            "R1map": "reciprocal_second",
+            "Mask": "categorical"
         },
         "InputProtUnits":
         {
-        "MTData":
+        "MTdata":
             {
                 "Ti": "second",
                 "Td": "second"
@@ -262,13 +310,15 @@
     "qmt_spgr": {
         "ModelPath": "Magnetization_transfer/",
         "InputDataUnits":{
+            "MTdata": "arbitrary",
             "R1map": "reciprocal_second",
             "B1map": "relative_scaling_factor_decimal",
-            "B0map": "offset_factor_hertz"
+            "B0map": "offset_factor_hertz",
+            "Mask": "categorical"
         },
         "InputProtUnits":
         {
-            "MTData":
+            "MTdata":
                 {
                     "Angle": "degree",
                     "Offset": "hertz"
@@ -297,6 +347,11 @@
 
     "qsm_sb": {
         "ModelPath": "QSM/",
+        "InputDataUnits":{
+            "PhaseGRE": "radian",
+            "MagnGRE": "arbitrary",
+            "Mask": "categorical"
+        },
         "InputProtUnits":
         {
             "Resolution":
@@ -329,6 +384,10 @@
 
     "inversion_recovery": {
         "ModelPath": "T1_relaxometry/",
+        "InputDataUnits":{
+            "IRData": "arbitrary",
+            "Mask": "categorical"
+        },
         "InputProtUnits":
         {
             "IRData":
@@ -353,9 +412,13 @@
     "mp2rage": {
         "ModelPath": "T1_relaxometry/",
         "InputDataUnits":{
+            "MP2RAGE": "arbitrary",
+            "INV1mag": "categorical",
             "INV1phase": "radian",
+            "INV2mag": "categorical",
             "INV2phase": "radian",
-            "B1map":"relative_scaling_factor_decimal"
+            "B1map": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
         },
         "InputProtUnits":
         {
@@ -396,7 +459,8 @@
         "InputDataUnits":
         {
             "T1": "second",
-            "M0": "arbitrary"
+            "M0": "arbitrary",
+            "Mask": "categorical"
         },    
         "Outputs":
         {
@@ -410,8 +474,10 @@
     "vfa_t1": {
         "ModelPath": "T1_relaxometry/",
         "InputDataUnits":
-        {
-            "B1map": "relative_scaling_factor_decimal"
+        {   
+            "VFAData": "arbitrary",
+            "B1map": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
         },
         "InputProtUnits":
         {
@@ -430,6 +496,11 @@
 
     "mono_t2": {
         "ModelPath": "T2_relaxometry/",
+        "InputDataUnits":
+        {   
+            "SEData": "arbitrary",
+            "Mask": "categorical"
+        },
         "InputProtUnits":
         {
             "SEData":
@@ -446,6 +517,11 @@
 
     "mwf": {
         "ModelPath": "T2_relaxometry/",
+        "InputDataUnits":
+        {   
+            "MET2data": "arbitrary",
+            "Mask": "categorical"
+        },
         "InputProtUnits":
         {
             "MET2Data":
@@ -464,6 +540,11 @@
     "denoising_mppca":
     {
         "ModelPath": "Noise/",
+        "InputDataUnits":
+        {   
+            "Data4D": "arbitrary",
+            "Mask": "categorical"
+        },
         "Outputs":
         {   
             "Data4D_denoised":"arbitrary",
@@ -474,6 +555,11 @@
     "noise_level":
     {
         "ModelPath": "Noise/",
+        "InputDataUnits":
+        {   
+            "Data4D": "arbitrary",
+            "Mask": "categorical"
+        },
         "Outputs":
         {   
             "eta":"arbitrary",
@@ -485,6 +571,11 @@
     "filter_map":
     {
         "ModelPath": "Processing/",
+        "InputDataUnits":
+        {   
+            "Raw": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
+        },
         "Outputs":
         {   
             "Filtered":"relative_scaling_factor_decimal"

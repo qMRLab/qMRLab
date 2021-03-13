@@ -127,7 +127,7 @@ end
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'PANEL','Sr_Calculation',2,...
-                   'T2r',1e-05,...
+                   'T2r (s)',1e-05,...
                    'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'}};
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
@@ -330,7 +330,7 @@ end
             SrParam.R1f = 1;
             SrParam.R1r = 1;
             SrParam.T2f = 0.04;
-            SrParam.T2r = obj.options.Sr_Calculation_T2r;
+            SrParam.T2r = obj.options.Sr_Calculation_T2rs;
             SrParam.M0f = 1;
             SrParam.M0r = SrParam.F*SrParam.M0f;
             SrParam.lineshape = obj.options.Sr_Calculation_Lineshape;

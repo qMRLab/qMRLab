@@ -9,13 +9,13 @@
         },
         "millisecond": 
         {
-            "factor2base": 1e-3,
+            "factor2base": 0.001,
             "label": "millisecond",
             "symbol": "(ms)"
         },
         "microsecond": 
         {
-            "factor2base": 1e-6,
+            "factor2base": 0.000001,
             "label": "microsecond",
             "symbol": "(us)"
         }      
@@ -31,7 +31,7 @@
         },
         "fraction_percent": 
         {
-            "factor2base": 1e-2,
+            "factor2base": 0.01,
             "label": "ratio",
             "symbol": "(%)"
         }
@@ -47,13 +47,13 @@
         },
         "reciprocal_millisecond":
         {
-            "factor2base": 1e3,
+            "factor2base": 1000,
             "label": "rate",
             "symbol": "(1/ms)"
         },
         "reciprocal_microsecond":
         {
-            "factor2base": 1e6,
+            "factor2base": 1000000,
             "label": "rate",
             "symbol": "(1/us)"
         }
@@ -69,6 +69,28 @@
         }
     },
 
+    "Frequency":
+    {
+        "hertz":{
+            "factor2base": 1,
+            "label": "Hertz",
+            "symbol": "(Hz)"
+        },
+
+        "kilohertz":{
+            "factor2base": 0.001,
+            "label": "Hertz",
+            "symbol": "(kHz)"
+        },
+
+        "megahertz":{
+            "factor2base": 0.000001,
+            "label": "Hertz",
+            "symbol": "(HHz)"
+        }
+
+    },
+
     "B1":
     {
         "relative_scaling_factor_decimal": 
@@ -79,7 +101,7 @@
         },
         "relative_scaling_factor_percent": 
         {
-            "factor2base": 1e-2,
+            "factor2base": 0.01,
             "label": "rel B1+",
             "symbol": "(100=ideal)"
         }
@@ -137,7 +159,7 @@
         },
         "millimeter":
         {
-            "factor2base": 1e-3,
+            "factor2base": 0.001,
             "label": "millimeter",
             "symbol": "(mm)"
         }
@@ -165,6 +187,16 @@
         {
             "factor2base": 1,
             "label": "arbitrary",
+            "symbol": ""
+        }
+    },
+
+    "Categorical":
+    {
+        "categorical":
+        {
+            "factor2base": 1,
+            "label": "categorical",
             "symbol": ""
         }
     }
