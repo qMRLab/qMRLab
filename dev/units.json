@@ -181,6 +181,16 @@
         }
     },
 
+    "GradientMagnitude":
+    {
+        "tesla_per_meter":
+        {
+            "factor2base": 1,
+            "label": "Tesla per meter",
+            "symbol": "(T/m)"
+        }
+    },
+
     "Arbitrary":
     {
         "arbitrary":

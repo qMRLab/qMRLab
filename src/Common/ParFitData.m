@@ -173,6 +173,15 @@ if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
     fprintf('%s\n\n',msg)
 end
 
+% ############################# UNIT CONVERSION #################################
+% Before starting voxelwise fit ensure that the protocols are defined
+% in the Model's original units. Introduced in v2.5.0
+% The flag is stored in the hidden parameter Model.OriginalProtEnabled
+if ~Model.OriginalProtEnabled
+   [Model.Prot,Model.OriginalProtEnabled] = Model.getScaledProtocols(Model,'inOriginalUnits',Model.OriginalProtEnabled);
+end
+
+
 if Model.voxelwise % process voxelwise
     
     % Create folder name for temp outputs
@@ -308,6 +317,7 @@ if Model.voxelwise % process voxelwise
         [parM,~] = mapData(Model,data,MRIinputs,Voxels,nW,granularity);
         
     end
+    
     
     disp('=============== qMRLab::Fit ======================')
     cprintf('magenta', '<< i >> Operation has been started:  %s \n',Model.ModelName);

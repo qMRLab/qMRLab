@@ -12,7 +12,7 @@
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla_per_meter",
+                "Gnorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"
@@ -47,7 +47,7 @@
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla_per_meter",
+                "Gnorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"
@@ -79,7 +79,7 @@
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla_per_meter",
+                "Gnorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"
@@ -110,7 +110,7 @@
                 "Gx": "arbitrary",
                 "Gy": "arbitrary",
                 "Gz": "arbitrary",
-                "GNorm": "tesla_per_meter",
+                "Gnorm": "tesla_per_meter",
                 "Delta": "second",
                 "delta": "second",
                 "TE": "second"

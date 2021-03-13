@@ -91,10 +91,14 @@ end
             obj.options = button2opts(obj.buttons);
             % If requested by the user, update Prot field names and 
             % default Protocol values to the desired units.
-            obj.Prot = obj.getScaledProtocols(obj);
+            % While constructing an object, direction is always
+            % from original units to the user units.
+            [obj.Prot,obj.OriginalProtEnabled] = obj.getScaledProtocols(obj,'inUserUnits',obj.OriginalProtEnabled);
         end
 
         function obj = UpdateFields(obj)
+            % Here UpdateFields is only responsible for sorting TIs, so
+            % agnostic to the units.
             obj.Prot.IRData.Mat = sort(obj.Prot.IRData.Mat);
         end
         function xnew = SimOpt(obj,x,Opt)
@@ -104,7 +108,8 @@ end
         end
 
         % -------------IR EQUATION-------------------------------------------------------------------------
-        function Smodel = equation(obj, x)
+        function Smodel = equation(obj, x)   
+            %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
             % Generates an IR signal based on fit parameters
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
 
@@ -117,6 +122,7 @@ end
 
         % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
         function [ra,rb] = ComputeRaRb(obj,x,Opt)
+            %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
 
             % Some sanity checks
             [ErrMsg]=[];
@@ -160,8 +166,6 @@ end
 
         % -------------DATA FITTING-------------------------------------------------------------------------
         function FitResults = fit(obj,data)
-            % Fits the data
-            %
             
             data = data.IRData;
             
@@ -226,6 +230,8 @@ end
         end
 
         function plotModel(obj, FitResults, data)
+           %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
+
             % Plots the fit
             %
             % :param FitResults: [struct] Fitting parameters
@@ -257,6 +263,8 @@ end
         end
 
         function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            
+            %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
             % Simulates Single Voxel
             %
             % :param x: [struct] fit parameters

@@ -14,6 +14,27 @@ classdef (Abstract) AbstractModel
 
     properties (Hidden=true)
         EnvDetails
+        % This is a highly important hidden property. Not protected because
+        % FitData and ParFitData should be able to access it externally.
+        % This avoids overhead in voxelwise methods.
+        
+        % Determines whether protocols are being displayed to the user
+        % or being assigned by the user, OR whether they are being consumed by
+        % the Model. During the object construction, we convert original
+        % units to user requested units, as they determine what's shown in
+        % GUI & CLI (qMRgenBatch). Whenever the Prot values are accessed by
+        % the method, they MUST be in the original units for accurate
+        % quantification.
+        
+        % As this will be converted to `user` during construction, now we
+        % set this to true in the abstract base class. This way,
+        % objects instantiated from a class deriven from this abstract
+        % class will know what to do upon getScaledProtocols.
+        OriginalProtEnabled = true;
+    end
+
+    properties (Access = protected)
+      
     end
 
     methods
@@ -471,14 +492,12 @@ classdef (Abstract) AbstractModel
 
         end
 
-        function prot = getScaledProtocols(obj)
+        function [prot,OriginalProtEnabledOut] = getScaledProtocols(obj,direction,OriginalProtEnabled)
 
             prot =  obj.Prot;
             reg = modelRegistry('get',obj.ModelName);
             protUnitMaps = reg.UnitBIDSMappings.Protocol;
         
-            % baba.Prot.TimingTable.Format (5x1 cell array olabilir)
-
             % This is the same with the fieldnames of protUnitMaps 
             protNames = fieldnames(obj.Prot);
 
@@ -494,10 +513,55 @@ classdef (Abstract) AbstractModel
                 end
                 % Format may include more than one fields
                 for jj = 1:length(curFormat)
-                % Update Format with the respective unit
-                prot.(protNames{ii}).Format(jj) = {[curFormat{jj}  ' ' protUnitMaps.(protNames{ii}).(curFormat{jj}).Symbol]};
-                % Scale protocol parameters according to the user configs 
-                prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+
+                switch direction
+                % Whereas these values should change back and forth
+                % depending on whether they are displayed in qMRLab GUI
+                % during object construction, or whether they are about to
+                % be fed into fitting/simulations. In the latter case, the
+                % object must ensure that the original parameters are
+                % passed. This is explicitly declared wherever applicable.
+                case 'inUserUnits'
+                    % Scale protocol parameters according to the user configs
+                    % Only perform if the previous state is original.
+                    if OriginalProtEnabled
+                        prot.(protNames{ii}).Format(jj) = {[curFormat{jj} protUnitMaps.(protNames{ii}).(curFormat{jj}).Symbol]};
+                        prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        % Negate to signal that original prot units are no
+                        % longer enabled
+                        OriginalProtEnabledOut = false;
+                    else
+                        % If there is a request to get Prot in user defined
+                        % units, but the state indicates that it is already
+                        % in the user units, then we'll do this assignment
+                        % here. As we are circulating the same variable,
+                        % this assignment is required (despite that it looks trivial). 
+                        % Otherwise an exeption is thrown.
+                        OriginalProtEnabledOut = false;
+                    end
+                    
+                case 'inOriginalUnits'
+                    % Scale protocol parameters back to the original units (for fitting etc)
+                    if ~OriginalProtEnabled
+                        prot.(protNames{ii}).Format(jj) = curFormat(jj);
+                        % When user parameters are selected units are
+                        % iserted in the Format Name. Here, we need to drop
+                        % them to be able to access the original fields.
+                        prLoc = strfind(curFormat{jj},'(');
+                        curFormat(jj) = cellstr(curFormat{jj}(1:prLoc-1));
+                        prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj).*protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        OriginalProtEnabledOut = true;
+                    else
+                        % If there is a request to get Prot in orig defined
+                        % units, but the state indicates that it is already
+                        % in the orig units, then we'll do this assignment
+                        % here. As we are circulating the same variable,
+                        % this assignment is required (despite that it looks trivial within the statement). 
+                        % Otherwise an exeption is thrown.
+                        OriginalProtEnabledOut = true;
+                    end
+
+                end
                 end
             end
         

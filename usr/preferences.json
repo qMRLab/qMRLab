@@ -19,8 +19,8 @@
 	},
 
 	"UnifyOutputMapUnits": {
-		"Enabled": false,
-		"Time": "millisecond",
+		"Enabled": true,
+		"Time": "second",
 		"Rate": "reciprocal_second",
 		"Fraction": "fraction_decimal",
 		"B1": "relative_scaling_factor_decimal",
@@ -38,7 +38,8 @@
 		"MagneticFieldStrength": "tesla",
 		"GradientMagnitude": "tesla_per_meter",
 		"Resolution": "millimeter",
-		"Angle": "degree"
+		"Angle": "degree",
+		"Arbitrary": "arbitrary"
 	},
 
 	"ChangeProvidedInputMapUnits": {
