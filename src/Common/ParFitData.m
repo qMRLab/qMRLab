@@ -176,10 +176,8 @@ end
 % ############################# UNIT CONVERSION #################################
 % Before starting voxelwise fit ensure that the protocols are defined
 % in the Model's original units. Introduced in v2.5.0
-% The flag is stored in the hidden parameter Model.OriginalProtEnabled
-if ~Model.OriginalProtEnabled
-   [Model.Prot,Model.OriginalProtEnabled] = Model.getScaledProtocols(Model,'inOriginalUnits',Model.OriginalProtEnabled);
-end
+
+Model = setOriginalProtUnits(Model);
 
 
 if Model.voxelwise % process voxelwise
@@ -524,6 +522,11 @@ else % process entire volume not a parfor case
     disp('==================================================')
 end
 
+% After fitting revert prot units back to the 
+% user defined settings so that the 
+% saved FitResults contain Prot.Mat that 
+% matches Prot.Format
+Model = setUserProtUnits(Model);
 
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
@@ -586,15 +589,17 @@ end % Voxelwise parse
 % - /dev/units.json
 % - /dev/qmrlab_model_registry.json 
 % - /dev/xnames_units_BIDS_mappings.json
-if usr.UnifyOutputMapUnits.Enabled
-    
-    for ii=1:length(Fit.fields)
-       
-        Fit.(Fit.fields{ii}) = Fit.(Fit.fields{ii}).*Fit.UnitBIDSMappings.Output.(Fit.fields{ii}).ScaleFactor;
-    
-    end
+Fit = fitResultsUnitScale('toUserUnits',Fit);
 
-end
+%if usr.UnifyOutputMapUnits.Enabled
+    
+%    for ii=1:length(Fit.fields)
+       
+%        Fit.(Fit.fields{ii}) = Fit.(Fit.fields{ii}).*Fit.UnitBIDSMappings.Output.(Fit.fields{ii}).ScaleFactor;
+    
+%    end
+
+%end
 % ====================================================
 end
 

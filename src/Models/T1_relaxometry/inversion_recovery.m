@@ -89,11 +89,9 @@ end
         % -------------CONSTRUCTOR-------------------------------------------------------------------------
         function  obj = inversion_recovery()
             obj.options = button2opts(obj.buttons);
-            % If requested by the user, update Prot field names and 
-            % default Protocol values to the desired units.
-            % While constructing an object, direction is always
-            % from original units to the user units.
-            [obj.Prot,obj.OriginalProtEnabled] = obj.getScaledProtocols(obj,'inUserUnits',obj.OriginalProtEnabled);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -109,7 +107,9 @@ end
 
         % -------------IR EQUATION-------------------------------------------------------------------------
         function Smodel = equation(obj, x)   
-            %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
+            % Ensure that the protocol values are in the original units.
+            obj = setOriginalProtUnits(obj);
+            
             % Generates an IR signal based on fit parameters
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
 
@@ -122,7 +122,8 @@ end
 
         % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
         function [ra,rb] = ComputeRaRb(obj,x,Opt)
-            %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
+            % Ensure that the protocol values are in the original units.
+            obj = setOriginalProtUnits(obj);
 
             % Some sanity checks
             [ErrMsg]=[];
@@ -230,7 +231,8 @@ end
         end
 
         function plotModel(obj, FitResults, data)
-           %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
+            % Ensure that the protocol values are in the original units.
+            obj = setOriginalProtUnits(obj);
 
             % Plots the fit
             %
@@ -263,8 +265,9 @@ end
         end
 
         function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure that the protocol values are in the original units.
+            obj = setOriginalProtUnits(obj);
             
-            %[obj.Prot,obj.CurrentUnit] = obj.getScaledProtocols(obj,'inOriginalUnits',obj.CurrentUnit);
             % Simulates Single Voxel
             %
             % :param x: [struct] fit parameters
@@ -293,6 +296,9 @@ end
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure that the protocol values are in the original units.
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end

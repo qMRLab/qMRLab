@@ -15,6 +15,8 @@ function qMRshowOutput(FitResults,data,Model)
 
 if nargin<3, help('qMRshowOutput'); return; end
 
+Model = Model.setOriginalProtUnits(Model);
+
 outputIm = FitResults.(FitResults.fields{1});
 hmap = figure();
 
@@ -34,7 +36,14 @@ else
 end
 axis image
 [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
-caxis([climm max(climm*1.01,climM)]); colorbar();
+caxis([climm max(climm*1.01,climM)]); 
+clrbar = colorbar();
+
+if ~checkanteriorver(FitResults.Version,[2 4 9])
+    clrbar.Title.String = FitResults.UnitBIDSMappings.Output.(FitResults.fields{1}).Symbol;
+    clrbar.Title.FontSize = 12;
+    clrbar.Title.FontWeight = 'bold';
+end
 
 if FitResults.Model.voxelwise 
     
@@ -58,6 +67,10 @@ if FitResults.Model.voxelwise
     set(hmap, 'Position', MapPos);
     NewPos = [MapPos(1)+MapPos(3), MapPos(2)+MapPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
     set(hplot, 'Position', NewPos);
+    
+    % ============= Ensure that the outputs are scaled to the oroginal
+    % units for compatibility.
+    FitResultsVox = fitResultsUnitScale('toOriginalUnits',FitResultsVox);
     
     % plot voxel curve
     Model.plotModel(FitResultsVox,dataVox)

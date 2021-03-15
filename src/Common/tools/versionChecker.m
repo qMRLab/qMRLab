@@ -30,7 +30,7 @@ if isOnline==0 % Connected
             if isempty(latest_ver); latest_ver = regexp(response, '"tag_name": "v(\d*)\.(\d*).(\d*)?', 'tokens'); end
         end
         latest_ver = str2double(latest_ver{1});
-        if any((qMRLabVer-latest_ver)<0) % Using an older version
+        if any((cur_ver(1:2)-latest_ver(1:2))<0) || ( all(cur_ver(1:2)-latest_ver(1:2)==0) && cur_ver(2)-latest_ver(3)<0) % Using an older version
            cprintf('magenta','There is a newer version available for  %s','download!');
            if ~moxunit_util_platform_is_octave
              cprintf('magenta','Click %s to download the latest qMRLab release v%d.%d.%d.','<a href = "https://github.com/qMRLab/qMRLab/releases/latest">here</a>',latest_ver(1),latest_ver(2),latest_ver(3));
@@ -38,7 +38,7 @@ if isOnline==0 % Connected
              cprintf('magenta','You can download the latest qMRLab release v%d.%d.%d at: %s',latest_ver(1),latest_ver(2),latest_ver(3),'https://github.com/qMRLab/qMRLab/releases/latest');               
            end
            status = latest_ver;
-        elseif sum(qMRLabVer-latest_ver) == 0 % Using latest
+        elseif isequal(latest_ver,cur_ver) % Using latest
            % Cheer up dedicated users :)  
            emoji = [ 40   239   190   137   226   151   149   227   131   174   226   151   149    41   239   190   137    42    58   239   189   165 239 190 159]; 
            try

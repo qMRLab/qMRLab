@@ -1,0 +1,109 @@
+function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,OriginalProtEnabled)
+           % Beginning from v2.5.0 users can specify in which units they'd
+           % like to pass protocol parameters. To ensure that the users are
+           % interfacing with the parameters of the units they set, and
+           % models receive parameters in the scale they require, we need
+           % to scale them back and forth. This static method is
+           % responsible for that. Prot sub-properties have two fields:
+           %
+           %    - .Format
+           %       The name of the respective protocol parameter. For
+           %       example, TI. When userUnitScaling is activated, these
+           %       values attain the respective unit, if available. For 
+           %       example, TI(s) or TI(ms) depending on the selection.
+           %       User-modified Format tags are left unchanged throughout
+           %       the session. To access the fields regardless of the unit
+           %       specification, 'inOriginalUnits' drops the parantheses
+           %       to get the respective value. 
+           %    - .Mat
+           %       The  value of the respective protocol parameter.
+           %       Dynamically set to user-defined or original values during
+           %       the Modelect construction or elsewhere, respectively.
+           %
+           % This function is wrapped by:
+           %    -  setUserProtUnits
+           %    -  setOriginalProtUnits
+           % to provide easier function calls in the classdefs.
+           %
+           % Not a non-static member function to avoid endless recursion
+           %      - This function is called during construction. 
+           
+            prot =  Model.Prot;
+            reg = modelRegistry('get',Model.ModelName);
+            protUnitMaps = reg.UnitBIDSMappings.Protocol;
+        
+            % This is the same with the fieldnames of protUnitMaps 
+            protNames = fieldnames(Model.Prot);
+
+            for ii=1:length(protNames)
+                % Format fields in classnames omit unit from v2.5.0 onward
+                % A format field is not necessarily 1x1, so we need to iterate over it
+                curFormat = Model.Prot.(protNames{ii}).Format;
+                % This is not cell in all the models, so ensure that 
+                % it is casted to cell when it is initially not.
+                if ~iscell(curFormat)
+                    curFormat = cellstr(curFormat);
+                    prot.(protNames{ii}).Format = curFormat;
+                end
+                % Format may include more than one fields
+                for jj = 1:length(curFormat)
+
+                switch direction
+                % Whereas these values should change back and forth
+                % depending on whether they are displayed in qMRLab GUI
+                % during object construction, or whether they are about to
+                % be fed into fitting/simulations. In the latter case, the
+                % object must ensure that the original parameters are
+                % passed. This is explicitly declared wherever applicable.
+                case 'inUserUnits'
+                    % Scale protocol parameters according to the user configs
+                    % Only perform if the previous state is original.
+                    if OriginalProtEnabled
+                        
+                        prLoc = strfind(curFormat{jj},'(');
+                        if ~isempty(prLoc)
+                            curFormat(jj) = cellstr(curFormat{jj}(1:prLoc-1));
+                        end
+                        prot.(protNames{ii}).Format(jj) = {[curFormat{jj} protUnitMaps.(protNames{ii}).(curFormat{jj}).Symbol]};
+                        prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        % Negate to signal that original prot units are no
+                        % longer enabled
+                        OriginalProtEnabledOut = false;
+                    else
+                        % If there is a request to get Prot in user defined
+                        % units, but the state indicates that it is already
+                        % in the user units, then we'll do this assignment
+                        % here. As we are circulating the same variable,
+                        % this assignment is required (despite that it looks trivial). 
+                        % Otherwise an exeption is thrown.
+                        OriginalProtEnabledOut = false;
+                    end
+                    
+                case 'inOriginalUnits'
+                    % Scale protocol parameters back to the original units (for fitting etc)
+                    if ~OriginalProtEnabled
+                        prot.(protNames{ii}).Format(jj) = curFormat(jj);
+                        % When user parameters are selected units are
+                        % iserted in the Format Name. Here, we need to drop
+                        % them to be able to access the original fields.
+                        prLoc = strfind(curFormat{jj},'(');
+                        if ~isempty(prLoc)
+                            curFormat(jj) = cellstr(curFormat{jj}(1:prLoc-1));
+                        end
+                        prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj).*protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        OriginalProtEnabledOut = true;
+                    else
+                        % If there is a request to get Prot in orig defined
+                        % units, but the state indicates that it is already
+                        % in the orig units, then we'll do this assignment
+                        % here. As we are circulating the same variable,
+                        % this assignment is required (despite that it looks trivial within the statement). 
+                        % Otherwise an exeption is thrown.
+                        OriginalProtEnabledOut = true;
+                    end
+
+                end
+                end
+            end
+        
+end

@@ -498,12 +498,12 @@
         "ModelPath": "T2_relaxometry/",
         "InputDataUnits":
         {   
-            "SEData": "arbitrary",
+            "SEdata": "arbitrary",
             "Mask": "categorical"
         },
         "InputProtUnits":
         {
-            "SEData":
+            "SEdata":
                 {
                     "EchoTime": "millisecond"
                 }

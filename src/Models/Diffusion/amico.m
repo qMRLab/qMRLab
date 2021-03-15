@@ -77,9 +77,6 @@ end
         function obj = amico
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
-            % If requested by the user, update Prot field names and 
-            % default Protocol values to the desired units.
-            %obj.Prot = obj.getScaledProtocols(obj,'inUserUnits');
             AMICO_Setup;            
         end
 

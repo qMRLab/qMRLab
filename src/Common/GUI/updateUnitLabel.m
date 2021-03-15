@@ -21,8 +21,7 @@ end
 
 % Either user executed fit or loaded prev results.
 if ~isempty(handles.CurrentData) && isfield(handles.CurrentData,'Version') && ~viewException
-    % Change this to 2.4.9 before release 2.5.0!!!
-    if checkanteriorver(handles.CurrentData.Version, [2 4 0])
+    if checkanteriorver(handles.CurrentData.Version, [2 4 9])
         set(handles.text101,'String',sprintf(['n/a \nv' num2str(handles.CurrentData.Version(1)) '.' num2str(handles.CurrentData.Version(2)) '.' num2str(handles.CurrentData.Version(3))])); 
     end
     

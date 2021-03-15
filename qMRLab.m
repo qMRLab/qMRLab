@@ -375,7 +375,7 @@ if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
 set(handles.ViewROIFit,'Enable','on')
 set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
-set(handles.ViewROIFit,'TooltipString','View fit in currently selected label')
+set(handles.ViewROIFit,'TooltipString','View fit of the data avaraged over the currently selected ROI.')
 else
 set(handles.ViewDataFit,'Enable','off')
 set(handles.ViewROIFit,'Enable','off')
@@ -463,7 +463,9 @@ function FitGo_FitData(hObject, eventdata, handles)
 
 % Get data
 data =  GetAppData('Data');
+% Receives the Model from app's base data!
 Method = GetAppData('Method');
+
 Model = getappdata(0,'Model');
 if isfield(data,[class(Model) '_hdr']), hdr = data.([class(Model) '_hdr']); end
 data = data.(Method);
@@ -902,6 +904,11 @@ function hh = plotfit(handles,vox)
 Model = GetAppData('Model');
 % Get data
 data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
+
+% =================== SCALE PROTOCOL UNITS ===================
+% Scale parameters to the original units 
+Model = Model.setOriginalProtUnits(Model);
+
 S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
 Data = handles.tool.getImage(0);
 Scurrent = [size(Data,1) size(Data,2) size(Data,3)];
@@ -955,10 +962,10 @@ for ipix = 1:length(vox)
         end
     end
     hold on;
-    
+        
     % Do the fitting
     if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
-    Fit = Model.fit(datasqueeze) % Display fitting results in command window
+    Fit = Model.fit(datasqueeze); % Display fitting results in command window
     Model.plotModel(Fit,datasqueeze);
     
     % update legend
