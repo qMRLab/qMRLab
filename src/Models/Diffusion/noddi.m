@@ -299,6 +299,11 @@ end
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
             obj.Prot.DiffusionData.Format{4}='Gnorm'; % old: '|G| (T/m)'
+            if checkanteriorver(version,[2 5 0])
+                % In v2.5.0 unit parantheses are dropped from the protocol Format names
+                obj.Prot.DiffusionData.Format = ...
+                [{'Gx'},{'Gy'},{'Gz'},{'Gnorm'},{'Delta'},{'delta'},{'TE'}];
+            end
         end
     end
 
