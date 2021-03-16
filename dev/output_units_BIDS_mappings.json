@@ -307,31 +307,36 @@
             [
 		"unwrappedPhase",
         "theta",
-        "phi"
+        "phi",
+        "Phase_uw"
             ],
 	"qMapNames":
             [
 		"Unwrapped phase image",
         "Azimuth angle of the fibers",
-		"Elevation of the fibers"
+		"Elevation of the fibers",
+        "Unwrapped phase image"
             ],
     "suffixBIDS":
         [
             "inherit_part-phase",
             "THETAmap",
-            "PHImap"
+            "PHImap",
+            "inherit_part-phase"
         ],
     "isOfficialBIDS":
         [
             true,
             false,
-            false
+            false,
+            true
         ],
     "folderBIDS":
         [
             "anat",
             "dwi",
-            "dwi"
+            "dwi",
+            "anat"
         ]
     },
 

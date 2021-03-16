@@ -152,7 +152,8 @@
         },
         "Outputs":
         {
-            "B0map": "offset_factor_hertz"
+            "B0map": "offset_factor_hertz",
+            "Phase_uw": "radian"
         }
 	},
 
