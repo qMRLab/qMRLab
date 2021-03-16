@@ -448,6 +448,7 @@ for k=1:nargin; rmappdata(0, varargin{k}); end
 function FitGO_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
+
 FitGo_FitData(hObject, eventdata, handles);
 % The counterSfMiss variable is assigned by the GetSf.m function
 % to keep track of how many times a warning has been printed.
@@ -469,6 +470,10 @@ Method = GetAppData('Method');
 Model = getappdata(0,'Model');
 if isfield(data,[class(Model) '_hdr']), hdr = data.([class(Model) '_hdr']); end
 data = data.(Method);
+
+% Interrupt fitting if there is a mismatch between user Prot settings 
+% and the Prot loaded in the Method
+validatePanelUnits(Model);
 
 % check data
 ErrMsg = Model.sanityCheck(data);

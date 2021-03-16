@@ -184,11 +184,15 @@ classdef BrowserSet
                 Data = rmfield(Data,[class(Model) '_hdr']);
             end
 
-            % ======= SCALE INPUT DATA W.R.T. USER SETTINGS ======= 
+            % ======= SCALE INPUT DATA W.R.T. USER SETTINGS =======
             reg = modelRegistry('get',class(Model));
             Data.(class(Model)).(obj.NameID{1}) = Data.(class(Model)).(obj.NameID{1})...
             .*reg.UnitBIDSMappings.Input.(obj.NameID{1}).ScaleFactor;
             
+            % ======= Whenever the user is loading data, ensure that the prot parameters
+            % are in the units defined in the preferences. Pereviously loaded fit results 
+            % may  conflict them otherwise and result in errorenous fits.
+            validatePanelUnits(Model);
 
             setappdata(0, 'Data', Data);
             set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;

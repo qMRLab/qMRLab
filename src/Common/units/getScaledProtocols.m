@@ -60,10 +60,7 @@ function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,Orig
                     % Only perform if the previous state is original.
                     if OriginalProtEnabled
                         
-                        prLoc = strfind(curFormat{jj},'(');
-                        if ~isempty(prLoc)
-                            curFormat(jj) = cellstr(curFormat{jj}(1:prLoc-1));
-                        end
+                        curFormat(jj) = getBareProtUnit(curFormat{jj},'fieldname');
                         prot.(protNames{ii}).Format(jj) = {[curFormat{jj} protUnitMaps.(protNames{ii}).(curFormat{jj}).Symbol]};
                         prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
                         % Negate to signal that original prot units are no
@@ -86,10 +83,7 @@ function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,Orig
                         % When user parameters are selected units are
                         % iserted in the Format Name. Here, we need to drop
                         % them to be able to access the original fields.
-                        prLoc = strfind(curFormat{jj},'(');
-                        if ~isempty(prLoc)
-                            curFormat(jj) = cellstr(curFormat{jj}(1:prLoc-1));
-                        end
+                        curFormat(jj) = getBareProtUnit(curFormat{jj},'fieldname');
                         prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj).*protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
                         OriginalProtEnabledOut = true;
                     else
