@@ -19,7 +19,7 @@
 	},
 
 	"UnifyOutputMapUnits": {
-		"Enabled": true,
+		"Enabled": false,
 		"Time": "second",
 		"Rate": "reciprocal_second",
 		"Fraction": "fraction_decimal",

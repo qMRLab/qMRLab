@@ -274,7 +274,8 @@
             "kr": "reciprocal_second",
             "T2f": "second",
             "M0f": "arbitrary",
-            "M0r": "arbitrary"
+            "M0r": "arbitrary",
+            "resnorm": "arbitrary"
         }
 	},
 
@@ -531,7 +532,7 @@
         },
         "InputProtUnits":
         {
-            "MET2Data":
+            "MET2data":
                 {
                     "EchoTime": "millisecond"
                 }

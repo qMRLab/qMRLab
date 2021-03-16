@@ -29,6 +29,7 @@ function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,Orig
            %      - This function is called during construction. 
            
             prot =  Model.Prot;
+            if ~isempty(fieldnames(prot))
             reg = modelRegistry('get',Model.ModelName);
             protUnitMaps = reg.UnitBIDSMappings.Protocol;
         
@@ -114,6 +115,16 @@ function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,Orig
 
                 end
                 end
+            end
+            
+            else
+                
+                % Hits here when the model prot is empty 
+                % such as mt_ratio, where this parameter 
+                % is not important, yet still need to assign
+                % as it is an output arg.
+                OriginalProtEnabledOut = 1;
+            
             end
         
 end
