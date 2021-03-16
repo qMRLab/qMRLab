@@ -57,6 +57,7 @@
         {
             "fr": "fraction_decimal",
             "Dh": "square_micrometer_per_millisecond",
+            "Dcsf": "square_micrometer_per_millisecond",
             "diameter_mean": "micrometer",
             "fcsf": "fraction_decimal",
             "lc": "arbitrary",
