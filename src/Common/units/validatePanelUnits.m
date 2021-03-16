@@ -37,7 +37,11 @@ if ~any(result)
         % scaled. User can proceed as they see fit.
         response = true;
     end
+elseif isempty(result)
+    % There may not be anything to compare
+    response = false;
 else
+    % Terminate
     response = true;
 end
 
