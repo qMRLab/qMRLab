@@ -92,7 +92,15 @@ function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,Orig
                         % iserted in the Format Name. Here, we need to drop
                         % them to be able to access the original fields.
                         curFormat(jj) = getBareProtUnit(curFormat{jj},'fieldname');
-                        prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj).*protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        try
+                            prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj).*protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        catch
+                            if isvector(prot.(protNames{ii}).Mat)
+                                prot.(protNames{ii}).Mat(jj) = prot.(protNames{ii}).Mat(jj).*protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                            else
+                                prot.(protNames{ii}).Mat(jj,:) = prot.(protNames{ii}).Mat(jj,:).*protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                            end
+                        end
                         OriginalProtEnabledOut = true;
                     else
                         % If there is a request to get Prot in orig defined
