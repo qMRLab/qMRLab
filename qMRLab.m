@@ -912,7 +912,7 @@ data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
 
 % =================== SCALE PROTOCOL UNITS ===================
 % Scale parameters to the original units 
-Model = Model.setOriginalProtUnits(Model);
+Model = setOriginalProtUnits(Model);
 
 S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
 Data = handles.tool.getImage(0);
@@ -977,6 +977,9 @@ for ipix = 1:length(vox)
     if ~moxunit_util_platform_is_octave
         legend('Location','best')
     end
+% =================== SCALE PROTOCOL UNITS ===================
+% Scale parameters to the original units 
+Model = setUserProtUnits(Model);
 
 end
 

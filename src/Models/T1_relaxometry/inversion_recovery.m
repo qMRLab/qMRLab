@@ -107,7 +107,7 @@ end
 
         % -------------IR EQUATION-------------------------------------------------------------------------
         function Smodel = equation(obj, x)   
-            % Ensure that the protocol values are in the original units.
+            % Ensure ORIGINAL protocol units on load
             obj = setOriginalProtUnits(obj);
             
             % Generates an IR signal based on fit parameters
@@ -118,11 +118,14 @@ end
             if (strcmp(obj.options.method, 'Magnitude'))
                 Smodel = abs(Smodel);
             end
+
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
         function [ra,rb] = ComputeRaRb(obj,x,Opt)
-            % Ensure that the protocol values are in the original units.
+            % Ensure ORIGINAL protocol units on load
             obj = setOriginalProtUnits(obj);
 
             % Some sanity checks
@@ -163,6 +166,9 @@ end
             %if (strcmp(obj.options.method, 'Magnitude'))
             %    Smodel = abs(Smodel);
             %end
+
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         % -------------DATA FITTING-------------------------------------------------------------------------
@@ -262,6 +268,9 @@ end
             ylabel('Signal','FontSize',15);
             legend('data', 'polarity restored', 'fit','Location','best')
             set(gca,'FontSize',15)
+
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
@@ -288,6 +297,9 @@ end
             if display
                 plotModel(obj, FitResults, data);
             end
+
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
@@ -301,6 +313,9 @@ end
             
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 %         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)

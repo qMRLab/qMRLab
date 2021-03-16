@@ -31,6 +31,12 @@ end
 
 if ~any(result)
     response = false;
+    prefs = getUserPreferences();
+    if ~prefs.UnifyInputProtocolUnits.Enabled
+        % This means that the input Protocol's won't be 
+        % scaled. User can proceed as they see fit.
+        response = true;
+    end
 else
     response = true;
 end
@@ -45,7 +51,7 @@ if ~response
     disp('================== PROTOCOL MISMATCH ========================');
     disp('=============================================================');
     cprintf('red','<< ! >> Protocol units requested in /usr/preferences.json are not \n %s', ['consistent with'...
-       '\n those currently loaded in the Options Panel.']);
+       'those currently loaded in the Options Panel.']);
    disp('=============================================================');
     cprintf('blue','<< i >> PLEASE RESET THE PROTOCOL by clicking the \n %s', ['|Default| button'...
                    'located at the bottom of the Options Panel.']);
