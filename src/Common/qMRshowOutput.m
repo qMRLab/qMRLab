@@ -15,7 +15,7 @@ function qMRshowOutput(FitResults,data,Model)
 
 if nargin<3, help('qMRshowOutput'); return; end
 
-Model = Model.setOriginalProtUnits(Model);
+Model = setOriginalProtUnits(Model);
 
 outputIm = FitResults.(FitResults.fields{1});
 hmap = figure();

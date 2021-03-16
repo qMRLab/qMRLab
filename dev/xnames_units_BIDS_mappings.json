@@ -414,7 +414,8 @@
         "Data4D_denoised",
         "sigma_g",
         "eta",
-        "N"
+        "N",
+        "SigmaNoise"
             ],
 	"qMapNames":
             [
@@ -445,7 +446,8 @@
         "4D denoised data",
         "standard deviation of the rician noise",
         "eta parameter of noise estimation",
-        "N parameter of noise estimation"
+        "N parameter of noise estimation",
+        "standard deviation of the rician noise"
             ],
     "suffixBIDS":
     [
@@ -476,7 +478,8 @@
         "dwi_denoised",
         "sigmag",
         "eta",
-        "N"
+        "N",
+        "sigmag"
     ],
     "isOfficialBIDS":
     [
@@ -503,6 +506,7 @@
         true,
         false,
         true,
+        false,
         false,
         false,
         false,
@@ -534,6 +538,7 @@
         "anat",
         "anat",
         "fmap",
+        "dwi",
         "dwi",
         "dwi",
         "dwi",

@@ -63,7 +63,9 @@
             "fcsf": "fraction_decimal",
             "lc": "arbitrary",
             "fh": "fraction_decimal",
-            "residue": "arbitrary"
+            "residue": "arbitrary",
+            "S0_TE_N": "arbitrary",
+            "SigmaNoise": "arbitrary"
         }
 	},
 
