@@ -70,7 +70,7 @@ if FitResults.Model.voxelwise
     
     % ============= Ensure that the outputs are scaled to the oroginal
     % units for compatibility.
-    FitResultsVox = fitResultsUnitScale('toOriginalUnits',FitResultsVox);
+    FitResultsVox = unitScaleFitResults('toOriginalUnits',FitResultsVox);
     
     % plot voxel curve
     Model.plotModel(FitResultsVox,dataVox)

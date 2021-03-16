@@ -589,7 +589,7 @@ end % Voxelwise parse
 % - /dev/units.json
 % - /dev/qmrlab_model_registry.json 
 % - /dev/xnames_units_BIDS_mappings.json
-Fit = fitResultsUnitScale('toUserUnits',Fit);
+Fit = unitScaleFitResults('toUserUnits',Fit);
 
 %if usr.UnifyOutputMapUnits.Enabled
     
