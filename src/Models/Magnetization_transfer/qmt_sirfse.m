@@ -117,7 +117,7 @@ end
                                               0.0805 3.5; 0.1002 3.5; 0.1248 3.5; 0.1554 3.5; 0.1935 3.5
                                               0.2409 3.5; 0.3000 3.5; 1.0000 3.5; 2.0000 3.5; 10.0000 3.5]),...
                       'FSEsequence',...
-                               struct('Format',{{'Trf (s)'; 'Tr (s)'; 'Npulse'}},...
+                               struct('Format',{{'Trf'; 'Tr'; 'Npulse'}},...
                                       'Mat',[0.001; 0.01; 16]));
 
         % Model options
@@ -146,6 +146,9 @@ end
         function obj = qmt_sirfse
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)

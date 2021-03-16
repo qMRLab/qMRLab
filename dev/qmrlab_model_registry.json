@@ -87,7 +87,7 @@
         },
         "Outputs":
         {
-            "D": "tensor_2",
+            "D": "tensor",
             "L1": "arbitrary",
             "L2": "arbitrary",
             "L3": "arbitrary",
@@ -162,8 +162,8 @@
         "Sequence":
             {
                 "nomFA": "degree",
-                "TR1": "milliseconds",
-                "TR2": "milliseconds"
+                "TR1": "millisecond",
+                "TR2": "millisecond"
             }
         },
         "Outputs":
@@ -285,7 +285,7 @@
                 "Ti": "second",
                 "Td": "second"
             },
-        "FSESequence":
+        "FSEsequence":
             {
                 "Trf": "second",
                 "Tr": "second",
@@ -426,7 +426,7 @@
                 {
                     "B0": "tesla"
                 },
-            "RepetitionTime":
+            "RepetitionTimes":
             {
                 "Inv": "second",
                 "Exc": "second"

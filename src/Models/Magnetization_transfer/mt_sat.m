@@ -65,7 +65,7 @@ classdef mt_sat < AbstractModel
         voxelwise = 0;
 
         % Protocol
-        Prot = struct('MTw',struct('Format',{{'FlipAngle' 'TR (s)'}},...
+        Prot = struct('MTw',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [6 0.028]),...
                       'T1w',struct('Format',{{'FlipAngle' 'TR'}},...
                                    'Mat',  [20 0.018]),...
@@ -84,6 +84,9 @@ classdef mt_sat < AbstractModel
     methods
         function obj = mt_sat
             obj.options = button2opts(obj.buttons);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function FitResult = fit(obj,data)

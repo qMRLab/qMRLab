@@ -27,8 +27,9 @@
 		"B0": "offset_factor_hertz",
 		"Susceptibility": "part_per_million",
 		"Angle":"radian",
-		"Diffusivity": "square_micrometer_per_millisecon",
-		"Length": "micrometer"
+		"Diffusivity": "square_micrometer_per_millisecond",
+		"Length": "micrometer",
+		"Tensor": "tensor"
 	},
 
 	"UnifyInputProtocolUnits": {

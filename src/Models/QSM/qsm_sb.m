@@ -88,11 +88,11 @@ xnames = { 'chiSB','chiL2', 'unwrappedPhase','maskOut' };
 voxelwise = 0;
 
 % Protocols linked to the OSF data
-Prot = struct('Resolution',struct('Format',{{'xDim (mm)' 'yDim (mm)' 'zDim (mm)'}},...
+Prot = struct('Resolution',struct('Format',{{'xDim' 'yDim' 'zDim'}},...
 'Mat',  [0.6 0.6 0.6]),...
-'Timing',struct('Format',{{'TE (s)'}},...
+'Timing',struct('Format',{{'TE'}},...
 'Mat', 8.1e-3), ...
-'Magnetization', struct('Format', {{'FieldStrength (T)' 'CentralFreq (MHz)'}}, 'Mat', [3 42.58]));
+'Magnetization', struct('Format', {{'FieldStrength' 'CentralFreq'}}, 'Mat', [3 42.58]));
 
 
 % Model options
@@ -137,7 +137,9 @@ function obj = qsm_sb
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
   obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4','https://osf.io/549ke/download?version=4');
-
+  % Prot values at the time of the construction determine 
+  % what is shown to user in CLI/GUI.
+  obj = setUserProtUnits(obj);
 end % fx: Constructor
 
 function obj = UpdateFields(obj)

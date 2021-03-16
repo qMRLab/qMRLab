@@ -106,7 +106,7 @@ end
 
         % Protocol
         Prot = struct('DiffusionData',...
-            struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}},...
+            struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
             'Mat',  txt2mat('CHARMEDProtocol.txt','InfoLevel',0))...
             ); % You can define a default protocol here.
 
@@ -135,6 +135,9 @@ end
         function obj = charmed
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)

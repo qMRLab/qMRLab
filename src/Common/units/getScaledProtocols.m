@@ -62,7 +62,15 @@ function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,Orig
                         
                         curFormat(jj) = getBareProtUnit(curFormat{jj},'fieldname');
                         prot.(protNames{ii}).Format(jj) = {[curFormat{jj} protUnitMaps.(protNames{ii}).(curFormat{jj}).Symbol]};
-                        prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        try
+                            prot.(protNames{ii}).Mat(:,jj) = prot.(protNames{ii}).Mat(:,jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                        catch
+                            if isvector(prot.(protNames{ii}).Mat)
+                                prot.(protNames{ii}).Mat(jj) = prot.(protNames{ii}).Mat(jj)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                            else
+                                prot.(protNames{ii}).Mat(jj,:) = prot.(protNames{ii}).Mat(jj,:)./protUnitMaps.(protNames{ii}).(curFormat{jj}).ScaleFactor;
+                            end
+                        end
                         % Negate to signal that original prot units are no
                         % longer enabled
                         OriginalProtEnabledOut = false;

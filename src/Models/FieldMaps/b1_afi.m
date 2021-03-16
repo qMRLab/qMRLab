@@ -62,6 +62,9 @@ classdef b1_afi < AbstractModel & FilterClass
         function obj = b1_afi
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function FitResult = fit(obj,data)

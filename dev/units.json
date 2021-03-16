@@ -101,7 +101,7 @@
         "megahertz":{
             "factor2base": 0.000001,
             "label": "Hertz",
-            "symbol": "(HHz)"
+            "symbol": "(MHz)"
         }
 
     },
@@ -182,16 +182,10 @@
 
     "Tensor":
     {
-        "tensor_2":
+        "tensor":
         {
             "factor2base": 1,
-            "label": "2nd order",
-            "symbol": ""
-        },
-        "tensor_3":
-        {
-            "factor2base": 1,
-            "label": "3rd order",
+            "label": "tensor",
             "symbol": ""
         }
     },
@@ -224,6 +218,17 @@
             "label": "categorical",
             "symbol": ""
         }
+    },
+
+    "MagneticFieldStrength":
+    {
+        "tesla":
+        {
+            "factor2base": 1,
+            "label": "Tesla",
+            "symbol": "(T)"
+        }
     }
+    
 
 }
