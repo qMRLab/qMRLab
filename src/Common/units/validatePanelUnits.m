@@ -1,6 +1,12 @@
 function validatePanelUnits(Model)
+% If the user loaded previous results generated in different units 
+% then try to fit the data with conflicting Prot preferences, an 
+% error will be thrown and user will be asked to reset the protocols.
+%
+% Here, Model is the Model received using getAppData. 
 
 if ~isempty(fieldnames(Model.Prot))
+% Check what user requested
 usr = modelRegistry('get',Model.ModelName);
 fnames = fieldnames(Model.Prot);
 result = [];
