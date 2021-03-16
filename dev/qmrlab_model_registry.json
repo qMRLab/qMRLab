@@ -131,7 +131,9 @@
             "kappa": "arbitrary",
             "b0":"arbitrary",
             "theta": "radian",
-            "phi": "radian"
+            "phi": "radian",
+            "ODI": "arbitrary",
+            "ObjectiveFun": "arbitrary"
         }
 	},
 

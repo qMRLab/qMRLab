@@ -57,7 +57,7 @@ function res = isModel(in,register)
 end
 
 function out = getUnitBIDSMap(register,model)
-unitmaps = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'xnames_units_BIDS_mappings.json']);
+unitmaps = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'output_units_BIDS_mappings.json']);
 unitDefs = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'units.json']);
 fields = fieldnames(unitmaps);
 lut = [];

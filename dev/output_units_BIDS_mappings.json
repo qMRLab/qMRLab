@@ -415,7 +415,8 @@
         "sigma_g",
         "eta",
         "N",
-        "SigmaNoise"
+        "SigmaNoise",
+        "ObjectiveFun"
             ],
 	"qMapNames":
             [
@@ -447,7 +448,8 @@
         "standard deviation of the rician noise",
         "eta parameter of noise estimation",
         "N parameter of noise estimation",
-        "standard deviation of the rician noise"
+        "standard deviation of the rician noise",
+        "Likelihood of the values of the objective function for each parameter combination in the grid search."
             ],
     "suffixBIDS":
     [
@@ -479,7 +481,8 @@
         "sigmag",
         "eta",
         "N",
-        "sigmag"
+        "sigmag",
+        "GridSearchLik"
     ],
     "isOfficialBIDS":
     [
@@ -506,6 +509,7 @@
         true,
         false,
         true,
+        false,
         false,
         false,
         false,
@@ -538,6 +542,7 @@
         "anat",
         "anat",
         "fmap",
+        "dwi",
         "dwi",
         "dwi",
         "dwi",
