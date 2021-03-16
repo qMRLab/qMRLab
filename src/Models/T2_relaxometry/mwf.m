@@ -230,4 +230,16 @@ end
             end
         end
     end
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % v2.5.0 drops unit parantheses
+            if checkanteriorver(version,[2 5 0])
+                obj.Prot.MET2data.Format = {'EchoTime'};
+            end
+        end
+    end
+
+    
 end

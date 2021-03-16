@@ -364,6 +364,10 @@ end
                 obj.options = rmfield(obj.options,'Fitting_FixR1rR1f');
                 obj.buttons{strcmp(obj.buttons,'Fitting')} = 'fitting constraints';
             end
+
+            if checkanteriorver(version,[2 5 0])
+                obj.Prot.FSEsequence.Format = [{'Trf'};{'Tr'};{'Npulse'}];
+            end
         end
     end
 

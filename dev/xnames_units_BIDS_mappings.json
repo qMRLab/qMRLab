@@ -343,28 +343,33 @@
             [
 		"di",
 		"diso",
-		"Dh"
+		"Dh",
+        "Dcsf"
             ],
 	"qMapNames":
             [
 		"Diffusion coefficient in the restricted compartment",
 		"Diffusion coefficient of the isotropic compartment (CSF)",
-		"Apparent diffusion coefficient of the hindered (h) compartment"
+		"Apparent diffusion coefficient of the hindered (h) compartment",
+        "Diffusion coefficient of the isotropic compartment (CSF)"
             ],
     "suffixBIDS":
         [
             "DImap",
             "DISOmap",
-            "DHmap"
+            "DHmap",
+            "DCSFmap"
         ],
     "isOfficialBIDS":
         [   
+            false,
             false,
             false,
             false
         ],
     "folderBIDS":
         [
+            "dwi",
             "dwi",
             "dwi",
             "dwi"

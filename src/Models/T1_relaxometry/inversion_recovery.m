@@ -622,6 +622,11 @@ end
                 obj.buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
                 obj.options = button2opts(obj.buttons);
             end
+            if checkanteriorver(version,[2 5 0])
+                % v2.5.0 drops unit parantheses.
+                obj.Prot.IRData.Format = {'TI'};
+                obj.Prot.TimingTable.Format = {'TR'};
+            end
         end
     end
 

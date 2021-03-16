@@ -84,7 +84,7 @@ if any(idxs2==0)
     fnms = fieldnames(register.(model).Outputs);
     notHit = fnms(idxs2==0);
     notHitIdx = find(idxs2==0);
-    xnms = lut.xname;
+    xnms = lut(:,2);
     for jj=1:length(notHit)
         idxn = cellfun(@(S) strncmp(notHit(jj),S,4), xnms);
         if any(idxn)

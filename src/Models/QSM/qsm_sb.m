@@ -489,6 +489,13 @@ end
                 obj.buttons = cellfun(@(x) strrep(x,'###','##'),obj.buttons,'uni',0);
                 obj.buttons = cellfun(@(x) strrep(x,'***','**'),obj.buttons,'uni',0);
             end
+
+            % v2.5.0 drops unit parantheses
+            if checkanteriorver(version,[2 5 0])
+              obj.Prot.Magnetization.Format = [{'FieldStrength'},{'CentralFreq'}];
+              obj.Prot.Resolution.Format = [{'xDim'},{'yDim'},{'zDim'}];
+              obj.Prot.Timing.Format = {'TE'};
+            end
         end
     end
 

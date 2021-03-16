@@ -62,10 +62,10 @@ properties
     % https://github.com/qMRLab/qMRLab/wiki/Guideline:-GUI#the-optionsgui-is-populated-by
 
     tabletip = struct('table_name',{{'Hardware','RepetitionTimes','Timing','Sequence','NumberOfShots'}},'tip', ...
-    {sprintf(['B0 (T): Static magnetic field strength (Tesla)']),...
-    sprintf(['[Inv (s)]: Repetition time between two INVERSION pulses of the MP2RAGE pulse sequence (seconds)\n -- \n [Exc (s)]: Repetition time between two EXCITATION pulses of the MP2RAGE pulse sequence (seconds)']),...
-    sprintf(['InversionTimes (s): Inversion times for the measurements (seconds)\n [1] 1st time dimension \n [2] 2nd time dimension']),...
-    sprintf(['FlipAngles: Excitation flip angles (degrees)\n [1] 1st time dimension \n [2] 2nd time dimension']),...
+    {sprintf(['B0: Static (main) magnetic field strength']),...
+    sprintf(['[Inv]: Repetition time between two INVERSION pulses of the MP2RAGE pulse sequence \n -- \n [Exc]: Repetition time between two EXCITATION pulses of the MP2RAGE pulse sequence']),...
+    sprintf(['InversionTimes: Inversion times for the measurements \n [1] 1st time dimension \n [2] 2nd time dimension']),...
+    sprintf(['FlipAngles: Excitation flip angles \n [1] 1st time dimension \n [2] 2nd time dimension']),...
     sprintf(['NumberOfShots: Number of shots [Pre] before and [Post] after the k-space center'])
     });
 
@@ -237,5 +237,16 @@ methods
         
     end % FIT RESULTS END 
 end % METHODS END 
+
+methods(Access = protected)
+    function obj = qMRpatch(obj,loadedStruct, version)
+        obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        % v2.5.0 drops unit parantheses
+        if checkanteriorver(version,[2 5 0])
+            obj.Prot.Timing.Format = {'InversionTimes'};
+            obj.Prot.RepetitionTimes.Format = [{'Inv'};{'Exc'}];
+        end
+    end
+end
 
 end % CLASSDEF END 
