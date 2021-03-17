@@ -251,7 +251,11 @@ methods(Access = protected)
             disp('dbg 1');
             obj = setUserProtUnits(obj);
             disp('dbg 2');
-            obj.tabletip = loadedStruct.tabletip;
+            obj.tabletip(1).tip = 'B0: Static (main) magnetic field strength';
+            obj.tabletip(2).tip = '[Inv]: Repetition time between two INVERSION pulses of the MP2RAGE pulse sequence \n -- \n [Exc]: Repetition time between two EXCITATION pulses of the MP2RAGE pulse sequence';
+            obj.tabletip(3).tip = 'InversionTimes: Inversion times for the measurements \n [1] 1st time dimension \n [2] 2nd time dimension';
+            obj.tabletip(4).tip = 'FlipAngles: Excitation flip angles \n [1] 1st time dimension \n [2] 2nd time dimension';
+            obj.tabletip(5).tip = 'NumberOfShots: Number of shots [Pre] before and [Post] after the k-space center';
             disp('dbg 3 end patch');
         end
     end
