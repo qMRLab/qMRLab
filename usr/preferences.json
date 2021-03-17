@@ -38,7 +38,7 @@
 		"Frequency": "hertz",
 		"MagneticFieldStrength": "tesla",
 		"GradientMagnitude": "tesla_per_meter",
-		"Resolution": "millimeter",
+		"Length": "millimeter",
 		"Angle": "degree",
 		"Arbitrary": "arbitrary"
 	},
