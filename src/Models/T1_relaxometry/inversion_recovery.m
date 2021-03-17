@@ -626,6 +626,8 @@ end
                 % v2.5.0 drops unit parantheses.
                 obj.Prot.IRData.Format = {'TI'};
                 obj.Prot.TimingTable.Format = {'TR'};
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
         end
     end

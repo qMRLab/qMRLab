@@ -486,8 +486,10 @@ end
             % 2.0.10
             if checkanteriorver(version,[2 0 10])
                 % Update buttons for joker conversion from ###/*** to ##/**
-                obj.buttons = cellfun(@(x) strrep(x,'###','##'),obj.buttons,'uni',0);
-                obj.buttons = cellfun(@(x) strrep(x,'***','**'),obj.buttons,'uni',0);
+                idxs = [1,3,5,7,9,11,12,14,16,18,20,22,23,25,27,29,31,32,34,36,38];
+                tmp = arrayfun(@(x) strrep(obj.buttons(x),'###','##'),idxs,'uni',0);
+                tmp = cellfun(@(x) strrep(x,'***','**'),tmp,'uni',0);
+                obj.buttons(idxs) = [tmp{:}];
             end
 
             % v2.5.0 drops unit parantheses
@@ -495,6 +497,8 @@ end
               obj.Prot.Magnetization.Format = [{'FieldStrength'},{'CentralFreq'}];
               obj.Prot.Resolution.Format = [{'xDim'},{'yDim'},{'zDim'}];
               obj.Prot.Timing.Format = {'TE'};
+              obj.OriginalProtEnabled = true;
+              obj = setUserProtUnits(obj);
             end
         end
     end

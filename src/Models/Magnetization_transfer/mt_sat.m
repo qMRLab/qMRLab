@@ -138,6 +138,8 @@ classdef mt_sat < AbstractModel
                 obj.Prot.MTw.Format = [{'FlipAngle'},{'TR'}];
                 obj.Prot.PDw.Format = [{'FlipAngle'},{'TR'}];
                 obj.Prot.T1w.Format = [{'FlipAngle'},{'TR'}];
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
 
         end

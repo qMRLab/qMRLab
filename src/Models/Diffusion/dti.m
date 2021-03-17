@@ -317,6 +317,11 @@ end
                 obj.buttons = ['fitting type',{{'non-linear (Rician Likelihood)','linear'}}, obj.buttons];
                 obj.options.fittingtype = 'non-linear (Rician Likelihood)';
             end
+
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
         end
     end
 

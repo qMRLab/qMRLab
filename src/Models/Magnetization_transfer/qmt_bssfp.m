@@ -128,6 +128,7 @@ end
         function obj = qmt_bssfp
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -251,4 +252,17 @@ end
         end
 
     end
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+                obj.options.ProtocolTiming_Values = obj.options.ProtocolTiming_Value;
+                obj.buttons{13} = 'Value (s)';
+            end
+        end
+    end
+
 end

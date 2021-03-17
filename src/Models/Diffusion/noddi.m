@@ -303,6 +303,8 @@ end
                 % In v2.5.0 unit parantheses are dropped from the protocol Format names
                 obj.Prot.DiffusionData.Format = ...
                 [{'Gx'},{'Gy'},{'Gz'},{'Gnorm'},{'Delta'},{'delta'},{'TE'}];
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
         end
     end

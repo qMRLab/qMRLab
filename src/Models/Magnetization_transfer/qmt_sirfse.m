@@ -367,6 +367,10 @@ end
 
             if checkanteriorver(version,[2 5 0])
                 obj.Prot.FSEsequence.Format = [{'Trf'};{'Tr'};{'Npulse'}];
+                obj.buttons{18} = 'T2r (s)';
+                obj.options.Sr_Calculation_T2rs = obj.options.Sr_Calculation_T2r;
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
         end
     end

@@ -127,7 +127,12 @@ end
                     'size z',3,...
                     'order',6};
             end
-            
+           
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
+
         end
     end
 

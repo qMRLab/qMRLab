@@ -120,4 +120,16 @@ end
             FitResult.Phase_uw = Phase_uw;
         end
     end
+
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
+        end
+    end
+
 end
