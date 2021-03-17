@@ -457,8 +457,6 @@ end
                 obj.Prot.TimingTable.Format = [{'Tmt'};{'Ts'};{'Tp'};{'Tr'};{'TR'}];
                 obj.OriginalProtEnabled = true;
                 obj = setUserProtUnits(obj);
-                obj.buttons{8} = 'Bandwidth (Hz)';
-                obj.options.MT_Pulse_BandwidthHz = obj.options.MT_Pulse_Bandwidth;
             end
         end
     end
