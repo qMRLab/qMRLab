@@ -240,13 +240,17 @@ end % METHODS END
 
 methods(Access = protected)
     function obj = qMRpatch(obj,loadedStruct, version)
+        disp('dbg -1');
         obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
         % v2.5.0 drops unit parantheses
+        disp('dbg 0');
         if checkanteriorver(version,[2 5 0])
             obj.Prot.Timing.Format = {'InversionTimes'};
             obj.Prot.RepetitionTimes.Format = [{'Inv'};{'Exc'}];
             obj.OriginalProtEnabled = true;
+            disp('dbg 1');
             obj = setUserProtUnits(obj);
+            disp('dbg 2');
             obj.tabletip = struct('table_name',{{'Hardware','RepetitionTimes','Timing','Sequence','NumberOfShots'}},'tip', ...
             {sprintf(['B0: Static (main) magnetic field strength']),...
             sprintf(['[Inv]: Repetition time between two INVERSION pulses of the MP2RAGE pulse sequence \n -- \n [Exc]: Repetition time between two EXCITATION pulses of the MP2RAGE pulse sequence']),...
@@ -254,6 +258,7 @@ methods(Access = protected)
             sprintf(['FlipAngles: Excitation flip angles \n [1] 1st time dimension \n [2] 2nd time dimension']),...
             sprintf(['NumberOfShots: Number of shots [Pre] before and [Post] after the k-space center'])
             });
+            disp('dbg 3 end patch');
         end
     end
 end
