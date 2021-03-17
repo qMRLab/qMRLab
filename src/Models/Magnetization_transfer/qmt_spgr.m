@@ -457,7 +457,11 @@ end
                 obj.Prot.TimingTable.Format = [{'Tmt'};{'Ts'};{'Tp'};{'Tr'};{'TR'}];
                 obj.OriginalProtEnabled = true;
                 obj = setUserProtUnits(obj);
+                try
+                obj.options.MT_Pulse_BandwidthHz = loadedStruct.options.MT_Pulse_BandwidthHz;
+                catch
                 obj.options.MT_Pulse_BandwidthHz = loadedStruct.options.MT_Pulse_Bandwidth;
+                end
                 obj.buttons{8} = 'Bandwidth (Hz)';
                 obj.Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation'},'Reset Mz',false};
             end
