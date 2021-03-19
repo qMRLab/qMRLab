@@ -218,13 +218,25 @@ end
      end
 
        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+           % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
            % SimVaryGUI
            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+           
+           % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
        end
 
        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+           % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
            % SimVaryGUI
            SimRndResults = SimRnd(obj, RndParam, Opt);
+           
+           % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
        end
 
 

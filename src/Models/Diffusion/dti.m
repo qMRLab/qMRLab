@@ -143,6 +143,9 @@ end
 
 
         function [Smodel, fiberdirection] = equation(obj, x)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if isnumeric(x) && length(x(:))==9, xtmp=x; clear x; x.D=xtmp(:); end
             x = mat2struct(x,obj.xnames);
             Prot   = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0,1);
@@ -161,6 +164,9 @@ end
             [V,L] = eig(D);
             [L,I] = max(diag(L));
             fiberdirection = V(:,I);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = fit(obj,data)
@@ -214,6 +220,9 @@ end
         end
 
         function plotModel(obj, FitResults, data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % plotModel(obj, FitResults, data)
             % EXAMPLE:
             %   A = DTI;
@@ -247,6 +256,9 @@ end
 
             % plot fitting curves
             scd_display_qspacedata3D(Smodel,Prot,fiberdirection,'none','-');
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function plotProt(obj)
@@ -265,6 +277,9 @@ end
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if ~exist('display','var'), display=1; end
             Smodel = equation(obj, x);
             Opt.SNR=min(Opt.SNR,500);
@@ -293,16 +308,31 @@ end
                 hold on
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
     end

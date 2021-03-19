@@ -166,6 +166,9 @@ end
         end
 
         function mz = equation(obj, x, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             Sim.Param = mat2struct(x,obj.xnames);
             Protocol = GetProt(obj);
@@ -191,6 +194,9 @@ end
                     SimCurveResults = SIRFSE_SimCurve(Sim.Param, Protocol, obj.GetFitOpt,0);
                     mz = SimCurveResults.curve;
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = fit(obj,data)
@@ -202,6 +208,9 @@ end
         end
 
         function plotModel(obj, x, data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x = obj.st; end
             if nargin<3, data.MTdata = []; end
             x=mat2struct(x,obj.xnames);
@@ -217,9 +226,15 @@ end
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
                 x.F,x.kf,x.R1f,x.R1r,-x.Sf,x.Sr,x.M0f,x.resnorm), ...
                 'FontSize',10);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
             x = struct2mat(x,obj.xnames);
@@ -230,9 +245,15 @@ end
             if display
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function plotProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             Prot = GetProt(obj);
             subplot(2,1,1)
             plot(Prot.ti(2:end),diff(Prot.ti))
@@ -251,17 +272,32 @@ end
             subplot(2,1,2)
             imshow qmt_sirfse.png
             title('Pulse sequence diagram')
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 %         function plotProt(obj)
@@ -282,6 +318,9 @@ end
 
 
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
             % Optimize Inversion times
@@ -302,18 +341,29 @@ end
             schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
 
             fprintf('SOMA HAS FINISHED \n')
-
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function Prot = GetProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             Prot.ti = obj.Prot.MTdata.Mat(:,1);
             Prot.td = obj.Prot.MTdata.Mat(:,2);
             Prot.Trf = obj.Prot.FSEsequence.Mat(1);
             Prot.Tr = obj.Prot.FSEsequence.Mat(2);
             Prot.Npulse = obj.Prot.FSEsequence.Mat(3);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitOpt = GetFitOpt(obj,data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
             end
@@ -324,9 +374,15 @@ end
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
             FitOpt.R1reqR1f = obj.options.fittingconstraints_FixR1rR1f;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SrParam = GetSrParam(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             SrParam.F = 0.1;
             SrParam.kf = 3;
             SrParam.kr = SrParam.kf/SrParam.F;
@@ -337,18 +393,33 @@ end
             SrParam.M0f = 1;
             SrParam.M0r = SrParam.F*SrParam.M0f;
             SrParam.lineshape = obj.options.Sr_Calculation_Lineshape;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SrProt = GetSrProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             SrProt.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function optionalInputs = get_MRIinputs_optional(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             optionalInputs = get_MRIinputs_optional@AbstractModel(obj);
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 optionalInputs(strcmp(obj.MRIinputs,'R1map')) = false;
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
     end

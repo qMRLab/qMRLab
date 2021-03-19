@@ -152,6 +152,9 @@ end
         end
 
         function [Smodel, fibredir] = equation(obj, x)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+        
             x = struct2mat(x,obj.xnames); % if x is a structure, convert to vector
 
             model = MakeModel(obj.options.modelname);
@@ -174,6 +177,9 @@ end
             constants.roots_cyl = BesselJ_RootsCyl(30);
 
             Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocolmat(obj.Prot.DiffusionData.Mat), fibredir, constants);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
 
         end
 
@@ -218,8 +224,9 @@ end
         end
 
         function plotModel(obj, x, data)
-
-                
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x=obj.st; end
             [Smodel, fibredir] = obj.equation(x);
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
@@ -242,11 +249,16 @@ end
             scd_display_qspacedata3D(Smodel,Prot,fibredir,'none','-');
 
             hold off
-
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
 
         end
 
         function plotProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % round bvalue
             Prot      = obj.Prot.DiffusionData.Mat;
             Prot(:,4) = round(scd_scheme2bvecsbvals(Prot)*100)*10;
@@ -254,9 +266,15 @@ end
             scd_scheme_display(Prot)
             subplot(2,2,4)
             scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1))
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if ~exist('display','var'), display=1; end
             if nargin<3, Opt.SNR = 200; end
             [Smodel, fibredir] = equation(obj, x);
@@ -280,17 +298,32 @@ end
                 hold on
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
 
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
     end

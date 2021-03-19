@@ -97,6 +97,9 @@ end
         end
 
         function [Smodel, Spectrum] = equation(obj,x,Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if isnumeric(x), xbu = x; x=struct; x.MWF = xbu(1); x.T2MW = xbu(2); x.T2IEW = xbu(3); end
             if nargin < 3, Opt.T2Spectrumvariance_Myelin = 5; Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20; end
             x.MWF = x.MWF/100;
@@ -118,6 +121,9 @@ end
             Spectrum = MF*SpectrumMW + IEF*SpectrumIEW;
             % Generate the signal
             Smodel = DecayMatrix * Spectrum;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function [FitResults,Spectrum] = fit(obj,data)
@@ -137,6 +143,9 @@ end
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
             if ~exist('Opt','var'), Opt = button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
@@ -157,19 +166,37 @@ end
                 end
                 hold off
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function plotModel(obj, x, data, PlotSpectrum)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x = mean([obj.lb(:),obj.ub(:)],2); end
             if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
             EchoTimes   = obj.Prot.MET2data.Mat;
@@ -228,6 +255,9 @@ end
                 ylabel('MET2 ()');
                 %---------------------------------------------------------%
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
     end
 

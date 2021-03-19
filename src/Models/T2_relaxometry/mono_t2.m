@@ -71,10 +71,16 @@ end
         end
         
         function Smodel = equation(obj, x)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
             
             % equation
             Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
         
         function FitResults = fit(obj,data)
@@ -182,6 +188,9 @@ end
         
         
         function plotModel(obj, FitResults, data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             %  Plot the Model and Data.
             if nargin<2, qMRusage(obj,'plotModel'), FitResults=obj.st; end
             FitResults=mat2struct(FitResults,obj.xnames);
@@ -210,9 +219,14 @@ end
                 hold off
             end
             
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
         
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<4, display=1; end
             % Compute Smodel
             Smodel = equation(obj, x);
@@ -225,16 +239,31 @@ end
             if display
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
         
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
         
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
     end
 
