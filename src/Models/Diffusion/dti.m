@@ -250,13 +250,18 @@ end
         end
 
         function plotProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
             % round bvalue
             Prot      = obj.Prot.DiffusionData.Mat;
             Prot(:,4) = round(scd_scheme2bvecsbvals(Prot)*100)*10;
             % display
             scd_scheme_display(Prot)
             subplot(2,2,4)
-            scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1))
+            scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1));
+
+            % Ensure USER protocol units on load
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
