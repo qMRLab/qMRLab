@@ -68,6 +68,9 @@ end
             
             obj.options = button2opts(obj.buttons);
             obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=2','https://osf.io/ns3wx/download?version=1','https://osf.io/kujp3/download?version=2');
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
         
         function Smodel = equation(obj, x)
