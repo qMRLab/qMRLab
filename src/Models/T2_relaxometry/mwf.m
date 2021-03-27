@@ -270,6 +270,8 @@ end
             % v2.5.0 drops unit parantheses
             if checkanteriorver(version,[2 5 0])
                 obj.Prot.MET2data.Format = {'EchoTime'};
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
         end
     end
