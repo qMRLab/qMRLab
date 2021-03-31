@@ -322,9 +322,9 @@ Fit.Model = Model;
 Fit.Version = qMRLabVer;
 usr = getUserPreferences;
 % Embed provenance in FitResults if enabled.
-if usr.SaveProvenance
-   Fit.Provenance = Model.getProvenance(); 
-end
+
+Fit.Provenance = Model.getProvenance(); 
+
 % From release v2.5.0 on save unit information
 tmp = modelRegistry('get',Model.ModelName);
 Fit.UserConfig = usr;

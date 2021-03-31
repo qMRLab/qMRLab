@@ -535,10 +535,8 @@ Fit.Version = qMRLabVer;
 % Save additional information
 Fit.Parallel = gcp();
 usr = getUserPreferences;
-% Embed provenance in FitResults if enabled.
-if usr.SaveProvenance
-   Fit.Provenance = Model.getProvenance(); 
-end
+% Embed provenance in FitResults.
+Fit.Provenance = Model.getProvenance(); 
 % From release v2.5.0 on save unit information
 tmp = modelRegistry('get',Model.ModelName);
 Fit.Registry = tmp.Registry;

@@ -1,0 +1,35 @@
+{
+"UnifyOutputMapUnits": {
+    "Enabled": true,
+    "Time": "second",
+    "Rate": "reciprocal_second",
+    "Fraction": "fraction_percent",
+    "B1": "relative_scaling_factor_percent",
+    "B0": "offset_factor_hertz",
+    "Susceptibility": "part_per_million",
+    "Angle":"radian",
+    "Diffusivity": "square_micrometer_per_millisecond",
+    "Length": "micrometer",
+    "Tensor": "tensor"
+},
+
+"UnifyInputProtocolUnits": {
+    "Enabled": true,
+    "Time":"second",
+    "Frequency": "hertz",
+    "MagneticFieldStrength": "tesla",
+    "GradientMagnitude": "tesla_per_meter",
+    "Length": "millimeter",
+    "Angle": "degree",
+    "Arbitrary": "arbitrary"
+},
+
+"ChangeProvidedInputMapUnits": {
+    "Enabled": true,
+    "Time": "second",
+    "Rate": "reciprocal_second",
+    "B1": "relative_scaling_factor_percent",
+    "B0": "offset_factor_hertz",
+    "Angle":"radian"
+}
+}

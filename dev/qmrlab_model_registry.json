@@ -1,6 +1,7 @@
 {
 	"amico": {
         "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2014.10.026",
         "InputDataUnits":{
             "DiffusionData": "arbitrary",
             "Mask": "categorical"
@@ -37,6 +38,7 @@
 
     "charmed": {
         "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2005.03.042",
         "InputDataUnits":{
             "DiffusionData": "arbitrary",
             "SigmaNoise": "arbitrary",
@@ -73,6 +75,7 @@
 
     "dti": {
         "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/S0006-3495(94)80775-1",
         "InputDataUnits":{
             "DiffusionData": "arbitrary",
             "SigmaNoise": "arbitrary",
@@ -105,6 +108,7 @@
 
 	"noddi": {
         "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2012.03.072",
         "InputDataUnits":{
             "DiffusionData": "arbitrary",
             "Mask": "categorical"
@@ -141,6 +145,7 @@
 
     "b0_dem": {
         "ModelPath": "FieldMaps/",
+        "Citation": "https://doi.org/10.1002/mrm.25279",
         "InputDataUnits":{
             "Phase": "radian",
             "Magn":  "arbitrary"
@@ -161,6 +166,7 @@
 
     "b1_afi": {
         "ModelPath": "FieldMaps/",
+        "Citation": "https://doi.org/10.1002/mrm.21120",
         "InputDataUnits":{
             "AFIData1": "arbitrary",
             "AFIData2":  "arbitrary",
@@ -185,6 +191,7 @@
 
     "b1_dam": {
         "ModelPath": "FieldMaps/",
+        "Citation": "https://doi.org/10.1006/jmra.1993.1133",
         "InputDataUnits":{
             "SFalpha": "arbitrary",
             "SF2alpha":  "arbitrary",
@@ -207,6 +214,7 @@
 
     "mt_ratio": {
         "ModelPath": "Magnetization_transfer/",
+        "Citation": "",
         "InputDataUnits":{
             "MTon": "arbitrary",
             "MToff":  "arbitrary",
@@ -220,6 +228,7 @@
 
     "mt_sat": {
         "ModelPath": "Magnetization_transfer/",
+        "Citation": "https://doi.org/10.1002/mrm.21732",
         "InputDataUnits":{
             "MTw": "arbitrary",
             "T1w":  "arbitrary",
@@ -254,6 +263,7 @@
 
     "qmt_bssfp": {
         "ModelPath": "Magnetization_transfer/",
+        "Citation": "",
         "InputDataUnits":{
             "MTdata": "arbitrary",
             "R1map": "reciprocal_second",
@@ -283,6 +293,7 @@
 
     "qmt_sirfse": {
         "ModelPath": "Magnetization_transfer/",
+        "Citation": "https://doi.org/10.1002/mrm.22440",
         "InputDataUnits":{
             "MTdata": "arbitrary",
             "R1map": "reciprocal_second",
@@ -319,6 +330,7 @@
 
     "qmt_spgr": {
         "ModelPath": "Magnetization_transfer/",
+        "Citation":"https://doi.org/10.1006/jmre.2000.2059",
         "InputDataUnits":{
             "MTdata": "arbitrary",
             "R1map": "reciprocal_second",
@@ -357,6 +369,7 @@
 
     "qsm_sb": {
         "ModelPath": "QSM/",
+        "Citation":"https://doi.org/10.1002/mrm.25029",
         "InputDataUnits":{
             "PhaseGRE": "radian",
             "MagnGRE": "arbitrary",
@@ -394,6 +407,7 @@
 
     "inversion_recovery": {
         "ModelPath": "T1_relaxometry/",
+        "Citation":"https://doi.org/10.1002/mrm.22497",
         "InputDataUnits":{
             "IRData": "arbitrary",
             "Mask": "categorical"
@@ -421,6 +435,7 @@
 
     "mp2rage": {
         "ModelPath": "T1_relaxometry/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2009.10.002",
         "InputDataUnits":{
             "MP2RAGE": "arbitrary",
             "INV1mag": "categorical",
@@ -466,6 +481,7 @@
 
     "mtv": {
         "ModelPath": "T1_relaxometry/",
+        "Citation": "https://doi.org/10.1038/nm.3390",
         "InputDataUnits":
         {
             "T1": "second",
@@ -483,6 +499,7 @@
 
     "vfa_t1": {
         "ModelPath": "T1_relaxometry/",
+        "Citation":"https://doi.org/10.1016/0730-725x(87)90021-x",
         "InputDataUnits":
         {   
             "VFAData": "arbitrary",
@@ -506,6 +523,7 @@
 
     "mono_t2": {
         "ModelPath": "T2_relaxometry/",
+        "Citation":"https://doi.org/10.1371/journal.pone.0145255",
         "InputDataUnits":
         {   
             "SEdata": "arbitrary",
@@ -527,6 +545,7 @@
 
     "mwf": {
         "ModelPath": "T2_relaxometry/",
+        "Citation":"https://doi.org/10.1002/mrm.1910310614",
         "InputDataUnits":
         {   
             "MET2data": "arbitrary",
@@ -550,6 +569,7 @@
     "denoising_mppca":
     {
         "ModelPath": "Noise/",
+        "Citation":"https://doi.org/10.1002/mrm.26059",
         "InputDataUnits":
         {   
             "Data4D": "arbitrary",
@@ -565,6 +585,7 @@
     "noise_level":
     {
         "ModelPath": "Noise/",
+        "Citation": "",
         "InputDataUnits":
         {   
             "Data4D": "arbitrary",
@@ -581,6 +602,7 @@
     "filter_map":
     {
         "ModelPath": "Processing/",
+        "Citation": "",
         "InputDataUnits":
         {   
             "Raw": "relative_scaling_factor_decimal",
@@ -594,6 +616,7 @@
 
     "CustomExample": {
         "ModelPath": "UnderDevelopment/",
+        "Citation":"https://doi.org/xxx",
 		"InputDataUnits": {
             "inputmapname": "unit-type"
         },

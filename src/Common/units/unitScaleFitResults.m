@@ -42,7 +42,7 @@ switch direction
                 registeredTag = isPartialField(FitResults.fields{ii},FitResults.Model.ModelName);
                if ~isempty(registeredTag)
                    registeredTag = cell2mat(registeredTag);
-                   Out.(FitResults.fields{ii}) = FitResults.(FitResults.fields{ii})./FitResults.UnitBIDSMappings.Output.(registeredTag).ScaleFactor;
+                   Out.(FitResults.fields{ii}) = FitResults.(FitResults.fields{ii}).*FitResults.UnitBIDSMappings.Output.(registeredTag).ScaleFactor;
                else
                    error(['qMRLab Developer: No partial match or registered tag has been found for ' FitResults.fields{ii} ' in the model ' FitResults.Model.ModelName]);
                end

@@ -3,12 +3,6 @@
 		"Method": "inversion_recovery"
 	},
 
-	"SaveProvenance": true,
-
-	"SaveRateMapsWhereverAvailable": false,
-
-	"SaveBIDSLikeFitResults": true,
-
 	"FitParallelWheneverPossible": true,
 
 	"ParFitData": {
@@ -17,6 +11,8 @@
 		"Granularity": 3,
 		"RemoveTmpOnSuccess": 1
 	},
+
+	"ForAllUnitsUseBIDS": false,
 
 	"UnifyOutputMapUnits": {
 		"Enabled": false,
@@ -33,7 +29,7 @@
 	},
 
 	"UnifyInputProtocolUnits": {
-		"Enabled": true,
+		"Enabled": false,
 		"Time":"second",
 		"Frequency": "hertz",
 		"MagneticFieldStrength": "tesla",
