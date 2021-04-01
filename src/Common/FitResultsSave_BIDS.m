@@ -1,4 +1,4 @@
-function FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
+function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
 
 
     warning('off', 'MATLAB:MKDIR:DirectoryExists');
@@ -170,7 +170,11 @@ function FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
 
         % Save JSON 
         savejson([],injectJSON,fullfile(curOutDir,[curFileName '.json']));
-
+        
+        if nargout==1
+            % Return base upon request
+            outPrefix  = fullfile(curOutDir,curFileName);
+        end
     end
 
     % ================================= CRITICAL DO NOT REMOVE
