@@ -337,7 +337,7 @@ Fit.UnitBIDSMappings = tmp.UnitBIDSMappings;
 % - /usr/prefrecenes.json 
 % - /dev/units.json
 % - /dev/qmrlab_model_registry.json 
-% - /dev/output_units_BIDS_mappings.json
+% - /dev/qmrlab_output_to_BIDS_mappings.json
 Fit = unitScaleFitResults('toUserUnits',Fit);
 
 %if usr.UnifyOutputMapUnits.Enabled

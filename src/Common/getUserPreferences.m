@@ -21,8 +21,9 @@ try
   % - ChangeProvidedInputMapUnits
 
   if usrpreferences.ForAllUnitsUseBIDS || ISBIDS
-    bidsPreferences = json2struct(fullfile(qMRLabDir,'dev','bids_preferences.json'));
+    bidsPreferences = json2struct(fullfile(qMRLabDir,'dev','bids_specification','units_BIDS_preferences.json'));
     
+    % Warn user that some of their Enabled configs will be overriden because they ENABLED BIDS
     if usrpreferences.ForAllUnitsUseBIDS
       if any([usrpreferences.UnifyOutputMapUnits.Enabled, usrpreferences.UnifyInputProtocolUnits.Enabled,usrpreferences.ChangeProvidedInputMapUnits.Enabled ])
         cprintf('red',   '<< ! >> Overriding user unit preferences: ForAllUnitsUseBIDS is %s \n','enabled.');

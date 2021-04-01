@@ -49,6 +49,9 @@ Demo.mat
 SPGR/Parameters/NewProtocol.mat
 Data/SPGR_demo/flipdata.m
 FitResults*
+!FitResultsSave_BIDS.m
+!FitResultsSave_nii.m
+!FitResultsSave_mat.m
 FitTempResults*
 SimResults*
 MTSAT/interface.jpg

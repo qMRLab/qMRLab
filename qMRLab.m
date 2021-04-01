@@ -73,7 +73,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
     end
     
     % Display version under qMRLab text
-    set(handles.text_version_check, 'String',sprintf('v%d.%d.%d',cur_ver(1),cur_ver(2),cur_ver(3)));
+    versionfile= fullfile(fileparts(which('qMRLab.m')),'version.txt');
+    fid = fopen(versionfile,'r');
+    sver = fgetl(fid);
+    fclose(fid);
+    set(handles.text_version_check, 'String',sver);
     
     % Handle new version message
     % varstatus is empty unless there is a new release.
@@ -107,6 +111,20 @@ if ~isfield(handles,'opened') % qMRI already opened?
     guidata(hObject, handles);
         
     
+    % IMPORTANT
+    % Here, we'll SetappData the /dev json content so that
+    % - i)  It won't be read over and over again 
+    % - ii) On the fly changes won't affect the current session
+    %
+    % Any GUI-related function will access these data through getappdata
+    registryStruct = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'qmrlab_model_registry.json']);
+    unitDefsStruct = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'units.json']);
+    usrPrefsStruct = getUserPreferences(); 
+    SetAppData(registryStruct);
+    SetAppData(unitDefsStruct);
+    SetAppData(usrPrefsStruct);
+
+
     % SET WINDOW AND PANELS
     movegui(gcf,'center')
     CurrentPos = get(gcf, 'Position');
@@ -580,7 +598,10 @@ guidata(hObject,handles);
 DrawPlot(handles);
 % Upon Fit completion, the Version in the CurrentData updates 
 % with the latest.
-updateUnitLabel(handles,false)
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
 
 % FITRESULTSSAVE
 function FitResultsSave_Callback(hObject, eventdata, handles)
@@ -632,7 +653,10 @@ guidata(hObject,handles);
 DrawPlot(handles);
 % Version check must be performed, otherwise faulty units are possible to
 % be displayed depending on usr's current settings.
-updateUnitLabel(handles,false)
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
 
 
 % #########################################################################
@@ -646,7 +670,11 @@ set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
 
-updateUnitLabel(handles,false);
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
+
 handles.tool.setNvol(get(handles.SourcePop,'Value'));
 
 % VIEW
@@ -660,7 +688,10 @@ UpdateSlice(handles)
 View = get(handles.ViewPop,'String');
 if ~iscell(View), View = {View}; end
 handles.tool.setviewplane(View{get(handles.ViewPop,'Value')})
-updateUnitLabel(handles,false);
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
 
 % STATS Table
 function Stats_Callback(hObject, eventdata, handles)

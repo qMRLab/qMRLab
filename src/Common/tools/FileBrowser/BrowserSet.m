@@ -185,7 +185,9 @@ classdef BrowserSet
             end
 
             % ======= SCALE INPUT DATA W.R.T. USER SETTINGS =======
-            reg = modelRegistry('get',class(Model));
+            reg = modelRegistry('get',class(Model),'registryStruct',getappdata(0,'registryStruct'),...
+                                'unitDefsStruct',getappdata(0,'unitDefsStruct'), ...
+                                'usrPrefsStruct',getappdata(0,'usrPrefsStruct'));
             Data.(class(Model)).(obj.NameID{1}) = Data.(class(Model)).(obj.NameID{1})...
             .*reg.UnitBIDSMappings.Input.(obj.NameID{1}).ScaleFactor;
             
@@ -303,7 +305,10 @@ classdef BrowserSet
             % The second argument set to True to show the registered label
             % regardless of the version of the CurrentData. For details,
             % see updateUnitLabel.
-            updateUnitLabel(handles,true);
+            updateUnitLabel(handles,true,...
+            getappdata(0,'registryStruct'),...
+            getappdata(0,'unitDefsStruct'),...
+            getappdata(0,'usrPrefsStruct'));
         end
 
 

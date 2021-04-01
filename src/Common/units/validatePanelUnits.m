@@ -52,15 +52,19 @@ end
 
 if ~response
     disp('=============================================================');
-    disp('================== PROTOCOL MISMATCH ========================');
+    disp('================== PROTOCOL UNIT MISMATCH ===================');
     disp('=============================================================');
     cprintf('red','<< ! >> Protocol units requested in /usr/preferences.json are not \n %s', ['consistent with'...
        'those currently loaded in the Options Panel.']);
    disp('=============================================================');
-    cprintf('blue','<< i >> PLEASE RESET THE PROTOCOL by clicking the \n %s', ['|Default| button'...
+    cprintf('blue','<< i >> IF THE MISMATCH IS BECAUSE you loaded a FitResult saved with %s', ' different protocol units:');
+    cprintf('magenta','        PLEASE RESET THE PROTOCOL by clicking the %s', ['|Default| button'...
                    'located at the bottom of the Options Panel.']);
+    disp('');
+    cprintf('blue','<< i >> IF THE MISMATCH IS BECAUSE you changed /usr/preferences.json %s', ' while qMRLab GUI was open:');
+    cprintf('magenta','        PLEASE RESTART %s', 'qMRLab'); 
    disp('=============================================================');
-  error('>>>>>>>> Please see the warning above =======================');
+   error('>>>>>>>> Please see the warning above =======================');
     
 end
 end

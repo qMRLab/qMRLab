@@ -17,10 +17,10 @@ function FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     reg = modelRegistry('get',FitResults.Model.ModelName);
 
 
-    % If output_units_BIDS_mappings.json is updated by the developer to 
+    % If qmrlab_output_to_BIDS_mappings.json is updated by the developer to 
     % reflect changes in a new BIDS release, BIDSVersion tag in the sidecar
     % JSON files should capture it. 
-    infoBIDS = json2struct(fullfile(qMRLabDir,'dev','compatible_latest_BIDS.json'));
+    infoBIDS = json2struct(fullfile(qMRLabDir,'dev','bids_specification','qmrlab_BIDS_changelog.json'));
 
     validNii = @(x) exist(x,'file') && (strcmp(x(end-5:end),'nii.gz') || strcmp(x(end-2:end),'nii'));
     validDir = @(x) exist(x,'dir');

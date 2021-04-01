@@ -30,7 +30,19 @@ function [prot,OriginalProtEnabledOut] = getScaledProtocols(Model,direction,Orig
            
             prot =  Model.Prot;
             if ~isempty(fieldnames(prot))
-            reg = modelRegistry('get',Model.ModelName);
+            
+            try
+                % See if it can fatch GUI data. If not, read 
+                % from json
+                reg = modelRegistry('get',Model.ModelName,'registryStruct',getappdata(0,'registryStruct'),...
+                'unitDefsStruct',getappdata(0,'unitDefsStruct'), ...
+                'usrPrefsStruct',getappdata(0,'usrPrefsStruct'));
+            catch
+                
+                reg = modelRegistry('get',Model.ModelName);
+                
+            end
+
             protUnitMaps = reg.UnitBIDSMappings.Protocol;
         
             % This is the same with the fieldnames of protUnitMaps 

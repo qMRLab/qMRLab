@@ -2,9 +2,9 @@
     "Time": 
     {   "description": "Time-relevant qMRLab model output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes time (e.g. FitResults.T1), whether required or optional (e.g. FitResults.T1prime), MUST be listed here.",
-        "warning_xnames": "The xnames field MUST be a unique array. Concatenatoion of xnames arrays of all namespaces (e.g. [Time.xnames, Rate.xnames] MUST yield a unique array as well.",
+        "warning_outputs": "The outputs field MUST be a unique array. Concatenatoion of outputs arrays of all namespaces (e.g. [Time.outputs, Rate.outputs] MUST yield a unique array as well.",
         "warning_addition": "Please append to the lists, do NOT prepend. Make sure that you append an entry to all subfields (qMapNames, suffixBIDS, isOfficialBIDS, folderBIDS)",
-        "xnames":
+        "outputs":
             [
                 "T1",
                 "T1map",
@@ -27,7 +27,7 @@
                 "Tranverse relaxation time (T2) of the free (f) pool",
                 "Tranverse relaxation time (T2) of the restricted (r) pool"
             ],
-        "warning_suffixBIDS": "The suffixBIDS field does NOT have to be a unique array, however, MUST respect the correcsponding BIDS suffix (if available) & the respective xnames entry.",
+        "warning_suffixBIDS": "The suffixBIDS field does NOT have to be a unique array, however, MUST respect the correcsponding BIDS suffix (if available) & the respective outputs entry.",
         "suffixBIDS":
             [
                 "T1map",
@@ -70,7 +70,7 @@
     "Rate":
     { "description": "Rate-relevant qMRLab model output (FitResults.my_output) variables (my_output) are defined in this namespace.",
       "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes rate (e.g. FitResults.R1), whether required or optional (e.g. FitResults.R1f), MUST be listed here.",
-        "xnames":
+        "outputs":
             [   
                 "R1",
                 "R1r",
@@ -117,7 +117,7 @@
     "Fraction": 
     {   "description": "Any qMRLab model output (FitResults.my_output) variable (my_output) that defines ratio MUST be defined in this namespace.",
         "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes fraction (e.g. FitResults.MTR), whether required or optional (e.g. FitResults.kf), MUST be listed here.",
-        "xnames":
+        "outputs":
             [
 		"MTR",
 		"MWF",
@@ -194,7 +194,7 @@
     "B1": 
     {  "description": "Transmit RF field mapping models' B1+ output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes B1+ (e.g. FitResults.B1map), whether required or optional (e.g. FitResults.B1map_filtered), MUST be listed here.",
-        "xnames":
+        "outputs":
             [
 		"B1map_raw",
 		"B1map_filtered",
@@ -230,7 +230,7 @@
 
     "B0": 
     {   "description": "Magnetic field inhomonegeity mapping models' B0-relevant output (FitResults.my_output) variables (my_output) are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
 		"B0map"
             ],
@@ -256,7 +256,7 @@
 
     "Susceptibility":
     {   "decription": "QSM models' susceptibility output (FitResults.my_output) variables (my_output) are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
 		"chiSB",
 		"chiSBM",
@@ -303,7 +303,7 @@
 
     "Angle":
     {   "description":"Phase output (FitResults.my_output) variables (my_output) are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
 		"unwrappedPhase",
         "theta",
@@ -344,7 +344,7 @@
 
     "Diffusivity":
     {   "decription": "Diffusivity output (FitResults.my_output) variables (my_output) are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
 		"di",
 		"diso",
@@ -390,7 +390,7 @@
 
     "Arbitrary":
     {   "decription": "Any output of arbitrary unit (FitResults.my_output) variables (my_output) are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
         "ODI",
 		"kappa",
@@ -561,7 +561,7 @@
 
     "Categorical":
     {   "decription": "Categorical output (FitResults.my_output) variables (my_output), such as segmentation regions, are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
 		"seg",
 		"idx",
@@ -600,7 +600,7 @@
 
     "Length":
     {   "decription": "Length output (FitResults.my_output) variables (my_output), such as axon diameter, are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
 		"diameter_mean"
             ],
@@ -624,7 +624,7 @@
 
     "Tensor":
     {   "decription": "Tensor output (FitResults.my_output) variables (my_output), such as DT, are defined in this namespace.",
-        "xnames":
+        "outputs":
             [
 		"D"
             ],
