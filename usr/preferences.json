@@ -29,7 +29,7 @@
 	},
 
 	"UnifyInputProtocolUnits": {
-		"Enabled": true,
+		"Enabled": false,
 		"Time":"second",
 		"Frequency": "hertz",
 		"MagneticFieldStrength": "tesla",
