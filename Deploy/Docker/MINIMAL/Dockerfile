@@ -24,6 +24,7 @@ RUN apt-get update && \
     useradd -m neuropoly
 COPY . /tmp/
 
+USER neuropoly
 ARG TAG 
 RUN echo ${TAG}; \
     cd /home/neuropoly; \    
@@ -35,5 +36,4 @@ RUN echo ${TAG}; \
                       pkg list;"
 COPY . /tmp/
 
-USER neuropoly
 WORKDIR /home/neuropoly
