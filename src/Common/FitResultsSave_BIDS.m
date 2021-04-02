@@ -33,7 +33,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     addParameter(p,'sesFolder',false,@islogical);
     addParameter(p,'acq',[],@ischar);
     addParameter(p,'rec',[],@ischar);
-    addParameter(p, 'targetDerivativesDir',[],validDir);
+    addParameter(p, 'targetDir',[],validDir);
     addParameter(p, 'injectToJSON',struct(),@isstruct);
     addParameter(p, 'saveDescription',true,@islogical);
 
@@ -48,7 +48,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     recValue = p.Results.rec;
     injectJSON = p.Results.injectToJSON;
     saveDescription = p.Results.saveDescription;
-    targetDir = p.Results.targetDerivativesDir;
+    targetDir = p.Results.targetDir;
 
 
     % Get dataset_description struct.
