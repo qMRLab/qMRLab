@@ -20,16 +20,16 @@ RUN apt-get update && \
     xargs -d '\n' -- apt-get install -y --no-install-recommends < /tmp/apt.txt && \
     apt-get clean && \
     apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    useradd -m neuropoly
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 COPY . /tmp/
 
 ARG TAG 
 RUN echo ${TAG}; \
-    cd cd $HOME/work; \    
+    mkdir $HOME/work; \
+    cd $HOME/work; \    
     git clone --recurse-submodules -b ${TAG} --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
     chmod -R 777 cd $HOME/work/qMRLab; \
-    octave --eval "cd cd $HOME/work/qMRLab; \
+    octave --eval "cd $HOME/work/qMRLab; \
                       startup; \
                       savepath(); \
                       pkg list;"
