@@ -26,10 +26,10 @@ COPY . /tmp/
 
 ARG TAG 
 RUN echo ${TAG}; \
-    cd $HOME; \    
+    cd /home/neuropoly; \    
     git clone --recurse-submodules -b ${TAG} --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
-    chmod -R 777 $HOME/qMRLab; \
-    octave --eval "cd $HOME/qMRLab; \
+    chmod -R 777 /home/neuropoly/qMRLab; \
+    octave --eval "cd /home/neuropoly/qMRLab; \
                       startup; \
                       savepath(); \
                       pkg list;"
