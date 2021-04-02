@@ -24,16 +24,15 @@ RUN apt-get update && \
     useradd -m neuropoly
 COPY . /tmp/
 
-USER neuropoly
 ARG TAG 
 RUN echo ${TAG}; \
-    cd /home/neuropoly; \    
+    cd cd $HOME/work; \    
     git clone --recurse-submodules -b ${TAG} --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
-    chmod -R 777 /home/neuropoly/qMRLab; \
-    octave --eval "cd /home/neuropoly/qMRLab; \
+    chmod -R 777 cd $HOME/work/qMRLab; \
+    octave --eval "cd cd $HOME/work/qMRLab; \
                       startup; \
                       savepath(); \
                       pkg list;"
 COPY . /tmp/
 
-WORKDIR /home/neuropoly
+WORKDIR $HOME/work
