@@ -63,15 +63,28 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     % This is the subject directory for the outputs
     subDir = fullfile(targetDir,'qMRLab',['sub-' subID]);
 
-    % In the derivatives folder, we first create a qMRLab/sub directory.
-    if ~exist(subDir, 'dir')
-        mkdir(subDir);
+    if isempty(getenv('ISNEXTFLOW')) && ~str2double(getenv('ISNEXTFLOW'))
+        % In the derivatives folder, we first create a qMRLab/sub directory.
+        if ~exist(subDir, 'dir')
+            mkdir(subDir);
+        end
     end
-
 
     % Save derivatives/qMRLab/dataset_description.json (true by default).
     if saveDescription
-        savejson([],datasetDescription,fullfile(targetDir,'qMRLab','dataset_description.json'));
+        if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
+            % This file is saved under derivatives/qMRLab
+            % Nextflow signals whether the dataset has session level organization. 
+            % If so, saved 3 dirs up, otherwise 2 dir up.
+            if writeSesFolder
+                savejson([],datasetDescription,fullfile('..','..','..','dataset_description.json'));
+            else
+                savejson([],datasetDescription,fullfile('..','..','dataset_description.json'));
+            end
+        else
+            % Save defined directory if not nextflow.
+            savejson([],datasetDescription,fullfile(targetDir,'qMRLab','dataset_description.json'));
+        end
     end
 
     % injectJSON already has its respective BIDSVersion management
@@ -114,24 +127,33 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
 
         end
 
-        curOutDir = fullfile(subDir,curMapping.folderBIDS);
+        % IF NEXTFLOW, HAND OVER RESPONSIBILITY TO NF FOR MANAGING DIRECTORY 
+        % In this case, it is simply like we are reading and writing files in 
+        % the same (current) folder. 
+        if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
+            % SubID captures all these details in nextflow
+            curFileName = getSaveName(subID,[],[],[],curMapping.suffixBIDS);
+            % Output them where Nextflow expects
+            curOutDir   = pwd; 
+        else
+            curOutDir = fullfile(subDir,curMapping.folderBIDS);
 
-        if ~exist(curOutDir, 'dir')
-            mkdir(curOutDir);
-        end
-
-        % If requested, write session folder. This is not required for all the outputs with sessions. 
-        % Up to user's choice. BIDS is OK with both options.
-        if writeSesFolder
-            try
-                curOutDir = fullfile(curOutDir,['ses-' sesValue]);
+            if ~exist(curOutDir, 'dir')
                 mkdir(curOutDir);
-            catch
-                error('Missing session value. Please pass the value such as: FitResultsSave_BIDS(''ses'',''00N'')');
             end
-        end
 
-        curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.suffixBIDS);
+            % If requested, write session folder. This is not required for all the outputs with sessions. 
+            % Up to user's choice. BIDS is OK with both options.
+            if writeSesFolder
+                try
+                    curOutDir = fullfile(curOutDir,['ses-' sesValue]);
+                    mkdir(curOutDir);
+                catch
+                    error('Missing session value. Please pass the value such as: FitResultsSave_BIDS(''ses'',''00N'')');
+                end
+            end
+            curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.suffixBIDS);
+        end 
 
         if ~isempty(reg.Registry.Citation)
             injectJSON.EstimationReference =  reg.Registry.Citation;

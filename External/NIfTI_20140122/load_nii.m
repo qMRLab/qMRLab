@@ -170,7 +170,11 @@ function nii = load_nii(filename, img_idx, dim5_idx, dim6_idx, dim7_idx, ...
          
          if moxunit_util_platform_is_octave
             % Octave is messing this up with datalad. Use system cp instead.
-            system(['cp ' filename ' ' fullfile(tmpDir,[nametmp,exttmp])]);
+            if isunix
+               system(['cp ' filename ' ' fullfile(tmpDir,[nametmp,exttmp])]);
+            else
+               system(['copy ' filename ' ' fullfile(tmpDir,[nametmp,exttmp])]);
+            end
          else
             copyfile(filename,tmpDir)
          end
