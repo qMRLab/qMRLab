@@ -216,7 +216,11 @@ function fileName = getSaveName(subID,sesValue,acqValue,recValue,suffix)
     if ~isempty(sesValue); subID = [subID '_ses-' sesValue]; end
     if ~isempty(acqValue); subID = [subID '_acq-' acqValue]; end
     if ~isempty(recValue); subID = [subID '_rec-' recValue]; end
-    fileName = ['sub-' subID '_' suffix];
+    if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
+        fileName = [subID '_' suffix];
+    else
+        fileName = ['sub-' subID '_' suffix];
+    end
 
 end
 
