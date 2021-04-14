@@ -132,7 +132,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
         % the same (current) folder. 
         if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
             % SubID captures all these details in nextflow
-            curFileName = getSaveName(subID,[],[],[],curMapping.suffixBIDS);
+            curFileName = getSaveName(subID,[],acqValue,[],curMapping.suffixBIDS);
             % Output them where Nextflow expects
             curOutDir   = pwd; 
         else
