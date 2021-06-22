@@ -1,4 +1,4 @@
-classdef mono_t2star < AbstractModel & FilterClass
+classdef mono_t2star < AbstractModel
     % mono_t2: Compute a monoexponential T2 map
     %
     % Assumptions:
@@ -43,8 +43,8 @@ end
         MRIinputs = {'DATAmag','DATAphase','Mask'}; % used in the data panel
         
         % fitting options
-        xnames = { 'T2','M0'}; % name of the parameters to fit
-        voxelwise = 1; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
+        xnames = { 'T2star','GradZ','B0'}; % name of the parameters to fit
+        voxelwise = 0; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
         st           = [ 100	1000 ]; % starting point
         lb            = [  1      1 ]; % lower bound
         ub           = [ 300        10000 ]; % upper bound
@@ -55,26 +55,33 @@ end
             'Mat',[6.44  9.76  13.08  16.4  19.72  23.04]'));
       
         % Model options
-        
-        %options2 = struct();
+        buttons = {'PANEL','FrequencyMap',2,'MASKthreshold',500,'RMSEthreshold',0.8,...
+            'FilterB0Map',false,'smoothDownsampling',[2 2 2],...
+            'FilterType',{'gaussian','box','polyfit1d','polyfit3d'},...
+            'PANEL','Gaussian/BoxFilter',1,'smoothKernel',[27 27 7],...
+            'PANEL','polyfitFilter',1,'polyOrder',3,...
+            'PANEL','GradientZ',3,'MinLength',6,'SliceThickness',1.25,...
+            'OptimizationGradZ',false,'FitType',{'num','gls','ols','nlls'},...
+            'ThresholdT2*map',1000};
+        options = struct();
         
     end
     
     methods
         function obj = mono_t2star()
-            objFilter = TA_rget;
-            buttons2 = {'FitType',{'num','gls','ols','nlls'},...
-            'FilterB0Map',false,'MASKthreshold',500,'RMSEthreshold',0.8,'MinLength',6,...
-            'PolyFitOrder',4,'SliceThickness',1.25,...
-            'OptimizationGradZ',false,'ThresholdT2*map',1000};
-
-            obj.buttons = cat(2,objFilter.buttons,buttons2);
-            
             obj.options = button2opts(obj.buttons);
             %obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=2','https://osf.io/ns3wx/download?version=1','https://osf.io/kujp3/download?version=2');
             % Prot values at the time of the construction determine 
             % what is shown to user in CLI/GUI.
         end
+        
+%         function obj = UpdateFields(obj)
+%             if strcmp(obj.options.FilterType,'gaussian') || strcmp(obj.options.FilterType,'box')
+%                 obj.buttons{strcmp(obj.buttons,'Guassian/BoxFilter') | strcmp(obj.buttons,'###Guassian/BoxFilter')} = '###Guassian/BoxFilter';
+%             else
+%                 obj.buttons{strcmp(obj.buttons,'Guassian/BoxFilter') | strcmp(obj.buttons,'###Guassian/BoxFilter')} = 'Guassian/BoxFilter';
+%             end
+%         end
         
 %         function Smodel = equation(obj, x)
 %             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
@@ -92,56 +99,41 @@ end
                 % Non-linear least squares using <<levenberg-marquardt (LM)>>
                 
                 echo_time = obj.Prot.SEdata.Mat;
+                echo_time = echo_time';
                 multiecho_magn = data.DATAmag;
                 multiecho_phase = data.DATAphase;
                 
                 %Intensity under which pixels are masked
-                thresh_mask = obj.options.MASKthreshold;
+                thresh_mask = obj.options.FrequencyMap_MASKthreshold;
                 
                 %Threshold above which voxels are discarded for computing the frequency map. RMSE results from fitting the frequency slope on the phase data
-                thresh_rmse = obj.options.RMSEthreshold;
+                thresh_rmse = obj.options.FrequencyMap_RMSEthreshold;
                 
                 [mask_3d, freq_map_3d] = t2star_computeFreqMap(multiecho_magn,multiecho_phase,echo_time,thresh_mask,thresh_rmse);
                 
-                if obj.options.FilterB0map
-                    sz = size(freq_map_3d);
-                    freq_map_3d_smooth = zeros(sz(1),sz(2),sz(3));
-                    for ii=1:sz(3)
-                        data.Raw = freq_map_3d(:,:,ii);
-                        data.Mask = freq_map_3d(:,:,ii);
-                        freq_map_3d_smooth(:,:,ii) = cell2mat(struct2cell(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez])));
-                    end
-                end
-                    
-                
-                
-                %Parameter to compute gradient along Z
-                %Minimum length of values along Z, below which values are not considered
-                min_length = obj.options.MinLength;
-                
-                %Max order of polynomial fit of frequency values before getting the gradient (along Z)
-                polyFitOrder = obj.options.PolyFitOrder;
-                
-                %Slice thickness in mm. N.B. SHOULD INCLUDE GAP!
-                dz = obj.options.SliceThickness;
-                
-                [grad_z_3d] = t2star_computeGradientZ(multiecho_magn,freq_map_3d_smooth,min_length,polyFitOrder,dz);
+                %Smooth frequency map and computation of gradient along z
+                if obj.options.FilterB0Map
+                    [freq_3d_smooth_masked,freqGradZ_masked] = t2star_smoothFreqMap(obj,freq_map_3d,mask_3d,multiecho_magn);
+                end                   
                 
                 %Parameter to perform corrected fitting
                 %Do optimization algorithm to find the final freqGradZ value, by minimizing the standard error between corrected T2* and the signal divided by the sinc term (see Danhke et al.)
-                do_optimization = obj.options.OptimizationGradZ;
+                do_optimization = obj.options.GradientZ_OptimizationGradZ;
                 
                 % 'ols': Ordinary least squares linear fit of the log of S
 				% 'gls': Generalized least squares (=weighted least squares), to respect heteroscedasticity of the residual when taking the log of S
 				% 'nlls': Levenberg-Marquardt nonlinear fitting to exponential
 				% 'num': Numerical approximation, based on the NumART2* method in [Hagberg, MRM 2002]. Tends to overestimate T2*
                 fitting_method = obj.options.FitType;
+                grad_z_3d = freqGradZ_masked;
                 
                 %Threshold T2* map
-                threshold_t2star_max = obj.options.ThresholdT2*map;
+                threshold_t2star_max = obj.options.ThresholdT2map;
                 [t2star_uncorr_3d, t2star_corr_3d,rsquared_uncorr_3d,rsquared_corr_3d,grad_z_final_3d,iter_3d] = t2star_computeCorrectedFitting(multiecho_magn,grad_z_3d,mask_3d,echo_time,do_optimization,fitting_method,threshold_t2star_max);
                 
-                FitResults.T2 = t2star_corr_3d;
+                FitResults.T2star = t2star_corr_3d;
+                FitResults.GradZ = freqGradZ_masked;
+                FitResults.B0 = freq_3d_smooth_masked;
 %                 
 %                 FitResults.T2star = t2star_corr_3d;
 %                 fT2 = @(a)(a(1)*exp(-xData/a(2)) - yDat);

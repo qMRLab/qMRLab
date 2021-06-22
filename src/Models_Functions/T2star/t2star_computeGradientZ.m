@@ -1,4 +1,4 @@
-function [grad_z_3d] = t2star_computeGradientZ(multiecho_magn,freq_map_3d_smooth,min_length,polyFitOrder,dz)
+function [grad_z_3d] = t2star_computeGradientZ(obj,multiecho_magn,freq_map_3d_smooth_masked)
 
 sizeData = size(multiecho_magn);
 nx = sizeData(1);
@@ -16,14 +16,14 @@ for ix=1:nx
 		% Initialize 1D gradient values
 		%grad_z = zeros(1,nz);
 		% Get frequency along z (discard zero values)
-		freq_z = squeeze(freq_map_3d_smooth(ix,iy,:));
+		freq_z = squeeze(freq_map_3d_smooth_masked(ix,iy,:));
 		ind_nonzero = find(freq_z);
-		if length(ind_nonzero) >= min_length
+		if length(ind_nonzero) >= obj.options.GradientZ_MinLength
 			% Fit to polynomial function
-			p = polyfit(ind_nonzero,freq_z(ind_nonzero),polyFitOrder);
+			p = polyfit(ind_nonzero,freq_z(ind_nonzero),obj.options.polyfitFilter_polyOrder);
 			f = polyval(p,(1:nz));
 			% Compute frequency gradient along Z
-			grad_z = gradient(f,dz/1000);		
+			grad_z = gradient(f,obj.options.GradientZ_SliceThickness/1000);		
 			% Fill 3D gradient matrix
 			grad_z_3d(ix,iy,:) = grad_z;
         end
