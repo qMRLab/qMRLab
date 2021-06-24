@@ -1,37 +1,53 @@
 classdef mono_t2star < AbstractModel
-    % mono_t2: Compute a monoexponential T2 map
+    % mono_t2star: Compute a monoexponential T2* map
     %
     % Assumptions:
     %   Mono-exponential fit
     %
     % Inputs:
-    %   SEdata          Multi-echo spin-echo data, 4D volume with different 
-    %                   echo times in time dimension
-    %   (Mask)          Binary mask to accelerate the fitting (OPTIONAL)
+    %   DATAmag/DATAphase   Multi-echo spin-echo magnitude/phase data, 4D volume
+    %                       with different echo times in time dimension
     %
     % Outputs:
-    %   T2              Transverse relaxation time [s]
-    %   M0              Equilibrium magnetization
+    %   T2star          Effective transverse relaxation time [s]
+    %   B0map           B0 inhomogeneity smoothed field
+    %   GradZ           Gradient along Z direction
     %
     % Protocol:
     %   TE Array [nbTE]:
-    %   [TE1; TE2;...;TEn]     column vector listing the TEs [ms] 
+    %   [TE1 TE2...TEn]'     column vector listing the TEs [ms] 
     %
     % Options:
-    %   FitType         Linear or Exponential
-    %   DropFirstEcho   Link Optionally drop 1st echo because of imperfect refocusing
-    %   Offset          Optionally fit for offset parameter to correct for imperfect refocusing
+    %   MASKthreshold   Intensity under which pixels are masked. Default=500
+    %   RMSEthreshold   Threshold above which voxels are discarded for comuting
+    %                   the frequency map. RMSE results from fitting the frequency
+    %                   slope on the phase data. Default=0.8
+    %   smoothDownsampling    3D downsample frequency map to compute gradient
+    %                         along Z. Default=[2 2 2]
+    %   FilterType      'gaussian' | 'box' | 'polyfit1d' | 'polyfit3d'. Default='polyfit3d'
+    %   smoothKernel    Only for 'gaussian' and 'box'
+    %   polyOrder       Max order of polynomial fit of frequency values before
+    %                   getting the gradient (along Z). Default=3
+    %   MinLenght       Minimum length of values along Z, below which values
+    %                   are not considered. Default=6
+    %   SliceThickness  Slice thickness in mm. N.B. SHOULD INCLUDE GAP!
+    %   OptimizationGradZ     Do optimization algorithm to find the final freqGradZ
+    %                         value, by minimizing the standard error between
+    %                         corrected T2* and the signal divided by the sinc term
+    %   FitType         Numerical ('num'), Non-linear ('nlls'), Ordinary
+    %                   least squares ('ols') or Generalized least squares ('gls')
+    %   ThresholdT2*map In ms. threshold T2* map (for quantization purpose 
+    %                   when saving in NIFTI).Suggested value=1000
     %
     % Example of command line usage:
-    %   Model = mono_t2;  % Create class from model
-    %   Model.Prot.SEData.Mat=[10:10:320]'; %Protocol: 32 echo times
+    %   Model = mono_t2star;  % Create class from model
+    %   Model.Prot.SEData.Mat=[6.44  9.76  13.08  16.4  19.72  23.04]';
     %   data = struct;  % Create data structure
-    %   data.SEData = load_nii_data('SEData.nii.gz');
+    %   data.DATAmag = double(load_nii_data('magnitude.nii.gz'));
+    %   data.DATAphase = double(load_nii_data('phase.nii.gz'));
     %   FitResults = FitData(data,Model); %fit data
     %   FitResultsSave_mat(FitResults);
     %
-    %  Reference work for DropFirstEcho and Offset options: 
-    %  https://www.ncbi.nlm.nih.gov/pubmed/26678918
     
 properties (Hidden=true)
     % See the constructor
@@ -56,10 +72,9 @@ end
       
         % Model options
         buttons = {'PANEL','FrequencyMap',2,'MASKthreshold',500,'RMSEthreshold',0.8,...
-            'FilterB0Map',false,'smoothDownsampling',[2 2 2],...
-            'FilterType',{'gaussian','box','polyfit1d','polyfit3d'},...
-            'PANEL','Gaussian/BoxFilter',1,'smoothKernel',[27 27 7],...
-            'PANEL','polyfitFilter',1,'polyOrder',3,...
+            'FilterB0Map',true,'smoothDownsampling',[2 2 2],...
+            'FilterType',{'polyfit3d','polyfit1d','gaussian','box'},...
+            'smoothKernel',[27 27 7],'polyOrder',3,...
             'PANEL','GradientZ',3,'MinLength',6,'SliceThickness',1.25,...
             'OptimizationGradZ',false,'FitType',{'num','gls','ols','nlls'},...
             'ThresholdT2*map',1000};
@@ -75,13 +90,25 @@ end
             % what is shown to user in CLI/GUI.
         end
         
-%         function obj = UpdateFields(obj)
-%             if strcmp(obj.options.FilterType,'gaussian') || strcmp(obj.options.FilterType,'box')
-%                 obj.buttons{strcmp(obj.buttons,'Guassian/BoxFilter') | strcmp(obj.buttons,'###Guassian/BoxFilter')} = '###Guassian/BoxFilter';
-%             else
-%                 obj.buttons{strcmp(obj.buttons,'Guassian/BoxFilter') | strcmp(obj.buttons,'###Guassian/BoxFilter')} = 'Guassian/BoxFilter';
-%             end
-%         end
+         function obj = UpdateFields(obj)
+             disablelist = {'smoothKernel','polyOrder'};
+            switch  obj.options.FilterType
+                case {'gaussian','box'}
+                    disable = [false, true];
+                case {'polyfit1d','polyfit3d'}
+                    disable = [true, false];
+                otherwise
+                    disable = [true, true];
+            end
+            for ll = 1:length(disablelist)
+                indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
+                if disable(ll)
+                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
+                else
+                    obj.buttons{indtodisable} = [disablelist{ll}];
+                end
+            end
+         end
         
 %         function Smodel = equation(obj, x)
 %             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
@@ -91,13 +118,6 @@ end
 %         end
         
         function FitResults = fit(obj,data)
-            %  Fit data using model equation.
-            %  data is a structure. FieldNames are based on property
-            %  MRIinputs.
-            
-            %if strcmp(obj.options.FitType,'Exponential')
-                % Non-linear least squares using <<levenberg-marquardt (LM)>>
-                
                 echo_time = obj.Prot.SEdata.Mat;
                 echo_time = echo_time';
                 multiecho_magn = data.DATAmag;
@@ -133,74 +153,7 @@ end
                 
                 FitResults.T2star = t2star_corr_3d;
                 FitResults.GradZ = freqGradZ_masked;
-                FitResults.B0 = freq_3d_smooth_masked;
-%                 
-%                 FitResults.T2star = t2star_corr_3d;
-%                 fT2 = @(a)(a(1)*exp(-xData/a(2)) - yDat);
-%                 %xData = xData';
-%                 
-%                 yDat = abs(yDat);
-%                 yDat = yDat./max(yDat);
-%                 
-%                 % T2 initialization adapted from
-%                 % https://github.com/blemasso/FLI_pipeline_T2/blob/master/matlab/pipeline_T2.m
-%                 
-%                 t2Init_dif = xData(1) - xData(end-1);
-%                 t2Init = t2Init_dif/log(yDat(end-1)/yDat(1));
-%                 
-%                 if t2Init<=0 || isnan(t2Init),
-%                     t2Init=30;
-%                 end
-%                 
-%                 pdInit = max(yDat(:))*1.5;
-%                 
-%                 options = struct();
-%                 options.Algorithm = 'levenberg-marquardt';
-%                 options.Display = 'off';
-%                 
-%                 fit_out = lsqnonlin(fT2,[pdInit t2Init],[],[],options);
-%                 
-%                 FitResults.T2 = fit_out(2);
-%                 FitResults.M0 = fit_out(1);
-%                 
-%                 
-%             else
-%                 % Linearize solution with <<log transformation (LT)>>
-%                 
-%                 if obj.options.DropFirstEcho
-%                     
-%                     xData = obj.Prot.SEdata.Mat(2:end);
-%                     yDat = log(data.SEdata(2:end));
-%                     
-%                     if max(size(yDat)) == 1
-%                         error('DropFirstEcho is not valid for ETL of 2.');
-%                     end
-%                     
-%                     else
-%                    
-%                     xData = obj.Prot.SEdata.Mat;
-%                     yDat = log(data.SEdata);
-%                     
-%                 end
-%                 
-%                 regOut = [ones(size(xData)),xData] \ yDat;
-%                 
-%                 fit_out(1) = exp(regOut(1));
-%                 if regOut(2) == 0 ; regOut(2) = eps; end
-%                 t2 = -1./regOut(2);
-%                 
-%                 if isnan(t2); t2 = 0; end
-%                 if t2<0; t2 = 0; end
-%                 
-%                 FitResults.T2 = t2;
-%                 FitResults.M0 = fit_out(1);
-%                 
-%                 
-%             end
-            %  convert fitted vector xopt to a structure.
-            %FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),%1)),obj.xnames,1);
-            %FitResults.resnorm=resnorm;
-            
+                FitResults.B0 = freq_3d_smooth_masked;            
         end
         
         

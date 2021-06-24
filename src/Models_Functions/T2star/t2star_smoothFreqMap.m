@@ -43,20 +43,20 @@ nzi = size(freq_3d_i,3);
 %% 3d smooth frequency map (zero values are ignored)
 if strcmp(obj.options.FilterType,'gaussian')
 	% Make kernel
-	kernel = ones(obj.options.GaussianBoxFilter_smoothKernel(1),obj.options.GaussianBoxFilter_smoothKernel(2),obj.options.GaussianBoxFilter_smoothKernel(3));
-	kernel_x = gausswin(obj.options.GaussianBoxFilter_smoothKernel(1));
-	kernel_x_3d = repmat(kernel_x,[1 obj.options.GaussianBoxFilter_smoothKernel(2) obj.options.GaussianBoxFilter_smoothKernel(3)]);
-	kernel_y(1,:) = gausswin(obj.options.GaussianBoxFilter_smoothKernel(2));
-	kernel_y_3d = repmat(kernel_y,[obj.options.GaussianBoxFilter_smoothKernel(1) 1 obj.options.GaussianBoxFilter_smoothKernel(3)]);
-	kernel_z(1,1,:) = gausswin(obj.options.GaussianBoxFilter_smoothKernel(3));
-	kernel_z_3d = repmat(kernel_z,[obj.options.GaussianBoxFilter_smoothKernel(1) obj.options.GaussianBoxFilter_smoothKernel(2) 1]);
+	kernel = ones(obj.options.smoothKernel(1),obj.options.smoothKernel(2),obj.options.smoothKernel(3));
+	kernel_x = gausswin(obj.options.smoothKernel(1));
+	kernel_x_3d = repmat(kernel_x,[1 obj.options.smoothKernel(2) obj.options.smoothKernel(3)]);
+	kernel_y(1,:) = gausswin(obj.options.smoothKernel(2));
+	kernel_y_3d = repmat(kernel_y,[obj.options.smoothKernel(1) 1 obj.options.smoothKernel(3)]);
+	kernel_z(1,1,:) = gausswin(obj.options.smoothKernel(3));
+	kernel_z_3d = repmat(kernel_z,[obj.options.smoothKernel(1) obj.options.smoothKernel(2) 1]);
 	kernel = kernel_x_3d.*kernel_y_3d.*kernel_z_3d;
 	% 3D convolution
 	freq_3d_smooth = conv3(freq_3d,kernel);
 end	
 if strcmp(obj.options.FilterType,'box')
 	% Make kernel
-	kernel = ones(obj.options.GaussianBoxFilter_smoothKernel(1),obj.options.GaussianBoxFilter_smoothKernel(2),obj.options.GaussianBoxFilter_smoothKernel(3));
+	kernel = ones(obj.options.smoothKernel(1),obj.options.smoothKernel(2),obj.options.smoothKernel(3));
 	% 3D convolution
 	freq_3d_smooth = conv3(freq_3d,kernel);
 end
@@ -71,7 +71,7 @@ if strcmp(obj.options.FilterType,'polyfit1d') % fit along Z
 			ind_nonzero = find(freq_z);
 			if length(ind_nonzero) >= obj.options.GradientZ_MinLength
 				% fit to polynomial function
-				p = polyfit(ind_nonzero,freq_z(ind_nonzero),obj.options.polyfitFilter_polyOrder);
+				p = polyfit(ind_nonzero,freq_z(ind_nonzero),obj.options.polyOrder);
 				f = polyval(p,(1:nz));
 				% compute frequency gradient along Z
 				grad_z = gradient(f,obj.options.GradientZ_SliceThikcness/1000);		
@@ -93,9 +93,9 @@ if strcmp(obj.options.FilterType,'polyfit3d')
 	% build matrix of polynomial order
 	model = [];
 	icount = 1;
-	for ipz=0:obj.options.polyfitFilter_polyOrder
-		for ipy=0:obj.options.polyfitFilter_polyOrder
-			for ipx=0:obj.options.polyfitFilter_polyOrder
+	for ipz=0:obj.options.polyOrder
+		for ipy=0:obj.options.polyOrder
+			for ipx=0:obj.options.polyOrder
 				model(icount,:) = [ipx ipy ipz];
 				icount = icount + 1;
 			end
