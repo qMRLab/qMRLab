@@ -56,7 +56,7 @@ end
 
     
     properties
-        MRIinputs = {'DATAmag','DATAphase','Mask'}; % used in the data panel
+        MRIinputs = {'DATAmag','DATAphase'}; % used in the data panel
         
         % fitting options
         xnames = { 'T2star','GradZ','B0'}; % name of the parameters to fit
