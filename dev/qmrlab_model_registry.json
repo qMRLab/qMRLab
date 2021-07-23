@@ -610,7 +610,7 @@
         },
         "Outputs":
         {   
-            "Filtered":"relative_scaling_factor_decimal"
+            "Filtered":"arbitrary"
         }
     },
 

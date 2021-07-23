@@ -197,30 +197,25 @@
         "outputs":
             [
 		"B1map_raw",
-		"B1map_filtered",
-        "Filtered"
+		"B1map_filtered"
             ],
 	"qMapNames":
             [
 		"RF transmit field (B1+) map",
-		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)",
-        "Smoothed B1+ field map."
+		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)"
             ],
     "suffixBIDS":
     [
-        "TB1map",
         "TB1map",
         "TB1map"
     ],
     "isOfficialBIDS":
     [
         true,
-        true,
         true
     ],
     "folderBIDS":
     [   
-        "fmap",
         "fmap",
         "fmap"
     ]
@@ -255,7 +250,7 @@
 
 
     "Susceptibility":
-    {   "decription": "QSM models' susceptibility output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+    {   "description": "QSM models' susceptibility output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "outputs":
             [
 		"chiSB",
@@ -343,7 +338,7 @@
 
 
     "Diffusivity":
-    {   "decription": "Diffusivity output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+    {   "description": "Diffusivity output (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "outputs":
             [
 		"di",
@@ -389,7 +384,7 @@
 
 
     "Arbitrary":
-    {   "decription": "Any output of arbitrary unit (FitResults.my_output) variables (my_output) are defined in this namespace.",
+    {   "description": "Any output of arbitrary unit (FitResults.my_output) variables (my_output) are defined in this namespace.",
         "outputs":
             [
         "ODI",
@@ -421,7 +416,8 @@
         "eta",
         "N",
         "SigmaNoise",
-        "ObjectiveFun"
+        "ObjectiveFun",
+        "Filtered"
             ],
 	"qMapNames":
             [
@@ -454,7 +450,8 @@
         "eta parameter of noise estimation",
         "N parameter of noise estimation",
         "standard deviation of the rician noise",
-        "Likelihood of the values of the objective function for each parameter combination in the grid search."
+        "Likelihood of the values of the objective function for each parameter combination in the grid search.",
+        "Filtered B1 map"
             ],
     "suffixBIDS":
     [
@@ -487,7 +484,8 @@
         "eta",
         "N",
         "sigmag",
-        "GridSearchLik"
+        "GridSearchLik",
+        "TB1map"
     ],
     "isOfficialBIDS":
     [
@@ -520,7 +518,8 @@
         false,
         false,
         false,
-        false
+        false,
+        true
     ],
     "folderBIDS":
     [
@@ -553,14 +552,15 @@
         "dwi",
         "dwi",
         "dwi",
-        "dwi"
+        "dwi",
+        "fmap"
     ]
     },
 
 
 
     "Categorical":
-    {   "decription": "Categorical output (FitResults.my_output) variables (my_output), such as segmentation regions, are defined in this namespace.",
+    {   "description": "Categorical output (FitResults.my_output) variables (my_output), such as segmentation regions, are defined in this namespace.",
         "outputs":
             [
 		"seg",
@@ -599,7 +599,7 @@
     },
 
     "Length":
-    {   "decription": "Length output (FitResults.my_output) variables (my_output), such as axon diameter, are defined in this namespace.",
+    {   "description": "Length output (FitResults.my_output) variables (my_output), such as axon diameter, are defined in this namespace.",
         "outputs":
             [
 		"diameter_mean"
@@ -623,7 +623,7 @@
     },
 
     "Tensor":
-    {   "decription": "Tensor output (FitResults.my_output) variables (my_output), such as DT, are defined in this namespace.",
+    {   "description": "Tensor output (FitResults.my_output) variables (my_output), such as DT, are defined in this namespace.",
         "outputs":
             [
 		"D"

@@ -1,4 +1,6 @@
 {
+
+
 "UnifyOutputMapUnits": {
     "Enabled": true,
     "Time": "second",
@@ -10,7 +12,8 @@
     "Angle":"radian",
     "Diffusivity": "square_micrometer_per_millisecond",
     "Length": "micrometer",
-    "Tensor": "tensor"
+    "Tensor": "tensor",
+    "Arbitrary": "arbitrary"
 },
 
 "UnifyInputProtocolUnits": {
@@ -30,6 +33,7 @@
     "Rate": "reciprocal_second",
     "B1": "relative_scaling_factor_percent",
     "B0": "offset_factor_hertz",
-    "Angle":"radian"
+    "Angle":"radian",
+    "Arbitrary": "arbitrary"
 }
 }
