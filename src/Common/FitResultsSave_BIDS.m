@@ -73,14 +73,9 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     % Save derivatives/qMRLab/dataset_description.json (true by default).
     if saveDescription
         if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
-            % This file is saved under derivatives/qMRLab
-            % Nextflow signals whether the dataset has session level organization. 
-            % If so, saved 3 dirs up, otherwise 2 dir up.
-            if writeSesFolder
-                savejson([],datasetDescription,fullfile('..','..','..','dataset_description.json'));
-            else
-                savejson([],datasetDescription,fullfile('..','..','dataset_description.json'));
-            end
+
+                savejson([],datasetDescription,fullfile(targetDir,'qMRLab','dataset_description.json'));
+
         else
             % Save defined directory if not nextflow.
             savejson([],datasetDescription,fullfile(targetDir,'qMRLab','dataset_description.json'));
