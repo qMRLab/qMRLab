@@ -71,6 +71,9 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     end
 
     % Save derivatives/qMRLab/dataset_description.json (true by default).
+    % TODO: This is a bit tricky with nextflow. Make this a standalone process
+    % disabling for now not to mess files with the same name.
+    %{
     if saveDescription
         if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
 
@@ -81,7 +84,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
             savejson([],datasetDescription,fullfile(targetDir,'qMRLab','dataset_description.json'));
         end
     end
-
+    %}
     % injectJSON already has its respective BIDSVersion management
     datasetDescription = rmfield(datasetDescription,'BIDSVersion');
 
