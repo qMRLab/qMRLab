@@ -33,6 +33,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     addParameter(p,'sesFolder',false,@islogical);
     addParameter(p,'acq',[],@ischar);
     addParameter(p,'rec',[],@ischar);
+    addParameter(p,'desc',[],@ischar);
     addParameter(p, 'targetDir',[],validDir);
     addParameter(p, 'injectToJSON',struct(),@isstruct);
     addParameter(p, 'saveDescription',true,@islogical);
@@ -49,6 +50,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     injectJSON = p.Results.injectToJSON;
     saveDescription = p.Results.saveDescription;
     targetDir = p.Results.targetDir;
+    descValue = p.Results.desc;
 
 
     % Get dataset_description struct.
@@ -130,7 +132,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
         % the same (current) folder. 
         if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
             % SubID captures all these details in nextflow
-            curFileName = getSaveName(subID,[],acqValue,[],curMapping.suffixBIDS);
+            curFileName = getSaveName(subID,[],acqValue,[],curMapping.descBIDS,curMapping.suffixBIDS);
             % Output them where Nextflow expects
             curOutDir   = pwd; 
         else
@@ -150,7 +152,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
                     error('Missing session value. Please pass the value such as: FitResultsSave_BIDS(''ses'',''00N'')');
                 end
             end
-            curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.suffixBIDS);
+            curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.descBIDS,curMapping.suffixBIDS);
         end 
 
         if ~isempty(reg.Registry.Citation)
@@ -207,12 +209,13 @@ end
 
 
 
-function fileName = getSaveName(subID,sesValue,acqValue,recValue,suffix)
+function fileName = getSaveName(subID,sesValue,acqValue,recValue,descValue,suffix)
     % Return BIDS output names based on the values passed for BIDS 
     % entities and the suffix inferred from model registry.
 
     if ~isempty(sesValue); subID = [subID '_ses-' sesValue]; end
     if ~isempty(acqValue); subID = [subID '_acq-' acqValue]; end
+    if ~isempty(descValue); subID = [subID '_desc-' descValue]; end
     if ~isempty(recValue); subID = [subID '_rec-' recValue]; end
     if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
         fileName = [subID '_' suffix];

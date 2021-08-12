@@ -257,7 +257,8 @@
         "Outputs":
         {
             "MTSAT": "arbitrary",
-            "T1": "second"
+            "T1": "second",
+            "T1cor": "second"
         }
 	},
 

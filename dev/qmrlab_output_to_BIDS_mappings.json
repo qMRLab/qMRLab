@@ -13,7 +13,8 @@
                 "T2IEW",
                 "T2MW",
                 "T2f",
-                "T2r"
+                "T2r",
+                "T1cor"
             ],
         "warning_qMapNames": "Please be descriptive and omit abbreviations (e.g. DO exclude (s) or (ms) etc.)",
         "qMapNames":
@@ -25,7 +26,8 @@
                 "Spin relaxation time (T2) for intra/extracellular water (IEW)",
                 "Spin relaxation time (T2) myelin water (MW)",
                 "Tranverse relaxation time (T2) of the free (f) pool",
-                "Tranverse relaxation time (T2) of the restricted (r) pool"
+                "Tranverse relaxation time (T2) of the restricted (r) pool",
+                "B1+ corrected longitudinal relaxation time (T1) map"
             ],
         "warning_suffixBIDS": "The suffixBIDS field does NOT have to be a unique array, however, MUST respect the correcsponding BIDS suffix (if available) & the respective outputs entry.",
         "suffixBIDS":
@@ -37,7 +39,8 @@
                 "T2IEWmap",
                 "T2MWmap",
                 "T2Fmap",
-                "T2Rmap"
+                "T2Rmap",
+                "T1map"
             ],
         "warning_isOfficialBIDS": "Based on: https://bids-specification.readthedocs.io/en/stable/",
         "isOfficialBIDS":
@@ -49,7 +52,8 @@
                 false,
                 false,
                 false,
-                false
+                false,
+                true
             ],
         "warning_folderBIDS": "Anything that is not dwi or fmap is anat. At least as of 2021 (BIDS v1.5.0).", 
         "folderBIDS":
@@ -61,7 +65,20 @@
                 "anat",
                 "anat",
                 "anat",
+                "anat",
                 "anat"
+            ],
+            "descBIDS":
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "b1corrected"
             ]
     },
 
@@ -109,6 +126,14 @@
             "anat",
             "anat",
             "anat"
+        ],
+        "descBIDS":
+        [
+            "",
+            "",
+            "",
+            "",
+            ""
         ]
     },
 
@@ -186,6 +211,20 @@
         "dwi",
         "dwi",
         "dwi"
+    ],
+    "descBIDS":
+    [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
     ]
     },
 
@@ -207,7 +246,7 @@
     "suffixBIDS":
     [
         "TB1map",
-        "TB1map"
+        "TB1map_filtered"
     ],
     "isOfficialBIDS":
     [
@@ -218,6 +257,11 @@
     [   
         "fmap",
         "fmap"
+    ],
+    "descBIDS":
+    [   
+        "",
+        "filtered"
     ]
     },
 
@@ -244,7 +288,11 @@
     "folderBIDS":
         [
         "fmap"
-        ]
+        ],
+    "descBIDS":
+    [
+    ""
+    ]
     },
 
 
@@ -290,6 +338,14 @@
        "anat",
        "anat",
        "anat"
+    ],
+    "descBIDS":
+    [
+       "SBnomag",
+       "SBmag",
+       "L2nomag",
+       "L2mag",
+       "nfm"
     ]
     },
 
@@ -332,6 +388,13 @@
             "dwi",
             "dwi",
             "anat"
+        ],
+    "descBIDS":
+        [
+            "",
+            "",
+            "",
+            ""
         ]
     },
 
@@ -378,6 +441,14 @@
             "dwi",
             "dwi",
             "dwi"
+        ],
+    "descBIDS":
+        [
+            "",
+            "",
+            "",
+            "",
+            ""
         ]
     },
 
@@ -479,7 +550,7 @@
         "MTVmap",
         "RB1map",
         "LCmap",
-        "dwi_denoised",
+        "dwi",
         "sigmag",
         "eta",
         "N",
@@ -554,6 +625,40 @@
         "dwi",
         "dwi",
         "fmap"
+    ],
+    "descBIDS":
+    [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "appbrain",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "filtered"
     ]
     },
 
@@ -595,7 +700,15 @@
             "anat",
             "anat",
             "anat"
+            ],
+    "descBIDS":
+            [
+            "",
+            "",
+            "",
+            ""
             ]
+    
     },
 
     "Length":
@@ -643,6 +756,10 @@
     "folderBIDS":
             [
             "dwi"
+            ],
+    "descBIDS":
+            [
+            ""
             ]
     }
 }

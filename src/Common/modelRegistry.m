@@ -100,12 +100,18 @@ function out = getUnitBIDSMap(register,model,unitDefs,usr)
         suffix = cellstr(unitmaps.(fields{ii}).suffixBIDS)';
         isBIDS = cell2mat(unitmaps.(fields{ii}).isOfficialBIDS)';
         folderBIDS = cellstr(unitmaps.(fields{ii}).folderBIDS)';
+        try
+        descBIDS = cellstr(unitmaps.(fields{ii}).descBIDS)';
+        catch
+        descBIDS = {''};
+        end
         cur_lut = cell(length(parent),5);
         cur_lut(:,1) = parent;
         cur_lut(:,2) = outputs;
         cur_lut(:,3) = suffix;
         cur_lut(:,4) = cellstr(num2str(double(isBIDS)));
         cur_lut(:,5) = folderBIDS;
+        cur_lut(:,6) = descBIDS;
         lut = [lut;cur_lut];
     end
 
@@ -133,7 +139,7 @@ function out = getUnitBIDSMap(register,model,unitDefs,usr)
         % folderBIDS
         % usrRequestedUnit
         % originalCodeUnit
-    pre_out = cell2struct(lut(idxs2,:),{'Family','outputName','suffixBIDS','isOfficialBIDS','folderBIDS'},2);
+    pre_out = cell2struct(lut(idxs2,:),{'Family','outputName','suffixBIDS','isOfficialBIDS','folderBIDS','descBIDS'},2);
 
     % User settings
     %usr = getUserPreferences(); % fetch from main
