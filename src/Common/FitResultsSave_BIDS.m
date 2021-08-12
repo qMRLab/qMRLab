@@ -136,22 +136,25 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
             % Output them where Nextflow expects
             curOutDir   = pwd; 
         else
-            curOutDir = fullfile(subDir,curMapping.folderBIDS);
-
-            if ~exist(curOutDir, 'dir')
-                mkdir(curOutDir);
-            end
-
+            
+            curOutDir = subDir;
             % If requested, write session folder. This is not required for all the outputs with sessions. 
             % Up to user's choice. BIDS is OK with both options.
             if writeSesFolder
                 try
                     curOutDir = fullfile(curOutDir,['ses-' sesValue]);
-                    mkdir(curOutDir);
+                    %mkdir(curOutDir);
                 catch
                     error('Missing session value. Please pass the value such as: FitResultsSave_BIDS(''ses'',''00N'')');
                 end
             end
+            
+            curOutDir = fullfile(curOutDir,curMapping.folderBIDS);
+
+            if ~exist(curOutDir, 'dir')
+                mkdir(curOutDir);
+            end
+
             curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.descBIDS,curMapping.suffixBIDS);
         end 
 
