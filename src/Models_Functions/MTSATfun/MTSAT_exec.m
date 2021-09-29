@@ -1,6 +1,6 @@
 
 
-function [MTsat, R1, R1cor] = MTSAT_exec(data, MTParams, PDParams, T1Params, B1Params) 
+function [MTsat, R1, R1cor, MTsatcor] = MTSAT_exec(data, MTParams, PDParams, T1Params, B1Params) 
 % Compute MT saturation map from a PD-weighted, a T1-weighted and a MT-weighted FLASH images
 % according to Helms et al., MRM, 60:1396?1407 (2008) and equation erratum in MRM, 64:1856 (2010).
 %   This function computes R1 maps and includes it in the MT saturation map calculation.
@@ -45,8 +45,10 @@ if isfield(data,'B1map') && ~isempty(data.B1map)
     % New code Aug 4, 2021 CR for two TR's
     R1cor(Inds) = 0.5 .* (T1w_data(Inds).*a2(Inds)./ TR2 - PDw_data(Inds).*a1(Inds)./TR1) ./ (PDw_data(Inds)./(a1(Inds)) - T1w_data(Inds)./(a2(Inds)));
     R1cor = R1cor.*1000; % qMRlab convention
+    App = PDw_data(Inds) .* T1w_data(Inds) .* (TR1 .* a2(Inds)./a1(Inds) - TR2.* a1(Inds)./a2(Inds)) ./ (T1w_data(Inds).* TR1 .*a2(Inds) - PDw_data(Inds).* TR2 .*a1(Inds));
 else
     R1cor = [];
+    App = [];
 end
 
 
@@ -64,7 +66,9 @@ if isfield(data,'B1map') && ~isempty(data.B1map)
 	if any(size(data.B1map) ~= size(MTsat)), error('\nError in MTSAT_exec.m: B1 map dimension different from volume dimension.\n'); end
 
 % Weiskopf, N., Suckling, J., Williams, G., Correia, M.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
-    MTsat = MTsat .* (1 - Alpha_B1)./(1 - Alpha_B1 * data.B1map);
+    MTsatcor = MTsat .* (1 - Alpha_B1)./(1 - Alpha_B1 * data.B1map);
+else
+    MTsatcor = [];
 end
 
 % Mask

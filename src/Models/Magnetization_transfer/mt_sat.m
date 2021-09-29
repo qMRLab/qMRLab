@@ -98,12 +98,17 @@ classdef mt_sat < AbstractModel
 
             B1params = obj.options.B1correctionfactor;
 
-            [FitResult.MTSAT, R1, R1cor] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
+            [FitResult.MTSAT, R1, R1cor, MTsatcor] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
             FitResult.T1 = 1./R1;
             
             if ~isempty(R1cor)
                 FitResult.T1cor = 1./R1cor;
             end
+
+            if ~isempty(MTsatcor)
+                FitResult.MTSATcor = MTsatcor;
+            end
+
         end
 
     end

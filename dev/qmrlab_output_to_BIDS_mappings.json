@@ -488,7 +488,8 @@
         "N",
         "SigmaNoise",
         "ObjectiveFun",
-        "Filtered"
+        "Filtered",
+        "MTSATcor"
             ],
 	"qMapNames":
             [
@@ -522,7 +523,8 @@
         "N parameter of noise estimation",
         "standard deviation of the rician noise",
         "Likelihood of the values of the objective function for each parameter combination in the grid search.",
-        "Filtered B1 map"
+        "Filtered B1 map",
+        "B1 corrected MTSAT map"
             ],
     "suffixBIDS":
     [
@@ -556,7 +558,8 @@
         "N",
         "sigmag",
         "GridSearchLik",
-        "TB1map"
+        "TB1map",
+        "MTsat"
     ],
     "isOfficialBIDS":
     [
@@ -590,6 +593,7 @@
         false,
         false,
         false,
+        true,
         true
     ],
     "folderBIDS":
@@ -624,7 +628,8 @@
         "dwi",
         "dwi",
         "dwi",
-        "fmap"
+        "fmap",
+        "anat"
     ],
     "descBIDS":
     [
@@ -658,7 +663,8 @@
         "",
         "",
         "",
-        "filtered"
+        "filtered",
+        "b1corrected"
     ]
     },
 

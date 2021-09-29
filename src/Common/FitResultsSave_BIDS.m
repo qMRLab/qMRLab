@@ -154,8 +154,13 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
             if ~exist(curOutDir, 'dir')
                 mkdir(curOutDir);
             end
-
-            curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.descBIDS,curMapping.suffixBIDS);
+            
+            % Override default desc value if user provided a custom one.
+            if isempty(descValue)
+                curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.descBIDS,curMapping.suffixBIDS);
+            else
+                curFileName = getSaveName(subID,sesValue,acqValue,recValue,descValue,curMapping.suffixBIDS);
+            end
         end 
 
         if ~isempty(reg.Registry.Citation)

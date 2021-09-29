@@ -258,7 +258,8 @@
         {
             "MTSAT": "arbitrary",
             "T1": "second",
-            "T1cor": "second"
+            "T1cor": "second",
+            "MTSATcor": "arbitrary"
         }
 	},
 
