@@ -159,7 +159,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
             if isempty(descValue)
                 curFileName = getSaveName(subID,sesValue,acqValue,recValue,curMapping.descBIDS,curMapping.suffixBIDS);
             else
-                curFileName = getSaveName(subID,sesValue,acqValue,recValue,descValue,curMapping.suffixBIDS);
+                curFileName = getSaveName(subID,sesValue,acqValue,recValue,strcat(descValue,curMapping.descBIDS),curMapping.suffixBIDS);
             end
         end 
 
