@@ -110,14 +110,24 @@ end
             TR = obj.Prot.VFAData.Mat(:,2);
             if obj.voxelwise == 0
                 if (length(unique(TR))~=1), error('VFA data must have same TR'); end
-                if ~isfield(data, 'B1map'), data.B1map = []; end
                 if ~isfield(data, 'Mask'), data.Mask = []; end
-                [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                if isfield(data, 'B1map')
+                    [FitResult.T1cor, FitResult.M0cor] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                    data.B1map = [];
+                    [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                else
+                    data.B1map = [];
+                    [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                end
             elseif obj.voxelwise == 1
-                if ~isfield(data,'B1map'), data.B1map=1; end
-                [m0, t1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
-                FitResult.T1 = t1;
-                FitResult.M0 = m0;
+                if isfield(data,'B1map')
+                    [FitResult.M0cor, FitResult.T1cor] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                    data.B1map=1; 
+                    [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                else
+                    data.B1map=1; 
+                    [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                end
             end
        end
 
