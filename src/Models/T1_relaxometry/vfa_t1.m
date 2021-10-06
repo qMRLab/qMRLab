@@ -66,7 +66,7 @@ end
         fx           = [0     0]; % fix parameters
 
         % Model options
-        buttons = {};
+        buttons = {'Export uncorrected map',false};
         options= struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulation Options
@@ -111,20 +111,32 @@ end
             if obj.voxelwise == 0
                 if (length(unique(TR))~=1), error('VFA data must have same TR'); end
                 if ~isfield(data, 'Mask'), data.Mask = []; end
-                if isfield(data, 'B1map')
+                if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
                     [FitResult.T1cor, FitResult.M0cor] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
                     data.B1map = [];
                     [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
-                else
+                end
+                
+                if ~isempty(data.B1map) && ~obj.options.Exportuncorrectedmap
+                    [FitResult.T1cor, FitResult.M0cor] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                end
+                
+                if isempty(data.B1map)
                     data.B1map = [];
                     [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
                 end
             elseif obj.voxelwise == 1
-                if isfield(data,'B1map')
+                if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
                     [FitResult.M0cor, FitResult.T1cor] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
                     data.B1map=1; 
                     [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
-                else
+                end
+                
+                if ~isempty(data.B1map) && ~obj.options.Exportuncorrectedmap
+                    [FitResult.M0cor, FitResult.T1cor] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                end
+                
+                if isempty(data.B1map)
                     data.B1map=1; 
                     [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
                 end

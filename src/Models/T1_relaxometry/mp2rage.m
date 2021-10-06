@@ -70,7 +70,7 @@ properties
     });
 
     % Model options
-    buttons = {'Inv efficiency', 0.96};
+    buttons = {'Inv efficiency', 0.96, 'Export uncorrected map', false};
 
     % Tiptool descriptions
     tips = {'Inv efficiency', 'Efficiency of the inversion pulse (fraction).'};
@@ -207,7 +207,7 @@ methods
             
         end
         
-        %if ~isempty(data.B1map)
+        if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
 
             [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
             
@@ -216,15 +216,32 @@ methods
             FitResult.R1cor(isnan(FitResult.R1cor))=0;
             FitResult.MP2RAGEcor = MP2RAGEcorr.img;
 
-        %else
-
             [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
         
             FitResult.T1 = T1map.img;
             FitResult.R1 = R1map.img;
             FitResult.MP2RAGEuncorr = MP2RAGEimg.img;
             
-        %end
+        end
+        
+        if ~isempty(data.B1map) && ~obj.options.Exportuncorrectedmap
+
+            [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
+            
+            FitResult.T1cor = T1corrected.img;
+            FitResult.R1cor=1./FitResult.T1cor;
+            FitResult.R1cor(isnan(FitResult.R1cor))=0;
+            FitResult.MP2RAGEcor = MP2RAGEcorr.img;
+            
+        end
+        
+        if isempty(data.B1map)
+            [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
+        
+            FitResult.T1 = T1map.img;
+            FitResult.R1 = R1map.img;
+            FitResult.MP2RAGEuncorr = MP2RAGEimg.img;
+        end
 
         if ~isempty(data.Mask)
             data.Mask = logical(data.Mask); % ensure 

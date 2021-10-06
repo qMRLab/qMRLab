@@ -76,7 +76,7 @@ classdef mt_sat < AbstractModel
         ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
         'style',repmat({'TableNoButton'},[1,3]));
 
-        buttons = {'B1 correction factor', 0.4};
+        buttons = {'B1 correction factor', 0.4,'Export uncorrected map',false};
         options= struct();
 
     end
@@ -88,6 +88,12 @@ classdef mt_sat < AbstractModel
             % what is shown to user in CLI/GUI.
             obj = setUserProtUnits(obj);
         end
+        
+        %function obj = UpdateFields(obj)
+        %    if isempty(data.B1map)
+        %        obj.buttons.Exportuncorrectedmap = ["##" obj.buttons.Exportuncorrectedmap];
+        %    end
+        %end
 
         function FitResult = fit(obj,data)
             MTparams = obj.Prot.MTw.Mat;
@@ -98,8 +104,17 @@ classdef mt_sat < AbstractModel
 
             B1params = obj.options.B1correctionfactor;
 
-            [FitResult.MTSAT, R1, R1cor, MTsatcor] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
-            FitResult.T1 = 1./R1;
+            [MTSAT, R1, R1cor, MTsatcor] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
+            
+            if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
+                FitResult.MTSAT = MTSAT;
+                FitResult.T1 = 1./R1;
+            end
+
+            if isempty(data.B1map)
+                FitResult.MTSAT = MTSAT;
+                FitResult.T1 = 1./R1;
+            end
             
             if ~isempty(R1cor)
                 FitResult.T1cor = 1./R1cor;
