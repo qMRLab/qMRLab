@@ -134,7 +134,7 @@ classdef mt_sat < AbstractModel
             % 2.0.6
             if checkanteriorver(version,[2 0 6])
                 % add B1factor
-                obj.buttons = {'B1 correction factor',   [0.4000]};
+                obj.buttons = {'B1 correction factor',   [0.4000], 'Export uncorrected map',false};
                 obj.options.B1correctionfactor=0.04;
             end
 
