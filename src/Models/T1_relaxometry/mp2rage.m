@@ -259,6 +259,10 @@ end % METHODS END
 methods(Access = protected)
     function obj = qMRpatch(obj,loadedStruct, version)
         obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        
+        obj.buttons = {'Export uncorrected map', false};
+        obj.options.Exportuncorrectedmap=false;
+        
         % v2.5.0 drops unit parantheses
         if checkanteriorver(version,[2 5 0])
             obj.Prot.Timing.Format = {'InversionTimes'};

@@ -450,6 +450,10 @@ end
     methods(Access = protected)
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            
+            obj.buttons = {'Export uncorrected map', false};
+            obj.options.Exportuncorrectedmap=false;
+            
             if checkanteriorver(version,[2 5 0])
                 obj.OriginalProtEnabled = true;
                 obj = setUserProtUnits(obj);

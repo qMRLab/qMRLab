@@ -136,6 +136,7 @@ classdef mt_sat < AbstractModel
                 % add B1factor
                 obj.buttons = {'B1 correction factor',   [0.4000], 'Export uncorrected map',false};
                 obj.options.B1correctionfactor=0.04;
+                obj.options.Exportuncorrectedmap=false;
             end
 
             % 2.0.7 --> rename MT PD T1 (to MTw PDw T1w)
