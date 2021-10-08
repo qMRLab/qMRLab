@@ -67,6 +67,19 @@ end
 
 Model = setOriginalProtUnits(Model);
 
+% ############################ SCALE INPUT MAPS ###########################
+usr = getUserPreferences;
+registry = modelRegistry('get',Model.ModelName);
+fnmsInput = fieldnames(registry.UnitBIDSMappings.Input);
+MRIinputs = fieldnames(data);
+if usr.ChangeProvidedInputMapUnits.Enabled
+   for ii=1:length(fnmsInput)
+       if isfield(data,fnmsInput{ii})
+           data.(MRIinputs{ii}) = data.(MRIinputs{ii}).*registry.UnitBIDSMappings.Input.(MRIinputs{ii}).ScaleFactor;
+       end
+   end
+end
+
 if Model.voxelwise % process voxelwise
     % ############################# INITIALIZE #################################
     % Get dimensions
