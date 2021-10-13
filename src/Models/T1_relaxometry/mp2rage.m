@@ -207,7 +207,7 @@ methods
             
         end
         
-        if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
+        if ~isEmptyField(data,'B1map') && obj.options.Exportuncorrectedmap
 
             [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
             
@@ -224,7 +224,7 @@ methods
             
         end
         
-        if ~isempty(data.B1map) && ~obj.options.Exportuncorrectedmap
+        if ~isEmptyField(data,'B1map') && ~obj.options.Exportuncorrectedmap
 
             [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
             
@@ -235,7 +235,7 @@ methods
             
         end
         
-        if isempty(data.B1map)
+        if isEmptyField(data,'B1map')
             [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
         
             FitResult.T1 = T1map.img;

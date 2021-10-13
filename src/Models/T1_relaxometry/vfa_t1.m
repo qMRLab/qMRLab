@@ -111,17 +111,17 @@ end
             if obj.voxelwise == 0
                 if (length(unique(TR))~=1), error('VFA data must have same TR'); end
                 if ~isfield(data, 'Mask'), data.Mask = []; end
-                if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
+                if ~isEmptyField(data,'B1map') && obj.options.Exportuncorrectedmap
                     [FitResult.T1cor, FitResult.M0cor] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
                     data.B1map = [];
                     [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
                 end
                 
-                if ~isempty(data.B1map) && ~obj.options.Exportuncorrectedmap
+                if ~isEmptyField(data,'B1map') && ~obj.options.Exportuncorrectedmap
                     [FitResult.T1cor, FitResult.M0cor] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
                 end
                 
-                if isempty(data.B1map)
+                if isEmptyField(data,'B1map')
                     data.B1map = [];
                     [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
                 end

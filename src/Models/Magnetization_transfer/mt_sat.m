@@ -106,12 +106,12 @@ classdef mt_sat < AbstractModel
 
             [MTSAT, R1, R1cor, MTsatcor] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
             
-            if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
+            if ~isEmptyField(data,'B1map') && obj.options.Exportuncorrectedmap
                 FitResult.MTSAT = MTSAT;
                 FitResult.T1 = 1./R1;
             end
 
-            if isempty(data.B1map)
+            if isEmptyField(data,'B1map')
                 FitResult.MTSAT = MTSAT;
                 FitResult.T1 = 1./R1;
             end
