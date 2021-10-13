@@ -66,7 +66,7 @@ end
         fx           = [0     0]; % fix parameters
 
         % Model options
-        buttons = {'Export uncorrected map',false};
+        buttons = {'Export uncorrected map',true};
         options= struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulation Options
@@ -455,8 +455,8 @@ end
                 obj.OriginalProtEnabled = true;
                 obj = setUserProtUnits(obj);
                 
-                obj.buttons = {'Export uncorrected map', false};
-                obj.options.Exportuncorrectedmap=false;
+                obj.buttons = {'Export uncorrected map', true};
+                obj.options.Exportuncorrectedmap=true;
             end
         end
     end
