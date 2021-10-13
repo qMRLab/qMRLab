@@ -272,7 +272,9 @@ methods(Access = protected)
             obj.tabletip(4).tip = sprintf('FlipAngles: Excitation flip angles \n [1] 1st time dimension \n [2] 2nd time dimension');
             obj.tabletip(5).tip = sprintf('NumberOfShots: Number of shots [Pre] before and [Post] after the k-space center');
             
-            obj.buttons = {'Export uncorrected map', false};
+            %obj.buttons = {'Export uncorrected map', false};
+            % Message to Juan: If you omit Inv efficiency as you did L275, there will be a mismatch.
+            buttons = {'Inv efficiency', 0.96, 'Export uncorrected map', false};
             obj.options.Exportuncorrectedmap=false;
         end
     end
