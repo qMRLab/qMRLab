@@ -274,7 +274,7 @@ methods(Access = protected)
             
             %obj.buttons = {'Export uncorrected map', false};
             % Message to Juan: If you omit Inv efficiency as you did L275, there will be a mismatch.
-            buttons = {'Inv efficiency', 0.96, 'Export uncorrected map', false};
+            obj.buttons = {'Inv efficiency', 0.96, 'Export uncorrected map', false};
             obj.options.Exportuncorrectedmap=false;
         end
     end

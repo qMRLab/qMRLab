@@ -76,7 +76,7 @@ classdef mt_sat < AbstractModel
         ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
         'style',repmat({'TableNoButton'},[1,3]));
 
-        buttons = {'B1 correction factor', 0.4,'Export uncorrected map',false};
+        buttons = {'B1 correction factor', 0.4,'Export uncorrected map',true};
         options= struct();
 
     end
@@ -176,7 +176,7 @@ classdef mt_sat < AbstractModel
                 obj = setUserProtUnits(obj);
                 obj.buttons = {'B1 correction factor',   [0.4000], 'Export uncorrected map', false};
                 obj.options.B1correctionfactor=0.04;
-                obj.options.Exportuncorrectedmap=false;
+                obj.options.Exportuncorrectedmap=true;
             end
 
         end
