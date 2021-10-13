@@ -165,7 +165,7 @@ classdef mt_sat < AbstractModel
                 obj.Prot.T1w.Format = [{'FlipAngle'},{'TR'}];
                 obj.OriginalProtEnabled = true;
                 obj = setUserProtUnits(obj);
-                obj.buttons = {'B1 correction factor',   [0.4000], 'Export uncorrected map', false};
+                obj.buttons = {'B1 correction factor',   [0.4000], 'Export uncorrected map', true};
                 obj.options.B1correctionfactor=0.04;
                 obj.options.Exportuncorrectedmap=true;
             end
