@@ -259,11 +259,6 @@ end % METHODS END
 methods(Access = protected)
     function obj = qMRpatch(obj,loadedStruct, version)
         obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
-        
-        if checkanteriorver(version,[2 3 1])
-            obj.buttons = {'Export uncorrected map', false};
-            obj.options.Exportuncorrectedmap=false;
-        end
 
         % v2.5.0 drops unit parantheses
         if checkanteriorver(version,[2 5 0])
@@ -276,6 +271,9 @@ methods(Access = protected)
             obj.tabletip(3).tip = sprintf('InversionTimes: Inversion times for the measurements \n [1] 1st time dimension \n [2] 2nd time dimension');
             obj.tabletip(4).tip = sprintf('FlipAngles: Excitation flip angles \n [1] 1st time dimension \n [2] 2nd time dimension');
             obj.tabletip(5).tip = sprintf('NumberOfShots: Number of shots [Pre] before and [Post] after the k-space center');
+            
+            obj.buttons = {'Export uncorrected map', false};
+            obj.options.Exportuncorrectedmap=false;
         end
     end
 end
