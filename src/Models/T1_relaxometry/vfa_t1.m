@@ -47,7 +47,7 @@ classdef vfa_t1 < AbstractModel
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
- onlineData_url = 'https://osf.io/7wcvh/download?version=3';  
+ onlineData_url = 'https://osf.io/7wcvh/download?version=4';  
 end
 
     properties
