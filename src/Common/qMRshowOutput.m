@@ -40,9 +40,11 @@ caxis([climm max(climm*1.01,climM)]);
 clrbar = colorbar();
 
 if ~checkanteriorver(FitResults.Version,[2 4 9])
+  if ~moxunit_util_platform_is_octave
     clrbar.Title.String = FitResults.UnitBIDSMappings.Output.(FitResults.fields{1}).Symbol;
     clrbar.Title.FontSize = 12;
     clrbar.Title.FontWeight = 'bold';
+  end
 end
 
 if FitResults.Model.voxelwise 
