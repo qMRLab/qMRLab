@@ -1,4 +1,4 @@
-function [F,kr,R1f,R1r,T2f,T2r,kf,resnorm] = SPGR_fit(MTdata, Prot, FitOpt )
+function Fit = SPGR_fit(MTdata, Prot, FitOpt )
 
 % ----------------------------------------------------------------------------------------------------
 % SPGR_fit Fits analytical SPGR model to data
@@ -119,31 +119,30 @@ opt.Display = 'off';
 x = choose( FitOpt.st, x_free, fix );
 
 % Fit results
-F   = x(1);
-kr  = x(2);
-R1f = x(3);
-R1r = x(4);
-T2f = x(5);
-T2r = x(6);
-kf  = kr * F;
+Fit.F   = x(1);
+Fit.kr  = x(2);
+Fit.R1f = x(3);
+Fit.R1r = x(4);
+Fit.T2f = x(5);
+Fit.T2r = x(6);
+Fit.kf  = Fit.kr * Fit.F;
 
 if (FitOpt.R1reqR1f)
-    Fit.R1r = R1f;
+    Fit.R1r = Fit.R1f;
 end
 
 if (isfield(FitOpt,'R1') && ~isempty(FitOpt.R1) && FitOpt.R1map)
-    Fit.F = F; Fit.kr = kr; Fit.R1f = R1f; Fit.R1r=R1r; Fit.T2f=T2f; Fit.T2r=T2r; Fit.kf=kf;
-     R1f = computeR1(Fit, FitOpt.R1);
+     Fit.R1f = computeR1(Fit, FitOpt.R1);
 end
 
 if ( strcmp(FitOpt.model, {'Yarnykh', 'Ramani'}) )
     if (FitOpt.FixR1fT2f)
-        T2f = FitOpt.FixR1fT2fValue/R1f;
+        Fit.T2f = FitOpt.FixR1fT2fValue/Fit.R1f;
     end
 end
 
 % Fit.residuals = residuals;
-resnorm = resnorm;
+Fit.resnorm = resnorm;
 
 function a = choose( a, x, fx )
     a(~fx) = x;

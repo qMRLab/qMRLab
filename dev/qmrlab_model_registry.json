@@ -365,15 +365,7 @@
             "T2r": "second",
             "kf": "reciprocal_second",
             "kr": "reciprocal_second",
-            "resnorm": "arbitrary",
-	    "Fcor": "fraction_decimal",
-            "R1fcor": "reciprocal_second",
-            "R1rcor": "reciprocal_second",
-            "T2fcor": "second",
-            "T2rcor": "second",
-            "kfcor": "reciprocal_second",
-            "krcor": "reciprocal_second",
-            "resnormcor": "arbitrary"
+            "resnorm": "arbitrary"
         }
 	},
 

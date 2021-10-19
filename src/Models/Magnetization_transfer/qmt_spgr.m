@@ -154,8 +154,7 @@ end
             'Fix R1f*T2f',false,...
             'R1f*T2f =',0.055,...
             'Read pulse alpha',7,...
-            'Compute SfTable','pushbutton',...
-            'Export uncorrected map',false};
+            'Compute SfTable','pushbutton'};
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulations Default options
@@ -289,7 +288,7 @@ end
             obj = setUserProtUnits(obj);
         end
 
-        function FitResult = fit(obj,data)
+        function FitResults = fit(obj,data)
             Protocol = GetProt(obj);
             FitOpt   = GetFitOpt(obj,data);
             % normalize data
@@ -302,56 +301,8 @@ end
                 Protocol.Angles  = Protocol.Angles(~NoMT);
                 Protocol.Offsets = Protocol.Offsets(~NoMT);
             end
-            
             % fit data
-            if ~isEmptyField(data,'B1map') && obj.options.Exportuncorrectedmap
-                [F,kr,R1f,R1r,T2f,T2r,kf,resnorm] = SPGR_fit(data.MTdata,Protocol,FitOpt);
-                if ~isempty(F), FitResult.Fcor = F; end
-                if ~isempty(kr), FitResult.krcor = kr; end
-                if ~isempty(R1f), FitResult.R1fcor = R1f; end
-                if ~isempty(R1r), FitResult.R1rcor = R1r; end
-                if ~isempty(T2f), FitResult.T2fcor = T2f; end
-                if ~isempty(T2r), FitResult.T2rcor = T2r; end
-                if ~isempty(kf), FitResult.kfcor = kf; end
-                if ~isempty(resnorm), FitResult.resnormcor = resnorm; end
-                
-                FitOpt = rmfield(FitOpt,'B1');
-                [F,kr,R1f,R1r,T2f,T2r,kf,resnorm] = SPGR_fit(data.MTdata,Protocol,FitOpt);
-                if ~isempty(F), FitResult.F = F; end
-                if ~isempty(kr), FitResult.kr = kr; end
-                if ~isempty(R1f), FitResult.R1f = R1f; end
-                if ~isempty(R1r), FitResult.R1r = R1r; end
-                if ~isempty(T2f), FitResult.T2f = T2f; end
-                if ~isempty(T2r), FitResult.T2r = T2r; end
-                if ~isempty(kf), FitResult.kf = kf; end
-                if ~isempty(resnorm), FitResult.resnorm = resnorm; end
-            end
-            
-            if ~isEmptyField(data,'B1map') && ~obj.options.Exportuncorrectedmap
-                [F,kr,R1f,R1r,T2f,T2r,kf,resnorm] = SPGR_fit(data.MTdata,Protocol,FitOpt);
-                if ~isempty(F), FitResults.Fcor = F; end
-                if ~isempty(kr), FitResult.krcor = kr; end
-                if ~isempty(R1f), FitResult.R1fcor = R1f; end
-                if ~isempty(R1r), FitResult.R1rcor = R1r; end
-                if ~isempty(T2f), FitResult.T2fcor = T2f; end
-                if ~isempty(T2r), FitResult.T2rcor = T2r; end
-                if ~isempty(kf), FitResult.kfcor = kf; end
-                if ~isempty(resnorm), FitResult.resnormcor = resnorm; end
-            end
-            
-            if isEmptyField(data,'B1map')
-                [F,kr,R1f,R1r,T2f,T2r,kf,resnorm] = SPGR_fit(data.MTdata,Protocol,FitOpt);
-                if ~isempty(F), FitResult.F = F; end
-                if ~isempty(kr), FitResult.kr = kr; end
-                if ~isempty(R1f), FitResult.R1f = R1f; end
-                if ~isempty(R1r), FitResult.R1r = R1r; end
-                if ~isempty(T2f), FitResult.T2f = T2f; end
-                if ~isempty(T2r), FitResult.T2r = T2r; end
-                if ~isempty(kf), FitResult.kfcor = kf; end
-                if ~isempty(resnorm), FitResult.resnorm = resnorm; end
-            end
-            
-            
+            FitResults = SPGR_fit(data.MTdata,Protocol,FitOpt);
         end
 
         function plotModel(obj, x, data)
