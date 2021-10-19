@@ -13,7 +13,9 @@
                 "T2IEW",
                 "T2MW",
                 "T2f",
+		"T2fcor",
                 "T2r",
+		"T2rcor",
                 "T1cor"
             ],
         "warning_qMapNames": "Please be descriptive and omit abbreviations (e.g. DO exclude (s) or (ms) etc.)",
@@ -26,7 +28,9 @@
                 "Spin relaxation time (T2) for intra/extracellular water (IEW)",
                 "Spin relaxation time (T2) myelin water (MW)",
                 "Tranverse relaxation time (T2) of the free (f) pool",
+		"B1+ corrected tranverse relaxation time (T2) of the free (f) pool",
                 "Tranverse relaxation time (T2) of the restricted (r) pool",
+		"B1+ corrected tranverse relaxation time (T2) of the restricted (r) pool",
                 "B1+ corrected longitudinal relaxation time (T1) map"
             ],
         "warning_suffixBIDS": "The suffixBIDS field does NOT have to be a unique array, however, MUST respect the correcsponding BIDS suffix (if available) & the respective outputs entry.",
@@ -39,6 +43,8 @@
                 "T2IEWmap",
                 "T2MWmap",
                 "T2Fmap",
+		"T2Fmap",
+		"T2Rmap",
                 "T2Rmap",
                 "T1map"
             ],
@@ -52,6 +58,8 @@
                 false,
                 false,
                 false,
+		false,
+		false,
                 false,
                 true
             ],
@@ -66,6 +74,8 @@
                 "anat",
                 "anat",
                 "anat",
+		"anat",
+		"anat",
                 "anat"
             ],
             "descBIDS":
@@ -77,7 +87,9 @@
                 "",
                 "",
                 "",
+		"b1corrected",
                 "",
+		"b1corrected",
                 "b1corrected"
             ]
     },
@@ -92,40 +104,60 @@
                 "R1",
 		"R1cor",
                 "R1r",
+		"R1rcor",
                 "R1f",
+		"R1fcor",
                 "kf",
-                "kr"
+		"kfcor",
+                "kr",
+		"krcor"
             ],
         "qMapNames":
             [
                 "Longitudinal relaxation rate (R1) map",
 		"B1+ corrected longitudinal relaxation rate (R1) map",
-                "Longitidunal relaxation rate (R1) of the restricted (r) pool",
-                "Longitidunal relaxation rate (R1) of the free (f) pool",
+                "Longitudinal relaxation rate (R1) of the restricted (r) pool",
+		"B1+ corrected longitudinal relaxation rate (R1) of the restricted (r) pool",
+                "Longitudinal relaxation rate (R1) of the free (f) pool",
+		"B1+ corrected longitudinal relaxation rate (R1) of the free (f) pool",
                 "Exchange rate from the restricted to the free pool (kf: r --> f)",
-                "Exchange rate from the free to the restricted pool (kr: f --> r)"
+		"B1+ corrected exchange rate from the restricted to the free pool (kf: r --> f)",
+                "Exchange rate from the free to the restricted pool (kr: f --> r)",
+		"B1+ corrected exchange rate from the free to the restricted pool (kr: f --> r)"
             ],
         "suffixBIDS":
             [
                 "R1map",
 		"R1map",
                 "R1Rmap",
+		"R1Rmap",
                 "R1Fmap",
+		"R1Fmap",
                 "KFmap",
-                "KRmap"
+		"KFmap",
+                "KRmap",
+		"KRmap"
             ],
         "isOfficialBIDS":
             [
                 true,
 		true,
+		false,
+		false,
                 false,
-                false,
+		false,
+		false,
+		false,
                 false,
                 false
             ],
         "folderBIDS":
         [
             "anat",
+	    "anat",
+            "anat",
+            "anat",
+	    "anat",
 	    "anat",
             "anat",
             "anat",
@@ -137,9 +169,13 @@
             "",
 	    "b1corrected",
             "",
+	    "b1corrected",
             "",
+	    "b1corrected",
             "",
-            ""
+	    "b1corrected",
+            "",
+	    "b1corrected"
         ]
     },
 
@@ -153,6 +189,7 @@
 		"MTR",
 		"MWF",
 		"F",
+		"Fcor",
 		"Sf",
 		"Sr",
 		"ficv",
@@ -167,6 +204,7 @@
 		"Magnetization Transfer Ratio (MTR) map",
 		"Myelin Water Fraction (MWF) map",
 		"Ratio of number of restricted (r) pool to free (f) pool, defined as F = M0r/M0f = kf/kr. Also known as macromolecular pool fraction (MPF)",
+		"B1+ corrected ratio of number of restricted (r) pool to free (f) pool, defined as F = M0r/M0f = kf/kr. Also known as macromolecular pool fraction (MPF)",
 		"Instantaneous fraction of magnetization after vs. before the pulse in the free pool. Starting point is computed using Bloch simulation",
 		"Instantaneous fraction of magnetization after vs. before the pulse in the restricted pool. Starting point is computed using Bloch simulation",
 		"Fraction of water in the restricted compartment: (f)raction of (i)ntra (c)ellular (v)olume.",
@@ -181,6 +219,7 @@
         "MTRmap",
         "MWFmap",
         "MPFmap",
+	"MPFmap",
         "SFmap",
         "SRmap",
         "FICVmap",
@@ -195,6 +234,7 @@
         true,
         true,
         false,
+	false,
         false,
         false,
         false,
@@ -209,6 +249,7 @@
         "anat",
         "anat",
         "anat",
+	"anat",
         "anat",
         "anat",
         "dwi",
@@ -223,6 +264,7 @@
         "",
         "",
         "",
+	"b1corrected",
         "",
         "",
         "",
@@ -480,6 +522,7 @@
 		"M0r",
 		"M0",
 		"resnorm",
+		"resnormcor",
 		"rb",
 		"ra",
 		"res",
@@ -516,6 +559,7 @@
 		"Equilibrium value of the restricted pool longitudinal magnetization",
 		"Equilibrium magnetization",
 		"Fitting residual",
+		"B1+ corrected fitting residual",
 		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
 		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
 		"Fitting residual",
@@ -552,6 +596,7 @@
         "M0Rmap",
         "M0map",
         "resnorm",
+	"resnorm",
         "RBmap",
         "RAmap",
         "residual",
@@ -588,6 +633,7 @@
         false,
         true,
         false,
+	false,
         false,
         false,
         false,
@@ -624,6 +670,7 @@
         "anat",
         "anat",
         "anat",
+	"anat",
         "anat",
         "anat",
         "anat",
@@ -660,6 +707,7 @@
         "",
         "",
         "",
+	"b1corrected",
         "",
         "",
         "",
