@@ -68,6 +68,12 @@ end
 Model = setOriginalProtUnits(Model);
 
 % ############################ SCALE INPUT MAPS ###########################
+% If enabled, scale input maps to BIDS defined units based on user provided
+% input map units. Introduced in v2.5.0
+% Non-trivial operation! Behaviour determined by: 
+% - /usr/prefrecenes.json 
+% - /dev/units.json
+% - /dev/qmrlab_model_registry.json 
 usr = getUserPreferences;
 registry = modelRegistry('get',Model.ModelName);
 fnmsInput = fieldnames(registry.UnitBIDSMappings.Input);
