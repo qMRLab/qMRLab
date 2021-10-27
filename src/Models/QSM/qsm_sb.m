@@ -333,7 +333,6 @@ function FitResults = fit(obj,data)
       [FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize);
       disp('Completed  : Calculation of chi_L2 map without magnitude weighting.');
       disp('-----------------------------------------------');
-      genBatch_
     end
 
   elseif FitOpt.regL2_Flag && not(FitOpt.reoptL2_Flag ) % || DO NOT reopt Lambda L2 case chi_L2 generation
