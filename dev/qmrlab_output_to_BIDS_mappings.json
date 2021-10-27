@@ -90,6 +90,7 @@
         "outputs":
             [   
                 "R1",
+		"R1cor",
                 "R1r",
                 "R1f",
                 "kf",
@@ -97,7 +98,8 @@
             ],
         "qMapNames":
             [
-                "Longitidunal relaxation rate (R1) map",
+                "Longitudinal relaxation rate (R1) map",
+		"B1+ corrected longitudinal relaxation rate (R1) map",
                 "Longitidunal relaxation rate (R1) of the restricted (r) pool",
                 "Longitidunal relaxation rate (R1) of the free (f) pool",
                 "Exchange rate from the restricted to the free pool (kf: r --> f)",
@@ -106,6 +108,7 @@
         "suffixBIDS":
             [
                 "R1map",
+		"R1map",
                 "R1Rmap",
                 "R1Fmap",
                 "KFmap",
@@ -114,6 +117,7 @@
         "isOfficialBIDS":
             [
                 true,
+		true,
                 false,
                 false,
                 false,
@@ -122,6 +126,7 @@
         "folderBIDS":
         [
             "anat",
+	    "anat",
             "anat",
             "anat",
             "anat",
@@ -130,6 +135,7 @@
         "descBIDS":
         [
             "",
+	    "b1corrected",
             "",
             "",
             "",
@@ -478,7 +484,7 @@
 		"ra",
 		"res",
 		"MP2RAGEcor",
-        "MP2RAGE",
+        "MP2RAGEuncorr",
 		"MTV",
 		"CoilGain",
         "lc",
@@ -489,7 +495,8 @@
         "SigmaNoise",
         "ObjectiveFun",
         "Filtered",
-        "MTSATcor"
+        "MTSATcor",
+	"M0cor"
             ],
 	"qMapNames":
             [
@@ -524,7 +531,8 @@
         "standard deviation of the rician noise",
         "Likelihood of the values of the objective function for each parameter combination in the grid search.",
         "Filtered B1 map",
-        "B1 corrected MTSAT map"
+        "B1 corrected MTSAT map",
+	"B1 corrected M0 map"
             ],
     "suffixBIDS":
     [
@@ -559,7 +567,8 @@
         "sigmag",
         "GridSearchLik",
         "TB1map",
-        "MTsat"
+        "MTsat",
+	"M0"
     ],
     "isOfficialBIDS":
     [
@@ -594,7 +603,8 @@
         false,
         false,
         true,
-        true
+        true,
+	true
     ],
     "folderBIDS":
     [
@@ -629,7 +639,8 @@
         "dwi",
         "dwi",
         "fmap",
-        "anat"
+        "anat",
+	"anat"
     ],
     "descBIDS":
     [
@@ -652,7 +663,7 @@
         "",
         "",
         "",
-        "",
+        "b1corrected",
         "",
         "appbrain",
         "",
@@ -664,7 +675,8 @@
         "",
         "",
         "filtered",
-        "b1corrected"
+        "b1corrected",
+	"b1corrected"
     ]
     },
 

@@ -1,7 +1,7 @@
 jobs:
 - job: MATLAB_1_quickMox_BatchExamplePart1
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-20.04'
   steps:
     - checkout: self
       fetchDepth: 1
@@ -25,7 +25,7 @@ jobs:
       displayName: 'Upload to Codecov.io'
 - job: MATLAB_2_BatchExamplePart2
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-20.04'
   steps:
     - checkout: self
       fetchDepth: 1
@@ -45,7 +45,7 @@ jobs:
       displayName: 'Upload to Codecov.io'
 - job: MATLAB_3_SimTests
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-20.04'
   steps:
     - checkout: self
       fetchDepth: 1

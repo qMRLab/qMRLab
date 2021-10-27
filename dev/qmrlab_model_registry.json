@@ -475,9 +475,11 @@
         "Outputs":
         {
             "T1": "second",
+            "T1cor": "second",
             "R1": "reciprocal_second",
-            "MP2RAGEcor": "arbitrary",
-            "MP2RAGE": "arbitrary"
+            "R1cor": "reciprocal_second",
+            "MP2RAGEuncorr": "arbitrary",
+            "MP2RAGEcor": "arbitrary"
         }
 	},
 
@@ -519,7 +521,9 @@
         "Outputs":
         {
             "T1": "second",
-            "M0": "arbitrary"
+            "T1cor": "second",
+            "M0": "arbitrary",
+            "M0cor": "arbitrary"
         }
 	},
 

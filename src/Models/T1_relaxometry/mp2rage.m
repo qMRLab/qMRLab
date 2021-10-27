@@ -70,7 +70,7 @@ properties
     });
 
     % Model options
-    buttons = {'Inv efficiency', 0.96};
+    buttons = {'Inv efficiency', 0.96, 'Export uncorrected map', true};
 
     % Tiptool descriptions
     tips = {'Inv efficiency', 'Efficiency of the inversion pulse (fraction).'};
@@ -83,7 +83,7 @@ methods
     function obj = mp2rage()
     
         obj.options = button2opts(obj.buttons);
-        obj.onlineData_url = obj.getLink('https://osf.io/8x2c9/download?version=4','https://osf.io/k3shf/download?version=1','https://osf.io/k3shf/download?version=1');
+        obj.onlineData_url = obj.getLink('https://osf.io/8x2c9/download?version=6','https://osf.io/k3shf/download?version=2','https://osf.io/k3shf/download?version=2');
         % Prot values at the time of the construction determine 
         % what is shown to user in CLI/GUI.
         obj = setUserProtUnits(obj);
@@ -207,22 +207,40 @@ methods
             
         end
         
-        if ~isempty(data.B1map)
+        if ~isEmptyField(data,'B1map') && obj.options.Exportuncorrectedmap
 
             [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
             
-            FitResult.T1 = T1corrected.img;
-            FitResult.R1=1./FitResult.T1;
-            FitResult.R1(isnan(FitResult.R1))=0;
+            FitResult.T1cor = T1corrected.img;
+            FitResult.R1cor=1./FitResult.T1cor;
+            FitResult.R1cor(isnan(FitResult.R1cor))=0;
             FitResult.MP2RAGEcor = MP2RAGEcorr.img;
-
-        else
 
             [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
         
             FitResult.T1 = T1map.img;
             FitResult.R1 = R1map.img;
+            FitResult.MP2RAGEuncorr = MP2RAGEimg.img;
             
+        end
+        
+        if ~isEmptyField(data,'B1map') && ~obj.options.Exportuncorrectedmap
+
+            [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
+            
+            FitResult.T1cor = T1corrected.img;
+            FitResult.R1cor=1./FitResult.T1cor;
+            FitResult.R1cor(isnan(FitResult.R1cor))=0;
+            FitResult.MP2RAGEcor = MP2RAGEcorr.img;
+            
+        end
+        
+        if isEmptyField(data,'B1map')
+            [T1map, R1map]=T1estimateMP2RAGE(MP2RAGEimg,MP2RAGE,invEFF);
+        
+            FitResult.T1 = T1map.img;
+            FitResult.R1 = R1map.img;
+            FitResult.MP2RAGEuncorr = MP2RAGEimg.img;
         end
 
         if ~isempty(data.Mask)
@@ -241,6 +259,7 @@ end % METHODS END
 methods(Access = protected)
     function obj = qMRpatch(obj,loadedStruct, version)
         obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+
         % v2.5.0 drops unit parantheses
         if checkanteriorver(version,[2 5 0])
             obj.Prot.Timing.Format = {'InversionTimes'};
@@ -252,6 +271,9 @@ methods(Access = protected)
             obj.tabletip(3).tip = sprintf('InversionTimes: Inversion times for the measurements \n [1] 1st time dimension \n [2] 2nd time dimension');
             obj.tabletip(4).tip = sprintf('FlipAngles: Excitation flip angles \n [1] 1st time dimension \n [2] 2nd time dimension');
             obj.tabletip(5).tip = sprintf('NumberOfShots: Number of shots [Pre] before and [Post] after the k-space center');
+            
+            obj.buttons = {'Inv efficiency', 0.96, 'Export uncorrected map', true};
+            obj.options.Exportuncorrectedmap=true;
         end
     end
 end
