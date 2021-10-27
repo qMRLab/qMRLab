@@ -1,4 +1,4 @@
-classdef (TestTags = {'Unit'}) AbstractModel_Test < matlab.unittest.TestCase
+classdef (TestTags = {'Unit'}) AbstractModel_Test_Matlab < matlab.unittest.TestCase
 
     properties
         tempFileName = 'tmp.mat'

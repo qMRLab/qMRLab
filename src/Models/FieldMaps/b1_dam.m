@@ -77,6 +77,9 @@ end
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
         
         function FitResult = fit(obj,data)
@@ -124,7 +127,12 @@ end
                     'size z',3,...
                     'order',6};
             end
-            
+           
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
+
         end
     end
 

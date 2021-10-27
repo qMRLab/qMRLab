@@ -88,11 +88,11 @@ xnames = { 'chiSB','chiL2', 'unwrappedPhase','maskOut' };
 voxelwise = 0;
 
 % Protocols linked to the OSF data
-Prot = struct('Resolution',struct('Format',{{'xDim (mm)' 'yDim (mm)' 'zDim (mm)'}},...
+Prot = struct('Resolution',struct('Format',{{'xDim' 'yDim' 'zDim'}},...
 'Mat',  [0.6 0.6 0.6]),...
-'Timing',struct('Format',{{'TE (s)'}},...
+'Timing',struct('Format',{{'TE'}},...
 'Mat', 8.1e-3), ...
-'Magnetization', struct('Format', {{'FieldStrength (T)' 'CentralFreq (MHz)'}}, 'Mat', [3 42.58]));
+'Magnetization', struct('Format', {{'FieldStrength' 'CentralFreq'}}, 'Mat', [3 42.58]));
 
 
 % Model options
@@ -137,7 +137,9 @@ function obj = qsm_sb
   % UpdateFields to take GUI interactions their effect on opening.
   obj = UpdateFields(obj);
   obj.onlineData_url = obj.getLink('https://osf.io/9d8kz/download?version=1','https://osf.io/549ke/download?version=4','https://osf.io/549ke/download?version=4');
-
+  % Prot values at the time of the construction determine 
+  % what is shown to user in CLI/GUI.
+  obj = setUserProtUnits(obj);
 end % fx: Constructor
 
 function obj = UpdateFields(obj)
@@ -331,7 +333,6 @@ function FitResults = fit(obj,data)
       [FitResults.chiL2] = calcChiL2(phaseLUnwrap, lambdaL2, FitOpt.direction, imageResolution, maskGlobal, padSize);
       disp('Completed  : Calculation of chi_L2 map without magnitude weighting.');
       disp('-----------------------------------------------');
-      genBatch_
     end
 
   elseif FitOpt.regL2_Flag && not(FitOpt.reoptL2_Flag ) % || DO NOT reopt Lambda L2 case chi_L2 generation
@@ -484,8 +485,19 @@ end
             % 2.0.10
             if checkanteriorver(version,[2 0 10])
                 % Update buttons for joker conversion from ###/*** to ##/**
-                obj.buttons = cellfun(@(x) strrep(x,'###','##'),obj.buttons,'uni',0);
-                obj.buttons = cellfun(@(x) strrep(x,'***','**'),obj.buttons,'uni',0);
+                idxs = [1,3,5,7,9,11,12,14,16,18,20,22,23,25,27,29,31,32,34,36,38];
+                tmp = arrayfun(@(x) strrep(obj.buttons(x),'###','##'),idxs,'uni',0);
+                tmp = cellfun(@(x) strrep(x,'***','**'),tmp,'uni',0);
+                obj.buttons(idxs) = [tmp{:}];
+            end
+
+            % v2.5.0 drops unit parantheses
+            if checkanteriorver(version,[2 5 0])
+              obj.Prot.Magnetization.Format = [{'FieldStrength'},{'CentralFreq'}];
+              obj.Prot.Resolution.Format = [{'xDim'},{'yDim'},{'zDim'}];
+              obj.Prot.Timing.Format = {'TE'};
+              obj.OriginalProtEnabled = true;
+              obj = setUserProtUnits(obj);
             end
         end
     end

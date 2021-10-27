@@ -33,7 +33,7 @@ function [ T1temp MP2RAGEcorrected] = T1B1correctpackageTFL( B1img,MP2RAGEimg,T1
 %
 % additionally the inversion efficiency of the adiabatic inversion can be
 % set as a last optional variable. Ideally it should be 1.
-% In the first implementation of the MP2RAGE the inversino efficiency was
+% In the first implementation of the MP2RAGE the inversion efficiency was
 % measured to be ~0.96
 %
 % outputs are:

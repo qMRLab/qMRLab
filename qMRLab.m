@@ -60,6 +60,12 @@ if ~isfield(handles,'opened') % qMRI already opened?
         fprintf('qMRLab version: v%d.%d.%d \n',cur_ver(1),cur_ver(2),cur_ver(3));
     end
     
+    % There is an issue about this on GitHub. This warning has to do with
+    % AttachScrollTo function required for properly displaying MP2RAGE
+    % input fields. If future releases of MATLAB makes it easy, please
+    % switch to that.
+    warning('off','MATLAB:ui:javacomponent:FunctionToBeRemoved');
+    
     try
         [verStatus] = versionChecker;
     catch
@@ -67,7 +73,11 @@ if ~isfield(handles,'opened') % qMRI already opened?
     end
     
     % Display version under qMRLab text
-    set(handles.text_version_check, 'String',sprintf('v%d.%d.%d',cur_ver(1),cur_ver(2),cur_ver(3)));
+    versionfile= fullfile(fileparts(which('qMRLab.m')),'version.txt');
+    fid = fopen(versionfile,'r');
+    sver = fgetl(fid);
+    fclose(fid);
+    set(handles.text_version_check, 'String',sver);
     
     % Handle new version message
     % varstatus is empty unless there is a new release.
@@ -82,10 +92,9 @@ if ~isfield(handles,'opened') % qMRI already opened?
     % startup;
     qMRLabDir = fileparts(which(mfilename()));
     addpath(genpath(qMRLabDir));
-    if isdeployed
-        handles.Default = fullfile(qMRLabDir,'DefaultMethod.mat');
-    else
-        handles.Default = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
+    usrpreferences = getUserPreferences();
+    handles.Default  = usrpreferences.GUIDefault.Method;
+    if ~isdeployed
         if isempty(getenv('ISAZURE')) || ~str2double(getenv('ISAZURE')) 
             ISAZURE=false; 
         else
@@ -102,6 +111,20 @@ if ~isfield(handles,'opened') % qMRI already opened?
     guidata(hObject, handles);
         
     
+    % IMPORTANT
+    % Here, we'll SetappData the /dev json content so that
+    % - i)  It won't be read over and over again 
+    % - ii) On the fly changes won't affect the current session
+    %
+    % Any GUI-related function will access these data through getappdata
+    registryStruct = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'qmrlab_model_registry.json']);
+    unitDefsStruct = json2struct([fileparts(which('qMRLab.m')) filesep 'dev' filesep 'units.json']);
+    usrPrefsStruct = getUserPreferences(); 
+    SetAppData(registryStruct);
+    SetAppData(unitDefsStruct);
+    SetAppData(usrPrefsStruct);
+
+
     % SET WINDOW AND PANELS
     movegui(gcf,'center')
     CurrentPos = get(gcf, 'Position');
@@ -138,9 +161,10 @@ if ~isfield(handles,'opened') % qMRI already opened?
     
     
     SetAppData(FileBrowserList);
-    if exist(handles.Default,'file')
-        load(handles.Default);
+    if ischar(handles.Default)
+        Method = handles.Default;
     else
+        % If there's something wrong set default to inv rec
         Method = 'inversion_recovery';
     end
 else
@@ -224,6 +248,18 @@ delete(wh);
 function MethodSelection_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 MethodMenu(hObject,eventdata,handles,Method);
+if ~isempty(handles.CurrentData)
+    tmp = eval(Method);
+    if (all(ismember(handles.CurrentData.fields,tmp.MRIinputs)) || all(ismember(tmp.MRIinputs,handles.CurrentData.fields)) || all(ismember(tmp.xnames,handles.CurrentData.fields)) || all(ismember(handles.CurrentData.fields,tmp.xnames)))
+        set(handles.SourcePop,'String',handles.CurrentData.fields);
+        
+    else
+        set(handles.SourcePop,'String',{' '});
+    end
+else
+    set(handles.SourcePop,'String',{' '});
+end
+
 set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
 
 
@@ -357,7 +393,7 @@ if ismethod(Model,'plotModel')
 set(handles.ViewDataFit,'Enable','on')
 set(handles.ViewROIFit,'Enable','on')
 set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
-set(handles.ViewROIFit,'TooltipString','View fit in currently selected label')
+set(handles.ViewROIFit,'TooltipString','View fit of the data avaraged over the currently selected ROI.')
 else
 set(handles.ViewDataFit,'Enable','off')
 set(handles.ViewROIFit,'Enable','off')
@@ -380,7 +416,11 @@ end
 function DefaultMethodBtn_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
-save(handles.Default,'Method');
+qMRLabDir = fileparts(which(mfilename()));
+usrpreferences = getUserPreferences();
+usrpreferences.GUIDefault.Method = Method;
+saveUserPreferences(usrpreferences);
+cprintf('magenta', '<< i >> %s has been updated to set <<%s>> as the new default qMRLab method in the GUI. \n',fullfile(qMRLabDir,'usr','preferences.json'),Method);
 
 function PanelOn(panel, handles)
 eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
@@ -426,6 +466,7 @@ for k=1:nargin; rmappdata(0, varargin{k}); end
 function FitGO_Callback(hObject, eventdata, handles)
 Method = GetMethod(handles);
 setappdata(0, 'Method', Method);
+
 FitGo_FitData(hObject, eventdata, handles);
 % The counterSfMiss variable is assigned by the GetSf.m function
 % to keep track of how many times a warning has been printed.
@@ -441,19 +482,28 @@ function FitGo_FitData(hObject, eventdata, handles)
 
 % Get data
 data =  GetAppData('Data');
+% Receives the Model from app's base data!
 Method = GetAppData('Method');
+
 Model = getappdata(0,'Model');
 if isfield(data,[class(Model) '_hdr']), hdr = data.([class(Model) '_hdr']); end
 data = data.(Method);
+
+% Interrupt fitting if there is a mismatch between user Prot settings 
+% and the Prot loaded in the Method
+validatePanelUnits(Model);
 
 % check data
 ErrMsg = Model.sanityCheck(data);
 if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
+usr = getUserPreferences();
 if ~moxunit_util_platform_is_octave
    
    p = gcp('nocreate');
    if license('test','Distrib_Computing_Toolbox') && Model.voxelwise && isempty(p)
+       if ~usr.FitParallelWheneverPossible 
+        % If set to false still ask user if they'd like to use FitPar
         cprintf('blue', 'MATLAB detected %d physical cores.',feature('numcores'));
         cprintf('blue', '<< Tip >> You can accelerate fitting by starting a parallel pool by running: \n parpool(%d);',feature('numcores'));
         dlgTitle    = 'Parallel Processing';
@@ -463,6 +513,12 @@ if ~moxunit_util_platform_is_octave
             parpool(feature('numcores'));
             p = gcp('nocreate');
         end
+        
+       else
+            parpool(feature('numcores'));
+            p = gcp('nocreate');
+           
+       end
    end
 
    if ~isempty(p) && Model.voxelwise
@@ -540,6 +596,12 @@ if exist('hdr','var')
 end
 guidata(hObject,handles);
 DrawPlot(handles);
+% Upon Fit completion, the Version in the CurrentData updates 
+% with the latest.
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
 
 % FITRESULTSSAVE
 function FitResultsSave_Callback(hObject, eventdata, handles)
@@ -589,6 +651,12 @@ SetAppData(FileBrowserList);
 handles.CurrentData = FitResults;
 guidata(hObject,handles);
 DrawPlot(handles);
+% Version check must be performed, otherwise faulty units are possible to
+% be displayed depending on usr's current settings.
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
 
 
 % #########################################################################
@@ -601,6 +669,11 @@ function SourcePop_Callback(hObject, eventdata, handles)
 set(hObject, 'Enable', 'off');
 drawnow;
 set(hObject, 'Enable', 'on');
+
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
 
 handles.tool.setNvol(get(handles.SourcePop,'Value'));
 
@@ -615,6 +688,10 @@ UpdateSlice(handles)
 View = get(handles.ViewPop,'String');
 if ~iscell(View), View = {View}; end
 handles.tool.setviewplane(View{get(handles.ViewPop,'Value')})
+updateUnitLabel(handles,false,...
+getappdata(0,'registryStruct'),...
+getappdata(0,'unitDefsStruct'),...
+getappdata(0,'usrPrefsStruct'));
 
 % STATS Table
 function Stats_Callback(hObject, eventdata, handles)
@@ -863,6 +940,11 @@ function hh = plotfit(handles,vox)
 Model = GetAppData('Model');
 % Get data
 data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
+
+% =================== SCALE PROTOCOL UNITS ===================
+% Scale parameters to the original units 
+Model = setOriginalProtUnits(Model);
+
 S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
 Data = handles.tool.getImage(0);
 Scurrent = [size(Data,1) size(Data,2) size(Data,3)];
@@ -916,16 +998,19 @@ for ipix = 1:length(vox)
         end
     end
     hold on;
-    
+        
     % Do the fitting
     if ~ismethod(Model,'plotModel'), warndlg('No plotting methods in this model'); return; end
-    Fit = Model.fit(datasqueeze) % Display fitting results in command window
+    Fit = Model.fit(datasqueeze); % Display fitting results in command window
     Model.plotModel(Fit,datasqueeze);
     
     % update legend
     if ~moxunit_util_platform_is_octave
         legend('Location','best')
     end
+% =================== SCALE PROTOCOL UNITS ===================
+% Scale parameters to the original units 
+Model = setUserProtUnits(Model);
 
 end
 
@@ -1033,3 +1118,4 @@ function upgrade_message_ButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(hObject, 'Enable', 'Inactive');
 web('https://github.com/qMRLab/qMRLab/releases/latest');
+

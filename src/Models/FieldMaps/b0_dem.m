@@ -70,6 +70,9 @@ end
         function obj = b0_dem
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -117,4 +120,16 @@ end
             FitResult.Phase_uw = Phase_uw;
         end
     end
+
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
+        end
+    end
+
 end

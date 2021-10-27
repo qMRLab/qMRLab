@@ -105,7 +105,7 @@ function Fit = ParFitData(data, Model,varargin)
 % -------------------------------------------------------------------------
 
 p = inputParser();
-preferences = json2struct(fullfile(fileparts(which('qMRLab')),'usr','preferences.json'));
+preferences = getUserPreferences();
 
 %Input parameters conditions
 validData  = @(x) exist('x','var') && isstruct(x);
@@ -172,6 +172,13 @@ if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
     warning(titlemsg)
     fprintf('%s\n\n',msg)
 end
+
+% ############################# UNIT CONVERSION #################################
+% Before starting voxelwise fit ensure that the protocols are defined
+% in the Model's original units. Introduced in v2.5.0
+
+Model = setOriginalProtUnits(Model);
+
 
 if Model.voxelwise % process voxelwise
     
@@ -308,6 +315,7 @@ if Model.voxelwise % process voxelwise
         [parM,~] = mapData(Model,data,MRIinputs,Voxels,nW,granularity);
         
     end
+    
     
     disp('=============== qMRLab::Fit ======================')
     cprintf('magenta', '<< i >> Operation has been started:  %s \n',Model.ModelName);
@@ -514,11 +522,26 @@ else % process entire volume not a parfor case
     disp('==================================================')
 end
 
+% After fitting revert prot units back to the 
+% user defined settings so that the 
+% saved FitResults contain Prot.Mat that 
+% matches Prot.Format
+Model = setUserProtUnits(Model);
 
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
 Fit.Version = qMRLabVer;
+% Save additional information
+Fit.Parallel = gcp();
+usr = getUserPreferences;
+% Embed provenance in FitResults.
+Fit.Provenance = Model.getProvenance(); 
+% From release v2.5.0 on save unit information
+tmp = modelRegistry('get',Model.ModelName);
+Fit.Registry = tmp.Registry;
+Fit.UnitBIDSMappings = tmp.UnitBIDSMappings;
+Fit.UserConfig = usr;
 
 % Parse data back into the volumetric format
 % after a voxelwise fit has been
@@ -557,6 +580,25 @@ end
 
 end % Voxelwise parse
 
+% ================ SCALE OUTPUTS ====================
+% Scale maps to user defined units if enabled 
+% Non-trivial operation! Behaviour determined by: 
+% - /usr/prefrecenes.json 
+% - /dev/units.json
+% - /dev/qmrlab_model_registry.json 
+% - /dev/qmrlab_output_to_BIDS_mappings.json
+Fit = unitScaleFitResults('toUserUnits',Fit);
+
+%if usr.UnifyOutputMapUnits.Enabled
+    
+%    for ii=1:length(Fit.fields)
+       
+%        Fit.(Fit.fields{ii}) = Fit.(Fit.fields{ii}).*Fit.UnitBIDSMappings.Output.(Fit.fields{ii}).ScaleFactor;
+    
+%    end
+
+%end
+% ====================================================
 end
 
 function [parM,splits,dene] = mapData(Model,data,MRIinputs,Voxels,nW,granularity)

@@ -61,9 +61,35 @@ if isfield(data,'Mask') && (~isempty(data.Mask)) && any(isnan(data.Mask(:)))
     fprintf('%s\n\n',msg)
 end
 
+% ############################# UNIT CONVERSION #################################
+% Before starting voxelwise fit ensure that the protocols are defined
+% in the Model's original units. Introduced in v2.5.0
+
+Model = setOriginalProtUnits(Model);
+
+% ############################ SCALE INPUT MAPS ###########################
+% If enabled, scale input maps to BIDS defined units based on user provided
+% input map units. Introduced in v2.5.0
+% Non-trivial operation! Behaviour determined by: 
+% - /usr/prefrecenes.json 
+% - /dev/units.json
+% - /dev/qmrlab_model_registry.json 
+usr = getUserPreferences;
+registry = modelRegistry('get',Model.ModelName);
+fnmsInput = fieldnames(registry.UnitBIDSMappings.Input);
+MRIinputs = fieldnames(data);
+if usr.ChangeProvidedInputMapUnits.Enabled
+   for ii=1:length(fnmsInput)
+       if isfield(data,fnmsInput{ii})
+           data.(MRIinputs{ii}) = data.(MRIinputs{ii}).*registry.UnitBIDSMappings.Input.(MRIinputs{ii}).ScaleFactor;
+       end
+   end
+end
+
 if Model.voxelwise % process voxelwise
     % ############################# INITIALIZE #################################
     % Get dimensions
+
     MRIinputs = fieldnames(data);
     MRIinputs(structfun(@isempty,data))=[];
     MRIinputs(strcmp(MRIinputs,'hdr'))=[];
@@ -130,7 +156,8 @@ if Model.voxelwise % process voxelwise
             'if ~strcmp(get(gcbf,''Name''),''canceling...''), setappdata(gcbf,''canceling'',1); set(gcbf,''Name'',''canceling...''); else delete(gcbf); end');
         setappdata(h,'canceling',0)
     end
-
+    
+    
     if (isempty(h))
         disp('=============== qMRLab::Fit ======================')
         disp(['Operation has been started: ' Model.ModelName]);
@@ -301,10 +328,46 @@ end
 %if (~isempty(hMSG) && not(isdeployed));  delete(hMSG); end
 if ishandle(hwarn), delete(hwarn); end
 
+
+% After fitting revert prot units back to the 
+% user defined settings so that the 
+% saved FitResults contain Prot.Mat that 
+% matches Prot.Format
+Model = setUserProtUnits(Model);
+
 Fit.Time = toc(tStart);
 Fit.Protocol = Model.Prot;
 Fit.Model = Model;
 Fit.Version = qMRLabVer;
+usr = getUserPreferences;
+% Embed provenance in FitResults if enabled.
+
+Fit.Provenance = Model.getProvenance(); 
+
+% From release v2.5.0 on save unit information
+tmp = modelRegistry('get',Model.ModelName);
+Fit.UserConfig = usr;
+Fit.Registry = tmp.Registry;
+Fit.UnitBIDSMappings = tmp.UnitBIDSMappings;
+
+% ================ SCALE OUTPUTS ====================
+% Scale maps to user defined units if enabled 
+% Non-trivial operation! Behaviour determined by: 
+% - /usr/prefrecenes.json 
+% - /dev/units.json
+% - /dev/qmrlab_model_registry.json 
+% - /dev/qmrlab_output_to_BIDS_mappings.json
+Fit = unitScaleFitResults('toUserUnits',Fit);
+
+%if usr.UnifyOutputMapUnits.Enabled
+    
+%    for ii=1:length(Fit.fields)
+       
+%        Fit.(Fit.fields{ii}) = Fit.(Fit.fields{ii}).*Fit.UnitBIDSMappings.Output.(Fit.fields{ii}).ScaleFactor;
+%    end
+
+%end
+% =====================================================
 if exist(fullfile('.','FitTempResults.mat'),'file')
     delete FitTempResults.mat
 end

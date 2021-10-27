@@ -1,0 +1,783 @@
+{
+    "Time": 
+    {   "description": "Time-relevant qMRLab model output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes time (e.g. FitResults.T1), whether required or optional (e.g. FitResults.T1prime), MUST be listed here.",
+        "warning_outputs": "The outputs field MUST be a unique array. Concatenatoion of outputs arrays of all namespaces (e.g. [Time.outputs, Rate.outputs] MUST yield a unique array as well.",
+        "warning_addition": "Please append to the lists, do NOT prepend. Make sure that you append an entry to all subfields (qMapNames, suffixBIDS, isOfficialBIDS, folderBIDS)",
+        "outputs":
+            [
+                "T1",
+                "T1map",
+                "T2",
+                "T2map",
+                "T2IEW",
+                "T2MW",
+                "T2f",
+                "T2r",
+                "T1cor"
+            ],
+        "warning_qMapNames": "Please be descriptive and omit abbreviations (e.g. DO exclude (s) or (ms) etc.)",
+        "qMapNames":
+            [
+                "Longitudinal relaxation time (T1) map",
+                "Longitudinal relaxation time (T1) map",
+                "Transverse relaxation time (T1) map",
+                "Transverse relaxation time (T1) map",
+                "Spin relaxation time (T2) for intra/extracellular water (IEW)",
+                "Spin relaxation time (T2) myelin water (MW)",
+                "Tranverse relaxation time (T2) of the free (f) pool",
+                "Tranverse relaxation time (T2) of the restricted (r) pool",
+                "B1+ corrected longitudinal relaxation time (T1) map"
+            ],
+        "warning_suffixBIDS": "The suffixBIDS field does NOT have to be a unique array, however, MUST respect the correcsponding BIDS suffix (if available) & the respective outputs entry.",
+        "suffixBIDS":
+            [
+                "T1map",
+                "T1map",
+                "T2map",
+                "T2map",
+                "T2IEWmap",
+                "T2MWmap",
+                "T2Fmap",
+                "T2Rmap",
+                "T1map"
+            ],
+        "warning_isOfficialBIDS": "Based on: https://bids-specification.readthedocs.io/en/stable/",
+        "isOfficialBIDS":
+            [
+                true,
+                true,
+                true,
+                true,
+                false,
+                false,
+                false,
+                false,
+                true
+            ],
+        "warning_folderBIDS": "Anything that is not dwi or fmap is anat. At least as of 2021 (BIDS v1.5.0).", 
+        "folderBIDS":
+            [
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat",
+                "anat"
+            ],
+            "descBIDS":
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "b1corrected"
+            ]
+    },
+
+
+
+    "Rate":
+    { "description": "Rate-relevant qMRLab model output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+      "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes rate (e.g. FitResults.R1), whether required or optional (e.g. FitResults.R1f), MUST be listed here.",
+        "outputs":
+            [   
+                "R1",
+		"R1cor",
+                "R1r",
+                "R1f",
+                "kf",
+                "kr"
+            ],
+        "qMapNames":
+            [
+                "Longitudinal relaxation rate (R1) map",
+		"B1+ corrected longitudinal relaxation rate (R1) map",
+                "Longitidunal relaxation rate (R1) of the restricted (r) pool",
+                "Longitidunal relaxation rate (R1) of the free (f) pool",
+                "Exchange rate from the restricted to the free pool (kf: r --> f)",
+                "Exchange rate from the free to the restricted pool (kr: f --> r)"
+            ],
+        "suffixBIDS":
+            [
+                "R1map",
+		"R1map",
+                "R1Rmap",
+                "R1Fmap",
+                "KFmap",
+                "KRmap"
+            ],
+        "isOfficialBIDS":
+            [
+                true,
+		true,
+                false,
+                false,
+                false,
+                false
+            ],
+        "folderBIDS":
+        [
+            "anat",
+	    "anat",
+            "anat",
+            "anat",
+            "anat",
+            "anat"
+        ],
+        "descBIDS":
+        [
+            "",
+	    "b1corrected",
+            "",
+            "",
+            "",
+            ""
+        ]
+    },
+
+
+
+    "Fraction": 
+    {   "description": "Any qMRLab model output (FitResults.my_output) variable (my_output) that defines ratio MUST be defined in this namespace.",
+        "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes fraction (e.g. FitResults.MTR), whether required or optional (e.g. FitResults.kf), MUST be listed here.",
+        "outputs":
+            [
+		"MTR",
+		"MWF",
+		"F",
+		"Sf",
+		"Sr",
+		"ficv",
+		"fiso",
+		"fr",
+		"irfrac",
+		"fcsf",
+		"fh"
+            ],
+	"qMapNames":
+            [
+		"Magnetization Transfer Ratio (MTR) map",
+		"Myelin Water Fraction (MWF) map",
+		"Ratio of number of restricted (r) pool to free (f) pool, defined as F = M0r/M0f = kf/kr. Also known as macromolecular pool fraction (MPF)",
+		"Instantaneous fraction of magnetization after vs. before the pulse in the free pool. Starting point is computed using Bloch simulation",
+		"Instantaneous fraction of magnetization after vs. before the pulse in the restricted pool. Starting point is computed using Bloch simulation",
+		"Fraction of water in the restricted compartment: (f)raction of (i)ntra (c)ellular (v)olume.",
+		"Fraction of water in the (iso)tropic compartment (for example, CSF/Veins)",
+		"Fraction of restricted (r) water in the entire voxel (for example, intra-cellular volume fraction) fr = ficvf*(1-fiso)",
+		"Fraction of isotropically restricted compartment (Dot for ex vivo model): (i)sotropic (r)estricted (frac)tion",
+		"Fraction of water in the CSF compartment. (fixed to 0 by default)",
+		"Fraction of water in the hindered (h) compartment, calculated as: 1 - fr - fcsf"
+            ],
+    "suffixBIDS":
+    [
+        "MTRmap",
+        "MWFmap",
+        "MPFmap",
+        "SFmap",
+        "SRmap",
+        "FICVmap",
+        "FISOmap",
+        "FRmap",
+        "IRFRACmap",
+        "FCSFmap",
+        "FHmap"
+    ],
+    "isOfficialBIDS":
+    [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    ],
+    "folderBIDS":
+    [
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi"
+    ],
+    "descBIDS":
+    [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+    ]
+    },
+
+
+
+    "B1": 
+    {  "description": "Transmit RF field mapping models' B1+ output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "requirement": "Any output variable name of a qMRLab model (FitResults.x) that describes B1+ (e.g. FitResults.B1map), whether required or optional (e.g. FitResults.B1map_filtered), MUST be listed here.",
+        "outputs":
+            [
+		"B1map_raw",
+		"B1map_filtered"
+            ],
+	"qMapNames":
+            [
+		"RF transmit field (B1+) map",
+		"Smoothed B1+ field map using Gaussian, Median, Spline or polynomial filter (see FilterClass.m for more info)"
+            ],
+    "suffixBIDS":
+    [
+        "TB1map",
+        "TB1map_filtered"
+    ],
+    "isOfficialBIDS":
+    [
+        true,
+        true
+    ],
+    "folderBIDS":
+    [   
+        "fmap",
+        "fmap"
+    ],
+    "descBIDS":
+    [   
+        "",
+        "filtered"
+    ]
+    },
+
+
+
+    "B0": 
+    {   "description": "Magnetic field inhomonegeity mapping models' B0-relevant output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "outputs":
+            [
+		"B0map"
+            ],
+	"qMapNames":
+            [
+		"Static main magnetic field (B0) inhomogeneity map"
+            ],
+    "suffixBIDS":
+            [
+        "B0map" 
+            ],
+    "isOfficialBIDS":
+            [
+        false 
+            ],
+    "folderBIDS":
+        [
+        "fmap"
+        ],
+    "descBIDS":
+    [
+    ""
+    ]
+    },
+
+
+
+    "Susceptibility":
+    {   "description": "QSM models' susceptibility output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "outputs":
+            [
+		"chiSB",
+		"chiSBM",
+		"chiL2",
+		"chiL2M",
+		"nfm"
+            ],
+	"qMapNames":
+            [
+		"Quantitative susceptibility map created using Split-Bregman method without magnitude weighting",
+		"Quantitative susceptibility map created using Split-Bregman method with magnitude weighting",
+		"Quantitative susceptibility map created using L2 regularization without magnitude weighting",
+		"Quantitative susceptibility map created using L2 regularization with magnitude weighting",
+		"Quantitative susceptibility map created without regularization"
+            ],
+    "suffixBIDS":
+    [
+        "Chimap",
+        "Chimap",
+        "Chimap",
+        "Chimap",
+        "Chimap"
+    ],
+    "isOfficialBIDS":
+    [
+       true,
+       true,
+       true,
+       true,
+       true
+    ],
+    "folderBIDS":
+    [
+       "anat",
+       "anat",
+       "anat",
+       "anat",
+       "anat"
+    ],
+    "descBIDS":
+    [
+       "SBnomag",
+       "SBmag",
+       "L2nomag",
+       "L2mag",
+       "nfm"
+    ]
+    },
+
+
+
+
+    "Angle":
+    {   "description":"Phase output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "outputs":
+            [
+		"unwrappedPhase",
+        "theta",
+        "phi",
+        "Phase_uw"
+            ],
+	"qMapNames":
+            [
+		"Unwrapped phase image",
+        "Azimuth angle of the fibers",
+		"Elevation of the fibers",
+        "Unwrapped phase image"
+            ],
+    "suffixBIDS":
+        [
+            "inherit_part-phase",
+            "THETAmap",
+            "PHImap",
+            "inherit_part-phase"
+        ],
+    "isOfficialBIDS":
+        [
+            true,
+            false,
+            false,
+            true
+        ],
+    "folderBIDS":
+        [
+            "anat",
+            "dwi",
+            "dwi",
+            "anat"
+        ],
+    "descBIDS":
+        [
+            "",
+            "",
+            "",
+            ""
+        ]
+    },
+
+
+
+    "Diffusivity":
+    {   "description": "Diffusivity output (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "outputs":
+            [
+		"di",
+		"diso",
+		"Dh",
+        "Dcsf",
+        "Dintra"
+            ],
+	"qMapNames":
+            [
+		"Diffusion coefficient in the restricted compartment",
+		"Diffusion coefficient of the isotropic compartment (CSF)",
+		"Apparent diffusion coefficient of the hindered (h) compartment",
+        "Diffusion coefficient of the isotropic compartment (CSF)",
+        "Diffusion coefficient of the intra-axonal (totally restricted) compartment"
+            ],
+    "suffixBIDS":
+        [
+            "DImap",
+            "DISOmap",
+            "DHmap",
+            "DCSFmap",
+            "DINTRAmap"
+        ],
+    "isOfficialBIDS":
+        [   
+            false,
+            false,
+            false,
+            false,
+            false
+        ],
+    "folderBIDS":
+        [
+            "dwi",
+            "dwi",
+            "dwi",
+            "dwi",
+            "dwi"
+        ],
+    "descBIDS":
+        [
+            "",
+            "",
+            "",
+            "",
+            ""
+        ]
+    },
+
+
+
+    "Arbitrary":
+    {   "description": "Any output of arbitrary unit (FitResults.my_output) variables (my_output) are defined in this namespace.",
+        "outputs":
+            [
+        "ODI",
+		"kappa",
+		"b0",
+		"residue",
+		"L1",
+		"L2",
+		"L3",
+		"FA",
+		"S0_TE_N",
+		"Spurious",
+        "spurious",
+		"MTSAT",
+		"M0f",
+		"M0r",
+		"M0",
+		"resnorm",
+		"rb",
+		"ra",
+		"res",
+		"MP2RAGEcor",
+        "MP2RAGEuncorr",
+		"MTV",
+		"CoilGain",
+        "lc",
+        "Data4D_denoised",
+        "sigma_g",
+        "eta",
+        "N",
+        "SigmaNoise",
+        "ObjectiveFun",
+        "Filtered",
+        "MTSATcor",
+	"M0cor"
+            ],
+	"qMapNames":
+            [
+		"Orientation dispersion index derived from concentration parameter of Watson distribution",
+        "Concentration parameter of Watson distribution",
+		"Signal at b=0",
+		"Fitting residuals",
+		"1rst eigenvalue of D",
+		"2nd eigenvalue of D",
+		"3rd eigenvalue of D",
+		"Fractional Anisotropy: FA = sqrt(3/2)*sqrt(sum((L-L_mean).^2))/sqrt(sum(L.^2))",
+		"Signal at b=0 at TE=XX",
+		"Map of datapoints that were set to 1 prior to smoothing",
+        "Map of datapoints that were set to 1 prior to smoothing",
+		"MT saturation map (%), T1-corrected",
+		"Equilibrium value of the free pool longitudinal magnetization",
+		"Equilibrium value of the restricted pool longitudinal magnetization",
+		"Equilibrium magnetization",
+		"Fitting residual",
+		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
+		"Arbitrary fit parameter (S=a + b*exp(-TI/T1))",
+		"Fitting residual",
+		"MP2RAGE UNI image corrected for B1+ bias if B1map is provided",
+        "MP2RAGE UNI image calculated using input data (if mag,phase,inv1,inv2 available) in qMRLab. Not the one Siemens calculates inline.",
+		"Macromolecular Tissue Volume (normal values in the brain range [0 0.4])",
+		"Reception profile of the antenna (B1- map)",
+        "Length of coherence. Interpretation is not perfectly known, experimental.",
+        "4D denoised data",
+        "standard deviation of the rician noise",
+        "eta parameter of noise estimation",
+        "N parameter of noise estimation",
+        "standard deviation of the rician noise",
+        "Likelihood of the values of the objective function for each parameter combination in the grid search.",
+        "Filtered B1 map",
+        "B1 corrected MTSAT map",
+	"B1 corrected M0 map"
+            ],
+    "suffixBIDS":
+    [
+        "ODImap",
+        "KAPPAmap",
+        "sigb0",
+        "residual",
+        "L1map",
+        "L2map",
+        "L3map",
+        "FAmap",
+        "S0TE_N",
+        "spurious",
+        "spurious",
+        "MTsat",
+        "M0Fmap",
+        "M0Rmap",
+        "M0map",
+        "resnorm",
+        "RBmap",
+        "RAmap",
+        "residual",
+        "UNIT1",
+        "UNIT1",
+        "MTVmap",
+        "RB1map",
+        "LCmap",
+        "dwi",
+        "sigmag",
+        "eta",
+        "N",
+        "sigmag",
+        "GridSearchLik",
+        "TB1map",
+        "MTsat",
+	"M0"
+    ],
+    "isOfficialBIDS":
+    [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+	true
+    ],
+    "folderBIDS":
+    [
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "fmap",
+        "fmap",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "anat",
+        "fmap",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "dwi",
+        "fmap",
+        "anat",
+	"anat"
+    ],
+    "descBIDS":
+    [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "b1corrected",
+        "",
+        "appbrain",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "filtered",
+        "b1corrected",
+	"b1corrected"
+    ]
+    },
+
+
+
+    "Categorical":
+    {   "description": "Categorical output (FitResults.my_output) variables (my_output), such as segmentation regions, are defined in this namespace.",
+        "outputs":
+            [
+		"seg",
+		"idx",
+        "maskOut",
+        "CSF"
+            ],
+	"qMapNames":
+            [
+		"Clustering of the eroded input mask in four categories: 1: Gray Matter 2: Deep Gray 3: White matter (used for Coil Gain) 4: CSF",
+		"Index of the last polarity restored datapoint (only used for magnitude data)",
+        "Binary mask (maskSharp, gradientMask or same as the input)",
+        "CSF mask."
+            ],
+    "suffixBIDS":
+            [
+            "dseg",
+            "dseg",
+            "mask",
+            "dseg"
+            ],
+    "isOfficialBIDS":
+            [
+            true,
+            true,
+            true,
+            true
+            ],
+    "folderBIDS":
+            [
+            "anat",
+            "anat",
+            "anat",
+            "anat"
+            ],
+    "descBIDS":
+            [
+            "",
+            "",
+            "",
+            ""
+            ]
+    
+    },
+
+    "Length":
+    {   "description": "Length output (FitResults.my_output) variables (my_output), such as axon diameter, are defined in this namespace.",
+        "outputs":
+            [
+		"diameter_mean"
+            ],
+	"qMapNames":
+            [
+		"Mean axonal diameter weighted by the axonal area --> biased toward the larger axons. RECOMMENDED Gmax >= 300mT/m"
+            ],
+    "suffixBIDS":
+            [
+            "AxDIAmap"
+            ],
+    "isOfficialBIDS":
+            [
+            false
+            ],
+    "folderBIDS":
+            [
+            "dwi"
+            ]
+    },
+
+    "Tensor":
+    {   "description": "Tensor output (FitResults.my_output) variables (my_output), such as DT, are defined in this namespace.",
+        "outputs":
+            [
+		"D"
+            ],
+	"qMapNames":
+            [
+		"[Dxx Dxy Dxz Dxy Dyy Dyz Dxz Dyz Dzz] Diffusion Tensor"
+            ],
+    "suffixBIDS":
+            [
+            "D"
+            ],
+    "isOfficialBIDS":
+            [
+            false
+            ],
+    "folderBIDS":
+            [
+            "dwi"
+            ],
+    "descBIDS":
+            [
+            ""
+            ]
+    }
+}

@@ -1,18 +1,50 @@
 {
-    "ParFitData": 
-       {
+	"GUIDefault": {
+		"Method": "inversion_recovery"
+	},
 
-            "AutosaveEnabled": true,
-            "AutosaveInterval": 5,
-            "Granularity": 3,
-            "RemoveTmpOnSuccess": true
-       },
-     "SavedMapUnits":  {
-           "Time": "seconds",
-           "RatioScale": "normalized",
-           "B1maps": "normalized",
-           "B0maps": "hertz"
-       },
-    "SaveProvenance": true
+	"FitParallelWheneverPossible": true,
 
+	"ParFitData": {
+		"AutosaveEnabled": 1,
+		"AutosaveInterval": 5,
+		"Granularity": 3,
+		"RemoveTmpOnSuccess": 1
+	},
+
+	"ForAllUnitsUseBIDS": false,
+
+	"UnifyOutputMapUnits": {
+		"Enabled": false,
+		"Time": "second",
+		"Rate": "reciprocal_second",
+		"Fraction": "fraction_decimal",
+		"B1": "relative_scaling_factor_decimal",
+		"B0": "offset_factor_hertz",
+		"Susceptibility": "part_per_million",
+		"Angle":"radian",
+		"Diffusivity": "square_micrometer_per_millisecond",
+		"Length": "micrometer",
+		"Tensor": "tensor"
+	},
+
+	"UnifyInputProtocolUnits": {
+		"Enabled": false,
+		"Time":"second",
+		"Frequency": "hertz",
+		"MagneticFieldStrength": "tesla",
+		"GradientMagnitude": "tesla_per_meter",
+		"Length": "millimeter",
+		"Angle": "degree",
+		"Arbitrary": "arbitrary"
+	},
+
+	"ChangeProvidedInputMapUnits": {
+		"Enabled": false,
+		"Time": "second",
+		"Rate": "reciprocal_second",
+		"B1": "relative_scaling_factor_decimal",
+		"B0": "offset_factor_hertz",
+		"Angle":"radian"
+	}
 }

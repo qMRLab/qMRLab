@@ -367,6 +367,10 @@
 	      "citation": "Daducci, A., et al. (2015). Accelerated Microstructure Imaging via Convex Optimization (AMICO) from difussion MRI data. Neuroimage, 105, 32-44. 10.1016/j.neuroimage.2014.10.026"
       },
       {
+        "model": "denoising_mppca",
+        "citation": "Veraart, J.; Fieremans, E. & Novikov, D.S. Diffusion MRI noise mapping using random matrix theory Magn. Res. Med., 2016, early view, doi:10.1002/mrm.26059"
+      },
+      {
         "model": "noddi",
 	      "citation": "Zhang, H., et al. (2012). NODDI: practical in vivo neurite orientation dispersion and density imaging of the human brain. Neuroimage, 61(4), 1000-1016. 10.1016/j.neuroimage.2012.03.072",
         "note": [

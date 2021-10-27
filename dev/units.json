@@ -1,0 +1,234 @@
+{
+    "Time": 
+    {
+        "hour": 
+        {
+            "factor2base": 3600,
+            "label": "hour",
+            "symbol": "(hr)"
+        },
+
+        "minute": 
+        {
+            "factor2base": 60,
+            "label": "minute",
+            "symbol": "(min)"
+        },
+
+        "second": 
+        {
+            "factor2base": 1,
+            "label": "second",
+            "symbol": "(s)"
+        },
+
+        "millisecond": 
+        {
+            "factor2base": 0.001,
+            "label": "millisecond",
+            "symbol": "(ms)"
+        },
+        "microsecond": 
+        {
+            "factor2base": 0.000001,
+            "label": "microsecond",
+            "symbol": "(us)"
+        }      
+    },
+
+    "Fraction":
+    {
+        "fraction_decimal":
+        {
+            "factor2base": 1,
+            "label": "ratio",
+            "symbol": "[0-1]"
+        },
+        "fraction_percent": 
+        {
+            "factor2base": 0.01,
+            "label": "ratio",
+            "symbol": "(%)"
+        }
+    },
+
+    "Rate":
+    {
+        "reciprocal_second": 
+        {
+            "factor2base": 1,
+            "label": "rate",
+            "symbol": "1/s"
+        },
+        "reciprocal_millisecond":
+        {
+            "factor2base": 1000,
+            "label": "rate",
+            "symbol": "(1/ms)"
+        },
+        "reciprocal_microsecond":
+        {
+            "factor2base": 1000000,
+            "label": "rate",
+            "symbol": "(1/us)"
+        }
+    },
+
+    "B0":
+    {
+        "offset_factor_hertz": 
+        {
+            "factor2base": 1,
+            "label": "Hertz",
+            "symbol": "(0 Hz=ideal)"
+        }
+    },
+
+    "Frequency":
+    {
+        "hertz":{
+            "factor2base": 1,
+            "label": "Hertz",
+            "symbol": "(Hz)"
+        },
+
+        "kilohertz":{
+            "factor2base": 0.001,
+            "label": "Hertz",
+            "symbol": "(kHz)"
+        },
+
+        "megahertz":{
+            "factor2base": 0.000001,
+            "label": "Hertz",
+            "symbol": "(MHz)"
+        }
+
+    },
+
+    "B1":
+    {
+        "relative_scaling_factor_decimal": 
+        {
+            "factor2base": 1,
+            "label": "rel B1+",
+            "symbol": "(1=ideal)"
+        },
+        "relative_scaling_factor_percent": 
+        {
+            "factor2base": 0.01,
+            "label": "rel B1+",
+            "symbol": "(100=ideal)"
+        }
+    },
+
+    "Susceptibility":
+    {
+        "part_per_million": 
+        {
+            "factor2base": 1,
+            "label": "qsm",
+            "symbol": "(ppm)"
+        }
+    },
+
+    "Angle":
+    {
+        "radian":
+        {
+            "factor2base": 1,
+            "label": "radian",
+            "symbol": "(rad)"
+        },
+        "degree":
+        {
+            "factor2base": 0.0175,
+            "label": "degree",
+            "symbol": "(deg)"
+        }
+    },
+
+    "Diffusivity":
+    {
+        "square_meter_per_second":
+        {
+            "factor2base": 1,
+            "label": "diffusivity",
+            "symbol": "m^2/s"
+        },
+        "square_micrometer_per_millisecond":
+        {
+            "factor2base": 1e-9,
+            "label": "diffusivity",
+            "symbol": "u^2/ms"
+        }
+    },
+
+    "Length":
+    {
+        "micrometer":
+        {
+            "factor2base": 1,
+            "label": "micrometer",
+            "symbol": "(um)"
+        },
+        "millimeter":
+        {
+            "factor2base": 0.001,
+            "label": "millimeter",
+            "symbol": "(mm)"
+        }
+    },
+
+    "Tensor":
+    {
+        "tensor":
+        {
+            "factor2base": 1,
+            "label": "tensor",
+            "symbol": ""
+        }
+    },
+
+    "GradientMagnitude":
+    {
+        "tesla_per_meter":
+        {
+            "factor2base": 1,
+            "label": "Tesla per meter",
+            "symbol": "(T/m)"
+        }
+    },
+
+    "Arbitrary":
+    {
+        "arbitrary":
+        {
+            "factor2base": 1,
+            "label": "arbitrary",
+            "symbol": ""
+        }
+    },
+
+    "Categorical":
+    {
+        "categorical":
+        {
+            "factor2base": 1,
+            "label": "categorical",
+            "symbol": ""
+        }
+    },
+
+    "MagneticFieldStrength":
+    {
+        "tesla":
+        {
+            "factor2base": 1,
+            "label": "Tesla",
+            "symbol": "(T)"
+        }
+    }
+    
+
+}

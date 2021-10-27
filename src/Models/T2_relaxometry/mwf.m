@@ -4,11 +4,11 @@ classdef mwf < AbstractModel
 % Assumptions:
 %
 % Inputs:
-%   MET2data    Multi-Exponential T2 data
+%   MET2data      Multi-Exponential T2 data
 %   (Mask)        Binary mask to accelerate the fitting (OPTIONAL)
 %
 % Outputs:
-%   MWF       Myelin Wanter Fraction
+%   MWF       Myelin Water Fraction
 %   T2MW      Spin relaxation time for Myelin Water (MW) [ms]
 %   T2IEW     Spin relaxation time for Intra/Extracellular Water (IEW) [ms]
 %
@@ -17,7 +17,7 @@ classdef mwf < AbstractModel
 %   Sigma           Noise standard deviation. Currently not corrected for rician bias
 %   Relaxation Type
 %        'T2'       For a SE sequence
-%       'T2*'      For a GRE sequence
+%        'T2*'      For a GRE sequence
 %
 % Protocol:
 %  MET2data   [TE1 TE2 ...] % list of echo times [ms]
@@ -63,7 +63,7 @@ end
 
         % Protocol
         % You can define a default protocol here.
-        Prot  = struct('MET2data',struct('Format',{{'EchoTime (ms)'}},...
+        Prot  = struct('MET2data',struct('Format',{{'EchoTime'}},...
             'Mat', [10; 20; 30; 40; 50; 60; 70; 80; 90; 100; 110; 120; 130; 140; 150; 160; 170;
             180; 190; 200; 210; 220; 230; 240; 250; 260; 270; 280; 290; 300; 310; 320]));
 
@@ -88,6 +88,9 @@ end
         function obj = mwf
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -97,6 +100,9 @@ end
         end
 
         function [Smodel, Spectrum] = equation(obj,x,Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if isnumeric(x), xbu = x; x=struct; x.MWF = xbu(1); x.T2MW = xbu(2); x.T2IEW = xbu(3); end
             if nargin < 3, Opt.T2Spectrumvariance_Myelin = 5; Opt.T2Spectrumvariance_IEIntraExtracellularWater = 20; end
             x.MWF = x.MWF/100;
@@ -118,6 +124,9 @@ end
             Spectrum = MF*SpectrumMW + IEF*SpectrumIEW;
             % Generate the signal
             Smodel = DecayMatrix * Spectrum;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function [FitResults,Spectrum] = fit(obj,data)
@@ -137,6 +146,9 @@ end
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
             if ~exist('Opt','var'), Opt = button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
@@ -157,19 +169,37 @@ end
                 end
                 hold off
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function plotModel(obj, x, data, PlotSpectrum)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x = mean([obj.lb(:),obj.ub(:)],2); end
             if ~exist('PlotSpectrum','var'), PlotSpectrum = 1; end % Spectrum is plot per default
             EchoTimes   = obj.Prot.MET2data.Mat;
@@ -228,6 +258,23 @@ end
                 ylabel('MET2 ()');
                 %---------------------------------------------------------%
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
     end
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % v2.5.0 drops unit parantheses
+            if checkanteriorver(version,[2 5 0])
+                obj.Prot.MET2data.Format = {'EchoTime'};
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
+        end
+    end
+
+    
 end
