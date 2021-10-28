@@ -9,7 +9,7 @@ classdef mono_t2star < AbstractModel
     %                       with different echo times in time dimension
     %
     % Outputs:
-    %   T2star          Effective transverse relaxation time [s]
+    %   T2starmap       Effective transverse relaxation time [s]
     %   B0map           B0 inhomogeneity smoothed field
     %   GradZ           Gradient along Z direction
     %
@@ -59,7 +59,7 @@ end
         MRIinputs = {'DATAmag','DATAphase'}; % used in the data panel
         
         % fitting options
-        xnames = { 'T2star','GradZ','B0'}; % name of the parameters to fit
+        xnames = { 'T2starmap','GradZ','B0map'}; % name of the parameters to fit
         voxelwise = 0; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
         st           = [ 100	1000 ]; % starting point
         lb            = [  1      1 ]; % lower bound
@@ -85,9 +85,10 @@ end
     methods
         function obj = mono_t2star()
             obj.options = button2opts(obj.buttons);
-            %obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=2','https://osf.io/ns3wx/download?version=1','https://osf.io/kujp3/download?version=2');
+            obj.onlineData_url = obj.getLink('https://osf.io/ab537/download?version=1','https://osf.io/ab537/download?version=1','https://osf.io/ab537/download?version=1');
             % Prot values at the time of the construction determine 
             % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
         
          function obj = UpdateFields(obj)
@@ -109,13 +110,6 @@ end
                 end
             end
          end
-        
-%         function Smodel = equation(obj, x)
-%             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
-%             
-%             % equation
-%             Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2);
-%         end
         
         function FitResults = fit(obj,data)
                 echo_time = obj.Prot.SEdata.Mat;
@@ -151,72 +145,10 @@ end
                 threshold_t2star_max = obj.options.ThresholdT2map;
                 [t2star_uncorr_3d, t2star_corr_3d,rsquared_uncorr_3d,rsquared_corr_3d,grad_z_final_3d,iter_3d] = t2star_computeCorrectedFitting(multiecho_magn,grad_z_3d,mask_3d,echo_time,do_optimization,fitting_method,threshold_t2star_max);
                 
-                FitResults.T2star = t2star_corr_3d;
+                FitResults.T2starmap = t2star_corr_3d;
                 FitResults.GradZ = freqGradZ_masked;
-                FitResults.B0 = freq_3d_smooth_masked;            
+                FitResults.B0map = freq_3d_smooth_masked;            
         end
-        
-        
-%         function plotModel(obj, FitResults, data)
-%             % Ensure ORIGINAL protocol units on load
-%             obj = setOriginalProtUnits(obj);
-%             
-%             %  Plot the Model and Data.
-%             if nargin<2, qMRusage(obj,'plotModel'), FitResults=obj.st; end
-%             FitResults=mat2struct(FitResults,obj.xnames);
-%             
-%             %Get fitted Model signal
-%             Smodel = equation(obj, FitResults);
-%             
-%             %Get the varying acquisition parameter
-%             Tvec = obj.Prot.SEdata.Mat;
-%             [Tvec,Iorder] = sort(Tvec);
-%             
-%             % Plot Fitted Model
-%             plot(Tvec,Smodel(Iorder),'b-')
-%             title(sprintf('T2 Fit: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
-%             xlabel('Echo time [ms]','FontSize',12);
-%             ylabel('Signal','FontSize',12);
-%             
-%             set(gca,'FontSize',12)
-%             
-%             % Plot Data
-%             if exist('data','var')
-%                 hold on
-%                 plot(Tvec,data.SEdata(Iorder),'r+')
-%                 legend('data', 'fitted','Location','best')
-%                 legend({'Model','Data'})
-%                 hold off
-%             end
-%             
-%             % Ensure USER protocol units after process
-%             obj = setUserProtUnits(obj);
-%         end
-%         
-%         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)            
-%             if nargin<4, display=1; end
-%             % Compute Smodel
-%             Smodel = equation(obj, x);
-%             % add gaussian noise
-%             sigma = max(Smodel)/Opt.SNR;
-%             data.SEdata = random('normal',Smodel,sigma);
-%             % fit the noisy synthetic data
-%             FitResults = fit(obj,data);
-%             % plot
-%             if display
-%                 plotModel(obj, FitResults, data);
-%             end
-%         end
-%         
-%         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)           
-%             % SimVaryGUI
-%             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
-%         end
-%         
-%         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
-%             % SimRndGUI
-%             SimRndResults = SimRnd(obj, RndParam, Opt);
-%         end
     end
 
     methods(Access = protected)
@@ -225,6 +157,8 @@ end
             % v2.5.0 drops unit parantheses
             if checkanteriorver(version,[2 5 0])
                 obj.Prot.SEdata.Format = {'EchoTime'};
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
         end
     end
