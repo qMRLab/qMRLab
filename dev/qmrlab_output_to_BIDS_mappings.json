@@ -14,7 +14,8 @@
                 "T2MW",
                 "T2f",
                 "T2r",
-                "T1cor"
+                "T1cor",
+		"T2starmap"
             ],
         "warning_qMapNames": "Please be descriptive and omit abbreviations (e.g. DO exclude (s) or (ms) etc.)",
         "qMapNames":
@@ -27,7 +28,8 @@
                 "Spin relaxation time (T2) myelin water (MW)",
                 "Tranverse relaxation time (T2) of the free (f) pool",
                 "Tranverse relaxation time (T2) of the restricted (r) pool",
-                "B1+ corrected longitudinal relaxation time (T1) map"
+                "B1+ corrected longitudinal relaxation time (T1) map",
+		"Effective transverse relaxation time (T2*)"
             ],
         "warning_suffixBIDS": "The suffixBIDS field does NOT have to be a unique array, however, MUST respect the correcsponding BIDS suffix (if available) & the respective outputs entry.",
         "suffixBIDS":
@@ -40,7 +42,8 @@
                 "T2MWmap",
                 "T2Fmap",
                 "T2Rmap",
-                "T1map"
+                "T1map",
+		"T2starmap"
             ],
         "warning_isOfficialBIDS": "Based on: https://bids-specification.readthedocs.io/en/stable/",
         "isOfficialBIDS":
@@ -53,7 +56,8 @@
                 false,
                 false,
                 false,
-                true
+                true,
+		true
             ],
         "warning_folderBIDS": "Anything that is not dwi or fmap is anat. At least as of 2021 (BIDS v1.5.0).", 
         "folderBIDS":
@@ -66,7 +70,8 @@
                 "anat",
                 "anat",
                 "anat",
-                "anat"
+                "anat",
+		"anat"
             ],
             "descBIDS":
             [
@@ -78,7 +83,8 @@
                 "",
                 "",
                 "",
-                "b1corrected"
+                "b1corrected",
+		""
             ]
     },
 
@@ -496,7 +502,8 @@
         "ObjectiveFun",
         "Filtered",
         "MTSATcor",
-	"M0cor"
+	"M0cor",
+	"GradZ"
             ],
 	"qMapNames":
             [
@@ -532,7 +539,8 @@
         "Likelihood of the values of the objective function for each parameter combination in the grid search.",
         "Filtered B1 map",
         "B1 corrected MTSAT map",
-	"B1 corrected M0 map"
+	"B1 corrected M0 map",
+	"Gradient along Z direction"
             ],
     "suffixBIDS":
     [
@@ -568,7 +576,8 @@
         "GridSearchLik",
         "TB1map",
         "MTsat",
-	"M0"
+	"M0",
+	"GradZ"
     ],
     "isOfficialBIDS":
     [
@@ -604,7 +613,8 @@
         false,
         true,
         true,
-	true
+	true,
+	false
     ],
     "folderBIDS":
     [
@@ -640,7 +650,8 @@
         "dwi",
         "fmap",
         "anat",
-	"anat"
+	"anat",
+	"fmap"
     ],
     "descBIDS":
     [
@@ -676,7 +687,8 @@
         "",
         "filtered",
         "b1corrected",
-	"b1corrected"
+	"b1corrected",
+	""
     ]
     },
 
