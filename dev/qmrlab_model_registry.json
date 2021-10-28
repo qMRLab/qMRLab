@@ -551,11 +551,11 @@
 
     "mono_t2star": {
         "ModelPath": "T2_relaxometry/",
-        "Citation":"https://doi.org/10.1371/journal.pone.0145255",
+        "Citation":"https://doi.org/10.1016/j.neuroimage.2012.01.053",
         "InputDataUnits":
         {   
-            "DATAmag": "arbitrary",
-	    "DATAphase": "arbitrary"
+            "Magn": "arbitrary",
+	    "Phase": "arbitrary"
         },
         "InputProtUnits":
         {
