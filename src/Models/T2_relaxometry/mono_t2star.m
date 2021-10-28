@@ -5,8 +5,10 @@ classdef mono_t2star < AbstractModel
     %   Mono-exponential fit
     %
     % Inputs:
-    %   DATAmag/DATAphase   Multi-echo spin-echo magnitude/phase data, 4D volume
-    %                       with different echo times in time dimension
+    %   Magn            Multi-echo spin-echo magnitude data, 4D volume
+    %                   with different echo times in time dimension
+    %   Phase           Multi-echo spin-echo phase data, 4D volume
+    %                   with different echo times in time dimension
     %
     % Outputs:
     %   T2starmap       Effective transverse relaxation time [s]
@@ -43,8 +45,8 @@ classdef mono_t2star < AbstractModel
     %   Model = mono_t2star;  % Create class from model
     %   Model.Prot.SEData.Mat=[6.44  9.76  13.08  16.4  19.72  23.04]';
     %   data = struct;  % Create data structure
-    %   data.DATAmag = double(load_nii_data('magnitude.nii.gz'));
-    %   data.DATAphase = double(load_nii_data('phase.nii.gz'));
+    %   data.Magn = double(load_nii_data('Magn.nii.gz'));
+    %   data.Phase = double(load_nii_data('Phase.nii.gz'));
     %   FitResults = FitData(data,Model); %fit data
     %   FitResultsSave_mat(FitResults);
     %
@@ -56,15 +58,11 @@ end
 
     
     properties
-        MRIinputs = {'DATAmag','DATAphase'}; % used in the data panel
+        MRIinputs = {'Magn','Phase'}; % used in the data panel
         
         % fitting options
         xnames = { 'T2starmap','GradZ','B0map'}; % name of the parameters to fit
         voxelwise = 0; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
-        st           = [ 100	1000 ]; % starting point
-        lb            = [  1      1 ]; % lower bound
-        ub           = [ 300        10000 ]; % upper bound
-        fx            = [ 0       0 ]; % fix parameters
         
         % Protocol
         Prot  = struct('SEdata',struct('Format',{{'EchoTime'}},...
@@ -85,7 +83,7 @@ end
     methods
         function obj = mono_t2star()
             obj.options = button2opts(obj.buttons);
-            obj.onlineData_url = obj.getLink('https://osf.io/ab537/download?version=1','https://osf.io/ab537/download?version=1','https://osf.io/ab537/download?version=1');
+            obj.onlineData_url = obj.getLink('https://osf.io/ab537/download?version=2','https://osf.io/ab537/download?version=2','https://osf.io/ab537/download?version=2');
             % Prot values at the time of the construction determine 
             % what is shown to user in CLI/GUI.
             obj = setUserProtUnits(obj);
@@ -114,8 +112,8 @@ end
         function FitResults = fit(obj,data)
                 echo_time = obj.Prot.SEdata.Mat;
                 echo_time = echo_time';
-                multiecho_magn = data.DATAmag;
-                multiecho_phase = data.DATAphase;
+                multiecho_magn = data.Magn;
+                multiecho_phase = data.Phase;
                 
                 %Intensity under which pixels are masked
                 thresh_mask = obj.options.FrequencyMap_MASKthreshold;
