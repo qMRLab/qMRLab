@@ -102,7 +102,7 @@ end
             for ll = 1:length(disablelist)
                 indtodisable = find(strcmp(obj.buttons,disablelist{ll}) | strcmp(obj.buttons,['##' disablelist{ll}]));
                 if disable(ll)
-                    obj.buttons{indtodisable} = ['##' disablelist{ll}];
+                    obj.buttons{indtodisable} = [disablelist{ll}];
                 else
                     obj.buttons{indtodisable} = [disablelist{ll}];
                 end
