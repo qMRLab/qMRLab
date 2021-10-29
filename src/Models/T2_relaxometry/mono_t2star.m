@@ -83,7 +83,7 @@ end
     methods
         function obj = mono_t2star()
             obj.options = button2opts(obj.buttons);
-            obj.onlineData_url = obj.getLink('https://osf.io/ab537/download?version=2','https://osf.io/ab537/download?version=2','https://osf.io/ab537/download?version=2');
+            obj.onlineData_url = obj.getLink('https://osf.io/tbecd/download?version=1','https://osf.io/ab537/download?version=2','https://osf.io/ab537/download?version=2');
             % Prot values at the time of the construction determine 
             % what is shown to user in CLI/GUI.
             obj = setUserProtUnits(obj);
