@@ -452,7 +452,11 @@ if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 
 if ~moxunit_util_platform_is_octave
    
-   p = gcp('nocreate');
+   try
+    p = gcp('nocreate');
+   catch
+    p=[];
+   end
    if license('test','Distrib_Computing_Toolbox') && Model.voxelwise && isempty(p)
         cprintf('blue', 'MATLAB detected %d physical cores.',feature('numcores'));
         cprintf('blue', '<< Tip >> You can accelerate fitting by starting a parallel pool by running: \n parpool(%d);',feature('numcores'));
