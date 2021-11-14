@@ -1,0 +1,6 @@
+Code to allow you to visualize your 3D MRI data in matlab. 
+
+Original function taken from https://www.mathworks.com/matlabcentral/fileexchange/41334-imshow3d (see license in this folder). 
+This function was modified such that the optional 3rd argument is the colourmap for display (such as 'jet'). By default it will display in greyscale. 
+
+imshow3dseg.m is a modification of this code to permit the overlay of a segmentation ontop of a 3D image. Image will be displayed in greyscale, with the segmentation showing in a green line. 
