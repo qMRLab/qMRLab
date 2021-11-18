@@ -1,4 +1,4 @@
-function [MTsat_b1corr] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues)
+function [MTsat_b1corr, MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues)
 %% Sample code to correct B1+ inhomogeneity in MTsat maps 
 % Please see the README file to make sure you have the necessary MATLAB
 % packages to run this code.
@@ -46,12 +46,12 @@ b1 = data.B1map/100;
 % %% unring the images ( code here https://github.com/josephdviviano/unring)
 % % depending on how your images were collected/loaded, the final number in
 % % the line could be a 1,2 or 3. 
-% hfa_proc= unring3D(all_PCAcorr(:,:,:,1),3);
-% lfa_proc= unring3D(all_PCAcorr(:,:,:,2),3);
-% mtw_proc = unring3D(all_PCAcorr(:,:,:,3) ,3);
+% hfa = unring3D(all_PCAcorr(:,:,:,1),3);
+% lfa = unring3D(all_PCAcorr(:,:,:,2),3);
+% mtw = unring3D(all_PCAcorr(:,:,:,3) ,3);
 % 
 % % Use the code below to see if you got the right value 
-% figure; imshow3Dfull(mtw_proc, [150 600])
+% figure; imshow3Dfull(mtw, [150 600])
 % figure; imshow3Dfull(all_PCAcorr(:,:,:,3), [150 600])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -85,7 +85,7 @@ TR = MTparams(2); % -> USER DEFINED
 
 % calculate maps as per Helms et al 2008. 
 a_MTw_r = readout_flip /180 *pi;
-MTsat = (App.* (a_MTw_r*b1)./ mtw_proc - 1) .* (R1) .* TR - ((a_MTw_r*b1).^2)/2;
+MTsat = (App.* (a_MTw_r*b1)./ mtw - 1) .* (R1) .* TR - ((a_MTw_r*b1).^2)/2;
 
 % check result
 figure; imshow3Dfull(MTsat, [0 0.03],jet)

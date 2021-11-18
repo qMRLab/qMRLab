@@ -103,7 +103,10 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
             else
                 [FileName,PathName] = uigetfile('*.mat');
                 fitValues = load(fullfile(PathName,FileName));
-                [FitResult.MTsat_b1corr] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues);
+                [MTsat_b1corr,MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues);
+                FitResult.MTSATcor = MTsat_b1corr;
+                FitResult.MTSAT = MTsat;
+                FitResult.T1 = T1;
             end
         end
         
