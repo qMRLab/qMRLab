@@ -49,7 +49,7 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
         'style',repmat({'TableNoButton'},[1,3]));
         
         %Option panel: ModelBasedB1corrected parameters
-            buttons ={'PANEL','Sequence simulation',13,...
+            buttons ={'PANEL','Sequence simulation',14,...
             'B1rms',9,...
             'Number saturation pulse',2,...
             'Pulse duration',0.768,...
@@ -61,8 +61,12 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
             'Delta',7000,...
             'FlipAngle',9,...
             'Saturation pulse shape',{'hanning','gaussian','square'},...
+            'Saving fitValues','pushbutton',...
+            'fitValues Directory',10,...
             'Run Sequence Simulation','pushbutton',...
-            'Usesameimagingprotocol',false};
+            'PANEL','Correlate M0bapp VS R1',2,...
+            'Use Same Imaging Protocol',true...
+            'b1rms',6.8};
         
         
         options = struct();
@@ -85,6 +89,14 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
         end
         
         function [obj,fitValues] = UpdateFields(obj)
+            %Setting the fitValues directory
+            if obj.options.Sequencesimulation_SavingfitValues
+                obj.options.Sequencesimulation_fitValuesDirectory = uigetdir;
+            else
+                obj.options.Sequencesimulation_fitValuesDirectory = pwd;
+            end
+
+            %Running simulation (takes long time)
             if obj.options.Sequencesimulation_RunSequenceSimulation
                 [fitValues,~]=simSeq_M0b_R1obs(obj);
             end
@@ -95,7 +107,7 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
             PDparams = obj.Prot.PDw.Mat;
             T1params = obj.Prot.T1w.Mat;
             
-            if ~obj.options.Sequencesimulation_Usesameimagingprotocol
+            if ~obj.options.Sequencesimulation_UseSameImagingProtocol
                 [FileName,PathName] = uigetfile('*.mat');
                 fitValues = load(fullfile(PathName,FileName));
                 [FitResult.M0b,FitResult.fit_qual,FitResult.comb_res,fitValues]=sampleCode_calc_M0bappVsR1_1dataset(data,MTparams,PDparams,T1params,fitValues);
