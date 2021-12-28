@@ -64,7 +64,8 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
             'Saving fitValues','pushbutton',...
             'fitValues Directory',10,...
             'Run Sequence Simulation','pushbutton',...
-            'PANEL','Correlate M0bapp VS R1',1,...
+            'PANEL','Correlate M0bapp VS R1',2,...
+            'Same Imaging Protocol',false,...
             'b1rms',6.8};
         
         
@@ -106,24 +107,26 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
             PDparams = obj.Prot.PDw.Mat;
             T1params = obj.Prot.T1w.Mat;
             
-                if exist([obj.options.Sequencesimulation_fitValuesDirectory filesep 'fitValues.mat'],'file') == 2
-                    fitValues = load([obj.options.Sequencesimulation_fitValuesDirectory filesep 'fitValues.mat']);
-                else
-                    disp('Run a new sequence simulation or load <<fitValues.mat>> results from a previous simulation')
-                    [FileName,PathName] = uigetfile('*.mat','Load fitValues.mat');
-                    fitValues = load([PathName filesep FileName]);
-                    obj.options.Sequencesimulation_fitValuesDirectory = PathName;
-                end
-                [FitResult.M0b,FitResult.fit_qual,FitResult.comb_res,fitValues]=sampleCode_calc_M0bappVsR1_1dataset(data,MTparams,PDparams,T1params,fitValues);
-                [FitResult.MTsat_b1corr] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues);
-                
+            %Loading fitValues results from simulation
+            if exist([obj.options.Sequencesimulation_fitValuesDirectory filesep 'fitValues.mat'],'file') == 2
+                fitValues = load([obj.options.Sequencesimulation_fitValuesDirectory filesep 'fitValues.mat']);
+            else
                 disp('Run a new sequence simulation or load <<fitValues.mat>> results from a previous simulation')
-                [FileName,PathName] = uigetfile('*.mat');
-                fitValues = load(fullfile(PathName,FileName));
-                [MTsat_b1corr,MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues);
-                FitResult.MTSATcor = MTsat_b1corr;
-                FitResult.MTSAT = MTsat;
-                FitResult.T1 = T1;
+                [FileName,PathName] = uigetfile('*.mat','Load fitValues.mat');
+                fitValues = load([PathName filesep FileName]);
+                obj.options.Sequencesimulation_fitValuesDirectory = PathName;
+            end
+            
+            %Correlate M0b_app VS R1
+            if ~obj.options.CorrelateM0bappVSR1_SameImagingProtocol
+                [FitResult.M0b_app,FitResult.fit_qual,FitResult.comb_res,fitValues]=sampleCode_calc_M0bappVsR1_1dataset(data,MTparams,PDparams,T1params,fitValues,obj);
+            end
+            
+            %Correct MTsat data
+            [MTsat_b1corr,MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues,obj);
+            FitResult.MTSATcor = MTsat_b1corr;
+            FitResult.MTSAT = MTsat;
+            FitResult.T1 = T1;
         end
         
     end

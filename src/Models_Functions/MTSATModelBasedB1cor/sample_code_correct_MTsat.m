@@ -1,4 +1,4 @@
-function [MTsat_b1corr, MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues)
+function [MTsat_b1corr, MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues,obj)
 %% Sample code to correct B1+ inhomogeneity in MTsat maps 
 % Please see the README file to make sure you have the necessary MATLAB
 % packages to run this code.
@@ -15,7 +15,7 @@ function [MTsat_b1corr, MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDpa
 
 %% load images
 if ~exist('fitValues','var')
-    disp('No <fitValues.mat> file found, run simulation first')
+    disp('No <fitValues> found, run simulation first or check DataPath')
 end
 fitValues = fitValues.fitValues; % may or maynot need this line depending on how it saves
 
@@ -27,6 +27,7 @@ mtw = data.MTw;
 
 % B1 nominal and measured
 b1_rms = 2.36; % value in microTesla. Nominal value for the MTsat pulses  % -> USER DEFINED
+%b1_rms = obj.options.CorrelateM0bappVSR1_b1rms;
 
 % load B1 map
 b1 = data.B1map/100;

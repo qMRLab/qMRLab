@@ -1,4 +1,4 @@
-function [M0b_app,fit_qual,comb_res,fitValues] = sampleCode_calc_M0bappVsR1_1dataset(data,MTparams,PDparams,T1params,fitValues)
+function [M0b_app,fit_qual,comb_res,fitValues] = sampleCode_calc_M0bappVsR1_1dataset(data,MTparams,PDparams,T1params,fitValues,obj)
 %% Sample code to correct B1+ inhomogeneity in MTsat maps 
 
 % This script is to analyze MTw images obtained at different B1 pulse
@@ -15,7 +15,7 @@ function [M0b_app,fit_qual,comb_res,fitValues] = sampleCode_calc_M0bappVsR1_1dat
 % makes sure to find the file names/locations where you made the values.
 
 if ~exist('fitValues','var')
-    disp('No <fitValues> variable found, run simulation first or check DataPath')
+    disp('No <fitValues> found, run simulation first or check DataPath')
 end
 fitValues = fitValues.fitValues; % may or maynot need this line depending on how it saves
 
@@ -26,7 +26,8 @@ mtw = data.MTw;
 %% Set up b1 matrices
 
 % B1 nominal and measured -> USER DEFINED
-b1_rms = [6.8];  % value in microTesla. Nominal value for the MTsat pulses 
+%b1_rms = [6.8];  % value in microTesla. Nominal value for the MTsat pulses
+b1_rms = obj.options.CorrelateM0bappVSR1_b1rms; % value in microTesla. Nominal value for the MTsat pulses
 
 b1 = data.B1map/100;
 
@@ -207,7 +208,7 @@ ft = fittype('poly1');
     
 %% Now add these regression equations to the fitValues structure and save. 
 fitValues.Est_M0b_from_R1 = strcat( num2str(fitvals_Msat(1)),' *Raobs + ',num2str(fitvals_Msat(2)));
-fitValue_fn = [obj.DataPath filesep 'fitValues.mat'];
+fitValue_fn = [obj.options.Sequencesimulation_fitValuesDirectory filesep 'fitValues.mat'];
 save(fitValue_fn,'fitValues')
 
 end
