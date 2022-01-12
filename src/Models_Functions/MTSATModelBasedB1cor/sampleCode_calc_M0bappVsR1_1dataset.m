@@ -29,15 +29,7 @@ mtw = data.MTw;
 %b1_rms = [6.8];  % value in microTesla. Nominal value for the MTsat pulses
 b1_rms = obj.options.CorrelateM0bappVSR1_b1rms; % value in microTesla. Nominal value for the MTsat pulses
 
-b1 = data.B1map/100;
-
-% filter the b1 map if you wish. 
-%b1 = imgaussfilt3(b1,1);
-
-% check the quality of the map, and make sure it is oriented the same as
-% your other images (and same matrix size. if not you may need to pad the
-% image). 
-%figure; imshow3Dfull(b1, [0.7 1.2],jet)
+b1 = data.B1map;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
@@ -54,13 +46,15 @@ b1 = data.B1map/100;
 % mtw = unring3D(all_PCAcorr(:,:,:,3), 3);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-% Generate a brain mask to remove background
-mask = zeros(size(lfa)); 
-threshold = 175; % -> USER DEFINED
-mask (lfa >threshold) = 1;  % check your threshold here, data dependent. You could also load a mask made externally instead. 
-
-% check it 
-%figure; imshow3Dfullseg(lfa, [150 600], mask)
+% Brain mask to remove background (optional)
+if isfield(data,'Mask') && (~isempty(data.Mask))
+    mask = data.Mask;
+else
+    mask = ones(size(lfa));
+end
+%mask = zeros(size(lfa)); 
+%threshold = 175; % -> USER DEFINED
+%mask (lfa >threshold) = 1;  % check your threshold here, data dependent. You could also load a mask made externally instead. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Begin MTsat calculation 
@@ -100,9 +94,6 @@ a_MTw_r = readout_flip /180 *pi;
 % calculate maps as per Helms et al 2008. Note: b1 is included here for flip angle
 MTsat = (App.* (a_MTw_r*b1)./ mtw - 1) .* (R1) .* TR - ((a_MTw_r*b1).^2)/2;
 
-% check them, did it work?
-%figure; imshow3Dfull(MTsat, [0 0.03],jet)
-
 %fix limits - helps with background noise
 MTsat(MTsat<0) = 0;
 
@@ -122,7 +113,7 @@ comb_res = zeros(size(lfa));
 disp('starting fitting via parfor')
 
 % find indices of valid voxels
-q = find( (mask(:)>0));
+q = find( (App(:)>0));
 
 % make input arrays (length(q),1) from 3D volumes
 b1_ = b1(q);
@@ -169,8 +160,8 @@ comb_res(q) = comb;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Now make some plots of my fitted maps to see how they correlate with R1 values
 
-R1_p = R1(mask>0);
-M0b_p = M0b_app(mask>0);
+R1_p = R1(App>0);
+M0b_p = M0b_app(App>0);
 
 plot_con = cat(2, R1_p,M0b_p); 
 contrast_fit = zeros(1,2);

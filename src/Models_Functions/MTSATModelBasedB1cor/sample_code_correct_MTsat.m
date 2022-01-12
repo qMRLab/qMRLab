@@ -1,4 +1,4 @@
-function [MTsat_b1corr, MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues,obj)
+function [MTsat_b1corr, MTsatuncor,R1,R1uncor] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues,obj)
 %% Sample code to correct B1+ inhomogeneity in MTsat maps 
 % Please see the README file to make sure you have the necessary MATLAB
 % packages to run this code.
@@ -26,14 +26,11 @@ mtw = data.MTw;
 %% Load B1 map and set up b1 matrices
 
 % B1 nominal and measured
-b1_rms = 2.36; % value in microTesla. Nominal value for the MTsat pulses  % -> USER DEFINED
-%b1_rms = obj.options.CorrelateM0bappVSR1_b1rms;
+% b1_rms = 2.36; % value in microTesla. Nominal value for the MTsat pulses  % -> USER DEFINED
+b1_rms = obj.options.CorrelateM0bappVSR1_b1rms;
 
 % load B1 map
-b1 = data.B1map/100;
-
-% filter the b1 map if you wish. 
-%b1 = imgaussfilt3(b1,1);
+b1 = data.B1map;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 % % include any preprocessing steps here such as MP-PCA denoising, and
@@ -56,9 +53,12 @@ b1 = data.B1map/100;
 % figure; imshow3Dfull(all_PCAcorr(:,:,:,3), [150 600])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-% Generate a brain mask to remove background
-mask = zeros(size(lfa)); 
-mask (lfa >175) = 1;  % check your threshold here, data dependent. You could also load a mask made externally instead. 
+% Brain mask to remove background (optional)
+if isfield(data,'Mask') && (~isempty(data.Mask))
+    mask = data.Mask;
+else
+    mask = ones(size(lfa));
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Begin MTsat calculation 
@@ -67,29 +67,42 @@ mask (lfa >175) = 1;  % check your threshold here, data dependent. You could als
 %% Calculate A0 and R1
 low_flip_angle = PDparams(1);    % flip angle in degrees % -> USER DEFINED
 high_flip_angle = T1params(1);  % flip angle in degrees % -> USER DEFINED
-TR = PDparams(2)*1000;               % repetition time of the GRE kernel in milliseconds % -> USER DEFINED
+TR1 = PDparams(2)*1000;         % low flip angle repetition time of the GRE kernel in milliseconds -> USER DEFINED
+TR2 = T1params(2)*1000;         % high flip angle repetition time of the GRE kernel in milliseconds -> USER DEFINED
+%TR = PDparams(2)*1000;               % repetition time of the GRE kernel in milliseconds % -> USER DEFINED
 
 a1 = low_flip_angle*pi/180 .* b1;
-a2 = high_flip_angle*pi/180 .* b1; 
+a2 = high_flip_angle*pi/180 .* b1;
 
-R1 = 0.5 .* (hfa.*a2./ TR - lfa.*a1./TR) ./ (lfa./(a1) - hfa./(a2));
+% New code Aug 4, 2021 CR for two TR's
+R1 = 0.5 .* (hfa.*a2./ TR2 - lfa.*a1./TR1) ./ (lfa./(a1) - hfa./(a2));
+App = lfa .* hfa .* (TR1 .* a2./a1 - TR2.* a1./a2) ./ (hfa.* TR1 .*a2 - lfa.* TR2 .*a1);
+
+% Uncorrected R1
+a1uncor = low_flip_angle*pi/180;
+a2uncor = high_flip_angle*pi/180;
+R1uncor = 0.5 .* (hfa.*a2uncor./ TR2 - lfa.*a1uncor./TR1) ./ (lfa./(a1uncor) - hfa./(a2uncor));
+
+% Old code for single TR only
+%R1 = 0.5 .* (hfa.*a2./ TR - lfa.*a1./TR) ./ (lfa./(a1) - hfa./(a2));
+%App = lfa .* hfa .* (TR .* a2./a1 - TR.* a1./a2) ./ (hfa.* TR .*a2 - lfa.* TR .*a1);
+
 R1 = R1.*mask;
+R1uncor = R1uncor.*mask;
 T1 = 1/R1  .* mask;
-
-App = lfa .* hfa .* (TR .* a2./a1 - TR.* a1./a2) ./ (hfa.* TR .*a2 - lfa.* TR .*a1);
 App = App .* mask;
 
 %% Generate MTsat maps for the MTw images. 
 % Inital Parameters
 readout_flip = MTparams(1); % flip angle used in the MTw image, in degrees % -> USER DEFINED
 TR = MTparams(2); % -> USER DEFINED
-
-% calculate maps as per Helms et al 2008. 
 a_MTw_r = readout_flip /180 *pi;
+
+% calculate maps as per Helms et al 2008. Note: b1 is included here for flip angle
 MTsat = (App.* (a_MTw_r*b1)./ mtw - 1) .* (R1) .* TR - ((a_MTw_r*b1).^2)/2;
 
-% check result
-figure; imshow3Dfull(MTsat, [0 0.03],jet)
+% calculate maps as per Helms et al 2008. Note: no correction at all
+MTsatuncor = (App.* (a_MTw_r)./ mtw - 1) .* (R1) .* TR - ((a_MTw_r).^2)/2;
 
 %fix limits for background
 MTsat(MTsat<0) = 0;
