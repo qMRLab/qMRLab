@@ -14,9 +14,6 @@ function [M0b_app,fit_qual,comb_res,fitValues] = sampleCode_calc_M0bappVsR1_1dat
 % load in the fit results from simSeq_M0b_R1obs.m
 % makes sure to find the file names/locations where you made the values.
 
-if ~exist('fitValues','var')
-    disp('No <fitValues> found, run simulation first or check DataPath')
-end
 fitValues = fitValues.fitValues; % may or maynot need this line depending on how it saves
 
 hfa = data.T1w;

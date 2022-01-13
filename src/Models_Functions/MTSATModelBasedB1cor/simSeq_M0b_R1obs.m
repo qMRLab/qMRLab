@@ -183,8 +183,8 @@ figure; imshow3Dfull(z - MTsat_sim, [-0.005 0.005],jet)
 % figure; imshow3Dfull(MTsat_sim, [0 0.1],jet)
 
 % save the fit values for use based on filenames
-fitValue_fn = [obj.options.Sequencesimulation_fitValuesDirectory filesep 'fitValues.mat']; % location and name of fitValues file to be saved
-MTsatValue_fn = [obj.options.Sequencesimulation_fitValuesDirectory filesep 'MTsatvalues.mat']; %save the computationally expensive results, incase fit needs to be adjusted
+fitValue_fn = strcat(obj.options.Sequencesimulation_fitValuesDirectory, filesep, obj.options.Sequencesimulation_fitValuesName, '.mat'); % location and name of fitValues file to be saved
+MTsatValue_fn = strcat(obj.options.Sequencesimulation_fitValuesDirectory, filesep, obj.options.Sequencesimulation_MTsatValuesName, '.mat'); %save the computationally expensive results, incase fit needs to be adjusted
 
 save(fitValue_fn,'fitValues')
 save(MTsatValue_fn,'MTsat_sim')
