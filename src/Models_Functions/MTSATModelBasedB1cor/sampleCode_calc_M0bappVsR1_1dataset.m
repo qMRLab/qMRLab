@@ -66,20 +66,25 @@ high_flip_angle = T1params(1);  % flip angle in degrees -> USER DEFINED
 TR1 = PDparams(2)*1000;         % low flip angle repetition time of the GRE kernel in milliseconds -> USER DEFINED
 TR2 = T1params(2)*1000;         % high flip angle repetition time of the GRE kernel in milliseconds -> USER DEFINED
 
+Inds = find(lfa & hfa & mtw);
+MTsat = double(zeros(size(mtw)));
+
 a1 = low_flip_angle*pi/180 .* b1; % note the inclusion of b1 here.
-a2 = high_flip_angle*pi/180 .* b1; 
+a2 = high_flip_angle*pi/180 .* b1;
 
 % New code Aug 4, 2021 CR for two TR's
-R1 = 0.5 .* (hfa.*a2./ TR2 - lfa.*a1./TR1) ./ (lfa./(a1) - hfa./(a2));
-App = lfa .* hfa .* (TR1 .* a2./a1 - TR2.* a1./a2) ./ (hfa.* TR1 .*a2 - lfa.* TR2 .*a1);
+R1 = zeros(size(mtw));
+App = zeros(size(mtw));
+R1(Inds) = 0.5 .* (hfa(Inds).*a2(Inds)./ TR2 - lfa(Inds).*a1(Inds)./TR1) ./ (lfa(Inds)./(a1(Inds)) - hfa(Inds)./(a2(Inds)));
+App(Inds) = lfa(Inds) .* hfa(Inds) .* (TR1 .* a2(Inds)./a1(Inds) - TR2.* a1(Inds)./a2(Inds)) ./ (hfa(Inds).* TR1 .*a2(Inds) - lfa(Inds).* TR2 .*a1(Inds));
 
 % Old code for single TR only
 %R1 = 0.5 .* (hfa.*a2./ TR - lfa.*a1./TR) ./ (lfa./(a1) - hfa./(a2));
 % App = lfa .* hfa .* (TR .* a2./a1 - TR.* a1./a2) ./ (hfa.* TR .*a2 - lfa.* TR .*a1);
 
 R1 = R1.*mask;
-T1 = 1/R1  .* mask;
-App = App .* mask;
+T1 = 1/R1.*mask;
+App = App.*mask;
 
 %check them
 figure; imshow3Dfull(T1, [0 3500],jet)
@@ -89,10 +94,10 @@ figure; imshow3Dfull(App , [2500 6000])
 % Inital Parameters
 readout_flip = MTparams(1); % flip angle used in the MTw image, in degrees -> USER DEFINED
 TR = MTparams(2)*1000; % -> USER DEFINED
-a_MTw_r = readout_flip /180 *pi;
+a_MTw_r = readout_flip*pi/180 .* b1;
 
-% calculate maps as per Helms et al 2008. Note: b1 is included here for flip angle
-MTsat = (App.* (a_MTw_r*b1)./ mtw - 1) .* (R1) .* TR - ((a_MTw_r*b1).^2)/2;
+% calculate maps as per Helms et al 2008. Note: b1 (excitation pulse) is included here for flip angle
+MTsat(Inds) = (App(Inds).* (a_MTw_r(Inds))./ mtw(Inds) - ones(size(mtw(Inds)))) .* (R1(Inds)) .* TR - ((a_MTw_r(Inds)).^2)/2;
 
 %fix limits - helps with background noise
 MTsat(MTsat<0) = 0;
@@ -113,7 +118,7 @@ comb_res = zeros(size(lfa));
 disp('starting fitting via parfor')
 
 % find indices of valid voxels
-q = find( (App(:)>0));
+q = find( (R1(:)>0));
 
 % make input arrays (length(q),1) from 3D volumes
 b1_ = b1(q);
@@ -177,9 +182,8 @@ ft = fittype('poly1');
     contrast_fit(1,1) = R(2,1);
     contrast_fit(1,2) = P(2,1);
     fitvals_Msat = coeffvalues(M0b_d_fit);
-        
-    figure;
-    scatter(tmp_r1,tmp, 1,'.')
+    
+    figfit = scatter(tmp_r1,tmp, 1,'.');
     xlim([0.35 1.5])
     ylim([0 0.16])
     hold on
@@ -194,7 +198,7 @@ ft = fittype('poly1');
     ylabel('M_{0,app}^B', 'FontSize', 20, 'FontWeight', 'bold')
     %colorbar('off')
     legend('hide')
-    saveas(gcf,strcat(fitvalsDir,'M0bvsR1.png'))
+    saveas(figfit,[obj.options.Sequencesimulation_fitValuesDirectory filesep 'M0bvsR1.png'])
   
     
 %% Now add these regression equations to the fitValues structure and save. 

@@ -123,10 +123,11 @@ classdef mt_sat_ModelBasedB1corrected < AbstractModel
             end
             
             %Correct MTsat data
-            [MTsat_b1corr,MTsat,T1] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues,obj);
+            [MTsat_b1corr, MTsatuncor,R1,R1uncor] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues,obj);
             FitResult.MTSATcor = MTsat_b1corr;
-            FitResult.MTSAT = MTsat;
-            FitResult.T1 = T1;
+            FitResult.MTSAT = MTsatuncor;
+            FitResult.T1cor = 1./R1;
+            FitResult.T1 = 1./R1uncor;
         end
         
     end
