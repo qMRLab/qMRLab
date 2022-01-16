@@ -14,7 +14,7 @@ function [M0b_app,fit_qual,comb_res,fitValues] = sampleCode_calc_M0bappVsR1_1dat
 % load in the fit results from simSeq_M0b_R1obs.m
 % makes sure to find the file names/locations where you made the values.
 
-fitValues = fitValues.fitValues; % may or maynot need this line depending on how it saves
+%fitValues = fitValues.fitValues; % may or maynot need this line depending on how it saves
 
 hfa = data.T1w;
 lfa = data.PDw;
@@ -128,7 +128,7 @@ mob = q.*0; fitq = mob; comb = mob;
 if license('test','distrib_computing_toolbox')
     parfor qi = 1:length(q)
         try
-             [mob(qi), fitq(qi), comb(qi)] = CR_fit_M0b_v1( b1_rms*b1_(qi), R1_s(qi), mtsat(qi),fitValues);
+             [mob(qi), fitq(qi), comb(qi)] = CR_fit_M0b_v1( b1_rms*b1_(qi), R1_s(qi), mtsat(qi),fitValues.fitValues);
         catch ME
             disp(['qi:' num2str(qi) '; q: ' num2str(q(qi))])
             disp(ME.message)
@@ -138,7 +138,7 @@ else
 
     for qi = 1:length(q)
         try
-             [mob(q), fitq(q), comb(q)]  = CR_fit_M0b_v1( b1_rms*b1_(q), R1_s(q), mtsat(q),fitValues);
+             [mob(q), fitq(q), comb(q)]  = CR_fit_M0b_v1( b1_rms*b1_(q), R1_s(q), mtsat(q),fitValues.fitValues);
         catch ME
             disp(['qi:' num2str(qi) '; q: ' num2str(q(qi))])
             disp(ME.message)
@@ -199,8 +199,10 @@ ft = fittype('poly1');
   
     
 %% Now add these regression equations to the fitValues structure and save. 
-fitValues.Est_M0b_from_R1 = strcat( num2str(fitvals_Msat(1)),' *Raobs + ',num2str(fitvals_Msat(2)));
-fitValue_fn = [obj.options.Sequencesimulation_fitValuesDirectory filesep 'fitValues.mat'];
+fitValues.fitValues.Est_M0b_from_R1 = strcat( num2str(fitvals_Msat(1)),' *Raobs + ',num2str(fitvals_Msat(2)));
+fitValues = fitValues.fitValues;
+fitValue_fn = strcat(obj.options.Sequencesimulation_fitValuesDirectory, filesep, obj.options.Sequencesimulation_fitValuesName);
 save(fitValue_fn,'fitValues')
+fitValues.fitValues = fitValues;
 
 end

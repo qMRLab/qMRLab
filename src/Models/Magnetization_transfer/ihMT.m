@@ -114,28 +114,58 @@ classdef ihMT < AbstractModel
         function FitResult = fit(obj,data)
             %Loading fitValues results from simulation
             disp('Run a new sequence simulation or load <<fitValues.mat>> results from a previous simulation')
-            [FileName,PathName] = uigetfile('*.mat','Load fitValues structure');
-            fitValues = load([PathName filesep FileName]);
-            obj.options.Sequencesimulation_fitValuesDirectory = PathName;
-            obj.options.Sequencesimulation_fitValuesName = FileName;
+            [FileName_dual,PathName_dual] = uigetfile('*.mat','Load fitValues structure - DUAL');
+            [FileName_single,PathName_single] = uigetfile('*.mat','Load fitValues structure - SINGLE');
+            
+            fitValues_dual = load([PathName_dual filesep FileName_dual]);
+            fitValues_single = load([PathName_single filesep FileName_single]);
             
             %strcat(obj.options.Sequencesimulation_fitValuesDirectory, filesep, obj.options.Sequencesimulation_fitValuesName, '.mat')
             
-            MTparams = obj.Prot.MTw.Mat;
+            MTparams = obj.Prot.MTw_dual.Mat;
             PDparams = obj.Prot.PDw.Mat;
             T1params = obj.Prot.T1w.Mat;
+            
+            data_dual = rmfield(data,'MTw_single');
+            data_dual.MTw = data_dual.MTw_dual;
+            data_single = rmfield(data,'MTw_dual');
+            data_single.MTw = data_single.MTw_single;
 
             %Correlate M0b_app VS R1
             if ~obj.options.CorrelateM0bappVSR1_SameImagingProtocol
-                [FitResult.M0b_app,FitResult.fit_qual,FitResult.comb_res,fitValues]=sampleCode_calc_M0bappVsR1_1dataset(data,MTparams,PDparams,T1params,fitValues,obj);
+                %Process MTsat dual
+                obj.options.Sequencesimulation_fitValuesDirectory = PathName_dual;
+                obj.options.Sequencesimulation_fitValuesName = FileName_dual;
+                [FitResult.M0b_app_dual,FitResult.fit_qual_d,FitResult.comb_res_d,fitValues_dual]=sampleCode_calc_M0bappVsR1_1dataset(data_dual,MTparams,PDparams,T1params,fitValues_dual,obj);
+                
+                %Process MTsat single
+                obj.options.Sequencesimulation_fitValuesDirectory = PathName_single;
+                obj.options.Sequencesimulation_fitValuesName = FileName_single;
+                [FitResult.M0b_app_single,FitResult.fit_qual_s,FitResult.comb_res_s,fitValues_single]=sampleCode_calc_M0bappVsR1_1dataset(data_single,MTparams,PDparams,T1params,fitValues_single,obj);
             end
             
             %Correct MTsat data
-            [MTsat_b1corr, MTsatuncor,R1,R1uncor] = sample_code_correct_MTsat(data,MTparams,PDparams,T1params,fitValues,obj);
-            FitResult.MTSATcor = MTsat_b1corr;
-            FitResult.MTSAT = MTsatuncor;
-            FitResult.T1cor = 1./R1;
-            FitResult.T1 = 1./R1uncor;
+            %Process MTsat dual
+            obj.options.Sequencesimulation_fitValuesDirectory = PathName_dual;
+            obj.options.Sequencesimulation_fitValuesName = FileName_dual;
+            [MTsat_b1corr_dual, MTsatuncor_dual,R1_dual,R1uncor_dual] = sample_code_correct_MTsat(data_dual,MTparams,PDparams,T1params,fitValues_dual,obj);
+            FitResult.MTSATcor_dual = MTsat_b1corr_dual;
+            FitResult.MTSAT_dual = MTsatuncor_dual;
+            FitResult.T1cor_dual = 1./R1_dual;
+            FitResult.T1_dual = 1./R1uncor_dual;
+            
+            %Process MTsat single
+            obj.options.Sequencesimulation_fitValuesDirectory = PathName_single;
+            obj.options.Sequencesimulation_fitValuesName = FileName_single;
+            [MTsat_b1corr_single, MTsatuncor_single,R1_single,R1uncor_single] = sample_code_correct_MTsat(data_single,MTparams,PDparams,T1params,fitValues_single,obj);
+            FitResult.MTSATcor_single = MTsat_b1corr_single;
+            FitResult.MTSAT_single = MTsatuncor_single;
+            FitResult.T1cor_single = 1./R1_single;
+            FitResult.T1_single = 1./R1uncor_single;
+            
+            %ihMTsat map
+            FitResult.ihMTsatcor = MTsat_b1corr_dual - MTsat_b1corr_single;
+            FitResult.ihMTsat = MTsatuncor_dual - MTsatuncor_single;
         end
         
     end
