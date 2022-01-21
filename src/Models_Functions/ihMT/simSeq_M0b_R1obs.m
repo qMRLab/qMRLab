@@ -1,4 +1,4 @@
-function [fitValues, MTsat_sim] = simSeq_M0b_R1obs(obj)
+function [fitValues, MTsat_sim] = simSeq_M0b_R1obs(obj,SimProt,M0b,T1obs)
 %% Simulate sequence and generate fitequation to cover the spectrum of MTsat
 % results for varying B1rms, R1obs and M0b. 
 % Please consult README document first to be sure you have downloaded all
@@ -6,55 +6,14 @@ function [fitValues, MTsat_sim] = simSeq_M0b_R1obs(obj)
 
 % This script can take ~ 3 hours to run. 
 %% Set the variables to loop over
-
-b1rms = obj.options.Sequencesimulation_B1rms; %b1rms of one of the applied MT pulse in microTesla -> USER DEFINED
-
-M0b = 0:0.025:0.20;
-T1obs = horzcat(0.6:0.05:1.4,1.5:0.2:4.5); %600ms to 4500ms to cover WM to CSF. 
 Raobs = 1./T1obs;
+b1rms = SimProt.b1; %b1rms of one of the applied MT pulse in microTesla -> USER DEFINED
 % generate b1 vector
 b1 = linspace(0,b1rms*1.3,15); 
+
 %% Sequence Parameters -> USER DEFINED SECTION
-% values below were used for sample data
-Params.b1 = b1(1); % microTesla
-Params.numSatPulse = obj.options.Sequencesimulation_Numbersaturationpulse;
-Params.pulseDur = obj.options.Sequencesimulation_Pulseduration/1000; %duration of 1 MT pulse in seconds
-Params.pulseGapDur = obj.options.Sequencesimulation_Pulsegapduration/1000; %ms gap between MT pulses in train
-Params.TR = obj.options.Sequencesimulation_TR/1000; % total repetition time = MT pulse train and readout.
-Params.WExcDur = obj.options.Sequencesimulation_WExcDur/1000; % duration of water pulse
-Params.numExcitation = obj.options.Sequencesimulation_Numberexcitation; % number of readout lines/TR
-Params.freqPattern = obj.options.Sequencesimulation_Frequencypattern; % options: 'single', 'dualAlternate', 'dualContinuous'
-Params.delta = obj.options.Sequencesimulation_Delta;
-Params.flipAngle = obj.options.Sequencesimulation_FlipAngle; % excitation flip angle water.
-Params.SatPulseShape = obj.options.Sequencesimulation_Saturationpulseshape; % options: 'hanning', 'gaussian', 'square'
-
-% % 2kHz MTsat protocol used % 
-% b1 = 0:0.5:5;
-% Params.b1 = 0; % microTesla
-% Params.numSatPulse = 1;
-% Params.pulseDur = 12/1000; %duration of 1 MT pulse in seconds
-% Params.pulseGapDur = 0.6/1000; %ms gap between MT pulses in train
-% Params.TR = 28/1000; % total repetition time = MT pulse train and readout.
-% Params.WExcDur = 3/1000; % duration of water pulse
-% Params.numExcitation = 1; % number of readout lines/TR
-% Params.freqPattern = 'single'; % options: 'single', 'dualAlternate', 'dualContinuous'
-% Params.delta = 2000;
-% Params.flipAngle = 9; % excitation flip angle water.
-% Params.SatPulseShape = 'gaussian';
-%% Average values for GM and WM from Sled and Pike (2001):
-
-Params.R = 26;
-Params.T2a = 70e-3; 
-Params.T1D = 6e-3; % Varma 2017
-Params.lineshape = 'superLor'; % 'gaussian' or 'superLor';
-Params.M0a = 1;
-Params.Rb = 1;
-Params.T2b = 12e-6; 
-
-% Loop variables:
-Params.M0b =  []; % going to loop over this
-Params.Raobs = [];
-Params.Ra = [];
+% values of the Sequence Simulation
+Params = SimProt;
 
 %% Run the simulation
 GRE_sig = zeros(size(b1,2),size(M0b,2),size(Raobs,2));
@@ -81,6 +40,9 @@ for i = 1:size(b1,2) % took nearly 5 hours for matrix 25x41x33.
     i/size(b1,2) *100  % print percent done...
     toc
 end
+Params.b1 = b1rms;
+Params.M0b = M0b;
+Params.Raobs = Raobs;
 
 %% MTsat calculation
 %reformat Aapp and R1app matrices for 3D calculation
