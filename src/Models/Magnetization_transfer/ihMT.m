@@ -28,7 +28,7 @@ classdef ihMT < AbstractModel
     %     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
     %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
     properties (Hidden=true)
-        onlineData_url = '';
+        onlineData_url = 'https://osf.io/3s9xe/download?version=2';
     end
     
     properties
