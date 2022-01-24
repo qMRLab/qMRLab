@@ -127,8 +127,8 @@ new_mask(Inds) = 1;
 MTsat_b1corr  = MTsat_b1exc_cor  .* (1+ CF_MTsat)  .* new_mask;
 
 % display the corrected and uncorrected for comparison
-figure; imshow3Dfull(MTsatuncor, [0 0.03],jet);
-figure; imshow3Dfull(MTsat_b1exc_cor, [0 0.03],jet);
-figure; imshow3Dfull(MTsat_b1corr, [0 0.03],jet)
+%figure; imshow3Dfull(MTsatuncor, [0 0.03],jet);
+%figure; imshow3Dfull(MTsat_b1exc_cor, [0 0.03],jet);
+%figure; imshow3Dfull(MTsat_b1corr, [0 0.03],jet)
 
 end
