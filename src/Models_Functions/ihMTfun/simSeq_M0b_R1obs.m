@@ -1,8 +1,6 @@
 function [fitValues, MTsat_sim] = simSeq_M0b_R1obs(obj,SimProt,M0b,T1obs)
 %% Simulate sequence and generate fitequation to cover the spectrum of MTsat
 % results for varying B1rms, R1obs and M0b. 
-% Please consult README document first to be sure you have downloaded all
-% necessary packages. 
 
 % This script can take ~ 3 hours to run. 
 %% Set the variables to loop over
@@ -138,11 +136,8 @@ Raobs = Raobs_mesh;
 
 z = eval(fit_SS_eqn);
 
-figure; imshow3Dfull(z - MTsat_sim, [-0.005 0.005],jet)
 % max(max(max( z - MTsat_sim   )))
 % min(min(min( z - MTsat_sim   )))
-
-% figure; imshow3Dfull(MTsat_sim, [0 0.1],jet)
 
 % save the fit values for use based on filenames
 fitValue_fn = strcat(obj.options.Sequencesimulation_fitValuesDirectory, filesep, obj.options.Sequencesimulation_fitValuesName, '.mat'); % location and name of fitValues file to be saved

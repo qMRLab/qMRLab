@@ -2,28 +2,78 @@ classdef ihMT < AbstractModel
     % ihMT:   inhomogenuous Magnetization Transfer
     %
     % Assumptions: 
+    %         B1+ corrected MT saturation maps taking into account for the
+    %         B1+ inhomogeneities effects on the excitation and saturation
+    %         pulses.
     %
     % Inputs:
-    %   R                I
-    %   (Mask)             Binary mask to exclude voxels from smoothing
-    %
+    %   MTw_dual           MT-weigthed data. Dual frequency preparation
+    %                      pulse.
+    %   MTw_single         MT-weigthed data. Single sided frequency 
+    %                      preparation pulse.
+    %   T1w                T1-weighted data.
+    %   PDw                PD-weighted data.
+    %   B1map              Normalized transmit excitation field map (B1+). B1+ is defined 
+    %                      as a  normalized multiplicative factor such that:
+    %                      FA_actual = B1+ * FA_nominal.
+    %   (Mask)             Binary mask (Accelerate fitting - Optional).
+    %            
     % Outputs:
-    %	Fi          F
+    %	MTSATcor_dual      MT saturation map B1+ corrected (dual frequency preparation pulse)
+    %   MTSAT_dual         MT saturation map uncorrected (dual frequency preparation pulse)
+    %	T1cor_dual         T1 map B1+ corrected (dual frequency preparation pulse)
+    %   T1_dual            T1 map uncorrected (dual frequency preparation pulse)
+    %
+    %	MTSATcor_single    MT saturation map B1+ corrected (single-sided frequency preparation pulse)
+    %   MTSAT_single       MT saturation map uncorrected (single-sided frequency preparation pulse)
+    %	T1cor_single       T1 map B1+ corrected (single-sided frequency preparation pulse)
+    %   T1_single          T1 map uncorrected (single-sided frequency preparation pulse)
+    %
+    %   ihMTsatcor         inhomogeuous MT saturation map B1+ corrected
+    %   ihMTsat            inhomogeuous MT saturation map uncorrected
     %
     % Protocol:
-    %	NONE
+    %	MTw_dual    [FA  TR]  flip angle [deg], TR [s]
+    %	MTw_single  [FA  TR]  flip angle [deg], TR [s]
+    %   T1w         [FA  TR]  flip angle [deg], TR [s]
+    %   PDw         [FA  TR]  flip angle [deg], TR [s]
     %
     % Options:
-    %   (
-    %
+    %   See:
+    %       Model.options (general options)
+    %       Model.options.Sequencesimulation (to change parameters of the sequence simulation)
+    %   
     % Example of command line usage:
+    %   Model = ihMT
+    %   %% LOAD DATA
+    %   data.MTw_dual = load_nii_data('MTw_dual.nii.gz');
+    %   data.MTw_single = load_nii_data('MTw_single.nii.gz');
+    %   data.T1w = load_nii_data('T1w.nii.gz');
+    %   data.PDw = load_nii_data('PDw.nii.gz');
+    %   data.B1map = load_nii_data('B1map.nii.gz');
+    %   data.Mask = load_nii_data('Mask.nii.gz');
+    %   %% SPECIFY PROTOCOL
+    %   % Model.Prot.MTw_dual = [FlipAngle, TR]; % Nx2 matrix
+    %   %% FIT all voxels
+    %   FitResults = FitData(data,Model);
+    %   % SAVE results to NIFTI
+    %   FitResultsSave_nii(FitResults,'MTw_dual.nii.gz'); % use header from 'MTw_dual.nii.gz'
     %
     %   For more examples: <a href="matlab: qMRusage(ihMT);">qMRusage(ihMT)</a>
     %
-    % Author: 
+    % Author:
+    %   Christopher D. Rowley, 2021 (@christopherrowley, @TardifLab - GitHub)
+    % Adapted to qMRLab by:
+    %   Juan Velazquez, 2022 (@jvelazquez-reyes - GitHub)
     %
     % References:
     %   Please cite the following if you use this module:
+    %     Rowley C.D., Campbell J.S.W., Wu Z., Leppert I.R., Rudko D.A.,
+    %     Pike G.B., Tardif C.L. (2021), A model-based framework for correcting 
+    %     B1+ inhomogeneity effects in magnetization transfer saturation and
+    %     inhomogeneous magnetization transfer saturation maps. Magn Reson
+    %     Med 86(4):2192-2207. doi:10.1002/mrm.28831
+    %   In addition to citing the package:
     %     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
     %     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
     %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
@@ -72,14 +122,9 @@ classdef ihMT < AbstractModel
             'PANEL','Correlate M0bapp VS R1',2,...
             'Same Imaging Protocol',true,...
             'b1rms',6.8};
-        
-        
+
         options = struct();
     end
-    % Inherit these from public properties of FilterClass
-    % Model options
-    % buttons ={};
-    % options = struct(); % structure filled by the buttons. Leave empty in the code
     
     methods
         % Constructor

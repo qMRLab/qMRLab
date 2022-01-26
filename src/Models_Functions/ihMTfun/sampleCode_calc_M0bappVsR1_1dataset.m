@@ -1,18 +1,5 @@
 function [M0b_app,fit_qual,comb_res,fitValues] = sampleCode_calc_M0bappVsR1_1dataset(data,MTparams,PDparams,T1params,fitValues,obj)
-%% Sample code to correct B1+ inhomogeneity in MTsat maps 
-
-% This script is to analyze MTw images obtained at different B1 pulse
-% amplitudes applied for the MT saturation pulses. 
-
-% currently set up to be run section by section so that you can view the
-% results/ check data quality/ troubleshoot. To run faster, comment out lines used to
-% display the images.
-
-% Output figures
-%OutputDirectory = 'D:\acer\Documents\PhD application\Polymtl\MTsatB1correction\MTsatData\Res\';
-
-% load in the fit results from simSeq_M0b_R1obs.m
-% makes sure to find the file names/locations where you made the values.
+% Sample code to correlate M0B,app with the R1 values
 
 %fitValues = fitValues.fitValues; % may or maynot need this line depending on how it saves
 
@@ -27,20 +14,6 @@ mtw = data.MTw;
 b1_rms = obj.options.CorrelateM0bappVSR1_b1rms; % value in microTesla. Nominal value for the MTsat pulses
 
 b1 = data.B1map;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-
-% include any preprocessing steps here such as MP-PCA denoising, and
-% unringing of GRE images. Not needed for this analysis. Each of the below
-% functions can be optimized for your dataset. 
-% %% denoise (code here https://github.com/sunenj/MP-PCA-Denoising) -> USER DEFINED OPTION
-% img_dn = cat(4,hfa, lfa, mtw);
-% all_PCAcorr = MPdenoising( img_dn );
-% 
-% %% unring the images ( code here https://github.com/josephdviviano/unring) -> USER DEFINED OPTION
-% hfa = unring3D(all_PCAcorr(:,:,:,1), 3);
-% lfa = unring3D(all_PCAcorr(:,:,:,2), 3);
-% mtw = unring3D(all_PCAcorr(:,:,:,3), 3);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 % Brain mask to remove background (optional)
@@ -82,10 +55,6 @@ App(Inds) = lfa(Inds) .* hfa(Inds) .* (TR1 .* a2(Inds)./a1(Inds) - TR2.* a1(Inds
 R1 = R1.*mask;
 T1 = 1/R1.*mask;
 App = App.*mask;
-
-%check them
-figure; imshow3Dfull(T1, [0 3500],jet)
-figure; imshow3Dfull(App , [2500 6000])
 
 %% Generate MTsat maps for the MTw images. 
 % Inital Parameters
@@ -150,14 +119,6 @@ end
 M0b_app(q) = mob;
 fit_qual(q) = fitq;
 comb_res(q) = comb;
-
-% view results
-%figure; imshow3Dfull(M0b_app, [0 0.15],jet)
-
-% % Save results incase you need to go back, since they take a while to generate!
-% hdr.file_name = strcat(DATADIR,'calc_sat_maps/M0b.mnc'); niak_write_vol(hdr,M0b_app);
-% hdr.file_name = strcat(DATADIR,'calc_sat_maps/fit_qual_mask.mnc'); niak_write_vol(hdr,fit_qual);
-% hdr.file_name = strcat(DATADIR,'calc_sat_maps/comb_residuals.mnc'); niak_write_vol(hdr,comb_res);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Now make some plots of my fitted maps to see how they correlate with R1 values
