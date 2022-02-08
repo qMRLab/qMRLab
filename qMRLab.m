@@ -500,7 +500,11 @@ if ~isempty(ErrMsg), errordlg(ErrMsg,'Input error','modal'); return; end
 usr = getUserPreferences();
 if ~moxunit_util_platform_is_octave
    
-   p = gcp('nocreate');
+   try
+    p = gcp('nocreate');
+   catch
+    p=[];
+   end
    if license('test','Distrib_Computing_Toolbox') && Model.voxelwise && isempty(p)
        if ~usr.FitParallelWheneverPossible 
         % If set to false still ask user if they'd like to use FitPar
