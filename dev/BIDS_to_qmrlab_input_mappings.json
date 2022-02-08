@@ -1,0 +1,59 @@
+{
+    "VFA":
+    [{
+        "mergeData": true,
+        "dataField": "VFAData",
+        "entity": ["flip"],
+        "modelName": "vfa_t1",
+        "protocol": {
+            "VFAData":
+            {
+                "Matrix": ["FlipAngle","RepetitionTime"]
+            }
+        }
+    }],
+    "MESE":
+    [{
+        "mergeData": true,
+        "dataField": "SEdata",
+        "entity": ["echo"],
+        "modelName": "mono_t2",
+        "protocol": {
+            "SEdata":
+            {
+                "Matrix": ["EchoTime"]
+            }
+        }
+    },
+    {
+        "mergeData": true,
+        "dataField": "MET2data",
+        "entity": ["echo"],
+        "modelName": "mwf",
+        "protocol": {
+            "MET2data":
+            {
+                "Matrix": ["EchoTime"]
+            }
+        }
+    }
+    ],
+    "IRT1": 
+        [{
+            "mergeData": true,
+            "dataField": "IRData",
+            "entity": ["inv"],
+            "modelName": "inversion_recovery",
+            "protocol": {
+                "IRData":
+                {
+                    "Matrix": ["InversionTime"]
+                },
+                "TimingTable":
+                {
+                    "TR": "RepetitionTime"
+                }
+            }
+        }]
+    
+}

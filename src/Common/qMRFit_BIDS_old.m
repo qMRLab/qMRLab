@@ -1,4 +1,4 @@
-function qMRFit_BIDS_Wrapper(SID, nii_array, json_array, qMR_suffix, varargin)
+function qMRFit_BIDS_old(SID, nii_array, json_array, qMR_suffix, varargin)
 
 % % Supress verbose Octave warnings.
 % if moxunit_util_platform_is_octave

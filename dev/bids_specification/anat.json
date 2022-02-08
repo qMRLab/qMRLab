@@ -1,4 +1,4 @@
-﻿[
+﻿{"all": [
   {
     "suffixes": [
       "T1w",
@@ -184,7 +184,7 @@
       "reconstruction": "optional",
       "echo": "optional",
       "flip": "required",
-      "mtransfer": "required",
+      "mt": "required",
       "part": "optional"
     }
   },
@@ -204,8 +204,8 @@
       "acquisition": "optional",
       "ceagent": "optional",
       "reconstruction": "optional",
-      "mtransfer": "required",
+      "mt": "required",
       "part": "optional"
     }
   }
-]
+]}

@@ -65,7 +65,7 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     % This is the subject directory for the outputs
     subDir = fullfile(targetDir,'qMRLab',['sub-' subID]);
 
-    if isempty(getenv('ISNEXTFLOW')) && ~str2double(getenv('ISNEXTFLOW'))
+    if isempty(getenv('ISNEXTFLOW')) 
         % In the derivatives folder, we first create a qMRLab/sub directory.
         if ~exist(subDir, 'dir')
             mkdir(subDir);
