@@ -59,7 +59,7 @@ end
                        % 1, if the analysis is done voxel per voxel
 
         % Protocol
-        Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
+        Prot = struct('SFalpha',struct('Format',{'FlipAngle'},'Mat',60));
         
         % Inherit these from public properties of FilterClass 
 %         % Model options
@@ -83,7 +83,7 @@ end
         end
         
         function FitResult = fit(obj,data)
-            FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
+            FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.SFalpha.Mat)));
             %remove 'spurious' points to reduce edge effects
             FitResult.Spurious = double(FitResult.B1map_raw<0.5);
             B1map_nospur = FitResult.B1map_raw;
@@ -131,6 +131,7 @@ end
             if checkanteriorver(version,[2 5 0])
                 obj.OriginalProtEnabled = true;
                 obj = setUserProtUnits(obj);
+                obj.Prot = struct('SFalpha',struct('Format',{'FlipAngle'},'Mat',60));
             end
 
         end

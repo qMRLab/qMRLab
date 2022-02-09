@@ -72,11 +72,11 @@ function FitBIDS(niiList,varargin)
 
     modelIdx = initCheck(suffix,mapping,selectedModel);
 
-    data = getData(niiList,suffix,mapping,modelIdx);
+    [data, fieldJsonMap] = getData(niiList,suffix,mapping,modelIdx,jsonList);
     if ~isempty(p.Results.mask); data.Mask = double(load_nii_data(p.Results.mask)); end
     if ~isempty(p.Results.b1map); data.B1map = double(load_nii_data(p.Results.b1map)); end
 
-    Model = getModel(jsonList,suffix,mapping,modelIdx);
+    Model = getModel(jsonList,suffix,mapping,modelIdx,fieldJsonMap);
     
     if ~Model.voxelwise
         FitResults = FitData(data,Model,0);
@@ -181,7 +181,7 @@ function modelIdx = initCheck(suffix,mapping,selectedModel);
 
 end
 
-function data = getData(niiList,suffix,mapping,modelIdx)
+function [data, fieldJsonMap] = getData(niiList,suffix,mapping,modelIdx,jsonList)
 
     if mapping.(suffix){modelIdx}.mergeData
     
@@ -204,14 +204,75 @@ function data = getData(niiList,suffix,mapping,modelIdx)
 
         data.(mapping.(suffix){modelIdx}.dataField) = DATA;
 
+        fieldJsonMap = [];
+    
+    else
+    % In this case the data needs to be loaded in different fields 
+    % and the mapping is defined by entities and the respective 
+    % metadata calues. 
+        
+        data = struct();
+        dataFields = mapping.(suffix){modelIdx}.dataField;
+        entity = mapping.(suffix){modelIdx}.entity;
+        fieldFileMap  = cell(length(dataFields),2);
+        fieldFileMap(:) = {'empty'};
+
+        for ii = 1:length(entity)
+
+            fieldFileMap(ii,1) = dataFields(ii); % There's 1/1 mapping between entity and data field names
+
+            if strfind(entity{ii},'-')
+                % Convention: Look for exact match if the entity given for a dataField contains -.    
+                % Use partial match to find the respective file 
+                fieldFileMap(ii,2) = niiList(~cellfun(@isempty,strfind(niiList,entity{ii})));
+            
+            elseif strfind(entity{ii},':')
+                % Conditional match based on the metadata value associated with the entity. 
+                tmp = strsplit(entity{ii},':');
+                metaKey = getEntityMetaKey(tmp{1});
+                curCond = tmp{2};
+
+                % Now we'll sort all the file names according to the value of the metaKey
+                tmp = cell(length(niiList),2);
+                for jj = 1:length(niiList)
+                    curJson = json2struct(jsonList{jj});
+                    tmp(jj,1) = niiList(jj);
+                    tmp(jj,2) = {curJson.(metaKey)};
+                end
+                % Then we'll exclude non-empty fieldFileMap's 2nd column to avoid overlap
+                % with already dealt with files
+                rmIdx = ismember(tmp(:,1),fieldFileMap(:,2));
+                tmp(rmIdx,:) = [];
+
+                % Sort 
+                tmpSorted = sortrows(tmp,2,'ascend');
+
+                if strcmp(curCond,'low')
+                    fieldFileMap(ii,2) = tmpSorted(1,1);
+                elseif strcmp(curCond,'high')
+                    fieldFileMap(ii,2) = tmpSorted(end,1);
+                end
+            end
+        end
+
+        fieldJsonMap  = fieldFileMap;
+        % Now read data into the right fields. 
+        for ii = 1:length(fieldFileMap)
+
+            data.(fieldFileMap{ii,1}) = double(load_nii_data(fieldFileMap{ii,2}));
+            x = fieldFileMap{ii,2};
+            fieldJsonMap(ii,2) =  {[x(1:strfind(x,'.nii')) 'json']};
+        end
+
     end
 
 end
 
-function Model = getModel(jsonList,suffix,mapping,modelIdx)
+function Model = getModel(jsonList,suffix,mapping,modelIdx,fieldJsonMap)
     
     eval(['Model=' mapping.(suffix){modelIdx}.modelName ';']);
     
+ if ~isempty(mapping.(suffix){modelIdx}.protocol)
     if mapping.(suffix){modelIdx}.mergeData
 
         prots = fieldnames(mapping.(suffix){modelIdx}.protocol);
@@ -229,6 +290,7 @@ function Model = getModel(jsonList,suffix,mapping,modelIdx)
                     Mat(jj,kk) = curJson.(params{kk});
                     end
                 end
+
                 Model.Prot.(prots{ii}).Mat = Mat;
             else
                 % This one is assumed to be constant across images
@@ -236,15 +298,81 @@ function Model = getModel(jsonList,suffix,mapping,modelIdx)
                 params = fieldnames(mapping.(suffix){modelIdx}.protocol.(prots{ii}));
                 Model.Prot.(prots{ii}).Mat = zeros(1,length(params));
                 for jj=1:length(params)
-                    curParam = mapping.(suffix){modelIdx}.protocol.(prots{ii}).(params{jj})
-                    Model.Prot.(prots{ii}).Mat = curJson.(curParam);
+                    curParam = mapping.(suffix){modelIdx}.protocol.(prots{ii}).(params{jj});
+                    Model.Prot.(prots{ii}).Mat = curJson.(curParam{1});
                 end
             end
         
         end
+    
+    else
+
+        if ~isempty(fieldJsonMap)
+            % Means that getData returned the mapping between json files and params. 
+            
+
+            prots = fieldnames(mapping.(suffix){modelIdx}.protocol);
+
+            for ii = 1:length(prots)
+
+                [matched,idx] = ismember(prots{ii},cellstr(fieldJsonMap(:,1)));
+                
+                % If the fieldnames of the data and the prot are matching
+                % read the metadata.
+                if matched
+                    curFile  = fieldJsonMap{idx,2};
+                    curJson = json2struct(curFile);
+                end
+
+                if isfield(mapping.(suffix){modelIdx}.protocol.(prots{ii}),'Matrix')
+
+                    params = mapping.(suffix){modelIdx}.protocol.(prots{ii}).Matrix;
+
+                    % In this case we have only one json file, with multiple params.
+                    Mat = zeros(1,length(params));
+
+                    for jj = 1:length(params)
+                        Mat(1,jj) = curJson.(params{jj});
+                    end
+
+                    try 
+                        % First assumes that the fieldnames of the data and protocol are matching. 
+                        Model.Prot.(prots{ii}).Mat = Mat;
+                    catch
+                        warning('TODO: Not handled for the matrix case yet.');
+                    end
+
+                else
+                % If not matrix, key value of each entry will be mapped to the given value
+
+                    params = fieldnames(mapping.(suffix){modelIdx}.protocol.(prots{ii}));
+                    Model.Prot.(prots{ii}).Mat = zeros(1,length(params));
+                    for jj=1:length(params)
+                        curParam = mapping.(suffix){modelIdx}.protocol.(prots{ii}).(params{jj});
+                        if length(curParam) == 1
+                            % Fieldnames of the data and protocol are matching.
+                            Model.Prot.(prots{ii}).Mat(1,jj) = curJson.(curParam{1});
+                        
+                        elseif length(curParam) == 2
+                        
+                            % This means that we have a tricky case. We need to populate the 
+                            % field by reading the correct json file.
+                            % Format: [MetadataField,DataFieldName]
+                            [~,idx2] = ismember(curParam{2},cellstr(fieldJsonMap(:,1)));
+                            tmpFile  = fieldJsonMap{idx2,2};
+                            tmpJson = json2struct(tmpFile);
+                            Model.Prot.(prots{ii}).Mat(1,jj) = tmpJson.(curParam{1});
+                        
+                        end
+                    end
+
+                end
+
+            end
+        end
 
     end
-
+ end
 end
 
 function out = getDetails(fname)
@@ -255,4 +383,17 @@ function out = getDetails(fname)
     if ~isempty(out.ses); out.ses  = out.ses{end}; end
     out.acq = regexp(fname,'(?<=acq-).*?(?=_)','match');
     if ~isempty(out.acq); out.acq  = out.acq{end}; end
+end
+
+function out = getEntityMetaKey(entity)
+    switch entity
+    case "flip"
+        out = "FlipAngle";
+    case "inv"
+        out = "InversionTime";
+    case "echo"
+        out = "EchoTime";
+    case "mt"
+        out = "MTState";
+    end
 end

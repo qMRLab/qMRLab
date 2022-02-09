@@ -35,6 +35,67 @@ These files are created based on what is established by BIDS for a BIDS release.
 ---
 - `qmrlab_model_registry` MUST be updated when a new model is added. This file specifies the implementation-native units of `protocols`, `inputs` and `outputs`. Unit assignments MUST be made using units defined in `dev/units.json`. 
 ---
+- **`BIDS_to_qmrlab_input_mappings.json`**
+    - This file defines how file collections (e.g, VFA, MTR, MTS etc.) are going to be interpreted to create a qMRLab object. There are two common patterns: multiple files are **merged** together (e.g., VFA or MESE) or each file is **distributed**  to its own data field (e.g.,MTS, MTR).
+    - **Merge convention**
+        - Example:
+        ```json
+            "IRT1": 
+        👉[👈{  ❗️Note: Do not omit these brackets. Even for a single entry, must be casted as an array.
+            "mergeData": true,
+            "dataField": "IRData",
+            "modelName": "inversion_recovery",
+            "protocol": {
+                "IRData":
+                {
+                    "Matrix": ["InversionTime"]
+                },
+                "TimingTable":
+                {
+                    "TR": "RepetitionTime"
+                }
+            }
+        }],
+        
+        ```
+        - The field `mergeData: true` indicates that the nii files passed to the `FitData` will be merged into an N-Dimensional image. 
+        - The `dataField` MUST be the respective model's input field for the multidimensional data (e.g., `IRData` for the `inversion_recovery` model). 
+        - The `protocol` field includes sub-fields per `qMRLab::Model::Prot` field. If the (special) key name `Matrix` is provided, a row will be inserted per (merged) file. The matrix is expanded across columns per metadata value. Other key names are ignored (e.g.) when assigning the value (e.g. `RepetitionTime`) to the respective Prot field (e.g., `TimeTable`). Multiple entries are allowed.
+    - **Distribute convention**
+        - Example:
+        ```json
+        "MTS": 
+        [{
+            "mergeData": false,
+            "dataField": ["MTw","PDw","T1w"],
+            "entity": ["mt-on","flip:low","flip:high"],
+            "modelName": "mt_sat",
+            "protocol": {
+                "PDw":
+                {
+                    "Matrix": ["FlipAngle","RepetitionTime"]
+                },
+                "MTw":
+                {
+                    "Matrix": ["FlipAngle","RepetitionTime"]
+                },
+                "T1w":
+                {
+                    "Matrix": ["FlipAngle","RepetitionTime"]
+                }
+            }
+        }]
+        ```
+        - The field `mergeData: false` indicates that the nii files passed to the `FitData` will be individually handled by the respective qMRlab module.
+        - The `dataField` MUST be an *array* of the respective model's input field**s** for multiple data (e.g., `MTw`, `PDw` and `T1w` for the `mt_sat` model).
+        - The `entity` follows the order of `dataField` and specifies the rules to match filenames with the respective `dataField` entry. For now, two cases are considered: 
+        1. Exact match
+           The exact match is inferred by the **`entity-value`** format. In the `MTS` example above, this indicates that if `mt-on` is captured in a filename, the respective (nii and json) files will be matched with the `MTw` data field.  
+        2. Conditional match based on metadata values
+           This is inferred by the **`entity:condition`** format. In the `MTS` example above, `flip:low` indicates that the `PDw` will be matched with the `flip` entity that defines the lower `FlipAngle`. Similarly, the `T1w` will be matched with the filename including the flip entity that defines the higher `FlipAngle`.
+    
+    - If multiple models are available for a given file collection (e.g. `mono_t2` and `mwf` for `MESE`), an array of entries can be provided. Unless specified in the `FitBIDS` function using the optional argument `selectedModel`, the function defaults to the first entry of the array. 
+---
 - `qmrlab_output_to_BIDS_mappings.json` 
     - Within the scope of the following unit families (as of 2021 April)...
         - Time
@@ -79,7 +140,7 @@ These files are created based on what is established by BIDS for a BIDS release.
         {
             "factor2base": 60, # Defines by which factor the base unit (unit with "factor2base": 1) should be multiplied to achieve this unit. In this case, base unit of the Time family is seconds. Hence, factor2base of minute is 60.
             "label": "minute", # Display label
-            "symbol": "(min)"  # Displat symbol
+            "symbol": "(min)"  # Display symbol
         }
 ```
 

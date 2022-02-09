@@ -3,7 +3,6 @@
     [{
         "mergeData": true,
         "dataField": "VFAData",
-        "entity": ["flip"],
         "modelName": "vfa_t1",
         "protocol": {
             "VFAData":
@@ -16,7 +15,6 @@
     [{
         "mergeData": true,
         "dataField": "SEdata",
-        "entity": ["echo"],
         "modelName": "mono_t2",
         "protocol": {
             "SEdata":
@@ -28,7 +26,6 @@
     {
         "mergeData": true,
         "dataField": "MET2data",
-        "entity": ["echo"],
         "modelName": "mwf",
         "protocol": {
             "MET2data":
@@ -42,7 +39,6 @@
         [{
             "mergeData": true,
             "dataField": "IRData",
-            "entity": ["inv"],
             "modelName": "inversion_recovery",
             "protocol": {
                 "IRData":
@@ -51,9 +47,66 @@
                 },
                 "TimingTable":
                 {
-                    "TR": "RepetitionTime"
+                    "TR": ["RepetitionTime"]
                 }
             }
+        }],
+        "MTS": 
+        [{
+            "mergeData": false,
+            "dataField": ["MTw","PDw","T1w"],
+            "entity": ["mt-on","flip:low","flip:high"],
+            "modelName": "mt_sat",
+            "protocol": {
+                "PDw":
+                {
+                    "Matrix": ["FlipAngle","RepetitionTime"]
+                },
+                "MTw":
+                {
+                    "Matrix": ["FlipAngle","RepetitionTime"]
+                },
+                "T1w":
+                {
+                    "Matrix": ["FlipAngle","RepetitionTime"]
+                }
+            }
+        }],
+        "MTR":
+        [{
+            "mergeData": false,
+            "dataField": ["MTon","MToff"],
+            "entity": ["mt-on","mt-off"],
+            "modelName": "mt_ratio",
+            "protocol": { }
+        }],
+        "TB1DAM":
+        [{
+            "mergeData": false,
+            "dataField": ["SFalpha","SF2alpha"],
+            "entity": ["flip:low","flip:high"],
+            "modelName": "b1_dam",
+            "protocol": {
+                "SFalpha": 
+                {
+                    "FA": ["FlipAngle"]
+                }
+             }
+        }],
+        "TB1AFI":
+        [{
+            "mergeData": false,
+            "dataField": ["AFIData1","AFIData2"],
+            "entity": ["acq-tr1","acq-tr2"],
+            "modelName": "b1_afi",
+            "protocol": {
+                "Sequence":
+                {
+                    "nomFA": ["FlipAngle","AFIData1"],
+                    "TR1":   ["RepetitionTime","AFIData1"],
+                    "TR2":   ["RepetitionTime","AFIData2"]
+                }
+             }
         }]
     
 }
