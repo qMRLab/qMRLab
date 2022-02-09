@@ -1,13 +1,19 @@
 function FitBIDS(niiList,varargin)
 
-
     % An easy pattern to fetch all nii.gz files from a dir.
     % BUT this function should expect a selected list of Nii files. 
     % aa = {dir(fullfile(pwd,'*.nii.gz')).name}
 
+    try 
+    % The whole thing is written in a try-catch block to ensure that 
+    % ISBIDS is set to null on error. Otherwise the env variable will persists
+    % and may lead to unexpected behaviour.
+
     mapping = json2struct('BIDS_to_qmrlab_input_mappings.json');
 
+    % ================================= CRITICAL DO NOT REMOVE
     setenv('ISBIDS','1');
+    % =================================
 
     p = inputParser();
 
@@ -17,7 +23,6 @@ function FitBIDS(niiList,varargin)
     validCellArray = @(x) isvector(x) && iscell(x);
     validDir = @(x) exist(x,'dir');
     addRequired(p,'niiList',validCellArray);
-
     jsonList = cellfun(@(x) [x(1:strfind(x,'.nii')) 'json'] ,niiList,'UniformOutput',false);
     jsonList = cellfun(@(x) dropPart(x) ,jsonList,'UniformOutput',false);
 
@@ -136,8 +141,19 @@ function FitBIDS(niiList,varargin)
 
     end
 
-    % Important do not remove
+    % ================================= CRITICAL DO NOT REMOVE
     setenv('ISBIDS','');
+    % ================================= 
+
+    catch ME
+
+    % ================================= NULL ENV VAR ON ERROR
+    setenv('ISBIDS','');
+    % =================================
+    cprintf('red','ERROR ID: %s',ME.identifier);
+    fprintf(1,'\n ERROR MESSAGE:\n %s \n',ME.message);
+
+    end
 
 end
 

@@ -1,6 +1,11 @@
 function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
 
 
+    try 
+    % The whole thing is written in a try-catch block to ensure that 
+    % ISBIDS is set to null on error. Otherwise the env variable will persists
+    % and may lead to unexpected behaviour.
+
     warning('off', 'MATLAB:MKDIR:DirectoryExists');
 
     qMRLabDir = fileparts(which('qMRLab.m'));
@@ -212,6 +217,16 @@ function outPrefix = FitResultsSave_BIDS(FitResults,niiHeader,subID,varargin)
     % =================================
 
     warning('on', 'MATLAB:MKDIR:DirectoryExists');
+
+    catch ME 
+    
+    % ================================= NULL ENV VAR ON ERROR
+    setenv('ISBIDS','');
+    % =================================
+    cprintf('red','ERROR ID: %s',ME.identifier);
+    fprintf(1,'\n ERROR MESSAGE:\n %s \n',ME.message);
+
+    end
 
 end
 
