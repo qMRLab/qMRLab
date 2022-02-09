@@ -1,4 +1,137 @@
 function FitBIDS(niiList,varargin)
+%         __  __ ____  _          _
+%    __ _|  \/  |  _ \| |    __ _| |__
+%   / _` | |\/| | |_) | |   / _` | '_ \
+%  | (_| | |  | |  _ <| |__| (_| | |_) |
+%   \__, |_|  |_|_| \_\_____\__,_|_.__/
+%      |_|
+% -------------------------------------------------------------------------
+% void FitBIDS(niiList, varargin)
+%
+% Takes a list (vector) of BIDS compatible NIFTI files for a single 
+% dataset (or participant). This function does not loop over participants
+% or different variations (e.g. acq-exp1, acq-exp2) of the data.
+%
+% Please see dev/BIDS_to_qmrlab_input_mappings.json for supported file 
+% collections.
+% -------------------------------------------------------------------------
+% Required inputs:
+%
+%     niiList                       A cell array of a BIDS compatible 
+%                                   NIFTI file collection (cell array).
+%                                   Example:
+%                                   {'sub-01_flip-01_VFA.nii.gz',
+%                                    'sub-01_flip-02_VFA.nii.gz'}
+%
+% Output:
+%
+%     derivatives                   Outputs will be written in files.
+%                                   See optional parameters for further info. 
+%
+% 
+% FitBIDS(___,PARAM1, VAL1, PARAM2, VAL2,___)
+%
+% Optional parameters include:
+%
+%
+%   'TargetDir'                     A target derivatives directory. If provided,
+%                                   the BIDS outputs will be written under 
+%                                   qMRLab folder following the respective BIDS
+%                                   convention of the processed file collection.
+%                                   Default: [] (string) 
+%
+%   'SaveMat'                       Determines whether or not to save FitResults.mat
+%                                   and other output maps in *.mat format. If enabled,
+%                                   the mat files will be exported in the same directory
+%                                   where BIDS outputs are written.
+%                                   Default: false (bool)
+%                                   
+%
+%   'SelectedModel'                 If multiple qMRLab models are available for 
+%                                   a given file collection (e.g. MESE), this 
+%                                   option can be used to select the desired 
+%                                   model. If not provided, the default model
+%                                   will be used for the respective file collection.
+%                                   Example:
+%                                          >> FitBIDS(niiList,'SelectedModel','mwf');
+%                                   Default: [] (string)
+%
+%   'FitOptions'                    To fit data using user-defined options. The 
+%                                   provided struct MUST match the Model.options 
+%                                   property of the respective model. 
+%                                   Example: 
+%                                           >> my_model = mono_t2;
+%                                           >> my_options = my_model.options;
+%                                           >> my_options.DropFirstEcho = true;
+%                                           >> FitBIDS(niiList,'FitOptions',my_options);
+%                                   Default: [] (struct - qMRLab::Model::options)
+%
+%   'Mask'                          NIFTI formatted binary mask to define 
+%                                   foreground voxels. 
+%                                   Default: [] (string)
+%
+%   'B1map'                         BIDS compatible (NIFTI) B1+ map (% relative untis).
+%                                   Pass only if B1+ correction is available 
+%                                   for the file collection in question.
+%                                   Default: [] (string)
+%
+%   'ReserveAcq'                    If the file collection uses the acq entity,
+%                                   setting this option to true is needed to 
+%                                   omit the acq- entity from the output names. 
+%                                   Default: false (bool)
+%
+%   'Nextflow'                      Enabling this option changes the I/O behaviour 
+%                                   to use qMRLab in qMRFlow.
+%                                   Default: false (bool)
+%
+%   'QmrlabPath'                    For workflow executors to handle cases where 
+%                                   qMRLab is not in the path by default.
+%                                   Default: [] (string)
+%
+%   'SID'                           Subject ID to create outputs following workflow 
+%                                   executor (external) tags. 
+%                                   Default: [] (string)
+%
+%   'DatasetDOI'                    DOI of the used dataset, appears on 
+%                                   the derivatives if provided.
+%                                   Default: [] (string)
+%
+%   'DatasetURL'                    URL of the used dataset, appears on 
+%                                   the derivatives if provided.
+%                                   Default: [] (string)
+%
+%   'DatasetVersion'                Version of the used dataset, appears on 
+%                                   the derivatives if provided.
+%                                   Default: [] (string)
+%
+%   'ContainerType'                 Appears on the derivatives (json) if 
+%                                   provided.
+%                                   Default: [] (string)
+%
+%   'ContainerTag'                  Appears on the derivatives (json) if 
+%                                   provided.
+%                                   Default: [] (string)
+%
+%   'Description'                   Custom description to appear on the
+%                                   derivatives provenance. 
+%                                   Default: [] (string)
+%
+% Functionality:
+%
+%     Process BIDS formatted qMRI data for a <<single participant>>. If the
+%     provided files are a valid BIDS file collection and the respective model
+%     is implemented in qMRLab, necessary settings will be handled automatically
+%     to fit data and to save BIDS-conformant outputs.
+%
+% -------------------------------------------------------------------------
+% Written by: Agah Karakuzu
+% -------------------------------------------------------------------------
+% References
+%     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F.,
+%     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab:
+%     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
+% -------------------------------------------------------------------------
+
 
     % An easy pattern to fetch all nii.gz files from a dir.
     % BUT this function should expect a selected list of Nii files. 
@@ -35,37 +168,52 @@ function FitBIDS(niiList,varargin)
     assert(length(unique([suffixList{:}]))==1,['niiList should contain only one grouping suffix: ' cell2mat(unique([suffixList{:}]))]);
 
     %Add OPTIONAL Parameteres
-    addParameter(p,'mask',[],validNii);
-    addParameter(p,'b1map',[],validNii);
-    addParameter(p,'reserveAcq',false,@islogical);
-    addParameter(p,'type',[],@ischar);
-    addParameter(p,'order',[],@isnumeric);
-    addParameter(p,'dimension',[],@ischar);
-    addParameter(p,'size',[],@ismatrix);
-    addParameter(p,'qmrlab_path',[],@ischar);
-    addParameter(p,'sid',[],@ischar);
-    addParameter(p,'nextflow',false,@logical);
-    addParameter(p,'containerType','',@ischar);
-    addParameter(p,'containerTag','',@ischar);
-    addParameter(p,'description','Using qMRLab.',@ischar);
-    addParameter(p,'datasetDOI',[],@ischar);
-    addParameter(p,'datasetURL',[],@ischar);
-    addParameter(p,'datasetVersion',[],@ischar);
-    addParameter(p, 'targetDir',[],validDir);
-    addParameter(p, 'saveMat',false,@islogical);
-    addParameter(p, 'selectedModel',[],@ischar);
+    addParameter(p, 'TargetDir',[],validDir);
+    addParameter(p, 'FitOptions',[],@isstruct);
+    addParameter(p, 'SaveMat',false,@islogical);
+    addParameter(p, 'SelectedModel',[],@ischar);
+    addParameter(p,'Mask',[],validNii);
+    addParameter(p,'B1map',[],validNii);
+    addParameter(p,'ReserveAcq',false,@islogical);
+    addParameter(p,'Nextflow',false,@islogical);
+    addParameter(p,'QmrlabPath',[],@ischar);
+    addParameter(p,'SID',[],@ischar);
+    addParameter(p,'DatasetDOI',[],@ischar);
+    addParameter(p,'DatasetURL',[],@ischar);
+    addParameter(p,'DatasetVersion',[],@ischar);
+    addParameter(p,'ContainerType','',@ischar);
+    addParameter(p,'ContainerTag','',@ischar);
+    addParameter(p,'Description','Using qMRLab.',@ischar);
+
+
     
     parse(p,niiList,varargin{:});
     
-    if p.Results.nextflow
+    if p.Results.Nextflow
         setenv('ISNEXTFLOW','1');
     else
         setenv('ISNEXTFLOW','');
     end
+
+    if ~isempty(p.Results.QmrlabPath); qMRdir = p.Results.QmrlabPath; end
     
-    targetDir = p.Results.targetDir;
-    saveMat = p.Results.saveMat;
-    selectedModel = p.Results.selectedModel;
+    try
+        disp('=============================');
+        qMRLabVer;
+    catch
+        warning('Cant find qMRLab. Adding qMRLab_DIR to the path: ');
+        if ~strcmp(qMRdir,'null')
+            qmr_init(qMRdir);
+        else
+            error('Please set qMRLab_DIR parameter in the nextflow.config file.');
+        end
+        qMRLabVer;
+    end
+    
+    targetDir = p.Results.TargetDir;
+    saveMat = p.Results.SaveMat;
+    selectedModel = p.Results.SelectedModel;
+    fitOptions = p.Results.FitOptions;
 
     if isempty(targetDir)
         targetDir = [pwd filesep 'derivatives_' datestr(now,'yyyy-mm-dd_HH-MM-SS')];
@@ -78,10 +226,14 @@ function FitBIDS(niiList,varargin)
     modelIdx = initCheck(suffix,mapping,selectedModel);
 
     [data, fieldJsonMap] = getData(niiList,suffix,mapping,modelIdx,jsonList);
-    if ~isempty(p.Results.mask); data.Mask = double(load_nii_data(p.Results.mask)); end
-    if ~isempty(p.Results.b1map); data.B1map = double(load_nii_data(p.Results.b1map)); end
+    if ~isempty(p.Results.Mask); data.Mask = double(load_nii_data(p.Results.Mask)); end
+    if ~isempty(p.Results.B1map); data.B1map = double(load_nii_data(p.Results.B1map)); end
 
     Model = getModel(jsonList,suffix,mapping,modelIdx,fieldJsonMap);
+
+    if ~isempty(fitOptions)
+        Model.options = fitOptions;
+    end
     
     if ~Model.voxelwise
         FitResults = FitData(data,Model,0);
@@ -98,19 +250,19 @@ function FitBIDS(niiList,varargin)
     addDescription.BasedOn = niiList;
     addDescription.Protocol = Model.Prot;
     addDescription.Options  = Model.options;
-    addDescription.GeneratedBy.Container.Type = p.Results.containerType;
-    if ~strcmp(p.Results.containerTag,'null'); addDescription.GeneratedBy.Container.Tag = p.Results.containerTag; end
-    if isempty(p.Results.description)
+    addDescription.GeneratedBy.Container.Type = p.Results.ContainerType;
+    if ~strcmp(p.Results.ContainerTag,'null'); addDescription.GeneratedBy.Container.Tag = p.Results.ContainerTag; end
+    if isempty(p.Results.Description)
         addDescription.GeneratedBy.Description = 'qMRLab FitBIDS';
     else
-        addDescription.GeneratedBy.Description = p.Results.description;
+        addDescription.GeneratedBy.Description = p.Results.Description;
     end
-    if ~isempty(p.Results.datasetDOI); addDescription.SourceDatasets.DOI = p.Results.datasetDOI; end
-    if ~isempty(p.Results.datasetURL); addDescription.SourceDatasets.URL = p.Results.datasetURL; end
-    if ~isempty(p.Results.datasetVersion); addDescription.SourceDatasets.Version = p.Results.datasetVersion; end
+    if ~isempty(p.Results.DatasetDOI); addDescription.SourceDatasets.DOI = p.Results.DatasetDOI; end
+    if ~isempty(p.Results.DatasetURL); addDescription.SourceDatasets.URL = p.Results.DatasetURL; end
+    if ~isempty(p.Results.DatasetVersion); addDescription.SourceDatasets.Version = p.Results.DatasetVersion; end
     
-    SID = p.Results.sid;
-    reserveAcq = p.Results.reserveAcq;
+    SID = p.Results.SID;
+    reserveAcq = p.Results.ReserveAcq;
 
     % Infer
     if isempty(SID)
@@ -149,6 +301,7 @@ function FitBIDS(niiList,varargin)
 
     % ================================= NULL ENV VAR ON ERROR
     setenv('ISBIDS','');
+    setenv('ISNEXTFLOW','');
     % =================================
     cprintf('red','ERROR ID: %s',ME.identifier);
     fprintf(1,'\n ERROR MESSAGE:\n %s \n',ME.message);
