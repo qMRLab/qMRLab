@@ -137,6 +137,10 @@ function FitBIDS(niiList,varargin)
     % BUT this function should expect a selected list of Nii files. 
     % aa = {dir(fullfile(pwd,'*.nii.gz')).name}
 
+    cprintf('magenta','<< ! >> IMPORTANT %s','WARNING');
+    cprintf('red','<< ! >> Please close qMRLab GUI before running this script %s','!!');
+    cprintf('blue','<< i >> If the default unit configuration (preferences.json) is not set to BIDS \n        and the qMRLab GUI is open, %s','unexpected behavior may occur.');
+
     try 
     % The whole thing is written in a try-catch block to ensure that 
     % ISBIDS is set to null on error. Otherwise the env variable will persists
@@ -274,9 +278,13 @@ function FitBIDS(niiList,varargin)
             if ~isempty(details.acq) && ~reserveAcq
                 outPrefix = FitResultsSave_BIDS(FitResults,niiList{1},SID,'injectToJSON',addDescription,'sesFolder',true,'ses',details.ses,'acq',details.acq,'targetDir',targetDir);
             end
+        
         else
+            
             if ~isempty(details.acq) && ~reserveAcq
                 outPrefix = FitResultsSave_BIDS(FitResults,niiList{1},SID,'injectToJSON',addDescription,'acq',details.acq,'targetDir',targetDir);
+            else
+                outPrefix = FitResultsSave_BIDS(FitResults,niiList{1},SID,'injectToJSON',addDescription,'targetDir',targetDir);
             end
 
         end

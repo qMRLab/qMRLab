@@ -1,15 +1,15 @@
-% This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
-% for publishing documentation.
-% Command Line Interface (CLI) is well-suited for automatization 
-% purposes and Octave. 
+%                   This page has been automatically generated.
 %
-% Please execute this m-file section by section to get familiar with batch
-% processing for *-modelName-* on CLI.
-%
-% Demo files are downloaded into *-modelName-*_data folder. 
-%
-% Written by: Agah Karakuzu, 2017
-% ==============================================================================
+%                              https://qmrlab.org
+%           _______________________________________________________
+%          |           _.._                                        |
+%          |       .-""    ""-.                                    |
+%          |      :---.-__-.---;                                   |
+%          |            || Quantitative MRI. Under one umbrella.   |
+%          |          ,.|| Karakuzu et al. (2020), JOSS            |
+%          |           `-' https://doi.org/10.21105/joss.02343     |
+%          |_______________________________________________________|
+
 
 %% 1. Print |*-modelName-*| information
 
@@ -40,6 +40,12 @@ Model = *-modelName-*;
 % For example: |linear fit|, |exponential fit|, |drop first echo|.
 
 %% 2.b.1 Set |protocol| _the CLI way_
+%%
+% <html>
+% <div class="warning">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The units below are displayed according to the original implementation contributed to qMRLab. To learn how to manage input protocol units, please visit the documentation on <a href="#36">|/usr/preferences.json|</a>.</p>
+% </div>
+% </html>
 %
 % If you are using Octave, or would like to serialize your operations any without |GUI| involvement, you can assign |protocol| directly in CLI:
 %
@@ -54,6 +60,12 @@ Model = *-modelName-*;
 
 %% 2.b.2 Set |protocol| and |options| _the GUI way_
 %%
+% <html>
+% <div class="warning">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The units below are displayed according to the original implementation contributed to qMRLab. To learn how to manage input protocol units, please visit the documentation on <a href="#36">|/usr/preferences.json|</a>.</p>
+% </div>
+% </html>
+%
 % The following command opens a panel to set |protocol| and |options| (if |GUI| is available to the user):
 %
 %   Model = Custom_OptionsGUI(Model);
@@ -113,6 +125,13 @@ data = struct();
 % Load FitResults that comes with the example dataset.
 FitResults_old = load('FitResults/FitResults.mat');
 qMRshowOutput(FitResults_old,data,Model);
+
+%%
+% <html>
+% <div class="warning">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The unit of the quantitative map displayed above is set according to the original implementation contributed to qMRLab. To learn how to manage output map units, please visit the documentation on <a href="#36">|/usr/preferences.json|</a>.</p>
+% </div>
+% </html>
 
 %% 3.d. Save fit results
 % Outputs can be saved as |*.nii.(gz)| if |NIfTI| inputs are available:

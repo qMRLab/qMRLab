@@ -15,7 +15,7 @@
 	"ForAllUnitsUseBIDS": false,
 
 	"UnifyOutputMapUnits": {
-		"Enabled": false,
+		"Enabled": true,
 		"Time": "second",
 		"Rate": "reciprocal_second",
 		"Fraction": "fraction_decimal",
@@ -29,7 +29,7 @@
 	},
 
 	"UnifyInputProtocolUnits": {
-		"Enabled": false,
+		"Enabled": true,
 		"Time":"second",
 		"Frequency": "hertz",
 		"MagneticFieldStrength": "tesla",

@@ -4,7 +4,7 @@
         "model": "b1_dam",
       	"citation": "Insko, E.K., & Bolinger, L. (1993). Mapping of the Radifrequency Field. Journal of Magnetic Resonance Series A, 1(1), 82-85. https://doi.org/10.1006/jmra.1993.1133",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -24,6 +24,12 @@
           "%   |-------------- sub-01_TB1map.nii.gz",
           "%   |-------------- sub-01_TB1map.json",
           "% ",
+          "% <https://osf.io/rt642/download Download> our example |TB1DAM| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-TB1DAM/sub-01/fmap'",
+          "%   niiList = {dir(fullfile(dataDir,'*TB1DAM.nii*')).name};",
+          "%   FitBIDS(niiList);",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
@@ -35,7 +41,7 @@
         "model": "b1_afi",
 	      "citation": "Yarnykh, V.L. (2007). Actual flip-angle imaging in the pulsed steady state: a method for rapid three-dimensional mapping of the transmitted radiofrequency field. Magnetic Resonance in Medicine, 57(1), 192-200. 10.1002/mrm.21120",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -55,6 +61,14 @@
           "%   |-------------- sub-01_TB1map.nii.gz",
           "%   |-------------- sub-01_TB1map.json",
           "% ",
+          "% <https://osf.io/nufgy/download Download> our example |TB1AFI| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-TB1AFI/sub-01/fmap'",
+          "%   niiList = {dir(fullfile(dataDir,'*TB1AFI.nii*')).name};",
+          "%   % This file collection uses the -acq entity to specify inputs.",
+          "%   % Therefore, we will ask FitBIDS not to infer it as a freeform entity:",
+          "%   FitBIDS(niiList,'ReserveAcq',true);",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
@@ -62,7 +76,7 @@
         "model": "mono_t2",
 	      "citation": "Milford, D., et al. (2015). Mono-Exponential Fitting in T2-Relaxometry: Relevance of Offset and First Echo. PLoS One, 10(12), e0145255. 10.1371/journal.pone.0145255",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -88,6 +102,12 @@
           "%   |-------------- sub-01_M0map.nii.gz",
           "%   |-------------- sub-01_M0map.json",
           "% ",
+          "% <https://osf.io/da3sx/download Download> our example |MESE| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-MESE_monot2/sub-01/anat'",
+          "%   niiList = {dir(fullfile(dataDir,'*MESE.nii*')).name};",
+          "%   FitBIDS(niiList,'SelectedModel','mono_t2');",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
@@ -95,7 +115,7 @@
         "model": "mwf",
 	      "citation": "MacKay, M., et al. (1994). In vivo visualization of myeling water in brain by magnetic resonance. Magnetic Resonance in Medicine, 31(6), 673-677. 10.1002/mrm.1910310614",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -123,6 +143,12 @@
           "%   |-------------- sub-01_T2IEW.nii.gz (Not defined in BIDS yet)",
           "%   |-------------- sub-01_T2IEW.json",
           "% ",
+          "% <https://osf.io/dsgev/download Download> our example |MESE| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-MESE_mwf/sub-01/anat'",
+          "%   niiList = {dir(fullfile(dataDir,'*MESE.nii*')).name};",
+          "%   FitBIDS(niiList,'SelectedModel','mwf');",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
@@ -130,7 +156,7 @@
         "model": "mp2rage",
 	      "citation": "Marques, José P., et al. (2010). MP2RAGE, a self bias-field corrected sequence for improved segmentation and T1-mapping at high field. Neuroimage, 49(2), 1271-1281. 10.1016/j.neuroimage.2009.10.002",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -175,7 +201,7 @@
         "model": "vfa_t1",
         "citation": "Fram, E.K., et al. (1987). Rapid calculation of T1 using variable flip angle gradient refocused imaging. Magnetic Resonance in Medicine, 5(3), 201-208. 10.1016/0730-725x(87)90021-x",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -203,6 +229,13 @@
           "%   |-------------- sub-01_M0map.nii.gz",
           "%   |-------------- sub-01_M0map.json",
           "% ",
+          "% <https://osf.io/v3udy/download Download> our example |VFA| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-VFA/sub-01/anat'",
+          "%   b1File = 'set/your/directory/ds-VFA/sub-01/fmap/sub-01_TB1map.nii.gz'",
+          "%   niiList = {dir(fullfile(dataDir,'*VFA.nii*')).name};",
+          "%   FitBIDS(niiList,'B1map',b1file);",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
@@ -210,7 +243,7 @@
         "model": "inversion_recovery",
       	"citation": "Barral, J.K., et al. (2010). A robust methodology for in vivo T1 mapping. Magnetic Resonance in Medicine, 64(4), 1057-1067. 10.1002/mrm.22497",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -238,6 +271,13 @@
           "%   |-------------- sub-01_M0map.nii.gz",
           "%   |-------------- sub-01_M0map.json",
           "% ",
+          "% <https://osf.io/92kwv/download Download> our example |IRT1| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-IRT1/sub-01/anat'",
+          "%   maskFile = 'set/your/directory/ds-IRT1/sub-01/anat/sub-01_label-brain.nii.gz'",
+          "%   niiList = {dir(fullfile(dataDir,'*IRT1.nii*')).name};",
+          "%   FitBIDS(niiList,'Mask',maskFile);",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
@@ -297,7 +337,7 @@
         "model": "mt_sat",
 	      "citation": "Helms, G., et al. (2008). High-resolution maps of magnetization transfer with inherent correction for RF inhomogeneity and T1 relaxation obtained from 3D FLASH MRI. Magnetic Resonance in Medicine, 60(6), 1396-1407. 10.1002/mrm.21732",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -325,13 +365,19 @@
           "%   |-------------- sub-01_M0map.nii.gz",
           "%   |-------------- sub-01_M0map.json",
           "% ",
+          "% <https://osf.io/t4ax7/download Download> our example |MTS| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-MTS/sub-01/anat'",
+          "%   niiList = {dir(fullfile(dataDir,'*MTS.nii*')).name};",
+          "%   FitBIDS(niiList);",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },
       {
         "model": "mt_ratio",
         "note": [
-          "%% 5.a.1 BIDS",
+          "%% 5.a.1 BIDS (official)",
           "% <html>",
           "% <img src=\"https://github.com/qMRLab/doc_images/blob/main/usr/BIDS_Logo.png?raw=true\" style=\"height:100px!important;\">",
           "% </html>",
@@ -351,6 +397,12 @@
           "%   |-------------- sub-01_MTRmap.nii.gz",
           "%   |-------------- sub-01_MTRmap.json",
           "% ",
+          "% <https://osf.io/39ynz/download Download> our example |MTR| BIDS dataset and process:",
+          "% ",
+          "%   dataDir = 'set/your/directory/ds-MTR/sub-01/anat'",
+          "%   niiList = {dir(fullfile(dataDir,'*MTR.nii*')).name};",
+          "%   FitBIDS(niiList);",
+          "%",
           "% For further information, please visit <https://bids-specification.readthedocs.io/en/stable/99-appendices/11-qmri.html BIDS qMRI Appendix>."
         ]
       },

@@ -40,6 +40,31 @@ try
     usrpreferences.ChangeProvidedInputMapUnits = bidsPreferences.ChangeProvidedInputMapUnits;
 
   end
+
+% Test scripts will use the (native) implementation units for 
+% - Protocol units 
+% - Input map units 
+% - Output map units 
+if ~isempty(getenv('ISCITEST')) % TEST ENV
+  if str2double(getenv('ISCITEST'))==1
+    usrpreferences.UnifyOutputMapUnits.Enabled = false;
+    usrpreferences.UnifyInputProtocolUnits.Enabled = false;
+    usrpreferences.ChangeProvidedInputMapUnits.Enabled = false;
+  end
+end
+
+% For doc generation we will use implementation-native units as well.
+% - Protocol units 
+% - Input map units 
+% - Output map units 
+if ~isempty(getenv('ISDOC')) % TEST ENV
+  if str2double(getenv('ISDOC'))==1
+    usrpreferences.UnifyOutputMapUnits.Enabled = false;
+    usrpreferences.UnifyInputProtocolUnits.Enabled = false;
+    usrpreferences.ChangeProvidedInputMapUnits.Enabled = false;
+  end
+end
+
 catch me
    infomsg = me.message;
    cprintf('red',   '----------------------------------------- %s \n','-');
@@ -51,5 +76,7 @@ catch me
    cprintf('magenta',    '<< @ >> Defaulting to qMRLab''s original preferences (stored online at %s) \n','https://raw.githubusercontent.com/qMRLab/qMRLab/master/usr/preferences.json');
    usrpreferences = json2struct(urlread('https://raw.githubusercontent.com/qMRLab/qMRLab/master/usr/preferences.json'));
 end
+
+
 
 end

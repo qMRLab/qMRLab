@@ -1,16 +1,45 @@
+% =============================================================================
 % This m-file has been automatically generated using qMRgenBatch(*-modelName-*)
-% Command Line Interface (CLI) is well-suited for automatization 
-% purposes and Octave. 
 %
 % Please execute this m-file section by section to get familiar with batch
 % processing for *-modelName-* on CLI.
 %
-% Demo files are downloaded into *-modelName-*_data folder. 
+% Demo files are downloaded into *-modelName-*_data folder.
 %
-% Written by: Agah Karakuzu, 2017
-% =========================================================================
+% If your data is BIDS-formatted, you can reduce this script to a single command
+% for generating quantitative maps. To see further information (command line):
+% >>  help FitBIDS
+%
+% User documentation for this model:
+% https://qmrlab.readthedocs.io/en/master/*-modelName-*_batch.html
+%
+% Developer documentation:
+% https://github.com/qMRLab/qMRLab/wiki
+%
+%                              https://qmrlab.org
+%           _______________________________________________________
+%          |           _.._                                        |
+%          |       .-""    ""-.                                    |
+%          |      :---.-__-.---;                                   |
+%          |            || Quantitative MRI. Under one umbrella.   |
+%          |          ,.|| Karakuzu et al. (2020), JOSS            |
+%          |           `-' https://doi.org/10.21105/joss.02343     |
+%          |_______________________________________________________|
+% ===============================================================================
 
-%% I- DESCRIPTION
+%% IMPORTANT NOTE ABOUT UNITS
+%
+%  The configuration file (usr/preferences.json) determines how units are set for:
+%  - Input protocols (e.g., second or millisecond for EchoTime)
+%  - Generated quantitative maps (e.g., second or millisecond for a T1 map)
+%  - Quantitative maps that are inputs to some models (e.g., B1+ map in % or decimal)
+%
+% Current settings in (usr/preferences.json) will affect how units are displayed and 
+% in which units the output maps will be generated. For further information:
+% https://qmrlab.readthedocs.io
+
+
+%% I- MODEL DESCRIPTION
 
 qMRinfo('*-modelName-*'); % Describe the model
 
@@ -26,7 +55,7 @@ Model = *-modelName-*;
 Model = Custom_OptionsGUI(Model); % You need to close GUI to move on. 
 
 %% III- FIT EXPERIMENTAL DATASET
-%%       a- set protocols via gui 
+%%       a- set protocols via command line
 *-protExplain-*
 %%       b- load experimental data 
 *-dataExplain-*
