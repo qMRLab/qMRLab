@@ -129,9 +129,9 @@ end
             end
            
             if checkanteriorver(version,[2 5 0])
+                obj.Prot = struct('SFalpha',struct('Format',{'FlipAngle'},'Mat',60));
                 obj.OriginalProtEnabled = true;
                 obj = setUserProtUnits(obj);
-                obj.Prot = struct('SFalpha',struct('Format',{'FlipAngle'},'Mat',60));
             end
 
         end
