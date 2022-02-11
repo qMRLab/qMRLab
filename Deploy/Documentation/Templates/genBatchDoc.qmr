@@ -42,8 +42,8 @@ Model = *-modelName-*;
 %% 2.b.1 Set |protocol| _the CLI way_
 %%
 % <html>
-% <div class="warning">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The units below are displayed according to the original implementation contributed to qMRLab. To learn how to manage input protocol units, please visit the documentation on <a href="#36">|/usr/preferences.json|</a>.</p>
+% <div class="info">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The units below are displayed according to the original implementation contributed to qMRLab. To learn how to manage input protocol units, please visit the documentation on <a href="#user"><code>user preferences</code></a>.</p>
 % </div>
 % </html>
 %
@@ -61,8 +61,8 @@ Model = *-modelName-*;
 %% 2.b.2 Set |protocol| and |options| _the GUI way_
 %%
 % <html>
-% <div class="warning">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The units below are displayed according to the original implementation contributed to qMRLab. To learn how to manage input protocol units, please visit the documentation on <a href="#36">|/usr/preferences.json|</a>.</p>
+% <div class="info">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The units below are displayed according to the original implementation contributed to qMRLab. To learn how to manage input protocol units, please visit the documentation on <a href="#user"><code>user preferences</code></a>.</p>
 % </div>
 % </html>
 %
@@ -128,8 +128,8 @@ qMRshowOutput(FitResults_old,data,Model);
 
 %%
 % <html>
-% <div class="warning">
-% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The unit of the quantitative map displayed above is set according to the original implementation contributed to qMRLab. To learn how to manage output map units, please visit the documentation on <a href="#36">|/usr/preferences.json|</a>.</p>
+% <div class="info">
+% <p style="margin:0px!important;"><strong>&nbsp<i class="fa fa-info-circle" style="color:black;margin-left:5px;"></i></strong> The unit of the quantitative map displayed above is set according to the original implementation contributed to qMRLab. To learn how to manage output map units, please visit the documentation on the <a href="#user"><code>user preferences</code></a>.</p>
 % </div>
 % </html>
 

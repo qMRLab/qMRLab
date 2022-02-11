@@ -1,4 +1,4 @@
-function GenerateDocumentation(docDirectory,sysEnvPATH)
+function GenerateDocumentation(docDirectory,varargin)
     %% Launch from any folder --> this script will create a folder qMRLab/Data
     cd([fileparts(which('qMRLab.m')),'/src']);
     
@@ -27,13 +27,44 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
     % Do not show warns in doc pages
     warning('off','all');
     
-    Modellist = list_models';
-    % SKIP NEW DOC GENERATION FOR AMICO
-    % If you need to re-gen doc for amico, please comment out following two lines
-    % Similar changes are required in
-    % - InsertBadge.m 
-    [~,amicoloc] = ismember(['amico'],Modellist);
-    Modellist(amicoloc) = [];
+    p = inputParser();
+    validPath = @(x) exist(x,'dir');
+    validCellArray = @(x) isvector(x) && iscell(x);
+    addRequired(p,'docDirectory',validPath);
+    addParameter(p, 'SysEnv',[],@ischar);
+    addParameter(p, 'BuildOnly',[],validCellArray);
+    addParameter(p, 'BuildExcept',[],validCellArray);
+
+    
+    parse(p,docDirectory,varargin{:});
+
+    buildOnly = p.Results.BuildOnly;
+    buildExcept = p.Results.BuildExcept;
+    sysEnvPATH = p.Results.SysEnv;
+
+    if isempty(buildOnly) && isempty(buildExcept)
+        Modellist = list_models';
+        % SKIP NEW DOC GENERATION FOR AMICO
+        % If you need to re-gen doc for amico, please comment out following two lines
+        % Similar changes are required in
+        % - InsertBadge.m 
+        [~,amicoloc] = ismember(['amico'],Modellist);
+        Modellist(amicoloc) = [];
+    end
+    
+    if ~isempty(buildOnly)
+        Modellist = buildOnly;
+    end
+
+    if ~isempty(buildExcept)
+        Modellist = list_models';
+        % SKIP NEW DOC GENERATION FOR AMICO
+        % If you need to re-gen doc for amico, please comment out the next line
+        buildExcept = [buildExcept,'amico']
+        [~,drop] = ismember(buildExcept,Modellist )
+        Modellist(drop) = [];
+    end
+
     for iModel = 1:length(Modellist)
         eval(['Model = ' Modellist{iModel}]);
         qMRgenBatch(Model,pwd)
@@ -46,13 +77,9 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
     % Enable warnings
     warning('on','all');
 
-    % delete old batch
-    list = sct_tools_ls([docDirectory filesep 'source/*_batch.rst'],1,1);
-    % WARNING 
-    % SKIP NEW DOC GENERATION FOR AMICO
-    % If you need to re-gen doc for amico, please comment out following two lines
-    [~,amicoloc] = ismember([docDirectory filesep 'source/amico_batch.rst'],list);
-    list(amicoloc) = [];
+    % Only remove those are going to be re-generated, do not touch others.
+    list = cellfun(@(x) [docDirectory filesep 'source' filesep x '_batch.rst'],Modellist,'UniformOutput',false);
+
     if ~isempty(list)
         delete(list{:})
     end
@@ -72,16 +99,18 @@ function GenerateDocumentation(docDirectory,sysEnvPATH)
     % the PATH env var in MATLAB. In Unix, you can easily copy path to
     % clipboard by <<echo $PATH | pbcopy>> in terminal.
     % Then you can call this script like this: 
-    % GenerateDocumentation('~/Desktop/neuropoly/documentation','Users/agah/opt/anaconda3/bin:/Users/agah/opt/anaconda3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin');
+    % GenerateDocumentation('~/Desktop/neuropoly/documentation','BuildOnly',{'inversion_recovery'});
+    % env = 'Users/agah/opt/anaconda3/bin:/Users/agah/opt/anaconda3/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+    % GenerateDocumentation('~/Desktop/neuropoly/documentation','SysEnv',env,'BuildOnly',{'inversion_recovery'});
     
-    if exist(sysEnvPATH,'var')
+    if ~isempty(sysEnvPATH)
         setenv('PATH',sysEnvPATH);
     end
     % Plots python version to ensure that the right version is used.
     system(['python3 --version; python3 auto_TOC.py ' fileparts(which('qMRLab.m'))]); % Gabriel Berestegovoy. gabriel.berestovoy@polymtl.ca
     
     % Insert Binder badges to the rst files in the source dir
-    insertBadge([docDirectory filesep 'source']);
+    insertBadge([docDirectory filesep 'source'],Modellist);
     %% Build
     % See requirements.txt in the docsDir
     % Same applies regarding the PATH
