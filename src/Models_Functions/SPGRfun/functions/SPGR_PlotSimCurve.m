@@ -2,14 +2,22 @@ function SPGR_PlotSimCurve(MTdata, MTnoise, Prot, Sim, SimCurveResults)
 
 leg = {};
 if ~isempty(MTdata)
-    semilogx(Prot.Offsets, MTdata,'kx', 'MarkerSize', 8); hold on;
+    semilogx(Prot.Offsets, MTdata,'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'k'); hold on;
     leg{1} = 'Raw data';
 end
 if (Sim.Opt.AddNoise)
     semilogx(Prot.Offsets, MTnoise,'bo','MarkerSize',8);
 end
 
-semilogx(SimCurveResults.Offsets, SimCurveResults.curve, 'LineWidth', 2);
+% Pretify
+set(gca, 'ColorOrder', [0 0.4470 0.7410; .8500 0.3250 0.0980]);
+
+if min(Prot.Offsets)>=300 % Below 300, the simulated curve calculation changes, giving a "kink" to the curve
+    semilogx(SimCurveResults.Offsets(SimCurveResults.Offsets>300), SimCurveResults.curve(find(SimCurveResults.Offsets>300),:), '--', 'LineWidth', 2);
+else
+    semilogx(SimCurveResults.Offsets, SimCurveResults.curve, '--', 'LineWidth', 2);
+end
+
 
 
 if (Sim.Opt.AddNoise)
