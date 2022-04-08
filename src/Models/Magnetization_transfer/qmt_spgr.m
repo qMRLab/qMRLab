@@ -158,7 +158,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch sim'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
@@ -252,7 +252,7 @@ end
             end
             Protocol = GetProt(obj);
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch sim'
                     Sim.Param.lineshape = obj.options.Lineshape;
                     Sim.Param.M0f       = 1;
                     Sim.Opt.Reset       = Opt.ResetMz;
