@@ -10,7 +10,7 @@ if (Sim.Opt.AddNoise)
 end
 
 % Pretify
-set(gca, 'ColorOrder', [0 0.4470 0.7410; .8500 0.3250 0.0980]);
+set(gca, 'ColorOrder', [0 0.4470 0.7410; .8500 0.3250 0.0980; 0.9290 0.6940 0.1250]);
 
 if min(Prot.Offsets)>=300 % Below 300, the simulated curve calculation changes, giving a "kink" to the curve
     semilogx(SimCurveResults.Offsets(SimCurveResults.Offsets>300), SimCurveResults.curve(find(SimCurveResults.Offsets>300),:), '--', 'LineWidth', 2);
@@ -26,12 +26,9 @@ end
 
 nAngles  = size(SimCurveResults.curve,2);
 nOffsets = length(Prot.Offsets)/nAngles;
+uniqueAngles = sort(unique(Prot.Angles));
 for i = 1:nAngles
-    if Prot.Angles(1) == Prot.Angles(2)
-        leg{end+1} = sprintf('Fitted curve (angle = %0.0f)',Prot.Angles(nOffsets*i));
-    else
-        leg{end+1} = sprintf('Fitted curve (angle = %0.0f)',Prot.Angles(i));
-    end        
+    leg{end+1} = sprintf('Fitted curve (angle = %0.0f)', uniqueAngles(i));
 end
 
 if ~moxunit_util_platform_is_octave
