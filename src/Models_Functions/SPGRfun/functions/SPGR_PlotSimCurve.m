@@ -10,7 +10,7 @@ if (Sim.Opt.AddNoise)
 end
 
 % Pretify
-set(gca, 'ColorOrder', [0 0.4470 0.7410; .8500 0.3250 0.0980; 0.9290 0.6940 0.1250]);
+set(gca, 'ColorOrder', [0.9290 0.6940 0.1250; 0 0.4470 0.7410; .8500 0.3250 0.0980]);
 
 if min(Prot.Offsets)>=300 % Below 300, the simulated curve calculation changes, giving a "kink" to the curve
     semilogx(SimCurveResults.Offsets(SimCurveResults.Offsets>300), SimCurveResults.curve(find(SimCurveResults.Offsets>300),:), '--', 'LineWidth', 2);
