@@ -156,7 +156,8 @@ classdef mt_sat < AbstractModel
             
             % 2.5.0 --> Export MTR
             if checkanteriorver(version,[2 5 0])
-                obj.buttons = {'PANEL','###Export MTR',1, 'Export',false};
+                obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','###Export MTR',1, 'Export',false};
+                obj.options.B1correctionfactor=0.04;
                 obj.options.ExportMTR_Export = false;
             end
 
