@@ -132,7 +132,7 @@ classdef mt_sat < AbstractModel
             % 2.0.6
             if checkanteriorver(version,[2 0 6])
                 % add B1factor
-                obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','###Export MTR',1, 'Enabled',true};
+                obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','Export MTR',1, 'Enabled',true};
                 obj.options.B1correctionfactor=0.04;
                 obj.options.ExportMTR_Enabled = true;
             end
@@ -158,7 +158,7 @@ classdef mt_sat < AbstractModel
             
             % 2.5.0 --> Export MTR
             if checkanteriorver(version,[2 5 0])
-                obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','###Export MTR',1, 'Enabled',true};
+                obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','Export MTR',1, 'Enabled',true};
                 obj.options.B1correctionfactor=0.04;
                 obj.options.ExportMTR_Enabled = true;
             end
