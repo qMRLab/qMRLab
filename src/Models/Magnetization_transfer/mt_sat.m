@@ -77,7 +77,7 @@ classdef mt_sat < AbstractModel
         ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
         'style',repmat({'TableNoButton'},[1,3]));
 
-        buttons = {'B1 correction factor', 0.4, 'PANEL','###Export MTR',1, 'Enabled',true};
+        buttons = {'B1 correction factor', 0.4, 'PANEL','Export MTR',1, 'Enabled',true};
         options= struct();
 
     end
@@ -91,9 +91,10 @@ classdef mt_sat < AbstractModel
         function obj = UpdateFields(obj)
             % Disable Export MTR panel when TRs don't match
             if obj.Prot.MTw.Mat(2) ~= obj.Prot.PDw.Mat(2)
-                obj.buttons{strcmp(obj.buttons,'Export MTR') | strcmp(obj.buttons,'###Export MTR')} = '###Export MTR';
+                obj = setPanelInvisible(obj,'Export MTR', 1);
             else
-                obj.buttons{strcmp(obj.buttons,'Export MTR') | strcmp(obj.buttons,'###Export MTR')} = 'Export MTR';
+                obj = setPanelInvisible(obj,'Export MTR', 0);
+            %    obj.buttons{strcmp(obj.buttons,'Export MTR') | strcmp(obj.buttons,'###Export MTR')} = 'Export MTR';
             end
         end
 
