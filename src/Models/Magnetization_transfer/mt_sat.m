@@ -17,6 +17,7 @@ classdef mt_sat < AbstractModel
 % Outputs:
 %	  MTSAT         MT saturation map (%), T1-corrected
 %     T1            T1 map (s)
+%     MTR           Export MTR when the TRs of MTw and PDw match
 %
 % Options:
 %     B1 correction factor     Correction factor (empirical) for the transmit RF. Only
@@ -56,7 +57,7 @@ classdef mt_sat < AbstractModel
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
     properties (Hidden=true)
-        onlineData_url = 'https://osf.io/c5wdb/download?version=3';
+        onlineData_url = 'https://osf.io/c5wdb/download?version=4';
     end
 
     properties
@@ -76,7 +77,7 @@ classdef mt_sat < AbstractModel
         ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
         'style',repmat({'TableNoButton'},[1,3]));
 
-        buttons = {'B1 correction factor', 0.4};
+        buttons = {'B1 correction factor', 0.4, 'PANEL','Export MTR',1, 'Enabled',true};
         options= struct();
 
     end
@@ -84,6 +85,17 @@ classdef mt_sat < AbstractModel
     methods
         function obj = mt_sat
             obj.options = button2opts(obj.buttons);
+            obj = UpdateFields(obj);
+        end
+        
+        function obj = UpdateFields(obj)
+            % Disable Export MTR panel when TRs don't match
+            if obj.Prot.MTw.Mat(2) ~= obj.Prot.PDw.Mat(2)
+                obj = setPanelInvisible(obj,'Export MTR', 1);
+            else
+                obj = setPanelInvisible(obj,'Export MTR', 0);
+            %    obj.buttons{strcmp(obj.buttons,'Export MTR') | strcmp(obj.buttons,'###Export MTR')} = 'Export MTR';
+            end
         end
 
         function FitResult = fit(obj,data)
@@ -97,6 +109,19 @@ classdef mt_sat < AbstractModel
 
             [FitResult.MTSAT, R1] = MTSAT_exec(data, MTparams, PDparams, T1params, B1params);
             FitResult.T1 = 1./R1;
+            
+            if (MTparams(2) == PDparams(2) && (obj.options.ExportMTR_Enabled == true))
+                FitResult.MTR = 100 * (data.PDw - data.MTw)./data.PDw;
+                
+                FitResult.MTR(isnan(FitResult.MTR)) = 0;
+                FitResult.MTR(isinf(FitResult.MTR)) = 0;
+                
+                if isfield(data,'Mask') && not(isempty(data.Mask))
+                    data.Mask(isnan(data.Mask)) = 0;
+                    data.Mask = logical(data.Mask);
+                    FitResult.MTR = FitResult.MTR.*data.Mask;
+                end
+            end
         end
 
     end
@@ -107,8 +132,9 @@ classdef mt_sat < AbstractModel
             % 2.0.6
             if checkanteriorver(version,[2 0 6])
                 % add B1factor
-                obj.buttons = {'B1 correction factor',   [0.4000]};
+                obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','Export MTR',1, 'Enabled',true};
                 obj.options.B1correctionfactor=0.04;
+                obj.options.ExportMTR_Enabled = true;
             end
 
             % 2.0.7 --> rename MT PD T1 (to MTw PDw T1w)
@@ -128,6 +154,13 @@ classdef mt_sat < AbstractModel
             if checkanteriorver(version,[2 3 1])
                 obj.ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
                 'style',repmat({'TableNoButton'},[1,3]));
+            end
+            
+            % 2.5.0 --> Export MTR
+            if checkanteriorver(version,[2 5 0])
+                obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','Export MTR',1, 'Enabled',true};
+                obj.options.B1correctionfactor=0.04;
+                obj.options.ExportMTR_Enabled = true;
             end
 
         end
