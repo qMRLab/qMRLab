@@ -53,6 +53,7 @@ TO PUBLICATION</p></b>
 
 **qMRLab**
 
+* [Karakuzu et al. *qMRLab: Quantitative MRI analysis, under one umbrella.* Journal of Open Source Software (JOSS) 2020](https://joss.theoj.org/papers/10.21105/joss.02343)
 * [Karakuzu et al. *The qMRLab workflow: From acquisition to publication.* ISMRM 2019](https://www.ismrm.org/19/program_files/DP23.htm#005)
 * [Duval et al. *Quantitative MRI made easy with qMRLab.* ISMRM 2018](http://archive.ismrm.org/2018/2288.html)
 * [Cabana et al. *Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation, analysis, and visualization.* Concepts in Magn Reson 2015](https://onlinelibrary.wiley.com/doi/abs/10.1002/cmr.a.21357)
@@ -72,6 +73,7 @@ TO PUBLICATION</p></b>
 
 **Interactive Tutorials**
 
+* [Boudreau M. *New Filtering Module.* qMRLab.org 2019](https://qmrlab.org/2019/08/08/b1filter.html)
 * [Boudreau M. *Relaxometry Series: MP2RAGE T<sub>1</sub> Mapping.* qMRLab.org 2019](https://qmrlab.org/2019/04/08/T1-mapping-mp2rage.html)
 * [Boudreau M. *Relaxometry Series: Variable Flip Angle T<sub>1</sub> Mapping.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/12/11/T1-mapping-variable-flip-angle.html)
 * [Boudreau M. *Relaxometry Series: Inversion Recovery T<sub>1</sub> Mapping.* qMRLab.org 2018](https://qmrlab.org/jekyll/2018/10/23/T1-mapping-inversion-recovery.html)
