@@ -64,15 +64,6 @@ classdef mt_ratio < AbstractModel
             FitResults.MTR(isnan(FitResults.MTR)) = 0;
             FitResults.MTR(isinf(FitResults.MTR)) = 0;
 
-            if isfield(data,'Mask') && not(isempty(data.Mask))
-
-                data.Mask(isnan(data.Mask)) = 0;
-
-                data.Mask = logical(data.Mask);
-                FitResults.MTR = FitResults.MTR.*data.Mask;
-
-            end
-
         end
 
 
