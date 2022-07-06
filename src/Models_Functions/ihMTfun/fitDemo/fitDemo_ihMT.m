@@ -1,8 +1,8 @@
 %% Settings
 
 clc;
-testData  = load('ihMTfun/fitDemo/ihMTdata_demo.mat');      % load demo data
-Prot = load('ihMTfun/fitDemo/DemoProtocol.mat');     % load default protocol
+testData  = load('/src/Models_Functions/ihMTfun/fitDemo/ihMTdata_demo.mat');      % load demo data
+Prot = load('/src/Models_Functions/ihMTfun/fitDemo/DemoProtocol.mat');     % load default protocol
 fitValues = load('fitValues.mat');
 MTparams = Prot.obj.Prot.MTw_dual.Mat;
 PDparams = Prot.obj.Prot.PDw.Mat;
