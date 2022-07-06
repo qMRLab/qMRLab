@@ -209,9 +209,9 @@ methods
 
             [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
             
-            FitResult.T1cor = T1corrected.img;
-            FitResult.R1cor=1./FitResult.T1cor;
-            FitResult.R1cor(isnan(FitResult.R1cor))=0;
+            FitResult.T1 = T1corrected.img;
+            FitResult.R1=1./FitResult.T1;
+            FitResult.R1(isnan(FitResult.R1))=0;
             FitResult.MP2RAGEcor = MP2RAGEcorr.img;
 
         else
