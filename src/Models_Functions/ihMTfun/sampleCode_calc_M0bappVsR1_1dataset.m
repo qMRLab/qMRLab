@@ -53,7 +53,7 @@ App(Inds) = lfa(Inds) .* hfa(Inds) .* (TR1 .* a2(Inds)./a1(Inds) - TR2.* a1(Inds
 % App = lfa .* hfa .* (TR .* a2./a1 - TR.* a1./a2) ./ (hfa.* TR .*a2 - lfa.* TR .*a1);
 
 R1 = R1.*mask;
-T1 = 1/R1.*mask;
+T1 = 1./R1.*mask;
 App = App.*mask;
 
 %% Generate MTsat maps for the MTw images. 
@@ -156,14 +156,14 @@ ft = fittype('poly1');
     ylabel('M_{0,app}^B', 'FontSize', 20, 'FontWeight', 'bold')
     %colorbar('off')
     legend('hide')
-    saveas(figfit,[obj.options.Sequencesimulation_fitValuesDirectory filesep 'M0bvsR1.png'])
+    %saveas(figfit,[obj.options.Sequencesimulation_fitValuesDirectory filesep 'M0bvsR1.png'])
   
     
 %% Now add these regression equations to the fitValues structure and save. 
 fitValues.fitValues.Est_M0b_from_R1 = strcat( num2str(fitvals_Msat(1)),' *Raobs + ',num2str(fitvals_Msat(2)));
 fitValues = fitValues.fitValues;
-fitValue_fn = strcat(obj.options.Sequencesimulation_fitValuesDirectory, filesep, obj.options.Sequencesimulation_fitValuesName);
-save(fitValue_fn,'fitValues')
+%fitValue_fn = strcat(obj.options.Sequencesimulation_fitValuesDirectory, filesep, obj.options.Sequencesimulation_fitValuesName);
+%save(fitValue_fn,'fitValues')
 fitValues.fitValues = fitValues;
 
 end
