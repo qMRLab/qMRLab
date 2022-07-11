@@ -1,4 +1,4 @@
-function y = sinc(x)
+function y = sinc_fn(x)
 
 i=find(x==0);                                                              
 x(i)= 1;                       
