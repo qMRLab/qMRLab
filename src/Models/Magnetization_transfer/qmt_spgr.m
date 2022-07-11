@@ -243,7 +243,7 @@ end
             end
         end
 
-        function mz = equation(obj, x, Opt)
+        function [mz, Mz0] = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x = struct2mat(x,obj.xnames);
             x = x+eps;
@@ -260,10 +260,11 @@ end
                     Sim.Opt.SStol       = 1e-4;
                     Protocol.Npulse = Protocol.MTpulse.Npulse;
                     if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
-                    mz = SPGR_sim(Sim, Protocol, ISDISPLAY);
+                    [mz, ~, Mz0] = SPGR_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
                     SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
                     mz = SimCurveResults.curve;
+                    Mz0 = 1;
             end
         end
 
@@ -313,17 +314,18 @@ end
                 'FontSize',10);
         end
 
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+        function [FitResults, Smodel, Mz0] = Sim_Single_Voxel_Curve(obj, x, Opt, display)
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
-            Smodel = equation(obj, x, Opt);
-            data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
-            FitResults = fit(obj,data);
-            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
-            if display
-                plotModel(obj, FitResults, data);
-                drawnow;
-            end
+            [Smodel, Mz0] = equation(obj, x, Opt);
+            FitResults=[];
+            %data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
+            %FitResults = fit(obj,data);
+            %delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
+            %if display
+            %    plotModel(obj, FitResults, data);
+            %    drawnow;
+            %end
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
