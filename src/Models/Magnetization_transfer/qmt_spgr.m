@@ -319,13 +319,13 @@ end
             if ~exist('display','var'), display = 1; end
             [Smodel, Mz0] = equation(obj, x, Opt);
             FitResults=[];
-            %data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
-            %FitResults = fit(obj,data);
-            %delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
-            %if display
-            %    plotModel(obj, FitResults, data);
-            %    drawnow;
-            %end
+            data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
+            FitResults = fit(obj,data);
+            delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
+            if display
+                plotModel(obj, FitResults, data);
+                drawnow;
+            end
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
