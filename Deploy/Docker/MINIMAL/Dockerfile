@@ -28,7 +28,7 @@ RUN echo ${TAG}; \
     mkdir $HOME/work; \
     cd $HOME/work; \    
     git clone --recurse-submodules -b ${TAG} --single-branch --depth 1 https://github.com/qMRLab/qMRLab.git;\
-    chmod -R 777 $HOME/work/qMRLab; \
+    chmod -R 777 cd $HOME/work/qMRLab; \
     octave --eval "cd $HOME/work/qMRLab; \
                       startup; \
                       savepath(); \

@@ -47,7 +47,7 @@ classdef vfa_t1 < AbstractModel
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
- onlineData_url = 'https://osf.io/7wcvh/download?version=3';  
+ onlineData_url = 'https://osf.io/7wcvh/download?version=4';  
 end
 
     properties
@@ -66,7 +66,7 @@ end
         fx           = [0     0]; % fix parameters
 
         % Model options
-        buttons = {};
+        buttons = {'Export uncorrected map',true};
         options= struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulation Options
@@ -82,10 +82,16 @@ end
 
         function obj = vfa_t1()
             obj.options = button2opts(obj.buttons);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function Smodel = equation(obj,x)
-            % Generates a VFA signal based on input parameters
+        % Ensure ORIGINAL protocol units on load
+        obj = setOriginalProtUnits(obj);
+            
+        % Generates a VFA signal based on input parameters
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
 
             % Equation: S=M0sin(a)*(1-E)/(1-E)cos(a); E=exp(-TR/T1)
@@ -93,6 +99,9 @@ end
             TR = obj.Prot.VFAData.Mat(1,2);
             E = exp(-TR/x.T1);
             Smodel = x.M0*sin(flipAngles/180*pi)*(1-E)./(1-E*cos(flipAngles/180*pi));
+
+        % Ensure USER protocol units after process
+        obj = setUserProtUnits(obj);
         end
 
        function FitResult = fit(obj,data)
@@ -101,18 +110,43 @@ end
             TR = obj.Prot.VFAData.Mat(:,2);
             if obj.voxelwise == 0
                 if (length(unique(TR))~=1), error('VFA data must have same TR'); end
-                if ~isfield(data, 'B1map'), data.B1map = []; end
                 if ~isfield(data, 'Mask'), data.Mask = []; end
-                [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                if ~isEmptyField(data,'B1map') && obj.options.Exportuncorrectedmap
+                    [FitResult.T1cor, FitResult.M0cor] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                    data.B1map = [];
+                    [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                end
+                
+                if ~isEmptyField(data,'B1map') && ~obj.options.Exportuncorrectedmap
+                    [FitResult.T1cor, FitResult.M0cor] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                end
+                
+                if isEmptyField(data,'B1map')
+                    data.B1map = [];
+                    [FitResult.T1, FitResult.M0] = Compute_M0_T1_OnSPGR(double(data.VFAData), flipAngles, TR(1), data.B1map, data.Mask);
+                end
             elseif obj.voxelwise == 1
-                if ~isfield(data,'B1map'), data.B1map=1; end
-                [m0, t1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
-                FitResult.T1 = t1;
-                FitResult.M0 = m0;
+                if ~isempty(data.B1map) && obj.options.Exportuncorrectedmap
+                    [FitResult.M0cor, FitResult.T1cor] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                    data.B1map=1; 
+                    [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                end
+                
+                if ~isempty(data.B1map) && ~obj.options.Exportuncorrectedmap
+                    [FitResult.M0cor, FitResult.T1cor] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                end
+                
+                if isempty(data.B1map)
+                    data.B1map=1; 
+                    [FitResult.M0, FitResult.T1] = mtv_compute_m0_t1(double(data.VFAData), flipAngles, TR(1), data.B1map);
+                end
             end
        end
 
        function plotModel(obj,x,data)
+       % Ensure ORIGINAL protocol units on load
+       obj = setOriginalProtUnits(obj);
+
            if nargin<2 || isempty(x), x = obj.st; end
            x = mat2struct(x,obj.xnames);
            disp(x)
@@ -178,8 +212,12 @@ end
 %             ylabel( 'y' );
 %             grid on
 %             saveas(gcf,['temp.jpg']);
+        % Ensure USER protocol units after process
+        obj = setUserProtUnits(obj);
        end
        function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+       % Ensure ORIGINAL protocol units on load
+       obj = setOriginalProtUnits(obj);
            % Simulates Single Voxel
            %
            % :param x: [struct] fit parameters
@@ -197,16 +235,30 @@ end
            if display
                plotModel(obj, FitResults, data);
            end
-       end
+      % Ensure USER protocol units after process
+      obj = setUserProtUnits(obj);   
+     end
 
        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+           % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
            % SimVaryGUI
            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+           
+           % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
        end
 
        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+           % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
            % SimVaryGUI
            SimRndResults = SimRnd(obj, RndParam, Opt);
+           
+           % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
        end
 
 
@@ -394,4 +446,19 @@ end
             
         end
     end
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+                
+                obj.buttons = {'Export uncorrected map', true};
+                obj.options.Exportuncorrectedmap=true;
+            end
+        end
+    end
+
 end

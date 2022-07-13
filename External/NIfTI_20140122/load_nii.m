@@ -166,8 +166,19 @@ function nii = load_nii(filename, img_idx, dim5_idx, dim6_idx, dim7_idx, ...
          tmpDir = tempname;
          mkdir(tmpDir);
          gzFileName = filename;
-         copyfile(filename,tmpDir)
          [pathtmp, nametmp, exttmp] = fileparts(filename);
+         
+         if moxunit_util_platform_is_octave
+            % Octave is messing this up with datalad. Use system cp instead.
+            if isunix
+               system(['cp ' filename ' ' fullfile(tmpDir,[nametmp,exttmp])]);
+            else
+               system(['copy ' filename ' ' fullfile(tmpDir,[nametmp,exttmp])]);
+            end
+         else
+            copyfile(filename,tmpDir)
+         end
+         
          if ~isempty(getenv('ISNEXTFLOW')) && str2double(getenv('ISNEXTFLOW'))
          % To avoid too many levels of symlinks error thrown by octave. 
             system(['gzip -d --force ' fullfile(tmpDir,[nametmp,exttmp])]);

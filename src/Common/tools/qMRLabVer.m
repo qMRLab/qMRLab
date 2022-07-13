@@ -1,7 +1,9 @@
 function ver = qMRLabVer
 % qMRLabVer  Display qMRLab version
 
-versionfile='version.txt';
+%versionfile='version.txt';
+% Describe it more specifically
+versionfile= fullfile(fileparts(which('qMRLab.m')),'version.txt');
 fid = fopen(versionfile,'r');
 s = fgetl(fid);
 fclose(fid);

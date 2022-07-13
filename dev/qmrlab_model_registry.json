@@ -1,0 +1,646 @@
+{
+	"amico": {
+        "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2014.10.026",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "Mask": "categorical"
+        },
+		"InputProtUnits":
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "Gnorm": "tesla_per_meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "di": "square_micrometer_per_millisecond",
+            "ficv": "fraction_decimal",
+            "fiso": "fraction_decimal",
+            "fr": "fraction_decimal",
+            "irfrac": "fraction_decimal",
+            "diso": "square_micrometer_per_millisecond",
+            "kappa": "arbitrary",
+            "b0":"arbitrary",
+            "theta": "radian",
+            "phi": "radian",
+            "ODI": "arbitrary",
+            "ObjectiveFun": "arbitrary"
+        }
+	},
+
+    "charmed": {
+        "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2005.03.042",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "SigmaNoise": "arbitrary",
+            "Mask": "categorical"
+        },
+		"InputProtUnits":
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "Gnorm": "tesla_per_meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "fr": "fraction_decimal",
+            "Dh": "square_micrometer_per_millisecond",
+            "Dcsf": "square_micrometer_per_millisecond",
+            "Dintra": "square_micrometer_per_millisecond",
+            "diameter_mean": "micrometer",
+            "fcsf": "fraction_decimal",
+            "lc": "arbitrary",
+            "fh": "fraction_decimal",
+            "residue": "arbitrary",
+            "S0_TE_N": "arbitrary",
+            "SigmaNoise": "arbitrary"
+        }
+	},
+
+    "dti": {
+        "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/S0006-3495(94)80775-1",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "SigmaNoise": "arbitrary",
+            "Mask": "categorical"
+        },
+		"InputProtUnits":
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "Gnorm": "tesla_per_meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "D": "tensor",
+            "L1": "arbitrary",
+            "L2": "arbitrary",
+            "L3": "arbitrary",
+            "FA": "arbitrary",
+            "S0_TE_N": "arbitrary",
+            "residue": "arbitrary"
+        }
+	},
+
+	"noddi": {
+        "ModelPath": "Diffusion/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2012.03.072",
+        "InputDataUnits":{
+            "DiffusionData": "arbitrary",
+            "Mask": "categorical"
+        },
+		"InputProtUnits": 
+        {
+        "DiffusionData":
+            {
+                "Gx": "arbitrary",
+                "Gy": "arbitrary",
+                "Gz": "arbitrary",
+                "Gnorm": "tesla_per_meter",
+                "Delta": "second",
+                "delta": "second",
+                "TE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "di": "square_micrometer_per_millisecond",
+            "ficv": "fraction_decimal",
+            "fiso": "fraction_decimal",
+            "fr": "fraction_decimal",
+            "irfrac": "fraction_decimal",
+            "diso": "square_micrometer_per_millisecond",
+            "kappa": "arbitrary",
+            "b0":"arbitrary",
+            "theta": "radian",
+            "phi": "radian",
+            "ODI": "arbitrary",
+            "ObjectiveFun": "arbitrary"
+        }
+	},
+
+    "b0_dem": {
+        "ModelPath": "FieldMaps/",
+        "Citation": "https://doi.org/10.1002/mrm.25279",
+        "InputDataUnits":{
+            "Phase": "radian",
+            "Magn":  "arbitrary"
+        },
+		"InputProtUnits": 
+        {
+        "TimingTable":
+            {
+                "deltaTE": "second"
+            }
+        },
+        "Outputs":
+        {
+            "B0map": "offset_factor_hertz",
+            "Phase_uw": "radian"
+        }
+	},
+
+    "b1_afi": {
+        "ModelPath": "FieldMaps/",
+        "Citation": "https://doi.org/10.1002/mrm.21120",
+        "InputDataUnits":{
+            "AFIData1": "arbitrary",
+            "AFIData2":  "arbitrary",
+            "Mask": "categorical"
+        },
+		"InputProtUnits":
+        {
+        "Sequence":
+            {
+                "nomFA": "degree",
+                "TR1": "millisecond",
+                "TR2": "millisecond"
+            }
+        },
+        "Outputs":
+        {
+            "B1map_raw": "relative_scaling_factor_decimal",
+            "B1map_filtered": "relative_scaling_factor_decimal",
+            "Spurious": "arbitrary"
+        }
+	},
+
+    "b1_dam": {
+        "ModelPath": "FieldMaps/",
+        "Citation": "https://doi.org/10.1006/jmra.1993.1133",
+        "InputDataUnits":{
+            "SFalpha": "arbitrary",
+            "SF2alpha":  "arbitrary",
+            "Mask": "categorical"
+        },
+		"InputProtUnits":
+        {
+        "SFalpha":
+            {
+                "FlipAngle": "degree"
+            }
+        },
+        "Outputs":
+        {
+            "B1map_raw": "relative_scaling_factor_decimal",
+            "B1map_filtered": "relative_scaling_factor_decimal",
+            "Spurious": "arbitrary"
+        }
+	},
+
+    "mt_ratio": {
+        "ModelPath": "Magnetization_transfer/",
+        "Citation": "",
+        "InputDataUnits":{
+            "MTon": "arbitrary",
+            "MToff":  "arbitrary",
+            "Mask": "categorical"
+        },
+        "Outputs":
+        {
+            "MTR": "fraction_percent"
+        }
+	},
+
+    "mt_sat": {
+        "ModelPath": "Magnetization_transfer/",
+        "Citation": "https://doi.org/10.1002/mrm.21732",
+        "InputDataUnits":{
+            "MTw": "arbitrary",
+            "T1w":  "arbitrary",
+            "PDw": "arbitrary",
+            "B1map": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+        "MTw":
+            {
+                "FlipAngle": "degree",
+                "TR": "second"
+            },
+        "T1w":
+        {
+            "FlipAngle": "degree",
+            "TR": "second"
+        },
+        "PDw":
+        {
+            "FlipAngle": "degree",
+            "TR": "second"
+        }
+        },
+        "Outputs":
+        {
+            "MTSAT": "arbitrary",
+            "T1": "second",
+            "T1cor": "second",
+            "MTSATcor": "arbitrary"
+        }
+	},
+
+    "qmt_bssfp": {
+        "ModelPath": "Magnetization_transfer/",
+        "Citation": "",
+        "InputDataUnits":{
+            "MTdata": "arbitrary",
+            "R1map": "reciprocal_second",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+        "MTdata":
+            {
+                "Alpha": "degree",
+                "Trf": "second"
+            }
+        },
+        "Outputs":
+        {
+            "F": "fraction_decimal",
+            "R1f": "reciprocal_second",
+            "R1r": "reciprocal_second",
+            "kf": "reciprocal_second",
+            "kr": "reciprocal_second",
+            "T2f": "second",
+            "M0f": "arbitrary",
+            "M0r": "arbitrary",
+            "resnorm": "arbitrary"
+        }
+	},
+
+    "qmt_sirfse": {
+        "ModelPath": "Magnetization_transfer/",
+        "Citation": "https://doi.org/10.1002/mrm.22440",
+        "InputDataUnits":{
+            "MTdata": "arbitrary",
+            "R1map": "reciprocal_second",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+        "MTdata":
+            {
+                "Ti": "second",
+                "Td": "second"
+            },
+        "FSEsequence":
+            {
+                "Trf": "second",
+                "Tr": "second",
+                "Npulse": "arbitrary"
+            }
+        },
+        "Outputs":
+        {
+            "F": "fraction_decimal",
+            "R1f": "reciprocal_second",
+            "R1r": "reciprocal_second",
+            "kf": "reciprocal_second",
+            "kr": "reciprocal_second",
+            "Sf": "fraction_decimal",
+            "Sr": "fraction_decimal",
+            "M0f": "arbitrary",
+            "M0r": "arbitrary",
+            "resnorm": "arbitrary"
+        }
+	},
+
+    "qmt_spgr": {
+        "ModelPath": "Magnetization_transfer/",
+        "Citation":"https://doi.org/10.1006/jmre.2000.2059",
+        "InputDataUnits":{
+            "MTdata": "arbitrary",
+            "R1map": "reciprocal_second",
+            "B1map": "relative_scaling_factor_decimal",
+            "B0map": "offset_factor_hertz",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+            "MTdata":
+                {
+                    "Angle": "degree",
+                    "Offset": "hertz"
+                },
+            "TimingTable":
+            {
+                "Tmt": "second",
+                "Ts": "second",
+                "Tp": "second",
+                "Tr": "second",
+                "TR":"second"
+            }
+        },
+        "Outputs":
+        {
+            "F": "fraction_decimal",
+            "R1f": "reciprocal_second",
+            "R1r": "reciprocal_second",
+            "T2f": "second",
+            "T2r": "second",
+            "kf": "reciprocal_second",
+            "kr": "reciprocal_second",
+            "resnorm": "arbitrary"
+        }
+	},
+
+    "qsm_sb": {
+        "ModelPath": "QSM/",
+        "Citation":"https://doi.org/10.1002/mrm.25029",
+        "InputDataUnits":{
+            "PhaseGRE": "radian",
+            "MagnGRE": "arbitrary",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+            "Resolution":
+                {
+                    "xDim": "millimeter",
+                    "yDim": "millimeter",
+                    "zDim": "millimeter"
+                },
+            "Timing":
+            {
+                "TE": "second"
+            },
+            "Magnetization":
+            {
+                "FieldStrength": "tesla",
+                "CentralFreq": "megahertz"
+            }
+        },
+        "Outputs":
+        {
+            "chiSB": "part_per_million",
+            "chiSBM": "part_per_million",
+            "chiL2": "part_per_million",
+            "chiL2M": "part_per_million",
+            "nfm": "part_per_million",
+            "unwrappedPhase": "radian",
+            "maskOut": "categorical"
+        }
+	},
+
+    "inversion_recovery": {
+        "ModelPath": "T1_relaxometry/",
+        "Citation":"https://doi.org/10.1002/mrm.22497",
+        "InputDataUnits":{
+            "IRData": "arbitrary",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+            "IRData":
+                {
+                    "TI": "millisecond"
+                },
+            "TimingTable":
+            {
+                "TR": "millisecond"
+            }
+        },    
+        "Outputs":
+        {
+            "T1": "millisecond",
+            "rb": "arbitrary",
+            "ra": "arbitrary",
+            "res": "arbitrary",
+            "idx": "categorical"
+        }
+	},
+
+    "mp2rage": {
+        "ModelPath": "T1_relaxometry/",
+        "Citation": "https://doi.org/10.1016/j.neuroimage.2009.10.002",
+        "InputDataUnits":{
+            "MP2RAGE": "arbitrary",
+            "INV1mag": "categorical",
+            "INV1phase": "radian",
+            "INV2mag": "categorical",
+            "INV2phase": "radian",
+            "B1map": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+            "Hardware":
+                {
+                    "B0": "tesla"
+                },
+            "RepetitionTimes":
+            {
+                "Inv": "second",
+                "Exc": "second"
+            },
+            "Timing":
+            {
+                "InversionTimes": "second"
+            },
+            "Sequence":
+            {
+                "FlipAngles": "degree"
+            },
+            "NumberOfShots":
+            {
+                "Pre": "arbitrary",
+                "Post": "arbitrary"
+            }
+        },    
+        "Outputs":
+        {
+            "T1": "second",
+            "T1cor": "second",
+            "R1": "reciprocal_second",
+            "R1cor": "reciprocal_second",
+            "MP2RAGEuncorr": "arbitrary",
+            "MP2RAGEcor": "arbitrary"
+        }
+	},
+
+    "mtv": {
+        "ModelPath": "T1_relaxometry/",
+        "Citation": "https://doi.org/10.1038/nm.3390",
+        "InputDataUnits":
+        {
+            "T1": "second",
+            "M0": "arbitrary",
+            "Mask": "categorical"
+        },    
+        "Outputs":
+        {
+            "MTV": "arbitrary",
+            "CoilGain": "arbitrary",
+            "CSF": "boolean",
+            "seg": "categorical"
+        }
+	},
+
+    "vfa_t1": {
+        "ModelPath": "T1_relaxometry/",
+        "Citation":"https://doi.org/10.1016/0730-725x(87)90021-x",
+        "InputDataUnits":
+        {   
+            "VFAData": "arbitrary",
+            "B1map": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+            "VFAData":
+                {
+                    "FlipAngle": "degree",
+                    "TR":"second"
+                }
+        },    
+        "Outputs":
+        {
+            "T1": "second",
+            "T1cor": "second",
+            "M0": "arbitrary",
+            "M0cor": "arbitrary"
+        }
+	},
+
+    "mono_t2": {
+        "ModelPath": "T2_relaxometry/",
+        "Citation":"https://doi.org/10.1371/journal.pone.0145255",
+        "InputDataUnits":
+        {   
+            "SEdata": "arbitrary",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+            "SEdata":
+                {
+                    "EchoTime": "millisecond"
+                }
+        },    
+        "Outputs":
+        {
+            "T2": "millisecond",
+            "M0": "arbitrary"
+        }
+	},
+
+    "mwf": {
+        "ModelPath": "T2_relaxometry/",
+        "Citation":"https://doi.org/10.1002/mrm.1910310614",
+        "InputDataUnits":
+        {   
+            "MET2data": "arbitrary",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+            "MET2data":
+                {
+                    "EchoTime": "millisecond"
+                }
+        },    
+        "Outputs":
+        {   
+            "MWF":"fraction_percent",
+            "T2IEW": "millisecond",
+            "T2MW": "millisecond"
+        }
+	},
+
+    "denoising_mppca":
+    {
+        "ModelPath": "Noise/",
+        "Citation":"https://doi.org/10.1002/mrm.26059",
+        "InputDataUnits":
+        {   
+            "Data4D": "arbitrary",
+            "Mask": "categorical"
+        },
+        "Outputs":
+        {   
+            "Data4D_denoised":"arbitrary",
+            "sigma_g": "arbitrary"
+        }
+    },
+
+    "noise_level":
+    {
+        "ModelPath": "Noise/",
+        "Citation": "",
+        "InputDataUnits":
+        {   
+            "Data4D": "arbitrary",
+            "Mask": "categorical"
+        },
+        "Outputs":
+        {   
+            "eta":"arbitrary",
+            "N":"arbitrary",
+            "sigma_g": "arbitrary"
+        }
+    },
+
+    "filter_map":
+    {
+        "ModelPath": "Processing/",
+        "Citation": "",
+        "InputDataUnits":
+        {   
+            "Raw": "arbitrary",
+            "Mask": "categorical"
+        },
+        "Outputs":
+        {   
+            "Filtered":"arbitrary"
+        }
+    },
+
+    "CustomExample": {
+        "ModelPath": "UnderDevelopment/",
+        "Citation":"https://doi.org/xxx",
+		"InputDataUnits": {
+            "inputmapname": "unit-type"
+        },
+        "InputProtUnits": {
+            "ParentFieldNameA":
+                {
+                    "parameternamex": "unit-type",
+                    "parameternamey": "unit-type"
+                },
+            "ParentFieldNameB":
+            {
+                "parameternamep": "unit-type",
+                "parameternameq": "unit-type"
+            }
+        },
+        "Outputs":{
+            "outputfieldnamex": "unit-type",
+            "outputfieldnamey": "unit-type"
+        }
+	}
+}

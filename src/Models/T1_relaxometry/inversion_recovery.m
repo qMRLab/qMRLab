@@ -69,8 +69,8 @@ end
         fx           = [    0        0        0 ]; % fix parameters
 
         % Protocol
-        Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
-                      'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
+        Prot = struct('IRData', struct('Format',{'TI'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
+                      'TimingTable', struct('Format',{{'TR'}},'Mat',2500)); %default protocol
         % Model options
         buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
@@ -85,206 +85,239 @@ methods (Hidden=true)
 % Hidden methods goes here.
 end
 
-    methods
-        % -------------CONSTRUCTOR-------------------------------------------------------------------------
-        function  obj = inversion_recovery()
-            obj.options = button2opts(obj.buttons);
+methods
+    % -------------CONSTRUCTOR-------------------------------------------------------------------------
+    function  obj = inversion_recovery()
+        obj.options = button2opts(obj.buttons);
+        % Prot values at the time of the construction determine 
+        % what is shown to user in CLI/GUI.
+        obj = setUserProtUnits(obj);
+    end
+
+    function obj = UpdateFields(obj)
+        % Here UpdateFields is only responsible for sorting TIs, so
+        % agnostic to the units.
+        obj.Prot.IRData.Mat = sort(obj.Prot.IRData.Mat);
+    end
+    
+    function xnew = SimOpt(obj,x,Opt)
+        [ra,rb] = ComputeRaRb(obj,x,Opt);
+        xnew = [Opt.T1 rb ra];
+
+    end
+
+    % -------------IR EQUATION-------------------------------------------------------------------------
+    function Smodel = equation(obj, x)   
+        % Ensure ORIGINAL protocol units on load
+        obj = setOriginalProtUnits(obj);
+        
+        % Generates an IR signal based on fit parameters
+        x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
+
+        % equation
+        Smodel = x.ra + x.rb * exp(-obj.Prot.IRData.Mat./x.T1);
+        if (strcmp(obj.options.method, 'Magnitude'))
+            Smodel = abs(Smodel);
         end
 
-        function obj = UpdateFields(obj)
-            obj.Prot.IRData.Mat = sort(obj.Prot.IRData.Mat);
-        end
-        function xnew = SimOpt(obj,x,Opt)
-            [ra,rb] = ComputeRaRb(obj,x,Opt);
-            xnew = [Opt.T1 rb ra];
+        % Ensure USER protocol units after process
+        obj = setUserProtUnits(obj);
+    end
 
-        end
+    % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
+    function [ra,rb] = ComputeRaRb(obj,x,Opt)
+        % Ensure ORIGINAL protocol units on load
+        obj = setOriginalProtUnits(obj);
 
-        % -------------IR EQUATION-------------------------------------------------------------------------
-        function Smodel = equation(obj, x)
-            % Generates an IR signal based on fit parameters
-            x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
+        % Some sanity checks
+        [ErrMsg]=[];
 
-            % equation
-            Smodel = x.ra + x.rb * exp(-obj.Prot.IRData.Mat./x.T1);
-            if (strcmp(obj.options.method, 'Magnitude'))
-                Smodel = abs(Smodel);
+        for brkloop=1:1
+            if Opt.TR < max(obj.Prot.IRData.Mat) %TR can't be less than max TI
+                txt=['The TR (' num2str(Opt.TR) ') cannot be less than max TI (' num2str(max(obj.Prot.IRData.Mat)),')'];
+                ErrMsg = txt; break
+            end
+            if Opt.T1 < 0 || Opt.T1 > 10000
+                txt='Choose a reasonable value for T1 (0-10000 s)';
+                ErrMsg = txt; break
+            end
+            if Opt.FAinv < 120 || Opt.FAinv > 220
+                txt='Choose a reasonable value for the inversion FA (120-220 deg)';
+                ErrMsg = txt; break
+            end
+                if Opt.FAexcite < 50 || Opt.FAexcite > 120
+                txt='Choose a reasonable value for the excitation FA (50-120 deg)';
+                ErrMsg = txt; break
             end
         end
-
-        % -------------EXPLICIT IR EQUATION-------------------------------------------------------------------------
-        function [ra,rb] = ComputeRaRb(obj,x,Opt)
-
-            % Some sanity checks
-            [ErrMsg]=[];
-
-            for brkloop=1:1
-                if Opt.TR < max(obj.Prot.IRData.Mat) %TR can't be less than max TI
-                    txt=['The TR (' num2str(Opt.TR) ') cannot be less than max TI (' num2str(max(obj.Prot.IRData.Mat)),')'];
-                    ErrMsg = txt; break
-                end
-                if Opt.T1 < 0 || Opt.T1 > 10000
-                    txt='Choose a reasonable value for T1 (0-10000 s)';
-                    ErrMsg = txt; break
-                end
-                if Opt.FAinv < 120 || Opt.FAinv > 220
-                    txt='Choose a reasonable value for the inversion FA (120-220 deg)';
-                    ErrMsg = txt; break
-                end
-                 if Opt.FAexcite < 50 || Opt.FAexcite > 120
-                    txt='Choose a reasonable value for the excitation FA (50-120 deg)';
-                    ErrMsg = txt; break
-                end
-            end
-            if ~isempty(ErrMsg)
-                if moxunit_util_platform_is_octave
-                    errordlg(ErrMsg,'Input Error');
-                else
-                    Mode = struct('WindowStyle','modal','Interpreter','tex');
-                    errordlg(ErrMsg,'Input Error', Mode);
-                    error(ErrMsg);
-                end
-            end
-
-            % equation for GRE-IR
-            ra = Opt.M0 * (1-cos(Opt.FAinv*pi/180)*exp(-Opt.TR/Opt.T1))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/Opt.T1));
-            rb = -Opt.M0 * (1-cos(Opt.FAinv*pi/180))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/Opt.T1));
-            %Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
-            %if (strcmp(obj.options.method, 'Magnitude'))
-            %    Smodel = abs(Smodel);
-            %end
-        end
-
-        % -------------DATA FITTING-------------------------------------------------------------------------
-        function FitResults = fit(obj,data)
-            % Fits the data
-            %
-            
-            data = data.IRData;
-            
-            switch obj.options.fitModel
-                case 'Barral'
-                    [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
-                    FitResults.T1  = T1;
-                    FitResults.rb  = rb;
-                    FitResults.ra  = ra;
-                    FitResults.res = res;
-                    if (strcmp(obj.options.method, 'Magnitude'))
-                        FitResults.idx = idx;
-                    end
-                case 'General'
-                    approxFlag = 3; % Selects the equation c(1-2exp(-TI/T1)+exp(TR/T1))
-
-                    params.TI = obj.Prot.IRData.Mat';
-                    params.TR = obj.Prot.TimingTable.Mat;
-                    
-                    if strcmp(obj.options.method, 'Magnitude')
-                        % Make sure data vector is a column vector
-                        data = data(:);
-
-                        % Find the min of the data (which is nearest to
-                        % signal null to flip
-                        [~, minInd] = min(data);
-                        
-                        % Signal inversion algorithm to fir the T1 curve
-                        for ii = 1:2
-                            % Fit the data by inverting the sign of the
-                            % datapoints up until the TI where signal is
-                            % null, then also without that point. The
-                            % fit with the smallest residual is our best
-                            % guess for up to where to flip the sign of the
-                            % signal.
-                            if ii == 1
-                                % First, we set all elements up to and including
-                                % the smallest element to minus
-                                dataTmp = data.*[-ones(minInd,1); ones(length(data) - minInd,1)];
-                            elseif ii == 2
-                                % Second, we set all elements up to (not including)
-                                % the smallest element to minus
-                                dataTmp = data.*[-ones(minInd-1,1); ones(length(data) - (minInd-1),1)];
-                            end
-                            [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
-                        end
-                        [~,ind] = min(resnorm); % Index of the minimum residual will be which signal fit results to choose.
-                        FitResults.T1 = fitVals{ind}.T1;
-                        FitResults.ra = fitVals{ind}.ra;
-                        FitResults.rb = fitVals{ind}.rb;
-                        FitResults.res = resnorm(ind);
-                        FitResults.idx = ind;
-                    elseif strcmp(obj.options.method, 'Complex')
-                        params.dataType = 'complex';
-                        [fitVals, resnorm] = inversion_recovery.fit_lm(data(:), params, 3);
-                        FitResults.T1 = fitVals.T1;
-                        FitResults.ra = fitVals.ra;
-                        FitResults.rb = fitVals.rb;
-                        FitResults.res = resnorm;
-                    end
-            end
-        end
-
-        function plotModel(obj, FitResults, data)
-            % Plots the fit
-            %
-            % :param FitResults: [struct] Fitting parameters
-            % :param data: [struct] input data
-            if nargin<2 || isempty(FitResults), FitResults = obj.st; end
-            if exist('data','var')
-                data = data.IRData;
-                % plot
-                plot(obj.Prot.IRData.Mat,data,'.','MarkerSize',15)
-                hold on
-                if (strcmp(obj.options.method, 'Magnitude'))
-                    % plot the polarity restored data points
-                    data_rest = -1.*data(1:FitResults.idx);
-                    plot(obj.Prot.IRData.Mat(1:FitResults.idx),data_rest,'o','MarkerSize',5,'MarkerEdgeColor','b','MarkerFaceColor',[1 0 0])
-                end
-            end
-
-            % compute model
-            obj.Prot.IRData.Mat = linspace(min(obj.Prot.IRData.Mat),max(obj.Prot.IRData.Mat),100);
-            Smodel = equation(obj, FitResults);
-
-            % plot fitting curve
-            plot(obj.Prot.IRData.Mat,Smodel,'Linewidth',3)
-            hold off
-            xlabel('Inversion Time [ms]','FontSize',15);
-            ylabel('Signal','FontSize',15);
-            legend('data', 'polarity restored', 'fit','Location','best')
-            set(gca,'FontSize',15)
-        end
-
-        function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
-            % Simulates Single Voxel
-            %
-            % :param x: [struct] fit parameters
-            % :param Opt.SNR: [struct] signal to noise ratio to use
-            % :param display: 1=display, 0=nodisplay
-            % :returns: [struct] FitResults, data (noisy dataset)
-
-            if ~exist('display','var'), display = 1; end
-
-            Smodel = equation(obj, x);
-            sigma = max(abs(Smodel))/Opt.SNR;
-            if (strcmp(obj.options.method, 'Magnitude'))
-                data.IRData = ricernd(Smodel,sigma);
+        if ~isempty(ErrMsg)
+            if moxunit_util_platform_is_octave
+                errordlg(ErrMsg,'Input Error');
             else
-                data.IRData = random('normal',Smodel,sigma);
-            end
-            FitResults = fit(obj,data);
-            if display
-                plotModel(obj, FitResults, data);
+                Mode = struct('WindowStyle','modal','Interpreter','tex');
+                errordlg(ErrMsg,'Input Error', Mode);
+                error(ErrMsg);
             end
         end
 
-        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
-            % SimVaryGUI
-            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+        % equation for GRE-IR
+        ra = Opt.M0 * (1-cos(Opt.FAinv*pi/180)*exp(-Opt.TR/Opt.T1))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/Opt.T1));
+        rb = -Opt.M0 * (1-cos(Opt.FAinv*pi/180))/(1-cos(Opt.FAinv*pi/180)*cos(Opt.FAexcite*pi/180)*exp(-Opt.TR/Opt.T1));
+        %Smodel = ra + rb * exp(-obj.Prot.IRData.Mat./x.T1);
+        %if (strcmp(obj.options.method, 'Magnitude'))
+        %    Smodel = abs(Smodel);
+        %end
+
+        % Ensure USER protocol units after process
+        obj = setUserProtUnits(obj);
+    end
+
+    % -------------DATA FITTING-------------------------------------------------------------------------
+    function FitResults = fit(obj,data)
+        
+        data = data.IRData;
+        
+        switch obj.options.fitModel
+            case 'Barral'
+                [T1,rb,ra,res,idx] = fitT1_IR(data,obj.Prot.IRData.Mat,obj.options.method);
+                FitResults.T1  = T1;
+                FitResults.rb  = rb;
+                FitResults.ra  = ra;
+                FitResults.res = res;
+                if (strcmp(obj.options.method, 'Magnitude'))
+                    FitResults.idx = idx;
+                end
+            case 'General'
+                approxFlag = 3; % Selects the equation c(1-2exp(-TI/T1)+exp(TR/T1))
+
+                params.TI = obj.Prot.IRData.Mat';
+                params.TR = obj.Prot.TimingTable.Mat;
+                
+                if strcmp(obj.options.method, 'Magnitude')
+                    % Make sure data vector is a column vector
+                    data = data(:);
+
+                    % Find the min of the data (which is nearest to
+                    % signal null to flip
+                    [~, minInd] = min(data);
+                    
+                    % Signal inversion algorithm to fir the T1 curve
+                    for ii = 1:2
+                        % Fit the data by inverting the sign of the
+                        % datapoints up until the TI where signal is
+                        % null, then also without that point. The
+                        % fit with the smallest residual is our best
+                        % guess for up to where to flip the sign of the
+                        % signal.
+                        if ii == 1
+                            % First, we set all elements up to and including
+                            % the smallest element to minus
+                            dataTmp = data.*[-ones(minInd,1); ones(length(data) - minInd,1)];
+                        elseif ii == 2
+                            % Second, we set all elements up to (not including)
+                            % the smallest element to minus
+                            dataTmp = data.*[-ones(minInd-1,1); ones(length(data) - (minInd-1),1)];
+                        end
+                        [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
+                    end
+                    [~,ind] = min(resnorm); % Index of the minimum residual will be which signal fit results to choose.
+                    FitResults.T1 = fitVals{ind}.T1;
+                    FitResults.ra = fitVals{ind}.ra;
+                    FitResults.rb = fitVals{ind}.rb;
+                    FitResults.res = resnorm(ind);
+                    FitResults.idx = ind;
+                elseif strcmp(obj.options.method, 'Complex')
+                    params.dataType = 'complex';
+                    [fitVals, resnorm] = inversion_recovery.fit_lm(data(:), params, 3);
+                    FitResults.T1 = fitVals.T1;
+                    FitResults.ra = fitVals.ra;
+                    FitResults.rb = fitVals.rb;
+                    FitResults.res = resnorm;
+                end
+        end
+    end
+
+    function plotModel(obj, FitResults, data)
+        % Ensure that the protocol values are in the original units.
+        obj = setOriginalProtUnits(obj);
+
+        % Plots the fit
+        %
+        % :param FitResults: [struct] Fitting parameters
+        % :param data: [struct] input data
+        if nargin<2 || isempty(FitResults), FitResults = obj.st; end
+        if exist('data','var')
+            data = data.IRData;
+            % plot
+            plot(obj.Prot.IRData.Mat,data,'.','MarkerSize',15)
+            hold on
+            if (strcmp(obj.options.method, 'Magnitude'))
+                % plot the polarity restored data points
+                data_rest = -1.*data(1:FitResults.idx);
+                plot(obj.Prot.IRData.Mat(1:FitResults.idx),data_rest,'o','MarkerSize',5,'MarkerEdgeColor','b','MarkerFaceColor',[1 0 0])
+            end
         end
 
-        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
-            % SimRndGUI
-            SimRndResults = SimRnd(obj, RndParam, Opt);
+        % compute model
+        obj.Prot.IRData.Mat = linspace(min(obj.Prot.IRData.Mat),max(obj.Prot.IRData.Mat),100);
+        Smodel = equation(obj, FitResults);
+
+        % plot fitting curve
+        plot(obj.Prot.IRData.Mat,Smodel,'Linewidth',3)
+        hold off
+        xlabel('Inversion Time [ms]','FontSize',15);
+        ylabel('Signal','FontSize',15);
+        legend('data', 'polarity restored', 'fit','Location','best')
+        set(gca,'FontSize',15)
+
+        % Ensure USER protocol units after process
+        obj = setUserProtUnits(obj);
+    end
+
+    function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+        % Ensure that the protocol values are in the original units.
+        obj = setOriginalProtUnits(obj);
+        
+        % Simulates Single Voxel
+        %
+        % :param x: [struct] fit parameters
+        % :param Opt.SNR: [struct] signal to noise ratio to use
+        % :param display: 1=display, 0=nodisplay
+        % :returns: [struct] FitResults, data (noisy dataset)
+
+        if ~exist('display','var'), display = 1; end
+
+        Smodel = equation(obj, x);
+        sigma = max(abs(Smodel))/Opt.SNR;
+        if (strcmp(obj.options.method, 'Magnitude'))
+            data.IRData = ricernd(Smodel,sigma);
+        else
+            data.IRData = random('normal',Smodel,sigma);
         end
+        FitResults = fit(obj,data);
+        if display
+            plotModel(obj, FitResults, data);
+        end
+
+        % Ensure USER protocol units after process
+        obj = setUserProtUnits(obj);
+    end
+
+    function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+        % SimVaryGUI
+        SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+    end
+
+    function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+        % Ensure that the protocol values are in the original units.
+        obj = setOriginalProtUnits(obj);
+        
+        % SimRndGUI
+        SimRndResults = SimRnd(obj, RndParam, Opt);
+
+        % Ensure USER protocol units after process
+        obj = setUserProtUnits(obj);
+    end
 
 %         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
 %             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
@@ -309,7 +342,7 @@ end
 %
 %         end
 
-    end
+end
 
     % CLI-only implemented static methods. Can be called directly from
     % class - no object needed.
@@ -589,6 +622,13 @@ end
                 % Model options
                 obj.buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
                 obj.options = button2opts(obj.buttons);
+            end
+            if checkanteriorver(version,[2 5 0])
+                % v2.5.0 drops unit parantheses.
+                obj.Prot.IRData.Format = {'TI'};
+                obj.Prot.TimingTable.Format = {'TR'};
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
         end
     end
