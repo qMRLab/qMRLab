@@ -131,6 +131,10 @@ classdef ihMT < AbstractModel
         function obj = ihMT()
             obj.options = button2opts(obj.buttons);
             %obj = UpdateFields(obj);
+
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
         
         function [obj,fitValues] = UpdateFields(obj)
@@ -246,6 +250,9 @@ classdef ihMT < AbstractModel
         end
         
         function [SimProt, M0b, T1obs] = GetSimProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+
             SimProt.b1 = obj.options.Sequencesimulation_B1rms;
             SimProt.numSatPulse = obj.options.Sequencesimulation_Numbersaturationpulse;
             SimProt.pulseDur = obj.options.Sequencesimulation_Pulseduration/1000; %duration of 1 MT pulse in seconds
@@ -274,6 +281,9 @@ classdef ihMT < AbstractModel
             SimProt.M0b =  M0b; % going to loop over this
             SimProt.Raobs = 1./T1obs;
             SimProt.Ra = [];
+
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end        
     end
     
