@@ -32,7 +32,7 @@ else
     TBW = PulseOpt.TBW;
 end
 
-pulse = sinc_fn( TBW/Trf * (t - Trf/2) );
+pulse = sinc( TBW/Trf * (t - Trf/2) );
 pulse((t < 0 | t>Trf)) = 0;
 
 end
