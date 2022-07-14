@@ -291,6 +291,14 @@ classdef ihMT < AbstractModel
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
             
+            % v2.5.0 drop unit names from the Format 
+            if checkanteriorver(version,[2 5 0])
+                obj.Prot.MTw.Format = [{'FlipAngle'},{'TR'}];
+                obj.Prot.PDw.Format = [{'FlipAngle'},{'TR'}];
+                obj.Prot.T1w.Format = [{'FlipAngle'},{'TR'}];
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
         end
         
     end
