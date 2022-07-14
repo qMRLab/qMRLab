@@ -293,7 +293,8 @@ classdef ihMT < AbstractModel
             
             % v2.5.0 drop unit names from the Format 
             if checkanteriorver(version,[2 5 0])
-                obj.Prot.MTw.Format = [{'FlipAngle'},{'TR'}];
+                obj.Prot.MTw_dual.Format = [{'FlipAngle'},{'TR'}];
+                obj.Prot.MTw_single.Format = [{'FlipAngle'},{'TR'}];
                 obj.Prot.PDw.Format = [{'FlipAngle'},{'TR'}];
                 obj.Prot.T1w.Format = [{'FlipAngle'},{'TR'}];
                 obj.OriginalProtEnabled = true;
