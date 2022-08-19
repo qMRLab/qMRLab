@@ -1,0 +1,6 @@
+#Label: 1
+Volume	Volume (pixels)	mean	median	std	min	max	1st quartile	3rd quartile	Interquartile Range (IQR)	
+VFAData	51	121.712	120.975	5.05939	110.842	130.745	118.215	126.07	-12.5298	
+#Label: 2
+Volume	Volume (pixels)	mean	median	std	min	max	1st quartile	3rd quartile	Interquartile Range (IQR)	
+VFAData	209	127.691	126.219	10.1774	104.451	190.181	121.744	131.863	-68.4369	

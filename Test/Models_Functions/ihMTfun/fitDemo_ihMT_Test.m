@@ -18,7 +18,7 @@ classdef (TestTags = {'ihMT', 'Demo', 'Integration'}) fitDemo_ihMT_Test < matlab
 
         function test_M0appVSRI_returns_near_expected_mean_of_M0app(testCase) % Use very descriptive test method names
             %% Run code
-            run([testCase.qmrlabPath, '/src/Models_Functions/ihMTfun/fitDemo/fitDemo_ihMT.m'])
+            run([testCase.qmrlabPath, 'src/Models_Functions/ihMTfun/fitDemo/fitDemo_ihMT.m'])
             
             %% Check the fit
             expectedMean = 0.10; % Value obtained manually
