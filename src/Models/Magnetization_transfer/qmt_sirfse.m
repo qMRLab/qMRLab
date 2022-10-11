@@ -117,7 +117,7 @@ end
                                               0.0805 3.5; 0.1002 3.5; 0.1248 3.5; 0.1554 3.5; 0.1935 3.5
                                               0.2409 3.5; 0.3000 3.5; 1.0000 3.5; 2.0000 3.5; 10.0000 3.5]),...
                       'FSEsequence',...
-                               struct('Format',{{'Trf (s)'; 'Tr (s)'; 'Npulse'}},...
+                               struct('Format',{{'Trf'; 'Tr'; 'Npulse'}},...
                                       'Mat',[0.001; 0.01; 16]));
 
         % Model options
@@ -127,12 +127,12 @@ end
                    'Use R1map to constrain R1f',false,...
                    'Fix R1r = R1f',true,...
                    'PANEL','Sr_Calculation',2,...
-                   'T2r',1e-05,...
+                   'T2r (s)',1e-05,...
                    'Lineshape',{'SuperLorentzian','Lorentzian','Gaussian'}};
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'T2f (Used in Block equation)',0.040};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation assuming M=0 after Tr (full recovery) (slow)','Bloch equation with full FSE (very slow)'},'T2f (Used in Bloch equation)',0.040};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100};
 
@@ -146,6 +146,9 @@ end
         function obj = qmt_sirfse
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -163,20 +166,23 @@ end
         end
 
         function mz = equation(obj, x, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             Sim.Param = mat2struct(x,obj.xnames);
             Protocol = GetProt(obj);
-            if strcmp(Opt.Method,'Block equation assuming M=0 after Tr (full recovery) (slow)')
+            if strcmp(Opt.Method,'Bloch equation assuming M=0 after Tr (full recovery) (slow)')
                 Sim.Opt.method = 'FastSim';
-                Opt.Method = 'Block equation';
-            elseif strcmp(Opt.Method,'Block equation with full FSE (very slow)')
+                Opt.Method = 'Bloch equation';
+            elseif strcmp(Opt.Method,'Bloch equation with full FSE (very slow)')
                 Sim.Opt.method = 'FullSim';
-                Opt.Method = 'Block equation';
+                Opt.Method = 'Bloch equation';
             end
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch equation'
                     Sim.Param.M0f = 1;
-                    Sim.Param.R2f = 1/Opt.T2fUsedinBlockequation;
+                    Sim.Param.R2f = 1/Opt.T2fUsedinBlochequation;
                     Sim.Param.G   = 1.4176e-5;
                     Protocol.FSE = Protocol;
                     Protocol.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
@@ -188,6 +194,9 @@ end
                     SimCurveResults = SIRFSE_SimCurve(Sim.Param, Protocol, obj.GetFitOpt,0);
                     mz = SimCurveResults.curve;
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = fit(obj,data)
@@ -199,6 +208,9 @@ end
         end
 
         function plotModel(obj, x, data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x = obj.st; end
             if nargin<3, data.MTdata = []; end
             x=mat2struct(x,obj.xnames);
@@ -214,9 +226,15 @@ end
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; Sf=%0.2f; Sr=%f; M0f=%0.2f; Residuals=%f',...
                 x.F,x.kf,x.R1f,x.R1r,-x.Sf,x.Sr,x.M0f,x.resnorm), ...
                 'FontSize',10);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
             x = struct2mat(x,obj.xnames);
@@ -227,9 +245,15 @@ end
             if display
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function plotProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             Prot = GetProt(obj);
             subplot(2,1,1)
             plot(Prot.ti(2:end),diff(Prot.ti))
@@ -248,17 +272,32 @@ end
             subplot(2,1,2)
             imshow qmt_sirfse.png
             title('Pulse sequence diagram')
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 %         function plotProt(obj)
@@ -279,6 +318,9 @@ end
 
 
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
             % Optimize Inversion times
@@ -299,18 +341,29 @@ end
             schemeLEADER = [schemeLEADER ones(size(schemeLEADER,1),1)*td];
 
             fprintf('SOMA HAS FINISHED \n')
-
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function Prot = GetProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             Prot.ti = obj.Prot.MTdata.Mat(:,1);
             Prot.td = obj.Prot.MTdata.Mat(:,2);
             Prot.Trf = obj.Prot.FSEsequence.Mat(1);
             Prot.Tr = obj.Prot.FSEsequence.Mat(2);
             Prot.Npulse = obj.Prot.FSEsequence.Mat(3);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitOpt = GetFitOpt(obj,data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
             end
@@ -321,31 +374,52 @@ end
             FitOpt.lb = obj.lb;
             FitOpt.ub = obj.ub;
             FitOpt.R1reqR1f = obj.options.fittingconstraints_FixR1rR1f;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SrParam = GetSrParam(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             SrParam.F = 0.1;
             SrParam.kf = 3;
             SrParam.kr = SrParam.kf/SrParam.F;
             SrParam.R1f = 1;
             SrParam.R1r = 1;
             SrParam.T2f = 0.04;
-            SrParam.T2r = obj.options.Sr_Calculation_T2r;
+            SrParam.T2r = obj.options.Sr_Calculation_T2rs;
             SrParam.M0f = 1;
             SrParam.M0r = SrParam.F*SrParam.M0f;
             SrParam.lineshape = obj.options.Sr_Calculation_Lineshape;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SrProt = GetSrProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             SrProt.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
             SrProt.InvPulse.shape = obj.options.Inversion_Pulse_Shape;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function optionalInputs = get_MRIinputs_optional(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             optionalInputs = get_MRIinputs_optional@AbstractModel(obj);
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 optionalInputs(strcmp(obj.MRIinputs,'R1map')) = false;
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
     end
@@ -360,6 +434,15 @@ end
                 obj.options.fittingconstraints_FixR1rR1f = obj.options.Fitting_FixR1rR1f;
                 obj.options = rmfield(obj.options,'Fitting_FixR1rR1f');
                 obj.buttons{strcmp(obj.buttons,'Fitting')} = 'fitting constraints';
+            end
+
+            if checkanteriorver(version,[2 5 0])
+                obj.Prot.FSEsequence.Format = [{'Trf'};{'Tr'};{'Npulse'}];
+                obj.buttons{18} = 'T2r (s)';
+                obj.options.Sr_Calculation_T2rs = obj.options.Sr_Calculation_T2r;
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+                obj.Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation assuming M=0 after Tr (full recovery) (slow)','Bloch equation with full FSE (very slow)'},'T2f (Used in Bloch equation)',0.040};
             end
         end
     end
