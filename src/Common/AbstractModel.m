@@ -14,6 +14,27 @@ classdef (Abstract) AbstractModel
 
     properties (Hidden=true)
         EnvDetails
+        % This is a highly important hidden property. Not protected because
+        % FitData and ParFitData should be able to access it externally.
+        % This avoids overhead in voxelwise methods.
+        
+        % Determines whether protocols are being displayed to the user
+        % or being assigned by the user, OR whether they are being consumed by
+        % the Model. During the object construction, we convert original
+        % units to user requested units, as they determine what's shown in
+        % GUI & CLI (qMRgenBatch). Whenever the Prot values are accessed by
+        % the method, they MUST be in the original units for accurate
+        % quantification.
+        
+        % As this will be converted to `user` during construction, now we
+        % set this to true in the abstract base class. This way,
+        % objects instantiated from a class deriven from this abstract
+        % class will know what to do upon getScaledProtocols.
+        OriginalProtEnabled = true;
+    end
+
+    properties (Access = protected)
+      
     end
 
     methods
@@ -409,6 +430,7 @@ classdef (Abstract) AbstractModel
 
         end
 
+
     end
 
     methods(Static)
@@ -469,6 +491,7 @@ classdef (Abstract) AbstractModel
             end
 
         end
+
 
     end
 
