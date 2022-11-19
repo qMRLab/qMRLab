@@ -1,0 +1,44 @@
+{
+    "karakuzu2022": {
+        "DOI": "https://doi.org/10.1002/mrm.29292",
+        "ge1": {
+            "fa": 2.4,
+            "tr": 32,
+            "te": 4,
+            "offset": 1200,
+            "mt-shape": "fermi",
+            "mt-duration": 8,
+            "mt-angle": 540
+        },
+        "siemens1": {
+            "fa": 2.4,
+            "tr": 32,
+            "te": 4,
+            "offset": 1200,
+            "mt-shape": "gaussian",
+            "mt-duration": 10,
+            "mt-angle": 540
+        }
+    },
+    "brown2013": {
+        "DOI": "https://doi.org/10.1002/mrm.29292",
+        "siemens": {
+            "fa": 15,
+            "tr": 30,
+            "te": 11,
+            "offset": 1500,
+            "mt-shape": "gaussian",
+            "mt-duration": 7.68,
+            "mt-angle": 500
+        },
+        "philips": {
+            "fa": 15,
+            "tr": 47,
+            "te": 8,
+            "offset": 1100,
+            "mt-shape": "sincgauss",
+            "mt-duration": 15,
+            "mt-angle": 620
+        }
+    }
+}
