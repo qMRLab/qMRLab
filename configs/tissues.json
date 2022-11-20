@@ -33,7 +33,7 @@
                 }
             }
         ],
-        "healthy-frontal-white-matter": [
+        "healthy-white-matter": [
             {
                 "kf": {
                     "mean": 4.3,
