@@ -2,7 +2,7 @@
     "karakuzu2022": {
         "DOI": "https://doi.org/10.1002/mrm.29292",
         "ge1": {
-            "fa": 2.4,
+            "fa": 6,
             "tr": 32,
             "te": 4,
             "offset": 1200,
@@ -11,7 +11,7 @@
             "mt-angle": 540
         },
         "siemens1": {
-            "fa": 2.4,
+            "fa": 6,
             "tr": 32,
             "te": 4,
             "offset": 1200,
