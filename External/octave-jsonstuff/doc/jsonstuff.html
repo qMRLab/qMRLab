@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- This manual is for JsonStuff, version 0.3.3-SNAPSHOT.
+
+Copyright (C) 2019 Andrew Janke
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the same conditions as for modified versions. -->
+<!-- Created by GNU Texinfo 6.7, http://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>JsonStuff for GNU Octave v0.3.3-SNAPSHOT</title>
+
+<meta name="description" content="User manual for JsonStuff for GNU Octave.">
+<meta name="keywords" content="JsonStuff for GNU Octave v0.3.3-SNAPSHOT">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<link href="#Top" rel="start" title="Top">
+<link href="#SEC_Contents" rel="contents" title="Table of Contents">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+kbd {font-style: oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
+ul.no-bullet {list-style: none}
+-->
+</style>
+
+
+</head>
+
+<body lang="en">
+<h1 class="settitle" align="center">JsonStuff for GNU Octave v0.3.3-SNAPSHOT</h1>
+
+
+
+
+
+
+<span id="SEC_Contents"></span>
+<h2 class="contents-heading">Table of Contents</h2>
+
+<div class="contents">
+
+<ul class="no-bullet">
+  <li><a id="toc-Introduction-1" href="#Introduction">1 Introduction</a></li>
+  <li><a id="toc-Getting-Started-1" href="#Getting-Started">2 Getting Started</a></li>
+  <li><a id="toc-Function-Reference-1" href="#Function-Reference">3 Function Reference</a>
+  <ul class="no-bullet">
+    <li><a id="toc-Functions-by-Category-1" href="#Functions-by-Category">3.1 Functions by Category</a>
+    <ul class="no-bullet">
+      <li><a id="toc-JSON-Processing" href="#JSON-Processing">3.1.1 JSON Processing</a></li>
+    </ul></li>
+    <li><a id="toc-Functions-Alphabetically-1" href="#Functions-Alphabetically">3.2 Functions Alphabetically</a>
+    <ul class="no-bullet">
+      <li><a id="toc-jsondecode-1" href="#jsondecode">3.2.1 jsondecode</a></li>
+      <li><a id="toc-jsonencode-1" href="#jsonencode">3.2.2 jsonencode</a></li>
+    </ul></li>
+  </ul></li>
+  <li><a id="toc-Copying-1" href="#Copying">4 Copying</a>
+  <ul class="no-bullet">
+    <li><a id="toc-Package-Copyright" href="#Package-Copyright">4.1 Package Copyright</a></li>
+    <li><a id="toc-Manual-Copyright" href="#Manual-Copyright">4.2 Manual Copyright</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+<span id="Top"></span><div class="header">
+<p>
+Next: <a href="#Introduction" accesskey="n" rel="next">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="JsonStuff"></span><h1 class="top">JsonStuff</h1>
+
+<p>This manual is for JsonStuff, version 0.3.3-SNAPSHOT.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Introduction" accesskey="1">Introduction</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Getting-Started" accesskey="2">Getting Started</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Function-Reference" accesskey="3">Function Reference</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Copying" accesskey="4">Copying</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+
+
+
+<hr>
+<span id="Introduction"></span><div class="header">
+<p>
+Next: <a href="#Getting-Started" accesskey="n" rel="next">Getting Started</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="Introduction-1"></span><h2 class="chapter">1 Introduction</h2>
+
+<p>This is the manual for the JsonStuff package version 0.3.3-SNAPSHOT for GNU Octave.
+</p>
+<p>This document is a work in progress. You are invited to help improve it and
+submit patches.
+</p>
+<p>JsonStuff provides JSON encoding and decoding functionality for Octave by supplying
+Matlab-compatible implementations for the <code>jsonencode</code>, <code>jsondecode</code>, and 
+related functions.
+</p>
+<p>JsonStuff was written by Andrew Janke &lt;<a href="mailto:floss@apjanke.net">floss@apjanke.net</a>&gt;. Support can be
+found on the <a href="https://github.com/apjanke/octave-jsonstuff">JsonStuff project
+GitHub page</a>.
+</p>
+
+
+
+<hr>
+<span id="Getting-Started"></span><div class="header">
+<p>
+Next: <a href="#Function-Reference" accesskey="n" rel="next">Function Reference</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="Getting-Started-1"></span><h2 class="chapter">2 Getting Started</h2>
+
+<p>The easiest way to obtain JsonStuff is by using Octave&rsquo;s <code>pkg</code> package manager. To
+install the latest development (unstable) head of JsonStuff, run this in Octave:
+</p>
+<div class="example">
+<pre class="example">pkg install https://github.com/apjanke/octave-jsonstuff/archive/master.zip
+</pre></div>
+
+<p>Soon, once the code gets a bit more stable, numbered releases for JsonStuff will be
+available, and you should use those instead.
+</p>
+<p>For development, you can obtain the source code for JsonStuff from the project repo on GitHub at 
+<a href="https://github.com/apjanke/octave-jsonstuff">https://github.com/apjanke/octave-jsonstuff</a>. Upon first installation, run
+the <samp>__jsonstuff_make_local__</samp> script to build the octfiles so JsonStuff
+will work. Then add the <samp>inst</samp> directory in the repo to your Octave path.
+</p>
+
+
+
+
+<hr>
+<span id="Function-Reference"></span><div class="header">
+<p>
+Next: <a href="#Copying" accesskey="n" rel="next">Copying</a>, Previous: <a href="#Getting-Started" accesskey="p" rel="prev">Getting Started</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="Function-Reference-1"></span><h2 class="chapter">3 Function Reference</h2>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Functions-by-Category" accesskey="1">Functions by Category</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Functions-Alphabetically" accesskey="2">Functions Alphabetically</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<span id="Functions-by-Category"></span><div class="header">
+<p>
+Next: <a href="#Functions-Alphabetically" accesskey="n" rel="next">Functions Alphabetically</a>, Up: <a href="#Function-Reference" accesskey="u" rel="up">Function Reference</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="Functions-by-Category-1"></span><h3 class="section">3.1 Functions by Category</h3>
+<span id="JSON-Processing"></span><h4 class="subsection">3.1.1 JSON Processing</h4>
+<dl compact="compact">
+<dt><a href="#jsondecode">jsondecode</a></dt>
+<dd><p>Encode Octave data as JSON.
+</p>
+</dd>
+<dt><a href="#jsonencode">jsonencode</a></dt>
+<dd><p>Encode Octave data as JSON.
+</p>
+</dd>
+</dl>
+
+<hr>
+<span id="Functions-Alphabetically"></span><div class="header">
+<p>
+Previous: <a href="#Functions-by-Category" accesskey="p" rel="prev">Functions by Category</a>, Up: <a href="#Function-Reference" accesskey="u" rel="up">Function Reference</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="Functions-Alphabetically-1"></span><h3 class="section">3.2 Functions Alphabetically</h3>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#jsondecode" accesskey="1">jsondecode</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Encode Octave data as JSON.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#jsonencode" accesskey="2">jsonencode</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Encode Octave data as JSON.
+</td></tr>
+</table>
+
+<hr>
+<span id="jsondecode"></span><div class="header">
+<p>
+Next: <a href="#jsonencode" accesskey="n" rel="next">jsonencode</a>, Up: <a href="#Functions-Alphabetically" accesskey="u" rel="up">Functions Alphabetically</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="jsondecode-1"></span><h4 class="subsection">3.2.1 jsondecode</h4>
+<dl>
+<dt id="index-jsondecode">Function: <em><var>value</var> =</em> <strong>jsondecode</strong> <em>(<var>text</var>)</em></dt>
+<dt id="index-jsondecode-1">Function: <em><var>value</var> =</em> <strong>jsondecode</strong> <em>(<var>text</var>)</em></dt>
+<dd>
+<p>Encode Octave data as JSON.
+</p>
+<p>Encodes the Octave value <code>data</code> in JSON format and returns the
+result as a character vector.
+</p>
+<p><code>jsonencode(..., &quot;ConvertInfAndNaN&quot;, TF)</code> controls the encoding of special floating
+point values NaN, Inf, and -Inf.
+</p>
+<p>See <a href="#jsondecode">jsondecode</a>
+</p>
+</dd></dl>
+
+
+<hr>
+<span id="jsonencode"></span><div class="header">
+<p>
+Previous: <a href="#jsondecode" accesskey="p" rel="prev">jsondecode</a>, Up: <a href="#Functions-Alphabetically" accesskey="u" rel="up">Functions Alphabetically</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="jsonencode-1"></span><h4 class="subsection">3.2.2 jsonencode</h4>
+<dl>
+<dt id="index-jsonencode">Function: <em><var>text</var> =</em> <strong>jsonencode</strong> <em>(<var>data</var>)</em></dt>
+<dt id="index-jsonencode-1">Function: <em><var>text</var> =</em> <strong>jsonencode</strong> <em>(<var>data</var>, <code>&quot;ConvertInfAndNaN&quot;</code>, <var>TF</var>)</em></dt>
+<dd>
+<p>Encode Octave data as JSON.
+</p>
+<p>Encodes the Octave value <code>data</code> in JSON format and returns the
+result as a character vector.
+</p>
+<p><code>jsonencode(..., &quot;ConvertInfAndNaN&quot;, TF)</code> controls the encoding of special floating
+point values NaN, Inf, and -Inf.
+</p>
+<p>See <a href="#jsondecode">jsondecode</a>
+</p>
+</dd></dl>
+
+
+
+
+
+<hr>
+<span id="Copying"></span><div class="header">
+<p>
+Previous: <a href="#Function-Reference" accesskey="p" rel="prev">Function Reference</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>]</p>
+</div>
+<span id="Copying-1"></span><h2 class="chapter">4 Copying</h2>
+
+
+<span id="Package-Copyright"></span><h3 class="section">4.1 Package Copyright</h3>
+
+<p>JsonStuff for Octave is licensed under the GNU GPLv3.
+</p>
+<span id="Manual-Copyright"></span><h3 class="section">4.2 Manual Copyright</h3>
+
+<p>This manual is for JsonStuff, version 0.3.3-SNAPSHOT.
+</p>
+<p>Copyright &copy; 2019 Andrew Janke
+</p>
+<blockquote>
+<p>Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+</p>
+<p>Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+</p>
+<p>Permission is granted to copy and distribute translations of this manual
+into another language, under the same conditions as for modified versions.
+</p></blockquote>
+
+<hr>
+
+
+
+</body>
+</html>

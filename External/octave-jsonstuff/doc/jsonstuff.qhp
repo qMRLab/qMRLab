@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>octave.community.jsonstuff</namespace>
+    <virtualFolder>doc</virtualFolder>
+    <filterSection>
+        <toc>
+            <section title="JsonStuff" ref="html/index.html">
+                <section title="Introduction" ref="html/Introduction.html">
+                </section>
+                <section title="Getting Started" ref="html/Getting-Started.html">
+                </section>
+                <section title="Function Reference" ref="html/Function-Reference.html">
+                    <section title="Functions by Category" ref="html/Functions-by-Category.html">
+                    </section>
+                    <section title="Functions Alphabetically" ref="html/Functions-Alphabetically.html">
+                        <section title="jsondecode" ref="html/jsondecode.html">
+                        </section>
+                        <section title="jsonencode" ref="html/jsonencode.html">
+                        </section>
+                    </section>
+                </section>
+                <section title="Copying" ref="html/Copying.html">
+                </section>
+            <section title="Entire Manual in One Page" ref="jsonstuff.html"/>
+        </section>
+        </toc>
+        <keywords>
+            <keyword name="jsondecode" id="jsondecode" ref="html/jsondecode.html"/>
+            <keyword name="jsonencode" id="jsonencode" ref="html/jsonencode.html"/>
+        </keywords>
+        <files>
+            <file>jsonstuff.html</file>
+            <file>html/Copying.html</file>
+            <file>html/jsonencode.html</file>
+            <file>html/jsondecode.html</file>
+            <file>html/Functions-Alphabetically.html</file>
+            <file>html/Functions-by-Category.html</file>
+            <file>html/Function-Reference.html</file>
+            <file>html/Getting-Started.html</file>
+            <file>html/Introduction.html</file>
+            <file>html/index.html</file>
+        </files>
+    </filterSection>
+</QtHelpProject>
+

@@ -1,0 +1,12 @@
+Name: jsonstuff
+Version: 0.3.4-SNAPSHOT
+Date: 2020-03-09
+Title: JsonStuff - JSON encoding and decoding
+Author: Andrew Janke <floss@apjanke.net>
+Maintainer: Andrew Janke <floss@apjanke.net>
+Description: Matlab-compatible jsonencode/jsondecode functions
+License: GPLv3+ and Public Domain
+Categories: io
+Problems: Not fully implemented.
+Url: https://github.com/apjanke/octave-jsonstuff
+

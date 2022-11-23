@@ -1,0 +1,180 @@
+\input texinfo    @c -*-texinfo-*-
+
+@c %**start of header
+
+@set VERSION 0.3.3-SNAPSHOT
+
+@setfilename jsonstuff.info
+@settitle JsonStuff for GNU Octave v@value{VERSION}
+@documentencoding UTF-8
+
+@c %**end of header
+
+@copying
+This manual is for JsonStuff, version @value{VERSION}.
+
+Copyright @copyright{} 2019 Andrew Janke
+
+@quotation
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the same conditions as for modified versions.
+@end quotation
+@end copying
+
+@documentdescription
+User manual for JsonStuff for GNU Octave.
+@end documentdescription
+
+@titlepage
+@title  JsonStuff
+@subtitle version @value{VERSION}, January 2019
+@author Andrew Janke
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+
+@contents
+
+@ifnottex
+@node Top, Introduction
+@top JsonStuff
+
+This manual is for JsonStuff, version @value{VERSION}.
+@end ifnottex
+
+@menu
+* Introduction::
+* Getting Started::
+* Function Reference::
+* Copying::
+@end menu
+
+
+
+
+@node Introduction
+@chapter Introduction
+
+This is the manual for the JsonStuff package version @value{VERSION} for GNU Octave.
+
+This document is a work in progress. You are invited to help improve it and
+submit patches.
+
+JsonStuff provides JSON encoding and decoding functionality for Octave by supplying
+Matlab-compatible implementations for the @code{jsonencode}, @code{jsondecode}, and 
+related functions.
+
+JsonStuff was written by Andrew Janke <@email{floss@@apjanke.net}>. Support can be
+found on the @url{https://github.com/apjanke/octave-jsonstuff, JsonStuff project
+GitHub page}.
+
+
+
+
+@node Getting Started
+@chapter Getting Started
+
+The easiest way to obtain JsonStuff is by using Octave's @code{pkg} package manager. To
+install the latest development (unstable) head of JsonStuff, run this in Octave:
+
+@example
+pkg install https://github.com/apjanke/octave-jsonstuff/archive/master.zip
+@end example
+
+Soon, once the code gets a bit more stable, numbered releases for JsonStuff will be
+available, and you should use those instead.
+
+For development, you can obtain the source code for JsonStuff from the project repo on GitHub at 
+@url{https://github.com/apjanke/octave-jsonstuff}. Upon first installation, run
+the @file{__jsonstuff_make_local__} script to build the octfiles so JsonStuff
+will work. Then add the @file{inst} directory in the repo to your Octave path.
+
+
+
+
+
+@node Function Reference
+@chapter Function Reference
+
+@node Functions by Category
+@section Functions by Category
+@subsection JSON Processing
+@table @asis
+@item @ref{jsondecode}
+Encode Octave data as JSON.
+
+@item @ref{jsonencode}
+Encode Octave data as JSON.
+
+@end table
+
+@node Functions Alphabetically
+@section Functions Alphabetically
+@menu
+* jsondecode::	Encode Octave data as JSON.
+* jsonencode::	Encode Octave data as JSON.
+@end menu
+
+@node jsondecode
+@subsection jsondecode
+@deftypefn  {Function} {@var{value} =} jsondecode (@var{text})
+@deftypefnx {Function} {@var{value} =} jsondecode (@var{text})
+
+Encode Octave data as JSON.
+
+Encodes the Octave value @code{data} in JSON format and returns the
+result as a character vector.
+
+@code{jsonencode(..., "ConvertInfAndNaN", TF)} controls the encoding of special floating
+point values NaN, Inf, and -Inf.
+
+@xref{jsondecode}
+
+@end deftypefn
+
+
+@node jsonencode
+@subsection jsonencode
+@deftypefn  {Function} {@var{text} =} jsonencode (@var{data})
+@deftypefnx {Function} {@var{text} =} jsonencode (@var{data}, @code{"ConvertInfAndNaN"}, @var{TF})
+
+Encode Octave data as JSON.
+
+Encodes the Octave value @code{data} in JSON format and returns the
+result as a character vector.
+
+@code{jsonencode(..., "ConvertInfAndNaN", TF)} controls the encoding of special floating
+point values NaN, Inf, and -Inf.
+
+@xref{jsondecode}
+
+@end deftypefn
+
+
+
+
+
+@node Copying
+@chapter Copying
+
+
+@section Package Copyright
+
+JsonStuff for Octave is licensed under the GNU GPLv3.
+
+@section Manual Copyright
+
+@insertcopying
+
+@bye
