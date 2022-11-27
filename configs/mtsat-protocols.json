@@ -1,0 +1,37 @@
+{
+    "karakuzu2022": {
+        "DOI": "https://doi.org/10.1002/mrm.29292",
+        "ge1": {
+            "pdw": {
+                "fa": 6,
+                "tr": 32,
+                "te": 4,
+                "offset": 1200,
+                "mt-shape": "fermi",
+                "mt-duration": 8,
+                "mt-angle": 540
+            },
+            "t1w": {
+                "fa": 20,
+                "tr": 18,
+                "te": 4
+            }
+        },
+        "siemens1": {
+            "pdw":{
+                "fa": 6,
+                "tr": 32,
+                "te": 4,
+                "offset": 1200,
+                "mt-shape": "gaussian",
+                "mt-duration": 10,
+                "mt-angle": 540
+            },
+            "t1w":{
+                "fa": 20,
+                "tr": 18,
+                "te": 4
+            }
+        }
+    }
+}
