@@ -71,7 +71,14 @@ for ii=1:length(T1_range)
 end
 
 %%
-figure()
-plot(squeeze(T1_range), squeeze(MTRs))
+close all
+
+figure(1)
+plot(squeeze(T1_range), squeeze(MTRs), 'LineWidth', 5)
 ylabel('MTR')
 legend('Location','northoutside')
+structHandler.figure = figure(1);
+structHandler.xlabel = xlabel('T1 (s)');
+structHandler.ylabel = ylabel('MTR');
+structHandler.legend = legend('Brown2013  (Philips)');
+figureProperties_plot(structHandler)

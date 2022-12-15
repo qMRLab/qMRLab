@@ -1,3 +1,8 @@
+%%
+clear all
+close all
+clc
+
 %% Load protocols
 
 fname = 'configs/mtr-protocols.json'; 
@@ -65,18 +70,22 @@ for ii=1:length(protocols)
 end
 
 %%
-figure()
+close all
+figure(1)
 protocol_names = {'Brown2013 Siemens', 'Brown2013 Philips', 'Karakuzu2022 Siemens 1', 'Karakuzu2022 GE1'}
 tissue_names = {'Healthy Cortical GM', 'Healthy WM', 'NAWM', 'Early WM MS Lesion', 'Late WM MS Lesion'}
 for ii=1:length(protocols)
     scatter([1:5], MTRs(ii,:), 100, 'filled')
-    legend(protocol_names)
+    structHandler.legend = legend(protocol_names)
     hold on
 end
 set(gca,'xtick',[1:5],'xticklabel',tissue_names)
 xtickangle(45)
 xlim([0 6])
-ylabel('MTR')
 legend('Location','northoutside')
 
+structHandler.figure = figure(1);
+structHandler.xlabel = xlabel('Protocols');
+structHandler.ylabel = ylabel('MTR');
+figureProperties_plot(structHandler)
 

@@ -120,17 +120,32 @@ for ii=1:length(T1_range)
 end
 
 %%
-figure()
-plot(squeeze(T1_range), squeeze(MTRs))
+close all
+
+figure(1)
+plot(squeeze(T1_range), squeeze(MTRs),'LineWidth', 5)
 ylabel('MTR')
 legend('Location','northoutside')
+structHandler.figure = figure(1);
+structHandler.xlabel = xlabel('T1 (s)');
+structHandler.ylabel = ylabel('MTR');
+structHandler.legend = legend('Karakuzu2022 (Siemens 1)');
+figureProperties_plot(structHandler)
 
-figure()
-plot(squeeze(T1_range), squeeze(MTsats))
-ylabel('MTsats')
+figure(2)
+plot(squeeze(T1_range), squeeze(MTsats),'LineWidth', 5)
 legend('Location','northoutside')
+structHandler.figure = figure(2);
+structHandler.xlabel = xlabel('T1 (s)');
+structHandler.ylabel = ylabel('MTsat');
+structHandler.legend = legend('Karakuzu2022 (Siemens 1)');
+figureProperties_plot(structHandler)
 
-figure()
-plot(squeeze(T1_range), squeeze(T1s))
-ylabel('T1s')
+figure(3)
+plot(squeeze(T1_range), squeeze(T1s),'LineWidth', 5)
 legend('Location','northoutside')
+structHandler.figure = figure(3);
+structHandler.xlabel = xlabel('T1 (s)');
+structHandler.ylabel = ylabel('T1');
+structHandler.legend = legend('Karakuzu2022 (Siemens 1)');
+figureProperties_plot(structHandler)
