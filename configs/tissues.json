@@ -1,7 +1,7 @@
 {
     "sled2001": {
         "DOI": "https://doi.org/10.1002/mrm.1278",
-        "healthy-cortical-grey-matter": [
+        "healthycorticalgreymatter": [
             {
                 "kf": {
                     "mean": 2.4,
@@ -33,7 +33,7 @@
                 }
             }
         ],
-        "healthy-white-matter": [
+        "healthywhitematter": [
             {
                 "kf": {
                     "mean": 4.3,
@@ -97,7 +97,7 @@
                 }
             }
         ],
-        "early-wm-lesion": [
+        "earlywmlesion": [
             {
                 "kf": {
                     "mean": 3.6,
@@ -129,7 +129,7 @@
                 }
             }
         ],
-        "late-wm-lesion": [
+        "latewmlesion": [
             {
                 "kf": {
                     "mean": 2.7,

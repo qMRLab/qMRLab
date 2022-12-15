@@ -7,9 +7,9 @@
                 "tr": 32,
                 "te": 4,
                 "offset": 1200,
-                "mt-shape": "fermi",
-                "mt-duration": 8,
-                "mt-angle": 540
+                "mtshape": "fermi",
+                "mtduration": 8,
+                "mtangle": 540
             },
             "t1w": {
                 "fa": 20,
@@ -23,9 +23,9 @@
                 "tr": 32,
                 "te": 4,
                 "offset": 1200,
-                "mt-shape": "gaussian",
-                "mt-duration": 10,
-                "mt-angle": 540
+                "mtshape": "gaussian",
+                "mtduration": 10,
+                "mtangle": 540
             },
             "t1w":{
                 "fa": 20,

@@ -10,7 +10,7 @@ fid = fopen(fname);
 raw = fread(fid,inf); 
 str = char(raw'); 
 fclose(fid); 
-val = jsondecode(str);
+val = loadjson(str);
 
 protocols = [val.brown2013.siemens val.brown2013.philips val.karakuzu2022.siemens1 val.karakuzu2022.ge1]
 protocol_names = ['Brown2013 Siemens', 'Brown2013 Philips', 'Karakuzu2022 Siemens 1', 'Karakuzu2022 GE1']
@@ -22,9 +22,9 @@ fid = fopen(fname);
 raw = fread(fid,inf); 
 str = char(raw'); 
 fclose(fid); 
-val = jsondecode(str);
+val = loadjson(str);
 
-tissues = [val.sled2001.healthy_cortical_grey_matter val.sled2001.healthy_white_matter val.sled2001.nawm val.sled2001.early_wm_lesion val.sled2001.late_wm_lesion];
+tissues = [val.sled2001.healthycorticalgreymatter val.sled2001.healthywhitematter val.sled2001.nawm val.sled2001.earlywmlesion val.sled2001.latewmlesion];
 tissue_names = ['Healthy Cortical GM', 'Healthy WM', 'NAWM', 'Early WM MS Lesion', 'Late WM MS Lesion']
 
 %%
@@ -37,9 +37,9 @@ for ii=1:length(protocols)
     tr = protocol.tr/1000
     te = protocol.te/1000
     offset = protocol.offset
-    mt_shape = protocol.mt_shape
-    mt_duration = protocol.mt_duration/1000
-    mt_angle = protocol.mt_angle
+    mt_shape = protocol.mtshape
+    mt_duration = protocol.mtduration/1000
+    mt_angle = protocol.mtangle
 
     Model = qmt_spgr;
     Model.Prot.MTdata.Mat = [mt_angle, offset];
@@ -51,6 +51,7 @@ for ii=1:length(protocols)
     
     for jj = 1:length(tissues)
         params = tissues(jj)
+        params = params {1}
         x = struct;
         x.F = params.F.mean;
         x.kr = params.kf.mean / x.F;

@@ -10,7 +10,7 @@ fid = fopen(fname);
 raw = fread(fid,inf); 
 str = char(raw'); 
 fclose(fid); 
-val = jsondecode(str);
+val = loadjson(str);
 
 protocols = val.karakuzu2022.siemens1
 
@@ -21,9 +21,9 @@ fid = fopen(fname);
 raw = fread(fid,inf); 
 str = char(raw'); 
 fclose(fid); 
-val = jsondecode(str);
+val = loadjson(str);
 
-tissue = val.sled2001.healthy_white_matter;
+tissue = val.sled2001.healthywhitematter;
 
 %% B1 range
 
@@ -47,9 +47,9 @@ for ii=1:length(B1_range)
     tr = protocol.tr/1000
     te = protocol.te/1000
     offset = protocol.offset
-    mt_shape = protocol.mt_shape
-    mt_duration = protocol.mt_duration/1000
-    mt_angle = protocol.mt_angle*B1_range(ii)
+    mt_shape = protocol.mtshape
+    mt_duration = protocol.mtduration/1000
+    mt_angle = protocol.mtangle*B1_range(ii)
 
     Model = qmt_spgr;
     Model.Prot.MTdata.Mat = [mt_angle, offset];
@@ -59,7 +59,7 @@ for ii=1:length(B1_range)
     Model.options.Readpulsealpha = fa;
     Model.options.MT_Pulse_Shape = mt_shape
     
-    params = tissue
+    params = tissue{1}
     x = struct;
     x.F = params.F.mean;
     x.kr = params.kf.mean / x.F;

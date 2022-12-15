@@ -6,18 +6,18 @@
             "tr": 32,
             "te": 4,
             "offset": 1200,
-            "mt-shape": "fermi",
-            "mt-duration": 8,
-            "mt-angle": 540
+            "mtshape": "fermi",
+            "mtduration": 8,
+            "mtangle": 540
         },
         "siemens1": {
             "fa": 6,
             "tr": 32,
             "te": 4,
             "offset": 1200,
-            "mt-shape": "gaussian",
-            "mt-duration": 10,
-            "mt-angle": 540
+            "mtshape": "gaussian",
+            "mtduration": 10,
+            "mtangle": 540
         }
     },
     "brown2013": {
@@ -27,18 +27,18 @@
             "tr": 30,
             "te": 11,
             "offset": 1500,
-            "mt-shape": "gaussian",
-            "mt-duration": 7.68,
-            "mt-angle": 500
+            "mtshape": "gaussian",
+            "mtduration": 7.68,
+            "mtangle": 500
         },
         "philips": {
             "fa": 15,
             "tr": 47,
             "te": 8,
             "offset": 1100,
-            "mt-shape": "sincgauss",
-            "mt-duration": 15,
-            "mt-angle": 620
+            "mtshape": "sincgauss",
+            "mtduration": 15,
+            "mtangle": 620
         }
     }
 }
