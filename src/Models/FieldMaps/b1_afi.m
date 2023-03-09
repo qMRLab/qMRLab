@@ -87,7 +87,9 @@ classdef b1_afi < AbstractModel & FilterClass
             
             % call the superclass (FilterClass) fit function
             data.Raw = B1map_nospur;
-            FitResult.B1map_filtered=cell2mat(struct2cell(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez])));
+            if ~moxunit_util_platform_is_octave
+                FitResult.B1map_filtered=cell2mat(struct2cell(fit@FilterClass(obj,data,[obj.options.Smoothingfilter_sizex,obj.options.Smoothingfilter_sizey,obj.options.Smoothingfilter_sizez])));
+            end
             % note: can't use struct2array because dne for octave...
         end
     end
