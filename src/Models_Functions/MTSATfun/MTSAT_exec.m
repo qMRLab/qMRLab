@@ -1,9 +1,13 @@
 
 
-function [MTsat, R1] = MTSAT_exec(data, MTParams, PDParams, T1Params, B1Params) 
+function [MTsat, R1, R1cor, MTsatcor] = MTSAT_exec(data, MTParams, PDParams, T1Params, B1Params) 
 % Compute MT saturation map from a PD-weighted, a T1-weighted and a MT-weighted FLASH images
 % according to Helms et al., MRM, 60:1396?1407 (2008) and equation erratum in MRM, 64:1856 (2010).
 %   This function computes R1 maps and includes it in the MT saturation map calculation.
+
+% Initialize variables
+R1cor=[];
+MTsatcor=[];
 
 % Load nii
 PDw_data = double(data.PDw); % convert data coding to double
