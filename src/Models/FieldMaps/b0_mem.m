@@ -34,16 +34,7 @@ end
             Phase = data.Phase;
             Magn = data.Magn;
 
-%             % FSL "prelude"
-%             mkdir('tmp')
-%             save_nii(make_nii(Phase),'tmp/Phase.nii');
-%             save_nii(make_nii(Magn),'tmp/Magn.nii');
-%             unix('prelude -p tmp/Phase.nii -a tmp/Magn.nii -o tmp/Ph_uw -f');
-%             B0 = load_untouch_nii('tmp/Ph_uw.nii.gz');
-%             rmdir('tmp','s')
-%             B0.img = unwrap(B0.img,[],4);
-%             FitResult.B0map = (B0.img(:,:,:,2) - B0.img(:,:,:,1))/(obj.Prot.TimingTable.Mat*2*pi);
-  
+
             sizecheck = true;
             if not(length(size(Magn)) == length(size(Phase)))
                 FitResult = "The size of the magnitude and phase don't match";
@@ -73,14 +64,17 @@ end
                 TwoD = false;
             end
 
+            %Establishing the time echo vector
             % Makes sure the number of echo times makes sense ("ERROR
             % MESSAGE")
             Techocheck = true;
             if length(obj.Prot.TimingTable.Mat)==1
-                   Techo = 0:obj.Prot.TimingTable.Mat:size(Phase,4)*obj.Prot.TimingTable.Mat;
+               Techo = 0:obj.Prot.TimingTable.Mat:size(Phase,4)*obj.Prot.TimingTable.Mat;
+               Techo = Techo';
                 else
                     if length(obj.Prot.TimingTable.Mat)== size(Phase,4)
                         Techo = obj.Prot.TimingTable.Mat;
+                        Techo = Techo';                  
                     else
                         Techocheck = false;
                     end
@@ -101,20 +95,22 @@ end
                         Phase_uw(:,:,:,iEcho) = laplacianUnwrap(Phase(:,:,:,iEcho), Magn>obj.options.Magnthresh);
                     end
                 end
-                %obj.Prot.TimingTable.Mat
-                Time = 0.001;
-                Techo = zeros(1,size(Phase,4));
-                for iEcho = 0:size(Phase,4)-1
-                    Techo(iEcho+1) = Time*iEcho;
-                end
+                
+                %Creating the B0 map
                 FitResult.B0map = zeros(size(Phase, 1:2));
                 for i = 1:size(Phase, 1)
                     for j = 1:size(Phase,2)
                         Phase_vec= zeros(1,size(Phase,4));
-                        for iEcho = 1:size(Phase,4)-1
+                        for iEcho = 1:size(Phase,4)
                             Phase_vec(iEcho) = Phase_uw(i, j, :,iEcho);
-                    FitResult.B0map(i, j) = polyfit(Techo, Phase_vec, 0)/(2*pi);
-                        end 
+                        end
+                        Phase_vec = Phase_vec';
+                        data = [Techo, Phase_vec];
+                        tabledata = array2table(data);
+                        lm = fitlm(tabledata);
+                        slope = lm.Coefficients.Estimate(2);
+                        FitResult.B0map(i, j) = slope;
+
                     end 
                 end
                 
