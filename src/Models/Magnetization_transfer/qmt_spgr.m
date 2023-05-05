@@ -134,7 +134,7 @@ end
             'Mat', [142 443; 426 443; 142 1088; 426 1088; 142 2732
             426 2732; 142 6862; 426 6862; 142 17235; 426 17235]),...
             'TimingTable',...
-            struct('Format',{{'Tmt (s)'; 'Ts (s)'; 'Tp (s)'; 'Tr (s)'; 'TR (s)'}},...
+            struct('Format',{{'Tmt'; 'Ts'; 'Tp'; 'Tr'; 'TR'}},...
             'Mat',[0.0102; 0.0030; 0.0018; 0.0100; 0.0250]));
 
         ProtSfTable = load('DefaultSFTable.mat'); % SfTable declaration
@@ -143,7 +143,7 @@ end
         buttons = {'PANEL','MT_Pulse', 5,...
             'Shape',{'gausshann','gaussian','hard','sinc','sinchann','sincgauss','fermi'},...
             'Sinc TBW',4,...
-            'Bandwidth',200,...
+            'Bandwidth (Hz)',200,...
             'Fermi transition (a)',0.0102/33.81,...
             '# of MT pulses',600,...
             'Model',{'SledPikeRP','SledPikeCW','Yarnykh','Ramani'},...
@@ -158,7 +158,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
@@ -171,6 +171,9 @@ end
         function obj = qmt_spgr
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -205,7 +208,7 @@ end
 
             % Disable/enable some MT pulse options --> Add ### to the button
             % Name you want to disable
-            disablelist = {'Fermi transition (a)','Bandwidth','Sinc TBW'};
+            disablelist = {'Fermi transition (a)','Bandwidth (Hz)','Sinc TBW'};
             switch  obj.options.MT_Pulse_Shape
                 case {'sinc','sinchann'}
                     disable = [true, true, false];
@@ -229,21 +232,36 @@ end
         end
 
         function optionalInputs = get_MRIinputs_optional(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             optionalInputs = get_MRIinputs_optional@AbstractModel(obj);
             if obj.options.fittingconstraints_UseR1maptoconstrainR1f
                 optionalInputs(strcmp(obj.MRIinputs,'R1map')) = false;
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function obj = Precompute(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if isempty(obj.ProtSfTable)
                 obj.ProtSfTable = CacheSf(GetProt(obj));
             else
                 obj.ProtSfTable = CacheSf(GetProt(obj),obj.ProtSfTable);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function mz = equation(obj, x, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x = struct2mat(x,obj.xnames);
             x = x+eps;
@@ -252,7 +270,7 @@ end
             end
             Protocol = GetProt(obj);
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch equation'
                     Sim.Param.lineshape = obj.options.Lineshape;
                     Sim.Param.M0f       = 1;
                     Sim.Opt.Reset       = Opt.ResetMz;
@@ -265,6 +283,9 @@ end
                     SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
                     mz = SimCurveResults.curve;
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = fit(obj,data)
@@ -285,6 +306,9 @@ end
         end
 
         function plotModel(obj, x, data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x = obj.st; end
             if nargin<3,  data.MTdata = []; end
             if isnumeric(x)
@@ -311,9 +335,15 @@ end
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; T2r=%f; Residuals=%f', ...
                 x.F,x.kf,x.R1f,x.R1r,x.T2f,x.T2r,x.resnorm),...
                 'FontSize',10);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
             Smodel = equation(obj, x, Opt);
@@ -324,16 +354,31 @@ end
                 plotModel(obj, FitResults, data);
                 drawnow;
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 %         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
@@ -372,13 +417,16 @@ end
 %         end
 
         function plotProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             Prot = GetProt(obj);
-            subplot(3,1,1)
+            subplot(2,1,1)
             plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
             ylabel('Angle')
             xlabel('offset (Hz)')
             title('MT parameter (FA, Offset)')
-            subplot(3,1,2)
+            subplot(2,1,2)
             angles = Prot.Angles(1);
             offsets = Prot.Offsets(1);
             shape = Prot.MTpulse.shape;
@@ -387,12 +435,19 @@ end
             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
             ViewPulse(Pulse,'b1');
             title('MTpulse shape')
-            subplot(3,1,3)
-            imshow qmt_spgr.png
-            title('Pulse sequence diagram')
+            % These are moved to documentation
+            %subplot(3,1,3)
+            %imshow qmt_spgr.png 
+            %title('Pulse sequence diagram')
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function Prot = GetProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             Prot.Angles        = obj.Prot.MTdata.Mat(:,1);
             Prot.Offsets       = obj.Prot.MTdata.Mat(:,2);
             Prot.Alpha         = obj.options.Readpulsealpha;
@@ -401,10 +456,10 @@ end
                 case {'sinc','sinchann'}
                     Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;
                 case {'gausshann','gaussian'}
-                    Prot.MTpulse.opt.bw = obj.options.MT_Pulse_Bandwidth;
+                    Prot.MTpulse.opt.bw = obj.options.MT_Pulse_BandwidthHz;
                 case 'sincgauss'
                     Prot.MTpulse.opt.TBW = obj.options.MT_Pulse_SincTBW;
-                    Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_Bandwidth;
+                    Prot.MTpulse.opt.bw  = obj.options.MT_Pulse_BandwidthHz;
                 case 'fermi'
                     Prot.MTpulse.opt.slope = obj.options.MT_Pulse_Fermitransitiona;
                 otherwise
@@ -422,9 +477,15 @@ end
                 Sf = CacheSf(Prot,obj.ProtSfTable,0);
                 if ~isempty(Sf), Prot.Sf=Sf; end
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitOpt = GetFitOpt(obj,data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if exist('data','var')
                 if isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
                 if isfield(data,'B1map'), FitOpt.B1 = data.B1map; end
@@ -441,7 +502,32 @@ end
             FitOpt.model     = obj.options.Model;
             FitOpt.FixR1fT2f = obj.options.fittingconstraints_FixR1fT2f;
             FitOpt.FixR1fT2fValue = obj.options.fittingconstraints_R1fT2f;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
     end
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % v2.5.0 drops unit parantheses
+            if checkanteriorver(version,[2 5 0])
+                obj.Prot.TimingTable.Format = [{'Tmt'};{'Ts'};{'Tp'};{'Tr'};{'TR'}];
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+                try
+                obj.options.MT_Pulse_BandwidthHz = loadedStruct.options.MT_Pulse_BandwidthHz;
+                catch
+                obj.options.MT_Pulse_BandwidthHz = loadedStruct.options.MT_Pulse_Bandwidth;
+                end
+                obj.buttons{8} = 'Bandwidth (Hz)';
+                obj.Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation'},'Reset Mz',false};
+            end
+        end
+    end
+
 end
+
+

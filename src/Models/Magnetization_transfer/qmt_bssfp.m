@@ -108,7 +108,7 @@ end
                    'Shape',{'gaussian','hard','gausshann','sinc','sinchann','sincgauss','fermi'},'# of RF pulses',500,...
                    'PANEL','Protocol Timing',2,...
                    'Type',{'fix TR - Trf','fix TR'},...
-                   'Value',0.00269,...
+                   'Value (s)',0.00269,...
                    'Prepulse',true,...
                    'G(0)',1.2524e-05,...
                    'PANEL','R1',2,...
@@ -116,7 +116,7 @@ end
                    'Fix R1r = R1f',true};
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
 
@@ -128,6 +128,7 @@ end
         function obj = qmt_bssfp
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -140,6 +141,9 @@ end
         end
 
         function mxy = equation(obj, x, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x=struct2mat(x,obj.xnames);
             x = x+eps;
@@ -149,7 +153,7 @@ end
             Sim.Param.G = obj.options.G0;
             Protocol = GetProt(obj);
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch equation'
                     Sim.Opt.Reset = Opt.ResetMz;
                     Sim.Opt.SScheck = 1;
                     Sim.Opt.SStol = 5e-5;
@@ -161,6 +165,9 @@ end
                     xdata = [alpha1, Trf1, TR1, W1];
                     mxy = bSSFP_fun( x, xdata, FitOpt );
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 
@@ -171,6 +178,9 @@ end
         end
 
         function plotModel(obj, x, data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x = obj.st; end
             if nargin<3, data.MTdata = []; end
             x=mat2struct(x,obj.xnames);
@@ -187,6 +197,9 @@ end
             title(sprintf('F=%0.2f; kf=%0.2f; R1f=%0.2f; R1r=%0.2f; T2f=%0.2f; M0f=%0.2f; Residuals=%f', ...
                 x.F,x.kf,x.R1f,x.R1r,x.T2f,x.M0f,x.resnorm), ...
                 'FontSize',10);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 %         function plotProt(obj)
@@ -206,6 +219,9 @@ end
 %
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
             Smodel = equation(obj, x, Opt);
@@ -214,31 +230,55 @@ end
             if display
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opts)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opts.Nofrun, OptTable, Opts);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimRndGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 %   INTERFACE VARIABLES WITH OLD VERSION OF qMTLAB:
         function Prot = GetProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             Prot.alpha = obj.Prot.MTdata.Mat(:,1);
             Prot.Trf = obj.Prot.MTdata.Mat(:,2);
             Prot.FixTR = strcmp(obj.options.ProtocolTiming_Type,'fix TR');
-            Prot.TR = obj.options.ProtocolTiming_Value;
-            Prot.Td = obj.options.ProtocolTiming_Value;
+            Prot.TR = obj.options.ProtocolTiming_Values;
+            Prot.Td = obj.options.ProtocolTiming_Values;
             Prot.Pulse.shape = obj.options.RF_Pulse_Shape;
             Prot.Npulse = obj.options.RF_Pulse_NofRFpulses;
             Prot.prepulse = obj.options.Prepulse;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitOpt = GetFitOpt(obj,data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if exist('data','var') && isfield(data,'R1map'), FitOpt.R1 = data.R1map; end
             FitOpt.R1map = obj.options.R1_UseR1maptoconstrainR1f;
             FitOpt.names = obj.xnames;
@@ -248,7 +288,24 @@ end
             FitOpt.ub = obj.ub;
             FitOpt.R1reqR1f = obj.options.R1_FixR1rR1f;
             FitOpt.G = obj.options.G0;
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
     end
+
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            if checkanteriorver(version,[2 5 0])
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+                obj.options.ProtocolTiming_Values = obj.options.ProtocolTiming_Value;
+                obj.buttons{13} = 'Value (s)';
+                obj.Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch equation'},'Reset Mz',false};
+            end
+        end
+    end
+
 end

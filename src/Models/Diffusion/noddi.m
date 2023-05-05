@@ -29,10 +29,11 @@ classdef noddi < AbstractModel
 %   fr                  Fraction of restricted water in the entire voxel (e.g. intra-cellular volume fraction)
 %                        fr = ficvf*(1-fiso)
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
-%   kappa               Orientation dispersion index
+%   kappa               Concentration parameter of Watson distribution
+%   ODI                 Orientation dispersion index
 %   b0                  Signal at b=0
-%   theta               angle of the fibers
-%   phi                 angle of the fibers
+%   theta               Inclination angle of the fibers
+%   phi                 Azimuth angle of the fibers
 %
 % Protocol:
 %   Multi-shell diffusion-weighted acquisition
@@ -43,10 +44,10 @@ classdef noddi < AbstractModel
 %     Gx                Diffusion Gradient x
 %     Gy                Diffusion Gradient y
 %     Gz                Diffusion Gradient z
-%     Gnorm (T/m)         Diffusion gradient magnitude
-%     Delta (s)         Diffusion separation
-%     delta (s)         Diffusion duration
-%     TE (s)            Echo time
+%     Gnorm             Diffusion gradient magnitude
+%     Delta             Diffusion separation
+%     delta             Diffusion duration
+%     TE                Echo time
 %
 % Options:
 %   Model               Model part of NODDI.
@@ -91,8 +92,8 @@ end
         % https://github.com/qMRLab/qMRLab/wiki/Guideline:-GUI#the-optionsgui-is-populated-by
         
         tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
-        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
-        'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
+        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm: Diffusion gradient magnitudes.\nDelta: Diffusion separation\n' ...
+        'delta: Diffusion duration\nTE: Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
         options= struct();
 
     end
@@ -105,6 +106,9 @@ end
         function obj = noddi
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -148,6 +152,9 @@ end
         end
 
         function [Smodel, fibredir] = equation(obj, x)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+        
             x = struct2mat(x,obj.xnames); % if x is a structure, convert to vector
 
             model = MakeModel(obj.options.modelname);
@@ -170,6 +177,9 @@ end
             constants.roots_cyl = BesselJ_RootsCyl(30);
 
             Smodel = SynthMeas(obj.options.modelname, xsc, SchemeToProtocolmat(obj.Prot.DiffusionData.Mat), fibredir, constants);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
 
         end
 
@@ -214,8 +224,9 @@ end
         end
 
         function plotModel(obj, x, data)
-
-                
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if nargin<2, x=obj.st; end
             [Smodel, fibredir] = obj.equation(x);
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1);
@@ -238,11 +249,16 @@ end
             scd_display_qspacedata3D(Smodel,Prot,fibredir,'none','-');
 
             hold off
-
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
 
         end
 
         function plotProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % round bvalue
             Prot      = obj.Prot.DiffusionData.Mat;
             Prot(:,4) = round(scd_scheme2bvecsbvals(Prot)*100)*10;
@@ -250,9 +266,15 @@ end
             scd_scheme_display(Prot)
             subplot(2,2,4)
             scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1,1))
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if ~exist('display','var'), display=1; end
             if nargin<3, Opt.SNR = 200; end
             [Smodel, fibredir] = equation(obj, x);
@@ -276,17 +298,32 @@ end
                 hold on
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
 
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
     end
@@ -295,6 +332,13 @@ end
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
             obj.Prot.DiffusionData.Format{4}='Gnorm'; % old: '|G| (T/m)'
+            if checkanteriorver(version,[2 5 0])
+                % In v2.5.0 unit parantheses are dropped from the protocol Format names
+                obj.Prot.DiffusionData.Format = ...
+                [{'Gx'},{'Gy'},{'Gz'},{'Gnorm'},{'Delta'},{'delta'},{'TE'}];
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
         end
     end
 

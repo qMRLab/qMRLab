@@ -30,10 +30,11 @@ classdef amico < noddi
 %                        fr = ficvf*(1-fiso)
 %   irfrac              Fraction of isotropically restricted compartment (Dot for ex vivo model)
 %   diso (fixed)        diffusion coefficient of the isotropic compartment (CSF)
-%   kappa               Orientation dispersion index
+%   kappa               Concentration parameter of Watson distribution
+%   ODI                 Orientation dispersion index
 %   b0                  Signal at b=0
-%   theta               angle of the fibers
-%   phi                 angle of the fibers
+%   theta               Inclination angle of the fibers
+%   phi                 Azimuth angle of the fibers
 %
 % Protocol:
 %   Multi-shell diffusion-weighted acquisition
@@ -76,6 +77,9 @@ end
         function obj = amico
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
             AMICO_Setup;            
         end
 
@@ -210,9 +214,17 @@ end
             if checkanteriorver(version,[2 4 1])
             
                 obj.tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
-                {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
-                'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
+                {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm: Diffusion gradient magnitudes.\nDelta: Diffusion separation\n' ...
+                'delta: Diffusion duration\nTE: Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
                 
+            end
+
+            if checkanteriorver(version,[2 5 0])
+                % In v2.5.0 unit parantheses are dropped from the protocol Format names
+                obj.Prot.DiffusionData.Format = ...
+                [{'Gx'},{'Gy'},{'Gz'},{'Gnorm'},{'Delta'},{'delta'},{'TE'}];
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
             end
 
         end

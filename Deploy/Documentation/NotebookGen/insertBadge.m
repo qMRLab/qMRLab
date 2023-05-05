@@ -2,17 +2,8 @@
 % Insert badge w.r.t. modelname 
 % TODO: Explain. 
 
-function insertBadge(rstDir)
+function insertBadge(rstDir,Modellist)
 
-
-
-    Modellist = list_models';
-    % SKIP NEW DOC GENERATION FOR AMICO
-    % If you need to re-gen doc for amico, please comment out following two lines
-    % Similar changes are required in
-    % - GenerateDocumentation.m 
-    [~,amicoloc] = ismember(['amico'],Modellist);
-    Modellist(amicoloc) = [];
     for iModel = 1:length(Modellist)
     
         disp('==============================');
