@@ -106,7 +106,7 @@ end
 
         % Protocol
         Prot = struct('DiffusionData',...
-            struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm (T/m)'  'Delta (s)'  'delta (s)'  'TE (s)'}},...
+            struct('Format',{{'Gx' 'Gy'  'Gz'   'Gnorm'  'Delta'  'delta'  'TE'}},...
             'Mat',  txt2mat('CHARMEDProtocol.txt','InfoLevel',0))...
             ); % You can define a default protocol here.
 
@@ -117,8 +117,8 @@ end
             'Time-dependent-models',{'Burcaw 2015','Ning MRM 2016'}};
         
         tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
-        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
-        'delta (s): Diffusion duration\nTE (s): Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
+        {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm: Diffusion gradient magnitudes.\nDelta: Diffusion separation\n' ...
+        'delta: Diffusion duration\nTE: Echo time.\n\n------------------------\n You can populate these fields using bvec and bval files by following the prompted instructions.\n------------------------'])}},'link',{{'https://github.com/qMRLab/qMRLab/issues/299#issuecomment-451210324'}});
 
         options= struct(); % structure filled by the buttons. Leave empty in the code
         Sim_Single_Voxel_Curve_buttons = {'SNR',50};
@@ -135,6 +135,9 @@ end
         function obj = charmed
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
 
         function obj = UpdateFields(obj)
@@ -160,6 +163,9 @@ end
         % -------------CHARMED EQUATION-------------------------------------------------------------------------
 
         function [Smodel, x] = equation(obj, x)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if isstruct(x) % if x is a structure, convert to vector
                 for ix = 1:length(obj.xnames)
                     xtmp(ix) = x.(obj.xnames{ix});
@@ -172,6 +178,9 @@ end
             opt.scheme = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,0);
             Smodel = scd_model_CHARMED(x,opt);
             x(4)=[];
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         % -------------DATA FITTING-------------------------------------------------------------------------
@@ -246,6 +255,9 @@ end
 
         % -------------PLOT EQUATION-------------------------------------------------------------------------
         function plotModel(obj, x, data)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % u.plotModel(u.st)
             if nargin<2, x=obj.st; end
             Prot = ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1);
@@ -281,10 +293,16 @@ end
             end
             hold off
             title(strrep(strrep(cell2str_v2(Interleave(obj.xnames,repmat('=',1,length(obj.xnames)),x)),''', ''='',',' ='),'''',''),'FontSize',8)
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         % -------------PLOT DIFFUSION PROTOCOL-------------------------------------------------------------------------
         function plotProt(obj)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % round bvalue
             Prot      = obj.Prot.DiffusionData.Mat;
             Prot(:,4) = round(scd_scheme2bvecsbvals(Prot)*100)*10;
@@ -292,11 +310,17 @@ end
             scd_scheme_display(Prot)
             subplot(2,2,4)
             scd_scheme_display_3D_Delta_delta_G(ConvertSchemeUnits(obj.Prot.DiffusionData.Mat,1))
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
 
         % -------------SIMULATIONS-------------------------------------------------------------------------
         function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             if ~exist('display','var'), display=1; end
             if ~exist('Opt','var'), Opt.SNR=1000; end
             if ~exist('x','var'), x=obj.st; end
@@ -321,19 +345,37 @@ end
                 hold on
                 plotModel(obj, FitResults, data);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % SimVaryGUI
             SimRndResults = SimRnd(obj, RndParam, Opt);
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
 
         function [Signal, signal_intra, signal_extra] = Sim_MonteCarlo_Diffusion(obj, numelparticle, trans_mean, D, packing, axons)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             scheme = obj.Prot.DiffusionData.Mat;
             [Signal, signal_intra, signal_extra] = Sim_MonteCarlo_Diffusion(numelparticle, trans_mean, D, scheme, packing, axons);
             
@@ -367,9 +409,15 @@ end
             
             uicontrol(293,'Style','pushbutton','String','Save','Callback',@(src,evnt) Sim_MonteCarlo_saveSignal(Signal(end,:),signal_intra,signal_extra),'BackgroundColor',[0.0 0.65 1]);
             end
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
         end
         
         function schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,Opt)
+            % Ensure ORIGINAL protocol units on load
+            obj = setOriginalProtUnits(obj);
+            
             % schemeLEADER = Sim_Optimize_Protocol(obj,xvalues,nV,popSize,migrations)
             % schemeLEADER = Sim_Optimize_Protocol(obj,obj.st,30,100,100)
             nV         = Opt.Nofvolumes;
@@ -411,6 +459,9 @@ end
                 schemeLEADER = cat(1,schemeLEADER(1:addb0(ib0),:), [0 0 1 0 schemeLEADER(addb0(ib0),5:end)] ,schemeLEADER(addb0(ib0)+1:end,:));
             end
             fprintf('SOMA HAS FINISHED \n')
+            
+            % Ensure USER protocol units after process
+            obj = setUserProtUnits(obj);
 
         end
     end
@@ -419,6 +470,13 @@ end
         function obj = qMRpatch(obj,loadedStruct, version)
             obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
             obj.Prot.DiffusionData.Format{4}='Gnorm (T/m)'; % old: '|G| (T/m)', new Gnorm (T/m)
+            if checkanteriorver(version,[2 5 0])
+            % In v2.5.0 unit parantheses are dropped from the protocol Format names
+            obj.Prot.DiffusionData.Format = ...
+            [{'Gx'},{'Gy'},{'Gz'},{'Gnorm'},{'Delta'},{'delta'},{'TE'}];
+            obj.OriginalProtEnabled = true;
+            obj = setUserProtUnits(obj);
+            end
         end
     end
 end

@@ -63,9 +63,9 @@ for k=1:length(intrFields)
                     msg = [msg {['FAILED dimension mismatch: ' crField '--->' Model.ModelName]}];
                 end
 
-                 if islogical(expected) && islogical(calculated)
+                 if islogical(expected) || islogical(calculated)
                     try
-                        assertEqual(expected,calculated);
+                        assertEqual(logical(expected),logical(calculated));
                     catch
                          caught = true;
                          msg = [msg {['FAILED assertion logical: ' crField '--->' Model.ModelName]}];

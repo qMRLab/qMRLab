@@ -184,6 +184,18 @@ classdef BrowserSet
                 Data = rmfield(Data,[class(Model) '_hdr']);
             end
 
+            % ======= SCALE INPUT DATA W.R.T. USER SETTINGS =======
+            reg = modelRegistry('get',class(Model),'registryStruct',getappdata(0,'registryStruct'),...
+                                'unitDefsStruct',getappdata(0,'unitDefsStruct'), ...
+                                'usrPrefsStruct',getappdata(0,'usrPrefsStruct'));
+            Data.(class(Model)).(obj.NameID{1}) = Data.(class(Model)).(obj.NameID{1})...
+            .*reg.UnitBIDSMappings.Input.(obj.NameID{1}).ScaleFactor;
+            
+            % ======= Whenever the user is loading data, ensure that the prot parameters
+            % are in the units defined in the preferences. Pereviously loaded fit results 
+            % may  conflict them otherwise and result in errorenous fits.
+            validatePanelUnits(Model);
+
             setappdata(0, 'Data', Data);
             set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
 
@@ -290,6 +302,13 @@ classdef BrowserSet
             handles = guidata(findobj('Name','qMRLab'));
             handles.CurrentData = Data;
             DrawPlot(handles,obj.NameID{1,1});
+            % The second argument set to True to show the registered label
+            % regardless of the version of the CurrentData. For details,
+            % see updateUnitLabel.
+            updateUnitLabel(handles,true,...
+            getappdata(0,'registryStruct'),...
+            getappdata(0,'unitDefsStruct'),...
+            getappdata(0,'usrPrefsStruct'));
         end
 
 

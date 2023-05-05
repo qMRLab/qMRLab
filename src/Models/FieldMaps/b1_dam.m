@@ -59,7 +59,7 @@ end
                        % 1, if the analysis is done voxel per voxel
 
         % Protocol
-        Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
+        Prot = struct('SFalpha',struct('Format',{'FlipAngle'},'Mat',60));
         
         % Inherit these from public properties of FilterClass 
 %         % Model options
@@ -77,10 +77,13 @@ end
         function obj = b1_dam
             obj.options = button2opts(obj.buttons);
             obj = UpdateFields(obj);
+            % Prot values at the time of the construction determine 
+            % what is shown to user in CLI/GUI.
+            obj = setUserProtUnits(obj);
         end
         
         function FitResult = fit(obj,data)
-            FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.Alpha.Mat)));
+            FitResult.B1map_raw = abs(acos(data.SF2alpha./(2*data.SFalpha))./(deg2rad(obj.Prot.SFalpha.Mat)));
             %remove 'spurious' points to reduce edge effects
             FitResult.Spurious = double(FitResult.B1map_raw<0.5);
             B1map_nospur = FitResult.B1map_raw;
@@ -124,7 +127,13 @@ end
                     'size z',3,...
                     'order',6};
             end
-            
+           
+            if checkanteriorver(version,[2 5 0])
+                obj.Prot = struct('SFalpha',struct('Format',{'FlipAngle'},'Mat',60));
+                obj.OriginalProtEnabled = true;
+                obj = setUserProtUnits(obj);
+            end
+
         end
     end
 

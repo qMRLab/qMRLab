@@ -1,0 +1,40 @@
+﻿[
+  {
+    "suffixes": [
+      "dwi"
+    ],
+    "extensions": [
+      ".nii.gz",
+      ".nii",
+      ".json",
+      ".bvec",
+      ".bval"
+    ],
+    "entities": {
+      "subject": "required",
+      "session": "optional",
+      "acquisition": "optional",
+      "direction": "optional",
+      "run": "optional",
+      "part": "optional"
+    }
+  },
+  {
+    "suffixes": [
+      "sbref"
+    ],
+    "extensions": [
+      ".nii.gz",
+      ".nii",
+      ".json"
+    ],
+    "entities": {
+      "subject": "required",
+      "session": "optional",
+      "acquisition": "optional",
+      "direction": "optional",
+      "run": "optional",
+      "part": "optional"
+    }
+  }
+]
