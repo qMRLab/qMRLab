@@ -62,8 +62,8 @@ for k=1:length(intrFields)
                     error(error_id,'%s',full_message);
                 end
 
-                 if islogical(expected) && islogical(calculated)
-                    assertEqual(expected,calculated);
+                 if islogical(expected) || islogical(calculated)
+                    assertEqual(logical(expected),logical(calculated));
                  else
                     % Allow 5% difference
                     assertElementsAlmostEqual(expected(crMask==1),calculated(crMask==1),'relative',0.05,['FAILED assertion at 5% : ' crField '--->' Model.ModelName]);
