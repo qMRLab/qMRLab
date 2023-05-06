@@ -226,6 +226,55 @@
         }
 	},
 
+    "ihMT": {
+        "ModelPath": "Magnetization_transfer/",
+        "Citation": "https://doi.org/10.1002/mrm.28831",
+        "InputDataUnits":{
+            "MTw_dual": "arbitrary",
+            "MTw_single": "arbitrary",
+            "T1w":  "arbitrary",
+            "PDw": "arbitrary",
+            "B1map": "relative_scaling_factor_decimal",
+            "Mask": "categorical"
+        },
+        "InputProtUnits":
+        {
+        "MTw_dual":
+            {
+                "FlipAngle": "degree",
+                "TR": "second"
+            },
+        "MTw_single":
+            {
+                "FlipAngle": "degree",
+                "TR": "second"
+            },
+        "T1w":
+        {
+            "FlipAngle": "degree",
+            "TR": "second"
+        },
+        "PDw":
+        {
+            "FlipAngle": "degree",
+            "TR": "second"
+        }
+        },
+        "Outputs":
+        {
+            "MTSATcor_dual": "arbitrary",
+            "MTSAT_dual": "arbitrary",
+            "T1cor_dual": "second",
+            "T1_dual": "second",
+            "MTSATcor_single": "arbitrary",
+            "MTSAT_single": "arbitrary",
+            "T1cor_single": "second",
+            "T1_single": "second",
+            "ihMTsatcor": "arbitrary",
+            "ihMTsat": "arbitrary"
+        }
+	},
+
     "mt_sat": {
         "ModelPath": "Magnetization_transfer/",
         "Citation": "https://doi.org/10.1002/mrm.21732",
