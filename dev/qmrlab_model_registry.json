@@ -549,6 +549,29 @@
         }
 	},
 
+    "mono_t2star": {
+        "ModelPath": "T2_relaxometry/",
+        "Citation":"https://doi.org/10.1016/j.neuroimage.2012.01.053",
+        "InputDataUnits":
+        {   
+            "Magn": "arbitrary",
+	    "Phase": "arbitrary"
+        },
+        "InputProtUnits":
+        {
+            "SEdata":
+                {
+                    "EchoTime": "millisecond"
+                }
+        },    
+        "Outputs":
+        {
+            "B0map": "offset_factor_hertz",
+            "GradZ": "arbitrary",
+	    "T2starmap": "millisecond"
+        }
+	},
+
     "mwf": {
         "ModelPath": "T2_relaxometry/",
         "Citation":"https://doi.org/10.1002/mrm.1910310614",
