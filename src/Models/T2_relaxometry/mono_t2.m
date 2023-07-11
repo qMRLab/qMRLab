@@ -77,6 +77,15 @@ end
             Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2);
         end
         
+        function obj = UpdateFields(obj)
+            if obj.fx(1)
+               obj.fx = [1 1];
+            else
+               obj.fx = [0 0];
+            end
+                        
+        end
+        
         function FitResults = fit(obj,data)
             %  Fit data using model equation.
             %  data is a structure. FieldNames are based on property
@@ -131,10 +140,18 @@ end
                 options.Algorithm = 'levenberg-marquardt';
                 options.Display = 'off';
                 
-                if obj.options.OffsetTerm
-                    fit_out = lsqnonlin(fT2,[pdInit t2Init 0],[],[],options);
+                if any(obj.fx)
+                    if obj.options.OffsetTerm
+                        fit_out = lsqnonlin(fT2,[pdInit t2Init 0],[obj.lb(2), obj.lb(1)],[obj.ub(2), obj.ub(1)],options);
+                    else
+                        fit_out = lsqnonlin(fT2,[pdInit t2Init],[obj.lb(2) obj.lb(1)],[obj.ub(2) obj.ub(1)],options);
+                    end
                 else
-                    fit_out = lsqnonlin(fT2,[pdInit t2Init],[],[],options);
+                    if obj.options.OffsetTerm
+                        fit_out = lsqnonlin(fT2,[pdInit t2Init 0],[],[],options);
+                    else
+                        fit_out = lsqnonlin(fT2,[pdInit t2Init],[],[],options);
+                    end
                 end
                 
                 FitResults.T2 = fit_out(2);
