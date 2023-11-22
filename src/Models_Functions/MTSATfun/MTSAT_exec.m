@@ -35,7 +35,7 @@ if isfield(data,'B1map') && ~isempty(data.B1map)
     A = (TR_PD.*alpha_T1.*data.B1map(Inds)./(alpha_PD.*data.B1map(Inds)) - TR_T1.*alpha_PD.*data.B1map(Inds)./(alpha_T1.*data.B1map(Inds))).*((PDw_data(Inds).*T1w_data(Inds))./(TR_PD.*(alpha_T1.*data.B1map(Inds)).*T1w_data(Inds) - TR_T1.*(alpha_PD.*data.B1map(Inds)).*PDw_data(Inds)));
 	
     % preallocate and compute MTsat; percent units
-    MTsat(Inds) = 100 * (TR_MT.*((alpha_MT.*data.B1map(Inds)).*(A./MTw_data(Inds)) - ones(size(MTw_data(Inds)))).*R1(Inds) - ((alpha_MT.*data.B1map(Inds)).^2)./2);
+    MTsat(Inds) = 100 * (TR_MT*(alpha_MT*(A./MTw_data(Inds)) - ones(size(MTw_data(Inds)))).*R1(Inds) - (alpha_MT^2)/2);
 
     % Weiskopf, N., Suckling, J., Williams, G., Correia, M.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
     MTsat = MTsat .* (1 - Alpha_B1)./(1 - Alpha_B1 * data.B1map);
