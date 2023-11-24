@@ -1,4 +1,4 @@
-function [mz, Mevol] = SPGR_sim(Sim, Prot, wait)
+function [mz, Mevol, Mz0] = SPGR_sim(Sim, Prot, wait)
 % SPGR_sim Simulation function of off-resonance SPGR for given MT parameters and
 % sequence of Delta and Alpha
 % Output: normalized mz

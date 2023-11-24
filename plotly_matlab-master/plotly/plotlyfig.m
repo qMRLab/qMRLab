@@ -1,0 +1,1178 @@
+classdef plotlyfig < handle
+    
+    %----CLASS PROPERTIES----%
+    properties
+        data; % data of the plot
+        layout;  % layout of the plot
+        frames;  % for animations
+        url; % url response of making post request
+        error; % error response of making post request
+        warning; % warning response of making post request
+        message; % message response of making post request
+        
+    end
+    
+    properties (SetObservable)
+        UserData;% credentials/configuration/verbose
+        PlotOptions; % filename,fileopt,world_readable
+    end
+    
+    properties (Hidden = true)
+        PlotlyDefaults; % plotly specific conversion defualts
+        State; % state of plot (FIGURE/AXIS/PLOTS)
+    end
+    
+    properties (Access = private)
+        PlotlyReference; % load the plotly reference
+        InitialState; % inital userdata
+    end
+    
+    %----CLASS METHODS----%
+    methods
+        
+        %----CONSTRUCTOR---%
+        function obj = plotlyfig(varargin)
+
+            %-Core-%
+            obj.data = {};
+            obj.layout = struct();
+            obj.frames = {};
+            obj.url = '';
+            
+            obj.UserData.Verbose = true;
+            
+            %-PlotOptions-%
+            obj.PlotOptions.CleanFeedTitle = true; 
+            obj.PlotOptions.FileName = '';
+            obj.PlotOptions.FileOpt = 'new';
+            obj.PlotOptions.WorldReadable = true;
+            obj.PlotOptions.ShowURL = true;
+            obj.PlotOptions.OpenURL = true;
+            obj.PlotOptions.Strip = false;
+            obj.PlotOptions.WriteFile = true;
+            obj.PlotOptions.Visible = 'on';
+            obj.PlotOptions.TriangulatePatch = false;
+            obj.PlotOptions.StripMargins = false;
+            obj.PlotOptions.TreatAs = {'_'};
+            obj.PlotOptions.Image3D = false;
+            obj.PlotOptions.ContourProjection = false;
+            obj.PlotOptions.AxisEqual = false;
+            obj.PlotOptions.AspectRatio = [];
+            obj.PlotOptions.CameraEye = [];
+            obj.PlotOptions.is_headmap_axis = false;
+            obj.PlotOptions.FrameDuration = 1;      % in ms.
+            obj.PlotOptions.FrameTransitionDuration = 0;      % in ms.
+            obj.PlotOptions.geoRenderType = 'geo';
+            obj.PlotOptions.DomainFactor = [1 1 1 1];
+            
+            % offline options
+            obj.PlotOptions.Offline = true;
+            obj.PlotOptions.ShowLinkText = true; 
+            obj.PlotOptions.LinkText = obj.get_link_text; 
+            obj.PlotOptions.IncludePlotlyjs = true;
+            obj.PlotOptions.SaveFolder = pwd;
+            
+            %-UserData-%
+            try
+                [obj.UserData.Username,...
+                    obj.UserData.ApiKey,...
+                    obj.UserData.PlotlyDomain] = signin;
+            catch
+                idx=find(cellfun(@(x) strcmpi(x,'offline'), varargin))+1;
+                if (nargin>1 && ~isempty(idx) && varargin{idx}) || (obj.PlotOptions.Offline)
+                    obj.UserData.Username = 'offlineUser';
+                    obj.UserData.ApiKey = '';
+                    obj.UserData.PlotlyDomain = 'https://plot.ly';
+                else
+                    errkey = 'plotlyfigConstructor:notSignedIn';
+                    error(errkey, plotlymsg(errkey));
+                end
+            end
+            
+            %-PlotlyDefaults-%
+            obj.PlotlyDefaults.MinTitleMargin = 10;
+            obj.PlotlyDefaults.TitleHeight = 0.01;
+            obj.PlotlyDefaults.TitleFontSizeIncrease = 40; 
+            obj.PlotlyDefaults.FigureIncreaseFactor = 1.5;
+            obj.PlotlyDefaults.AxisLineIncreaseFactor = 1.5;
+            obj.PlotlyDefaults.MarginPad = 0;
+            obj.PlotlyDefaults.MaxTickLength = 20;
+            obj.PlotlyDefaults.ExponentFormat = 'none';
+            obj.PlotlyDefaults.ErrorbarWidth = 6;
+            obj.PlotlyDefaults.ShowBaselineLegend = false;
+            obj.PlotlyDefaults.Bargap = 0;
+            obj.PlotlyDefaults.CaptionMarginIncreaseFactor = 1.2; 
+            obj.PlotlyDefaults.MinCaptionMargin = 80;
+            obj.PlotlyDefaults.IsLight = false;
+            obj.PlotlyDefaults.isGeoaxis = false;
+            obj.PlotlyDefaults.isTernary = false;
+            
+            %-State-%
+            obj.State.Figure = [];
+            obj.State.Axis = [];
+            obj.State.Plot = [];
+            obj.State.Text = [];
+            obj.State.Legend = [];
+            obj.State.Colorbar = [];
+            
+            % figure object management
+            obj.State.Figure.NumAxes = 0;
+            obj.State.Figure.NumPlots = 0;
+            obj.State.Figure.NumLegends = 0;
+            obj.State.Figure.NumColorbars = 0;
+            obj.State.Figure.NumTexts = 0;
+            
+            %-PlotlyReference-%
+            obj.PlotlyReference = [];
+            
+            %-InitialState-%
+            obj.InitialState.Username = obj.UserData.Username;
+            obj.InitialState.ApiKey = obj.UserData.ApiKey;
+            obj.InitialState.PlotlyDomain = obj.UserData.PlotlyDomain;
+            
+            % initialize figure handle
+            fig_han = [];
+            
+            % initialize autoupdate key
+            updatekey = false;
+            
+            noFig = false;
+            
+            % parse inputs
+            switch nargin
+                
+                case 0
+                case 1
+                    % check for figure handle
+                    if ishandle(varargin{1})
+                        if strcmp(get(varargin{1},'type'),'figure')
+                            fig_han = varargin{1};
+                            updatekey = true;
+                        end
+                    else
+                        errkey = 'plotlyfigConstructor:invalidInputs';
+                        error(errkey , plotlymsg(errkey));
+                    end
+                    
+                otherwise
+                    
+                    % check for figure handle
+                    if ishandle(varargin{1})
+                        if strcmp(get(varargin{1},'type'),'figure')
+                            fig_han = varargin{1};
+                            updatekey = true;
+                            parseinit = 2;
+                        end
+                    elseif iscell(varargin{1}) && isstruct(varargin{2})
+                        obj.data = varargin{1}{:};
+                        structargs = varargin{2};
+                        ff=fieldnames(structargs);
+                        for i=1:length(ff)
+                            varargin{2*i-1}=ff{i};
+                            varargin{2*i}=structargs.(ff{i});
+                        end
+                        noFig=true;
+                        parseinit = 1;
+                    else
+                        parseinit = 1;
+                    end
+                    
+                    % check for proper property/value structure
+                    if mod(length(parseinit:nargin),2) ~= 0
+                        errkey = 'plotlyfigConstructor:invalidInputs';
+                        error(errkey , plotlymsg(errkey));
+                    end
+                    
+                    % parse property/values
+                    for a = parseinit:2:length(varargin)
+                        if(strcmpi(varargin{a},'filename'))
+                            obj.PlotOptions.FileName = varargin{a+1};
+                            % overwrite if filename provided
+                            obj.PlotOptions.FileOpt = 'overwrite';
+                        end
+                        if(strcmpi(varargin{a},'savefolder'))
+                            obj.PlotOptions.SaveFolder = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'fileopt'))
+                            obj.PlotOptions.FileOpt = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'world_readable'))
+                            obj.PlotOptions.WorldReadable = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'link'))
+                            obj.PlotOptions.ShowURL = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'open'))
+                            obj.PlotOptions.OpenURL = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'strip'))
+                            obj.PlotOptions.Strip = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'writeFile'))
+                            obj.PlotOptions.WriteFile = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'visible'))
+                            obj.PlotOptions.Visible = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'offline'))
+                            obj.PlotOptions.Offline = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'showlink'))
+                            obj.PlotOptions.ShowLinkText = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'linktext'))
+                            obj.PlotOptions.LinkText = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'include_plotlyjs'))
+                            obj.PlotOptions.IncludePlotlyjs = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'layout'))
+                            obj.layout= varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'data'))
+                            obj.data = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'StripMargins'))
+                            obj.PlotOptions.StripMargins = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'TriangulatePatch'))
+                            obj.PlotOptions.TriangulatePatch = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'TreatAs'))
+                            if ~iscell(varargin{a+1})
+                                obj.PlotOptions.TreatAs = {varargin{a+1}};
+                            else
+                                obj.PlotOptions.TreatAs = varargin{a+1};
+                            end
+                        end
+                        if(strcmpi(varargin{a},'AxisEqual'))
+                            obj.PlotOptions.AxisEqual = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'AspectRatio'))
+                            obj.PlotOptions.AspectRatio = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'CameraEye'))
+                            obj.PlotOptions.CameraEye = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'Quality'))
+                            obj.PlotOptions.Quality = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'Zmin'))
+                            obj.PlotOptions.Zmin = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'FrameDuration'))
+                            if varargin{a+1} > 0
+                                obj.PlotOptions.FrameDuration = varargin{a+1};
+                            end
+                        end
+                        if(strcmpi(varargin{a},'FrameTransitionDuration'))
+                            if varargin{a+1} >= 0
+                                obj.PlotOptions.FrameTransitionDuration = varargin{a+1};
+                            end
+                        end
+                        if(strcmpi(varargin{a},'geoRenderType'))
+                            obj.PlotOptions.geoRenderType = varargin{a+1};
+                        end
+                        if(strcmpi(varargin{a},'DomainFactor'))
+                            len = length(varargin{a+1});
+                            obj.PlotOptions.DomainFactor(1:len) = varargin{a+1};
+                        end
+                    end
+            end
+            
+            if ~noFig
+                % create figure/axes if empty
+                if isempty(fig_han)
+                    fig_han = figure;
+                    axes;
+                end
+
+                % plotly figure default style
+                set(fig_han,'Name',obj.PlotOptions.FileName,'Color',[1 1 1],'NumberTitle','off', 'Visible', obj.PlotOptions.Visible);
+
+                % figure state
+                obj.State.Figure.Handle = fig_han;
+            end
+            
+            % update
+            if updatekey
+                obj.update;
+            end
+            
+            if ~noFig
+                % add figure listeners
+                addlistener(obj.State.Figure.Handle,'Visible','PostSet',@(src,event)updateFigureVisible(obj,src,event));
+                addlistener(obj.State.Figure.Handle,'Name','PostSet',@(src,event)updateFigureName(obj,src,event));
+
+                % add plot options listeners
+                addlistener(obj,'PlotOptions','PostSet',@(src,event)updatePlotOptions(obj,src,event));
+
+                % add user data listeners
+                addlistener(obj,'UserData','PostSet',@(src,event)updateUserData(obj,src,event));
+            end
+        end
+        
+        %-------------------------USER METHODS----------------------------%
+        
+        %----GET OBJ.STATE.FIGURE.HANDLE ----%
+        function plotlyFigureHandle = gpf(obj)
+            plotlyFigureHandle = obj.State.Figure.Handle;
+            set(0,'CurrentFigure', plotlyFigureHandle);
+        end
+        
+        %----LOAD PLOTLY REFERENCE-----%
+        function obj = loadplotlyref(obj) 
+            if isempty(obj.PlotlyReference)
+                
+                % plotly reference
+                plotlyref = load('plotly_reference.mat');
+                
+                % update the PlotlyRef property
+                obj.PlotlyReference = plotlyref.pr;
+            end
+        end
+        
+        %----KEEP THE MATLAB STYLE DEFAULTS----%
+        function obj = revert(obj)
+      
+            % set the PlotOptions.Strip property
+            obj.PlotOptions.Strip = false; 
+            
+            % update the object
+            obj.update;   
+            
+        end
+        
+        %----STRIP THE STYLE DEFAULTS----%
+        function obj = strip(obj)
+            
+            % set the PlotOptions.Strip property
+            obj.PlotOptions.Strip = true;
+            
+            % load plotly reference
+            obj.loadplotlyref;
+            
+            % strip the style keys from data
+            for d = 1:length(obj.data)
+                if ( ...
+                        strcmpi(obj.data{d}.type, 'scatter') || ...
+                        strcmpi(obj.data{d}.type, 'contour') || ...
+                        strcmpi(obj.data{d}.type, 'bar') ...
+                    )
+                    return
+                end
+                obj.data{d} = obj.stripkeys(obj.data{d}, obj.data{d}.type, 'style');
+            end
+            
+            % strip the style keys from layout
+            obj.layout = obj.stripkeys(obj.layout, 'layout', 'style');
+            
+        end
+        
+        %----GET THE FIELDS OF TYPE DATA----%
+        function data = getdata(obj)
+            
+            % load plotly reference
+            obj.loadplotlyref;
+            
+            % initialize output
+            data = cell(1,length(obj.data));
+            
+            % remove style / plot_info types in data
+            for d = 1:length(obj.data)
+                data{d} = obj.stripkeys(obj.data{d}, obj.data{d}.type, {'style','plot_info'});
+            end
+            
+        end
+        
+        %----VALIDATE THE DATA/LAYOUT KEYS----%
+        function validate(obj)
+            
+            % load plotly reference
+            obj.loadplotlyref;
+            
+            % validate data fields
+            for d = 1:length(obj.data)
+                try
+                    obj.stripkeys(obj.data{d}, obj.data{d}.type, {'style','plot_info'});
+                catch
+                    % TODO
+                end
+            end
+            
+            % validate layout fields
+            obj.stripkeys(obj.layout, 'layout', 'style');
+            
+        end
+        
+        %----GET PLOTLY FIGURE-----%
+        function obj = download(obj, file_owner, file_id)
+            plotlyfig = plotlygetfile(file_owner, file_id);
+            obj.data = plotlyfig.data;
+            obj.layout = plotlyfig.layout;
+        end
+        
+        %---------------------STATIC IMAGE METHODS------------------------%
+        
+        %----SAVE STATIC PLOTLY IMAGE-----%
+        function obj = saveas(obj, filename, varargin)
+            
+            % strip keys
+            if obj.PlotOptions.Strip
+                obj.strip;
+            end
+            
+            % handle title
+            if isempty(filename)
+                handleFileName(obj);
+                filename = obj.PlotOptions.FileName;
+            end
+            
+            % create image figure
+            imgfig.data = obj.data;
+            imgfig.layout = obj.layout;
+            
+            % save image
+            plotlygenimage(imgfig, filename, varargin{:});
+        end
+        
+        %----SAVE STATIC JPEG IMAGE-----%
+        function obj = jpeg(obj, filename)
+            if nargin > 1
+                obj.saveas(filename,'jpeg');
+            else
+                obj.saveas(obj.PlotOptions.FileName,'jpeg');
+            end
+        end
+        
+        %----SAVE STATIC PDF IMAGE-----%
+        function obj = pdf(obj, filename)
+            if nargin > 1
+                obj.saveas(filename,'pdf');
+            else
+                obj.saveas(obj.PlotOptions.FileName,'pdf');
+            end
+        end
+        
+        %----SAVE STATIC PNG IMAGE-----%
+        function obj = png(obj, filename)
+            if nargin > 1
+                obj.saveas(filename,'png');
+            else
+                obj.saveas(obj.PlotOptions.FileName,'png');
+            end
+        end
+        
+        %----SAVE STATIC SVG IMAGE-----%
+        function obj = svg(obj, filename)
+            if nargin > 1
+                obj.saveas(filename,'svg');
+            else
+                obj.saveas(obj.PlotOptions.FileName,'svg');
+            end
+        end
+        
+        %----ADD A CUSTOM CAPTION-----%
+        function obj = add_caption(obj, caption_string, varargin)
+            
+            caption.text = caption_string; 
+            
+            % defaults
+            caption.xref = 'paper';
+            caption.yref = 'paper';
+            caption.xanchor = 'left';
+            caption.yanchor = 'top';
+            caption.x = 0.1; 
+            caption.y = -0.05;
+            caption.showarrow = false; 
+            
+            % inject any custom annotation specs
+            for n = 1:2:length(varargin)
+                caption = setfield(caption, varargin{n}, varargin{n+1}); 
+            end
+            
+            % adjust the bottom margin
+            obj.layout.margin.b = max(obj.layout.margin.b, ...
+                    obj.PlotlyDefaults.MinCaptionMargin); 
+   
+            % add the new caption to the figure
+            obj.State.Figure.NumTexts = obj.State.Figure.NumTexts + 1;
+            obj.layout.annotations{obj.State.Figure.NumTexts} = caption; 
+            
+            % update the figure state
+            obj.State.Text(obj.State.Figure.NumTexts).Handle = NaN;
+            obj.State.Text(obj.State.Figure.NumTexts).AssociatedAxis = gca;
+            obj.State.Text(obj.State.Figure.NumTexts).Title = false;
+            
+        end
+        
+        
+        %------------------------REST API CALL----------------------------%
+        
+        %----SEND PLOT REQUEST (NO UPDATE)----%
+        function obj = plotly(obj)
+            
+            % strip keys
+            if obj.PlotOptions.Strip
+                obj.strip;
+            end
+            
+            % strip margins
+            if obj.PlotOptions.StripMargins
+                obj.layout.margin.l = 0;
+                obj.layout.margin.r = 0;
+                obj.layout.margin.b = 0;
+                obj.layout.margin.t = 0;
+            end
+            
+            % validate keys
+            validate(obj);
+            
+            % handle filename
+            handleFileName(obj);
+            
+            % handle title (for feed)
+            if obj.PlotOptions.CleanFeedTitle
+                try
+                    cleanFeedTitle(obj);
+                catch
+                    % TODO to the future
+                end
+            end
+                
+            %get args
+            args.filename = obj.PlotOptions.FileName;
+            args.fileopt = obj.PlotOptions.FileOpt;
+            args.world_readable = obj.PlotOptions.WorldReadable;
+            args.offline = obj.PlotOptions.Offline;
+            
+            %layout
+            args.layout = obj.layout;
+            
+            if obj.PlotOptions.WriteFile
+                
+                %send to plotly
+                if ~obj.PlotOptions.Offline
+                    
+                    response = plotly(obj.data, args);
+
+                    %update response
+                    obj.url = response.url;
+                    obj.error = response.error;
+                    obj.warning = response.warning;
+                    obj.message = response.message;
+
+                    %open url in browser
+                    if obj.PlotOptions.OpenURL
+                        web(response.url, '-browser');
+                    end
+                else
+                    obj.url = plotlyoffline(obj);
+                    if obj.PlotOptions.OpenURL
+                        web(obj.url, '-browser');
+                    end
+                end 
+            end           
+        end
+        
+        %-----------------------FIGURE CONVERSION-------------------------%
+        
+        %automatic figure conversion
+        function obj = update(obj)
+            
+            % reset figure object count
+            obj.State.Figure.NumAxes = 0;
+            obj.State.Figure.NumPlots = 0;
+            obj.State.Figure.NumLegends = 0;
+            obj.State.Figure.NumColorbars = 0;
+            obj.State.Figure.NumTexts = 0;
+
+            % check if there is tiledlayout
+            try
+                tiledLayoutStruct = get(obj.State.Figure.Handle.Children);
+                isTiledLayout = strcmp(tiledLayoutStruct.Type, 'tiledlayout');
+            catch
+                isTiledLayout = false;
+            end
+            
+            % find axes of figure
+            ax = findobj(obj.State.Figure.Handle,'Type','axes','-and',{'Tag','','-or','Tag','PlotMatrixBigAx','-or','Tag','PlotMatrixScatterAx', '-or','Tag','PlotMatrixHistAx'});
+
+            if isempty(ax)
+                try
+                    ax = get(obj.State.Figure.Handle,'Children');
+                catch
+                    ax = gca;
+                end
+            end
+            
+            %---------- checking the overlaping of the graphs ----------%
+            temp_ax = ax; deleted_idx = 0;
+            for i = 1:length(ax)
+                for j = i:length(ax)
+                    try
+                        if ((mean(eq(ax(i).Position, ax(j).Position)) == 1) && (i~=j) && strcmp(ax(i).Children.Type, 'histogram'))
+                            temp_plots = findobj(temp_ax(i),'-not','Type','Text','-not','Type','axes','-depth',1);
+                            if isprop(temp_plots, 'FaceAlpha')
+                                update_opac(i) = true;
+                            else
+                                update_opac(i) = false;
+                            end
+                            temp_ax(i).YTick = temp_ax(j- deleted_idx).YTick;
+                            temp_ax(i).XTick = temp_ax(j- deleted_idx).XTick;
+                            temp_ax(j - deleted_idx) = []; 
+                            deleted_idx = deleted_idx + 1;
+                        end
+                    catch
+                        % TODO: error with ax(i).Children.Type. isfield is no enogh
+                    end
+                end
+            end
+            ax = temp_ax;
+            %---------- checking the overlaping of the graphs ----------%
+            
+            % update number of axes
+            obj.State.Figure.NumAxes = length(ax);
+            
+            % update number of annotations (one title per axis)
+            obj.State.Figure.NumTexts = length(ax);
+
+            % find children of figure axes
+            for a = 1:length(ax)
+                
+                % reverse axes
+                axrev = length(ax) - a + 1;
+                
+                % set axis handle field
+                obj.State.Axis(a).Handle = ax(axrev);
+                
+                % add title
+                try
+                    obj.State.Text(a).Handle = get(ax(axrev),'Title');
+                    obj.State.Text(a).AssociatedAxis = handle(ax(axrev));
+                    obj.State.Text(a).Title = true;
+                catch
+                    % TODO
+                end
+                
+                % find plots of figure
+                plots = findobj(ax(axrev),'-not','Type','Text','-not','Type','axes','-depth',1);
+                
+                % get number of nbars for pie3
+                if ismember('pie3', lower(obj.PlotOptions.TreatAs))
+                    obj.PlotOptions.nbars{a} = 0;
+                    for i = 1:length(plots)
+                        if ismember('surface', lower(obj.PlotOptions.TreatAs))
+                            obj.PlotOptions.nbars{a} = obj.PlotOptions.nbars{a} + 1;
+                        end
+                    end
+                end
+                
+                % add baseline objects
+                baselines = findobj(ax(axrev),'-property','BaseLine');
+
+                % check is current axes have multiple y-axes
+                try 
+                    obj.PlotlyDefaults.isMultipleYAxes(axrev) = length(ax(axrev).YAxis) == 2;
+                catch
+                    obj.PlotlyDefaults.isMultipleYAxes(axrev) = false;
+                end
+
+                % update structures for each plot in current axes
+                for np = 1:length(plots)
+                    
+                    % reverse plots
+                    nprev = length(plots) - np + 1;
+
+                    % update the plot fields
+                    plotClass = lower(getGraphClass(plots(nprev)));
+
+                    if ~ismember(plotClass, {'light', 'polaraxes'})
+                        obj.State.Figure.NumPlots = obj.State.Figure.NumPlots + 1;
+                        obj.State.Plot(obj.State.Figure.NumPlots).Handle = handle(plots(nprev));
+                        obj.State.Plot(obj.State.Figure.NumPlots).AssociatedAxis = handle(ax(axrev));
+                        obj.State.Plot(obj.State.Figure.NumPlots).Class = getGraphClass(plots(nprev));
+                    else
+                        obj.PlotlyDefaults.IsLight = true;
+                    end
+                end
+
+                % this works for pareto
+                if length(plots) == 0
+
+                    try
+                        isPareto = length(ax) >= 2 & obj.State.Figure.NumPlots >= 2;
+                        isBar = strcmpi(lower(obj.State.Plot(obj.State.Figure.NumPlots).Class), 'line');
+                        isLine = strcmpi(lower(obj.State.Plot(obj.State.Figure.NumPlots-1).Class), 'bar');
+                        isPareto = isPareto & isBar & isLine;
+                    catch
+                        isPareto = false;
+                    end
+
+                    if isPareto
+                        obj.State.Plot(obj.State.Figure.NumPlots).AssociatedAxis = handle(ax(axrev));
+                    else
+                        obj.State.Figure.NumPlots = obj.State.Figure.NumPlots + 1;
+                        obj.State.Plot(obj.State.Figure.NumPlots).Handle = {};
+                        obj.State.Plot(obj.State.Figure.NumPlots).AssociatedAxis = handle(ax(axrev));
+                        obj.State.Plot(obj.State.Figure.NumPlots).Class = 'nothing';
+                    end
+                end
+                
+                % find text of figure
+                texts = findobj(ax(axrev),'Type','text','-depth',1);
+                
+                for t = 1:length(texts)
+                    obj.State.Text(obj.State.Figure.NumTexts + t).Handle = handle(texts(t));
+                    obj.State.Text(obj.State.Figure.NumTexts + t).Title = false;
+                    obj.State.Text(obj.State.Figure.NumTexts + t).AssociatedAxis = handle(ax(axrev));
+                end
+                
+                % update number of annotations
+                obj.State.Figure.NumTexts = obj.State.Figure.NumTexts + length(texts);
+                
+            end
+
+            % find legends of figure
+            if isHG2
+                legs = findobj(obj.State.Figure.Handle,'Type','Legend');
+            else
+                legs = findobj(obj.State.Figure.Handle,'Type','axes','-and','Tag','legend');
+            end
+                
+            obj.State.Figure.NumLegends = length(legs);
+            
+            for g = 1:length(legs)
+                obj.State.Legend(g).Handle = handle(legs(g));
+                
+                % find associated axis
+                legendAxis = findLegendAxis(obj, handle(legs(g)));
+                
+                % update colorbar associated axis
+                obj.State.Legend(g).AssociatedAxis = legendAxis;
+            end
+            
+            % find colorbar of figure
+            if isHG2
+                cols = findobj(obj.State.Figure.Handle,'Type','Colorbar');
+            else
+                cols = findobj(obj.State.Figure.Handle,'Type','axes','-and','Tag','Colorbar');
+            end
+            
+            obj.State.Figure.NumColorbars = length(cols);
+            
+            for c = 1:length(cols)
+                
+                % update colorbar handle
+                obj.State.Colorbar(c).Handle = handle(cols(c));
+                
+                % find associated axis
+                colorbarAxis = findColorbarAxis(obj, handle(cols(c)));
+                
+                % update colorbar associated axis
+                obj.State.Colorbar(c).AssociatedAxis = colorbarAxis;
+                
+            end
+            
+            %--------------------UPDATE PLOTLY FIGURE---------------------%
+            
+            % reset dataget(obj.State.Figure.Handle,'Children')
+            obj.data = {};
+            obj.PlotOptions.nPlots = obj.State.Figure.NumPlots;
+            obj.PlotlyDefaults.anIndex = obj.State.Figure.NumTexts;
+            
+            % reset layout
+            obj.layout = struct();
+            
+            % update figure
+            updateFigure(obj);
+            
+            % update axes
+            for n = 1:obj.State.Figure.NumAxes
+                try
+                    if ~obj.PlotlyDefaults.isMultipleYAxes(n)
+                        updateAxis(obj,n);
+
+                    else
+                        for yax = 1:2
+                            updateAxisMultipleYAxes(obj,n,yax);
+                        end
+                    end
+                catch
+                    % TODO 
+                end
+            end
+            
+            % update plots
+            for n = 1:obj.State.Figure.NumPlots
+                updateData(obj,n);
+            end
+            
+            % update annotations
+            for n = 1:obj.State.Figure.NumTexts
+                try
+                    if obj.PlotOptions.is_headmap_axis
+                        updateHeatmapAnnotation(obj,n);
+                        obj.PlotOptions.CleanFeedTitle = false;
+
+                    elseif obj.PlotlyDefaults.isGeoaxis
+                        % TODO
+
+                    else
+                        if ~obj.PlotlyDefaults.isTernary
+                            updateAnnotation(obj,n);
+
+                            if obj.State.Figure.NumAxes == 1
+                                obj.PlotOptions.CleanFeedTitle = false;
+                            end
+                        end
+                    end
+                catch
+                    % TODO
+                end
+            end
+
+            % update tiled layout annotations
+            if isTiledLayout
+                updateTiledLayoutAnnotation(obj, tiledLayoutStruct);
+            end
+            
+            % update legends
+            if obj.State.Figure.NumLegends < 2
+                for n = 1:obj.State.Figure.NumLegends
+                    if ~strcmpi(obj.PlotOptions.TreatAs, 'pie3')
+                        updateLegend(obj,n);
+                    end
+                end
+
+            else
+                updateLegendMultipleAxes(obj,1);
+            end
+            
+            % update colorbars
+            for n = 1:obj.State.Figure.NumColorbars
+                if ~obj.PlotlyDefaults.isTernary
+                    updateColorbar(obj,n);
+
+                else
+                    updateTernaryColorbar(obj,n);
+                end
+            end
+            
+        end
+        
+        %----------------------EXTRACT PLOTLY INDICES---------------------%
+        
+        %----GET CURRENT AXIS INDEX ----%
+        function currentAxisIndex = getAxisIndex(obj,axishan)
+            currentAxisIndex = find(arrayfun(@(x)(eq(x.Handle,axishan)),obj.State.Axis));
+        end
+        
+        %----GET CURRENT DATA INDEX ----%
+        function currentDataIndex = getDataIndex(obj,plothan)
+            currentDataIndex = find(arrayfun(@(x)(eq(x.Handle,plothan)),obj.State.Plot));
+        end
+        
+        %----GET CURRENT ANNOTATION INDEX ----%
+        function currentAnnotationIndex = getAnnotationIndex(obj,annothan)
+            currentAnnotationIndex = find(arrayfun(@(x)(eq(x.Handle,annothan)),obj.State.Text));
+        end
+        
+        
+        %-------------------CALLBACK FUNCTIONS--------------------------%
+        
+        %----UPDATE FIGURE OPTIONS----%
+        function obj = updateFigureVisible(obj,src,event)
+            % update PlotOptions.Visible
+            obj.PlotOptions.Visible = get(obj.State.Figure.Handle,'Visible');
+        end
+        
+        function obj = updateFigureName(obj,src,event)
+            % update PlotOptions.Name
+            obj.PlotOptions.FileName = get(obj.State.Figure.Handle,'Name');
+        end
+        
+        %----UPDATE PLOT OPTIONS----%
+        function obj = updatePlotOptions(obj,src,event)
+            set(obj.State.Figure.Handle, 'Name', obj.PlotOptions.FileName, 'Visible', obj.PlotOptions.Visible);
+        end
+        
+        %----UPDATE USER DATA----%
+        function obj = updateUserData(obj,src,event)
+            signin(obj.UserData.Username,...
+                obj.UserData.ApiKey,...
+                obj.UserData.PlotlyDomain);
+        end
+        
+        %-------------------OVERLOADED FUNCTIONS--------------------------%
+        
+        %----PLOT FUNCTIONS----%
+        function han = image(obj, varargin)
+            %call image
+            han = image(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = imagesc(obj, varargin)
+            %call imagesc
+            han = imagesc(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = line(obj, varargin)
+            %call line
+            han = line(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = patch(obj, varargin)
+            %call patch
+            han = patch(varargin{:});
+            %update object
+            obj.update;
+        end
+        
+        function han = rectangle(obj, varargin)
+            %call rectangle
+            han = rectangle(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = area(obj,varargin)
+            %call area
+            han = area(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = bar(obj,varargin)
+            %call bar
+            han = bar(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = contour(obj,varargin)
+            %call contour
+            han = contour(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = plot(obj,varargin)
+            %call plot
+            han = plot(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = errorbar(obj,varargin)
+            %call errorbar
+            han = errorbar(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = quiver(obj,varargin)
+            %call quiver
+            han = quiver(varargin{:});
+            %update object
+            obj.update;
+        end
+        
+        function han = scatter(obj, varargin)
+            %call bar
+            han = scatter(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = stairs(obj,varargin)
+            %call stairs
+            han = stairs(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = stem(obj,varargin)
+            %call stem
+            han = stem(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = boxplot(obj,varargin)
+            %call boxplot
+            han = boxplot(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function han = mesh(obj,varargin)
+            %call mesh
+            han = mesh(varargin{:});
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        function [y,t,x] = initial(obj,varargin)
+            % plot initial
+            initial(varargin{:});
+            % call initial
+            [y,t,x] = initial(varargin{:});
+            % fake output by calling plot
+            plot(t,y); 
+            %update object
+            obj.update;
+            %send to plotly
+            obj.plotly;
+        end
+        
+        %----OTHER----%
+        function delete(obj)
+            % reset persistent USERNAME, KEY, and DOMAIN
+            % of signin to original state
+            if isfield(obj.InitialState,'Username')
+                signin(obj.InitialState.Username, ...
+                    obj.InitialState.ApiKey,...
+                    obj.InitialState.PlotlyDomain);
+            end
+        end
+    end
+    
+    methods (Access=private)
+        %----STRIP THE FIELDS OF A SPECIFIED KEY-----%
+        function stripped = stripkeys(obj, fields, fieldname, key)
+
+            %plorlt reference
+            pr = obj.PlotlyReference;
+            
+            % initialize output
+            % fields
+            stripped = fields;
+            
+            % get fieldnames
+            fn = fieldnames(stripped);
+            fnmod = fn;
+            
+            try
+                for d = 1:length(fn)
+                    
+                    % clean up axis keys
+                    if any(strfind(fn{d},'xaxis')) || any(strfind(fn{d},'yaxis'))
+                        fnmod{d} = fn{d}(1:length('_axis'));
+                    end
+                    
+                    % keys:(object, style, plot_info, data)
+                    keytype = getfield(pr,fieldname,fnmod{d},'key_type');
+                    
+                    % check for objects
+                    if strcmp(keytype,'object')
+                        
+                        % clean up font keys
+                        if any(strfind(fn{d},'font'))
+                            fnmod{d} = 'font';
+                        end
+                        
+                        % handle annotations
+                        if strcmp(fn{d},'annotations')
+                            annot = stripped.(fn{d});
+                            fnmod{d} = 'annotation';
+                            for a = 1:length(annot)
+                                %recursive call to stripkeys
+                                stripped.annotations{a} = obj.stripkeys(annot{a}, fnmod{d}, key);
+                            end
+                        else
+                            %recursive call to stripkeys
+                            stripped.(fn{d}) = obj.stripkeys(stripped.(fn{d}), fnmod{d}, key);
+                        end
+                        
+                        % look for desired key and strip if not an exception
+                    elseif any(strcmp(keytype, key))
+                        if ~isExceptionStrip(stripped,fn{d})
+                            stripped = rmfield(stripped, fn{d});
+                        end
+                    end
+                    
+                end
+                
+                %----CLEAN UP----%
+                remfn = fieldnames(stripped);
+                
+                for n = 1:length(remfn)
+                    if isstruct(stripped.(remfn{n}))
+                        if isempty(fieldnames(stripped.(remfn{n})))
+                            stripped = rmfield(stripped,remfn{n});
+                        end
+                    elseif isempty(stripped.(remfn{n}))
+                        stripped = rmfield(stripped,remfn{n});
+                    end
+                end
+                
+                %---HANDLE ERRORS---%
+            catch exception
+                if obj.UserData.Verbose
+                    % catch 3D output until integrated into graphref
+                    if ~( ...
+                            strcmpi(fieldname,'surface') || strcmpi(fieldname,'scatter3d') ...
+                        ||  strcmpi(fieldname,'mesh3d') || strcmpi(fieldname,'bar') ...
+                        ||  strcmpi(fieldname,'scatterpolar') || strcmpi(fieldname,'barpolar') ...
+                        ||  strcmpi(fieldname,'scene') ||  strcmpi(fieldname,'layout') ...
+                        ||  strcmpi(fieldname,'heatmap') ||  strcmpi(fieldname,'xaxis') ...
+                        ||  strcmpi(fieldname,'yaxis') ||  strcmpi(fieldname,'cone')...
+                        ||  strcmpi(fieldname,'legend') ||  strcmpi(fieldname,'histogram')...
+                        ||  strcmpi(fieldname,'scatter') ||  strcmpi(fieldname,'line')...
+                        ||  strcmpi(fieldname,'scattergeo') ||  strcmpi(fieldname,'scattermapbox')...
+                        ||  strcmpi(fieldname,'scatterternary') ||  strcmpi(fieldname,'colorbar')...
+                        ||  strcmpi(fieldname,'contours')...
+                        )
+                        fprintf(['\nWhoops! ' exception.message(1:end-1) ' in ' fieldname '\n\n']);
+                    end
+                end 
+            end
+        end
+
+        function link_text = get_link_text(obj)
+            if obj.PlotOptions.Offline
+                plotly_domain = 'https://plot.ly';
+            else
+                plotly_domain = obj.UserData.PlotlyDomain;
+            end
+            link_domain = strrep(plotly_domain, 'https://', ''); 
+            link_domain = strrep(link_domain, 'http://', ''); 
+            link_text = ['Export to ' link_domain]; 
+        end   
+    end
+end

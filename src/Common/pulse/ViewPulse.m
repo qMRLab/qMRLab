@@ -18,10 +18,11 @@ for ii = 1:length(Pulse)
     Trf = Pulse(ii).Trf;
     t = 0:Trf/1000:Trf;
     y = Pulse(ii).(field)(t);
-    plot(t*1000,y); hold on;
+    plot(t*1000,y, 'LineWidth', 2); hold on;
     leg{ii} = [Pulse(ii).shape];
 end
 
+ylim([min(y)*1.2 max(y)*1.2])
 legend(leg);
 xlabel('Time (ms)');
 ylabel(field);

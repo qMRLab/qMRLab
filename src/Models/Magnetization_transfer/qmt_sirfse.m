@@ -25,10 +25,10 @@ classdef qmt_sirfse < AbstractModel
 %   R1r                 Longitudinal relaxation rate of the restricted pool
 %                         (R1r = 1/T1r).
 %   Sf                  Instantaneous fraction of magnetization after vs. before
-%                         the pulse in the free pool. Starting point is computed using Block
+%                         the pulse in the free pool. Starting point is computed using Bloch
 %                         simulation.
 %   Sr                  Instantaneous fraction of magnetization after vs. before
-%                         the pulse in the restricted pool. Starting point is computed using block
+%                         the pulse in the restricted pool. Starting point is computed using Bloch
 %                         simulation.
 %   M0f                 Equilibrium value of the free pool longitudinal
 %                         magnetization.
@@ -132,7 +132,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation assuming M=0 after Tr (full recovery) (slow)','Block equation with full FSE (very slow)'},'T2f (Used in Block equation)',0.040};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch sim assuming M=0 after Tr (full recovery) (slow)','Bloch sim with full FSE (very slow)'},'T2f (Used in Bloch sim)',0.040};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',30,'Population size',100,'# of migrations',100};
 
@@ -166,17 +166,17 @@ end
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             Sim.Param = mat2struct(x,obj.xnames);
             Protocol = GetProt(obj);
-            if strcmp(Opt.Method,'Block equation assuming M=0 after Tr (full recovery) (slow)')
+            if strcmp(Opt.Method,'Bloch sim assuming M=0 after Tr (full recovery) (slow)')
                 Sim.Opt.method = 'FastSim';
-                Opt.Method = 'Block equation';
-            elseif strcmp(Opt.Method,'Block equation with full FSE (very slow)')
+                Opt.Method = 'Bloch sim';
+            elseif strcmp(Opt.Method,'Bloch sim with full FSE (very slow)')
                 Sim.Opt.method = 'FullSim';
-                Opt.Method = 'Block equation';
+                Opt.Method = 'Bloch sim';
             end
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch sim'
                     Sim.Param.M0f = 1;
-                    Sim.Param.R2f = 1/Opt.T2fUsedinBlockequation;
+                    Sim.Param.R2f = 1/Opt.T2fUsedinBlochsim;
                     Sim.Param.G   = 1.4176e-5;
                     Protocol.FSE = Protocol;
                     Protocol.InvPulse.Trf = obj.options.Inversion_Pulse_Durations;
