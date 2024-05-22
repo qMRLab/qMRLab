@@ -50,7 +50,9 @@ classdef adiabatic_inv < AbstractModel
 %     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
+properties (Hidden=true)
 
+end
 
 properties
     MRIinputs = {}; % No data needs to be downloaded
