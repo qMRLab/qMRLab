@@ -49,16 +49,16 @@ classdef adiabatic_inv < AbstractModel
 %     Karakuzu A., Boudreau M., Duval T.,Boshkovski T., Leppert I.R., Cabana J.F., 
 %     Gagnon I., Beliveau P., Pike G.B., Cohen-Adad J., Stikov N. (2020), qMRLab: 
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
-
+    
     properties (Hidden=true)
-
+    
     end
     
     properties
         MRIinputs = {}; % No data needs to be downloaded
-        xnames = {' ',' ',' ',' '}; % Box names for Fitting section which I am not using, still needs to be defined though
-        voxelwise = 1;
-        
+        xnames = {}; % Box names for Fitting section which I am not using, still needs to be defined though
+        voxelwise = 0;
+    
         % Creates sections in protocol boxes: PulseParams and TissueParams
         Prot = struct('PulseParameters', struct('Format',{{'beta(rad/s)';'A0(μT)';'n';'nSamples';'Q';'Trf(ms)'}} ...
             ,'Mat',[672; 13.726; 1; 512; 5; 10.24]), ...
@@ -94,10 +94,10 @@ classdef adiabatic_inv < AbstractModel
                     ~isequal(obj.options.B0, obj.previousOptions.B0) || ...
                     ~isequal(obj.options.Pulse, obj.previousOptions.Pulse))
                 checkfields = 1; % reset params to defaults
-            elseif (obj.options.PlotAdiabatic ~= obj.previousOptions.PlotAdiabatic||... 
+            elseif (obj.options.PlotAdiabatic ~= obj.previousOptions.PlotAdiabatic||...
                     obj.options.BlochSim1Pool ~= obj.previousOptions.BlochSim1Pool ||...
                     obj.options.BlochSim2Pool ~= obj.previousOptions.BlochSim2Pool)
-                checkfields = 2; % run sims 
+                checkfields = 2; % run sims
             else
                 checkfields = 0;
             end
@@ -107,9 +107,9 @@ classdef adiabatic_inv < AbstractModel
     
         function obj = UpdateFields(obj)
     
-            if obj.checkupdatedfields == 1 % Run updated fields 
+            if obj.checkupdatedfields == 1 % Run updated fields
     
-                % Set previous options equal to new options for tracking 
+                % Set previous options equal to new options for tracking
                 obj.previousOptions = obj.options;
     
                 %Set B0 and tissue type to options of the associated
@@ -123,15 +123,15 @@ classdef adiabatic_inv < AbstractModel
     
                 % Fill default tissue params into the object container
                 obj.Prot.DefaultTissueParams.Mat = [Params.R, Params.M0a, Params.Ra, Params.T2a*1000, ...
-                                                    Params.M0b, Params.R1b, Params.T2b*1e6]';
+                    Params.M0b, Params.R1b, Params.T2b*1e6]';
     
                 % Set up Pulse Params into object container
                 PulseOpt = pulseparams(obj);
                 obj.Prot.PulseParameters.Mat = [PulseOpt.beta, PulseOpt.A0, PulseOpt.n, PulseOpt.nSamples,...
-                                                 PulseOpt.Q, PulseOpt.Trf*1000]' ;
+                    PulseOpt.Q, PulseOpt.Trf*1000]' ;
     
             elseif obj.checkupdatedfields == 2
-                % Call plotOptions function to run with Updated Fields 
+                % Call plotOptions function to run with Updated Fields
                 plotOptions(obj);
             end
     
@@ -169,13 +169,13 @@ classdef adiabatic_inv < AbstractModel
             Params.Trf = obj.Prot.PulseParameters.Mat(6);         % Trf
             Params.nSamples = obj.Prot.PulseParameters.Mat(4);    % nSamples
             Params.shape = obj.options.Pulse;                     % pulseshape
-            
-            % Call other pulse properties to allow editing 
+    
+            % Call other pulse properties to allow editing
             Params.PulseOpt.beta = obj.Prot.PulseParameters.Mat(1); % beta
             Params.PulseOpt.A0 = obj.Prot.PulseParameters.Mat(2);   % A0
             Params.PulseOpt.n = obj.Prot.PulseParameters.Mat(3);    % n
             Params.PulseOpt.Q = obj.Prot.PulseParameters.Mat(5);    % Q
-            
+    
     
             % Call getAdaiabatic for case to pulse
             [inv_pulse, omega1, A_t, Params] = getAdiabaticPulse( Params.Trf, Params.shape, Params);
@@ -186,7 +186,7 @@ classdef adiabatic_inv < AbstractModel
             if obj.options.PlotAdiabatic
                 plotAdiabaticPulse(t, inv_pulse, A_t, omega1, Params);
     
-            % If selecting BlochSim1Pool, call these functions and params
+                % If selecting BlochSim1Pool, call these functions and params
             elseif obj.options.BlochSim1Pool
                 Params.NumPools = 1;
                 Params.M0a = obj.Prot.DefaultTissueParams.Mat(2); % M0a
@@ -195,7 +195,7 @@ classdef adiabatic_inv < AbstractModel
     
                 blochSimCallFunction(inv_pulse, Params)
     
-            % If selecting BlochSim2Pool, call these functions and params
+                % If selecting BlochSim2Pool, call these functions and params
             elseif obj.options.BlochSim2Pool
                 Params.NumPools = 2;
                 Params.R = obj.Prot.DefaultTissueParams.Mat(1);   % R
@@ -211,9 +211,18 @@ classdef adiabatic_inv < AbstractModel
             end
     
         end
+    end 
     
-    end
+        methods(Access = protected)
+            function obj = qMRpatch(obj,loadedStruct, version)
+                obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+
+            end
+        % 
+        end
+    
 end
+
  
 
 
