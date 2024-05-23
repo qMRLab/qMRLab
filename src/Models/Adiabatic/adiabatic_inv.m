@@ -213,14 +213,6 @@ classdef adiabatic_inv < AbstractModel
         end
     end 
     
-        methods(Access = protected)
-            function obj = qMRpatch(obj,loadedStruct, version)
-                obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
-
-            end
-        % 
-        end
-    
 end
 
  
