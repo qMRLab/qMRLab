@@ -124,7 +124,7 @@ methods
                 
             availabledata.allbutUNI = true;
 
-        elseif ~noINV1mag && noINV1phase ~noINV2mag && noINV2phase && noUNI
+        elseif ~noINV1mag && noINV1phase && ~noINV2mag && noINV2phase && noUNI
                 
             availabledata.allMagbutUNI = true;
 
