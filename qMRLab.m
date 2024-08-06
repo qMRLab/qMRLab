@@ -532,6 +532,13 @@ for ii = 1:length(FitResults.fields)
     if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
+        % Reset multiplicative and additive scale factors to nifti header
+        % in case there were some in the input file's header that was used
+        % as a template. If this isn't done, then when a tool loads the
+        % qMRI map's nifti file, it will apply an undesired scaling.
+        hdr.scl_slope = 1;
+        hdr.scl_inter = 0;
+	
         nii_save(FitResults.(map),hdr,fullfile(outputdir,file));
     end
 end

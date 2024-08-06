@@ -99,6 +99,7 @@ methods
         noINV2phase = false;
         availabledata.onlyUNI = false;
         availabledata.allbutUNI = false;
+        availabledata.allMagbutUNI=false;
         availabledata.all = false;
 
         if ~isfield(data,'INV1mag'), data.INV1mag = []; end
@@ -122,6 +123,10 @@ methods
         elseif ~noINV1mag && ~noINV1phase && ~noINV2mag && ~noINV2phase && noUNI
                 
             availabledata.allbutUNI = true;
+
+        elseif ~noINV1mag && noINV1phase ~noINV2mag && noINV2phase && noUNI
+                
+            availabledata.allMagbutUNI = true;
 
         elseif ~noINV1mag && ~noINV1phase && ~noINV2mag && ~noINV2phase && ~noUNI
             
@@ -196,6 +201,20 @@ methods
     
             % Combination
             img = (real(INV1.*INV2./(INV1.^2 + INV2.^2)))*4095 + 2048; 
+            img(img<0) = 0;
+            img(img>4095) = 4095;
+            FitResult.MP2RAGE = img;
+            MP2RAGEimg.img = img;
+
+            clear('INV1','INV2','img'); 
+
+        elseif availabledata.allMagbutUNI
+
+            INV1 = data.INV1mag;
+            INV2 = data.INV2mag;
+    
+            % Combination
+            img = (INV1.*INV2./(INV1.^2 + INV2.^2))*4095 + 2048; 
             img(img<0) = 0;
             img(img>4095) = 4095;
             FitResult.MP2RAGE = img;
