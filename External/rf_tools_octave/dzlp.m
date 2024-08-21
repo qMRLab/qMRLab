@@ -6,6 +6,8 @@
 
 function h = dzlp(n,tb,d1,d2)
 
+import toppe.utils.rf.jpauly.*
+
 di = dinf(d1,d2);
 w = di/tb;
 f = [0 (1-w)*(tb/2) (1+w)*(tb/2) (n/2)]/(n/2);

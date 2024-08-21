@@ -16,12 +16,12 @@
 % Nex = 100;
 % 
 % 
-% [Msig1,MLong1]=da_blochsim(alpha, B1, T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc)
+% [Msig1,MLong1]=da_blochsim(alpha, B1, T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'hard')
 % 
 % 
 % alpha2 = deg2rad(120);
 % 
-% [Msig2,MLong2]=da_blochsim(alpha2, B1, T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc)
+% [Msig2,MLong2]=da_blochsim(alpha2, B1, T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'hard')
 % 
 
 %%
@@ -35,9 +35,14 @@ B1 = linspace(0.7, 1.3, 61);
 
 TR_range = [linspace(10,100,10), linspace(200,1000,9), linspace(2000,10000,9)];
 
+B1_hard = zeros(length(TR_range), length(B1));
+B1_ideal = zeros(length(TR_range), length(B1));
+B1_composite = zeros(length(TR_range), length(B1));
+
+
 for ii=1:length(TR_range)
     alpha = deg2rad(nom_first_ang);
-    T1 = 1000;
+    T1 = 900;
     T2 = 30;
     TE = 20;
     TR = TR_range(ii);
@@ -51,23 +56,19 @@ for ii=1:length(TR_range)
 
     B1_shortTR = zeros(1,length(B1));
     for jj=1:length(B1)
+        [sig1, ~] = da_blochsim(alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'hard');
+        [sig2, ~] = da_blochsim(2*alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'hard');
+        B1_hard(ii,jj) = acosd(abs(sig2)./(2*abs(sig1)))./nom_first_ang;
+
         [sig1, ~] = da_blochsim(alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'ideal');
-        [sig2, ~] = da_blochsim(2*alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc,'ideal');
-        B1_shortTR(jj) = acosd(abs(sig2)./(2*abs(sig1)))./nom_first_ang;
+        [sig2, ~] = da_blochsim(2*alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'ideal');
+        B1_ideal(ii,jj) = acosd(abs(sig2)./(2*abs(sig1)))./nom_first_ang;        
         
+        [sig1, ~] = da_blochsim(alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'composite');
+        [sig2, ~] = da_blochsim(2*alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'composite');
+        B1_composite(ii,jj) = acosd(abs(sig2)./(2*abs(sig1)))./nom_first_ang;  
     end
 
-    plot(B1, B1_shortTR)
-    title('TR = ' + string(TR_range(ii)) + ' milliseconds', 'T1 = 1 second');
-    
-    P = polyfit(B1,B1_shortTR,1);
-    yfit = polyval(P,B1);
-    hold on;
-    plot(B1,B1,'r-.');
-    eqn = string(" Linear: y = " + P(1)) + "x + " + string(P(2));
-    text(min(B1),max(B1_shortTR),eqn,"HorizontalAlignment","left","VerticalAlignment","top")
-    disp(B1_shortTR)
-    hold off
-    pause(0.5)
 end
 
+save("da_fig3.mat", "nom_first_ang", "B1", "TR_range", "B1_hard", "B1_ideal", "B1_composite")

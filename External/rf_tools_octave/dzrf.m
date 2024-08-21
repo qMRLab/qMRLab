@@ -29,6 +29,8 @@ function rf = dzrf(np,tb,ptype,ftype,d1,d2,pclsfrac)
 %  written by John Pauly, 1992
 %  (c) Board of Trustees, Leland Stanford Junior University
 
+import toppe.utils.rf.jpauly.*
+
 if (nargin < 7), pclsfrac = 1.5; end;
 if nargin < 5, d1 = 0.01; d2 = 0.01; end;
 if nargin < 4, ftype = 'ls'; end;

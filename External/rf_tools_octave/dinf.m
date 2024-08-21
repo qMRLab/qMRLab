@@ -5,6 +5,9 @@
 
 function d = dinf(d1,d2)
 
+import toppe.utils.rf.*
+import toppe.utils.rf.jpauly.*
+
 a1 = 5.309e-3;
 a2 = 7.114e-2;
 a3 = -4.761e-1;

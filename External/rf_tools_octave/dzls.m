@@ -12,6 +12,8 @@ function h = dzls(nf,tb,d1,d2);
 %  written by John Pauly, Feb 26, 1992
 %  (c) Leland Stanford Junior University
 
+import toppe.utils.rf.jpauly.*
+
 di = dinf(d1,d2);
 w = di/tb;
 f = [0 (1-w)*(tb/2) (1+w)*(tb/2) (nf/2)]/(nf/2);
