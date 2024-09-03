@@ -152,3 +152,4 @@ structHandler.ylabel = ylabel('T1');
 structHandler.legend = legend('Karakuzu2022  (Siemens 1)');
 figureProperties_plot(structHandler)
 
+save("fig2b_mtsat.mat", "B1_range", "MTRs", "MTsats", "T1s")

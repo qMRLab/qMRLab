@@ -64,6 +64,8 @@ for n=1:Nex
         A = Ate* y_rot((-1)^(n)*deg2rad(180*B1));
     elseif strcmp(inversion_type,'ideal')
         A = Ate* y_rot((-1)^(n)*deg2rad(180));
+    elseif strcmp(inversion_type,'double')
+        A = Ate* y_rot(alpha*B1)* y_rot(alpha*B1);
     elseif strcmp(inversion_type,'composite')
         A = Ate*x_rot(deg2rad(90*B1))*y_rot(deg2rad(180*B1))*x_rot(deg2rad(90*B1));
     end

@@ -27,29 +27,29 @@ tissue = val.sled2001.healthywhitematter;
 
 %% B1 range
 
-B1_true = 1
-B1_min = B1_true*0.7
-B1_max = B1_true*1.3
+deltaB0_true = 0
+deltaB0_min = deltaB0_true-500
+deltaB0_max = deltaB0_true+500
 
-B1_range = linspace(B1_min, B1_max, 21)
+deltB0_range = linspace(deltaB0_min, deltaB0_max, 21)
 
 
 %%
 
-MTsats = zeros(1,length(B1_range))
-MTRs = zeros(1,length(B1_range))
-T1s = zeros(1,length(B1_range))
+MTsats = zeros(1,length(deltB0_range))
+MTRs = zeros(1,length(deltB0_range))
+T1s = zeros(1,length(deltB0_range))
 
-for ii=1:length(B1_range)
+for ii=1:length(deltB0_range)
     protocol = protocols.pdw
     
-    fa = protocol.fa*B1_range(ii)
+    fa = protocol.fa
     tr = protocol.tr/1000
     te = protocol.te/1000
-    offset = protocol.offset
+    offset = protocol.offset+deltB0_range(ii)
     mt_shape = protocol.mtshape
     mt_duration = protocol.mtduration/1000
-    mt_angle = protocol.mtangle*B1_range(ii)
+    mt_angle = protocol.mtangle
 
     Model = qmt_spgr;
     Model.Prot.MTdata.Mat = [mt_angle, offset];
@@ -80,7 +80,7 @@ for ii=1:length(B1_range)
 
      PDw_Model = vfa_t1; 
 
-     params.EXC_FA = 6*B1_range(ii);
+     params.EXC_FA = 6;
      params.T1 = 1/params.R1f.mean; % Could improve by caclulating T1meas from qMT values
      params.TR = 0.032; % ms
 
@@ -88,7 +88,7 @@ for ii=1:length(B1_range)
 
      T1w_Model = vfa_t1; 
 
-     paramsT1w.EXC_FA = 20*B1_range(ii);
+     paramsT1w.EXC_FA = 20;
      paramsT1w.T1 = 1/params.R1f.mean; % ms
      paramsT1w.TR = 0.018; % ms
 
@@ -112,7 +112,9 @@ for ii=1:length(B1_range)
     data.MTw=MT_norm*PDw;
     data.T1w=PDw/PDwT1w_ratio;
     data.PDw=PDw;
-        
+    
+    data.B1map=1;
+    
     FitResults = FitData(data,Model,0);
     MTsats(1,ii) = FitResults.MTSAT
     MTRs(1,ii) = FitResults.MTR
@@ -124,7 +126,7 @@ end
 close all
 
 figure(1)
-plot(squeeze(B1_range), squeeze(MTRs), 'LineWidth', 5)
+plot(squeeze(deltB0_range), squeeze(MTRs), 'LineWidth', 5)
 legend('Location','northoutside')
 structHandler.figure = figure(1);
 structHandler.xlabel = xlabel('B1 (n.u.)');
@@ -133,7 +135,7 @@ structHandler.legend = legend('Karakuzu2022 (Siemens 1)');
 figureProperties_plot(structHandler)
 
 figure(2)
-plot(squeeze(B1_range), squeeze(MTsats), 'LineWidth', 5)
+plot(squeeze(deltB0_range), squeeze(MTsats), 'LineWidth', 5)
 legend('Location','northoutside')
 structHandler.figure = figure(2);
 structHandler.xlabel = xlabel('B1 (n.u.)');
@@ -142,7 +144,7 @@ structHandler.legend = legend('Karakuzu2022  (Siemens 1)');
 figureProperties_plot(structHandler)
 
 figure(3)
-plot(squeeze(B1_range), squeeze(T1s), 'LineWidth', 5)
+plot(squeeze(deltB0_range), squeeze(T1s), 'LineWidth', 5)
 legend('Location','northoutside')
 structHandler.figure = figure(3);
 structHandler.xlabel = xlabel('B1 (n.u.)');
@@ -150,3 +152,4 @@ structHandler.ylabel = ylabel('T1');
 structHandler.legend = legend('Karakuzu2022  (Siemens 1)');
 figureProperties_plot(structHandler)
 
+save("fig5_mtsat.mat", "deltB0_range", "MTRs", "MTsats", "T1s")
