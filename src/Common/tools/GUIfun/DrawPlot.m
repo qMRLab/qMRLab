@@ -30,10 +30,32 @@ end
 handles.tool.setCurrentSlice(round(size(Current{1},3)/2))
 
 % Set Pixel size
-if isfield(handles.CurrentData,'hdr')
-    handles.tool.setAspectRatio(handles.CurrentData.hdr.pixdim(2:4))
+if isfield(handles.CurrentData, 'hdr')
+    if isfield(handles.CurrentData.hdr, 'pixdim') && numel(handles.CurrentData.hdr.pixdim) >= 4
+        % For NIfTI files
+        handles.tool.setAspectRatio(handles.CurrentData.hdr.pixdim(2:4));
+    else
+        % For MINC files
+        steps = ones(1, 3);  % Default aspect ratio
+
+        % Iterate over the first three dimensions
+        for i = 1:3
+            if isfield(handles.CurrentData.hdr.details.variables(i), 'attributes')
+                % Get the 'step' index from attributes
+                step_idx = find(strcmp({handles.CurrentData.hdr.details.variables(i).attributes}, 'step'));
+
+                if ~isempty(step_idx)
+                    % Assign the corresponding step value
+                    steps(i) = handles.CurrentData.hdr.details.variables(i).values{step_idx};
+                end
+            end
+        end
+
+        handles.tool.setAspectRatio(steps);
+    end
 else
-    handles.tool.setAspectRatio([1 1 1])
+    % Fallback in case no header exists
+    handles.tool.setAspectRatio([1 1 1]);
 end
 
 % Change save as NIFTI function
