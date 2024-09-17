@@ -149,11 +149,18 @@ classdef BrowserSet
             tmp = [];
             if ~isempty(obj.FullFile)
                 [~,~,ext] = fileparts(obj.FullFile);
+
+                if strcmp(ext, '.gz')
+                    [~,~,ext] = fileparts(obj.FullFile(1:end-3)); % Update file extension after unzip
+                end
+
                 if strcmp(ext,'.mat')
                     mat = load(obj.FullFile);
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
-                elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img')
+                elseif strcmp(ext, '.mnc') 
+                    [hdr, tmp] = minc_read(obj.FullFile);
+                elseif strcmp(ext,'.nii') || strcmp(ext,'.img')
                     intrp = 'linear';
                     [tmp, hdr] = nii_load(obj.FullFile,0,intrp);
                 elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
@@ -169,7 +176,7 @@ classdef BrowserSet
                     tmp = File;
                 else
                     if exist(obj.FullFile,'file')==2
-                        warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                        warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .mnc, .mnc.gz .img, .tiff or .tif files'])
                     end
                 end
             end
@@ -241,9 +248,9 @@ classdef BrowserSet
                     end
                 end
                 if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file');
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat;*.mnc;*.mnc.gz';'*.img'},'Select file');
                 else
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file',obj.FullFile);
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat;*.mnc;*.mnc.gz';'*.img'},'Select file',obj.FullFile);
                 end
                 cd(origdir);
             else
