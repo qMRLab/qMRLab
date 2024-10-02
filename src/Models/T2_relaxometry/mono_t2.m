@@ -226,7 +226,7 @@ end
             
         end
         
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt, display)
+        function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt, display)
             if nargin<4, display=1; end
             % Compute Smodel
             Smodel = equation(obj, x);
