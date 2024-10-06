@@ -171,4 +171,4 @@ structHandler.ylabel = ylabel('MTsat %');
 figureProperties_plot(structHandler)
 
 
-save("fig3_mtsat.mat", "mt_angles", "MTRs", "MTsats", "T1s")
+save("fig3_mtsat.mat", "mt_angles", "MTRs", "MTsats", "T1s", "tissues")
