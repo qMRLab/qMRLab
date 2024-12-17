@@ -524,10 +524,21 @@ end
 save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
-% Save nii maps
+% Save nii or minc maps
 for ii = 1:length(FitResults.fields)
-    map = FitResults.fields{ii};
-    file = strcat(map,'.nii.gz');
+    map = FitResults.fields{ii}; 
+    if isfield(hdr, 'type')
+        if strcmp(hdr.type, 'minc2') 
+            file = strcat(map, '.mnc.gz');
+            minc_write(file, hdr, FitResults.(map)); 
+        elseif strcmp(hdr.type, 'minc1')
+            file = strcat(map, '.mnc.gz');
+            minc_write(file, hdr, FitResults.(map));
+        end
+        continue
+    else
+        file = strcat(map,'.nii.gz');       
+    end
 
     if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
@@ -538,10 +549,10 @@ for ii = 1:length(FitResults.fields)
         % qMRI map's nifti file, it will apply an undesired scaling.
         hdr.scl_slope = 1;
         hdr.scl_inter = 0;
-	
+
         nii_save(FitResults.(map),hdr,fullfile(outputdir,file));
     end
-end
+ end
 
 SetAppData(FileBrowserList);
 % Show results
