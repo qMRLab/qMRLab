@@ -24,7 +24,7 @@ function [Msig,MLong]=da_blochsim(alpha, B1, T1, T2, TE, TR, crushFlag, partialD
 %% Set up spin properties
 %
 
-Nf = 1;
+Nf = 100;
 
 if partialDephasingFlag
     phi = ((1-Nf/2):Nf/2)/Nf*2*pi*partialDephasing; % Radian phase vector going from 2Pi/Nf to 2Pi in 2Pi/Nf increments.
@@ -56,24 +56,29 @@ for n=1:Nex
 
 	A = Ate * th_rot(alpha*B1, Rfph);
 	B = Bte;
-    
 	M = A*M+B*on; % M is rotated, then decayed for TE/2. Regrowth factor is added.
     
+    for k=1:Nf
+    	M(:,k) = z_rot(phi(k))*M(:,k);  % Dephase spins.
+    end
     % Spin echo pulse
     if strcmp(inversion_type,'hard')
         A = Ate* y_rot((-1)^(n)*deg2rad(180*B1));
     elseif strcmp(inversion_type,'ideal')
         A = Ate* y_rot((-1)^(n)*deg2rad(180));
     elseif strcmp(inversion_type,'double')
-        A = Ate* y_rot(alpha*B1)* y_rot(alpha*B1);
+        A = Ate* y_rot(2*alpha*B1);
     elseif strcmp(inversion_type,'composite')
         A = Ate*x_rot(deg2rad(90*B1))*y_rot(deg2rad(180*B1))*x_rot(deg2rad(90*B1));
     end
 	B = Bte;
-    
+
 	M = A*M+B*on; % M is rotated, then decayed for TE/2. Regrowth factor is added.
-    
+    for k=1:Nf
+    	M(:,k) = z_rot(phi(k))*M(:,k);  % Dephase spins.
+    end
     % Measurement
+
 	Msig = sum( squeeze(M(1,:)+1i*M(2,:)) ) / Nf; % Complex signal by adding up all the spins
 
 	M=Atr*M+Btr*on; % Relaxation during rest of TR after TE

@@ -32,29 +32,29 @@ clc
 
 nom_first_ang = 60;
 B1 = 1;
-
+alpha = deg2rad(linspace(1, 180, 61));
 TR_range = 5000;
 
 B1_double = zeros(length(TR_range), length(B1));
-
+sig1 = zeros(length(B1));
 
 for ii=1:length(TR_range)
-    alpha = deg2rad(nom_first_ang);
     T1 = 900;
     T2 = 9000;
     TE = 20;
     TR = TR_range(ii);
     crushFlag = 1;
-    partialDephasingFlag = 0;
-    partialDephasing = 0.3;
+    partialDephasingFlag = 1;
+    partialDephasing = 1;
     df = 0;
     inc = 0;
-    Nex = 1;
+    Nex = 400;
 
-    for jj=1:length(B1)
-        [sig1, ~] = da_blochsim(alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'double');
-        [sig2, ~] = da_blochsim(2*alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'double');
-        B1_double(ii,jj) = (acos(abs(sig2)./(8*abs(sig1))))^(1/3)./deg2rad(nom_first_ang);
+    for jj=1:length(alpha)
+        
+        [sig1(jj), ~] = da_blochsim(alpha(jj), B1, T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'double');
+        %[sig2, ~] = da_blochsim(2*alpha, B1(jj), T1, T2, TE, TR, crushFlag, partialDephasingFlag, partialDephasing, df, Nex, inc, 'double');
+        %B1_double(ii,jj) = (acos(abs(sig2)./(8*abs(sig1))))^(1/3)./deg2rad(nom_first_ang);
     end
 
 end
