@@ -17,14 +17,14 @@ if nargin<3, help('qMRshowOutput'); return; end
 
 outputIm = FitResults.(FitResults.fields{1});
 hmap = figure();
-
+hmap_axis = gca;
 
 if length(size(outputIm))>2
     sz = size(outputIm);
     szz = round(sz(3)/2);
-    imagesc(imrotate(outputIm(:,:,szz),90));
+    himg = imagesc(hmap_axis,imrotate(outputIm(:,:,szz),90));
 else
-    imagesc(imrotate(outputIm,90));
+    himg = imagesc(hmap_axis, imrotate(outputIm,90));
 end
 title(FitResults.fields{1});
 if moxunit_util_platform_is_octave
@@ -36,8 +36,7 @@ axis image
 [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
-if FitResults.Model.voxelwise 
-    
+if FitResults.Model.voxelwise
     row = round(size(outputIm,1)/1.7);
     col = round(size(outputIm,2)/1.7);
     slice = round(size(outputIm,3)/2);
@@ -47,9 +46,9 @@ if FitResults.Model.voxelwise
     dataVox         = extractvoxel(data,voxel);
     
     % plot a cross on the map at the position of the voxel
-    hold on
-    plot(voxel(1),voxel(2),'kx','MarkerSize',20,'LineWidth',5)
-    hold off
+    hold(hmap_axis, 'on')
+    cross_plot = plot(voxel(1),voxel(2),'kx','MarkerSize',20,'LineWidth',5)
+    hold(hmap_axis, 'off')
     % move windows
     hplot = figure();
     CurrentPos = get(hplot, 'Position');
@@ -61,9 +60,37 @@ if FitResults.Model.voxelwise
     
     % plot voxel curve
     Model.plotModel(FitResultsVox,dataVox)
-    
+    set(himg, 'ButtonDownFcn', @voxelClickCallback);
+    disp("Finished!");
 end
 
+function voxelClickCallback(src, event)
+    disp("click callback called");
+    coords = round(get(hmap_axis, 'CurrentPoint'));
+    
+    % NOTE: The mapping from clicked (X,Y) to matrix (row,col) depends on
+    % the imrotate(..., 90). The new X is the old row, new Y is old (max_col - col).
+    % The line below swaps X/Y which is often correct for image display.
+    % You may need to adjust this based on your specific image orientation.
+    clickedVoxel = [coords(1,2), coords(1,1), slice];
 
+    % Ensure the voxel is within the image bounds
+    if all(clickedVoxel > 0) && clickedVoxel(1) <= size(outputIm, 1) && clickedVoxel(2) <= size(outputIm, 2)
+        FitResultsVox = extractvoxel(FitResults, clickedVoxel, FitResults.fields);
+        dataVox = extractvoxel(data, clickedVoxel);
+        
+        % Plot the new voxel curve in the plot figure
+        % Use the plot figure's handle 'hplot' and clear it first
+        figure(hplot);
+        cla;
+        Model.plotModel(FitResultsVox, dataVox);
+        
+        % --- Update the cross position on the map ---
+        % This is better than replotting, as it just moves the existing object
+        set(cross_plot, 'XData', clickedVoxel(2), 'YData', clickedVoxel(1));
 
-end 
+        drawnow; % Ensure plots update immedia
+    end
+end
+
+end
