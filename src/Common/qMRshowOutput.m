@@ -37,12 +37,21 @@ axis image
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
 if FitResults.Model.voxelwise 
-    hplot = figure();
-    
     row = round(size(outputIm,1)/1.7);
     col = round(size(outputIm,2)/1.7);
     slice = round(size(outputIm,3)/2);
  
+    if nargin>3
+        hdifmap = figure();
+        difmap = double(FitResults.T2(:,:,slice)) - double(compareFitResults.T2(:,:,slice));
+        imshow(imrotate(difmap,90),[]);
+        title('Difference Map: (Model 1 Fit - Model 2 Fit)');
+        colormap('parula');
+        colorbar;
+    end
+    
+    hplot = figure();
+
     while 1
     voxel = [round(row), round(col), slice]; % check center voxel
     try
