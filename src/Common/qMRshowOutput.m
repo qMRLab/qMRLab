@@ -1,4 +1,4 @@
-function qMRshowOutput(FitResults,data,Model)
+function qMRshowOutput(FitResults,data,Model, compareFitResults)
 % qMRshowOutput   Show mid-slice fitting maps
 %                 Also show a fit in an off-center voxel to avoid central sulcus in brain
 %                 images
@@ -47,6 +47,9 @@ if FitResults.Model.voxelwise
     voxel = [round(row), round(col), slice]; % check center voxel
     try
         FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
+        if nargin >= 4
+            compareFitResultVox = extractvoxel(compareFitResults,voxel,compareFitResults.fields);
+        end
         dataVox         = extractvoxel(data,voxel);
     catch exception
         disp("Error: Voxel out of bounds");
@@ -65,7 +68,11 @@ if FitResults.Model.voxelwise
     set(hplot, 'Position', NewPos);
     
     % plot voxel curve
+    clf(hplot);
     Model.plotModel(FitResultsVox,dataVox)
+    if nargin >= 4
+        Model.plotModel(compareFitResultVox,dataVox);
+    end
     try
         strvox = num2str(voxel);
         subtitle("Voxel: "+strvox,'FontSize',12);
