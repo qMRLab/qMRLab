@@ -37,21 +37,26 @@ axis image
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
 if FitResults.Model.voxelwise 
+    hplot = figure();
     
     row = round(size(outputIm,1)/1.7);
     col = round(size(outputIm,2)/1.7);
     slice = round(size(outputIm,3)/2);
  
-    voxel = [row, col, slice]; % check center voxel
-    FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
-    dataVox         = extractvoxel(data,voxel);
-    
+    while 1
+    voxel = [round(row), round(col), slice]; % check center voxel
+    try
+        FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
+        dataVox         = extractvoxel(data,voxel);
+    catch exception
+        disp("Error: Voxel out of bounds");
+    end
     % plot a cross on the map at the position of the voxel
     hold on
-    plot(voxel(1),voxel(2),'kx','MarkerSize',20,'LineWidth',5)
+    cross = plot(voxel(1),voxel(2),'kx','MarkerSize',20,'LineWidth',5);
     hold off
     % move windows
-    hplot = figure();
+    figure(hplot);
     CurrentPos = get(hplot, 'Position');
     MapPos = get(hmap, 'Position');
     MapPos(1) = max(1,MapPos(1)-round(MapPos(3)/2));
@@ -61,7 +66,16 @@ if FitResults.Model.voxelwise
     
     % plot voxel curve
     Model.plotModel(FitResultsVox,dataVox)
-    
+    try
+        strvox = num2str(voxel);
+        subtitle("Voxel: "+strvox,'FontSize',12);
+    catch exception
+        disp("Error: Cannot add subtitle use a newer matlab");
+    end
+    figure(hmap);
+    [row, col] = ginput(1);
+    delete(cross);
+    end
 end
 
 
