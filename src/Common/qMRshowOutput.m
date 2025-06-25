@@ -60,12 +60,15 @@ if FitResults.Model.voxelwise
     hold off
     % move windows
     figure(hplot);
+    %{
+    this code messes with windows for some reason? plan to remove it
     CurrentPos = get(hplot, 'Position');
     MapPos = get(hmap, 'Position');
     MapPos(1) = max(1,MapPos(1)-round(MapPos(3)/2));
     set(hmap, 'Position', MapPos);
     NewPos = [MapPos(1)+MapPos(3), MapPos(2)+MapPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
     set(hplot, 'Position', NewPos);
+    %}
     
     % plot voxel curve
     clf(hplot);
