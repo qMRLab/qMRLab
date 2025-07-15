@@ -254,4 +254,18 @@ end
             SimRndResults = SimRnd(obj, RndParam, Opt);
         end
     end
+    methods(Access = protected)
+        function obj = qMRpatch(obj,loadedStruct, version)
+            % Call the patch of the AbstractModel (for generic patch that can be used for all models).
+            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+            % ver < 2.4.3
+            if checkanteriorver(version,[2 4 3])
+                obj. xnames      = { 'T2','M0', 'RESNORM', 'RESIDUAL'}; % name of the parameters to fit
+                obj.st           = [ 100	1000 0 0]; % starting point
+                obj.lb           = [  1      1 0 -Inf]; % lower bound
+                obj.ub           = [ 300        10000 Inf Inf]; % upper bound
+                obj.fx           = [ 0       0 0 0]; % fix parameters
+            end
+        end
+    end
 end
