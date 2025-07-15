@@ -43,12 +43,12 @@ end
         MRIinputs = {'SEdata','Mask'}; % used in the data panel
         
         % fitting options
-        xnames = { 'T2','M0'}; % name of the parameters to fit
+        xnames = { 'T2','M0', 'RESNORM', 'RESIDUAL'}; % name of the parameters to fit
         voxelwise = 1; % 1--> input data in method 'fit' is 1D (vector). 0--> input data in method 'fit' is 4D.
-        st           = [ 100	1000 ]; % starting point
-        lb            = [  1      1 ]; % lower bound
-        ub           = [ 300        10000 ]; % upper bound
-        fx            = [ 0       0]; % fix parameters
+        st           = [ 100	1000 0 0]; % starting point
+        lb            = [  1      1 0 -Inf]; % lower bound
+        ub           = [ 300        10000 Inf Inf]; % upper bound
+        fx            = [ 0       0 0 0]; % fix parameters
         
         % Protocol
         Prot  = struct('SEdata',struct('Format',{{'EchoTime (ms)'}},...
@@ -145,15 +145,16 @@ end
                 options.Display = 'off';
                 
                 if obj.options.OffsetTerm
-                    fit_out = lsqnonlin(fT2,[pdInit t2Init 0],[obj.lb(2), obj.lb(1)],[obj.ub(2), obj.ub(1)],options);
+                    [fit_out, RESNORM, RESIDUAL] = lsqnonlin(fT2,[pdInit t2Init 0],[obj.lb(2), obj.lb(1)],[obj.ub(2), obj.ub(1)],options);
                 else
-                    fit_out = lsqnonlin(fT2,[pdInit t2Init],[obj.lb(2) obj.lb(1)],[obj.ub(2) obj.ub(1)],options);
+                    [fit_out, RESNORM, RESIDUAL] = lsqnonlin(fT2,[pdInit t2Init],[obj.lb(2) obj.lb(1)],[obj.ub(2) obj.ub(1)],options);
                 end
 
                 
                 FitResults.T2 = fit_out(2);
                 FitResults.M0 = fit_out(1);
-                
+                FitResults.RESNORM = RESNORM;
+                FitResults.RESIDUAL = RESIDUAL;
                 
             else
                 % Linearize solution with <<log transformation (LT)>>
@@ -185,7 +186,9 @@ end
                 
                 FitResults.T2 = t2;
                 FitResults.M0 = fit_out(1);
-                
+                FitResults.RESIDUAL = sum(exp(yDat)-FitResults.M0.*exp(-xData./FitResults.T2));
+                FitResults.RESNORM = sum((exp(yDat)-FitResults.M0.*exp(-xData./FitResults.T2)).^2);
+
                 
             end
             %  convert fitted vector xopt to a structure.
