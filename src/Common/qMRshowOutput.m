@@ -16,6 +16,7 @@ function qMRshowOutput(FitResults,data,Model, compareFitResults)
 if nargin<3, help('qMRshowOutput'); return; end
 
 outputIm = FitResults.(FitResults.fields{1});
+compIm = compareFitResults.(FitResults.fields{1});
 hmap = figure();
 
 
@@ -48,6 +49,14 @@ if FitResults.Model.voxelwise
         title('Difference Map: (Model 1 Fit - Model 2 Fit)');
         colormap('parula');
         colorbar;
+        hcompmap = figure();
+        if length(size(compIm))>2
+            sz = size(compIm);
+            szz = round(sz(3)/2);
+            imagesc(imrotate(compIm(:,:,szz),90));
+        else
+            imagesc(imrotate(compIm,90));
+        end
     end
     
     hplot = figure();
