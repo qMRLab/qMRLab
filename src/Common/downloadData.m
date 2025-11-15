@@ -23,10 +23,10 @@ catch
 end
 filename = [Model.ModelName '.zip'];
 
-% retry 3 times
-count = 0;
 err_count = 0;
-while count == err_count
+max_attempts = 5;
+download_successful = false;
+while err_count < max_attempts && ~download_successful
     try
         % DOWNLOAD
         if moxunit_util_platform_is_octave
@@ -97,14 +97,15 @@ while count == err_count
                 end
             end
         end
-        
+
         % UNZIP
         unzip(filename);
-        err_count=0;
+        download_successful = true;
     catch ME
         err_count = err_count + 1;
-        if err_count>3
-            error(ME.identifier, ['Data cannot be downloaded: ' ME.message ...
+        disp(['Download attempt ' num2str(err_count) ' failed.']);
+        if err_count >= max_attempts
+            error(['Data cannot be downloaded after ' num2str(max_attempts) ' attempts: ' ME.message ...
                 '\n\nTroubleshooting tips:' ...
                 '\n- Check your internet connection' ...
                 '\n- The OSF server may be temporarily unavailable' ...
@@ -112,10 +113,9 @@ while count == err_count
                 '\n- Check if a firewall is blocking the connection']);
         end
         % Wait before retry
+        disp('Retrying...');
         pause(2);
-        disp(['Download attempt ' num2str(err_count) ' failed. Retrying...']);
     end
-    count = count + 1;
 end
 
 
