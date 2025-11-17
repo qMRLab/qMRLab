@@ -200,8 +200,10 @@ while ~done
             done=true;
         end
     else
-        rel_err=( norm(c2m(isfinite(c2m))-c2m_old(isfinite(c2m_old)),1) )/ norm(c2m(isfinite(c2m)),1);  %Relative l1 norm for c2 (Convergence is controlled by c2 only)
-        if rel_err< options.Tol || k>=options.MaxIter %mode with convergence criterion
+        % Relative l1 norm for c2 (Convergence is controlled by c2 only)
+        finite = isfinite(c2m) & isfinite(c2m_old);
+        rel_err=( norm(c2m(finite)-c2m_old(finite),1) )/ norm(c2m(finite),1);  
+        if rel_err< options.Tol || k>=options.MaxIter % mode with convergence criterion
             done=true;
         end
     end  
