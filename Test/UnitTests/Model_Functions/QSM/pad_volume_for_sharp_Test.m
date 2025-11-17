@@ -8,8 +8,9 @@ end
 
 function test_that_function_returns_volume_with_expected_padded_size(testCase)
     tmpVolume = ones(10,10,10);
+    pad_size = 9;
 
-    paddedVolume = pad_volume_for_sharp(tmpVolume);
+    paddedVolume = pad_volume_for_sharp(tmpVolume, pad_size);
     
     expectedOutputSize = [28 28 28]; % Padded by 9 rows on each side.
     
@@ -18,8 +19,9 @@ end
 
 function test_that_padding_are_zeros(testCase)
     tmpVolume = ones(10,10,10);
+    pad_size = 9;
 
-    paddedVolume = pad_volume_for_sharp(tmpVolume);
+    paddedVolume = pad_volume_for_sharp(tmpVolume, pad_size);
     
     xLeft = paddedVolume(1:9,:,:);
     assertTrue(~any(xLeft(:)));
