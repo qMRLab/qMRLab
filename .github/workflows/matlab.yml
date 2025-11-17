@@ -15,6 +15,10 @@ jobs:
 
       - name: Setup MATLAB
         uses: matlab-actions/setup-matlab@v2
+        with:
+          products: >
+            Image_Processing_Toolbox
+            Optimization_Toolbox
 
       - name: Run MATLAB tests (quickMox + BatchExamplePart1)
         uses: matlab-actions/run-command@v2
@@ -49,6 +53,10 @@ jobs:
 
       - name: Setup MATLAB
         uses: matlab-actions/setup-matlab@v2
+        with:
+          products: >
+            Image_Processing_Toolbox
+            Optimization_Toolbox
 
       - name: Run MATLAB tests (BatchExamplePart2)
         uses: matlab-actions/run-command@v2
@@ -79,6 +87,10 @@ jobs:
 
       - name: Setup MATLAB
         uses: matlab-actions/setup-matlab@v2
+        with:
+          products: >
+            Image_Processing_Toolbox
+            Optimization_Toolbox        
 
       - name: Run MATLAB tests (simTests)
         uses: matlab-actions/run-command@v2
