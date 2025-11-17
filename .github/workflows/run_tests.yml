@@ -1,0 +1,295 @@
+name: MATLAB
+
+on:
+  push:
+    branches: [mb/actions]
+  pull_request:
+    branches: [master]
+  workflow_dispatch: {}
+
+jobs:
+  quick-mox-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run quick MoxUnit tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/MoxUnitCompatible/quickMoxTests';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_quickMoxTests.json'));
+            exit(~res1);
+
+      - name: Upload quick tests coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json
+          flags: matlab
+
+  batch-part1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run BatchExample tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/MoxUnitCompatible';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir, 'BatchExample_test.m'), '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_BatchExample_test.json'));
+            exit(~res1);
+
+      - name: Upload BatchExample coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/MoxUnitCompatible/coverage_BatchExample_test.json
+          flags: matlab
+
+      - name: Upload mismatch artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: upload-miscmatch-txts
+          path: mismatchOM
+
+  batch-part2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run BatchExamplePart2 tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/MoxUnitCompatible/BatchExamplePart2';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_BatchExamplePart2.json'));
+            exit(~res1);
+
+      - name: Upload BatchExamplePart2 coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/MoxUnitCompatible/BatchExamplePart2/coverage_BatchExamplePart2.json
+          flags: matlab
+
+  sim-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run simulation tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/MoxUnitCompatible/simTests';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_simTests.json'));
+            exit(~res1);
+
+      - name: Upload simulation tests coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/MoxUnitCompatible/simTests/coverage_simTests.json
+          flags: matlab
+
+  other-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run other MoxUnit tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/MoxUnitCompatible/other';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_other.json'));
+            exit(~res1);
+
+      - name: Upload other tests coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/MoxUnitCompatible/other/coverage_other.json
+          flags: matlab
+
+  equation-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run equation tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/MoxUnitCompatible/equation_test';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_equation.json'));
+            exit(~res1);
+
+      - name: Upload equation tests coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/MoxUnitCompatible/equation_test/coverage_equation.json
+          flags: matlab
+
+  common-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run Common tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/Common';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_common.json'));
+            exit(~res1);
+
+      - name: Upload Common tests coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/Common/coverage_common.json
+          flags: matlab
+
+  models-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run Models tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/Models';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_models.json'));
+            exit(~res1);
+
+      - name: Upload Models tests coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/Models/coverage_models.json
+          flags: matlab
+
+  models-functions-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run Models Functions tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/Models_Functions';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_models_functions.json'));
+            exit(~res1);
+
+      - name: Upload Models Functions coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/Models_Functions/coverage_models_functions.json
+          flags: matlab
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: latest
+          cache: true
+
+      - name: Run Unit tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = pwd;
+            testDir = 'Test/UnitTests';
+            res1 = moxunit_runtests(fullfile(qmrlabRoot, testDir), '-recursive', '-with_coverage', '-cover', fullfile(qmrlabRoot, 'src'), '-cover_exclude', '*GUI*', '-cover_json_file', fullfile(qmrlabRoot, testDir, 'coverage_unit.json'));
+            exit(~res1);
+
+      - name: Upload Unit tests coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Test/UnitTests/coverage_unit.json
+          flags: matlab
