@@ -226,7 +226,7 @@ jobs:
           files: ${{ github.workspace }}/Test/MoxUnitCompatible/simTests/coverage_simTests.json
           flags: matlab
           fail_ci_if_error: false
-MATLAB_4_OtherTests:
+  MATLAB_4_OtherTests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
