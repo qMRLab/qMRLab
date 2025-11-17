@@ -1,0 +1,94 @@
+name: MATLAB CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  MATLAB_1_quickMox_BatchExamplePart1:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup MATLAB
+        uses: matlab-actions/setup-matlab@v2
+
+      - name: Run MATLAB tests (quickMox + BatchExamplePart1)
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = getenv('GITHUB_WORKSPACE');
+            testDir = '/Test/MoxUnitCompatible/quickMoxTests'
+            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_quickMoxTests.json']);
+            testDir = '/Test/MoxUnitCompatible';
+            res2 = moxunit_runtests([qmrlabRoot testDir '/BatchExample_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_test.json']);
+            exit(~all([res1 res2]));
+
+      - name: Upload coverage to Codecov
+        run: |
+          bash <(curl -s https://codecov.io/bash) \
+            -f "$GITHUB_WORKSPACE/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json" -F matlab
+          sleep 2
+          bash <(curl -s https://codecov.io/bash) \
+            -f "$GITHUB_WORKSPACE/Test/MoxUnitCompatible/coverage_BatchExample_test.json" -F matlab
+
+
+  MATLAB_2_BatchExamplePart2:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup MATLAB
+        uses: matlab-actions/setup-matlab@v2
+
+      - name: Run MATLAB tests (BatchExamplePart2)
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = getenv('GITHUB_WORKSPACE');
+            testDir = '/Test/MoxUnitCompatible/BatchExamplePart2'
+            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExamplePart2.json']);
+            exit(~res1);
+
+      - name: Upload coverage to Codecov
+        run: |
+          bash <(curl -s https://codecov.io/bash) \
+            -f "$GITHUB_WORKSPACE/Test/MoxUnitCompatible/BatchExamplePart2/coverage_BatchExamplePart2.json" -F matlab
+
+
+  MATLAB_3_SimTests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup MATLAB
+        uses: matlab-actions/setup-matlab@v2
+
+      - name: Run MATLAB tests (simTests)
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            qMRLabVer;
+            qmrlabRoot = getenv('GITHUB_WORKSPACE');
+            testDir = '/Test/MoxUnitCompatible/simTests'
+            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_simTests.json']);
+            exit(~res1);
+
+      - name: Upload coverage to Codecov
+        run: |
+          bash <(curl -s https://codecov.io/bash) \
+            -f "$GITHUB_WORKSPACE/Test/MoxUnitCompatible/simTests/coverage_simTests.json" -F matlab
