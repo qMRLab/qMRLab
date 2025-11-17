@@ -19,6 +19,7 @@ jobs:
           products: >
             Image_Processing_Toolbox
             Optimization_Toolbox
+            Statistics_and_Machine_Learning_Toolbox
 
       - name: Run MATLAB tests (quickMox + BatchExamplePart1)
         uses: matlab-actions/run-command@v2
@@ -57,6 +58,7 @@ jobs:
           products: >
             Image_Processing_Toolbox
             Optimization_Toolbox
+            Statistics_and_Machine_Learning_Toolbox
 
       - name: Run MATLAB tests (BatchExamplePart2)
         uses: matlab-actions/run-command@v2
@@ -91,6 +93,7 @@ jobs:
           products: >
             Image_Processing_Toolbox
             Optimization_Toolbox        
+            Statistics_and_Machine_Learning_Toolbox
 
       - name: Run MATLAB tests (simTests)
         uses: matlab-actions/run-command@v2
