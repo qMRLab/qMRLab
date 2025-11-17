@@ -259,7 +259,6 @@ jobs:
           files: ${{ github.workspace }}/Test/MoxUnitCompatible/other/coverage_other.json
           flags: matlab
           fail_ci_if_error: false
-
   MATLAB_5_EquationTests:
     runs-on: ubuntu-latest
     steps:
@@ -293,7 +292,6 @@ jobs:
           files: ${{ github.workspace }}/Test/MoxUnitCompatible/equation_test/coverage_equation.json
           flags: matlab
           fail_ci_if_error: false
-
   MATLAB_6_CommonTests:
     runs-on: ubuntu-latest
     steps:
@@ -327,7 +325,6 @@ jobs:
           files: ${{ github.workspace }}/Test/Common/coverage_common.json
           flags: matlab
           fail_ci_if_error: false
-
   MATLAB_7_ModelsTests:
     runs-on: ubuntu-latest
     steps:
@@ -361,7 +358,6 @@ jobs:
           files: ${{ github.workspace }}/Test/Models/coverage_models.json
           flags: matlab
           fail_ci_if_error: false
-
   MATLAB_8_ModelsFunctionsTests:
     runs-on: ubuntu-latest
     steps:
@@ -395,7 +391,6 @@ jobs:
           files: ${{ github.workspace }}/Test/Models_Functions/coverage_models_functions.json
           flags: matlab
           fail_ci_if_error: false
-
   MATLAB_9_UnitTests:
     runs-on: ubuntu-latest
     steps:
