@@ -1,3 +1,6 @@
+#
+*demo*/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -53,6 +56,7 @@ FitTempResults*
 SimResults*
 MTSAT/interface.jpg
 qMRLab.prj
+*.mat
 
 # Files created by the documentation
 docs/build/*

@@ -1,4 +1,4 @@
-classdef (TestTags = {'SPGR', 'Demo', 'Integration'}) SimDemo_SPGR_Test < matlab.unittest.TestCase
+classdef (TestTags = {'SPGR', 'Demo', 'Integration', 'single'}) SimDemo_SPGR_Test < matlab.unittest.TestCase
 
     properties
        qmrlabPath = cell2mat(regexp(cd, '.*qMRLab/', 'match'));
