@@ -12,6 +12,7 @@ classdef mono_t2 < AbstractModel
     % Outputs:
     %   T2              Transverse relaxation time [s]
     %   M0              Equilibrium magnetization
+    %   Offset          Present if Options.Offset = true
     %
     % Protocol:
     %   TE Array [nbTE]:
@@ -20,7 +21,8 @@ classdef mono_t2 < AbstractModel
     % Options:
     %   FitType         Linear or Exponential
     %   DropFirstEcho   Link Optionally drop 1st echo because of imperfect refocusing
-    %   Offset          Optionally fit for offset parameter to correct for imperfect refocusing
+    %   Offset          Optionally fit for offset parameter to correct for imperfect refocusing.
+    %                   Incompatible with FitType Linear.
     %
     % Example of command line usage:
     %   Model = mono_t2;  % Create class from model
@@ -74,7 +76,11 @@ end
             x = mat2struct(x,obj.xnames); % if x is a structure, convert to vector
             
             % equation
-            Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2);
+            if obj.options.OffsetTerm
+                Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2) + x.Offset;
+            else
+                Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2);
+            end
         end
 
         function obj = UpdateFields(obj)
@@ -88,7 +94,7 @@ end
                 obj.ub(2) = obj.st(2);
             end
              
-         end
+        end
         
         function FitResults = fit(obj,data)
             %  Fit data using model equation.
@@ -149,15 +155,22 @@ end
                 else
                     fit_out = lsqnonlin(fT2,[pdInit t2Init],[obj.lb(2) obj.lb(1)],[obj.ub(2) obj.ub(1)],options);
                 end
-
                 
+
                 FitResults.T2 = fit_out(2);
                 FitResults.M0 = fit_out(1);
+                if obj.options.OffsetTerm
+                    FitResults.Offset = fit_out(3);
+                end
                 
                 
             else
                 % Linearize solution with <<log transformation (LT)>>
                 
+                if obj.options.OffsetTerm
+                    error('FitType linear is incompatible with OffsetTerm');
+                end
+
                 if obj.options.DropFirstEcho
                     
                     xData = obj.Prot.SEdata.Mat(2:end);
@@ -185,8 +198,8 @@ end
                 
                 FitResults.T2 = t2;
                 FitResults.M0 = fit_out(1);
-                
-                
+
+                                
             end
             %  convert fitted vector xopt to a structure.
             %FitResults = cell2struct(mat2cell(xopt(:),ones(length(xopt),%1)),obj.xnames,1);
@@ -209,7 +222,12 @@ end
             
             % Plot Fitted Model
             plot(Tvec,Smodel(Iorder),'b-')
-            title(sprintf('T2 Fit: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
+            
+            if obj.options.OffsetTerm
+                title(sprintf('T2 Fit: T2=%0.4f ms; M0=%0.0f Offset=%0.0f;',FitResults.T2,FitResults.M0,FitResults.Offset),'FontSize',14);
+            else
+                title(sprintf('T2 Fit: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
+            end
             xlabel('Echo time [ms]','FontSize',12);
             ylabel('Signal','FontSize',12);
             
