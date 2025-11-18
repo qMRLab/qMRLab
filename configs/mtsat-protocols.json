@@ -1,0 +1,113 @@
+{
+    "karakuzu2022": {
+        "DOI": "https://doi.org/10.1002/mrm.29292",
+        "ge1": {
+            "pdw": {
+                "fa": 6,
+                "tr": 32,
+                "te": 4,
+                "offset": 1200,
+                "mtshape": "fermi",
+                "mtduration": 8,
+                "mtangle": 540
+            },
+            "t1w": {
+                "fa": 20,
+                "tr": 18,
+                "te": 4
+            }
+        },
+        "siemens1": {
+            "pdw":{
+                "fa": 6,
+                "tr": 32,
+                "te": 4,
+                "offset": 1200,
+                "mtshape": "gaussian",
+                "mtduration": 10,
+                "mtangle": 540
+            },
+            "t1w":{
+                "fa": 20,
+                "tr": 18,
+                "te": 4
+            }
+        }
+    },
+    "Helms2008": {
+        "DOI": "https://doi.org/10.1002/mrm.21732",
+        "protocol": {
+            "pdw": {
+                "fa": 5,
+                "tr": 25,
+                "te": 4.92,
+                "offset": 2200,
+                "mtshape": "gaussian",
+                "mtduration": 12.8,
+                "mtangle": 540
+            },
+            "t1w": {
+                "fa": 15,
+                "tr": 11,
+                "te": 4.92
+            }
+        }
+    },
+    "Weiskopf2013": {
+        "DOI": "https://doi.org/10.3389/fnins.2013.00095",
+        "protocol": {
+            "pdw": {
+                "fa": 6,
+                "tr": 23.7,
+                "te": 8.45,
+                "offset": 2000,
+                "mtshape": "gaussian",
+                "mtduration": 12.8,
+                "mtangle": 220
+            },
+            "t1w": {
+                "fa": 20,
+                "tr": 18.7,
+                "te": 8.45
+            }
+        }
+    },
+    "Campbell2018": {
+        "DOI": "https://doi.org/10.1016/j.neuroimage.2017.08.038",
+        "protocol": {
+            "pdw": {
+                "fa": 5,
+                "tr": 30,
+                "te": 4,
+                "offset": 2200,
+                "mtshape": "gaussian",
+                "mtduration": 10,
+                "mtangle": 540
+            },
+            "t1w": {
+                "fa": 15,
+                "tr": 11,
+                "te": 4
+            }
+        }
+    },
+    "York2022": {
+        "DOI": "https://doi.org/10.1016/j.nicl.2022.103228",
+        "protocol": {
+            "pdw": {
+                "fa": 5,
+                "tr": 30,
+                "te": 4.55,
+                "offset": 1200,
+                "mtshape": "gaussian",
+                "mtduration": 9.984,
+                "mtangle": 500
+            },
+            "t1w": {
+                "fa": 18,
+                "tr": 15,
+                "te": 4.55
+            }
+        }
+    }
+}

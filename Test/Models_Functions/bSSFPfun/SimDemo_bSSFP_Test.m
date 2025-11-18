@@ -17,7 +17,7 @@ classdef (TestTags = {'bSSFP', 'Demo', 'Integration'}) SimDemo_bSSFP_Test < matl
 
     methods (Test)
         function testFittedParamsNearInputValues(testCase)
-            run([testCase.qmrlabPath, '/Models_Functions/bSSFPfun/SimDemo_bSSFP.m'])
+            run([testCase.qmrlabPath, '/src/Models_Functions/bSSFPfun/SimDemo_bSSFP.m'])
 
             inputParams  = Sim.Param;
             outputParams = SimCurveResults;

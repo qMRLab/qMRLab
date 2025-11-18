@@ -116,7 +116,7 @@ end
                    'Fix R1r = R1f',true};
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch sim'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
     end
 
@@ -149,7 +149,7 @@ end
             Sim.Param.G = obj.options.G0;
             Protocol = GetProt(obj);
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch sim'
                     Sim.Opt.Reset = Opt.ResetMz;
                     Sim.Opt.SScheck = 1;
                     Sim.Opt.SStol = 5e-5;

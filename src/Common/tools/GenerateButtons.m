@@ -2,7 +2,7 @@ function handle = GenerateButtons(opts,ParentPanel, maxSize, ncol)
 % Generate Buttons in vertical arrangement based on a cell array
 % handle = GenerateButtons(opts,ParentPanel,maxButtonSize)
 % Example:
-%   Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false}
+%   Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch sim'},'Reset Mz',false}
 %   h = figure;
 %   buttons_handle = GenerateButtons(Sim_Single_Voxel_Curve_buttons,h,.2)
 %   opts = button_handle2opts(button_handle)

@@ -73,3 +73,5 @@ reports/
 docs/source/.doctrees
 External/AMICO/AMICO_matlab/exports/
 mismatchOM
+jupyter-matlab-proxy/*
+plotly_matlab-master/*
