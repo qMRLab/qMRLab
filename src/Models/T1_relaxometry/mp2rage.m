@@ -241,16 +241,6 @@ methods
             FitResult.R1 = R1map.img;
             
         end
-
-        if ~isempty(data.Mask)
-            data.Mask = logical(data.Mask); % ensure 
-            FitResult.T1(~data.Mask) = 0;
-            FitResult.R1(~data.Mask) = 0;
-
-            if isfield(FitResult,'MP2RAGEcor')
-                FitResult.MP2RAGEcor(~data.Mask) = 0;
-            end
-        end
         
     end % FIT RESULTS END 
 end % METHODS END 
