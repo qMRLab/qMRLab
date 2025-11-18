@@ -1604,7 +1604,12 @@ classdef imtool3D < handle
             else
                 set(tool.handles.I,'CData',imresize(In,tool.rescaleFactor,tool.upsampleMethod),'XData',get(tool.handles.I,'XData'),'YData',get(tool.handles.I,'YData'))
             end
-            maskrgb = ind2rgb8(maskn,tool.maskColor);
+            try
+                maskrgb = ind2rgb8(maskn,tool.maskColor);
+            catch
+                % If mapping toolbox is not available
+                maskrgb = im2uint8(ind2rgb(maskn,tool.maskColor));
+            end
             set(tool.handles.mask,'CData',maskrgb,'XData',get(tool.handles.I,'XData'),'YData',get(tool.handles.I,'YData'));
             set(tool.handles.mask,'AlphaData',tool.alpha*logical(maskn))
             try
