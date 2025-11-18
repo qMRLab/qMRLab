@@ -209,6 +209,9 @@ while ~done
     end  
 end
 
+non_physical = c2m <= 0 | ~isfinite(c2m);
+c2m(non_physical) = NaN;
+
 Km=c1m./(1-c2m);
 T1m=-TR./log(c2m);
 
