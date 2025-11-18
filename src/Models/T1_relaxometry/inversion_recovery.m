@@ -30,7 +30,6 @@ classdef inversion_recovery < AbstractModel
 %
 %   fitModel        T1 fitting moddel.
 %     'Barral'      Fitting equation: a+bexp(-TI/T1)
-%     'General'     Fitting equation: c(1-2exp(-TI/T1)+exp(-TR/T1))
 %
 % Example of command line usage (see also <a href="matlab: showdemo inversion_recovery_batch">showdemo inversion_recovery_batch</a>):
 %   Model = inversion_recovery;  % Create class from model
@@ -72,7 +71,7 @@ end
         Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
                       'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
         % Model options
-        buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
+        buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral'}}; %selection buttons
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulation Options
@@ -172,53 +171,7 @@ end
                     if (strcmp(obj.options.method, 'Magnitude'))
                         FitResults.idx = idx;
                     end
-                case 'General'
-                    approxFlag = 3; % Selects the equation c(1-2exp(-TI/T1)+exp(TR/T1))
 
-                    params.TI = obj.Prot.IRData.Mat';
-                    params.TR = obj.Prot.TimingTable.Mat;
-                    
-                    if strcmp(obj.options.method, 'Magnitude')
-                        % Make sure data vector is a column vector
-                        data = data(:);
-
-                        % Find the min of the data (which is nearest to
-                        % signal null to flip
-                        [~, minInd] = min(data);
-                        
-                        % Signal inversion algorithm to fir the T1 curve
-                        for ii = 1:2
-                            % Fit the data by inverting the sign of the
-                            % datapoints up until the TI where signal is
-                            % null, then also without that point. The
-                            % fit with the smallest residual is our best
-                            % guess for up to where to flip the sign of the
-                            % signal.
-                            if ii == 1
-                                % First, we set all elements up to and including
-                                % the smallest element to minus
-                                dataTmp = data.*[-ones(minInd,1); ones(length(data) - minInd,1)];
-                            elseif ii == 2
-                                % Second, we set all elements up to (not including)
-                                % the smallest element to minus
-                                dataTmp = data.*[-ones(minInd-1,1); ones(length(data) - (minInd-1),1)];
-                            end
-                            [fitVals{ii}, resnorm(ii)] = inversion_recovery.fit_lm(dataTmp, params, approxFlag);
-                        end
-                        [~,ind] = min(resnorm); % Index of the minimum residual will be which signal fit results to choose.
-                        FitResults.T1 = fitVals{ind}.T1;
-                        FitResults.ra = fitVals{ind}.ra;
-                        FitResults.rb = fitVals{ind}.rb;
-                        FitResults.res = resnorm(ind);
-                        FitResults.idx = ind;
-                    elseif strcmp(obj.options.method, 'Complex')
-                        params.dataType = 'complex';
-                        [fitVals, resnorm] = inversion_recovery.fit_lm(data(:), params, 3);
-                        FitResults.T1 = fitVals.T1;
-                        FitResults.ra = fitVals.ra;
-                        FitResults.rb = fitVals.rb;
-                        FitResults.res = resnorm;
-                    end
             end
         end
 
@@ -587,7 +540,7 @@ end
                 obj.Prot = struct('IRData', struct('Format',{'TI(ms)'},'Mat',[350 500 650 800 950 1100 1250 1400 1700]'),...
                                   'TimingTable', struct('Format',{{'TR(ms)'}},'Mat',2500)); %default protocol
                 % Model options
-                obj.buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral','General'}}; %selection buttons
+                obj.buttons = {'method',{'Magnitude','Complex'}, 'fitModel',{'Barral'}}; %selection buttons
                 obj.options = button2opts(obj.buttons);
             end
         end

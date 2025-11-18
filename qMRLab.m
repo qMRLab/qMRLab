@@ -328,16 +328,28 @@ scl_str = json2struct('ScalePanels.json');
 for ii = 1:length(scl_str)
 
     if strcmp(Method,scl_str(ii).ModelName)
-        
-        attachScrollPanelTo(handles.(scl_str(ii).PanelName));
+
+        try
+            attachScrollPanelTo(handles.(scl_str(ii).PanelName));
+        catch ME
+            % Gracefully handle JavaFrame issues in MATLAB 2021+
+            warning('qMRLab:GUI:ScrollPanelFailed', ...
+                'Could not create scroll panel (MATLAB R2021+ compatibility). Panel will display without scrolling.');
+        end
         set(handles.(scl_str(ii).PanelName),'Position',scl_str(ii).Position);
 
     else
-        attachScrollPanelTo(handles.('FitDataFileBrowserPanel'));
+        try
+            attachScrollPanelTo(handles.('FitDataFileBrowserPanel'));
+        catch ME
+            % Gracefully handle JavaFrame issues in MATLAB 2021+
+            warning('qMRLab:GUI:ScrollPanelFailed', ...
+                'Could not create scroll panel (MATLAB R2021+ compatibility). Panel will display without scrolling.');
+        end
         set(handles.FitDataFileBrowserPanel,'Position',[0.0117 0.7391 0.9749 0.2493]);
     end
-       
-        
+
+
 end
 
 % Scale the main panel by a super small factor and 
@@ -532,6 +544,13 @@ for ii = 1:length(FitResults.fields)
     if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
     else
+        % Reset multiplicative and additive scale factors to nifti header
+        % in case there were some in the input file's header that was used
+        % as a template. If this isn't done, then when a tool loads the
+        % qMRI map's nifti file, it will apply an undesired scaling.
+        hdr.scl_slope = 1;
+        hdr.scl_inter = 0;
+	
         nii_save(FitResults.(map),hdr,fullfile(outputdir,file));
     end
 end

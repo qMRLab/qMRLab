@@ -24,21 +24,34 @@ Alpha_B1 = B1Params(1);
 Inds = find(PDw_data & T1w_data & MTw_data);
 MTsat = double(zeros(size(MTw_data)));
 
-% check if a T1 map was given in input; if not, compute it
-R1(Inds) = 0.5*((alpha_T1/TR_T1)*T1w_data(Inds)  - (alpha_PD/TR_PD)*PDw_data(Inds))./(PDw_data(Inds)/alpha_PD - T1w_data(Inds)/alpha_T1);
-
-% compute A
-A = (TR_PD*alpha_T1/alpha_PD - TR_T1*alpha_PD/alpha_T1)*((PDw_data(Inds).*T1w_data(Inds))./(TR_PD*alpha_T1*T1w_data(Inds) - TR_T1*alpha_PD*PDw_data(Inds)));
-
-% preallocate and compute MTsat; percent units
-MTsat(Inds) = 100 * (TR_MT*(alpha_MT*(A./MTw_data(Inds)) - ones(size(MTw_data(Inds)))).*R1(Inds) - (alpha_MT^2)/2);
-
 % Apply B1 correction to result
 if isfield(data,'B1map') && ~isempty(data.B1map)
 	if any(size(data.B1map) ~= size(MTsat)), error('\nError in MTSAT_exec.m: B1 map dimension different from volume dimension.\n'); end
 
-% Weiskopf, N., Suckling, J., Williams, G., Correia, M.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
+    % check if a T1 map was given in input; if not, compute it
+    % B1 multiplication is factored out from each alpha for better numerical precision
+    R1(Inds) = (0.5.*data.B1map(Inds).^2).*((alpha_T1./TR_T1).*T1w_data(Inds)  - (alpha_PD./TR_PD).*PDw_data(Inds))./(PDw_data(Inds)./alpha_PD - T1w_data(Inds)./alpha_T1);
+    
+    % compute A
+    % B1 multiplication is factored out from each alpha for better numerical precision
+    A = data.B1map(Inds).^(-1).*(TR_PD.*alpha_T1./alpha_PD - TR_T1.*alpha_PD./alpha_T1).*((PDw_data(Inds).*T1w_data(Inds))./(TR_PD.*alpha_T1.*T1w_data(Inds) - TR_T1.*alpha_PD.*PDw_data(Inds)));
+
+    % preallocate and compute MTsat; percent units
+    MTsat(Inds) = 100 * (TR_MT*(alpha_MT*(A./MTw_data(Inds)) - ones(size(MTw_data(Inds)))).*R1(Inds) - (alpha_MT^2)/2);
+
+    % Weiskopf, N., Suckling, J., Williams, G., Correia, M.M., Inkster, B., Tait, R., Ooi, C., Bullmore, E.T., Lutti, A., 2013. Quantitative multi-parameter mapping of R1, PD(*), MT, and R2(*) at 3T: a multi-center validation. Front. Neurosci. 7, 95.
     MTsat = MTsat .* (1 - Alpha_B1)./(1 - Alpha_B1 * data.B1map);
+
+else
+    % check if a T1 map was given in input; if not, compute it
+    R1(Inds) = 0.5*((alpha_T1/TR_T1)*T1w_data(Inds)  - (alpha_PD/TR_PD)*PDw_data(Inds))./(PDw_data(Inds)/alpha_PD - T1w_data(Inds)/alpha_T1);
+
+    % compute A
+    A = (TR_PD*alpha_T1/alpha_PD - TR_T1*alpha_PD/alpha_T1)*((PDw_data(Inds).*T1w_data(Inds))./(TR_PD*alpha_T1*T1w_data(Inds) - TR_T1*alpha_PD*PDw_data(Inds)));
+
+    % preallocate and compute MTsat; percent units
+    MTsat(Inds) = 100 * (TR_MT*(alpha_MT*(A./MTw_data(Inds)) - ones(size(MTw_data(Inds)))).*R1(Inds) - (alpha_MT^2)/2);
+
 end
 
 % Mask

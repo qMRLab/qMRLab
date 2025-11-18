@@ -48,7 +48,7 @@ end
         st           = [ 100	1000 ]; % starting point
         lb            = [  1      1 ]; % lower bound
         ub           = [ 300        10000 ]; % upper bound
-        fx            = [ 0       0 ]; % fix parameters
+        fx            = [ 0       0]; % fix parameters
         
         % Protocol
         Prot  = struct('SEdata',struct('Format',{{'EchoTime (ms)'}},...
@@ -67,7 +67,7 @@ end
         function obj = mono_t2()
             
             obj.options = button2opts(obj.buttons);
-            obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=2','https://osf.io/ns3wx/download?version=1','https://osf.io/kujp3/download?version=2');
+            obj.onlineData_url = obj.getLink('https://osf.io/kujp3/download?version=3','https://osf.io/ns3wx/download?version=2','https://osf.io/kujp3/download?version=3');
         end
         
         function Smodel = equation(obj, x)
@@ -76,6 +76,19 @@ end
             % equation
             Smodel = x.M0.*exp(-obj.Prot.SEdata.Mat./x.T2);
         end
+
+        function obj = UpdateFields(obj)
+            if obj.fx(1)
+                obj.lb(1) = obj.st(1);
+                obj.ub(1) = obj.st(1);
+            end
+            
+            if obj.fx(2)
+                obj.lb(2) = obj.st(2);
+                obj.ub(2) = obj.st(2);
+            end
+             
+         end
         
         function FitResults = fit(obj,data)
             %  Fit data using model equation.
@@ -132,10 +145,11 @@ end
                 options.Display = 'off';
                 
                 if obj.options.OffsetTerm
-                    fit_out = lsqnonlin(fT2,[pdInit t2Init 0],[],[],options);
+                    fit_out = lsqnonlin(fT2,[pdInit t2Init 0],[obj.lb(2), obj.lb(1)],[obj.ub(2), obj.ub(1)],options);
                 else
-                    fit_out = lsqnonlin(fT2,[pdInit t2Init],[],[],options);
+                    fit_out = lsqnonlin(fT2,[pdInit t2Init],[obj.lb(2) obj.lb(1)],[obj.ub(2) obj.ub(1)],options);
                 end
+
                 
                 FitResults.T2 = fit_out(2);
                 FitResults.M0 = fit_out(1);

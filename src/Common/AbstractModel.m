@@ -460,7 +460,7 @@ classdef (Abstract) AbstractModel
                 URL  = urlFull;
             end
 
-            if exist('docException','var') &&  ~isempty(str2double(getenv('ISDOC')))
+            if exist('docException','var') &&  ~isempty(getenv('ISDOC'))
                 try
                     URL = docException;
                 catch
