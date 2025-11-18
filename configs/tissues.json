@@ -1,0 +1,165 @@
+{
+    "sled2001": {
+        "DOI": "https://doi.org/10.1002/mrm.1278",
+        "healthycorticalgreymatter": [
+            {
+                "kf": {
+                    "mean": 2.4,
+                    "std": 0.8
+                },
+                "F": {
+                    "mean": 0.072,
+                    "std": 0.013
+                },
+                "R1f": {
+                    "mean": 0.93,
+                    "std": 0.2
+                },
+                "T2f": {
+                    "mean": 56,
+                    "std": 8
+                },
+                "T2r": {
+                    "mean": 11.1,
+                    "std": 1.3
+                },
+                "R1obs": {
+                    "mean": 0.95,
+                    "std": 0.20
+                },
+                "T2obs": {
+                    "mean": 92,
+                    "std": 3
+                }
+            }
+        ],
+        "healthywhitematter": [
+            {
+                "kf": {
+                    "mean": 4.3,
+                    "std": 1.0
+                },
+                "F": {
+                    "mean": 0.161,
+                    "std": 0.025
+                },
+                "R1f": {
+                    "mean": 1.8,
+                    "std": 0.3
+                },
+                "T2f": {
+                    "mean": 37,
+                    "std": 8
+                },
+                "T2r": {
+                    "mean": 12.3,
+                    "std": 1.6
+                },
+                "R1obs": {
+                    "mean": 1.7,
+                    "std": 0.2
+                },
+                "T2obs": {
+                    "mean": 82,
+                    "std": 4
+                }
+            }
+        ],
+        "nawm": [
+            {
+                "kf": {
+                    "mean": 4.9,
+                    "std": 1.3
+                },
+                "F": {
+                    "mean": 0.15,
+                    "std": 0.02
+                },
+                "R1f": {
+                    "mean": 1.78,
+                    "std": 0.4
+                },
+                "T2f": {
+                    "mean": 38,
+                    "std": 7
+                },
+                "T2r": {
+                    "mean": 11.4,
+                    "std": 1.4
+                },
+                "R1obs": {
+                    "mean": 1.67,
+                    "std": 0.34
+                },
+                "T2obs": {
+                    "mean": 91,
+                    "std": 4
+                }
+            }
+        ],
+        "earlywmlesion": [
+            {
+                "kf": {
+                    "mean": 3.6,
+                    "std": 0.8
+                },
+                "F": {
+                    "mean": 0.12,
+                    "std": 0.02
+                },
+                "R1f": {
+                    "mean": 1.52,
+                    "std": 0.2
+                },
+                "T2f": {
+                    "mean": 43,
+                    "std": 6
+                },
+                "T2r": {
+                    "mean": 10.3,
+                    "std": 1.1
+                },
+                "R1obs": {
+                    "mean": 1.46,
+                    "std": 0.12
+                },
+                "T2obs": {
+                    "mean": 98,
+                    "std": 5
+                }
+            }
+        ],
+        "latewmlesion": [
+            {
+                "kf": {
+                    "mean": 2.7,
+                    "std": 0.7
+                },
+                "F": {
+                    "mean": 0.094,
+                    "std": 0.015
+                },
+                "R1f": {
+                    "mean": 1.26,
+                    "std": 0.3
+                },
+                "T2f": {
+                    "mean": 52,
+                    "std": 9
+                },
+                "T2r": {
+                    "mean": 10.9,
+                    "std": 1.4
+                },
+                "R1obs": {
+                    "mean": 1.23,
+                    "std": 0.22
+                },
+                "T2obs": {
+                    "mean": 120,
+                    "std": 5
+                }
+            }
+        ]
+    }
+}
