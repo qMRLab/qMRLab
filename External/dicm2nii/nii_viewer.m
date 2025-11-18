@@ -607,13 +607,38 @@ end
 guidata(fh, hs); % store handles and data
 
 %% java_dnd based on dndcontrol at matlabcentral/fileexchange/53511
+% Handle JavaFrame deprecation in MATLAB R2021a+
+jFrame = [];
 try % panel has JavaFrame in later matlab
-    jFrame = handle(hs.frame.JavaFrame.getGUIDEView, 'CallbackProperties');
-catch
+    warning('off', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
     warning('off', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
-    jFrame = fh.JavaFrame.getAxisComponent;
+    if isprop(hs.frame, 'JavaFrame') && ~isempty(hs.frame.JavaFrame)
+        jFrame = handle(hs.frame.JavaFrame.getGUIDEView, 'CallbackProperties');
+    end
+    warning('on', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
+    warning('on', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+catch
+    % Try alternative method for older MATLAB versions
+    try
+        warning('off', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+        if isprop(fh, 'JavaFrame') && ~isempty(fh.JavaFrame)
+            jFrame = fh.JavaFrame.getAxisComponent;
+        end
+        warning('on', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+    catch
+        % JavaFrame not available - skip drag and drop functionality
+        jFrame = [];
+    end
 end
-try java_dnd(jFrame, cb('drop')); catch me, disp(me.message); end
+% Only set up drag and drop if JavaFrame is available
+if ~isempty(jFrame)
+    try
+        java_dnd(jFrame, cb('drop'));
+    catch me
+        % Drag and drop not available - not critical for basic functionality
+        % disp(me.message);
+    end
+end
 
 set(fh, 'ResizeFcn', cb('resize'), ... % 'SizeChangedFcn' for later matlab
     'WindowKeyPressFcn', @KeyPressFcn, 'CloseRequestFcn', cb('closeFig'), ...
