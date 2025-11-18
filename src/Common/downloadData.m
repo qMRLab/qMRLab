@@ -23,10 +23,10 @@ catch
 end
 filename = [Model.ModelName '.zip'];
 
-% retry 3 times
-count = 0;
 err_count = 0;
-while count == err_count
+max_attempts = 5;
+download_successful = false;
+while err_count < max_attempts && ~download_successful
     try
         % DOWNLOAD
         if moxunit_util_platform_is_octave
@@ -40,20 +40,82 @@ while count == err_count
                 if ~SUCCESS, error(MESSAGE); end
             end
         else
-            websave(filename,url);
-            disp('Data has been downloaded ...');
+            % Try multiple methods to handle OSF redirects (308 status)
+            download_success = false;
+
+            % Method 1: Try system curl (most reliable for redirects)
+            if isunix || ismac
+                try
+                    cmd = ['curl -L -o ' filename ' "' url '"'];
+                    [STATUS, ~] = system(cmd);
+                    if STATUS == 0 && exist(filename, 'file')
+                        download_success = true;
+                        disp('Data has been downloaded using curl...');
+                    end
+                catch
+                    % curl failed, try next method
+                end
+            end
+
+            % Method 2: Try wget if curl failed
+            if ~download_success && (isunix || ismac)
+                try
+                    cmd = ['wget -O ' filename ' "' url '"'];
+                    [STATUS, ~] = system(cmd);
+                    if STATUS == 0 && exist(filename, 'file')
+                        download_success = true;
+                        disp('Data has been downloaded using wget...');
+                    end
+                catch
+                    % wget failed, try next method
+                end
+            end
+
+            % Method 3: Try MATLAB websave with options
+            if ~download_success
+                try
+                    options = weboptions('Timeout', 60, ...
+                                        'ContentType', 'binary', ...
+                                        'CertificateFilename', '');
+                    websave(filename, url, options);
+                    download_success = true;
+                    disp('Data has been downloaded ...');
+                catch
+                    % websave failed, try final method
+                end
+            end
+
+            % Method 4: Try urlwrite (older but sometimes works better)
+            if ~download_success
+                try
+                    urlwrite(url, filename); %#ok<URLWR>
+                    download_success = true;
+                    disp('Data has been downloaded ...');
+                catch ME_final
+                    % All methods failed
+                    error('AllMethodsFailed', ['Could not download using any method: ' ME_final.message]);
+                end
+            end
         end
-        
+
         % UNZIP
         unzip(filename);
-        err_count=0;
+        download_successful = true;
     catch ME
         err_count = err_count + 1;
-        if err_count>3
-            error(ME.identifier, ['Data cannot be downloaded: ' ME.message]);
+        disp(['Download attempt ' num2str(err_count) ' failed.']);
+        if err_count >= max_attempts
+            error(['Data cannot be downloaded after ' num2str(max_attempts) ' attempts: ' ME.message ...
+                '\n\nTroubleshooting tips:' ...
+                '\n- Check your internet connection' ...
+                '\n- The OSF server may be temporarily unavailable' ...
+                '\n- Try downloading manually from: ' url ...
+                '\n- Check if a firewall is blocking the connection']);
         end
+        % Wait before retry
+        disp('Retrying...');
+        pause(2);
     end
-    count = count + 1;
 end
 
 
@@ -77,8 +139,5 @@ else
         end
     end
 end
-
-
-
 
 end
