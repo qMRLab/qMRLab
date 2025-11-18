@@ -208,8 +208,15 @@ end
             [Tvec,Iorder] = sort(Tvec);
             
             % Plot Fitted Model
+            hold on
+            if isempty(findobj(gcf, 'Type', 'line'))
             plot(Tvec,Smodel(Iorder),'b-')
-            title(sprintf('T2 Fit: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
+            title(sprintf('T2 Fit Model 1: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
+            else
+            plot(Tvec,Smodel(Iorder),'g-')
+            title({get(get(gca, 'title'),'string');sprintf('T2 Fit Model 2: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0)});
+            end
+            hold off
             xlabel('Echo time [ms]','FontSize',12);
             ylabel('Signal','FontSize',12);
             
@@ -220,7 +227,7 @@ end
                 hold on
                 plot(Tvec,data.SEdata(Iorder),'r+')
                 legend('data', 'fitted','Location','best')
-                legend({'Model','Data'})
+                legend({'Model 1','Data','Model 2'})
                 hold off
             end
             

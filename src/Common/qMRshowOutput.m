@@ -1,4 +1,4 @@
-function qMRshowOutput(FitResults,data,Model)
+function qMRshowOutput(FitResults,data,Model, compareFitResults)
 % qMRshowOutput   Show mid-slice fitting maps
 %                 Also show a fit in an off-center voxel to avoid central sulcus in brain
 %                 images
@@ -37,31 +37,64 @@ axis image
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
 if FitResults.Model.voxelwise 
-    
     row = round(size(outputIm,1)/1.7);
     col = round(size(outputIm,2)/1.7);
     slice = round(size(outputIm,3)/2);
  
-    voxel = [row, col, slice]; % check center voxel
-    FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
-    dataVox         = extractvoxel(data,voxel);
+    if nargin>3
+        hdifmap = figure();
+        difmap = double(FitResults.T2(:,:,slice)) - double(compareFitResults.T2(:,:,slice));
+        imshow(imrotate(difmap,90),[]);
+        title('Difference Map: (Model 1 Fit - Model 2 Fit)');
+        colormap('parula');
+        colorbar;
+    end
     
+    hplot = figure();
+
+    while 1
+    voxel = [round(row), round(col), slice]; % check center voxel
+    try
+        FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
+        if nargin >= 4
+            compareFitResultVox = extractvoxel(compareFitResults,voxel,compareFitResults.fields);
+        end
+        dataVox         = extractvoxel(data,voxel);
+    catch exception
+        disp("Error: Voxel out of bounds");
+    end
     % plot a cross on the map at the position of the voxel
     hold on
-    plot(voxel(1),voxel(2),'kx','MarkerSize',20,'LineWidth',5)
+    cross = plot(voxel(1),voxel(2),'kx','MarkerSize',20,'LineWidth',5);
     hold off
     % move windows
-    hplot = figure();
+    figure(hplot);
+    %{
+    this code messes with windows for some reason? plan to remove it
     CurrentPos = get(hplot, 'Position');
     MapPos = get(hmap, 'Position');
     MapPos(1) = max(1,MapPos(1)-round(MapPos(3)/2));
     set(hmap, 'Position', MapPos);
     NewPos = [MapPos(1)+MapPos(3), MapPos(2)+MapPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
     set(hplot, 'Position', NewPos);
+    %}
     
     % plot voxel curve
+    clf(hplot);
     Model.plotModel(FitResultsVox,dataVox)
-    
+    if nargin >= 4
+        Model.plotModel(compareFitResultVox,dataVox);
+    end
+    try
+        strvox = num2str(voxel);
+        subtitle("Voxel: "+strvox,'FontSize',12);
+    catch exception
+        disp("Error: Cannot add subtitle use a newer matlab");
+    end
+    figure(hmap);
+    [row, col] = ginput(1);
+    delete(cross);
+    end
 end
 
 
