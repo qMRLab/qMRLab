@@ -136,13 +136,25 @@ if length(tool)>1
     annotation(tool(3).getHandles.Panels.Image,'textbox','EdgeColor','none','String','I','Position',[0.5 0 0.05 0.05],'Color',[1 1 1]);
 end
 
-% Add Drag and Drop feature
+% Add Drag and Drop feature (handle JavaFrame deprecation in MATLAB R2021a+)
 %             txt_drop = annotation(tool.handles.Panels.Image,'textbox','Visible','off','EdgeColor','none','FontSize',25,'String','DROP!','Position',[0.5 0.5 0.6 0.1],'FitBoxToText','on','Color',[1 0 0]);
-jFrame = get(tool(1).getHandles.fig, 'JavaFrame');
-jAxis = jFrame.getAxisComponent();
-dndcontrol.initJava();
-dndobj = dndcontrol(jAxis);
-dndobj.DropFileFcn = @(s, e)onDrop(tool, s, e); %,'DragEnterFcn',@(s,e) setVis(txt_drop,1),'DragExitFcn',@(s,e) setVis(txt_drop,0));
+try
+    warning('off', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
+    warning('off', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+    fig = tool(1).getHandles.fig;
+    if isprop(fig, 'JavaFrame') && ~isempty(fig.JavaFrame)
+        jFrame = get(fig, 'JavaFrame');
+        jAxis = jFrame.getAxisComponent();
+        dndcontrol.initJava();
+        dndobj = dndcontrol(jAxis);
+        dndobj.DropFileFcn = @(s, e)onDrop(tool, s, e); %,'DragEnterFcn',@(s,e) setVis(txt_drop,1),'DragExitFcn',@(s,e) setVis(txt_drop,0));
+    end
+    warning('on', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
+    warning('on', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+catch
+    % Drag and drop not available in MATLAB R2021a+ - not critical for basic functionality
+    % User can still load files using the Load button
+end
 
 function loadImage(hObject,tool,hdr)
 % unselect button to prevent activation with spacebar
@@ -269,4 +281,3 @@ set(h,'position',[hpos(1)-hext2(1)/2,hpos(2)-hext2(2)/2,hext2(1),hext2(2)]);
 set(ha,'position',[30 30 hext(end-1:end)]);
 disp(char(txt));
 drawnow;
-
