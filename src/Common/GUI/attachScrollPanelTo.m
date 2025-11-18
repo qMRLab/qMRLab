@@ -88,18 +88,59 @@ function [hScrollPanel, hPanel] = attachScrollPanelTo(hObject)
         hPanel = hObject;
     end
 
-    % Ensure that everything is fully-rendered before we proceed 
+    % Ensure that everything is fully-rendered before we proceed
     drawnow
 
     % Place the panel's underlying Java peer in a new dedicated JScrollPanel
-    jPanel = hPanel.JavaFrame.getGUIDEView;
-    jParent = jPanel.getParent;
-    jScrollPanel = javaObjectEDT(javax.swing.JScrollPane(jParent));
-    jScrollPanel.setBorder([]);
-    jScrollPanel.getViewport.setBackground(jPanel.getBackground);
-    [hjScrollPanel, hScrollPanel_] = javacomponent(jScrollPanel, pixelpos, hParent);
-    hjScrollPanel.repaint;
-    hScrollPanel_.Units = 'norm';
+    % Handle JavaFrame deprecation in MATLAB R2019b+ and removal in R2021a+
+    scrollPanelCreated = false;
+    jScrollPanel = [];
+
+    % Try modern approach first (MATLAB R2020a+)
+    try
+        % Suppress JavaFrame deprecation warning
+        warning('off', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
+        warning('off', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+
+        % Attempt to get Java component using deprecated but still functional method
+        if isprop(hPanel, 'JavaFrame') && ~isempty(hPanel.JavaFrame)
+            jPanel = hPanel.JavaFrame.getGUIDEView;
+            jParent = jPanel.getParent;
+            jScrollPanel = javaObjectEDT(javax.swing.JScrollPane(jParent));
+            jScrollPanel.setBorder([]);
+            jScrollPanel.getViewport.setBackground(jPanel.getBackground);
+            [hjScrollPanel, hScrollPanel_] = javacomponent(jScrollPanel, pixelpos, hParent);
+            hjScrollPanel.repaint;
+            hScrollPanel_.Units = 'norm';
+            scrollPanelCreated = true;
+        end
+
+        warning('on', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
+        warning('on', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+    catch ME
+        % JavaFrame not available or failed - use fallback
+        warning('off', 'MATLAB:ui:javaframe:PropertyToBeRemoved');
+        warning('off', 'MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+        scrollPanelCreated = false;
+    end
+
+    % Fallback for MATLAB 2021+ where JavaFrame is fully removed
+    if ~scrollPanelCreated
+        % Create a simple container panel as a placeholder
+        % This maintains API compatibility but without scroll functionality
+        hScrollPanel_ = hPanel;
+
+        % Show warning only once per MATLAB session
+        persistent warningShown;
+        if isempty(warningShown)
+            warning('qMRLab:attachScrollPanelTo:NoJavaFrame', ...
+                ['Scroll panel functionality is limited in MATLAB R2021a and newer.\n', ...
+                 'JavaFrame has been removed. The panel will be displayed without scroll bars.\n', ...
+                 'Consider using the panel without scrolling or migrating to App Designer.']);
+            warningShown = true;
+        end
+    end
+
     drawnow
 
     %{
@@ -110,23 +151,33 @@ function [hScrollPanel, hPanel] = attachScrollPanelTo(hObject)
     jScrollPanel.getParent.setOpaque(0);
     jScrollPanel.getParent.getParent.setOpaque(0);
     %}
-    % Link the visibility of the scroll-panel and internal panel, so that both
-    % become visible/non-visible together
-    hLink = linkprop([hPanel,hScrollPanel_],'Visible');
-    setappdata(hPanel,'attachScrollPanelToLink',hLink);
 
-    % Add a Viewport property to the returned hScrollPanel object
-    addprop(hScrollPanel_, 'Viewport');
-    hScrollPanel_.Viewport = jScrollPanel.getViewport;
+    % Only configure scroll-specific features if scroll panel was created
+    if scrollPanelCreated
+        % Link the visibility of the scroll-panel and internal panel, so that both
+        % become visible/non-visible together
+        hLink = linkprop([hPanel,hScrollPanel_],'Visible');
+        setappdata(hPanel,'attachScrollPanelToLink',hLink);
 
-    % Add a ViewOffset property to the returned hScrollPanel object
-    hProp = addprop(hScrollPanel_, 'ViewOffset');
-    %hProp = findprop(hScrollPanel_, 'ViewOffset');
-    hProp.GetMethod = @getViewOffset; %viewOffset = getViewOffset(hScrollPanel)
-    hProp.SetMethod = @setViewOffset; %setViewOffset(hScrollPanel, viewOffset)
+        % Add a Viewport property to the returned hScrollPanel object
+        addprop(hScrollPanel_, 'Viewport');
+        hScrollPanel_.Viewport = jScrollPanel.getViewport;
 
-    % Set the callback function to repaint the scroll-pane when needed
-    hScrollPanel_.SizeChangedFcn = @repaintScrollPane;
+        % Add a ViewOffset property to the returned hScrollPanel object
+        hProp = addprop(hScrollPanel_, 'ViewOffset');
+        %hProp = findprop(hScrollPanel_, 'ViewOffset');
+        hProp.GetMethod = @getViewOffset; %viewOffset = getViewOffset(hScrollPanel)
+        hProp.SetMethod = @setViewOffset; %setViewOffset(hScrollPanel, viewOffset)
+
+        % Set the callback function to repaint the scroll-pane when needed
+        hScrollPanel_.SizeChangedFcn = @repaintScrollPane;
+    else
+        % For non-scrollable panels, just link visibility
+        if hPanel ~= hScrollPanel_
+            hLink = linkprop([hPanel,hScrollPanel_],'Visible');
+            setappdata(hPanel,'attachScrollPanelToLink',hLink);
+        end
+    end
 
     if nargout
         hScrollPanel = hScrollPanel_;
@@ -154,19 +205,35 @@ end
 % Repaint function whenever the panel resizes
 function repaintScrollPane(hScrollPanel, varargin)
     drawnow
-    jScrollPanel = hScrollPanel.JavaPeer;
-    offsetX = jScrollPanel.getHorizontalScrollBar.getValue;
-    offsetY = jScrollPanel.getVerticalScrollBar.getValue;
-    jOffsetPoint = java.awt.Point(offsetX, offsetY);
-    jViewport = jScrollPanel.getViewport;
-    jViewport.setViewPosition(jOffsetPoint);
-    jScrollPanel.repaint;
+    % Only repaint if JavaPeer is available (MATLAB < R2021a)
+    if isprop(hScrollPanel, 'JavaPeer') && ~isempty(hScrollPanel.JavaPeer)
+        try
+            jScrollPanel = hScrollPanel.JavaPeer;
+            offsetX = jScrollPanel.getHorizontalScrollBar.getValue;
+            offsetY = jScrollPanel.getVerticalScrollBar.getValue;
+            jOffsetPoint = java.awt.Point(offsetX, offsetY);
+            jViewport = jScrollPanel.getViewport;
+            jViewport.setViewPosition(jOffsetPoint);
+            jScrollPanel.repaint;
+        catch
+            % Silently ignore if JavaPeer operations fail
+        end
+    end
 end
 
 % Getter method for the dynamic hScroll.ViewOffset property
 function viewOffset = getViewOffset(hScrollPanel, varargin)
-    jPoint = hScrollPanel.Viewport.getViewPosition;
-    viewOffset = [jPoint.getX, jPoint.getY];
+    % Return [0,0] if Viewport is not available (MATLAB R2021a+)
+    if isprop(hScrollPanel, 'Viewport') && ~isempty(hScrollPanel.Viewport)
+        try
+            jPoint = hScrollPanel.Viewport.getViewPosition;
+            viewOffset = [jPoint.getX, jPoint.getY];
+        catch
+            viewOffset = [0, 0];
+        end
+    else
+        viewOffset = [0, 0];
+    end
 end
 
 % Setter method for the dynamic hScroll.ViewOffset property
@@ -174,7 +241,16 @@ function setViewOffset(hScrollPanel, viewOffset)
     if ~isnumeric(viewOffset) || numel(viewOffset)~=2 || any(isnan(viewOffset) | isinf(viewOffset) | viewOffset<0)
         error('YMA:attachScrollPanelTo:ViewOffset','ViewOffset must be a 2-element array of positive integers');
     end
-    jPoint = java.awt.Point(viewOffset(1), viewOffset(2));
-    hScrollPanel.Viewport.setViewPosition(jPoint);
-    hScrollPanel.JavaPeer.repaint;
+    % Only set view position if Viewport and JavaPeer are available (MATLAB < R2021a)
+    if isprop(hScrollPanel, 'Viewport') && ~isempty(hScrollPanel.Viewport) && ...
+       isprop(hScrollPanel, 'JavaPeer') && ~isempty(hScrollPanel.JavaPeer)
+        try
+            jPoint = java.awt.Point(viewOffset(1), viewOffset(2));
+            hScrollPanel.Viewport.setViewPosition(jPoint);
+            hScrollPanel.JavaPeer.repaint;
+        catch
+            % Silently ignore if Java operations fail
+            % (warning suppressed to avoid repetitive messages)
+        end
+    end
 end
