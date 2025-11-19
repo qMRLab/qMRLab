@@ -10,7 +10,7 @@ f=figure('Position', [100 100 700 400], 'Resize', 'Off','Name','Histogram');
 MatlabVer = cellfun(@str2double, strsplit(version,'.'));
 MatlabIsOlderThanR2014b = MatlabVer(1)<8 || (MatlabVer(1)==8 && MatlabVer(2)<4);
 if MatlabIsOlderThanR2014b
-    Maskall = logical(Maskall);
+    Maskall = uint8(Maskall);
 else
     h_plot = subplot(1,2,2); % Use subplot to give space for GUI elements
     h_plot.OuterPosition = [0.3 0 0.7 1.0];
