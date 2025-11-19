@@ -663,8 +663,10 @@ set(hObject, 'Enable', 'on');
 f=figure('Position', [100 100 700 400], 'Resize', 'Off','Name','Histogram');
 
 Map = handles.tool.getImage;
-MatlabVer = version;
-if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+
+MatlabVer = cellfun(@str2double, strsplit(version,'.'));
+MatlabIsOlderThanR2014b = MatlabVer(1)<8 || (MatlabVer(1)==8 && MatlabVer(2)<4);
+if MatlabIsOlderThanR2014b
     Maskall = uint8(handles.tool.getMask);
 else
     Maskall = handles.tool.getMask(1);
@@ -684,8 +686,7 @@ for ic = 1:length(values)
     data = reshape(Map(ii),1,nVox);
     
     % Matlab < R2014b
-    MatlabVer = version;
-    if str2double(MatlabVer(1))<8 || (str2double(MatlabVer(1))==8 && str2double(MatlabVer(3))<4)
+    if MatlabIsOlderThanR2014b
         defaultNumBins = max(5,round(length(data)/100));
         hist(data, defaultNumBins);
         % Label axes
