@@ -43,7 +43,7 @@ classdef MethodBrowser < handle
             obj.NbItems = length(InputsName);
             obj.ItemsList = BrowserSet.empty(0, obj.NbItems);  % Pre-allocate empty array
             
-            Location = [0.02, 0.7];
+            Location = [0.025, 0.645];
             for ii = 1:obj.NbItems
                 headerii = strcmp(header.input(:,1), InputsName{ii}) | ...
                           strcmp(header.input(:,1), ['(' InputsName{ii} ')']) | ...
@@ -103,13 +103,13 @@ classdef MethodBrowser < handle
             obj.WorkDir_TextArea.Visible = 'on';
             
             obj.WorkDir_BrowseBtn = uibutton(obj.Parent, 'push');
-            obj.WorkDir_BrowseBtn.Position = [140, topMargin, 60, 25];
+            obj.WorkDir_BrowseBtn.Position = [130, topMargin, 55, 25];
             obj.WorkDir_BrowseBtn.Text = 'Browse';
             obj.WorkDir_BrowseBtn.ButtonPushedFcn = @(src,event) obj.WD_BrowseBtn_callback();
             obj.WorkDir_BrowseBtn.Visible = 'on';
             
             obj.WorkDir_FileNameArea = uieditfield(obj.Parent, 'text');
-            obj.WorkDir_FileNameArea.Position = [210, topMargin, 200, 25];
+            obj.WorkDir_FileNameArea.Position = [190, topMargin, 280, 25];
             obj.WorkDir_FileNameArea.Value = '';
             obj.WorkDir_FileNameArea.BackgroundColor = [1, 1, 1];
             obj.WorkDir_FileNameArea.FontColor = [0, 0, 0];
@@ -117,13 +117,13 @@ classdef MethodBrowser < handle
             
             % Study ID components
             obj.StudyID_TextArea = uilabel(obj.Parent);
-            obj.StudyID_TextArea.Position = [420, topMargin, 60, 25];
+            obj.StudyID_TextArea.Position = [480, topMargin, 60, 25];
             obj.StudyID_TextArea.Text = 'Study ID:';
             obj.StudyID_TextArea.HorizontalAlignment = 'left';
             obj.StudyID_TextArea.Visible = 'on';
             
             obj.StudyID_TextID = uieditfield(obj.Parent, 'text');
-            obj.StudyID_TextID.Position = [490, topMargin, 80, 25];
+            obj.StudyID_TextID.Position = [540, topMargin, 80, 25];
             obj.StudyID_TextID.Value = '';
             obj.StudyID_TextID.BackgroundColor = [1, 1, 1];
             obj.StudyID_TextID.FontColor = [0, 0, 0];
@@ -131,7 +131,7 @@ classdef MethodBrowser < handle
             
             % Download button
             obj.DownloadBtn = uibutton(obj.Parent, 'push');
-            obj.DownloadBtn.Position = [580, topMargin, 120, 25];
+            obj.DownloadBtn.Position = [680, topMargin, 120, 25];
             obj.DownloadBtn.Text = 'Download example';
             obj.DownloadBtn.BackgroundColor = [0, 0.65, 1];
             obj.DownloadBtn.FontColor = [1, 1, 1];
