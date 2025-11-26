@@ -166,7 +166,7 @@ classdef BrowserSet
                     if NbIm == 1
                         File = imread(obj.FullFile);
                     else
-                        for ImNo = 1:NbIm
+                        for ImNo = NbIm:-1:1
                             File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);
                         end
                     end
