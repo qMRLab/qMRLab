@@ -20,6 +20,10 @@ classdef BrowserSet
 
     end
 
+    properties (Constant, Hidden=true)
+      SupportedExtensions = {'*.mat', '*.nii', '*.nii.gz', '*.img', '*.tiff', '*.tif'}
+    end
+
     properties(Hidden = true)
         NameText;
         BrowseBtn;
@@ -148,12 +152,12 @@ classdef BrowserSet
             obj.FullFile = get(obj.FileBox, 'String');
             tmp = [];
             if ~isempty(obj.FullFile)
-                [~,~,ext] = fileparts(obj.FullFile);
+                [~,~,ext] = fileparts2(obj.FullFile);
                 if strcmp(ext,'.mat')
                     mat = load(obj.FullFile);
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
-                elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img')
+                elseif ismember(ext, {'.nii','.nii.gz', '.img'})
                     intrp = 'linear';
                     [tmp, hdr] = nii_load(obj.FullFile,0,intrp);
                 elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
@@ -168,8 +172,13 @@ classdef BrowserSet
                     end
                     tmp = File;
                 else
+                    if ismember(['*' ext], obj.SupportedExtensions)
+                        error([ext, ' should not be on BrowserSet.SupportedExtensions, ' ...
+                            'please report this to the developers'])
+                    end
                     if exist(obj.FullFile,'file')==2
-                        warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                        warndlg(['file extension ' ext ' is not supported. Choose one of: ' ...
+                            strjoin(obj.SupportedExtensions)])
                     end
                 end
             end
@@ -212,7 +221,8 @@ classdef BrowserSet
             DataName = get(obj.NameText, 'String');
             %Check for files and set fields automatically
             for ii = 1:length(fileList)
-                if strfind(fileList{ii}(1:end-4), DataName{1})
+                [~, basename] = fileparts2(fileList{ii});
+                if strfind(basename, DataName{1})
                     obj.FullFile = fullfile(Path,fileList{ii});
                     set(obj.FileBox, 'String', obj.FullFile);
                     warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
@@ -242,8 +252,8 @@ classdef BrowserSet
                 if ~isempty(obj.FullFile) && ~isequal(obj.FullFile, 0)
                     defPath = obj.FullFile;
                 end
-                [FileName, PathName] = uigetfile(...
-                    {'*.nii;*.nii.gz;*.mat';'*.img'}, ...
+                [FileName, PathName] = uigetfile( ...
+                    strjoin(obj.SupportedExtensions,';'), ...
                     'Select file', defPath);
             else
                 PathName = '';
@@ -294,4 +304,16 @@ classdef BrowserSet
 
     end
 
+end
+
+function [filepath, name, ext] = fileparts2(filename)
+% Tweak fileparts to recognize compound extensions e.g. '.nii.gz'
+
+    knownCompoundEndings = {'.gz'};
+
+    [filepath, name, ext] = fileparts(filename);
+    if ismember(ext, knownCompoundEndings)
+        [~, name, extSuffix] = fileparts(name);
+        ext = [extSuffix, ext];
+    end
 end
