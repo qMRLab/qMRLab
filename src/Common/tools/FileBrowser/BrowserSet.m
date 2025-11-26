@@ -152,7 +152,7 @@ classdef BrowserSet
             obj.FullFile = get(obj.FileBox, 'String');
             tmp = [];
             if ~isempty(obj.FullFile)
-                [~,~,ext] = fileparts2(obj.FullFile);
+                [~,~,ext] = obj.fileparts2(obj.FullFile);
                 if strcmp(ext,'.mat')
                     mat = load(obj.FullFile);
                     mapName = fieldnames(mat);
@@ -221,8 +221,10 @@ classdef BrowserSet
             DataName = get(obj.NameText, 'String');
             %Check for files and set fields automatically
             for ii = 1:length(fileList)
-                [~, basename] = fileparts2(fileList{ii});
-                if strfind(basename, DataName{1})
+                % TODO: confirm whether we want to match on the
+                %   full path, or only on the basename
+                [relpath, basename, ~] = obj.fileparts2(fileList{ii});
+                if strfind(fullfile(relpath, basename), DataName{1})
                     obj.FullFile = fullfile(Path,fileList{ii});
                     set(obj.FileBox, 'String', obj.FullFile);
                     warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
@@ -301,19 +303,18 @@ classdef BrowserSet
             DrawPlot(handles,obj.NameID{1,1});
         end
 
-
+        function [filepath, name, ext] = fileparts2(filename)
+        % Tweaked fileparts to recognize compound extensions e.g. '.nii.gz'
+        
+            knownCompoundEndings = {'.gz'};
+        
+            [filepath, name, ext] = fileparts(filename);
+            if ismember(ext, knownCompoundEndings)
+                [~, name, extSuffix] = fileparts(name);
+                ext = [extSuffix, ext];
+            end
+        end
     end
 
 end
 
-function [filepath, name, ext] = fileparts2(filename)
-% Tweak fileparts to recognize compound extensions e.g. '.nii.gz'
-
-    knownCompoundEndings = {'.gz'};
-
-    [filepath, name, ext] = fileparts(filename);
-    if ismember(ext, knownCompoundEndings)
-        [~, name, extSuffix] = fileparts(name);
-        ext = [extSuffix, ext];
-    end
-end
