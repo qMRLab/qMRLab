@@ -229,23 +229,22 @@ classdef BrowserSet
         %------------------------------------------------------------------
         function BrowseBtn_callback(obj,info,InputOptional,FileName)
 
-            origdir = pwd;
             if ~exist('FileName','var')
                 obj.FullFile = get(obj.FileBox, 'String');
-                W = evalin('base','whos');
-                pathExist = ismember('DataPath',{W(:).name});
-                if pathExist && ~(isnumeric(evalin('base','DataPath')))
-                    dataDir = evalin('base','DataPath'); 
-                    if exist(dataDir,'dir')==7
-                        cd(dataDir);
+
+                defPath = '';
+                if evalin('base','exist(''DataPath'', ''var'')')
+                    defPath = evalin('base','DataPath');
+                    if isnumeric(defPath) || exist(defPath,'dir') ~= 7
+                        defPath = '';
                     end
                 end
-                if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file');
-                else
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file',obj.FullFile);
+                if ~isempty(obj.FullFile) && ~isequal(obj.FullFile, 0)
+                    defPath = obj.FullFile;
                 end
-                cd(origdir);
+                [FileName, PathName] = uigetfile(...
+                    {'*.nii;*.nii.gz;*.mat';'*.img'}, ...
+                    'Select file', defPath);
             else
                 PathName = '';
             end
