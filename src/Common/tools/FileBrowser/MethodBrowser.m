@@ -1,60 +1,81 @@
-classdef MethodBrowser
-    % MethodBrowser  - Manage fields in the file Browser per methods
-    %   P.Beliveau 2017 - setup
-    %   * All Methods have in common the WorkDir Button and File Box and
-    %       the StudyID file Box
-    %   * All other file managements uicontrols are contained in the
-    %       ItemsList
+classdef MethodBrowser < handle
+    % MethodBrowser  - App Designer version of MethodBrowser
+    %   Manages file browser fields per method in App Designer
     
     properties
-        Parent;
-        ItemsList; % is a list of the class BrowserSet objects
+        Parent; % App Designer panel
+        ItemsList; % List of BrowserSetAD objects
         NbItems;
         MethodID = 'unassigned';
     end
-    properties(Hidden = true)
-        % common to all methods, work directory and studyID
+    
+    properties(Access = private)
+        % App Designer components
         InfoBtnWD;
         WorkDir_TextArea;
         WorkDir_BrowseBtn;
         WorkDir_FileNameArea;
-        WorkDir_FullPath;
         StudyID_TextArea;
         StudyID_TextID;
         DownloadBtn;
-        WarnBut_DataConsistensy;
+        WarnBut_DataConsistency;
+        
+        WorkDir_FullPath = '';
     end
     
     methods
         %------------------------------------------------------------------
         % constructor
-        function obj = MethodBrowser(Parent,Model)
-            % example: figure(1); clf; MB = MethodBrowser(1,dti);
+        function obj = MethodBrowser(Parent, Model)
             obj.Parent = Parent;
             obj.MethodID = Model.ModelName;
             InputsName = Model.MRIinputs;
             InputsOptional = Model.get_MRIinputs_optional;
+            
+            % Parse header information
             header = iqmr_header.header_parse(which(Model.ModelName));
             if isempty(header.input), header.input = {''}; end
             
-            Location = [0.02, 0.7];
+            % Create components
+            obj.createCommonComponents(Model, header);
             
-            obj.NbItems = size(InputsName,2);
+            % Create input items
+            obj.NbItems = length(InputsName);
+            obj.ItemsList = BrowserSet.empty(0, obj.NbItems);  % Pre-allocate empty array
             
-            obj.ItemsList = repmat(BrowserSet(),1,obj.NbItems);
-            
-            for ii=1:obj.NbItems
-                headerii = strcmp(header.input(:,1),InputsName{ii}) | strcmp(header.input(:,1),['(' InputsName{ii} ')']) | strcmp(header.input(:,1),['((' InputsName{ii} '))']);
-                if max(headerii), headerii = header.input{find(headerii,1,'first'),2}; else, headerii=''; end
+            Location = [0.025, 0.645];
+            for ii = 1:obj.NbItems
+                headerii = strcmp(header.input(:,1), InputsName{ii}) | ...
+                          strcmp(header.input(:,1), ['(' InputsName{ii} ')']) | ...
+                          strcmp(header.input(:,1), ['((' InputsName{ii} '))']);
+                if any(headerii)
+                    headerii = header.input{find(headerii,1,'first'),2};
+                else
+                    headerii = '';
+                end
                 obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, headerii);
                 Location = Location + [0.0, -0.15];
             end
             
-            % ADD WARNING BUTTON
-            obj.WarnBut_DataConsistensy = uicontrol(obj.Parent, 'Style', 'Text','units', 'normalized','BackgroundColor',[0.94 0.94 0.94],'ForegroundColor',[1 0 0],'FontSize',10,...
-                'Position', [0,0,1,0.08], 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
+            % Create warning label
+            obj.WarnBut_DataConsistency = uilabel(obj.Parent);
+            obj.WarnBut_DataConsistency.Position = [10, 10, 500, 30];
+            obj.WarnBut_DataConsistency.FontColor = [1, 0, 0];
+            obj.WarnBut_DataConsistency.FontSize = 10;
+            obj.WarnBut_DataConsistency.Visible = 'off';
+            obj.WarnBut_DataConsistency.Text = '';
+        end
+        
+        %------------------------------------------------------------------
+        % Create common components (Work Dir, Study ID, etc.)
+        function createCommonComponents(obj, Model, header)
+            % Get parent container size for proper positioning
+            parentPos = obj.Parent.Position; % [x, y, width, height] in pixels
             
-            % setup work directory and study ID display
+            % Calculate positions relative to parent size
+            topMargin = parentPos(4) - 60; % Position from top with margin
+            
+            % Info button for Work Directory
             Info = {'1. Path to data (Optional): ',...
                 '    FitResults will be saved to this directory',...
                 ['    Default: ' pwd],...
@@ -64,199 +85,215 @@ classdef MethodBrowser
                 '',...
                 '2. Study ID (Optional):',...
                 '    Suffix for the FitResults file'};
-            Info = sprintf('%s\n',Info{:});
-            obj.InfoBtnWD = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized','BackgroundColor',[0.94 0.94 0.94], ...
-                'String', '?','FontWeight','bold','TooltipString',sprintf('%s\n',Info),'Position',[0.02,0.85,0.02,0.1],'Callback',@(hObj,eventdata,handles) helpdlg(Info));
-            obj.WorkDir_FullPath = '';
-            obj.WorkDir_TextArea = uicontrol(obj.Parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Path data:', 'HorizontalAlignment', 'left', 'Position', [0.05,0.85,0.1,0.1],'FontSize', 0.6);
-            obj.WorkDir_FileNameArea = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
-                'Position', [0.27,0.85,0.3,0.1],'FontSize', 0.6);
-            obj.WorkDir_BrowseBtn = uicontrol(obj.Parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Browse', 'Position', [0.16,0.85,0.1,0.1], 'FontSize', 0.6, ...
-                'Callback', {@(src, event) WD_BrowseBtn_callback(obj)});
-            obj.StudyID_TextArea = uicontrol(obj.Parent, 'Style', 'text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                'String', 'Study ID:', 'Position', [0.58,0.85,0.1,0.1], 'FontSize', 0.6);
-            obj.StudyID_TextID = uicontrol(obj.Parent, 'Style', 'edit','units', 'normalized', 'fontunits', 'normalized',...
-                'Position', [0.69,0.85,0.10,0.1],'FontSize', 0.6);
-            obj.DownloadBtn = uicontrol(obj.Parent, 'Style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized',...
-                'Position', [0.80,0.85,0.19,0.10],'FontSize', 0.6, 'String', 'Download example', 'BackGroundColor', [0, 0.65, 1],  ...
-                'Callback', {@(src, event) DownloadBtn_callback(obj)});
-        end % end constructor
+            InfoText = sprintf('%s\n',Info{:});
+            
+            obj.InfoBtnWD = uibutton(obj.Parent, 'push');
+            obj.InfoBtnWD.Position = [20, topMargin, 20, 25];
+            obj.InfoBtnWD.Text = '?';
+            obj.InfoBtnWD.FontWeight = 'bold';
+            obj.InfoBtnWD.Tooltip = InfoText;
+            obj.InfoBtnWD.ButtonPushedFcn = @(src,event) helpdlg(InfoText);
+            obj.InfoBtnWD.Visible = 'on';
+            
+            % Work Directory components
+            obj.WorkDir_TextArea = uilabel(obj.Parent);
+            obj.WorkDir_TextArea.Position = [50, topMargin, 80, 25];
+            obj.WorkDir_TextArea.Text = 'Path data:';
+            obj.WorkDir_TextArea.HorizontalAlignment = 'left';
+            obj.WorkDir_TextArea.Visible = 'on';
+            
+            obj.WorkDir_BrowseBtn = uibutton(obj.Parent, 'push');
+            obj.WorkDir_BrowseBtn.Position = [130, topMargin, 55, 25];
+            obj.WorkDir_BrowseBtn.Text = 'Browse';
+            obj.WorkDir_BrowseBtn.ButtonPushedFcn = @(src,event) obj.WD_BrowseBtn_callback();
+            obj.WorkDir_BrowseBtn.Visible = 'on';
+            
+            obj.WorkDir_FileNameArea = uieditfield(obj.Parent, 'text');
+            obj.WorkDir_FileNameArea.Position = [190, topMargin, 280, 25];
+            obj.WorkDir_FileNameArea.Value = '';
+            obj.WorkDir_FileNameArea.BackgroundColor = [1, 1, 1];
+            obj.WorkDir_FileNameArea.FontColor = [0, 0, 0];
+            obj.WorkDir_FileNameArea.Visible = 'on';
+            
+            % Study ID components
+            obj.StudyID_TextArea = uilabel(obj.Parent);
+            obj.StudyID_TextArea.Position = [480, topMargin, 60, 25];
+            obj.StudyID_TextArea.Text = 'Study ID:';
+            obj.StudyID_TextArea.HorizontalAlignment = 'left';
+            obj.StudyID_TextArea.Visible = 'on';
+            
+            obj.StudyID_TextID = uieditfield(obj.Parent, 'text');
+            obj.StudyID_TextID.Position = [540, topMargin, 80, 25];
+            obj.StudyID_TextID.Value = '';
+            obj.StudyID_TextID.BackgroundColor = [1, 1, 1];
+            obj.StudyID_TextID.FontColor = [0, 0, 0];
+            obj.StudyID_TextID.Visible = 'on';
+            
+            % Download button
+            obj.DownloadBtn = uibutton(obj.Parent, 'push');
+            obj.DownloadBtn.Position = [680, topMargin, 120, 25];
+            obj.DownloadBtn.Text = 'Download example';
+            obj.DownloadBtn.BackgroundColor = [0, 0.65, 1];
+            obj.DownloadBtn.FontColor = [1, 1, 1];
+            obj.DownloadBtn.ButtonPushedFcn = @(src,event) obj.DownloadBtn_callback();
+            obj.DownloadBtn.Visible = 'on';
+            
+            % Force immediate update
+            drawnow;
+        end
         
         %------------------------------------------------------------------
-        % Visible
+        % Visibility control
         function Visible(obj, Visibility)
-            for i=1:obj.NbItems
+            for i = 1:obj.NbItems
                 obj.ItemsList(i).Visible(Visibility);
             end
-            set(obj.InfoBtnWD, 'Visible', Visibility);
-            set(obj.WorkDir_BrowseBtn, 'Visible', Visibility);
-            set(obj.WorkDir_TextArea, 'Visible', Visibility);
-            set(obj.WorkDir_BrowseBtn, 'Visible', Visibility);
-            set(obj.WorkDir_FileNameArea, 'Visible', Visibility);
-            set(obj.StudyID_TextArea, 'Visible', Visibility);
-            set(obj.StudyID_TextID, 'Visible', Visibility);
-            set(obj.DownloadBtn, 'Visible', Visibility);
-            % Warning button is unvisible if no warning
-            if isempty(get(obj.WarnBut_DataConsistensy,'TooltipString')), Visibility = 'off'; end
-            set(obj.WarnBut_DataConsistensy, 'Visible', Visibility);
-        end
-        
-        %------------------------------------------------------------------
-        % IsMethod
-        function Res = IsMethodID(obj, NameID)
-            if strcmp(obj.MethodID, NameID)
-                Res = 1;
+            
+            obj.InfoBtnWD.Visible = Visibility;
+            obj.WorkDir_BrowseBtn.Visible = Visibility;
+            obj.WorkDir_TextArea.Visible = Visibility;
+            obj.WorkDir_FileNameArea.Visible = Visibility;
+            obj.StudyID_TextArea.Visible = Visibility;
+            obj.StudyID_TextID.Visible = Visibility;
+            obj.DownloadBtn.Visible = Visibility;
+            
+            % Warning label only visible if there's a warning
+            if isempty(obj.WarnBut_DataConsistency.Text)
+                obj.WarnBut_DataConsistency.Visible = 'off';
             else
-                Res = 0;
+                obj.WarnBut_DataConsistency.Visible = Visibility;
             end
+            
+            % Force refresh
+            drawnow;
         end
         
         %------------------------------------------------------------------
-        % GetMethod
+        % Check if this browser matches a method ID
+        function Res = IsMethodID(obj, NameID)
+            Res = strcmp(obj.MethodID, NameID);
+        end
+        
+        %------------------------------------------------------------------
+        % Get method ID
         function Res = GetMethod(obj)
             Res = obj.MethodID;
         end
         
         %------------------------------------------------------------------
-        % DataLoad - load the images using setappdata
+        % Load data
         function DataLoad(obj)
-            for i=1:obj.NbItems
+            for i = 1:obj.NbItems
                 obj.ItemsList(i).DataLoad;
             end
         end
         
         %------------------------------------------------------------------
-        % SetFullPath
+        % Set full path and load files
         function setFullPath(obj)
             Path = obj.WorkDir_FullPath;
-            if Path == 0
+            if isequal(Path, 0)
                 errordlg('Invalid path');
                 Path = '';
                 return;
             end
+            
             dirData = dir(Path);
             dirIndex = [dirData.isdir];
             fileList = {dirData(~dirIndex).name}';
             
-            % manage protocol and fit options
+            % Manage protocol and fit options
             Method = getappdata(0,'Method');
             for ii = 1:length(fileList)
-                if ~~strfind(fileList{ii}, 'Protocol')
-                    ProtLoad(fullfile(Path,fileList{ii}));
+                if contains(fileList{ii}, 'Protocol')
+                    ProtLoad(fullfile(Path, fileList{ii}));
                     Model = getappdata(0,'Model');
                     Custom_OptionsGUI(Model, gcf);
                 end
             end
             
-            % clear previous data
+            % Clear previous data
             Data = getappdata(0,'Data');
-            if isfield(Data,Method)
+            if isfield(Data, Method)
                 fields = fieldnames(Data.(Method));
-                for ff=1:length(fields)
-                    Data.(Method).(fields{ff})=[];
+                for ff = 1:length(fields)
+                    Data.(Method).(fields{ff}) = [];
                 end
             end
-            if isfield(Data,[Method '_hdr'])
-                Data = rmfield(Data,[Method '_hdr']);
+            if isfield(Data, [Method '_hdr'])
+                Data = rmfield(Data, [Method '_hdr']);
             end
             setappdata(0,'Data',Data);
             
             Model = getappdata(0,'Model');
             
-            % TODO:
-            if not(isfield(Model.options,'BIDS'))
-                % Manage each data items
-                for ii=1:obj.NbItems
-                    obj.ItemsList(ii).setPath(Path, fileList,0);
-                end
-                
-            else
-            
-            if Model.options.BIDS    
-              disp('Looking for BIDS');  
-            else
-              disp('Annoying function goes here');  
+            % Manage each data item
+            for ii = 1:obj.NbItems
+                obj.ItemsList(ii).setPath(Path, fileList, 0);
             end
             
-            end
-            
-            % warning
+            % Check for warnings
             Data = getappdata(0, 'Data');
             ErrMsg = Model.sanityCheck(Data.(class(Model)));
-            hWarnBut = findobj(obj.Parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
             if ~isempty(ErrMsg)
-                set(hWarnBut,'String',ErrMsg)
-                set(hWarnBut,'TooltipString',ErrMsg)
-                set(hWarnBut,'Visible','on')
+                obj.WarnBut_DataConsistency.Text = ErrMsg;
+                obj.WarnBut_DataConsistency.Tooltip = ErrMsg;
+                obj.WarnBut_DataConsistency.Visible = 'on';
             else
-                set(hWarnBut,'String','')
-                set(hWarnBut,'TooltipString','')
-                set(hWarnBut,'Visible','off')
+                obj.WarnBut_DataConsistency.Text = '';
+                obj.WarnBut_DataConsistency.Tooltip = '';
+                obj.WarnBut_DataConsistency.Visible = 'off';
             end
-
-
-        end % end SetFullPath
-        
+        end
         
         %------------------------------------------------------------------
-        % get working directory name
+        % Get working directory
         function WD = getWD(obj)
-            WD = get(obj.WorkDir_FileNameArea, 'String');
+            WD = obj.WorkDir_FileNameArea.Value;
         end
         
         %------------------------------------------------------------------
-        % get working directory name
-        function WD = setWD(obj,WD)
-            obj.WD_BrowseBtn_callback(WD)
+        % Set working directory
+        function setWD(obj, WD)
+            obj.WorkDir_FileNameArea.Value = WD;
+            obj.WorkDir_FullPath = WD;
+            obj.setFullPath();
         end
         
         %------------------------------------------------------------------
-        % get study ID name
+        % Get study ID
         function StudyID = getStudyID(obj)
-            StudyID = '';
-            obj.StudyID_TextID = get(obj.StudyID_TextID, 'String');
-            StudyID = obj.StudyID_TextID;
+            StudyID = obj.StudyID_TextID.Value;
         end
         
         %------------------------------------------------------------------
-        % get study ID name
-        function setStudyID(obj,StudyID)
-            set(obj.StudyID_TextID, 'String',StudyID);
+        % Set study ID
+        function setStudyID(obj, StudyID)
+            obj.StudyID_TextID.Value = StudyID;
         end
         
         %------------------------------------------------------------------
-        % getFileName
-        % get the filename for the specified ID data
+        % Get file names
         function FileName = getFileName(obj)
-            for i=1:obj.NbItems
-                fN = get(obj.ItemsList(i).NameText,'String');
-                FileName.(fN{1}) = obj.ItemsList(i).GetFileName;
+            for i = 1:obj.NbItems
+                fN = obj.ItemsList(i).GetFieldName();
+                FileName.(fN) = obj.ItemsList(i).GetFileName();
             end
         end
         
         %------------------------------------------------------------------
-        % setFileName
-        % set the filename
-        function setFileName(obj,fieldName, FileName)
-            % setFileName(obj,fieldName, FileName)
-            list_file = get([obj.ItemsList.NameText]','String');
-            if iscell(list_file{1}), list_file = cellfun(@(c) c{1}, list_file,'UniformOutput',0); end
-            indexfieldName = strcmp(list_file,fieldName);
-            if sum(indexfieldName)
-                obj.ItemsList(indexfieldName).BrowseBtn_callback(obj.ItemsList(indexfieldName),FileName)
+        % Set file name
+        function setFileName(obj, fieldName, FileName)
+            for i = 1:obj.NbItems
+                if strcmp(obj.ItemsList(i).GetFieldName(), fieldName)
+                    obj.ItemsList(i).SetFileName(FileName);
+                    break;
+                end
             end
         end
         
-        
-        
-        
-        
-        
         %------------------------------------------------------------------
-        % -- WD_BrowseBtn_callback
-        %   Callback function for the working directory
+        % Work Directory Browse callback
         function WD_BrowseBtn_callback(obj, WorkDir_FullPath)
             if ~exist('WorkDir_FullPath','var')
                 WorkDir_FullPath = uigetdir;
@@ -264,27 +301,47 @@ classdef MethodBrowser
             end
             
             if WorkDir_FullPath == 0
-                set(obj.WorkDir_FileNameArea,'String','');
+                obj.WorkDir_FileNameArea.Value = '';
                 warndlg(['Current folder is set to: ' pwd]);
                 return;
             end
             
             obj.WorkDir_FullPath = WorkDir_FullPath;
-            set(obj.WorkDir_FileNameArea,'String',obj.WorkDir_FullPath);
+            obj.WorkDir_FileNameArea.Value = obj.WorkDir_FullPath;
             obj.setFullPath();
-            
         end
         
+        %------------------------------------------------------------------
+        % Download example callback
         function DownloadBtn_callback(obj)
-            set(findobj('Name','qMRLab'),'pointer', 'watch')
+            % Set cursor to watch
+            set(findobj('Name','qMRLab'),'pointer', 'watch');
+            
             Model = getappdata(0,'Model');
             qMRgenBatch(Model);
-            WD_BrowseBtn_callback(obj, [pwd filesep  Model.ModelName '_data']);
-            set(findobj('Name','qMRLab'),'pointer', 'arrow')
-
+            obj.WD_BrowseBtn_callback([pwd filesep Model.ModelName '_data']);
+            
+            % Restore cursor
+            set(findobj('Name','qMRLab'),'pointer', 'arrow');
         end
         
+        %------------------------------------------------------------------
+        % DEBUG: Check component visibility and positions
+        function debugComponents(obj)
+            fprintf('MethodBrowser debug for %s:\n', obj.MethodID);
+            fprintf('Parent panel size: [%d, %d, %d, %d]\n', obj.Parent.Position);
+            
+            fprintf('WorkDir_FileNameArea - Visible: %s, Position: [%d, %d, %d, %d]\n', ...
+                obj.WorkDir_FileNameArea.Visible, obj.WorkDir_FileNameArea.Position);
+            fprintf('StudyID_TextID - Visible: %s, Position: [%d, %d, %d, %d]\n', ...
+                obj.StudyID_TextID.Visible, obj.StudyID_TextID.Position);
+            fprintf('DownloadBtn - Visible: %s, Position: [%d, %d, %d, %d]\n', ...
+                obj.DownloadBtn.Visible, obj.DownloadBtn.Position);
+            
+            for i = 1:obj.NbItems
+                fprintf('Item %d (%s):\n', i, obj.ItemsList(i).NameID);
+                obj.ItemsList(i).debugVisibility();
+            end
+        end
     end
-    
-    
 end
