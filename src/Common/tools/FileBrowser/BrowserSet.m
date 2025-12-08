@@ -1,23 +1,27 @@
 classdef BrowserSet
-    % BrowserSet - manage the file browser interface
-    %   P.Beliveau 2017 - setup
-    %   * manage the standard set of interface items in the browser
-    %   * Properties:
-    %       uicontrols:     - NameText
-    %                       - BrowserButton
-    %                       - FileBox
-    %                       - ViewButton
-    %       vars: - NameID: identifies the method
-    %             - FullFile: the path and file name displayed
-    %                           and chosen by user
-
+% BrowserSet - manages file browser interface items
+%
+%   Properties:
+%       uicontrols:
+%           - NameText
+%           - BrowserButton
+%           - FileBox
+%           - ViewButton
+%       vars:
+%           - NameID: identifies the method
+%           - FullFile(*): filepath(s) chosen by the user
+%
+%   (*) FullFile is a dependent property that sets/gets the path from
+%       FileBox.String.
+%
+%   P.Beliveau 2017 - setup
+%   M.Herrerias 2025 - support for multiple files
 
     properties
-
         NameID;         % Method
-        FullFile;
-
-
+    end
+    properties (Dependent)
+        FullFile;      % gets/sets FileBox
     end
 
     properties (Constant, Hidden=true)
@@ -78,7 +82,7 @@ classdef BrowserSet
                 cur_loc = strfind(cur_m,[filesep 'src' filesep 'Common']);
                 im = imread([cur_m(1:cur_loc-1) filesep 'src' filesep 'Common' filesep 'icons' filesep 'plus.png']);
                 obj.BrowseBtn.CData = im;
-                
+
                 Position = [Location + [0.19, 0], 0.05, 0.11];
                 obj.ClearBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
                     'String', '', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
@@ -89,10 +93,7 @@ classdef BrowserSet
                 Position = [Location + [0.25, 0], 0.58, 0.1];
                 obj.FileBox = uicontrol(obj.parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
                     'BackgroundColor', [1 1 1]);
-                
-                if InputOptional && ~isempty(info), set(obj.FileBox,'string',info); end
-                if InputOptional && isempty(info), set(obj.FileBox,'string','OPTIONAL'); end
-                if ~InputOptional, set(obj.FileBox,'string',['REQUIRED ' info]); end
+                obj.ResetFileBox(info, InputOptional);
 
                 % add View button
                 Position = [Location + [0.87, 0], 0.10, 0.1];
@@ -105,16 +106,25 @@ classdef BrowserSet
                 set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj,info,InputOptional)});
                 set(obj.ClearBtn,'Callback', {@(src, event)BrowserSet.ClearBtn_callback(obj,info,InputOptional)});
                 set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
-                
+
                 if strcmp(InputName,'Mask')
                     delete(obj.ViewBtn);
                 end
             end % testing varargin
+
+            if isempty(obj.FileBox)
+                % required to store FullFile
+                obj.FileBox = uicontrol();
+            end
         end % constructor end
 
-    end
+        function ResetFileBox(obj, info, InputOptional)
+            set(obj.FileBox,'string',info)
+            if InputOptional && ~isempty(info), set(obj.FileBox,'string',info); end
+            if InputOptional && isempty(info), set(obj.FileBox,'string','OPTIONAL'); end
+            if ~InputOptional, set(obj.FileBox,'string',['REQUIRED ' info]); end
+        end
 
-    methods
         %------------------------------------------------------------------
         % -- VISIBLE
         %       Visibility should be set to 'on' or 'off'
@@ -130,18 +140,36 @@ classdef BrowserSet
         end
 
         %------------------------------------------------------------------
-        % -- GetFileName
-        function FileName = GetFileName(obj)
-            FileName = get(obj.FileBox, 'string');
-            if ~(exist(FileName,'file')==2 || exist(FileName,'dir')==7)
-                   FileName = char.empty;
+        % -- get/set FullFile
+        %   FullFile works just as an interface to parse FileBox
+
+        function obj = set.FullFile(obj,val)
+            if iscellstr(val) || isstring(val)
+                val = strjoin(val,';');
             end
+            set(obj.FileBox, 'String', val);
         end
 
+        function paths = get.FullFile(obj)
 
-    end
+            text = get(obj.FileBox, 'String');
+            if isempty(text)
+                paths = char.empty;
+                return
+            end
 
-    methods
+            % expand lists of files / patterns separated by ';'
+            % expand patterns, e.g. /some/file_*.ext
+            glob = @(p) arrayfun(@(d) fullfile(d.folder, d.name), dir(p),'unif',0);
+            expanded = cellfun(glob, strsplit(text,';'), 'unif',0);
+            paths = cat(1,expanded{:})';
+
+            if isempty(paths)
+                paths = char.empty;
+            elseif isscalar(paths)
+                paths = paths{1};
+            end
+        end
 
         %------------------------------------------------------------------
         % -- DATA LOAD
@@ -149,45 +177,29 @@ classdef BrowserSet
         function DataLoad(obj,warnmissing)
             if ~exist('warnmissing','var'), warnmissing=true; end
             set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
-            obj.FullFile = get(obj.FileBox, 'String');
+
+            paths = obj.FullFile;
+
             tmp = [];
-            if ~isempty(obj.FullFile)
-                [~,~,ext] = obj.fileparts2(obj.FullFile);
-                if strcmp(ext,'.mat')
-                    mat = load(obj.FullFile);
-                    mapName = fieldnames(mat);
-                    tmp = mat.(mapName{1});
-                elseif ismember(ext, {'.nii','.nii.gz', '.img'})
-                    intrp = 'linear';
-                    [tmp, hdr] = nii_load(obj.FullFile,0,intrp);
-                elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
-                    TiffInfo = imfinfo(obj.FullFile);
-                    NbIm = numel(TiffInfo);
-                    if NbIm == 1
-                        File = imread(obj.FullFile);
+            hdr = struct.empty;
+            if ~isempty(paths) && ~isequal(paths,0)
+
+                % try
+                    if ischar(paths)
+                        [tmp, hdr] = BrowserSet.LoadImage(paths);
                     else
-                        for ImNo = NbIm:-1:1
-                            File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);
-                        end
+                        [tmp, hdr] = LoadComplex(paths{:});
                     end
-                    tmp = File;
-                else
-                    if ismember(['*' ext], obj.SupportedExtensions)
-                        error([ext, ' should not be on BrowserSet.SupportedExtensions, ' ...
-                            'please report this to the developers'])
-                    end
-                    if exist(obj.FullFile,'file')==2
-                        warndlg(['file extension ' ext ' is not supported. Choose one of: ' ...
-                            strjoin(obj.SupportedExtensions)])
-                    end
-                end
+                % catch err
+                %     errordlg(err.message,'Failed to load data')
+                % end
             end
 
             Data = getappdata(0, 'Data');
             Model = getappdata(0,'Model');
             Data.(class(Model)).(obj.NameID{1}) = double(tmp);
 
-            if exist('hdr','var')
+            if ~isempty(hdr)
                 Data.([class(Model) '_hdr']) = hdr;
             elseif isfield(Data,[class(Model) '_hdr'])
                 Data = rmfield(Data,[class(Model) '_hdr']);
@@ -219,19 +231,24 @@ classdef BrowserSet
             % clear previous file paths
             set(obj.FileBox, 'String', '');
             DataName = get(obj.NameText, 'String');
-            %Check for files and set fields automatically
+
+            % match all files that contain NameText
+            candidates = {};
             for ii = 1:length(fileList)
                 % TODO: confirm whether we want to match on the
                 %   full path, or only on the basename
                 [relpath, basename, ~] = obj.fileparts2(fileList{ii});
                 if strfind(fullfile(relpath, basename), DataName{1})
-                    obj.FullFile = fullfile(Path,fileList{ii});
-                    set(obj.FileBox, 'String', obj.FullFile);
-                    warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
-                    obj.DataLoad(warnmissing);
+                    candidates{end+1} = fullfile(Path, fileList{ii}); %#ok<AGROW>
                 end
             end
+            if isempty(candidates), return; end
 
+            % this will trigger set.FullFile
+            obj.FullFile = candidates;
+
+            warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
+            obj.DataLoad(warnmissing);
         end
     end
 
@@ -242,8 +259,6 @@ classdef BrowserSet
         function BrowseBtn_callback(obj,info,InputOptional,FileName)
 
             if ~exist('FileName','var')
-                obj.FullFile = get(obj.FileBox, 'String');
-
                 defPath = '';
                 if evalin('base','exist(''DataPath'', ''var'')')
                     defPath = evalin('base','DataPath');
@@ -251,33 +266,36 @@ classdef BrowserSet
                         defPath = '';
                     end
                 end
-                if ~isempty(obj.FullFile) && ~isequal(obj.FullFile, 0)
-                    defPath = obj.FullFile;
+
+                files = obj.FullFile;
+                if ~isempty(files)
+                    if iscell(files)
+                        defPath = fileparts(files{1});
+                    else
+                        defPath = files;
+                    end
                 end
                 [FileName, PathName] = uigetfile( ...
-                    strjoin(obj.SupportedExtensions,';'), ...
-                    'Select file', defPath);
+                    strjoin(BrowserSet.SupportedExtensions,';'), ...
+                    'Select file', defPath, 'MultiSelect','on');
             else
                 PathName = '';
             end
-            if FileName
+            if ischar(FileName)
                 obj.FullFile = fullfile(PathName,FileName);
+            elseif iscell(FileName)
+                obj.FullFile = cellfun(@(f) fullfile(PathName,f), FileName, 'unif', 0);
+            elseif isequal(FileName, 0)
+                obj.ResetFileBox(info, InputOptional);
             else
-                if InputOptional && ~isempty(info), obj.FullFile=info; end
-                if InputOptional && isempty(info),  obj.FullFile='OPTIONAL'; end
-                if ~InputOptional, obj.FullFile=['REQUIRED ' info]; end
+                error('You really should not be here')
             end
-            set(obj.FileBox,'String',obj.FullFile);
-
-            DataLoad(obj);
+            obj.DataLoad();
         end
 
         function ClearBtn_callback(obj,info,InputOptional)
-            set(obj.FileBox,'String','');
-            DataLoad(obj);
-            if InputOptional && ~isempty(info), set(obj.FileBox,'string',info); end
-            if InputOptional && isempty(info), set(obj.FileBox,'string','OPTIONAL'); end
-            if ~InputOptional, set(obj.FileBox,'string',['REQUIRED ' info]); end
+            obj.ResetFileBox(info, InputOptional);
+            obj.DataLoad();
         end
 
         %------------------------------------------------------------------
@@ -291,10 +309,15 @@ classdef BrowserSet
             for ff = 1:length(fieldstmp)
                 if isempty(Data.(fieldstmp{ff}))
                     Data = rmfield(Data,fieldstmp{ff});
+                    continue
+                end
+                if ~isreal(Data.(fieldstmp{ff}))
+                    Data.([fieldstmp{ff} 'Phase']) = angle(Data.(fieldstmp{ff}))*180/pi;
+                    Data.(fieldstmp{ff}) = abs(Data.(fieldstmp{ff}));
                 end
             end
             Data.fields = fieldnames(Data);
-            
+
             try
                 Data.hdr=dat.([class(getappdata(0,'Model')) '_hdr']);
             end
@@ -305,16 +328,61 @@ classdef BrowserSet
 
         function [filepath, name, ext] = fileparts2(filename)
         % Tweaked fileparts to recognize compound extensions e.g. '.nii.gz'
-        
+
             knownCompoundEndings = {'.gz'};
-        
+
             [filepath, name, ext] = fileparts(filename);
             if ismember(ext, knownCompoundEndings)
                 [~, name, extSuffix] = fileparts(name);
                 ext = [extSuffix, ext];
             end
         end
+
+        function [data, hdr] = LoadImage(file)
+        % Read individual files of known types
+        %   Return a numeric array DATA and/or a metadata structure HDR
+        %   For composite datasets (e.g. magnitude + phase) see DataLoad
+        %
+        % TODO: Should this be merged with/replaced by tools/LoadImage?
+        % See also: LoadComplex
+
+            assert(ischar(file) && ~isempty(file))
+            if exist(file,'file')~=2
+                error(['File not found: ', file])
+            end
+
+            hdr = struct.empty;
+
+            [~,~,ext] = BrowserSet.fileparts2(file);
+            switch ext
+            case '.mat'
+                mat = load(file);
+                mapName = fieldnames(mat);
+                data = mat.(mapName{1});
+            case {'.nii','.nii.gz', '.img'}
+                intrp = 'linear';
+                [data, hdr] = nii_load(file,0,intrp);
+            case {'.tiff', '.tif'}
+                TiffInfo = imfinfo(file);
+                NbIm = numel(TiffInfo);
+                if NbIm == 1
+                    File = imread(file);
+                else
+                    for ImNo = NbIm:-1:1
+                        File(:,:,ImNo) = imread(file, ImNo);
+                    end
+                end
+                data = File;
+            otherwise
+                if ismember(['*' ext], BrowserSet.SupportedExtensions)
+                    error([ext, ' should not be on BrowserSet.SupportedExtensions, ' ...
+                        'please report this to the developers'])
+                end
+                error('qMRLab:BrowserSet:extension', ...
+                    ['File extension ' ext ' is not supported. Choose one of: ' ...
+                    strjoin(BrowserSet.SupportedExtensions)])
+            end
+        end
     end
 
 end
-
