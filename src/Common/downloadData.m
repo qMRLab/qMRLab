@@ -1,4 +1,6 @@
 function dataPath = downloadData(Model,path)
+% Downlaod example data for a given qMRLab model
+
 if ~exist('path','var') || isempty(path)
 h = msgbox('Please select a destination to create example folder.','qMRLab');
 waitfor(h);
@@ -81,19 +83,28 @@ while err_count < max_attempts && ~download_successful
                     download_success = true;
                     disp('Data has been downloaded ...');
                 catch
-                    % websave failed, try final method
+                    % websave failed, try next method
                 end
             end
 
-            % Method 4: Try urlwrite (older but sometimes works better)
+            % Method 4: Try custom redirect handler
+            if ~download_success
+                try
+                    downloadWithRedirects(url, filename);
+                    download_success = true;
+                catch
+                    % custom redirect handler failed, try final method
+                end
+            end
+
+            % Method 5: Try urlwrite (older but sometimes works better)
             if ~download_success
                 try
                     urlwrite(url, filename); %#ok<URLWR>
-                    download_success = true;
                     disp('Data has been downloaded ...');
                 catch ME_final
                     % All methods failed
-                    error('AllMethodsFailed', ['Could not download using any method: ' ME_final.message]);
+                    error(['Could not download using any method: ' ME_final.message]);
                 end
             end
         end
@@ -118,9 +129,6 @@ while err_count < max_attempts && ~download_successful
     end
 end
 
-
-
-
 oldname = [path filesep filename(1:end-4)];
 if (exist(oldname,'dir')~=0)
     newname = [path filesep filename(1:end-4) '_data'];
@@ -140,4 +148,59 @@ else
     end
 end
 
+end
+
+function downloadWithRedirects(url, outputFile, maxRedirects)
+% Download a file following HTTP redirects manually
+%   WEBSAVE struggles with the chain 301 -> 308 -> 302 required
+%   for some OSF paths.
+
+    if nargin < 3
+        maxRedirects = 10;
+    end
+
+    currentUrl = url;
+    redirectCount = 0;
+
+    while redirectCount < maxRedirects
+        request = matlab.net.http.RequestMessage('GET');
+        uri = matlab.net.URI(currentUrl);
+        options = matlab.net.http.HTTPOptions('ConnectTimeout', 60);
+
+        try
+            response = send(request, uri, options);
+        catch ME
+            error('Failed to connect to %s: %s', currentUrl, ME.message);
+        end
+
+        statusCode = response.StatusCode;
+
+        if statusCode == 200
+        % Success! Write the file
+
+            fid = fopen(outputFile, 'wb');
+            fwrite(fid, response.Body.Data, 'uint8');
+            fclose(fid);
+
+            finfo = dir(outputFile);
+            fprintf('Download successful: %d bytes\n', finfo.bytes);
+            return;
+
+        elseif statusCode == 301 || statusCode == 302 || statusCode == 307 || statusCode == 308
+        % Follow redirect
+
+            locationHeader = response.Header([response.Header.Name] == "Location");
+            if isempty(locationHeader)
+                error('Redirect response without Location header');
+            end
+
+            currentUrl = string(locationHeader.Value);
+            redirectCount = redirectCount + 1;
+            fprintf('Redirect: %s -> %s\n', url, currentUrl);
+
+        else
+            error('Unexpected status code: %d', statusCode);
+        end
+    end
+    error('Too many redirects (max %d)', maxRedirects);
 end
