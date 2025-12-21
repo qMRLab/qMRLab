@@ -118,7 +118,11 @@ end
 
 % --- Executes on button press in SimOptProtUpdate.
 function SimOptProtUpdate_Callback(hObject, eventdata, handles)
-set(findobj('Name','SimOptProt'),'pointer', 'watch'); drawnow;
+
+h = findobj('Name','SimOptProt');
+set(h,'pointer', 'watch'); drawnow;
+pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+
 % Read Table
 Model_new = getappdata(0,'Model');
 if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
@@ -142,7 +146,7 @@ else
     Opt = button2opts(Model.Sim_Single_Voxel_Curve_buttons);
     Model.Sim_Single_Voxel_Curve(xvalues(1,:),Opt,1);
 end
-set(findobj('Name','SimOptProt'),'pointer', 'arrow'); drawnow;
+drawnow;
 
 
 

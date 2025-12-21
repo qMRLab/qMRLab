@@ -45,7 +45,10 @@ end
 
 % --- Executes just before Sim_Single_Voxel_Curve_GUI is made visible.
 function Sim_Single_Voxel_Curve_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
-set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
+
+h = findobj('Name','qMRLab');
+set(h,'pointer', 'watch'); drawnow;
+pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
 
 Model = varargin{1}; 
 setappdata(0,'Model',Model);
@@ -97,7 +100,7 @@ if ~isfield(handles,'opened')
 end
 % Update handles structure
 guidata(hObject, handles);
-set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
+drawnow;
 
 % --- Executes on button press in UpdatePlot.
 function UpdatePlot_Callback(hObject, eventdata, handles)
@@ -105,7 +108,11 @@ Model_new = getappdata(0,'Model');
 if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
     handles.Model = Model_new;
 end
-set(findobj('Name','Single Voxel Curve'),'pointer', 'watch'); drawnow;
+
+h = findobj('Name','Single Voxel Curve');
+set(h,'pointer', 'watch'); drawnow;
+pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+
 if isgraphics(handles.SimCurveAxe)
     axes(handles.SimCurveAxe)
 end
@@ -138,7 +145,7 @@ for ii=1:sum(~handles.Model.fx)
     xtable{ll(ii),5}=F(ii)*100;
 end
 set(handles.ParamTable,'Data',xtable);
-set(findobj('Name','Single Voxel Curve'),'pointer', 'arrow'); drawnow;
+drawnow;
 
 % --- Executes on button press in Options panel.
 function ModelSimOptions_Callback(handles)

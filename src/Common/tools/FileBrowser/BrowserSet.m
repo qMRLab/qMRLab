@@ -144,7 +144,11 @@ classdef BrowserSet
         %   load data from file and make accessible to qMRLab fct
         function DataLoad(obj,warnmissing)
             if ~exist('warnmissing','var'), warnmissing=true; end
-            set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
+
+            h = findobj('Name','qMRLab');
+            set(h,'pointer', 'watch'); drawnow;
+            pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+
             obj.FullFile = get(obj.FileBox, 'String');
             tmp = [];
             if ~isempty(obj.FullFile)
@@ -185,7 +189,7 @@ classdef BrowserSet
             end
 
             setappdata(0, 'Data', Data);
-            set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
+            drawnow;
 
             if warnmissing
                 ErrMsg = Model.sanityCheck(Data.(class(Model)));
