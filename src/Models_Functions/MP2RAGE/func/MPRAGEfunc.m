@@ -68,7 +68,7 @@ if normalsequence
     end;
     for k=1:(nimages)
         cosalfaE1(k)=cos(fliprad(k))*(E_1);
-        oneminusE1(k)=1-E_1;
+        % oneminusE1(k)=1-E_1; NOT USED!
         sinalfa(k)=sin(fliprad(k));
     end;
     
@@ -86,7 +86,7 @@ if waterexcitation
     
     TD(1)=inversiontimes(1)-TA_bef;
     E_TD(1)=exp(-TD(1)./T1s);
-    TD(nimages+1)=MPRAGE_tr-inversiontimes(nimages)-T_aft;
+    TD(nimages+1)=MPRAGE_tr-inversiontimes(nimages)-TA_aft;
     E_TD(nimages+1)=exp(-TD(nimages+1)./T1s);
     
     if nimages>1
@@ -98,7 +98,7 @@ if waterexcitation
     
     for k=1:(nimages)
         cosalfaE1(k)=(cos(fliprad(k)/2)).^2*(E_1A*E_1B)-(sin(fliprad(k)/2)).^2*(E_2A*E_1B);
-        oneminusE1(k)=(1-E_1A)*cos(fliprad(k)/2)*E_1B+(1-E_1B);
+        % oneminusE1(k)=(1-E_1A)*cos(fliprad(k)/2)*E_1B+(1-E_1B); NOT USED!
         sinalfa(k)=sin( fliprad(k) / 2).*cos(fliprad(k)/2).*(E_1A+E_2A);
     end;
     
