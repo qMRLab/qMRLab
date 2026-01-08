@@ -143,7 +143,8 @@ Nparam = length(Model.xnames);
 
 % FitOptTable related conditional block
 
-if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
+% See #524 issue for why this condition is commented out
+% if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise ~= 0)
 
     FitOptTable(:,1) = Model.xnames(:);
 
@@ -176,7 +177,7 @@ if ~isprop(Model, 'voxelwise') || (isprop(Model, 'voxelwise') && Model.voxelwise
         warning('Problem with adding TooltipString');
 
     end
-end
+% end
 
 % MODEL PROPERTY ADAPTIVE DYNAMIC SUBPANELS
 % ======================================================================
