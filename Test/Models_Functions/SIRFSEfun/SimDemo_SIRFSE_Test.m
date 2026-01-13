@@ -17,7 +17,7 @@ classdef (TestTags = {'SIRFSE', 'Demo', 'Integration'}) SimDemo_SIRFSE_Test < ma
 
     methods (Test)
         function testFittedParamsNearInputValues(testCase)
-            run([testCase.qmrlabPath, '/Models_Functions/SIRFSEfun/SimDemo_SIRFSE.m'])
+            run([testCase.qmrlabPath, '/src/Models_Functions/SIRFSEfun/SimDemo_SIRFSE.m'])
 
             inputParams  = Sim.Param;
             outputParams = SimCurveResults;

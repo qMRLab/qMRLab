@@ -74,3 +74,5 @@ else % OCTAVE
     end
 end
 end
+
+addpath(genpath(fullfile(matlabroot,'toolbox','plotly')),'-end');

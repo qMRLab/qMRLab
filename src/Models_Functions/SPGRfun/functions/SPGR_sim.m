@@ -1,4 +1,4 @@
-function [mz, Mevol] = SPGR_sim(Sim, Prot, wait)
+function [mz, Mevol, Mz0] = SPGR_sim(Sim, Prot, wait)
 % SPGR_sim Simulation function of off-resonance SPGR for given MT parameters and
 % sequence of Delta and Alpha
 % Output: normalized mz
@@ -49,14 +49,22 @@ for kk = 1:nA
     % Repeat acquisition to achieve steady state
     for ii = 1:nP
         
+        if ii == 70
+            disp('ok now')
+        end
         % Spoiling
         M0(1:2) = 0;
         
+        M0_prepulse = M0(3);
         % MT RF pulse
         Param.G = G;
         [~, M_temp] = ode23(@(t,M) Bloch(t,M,Param,Pulse), [0 Prot.Tm], M0);
         M0 = M_temp(end,:);
         
+        M0_postpulse= M0(3);
+        %disp("MTsat = " + num2str(sind(acosd(M0_postpulse/M0_prepulse))*100))
+        disp("MTsat = " + num2str((1-cosd(acosd(M0_postpulse/M0_prepulse)))*100))
+
         % Free precession Ts
         [~, M_temp] = ode23(@(t,M) Bloch(t,M,Param), [0 Prot.Ts], M0);
         M0 = M_temp(end,:);
@@ -78,10 +86,16 @@ for kk = 1:nA
         % Spoiling
         M0(1:2) = 0;
         
+        M0_prepulse = M0(3);
+
         % Read pulse
         Param.G = G0;
         [~, M_temp] = ode23(@(t,M) Bloch(t,M,Param,Rpulse), [0 Prot.Tp], M0);
         M0 = M_temp(end,:);
+        
+        M0_postpulse= M0(3);
+        
+        disp("FA_exc = " + num2str(acosd(M0_postpulse/M0_prepulse)))
         
         % Free precession Tr
         [~, M_temp] = ode23(@(t,M) Bloch(t,M,Param), [0 Prot.Tr], M0);

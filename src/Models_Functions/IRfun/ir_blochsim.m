@@ -18,7 +18,7 @@ function [Msig,MLong]=ir_blochsim(alpha, beta, TI, T1, T2, TE, TR, crushFlag, pa
 %   inc: Phase spoiling increment in degrees.
 %
 % Outputs:
-%   MLong: Longitudinal magnetization at time TI (prior to excitation pulse).
+%   MLong: Longitudinal magnetization at time TI (prior to excitatiion pulse).
 %   Msig: Complex signal produced by the transverse magnetization at time TE after excitation.
 %
 

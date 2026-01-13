@@ -158,7 +158,7 @@ end
         options = struct(); % structure filled by the buttons. Leave empty in the code
 
         % Simulations Default options
-        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Block equation'},'Reset Mz',false};
+        Sim_Single_Voxel_Curve_buttons = {'SNR',50,'Method',{'Analytical equation','Bloch sim'},'Reset Mz',false};
         Sim_Sensitivity_Analysis_buttons = {'# of run',5};
         Sim_Optimize_Protocol_buttons = {'# of volumes',5,'Population size',100,'# of migrations',100};
     end
@@ -243,7 +243,7 @@ end
             end
         end
 
-        function mz = equation(obj, x, Opt)
+        function [mz, Mz0] = equation(obj, x, Opt)
             if nargin<3, Opt=button2opts(obj.Sim_Single_Voxel_Curve_buttons); end
             x = struct2mat(x,obj.xnames);
             x = x+eps;
@@ -252,7 +252,7 @@ end
             end
             Protocol = GetProt(obj);
             switch Opt.Method
-                case 'Block equation'
+                case 'Bloch sim'
                     Sim.Param.lineshape = obj.options.Lineshape;
                     Sim.Param.M0f       = 1;
                     Sim.Opt.Reset       = Opt.ResetMz;
@@ -260,10 +260,11 @@ end
                     Sim.Opt.SStol       = 1e-4;
                     Protocol.Npulse = Protocol.MTpulse.Npulse;
                     if isempty(getenv('ISDISPLAY')) || str2double(getenv('ISDISPLAY')), ISDISPLAY=1; else ISDISPLAY=0; end
-                    mz = SPGR_sim(Sim, Protocol, ISDISPLAY);
+                    [mz, ~, Mz0] = SPGR_sim(Sim, Protocol, ISDISPLAY);
                 case 'Analytical equation'
                     SimCurveResults = SPGR_SimCurve(Sim.Param, Protocol, obj.GetFitOpt, 1);
                     mz = SimCurveResults.curve;
+                    Mz0 = 1;
             end
         end
 
@@ -313,10 +314,11 @@ end
                 'FontSize',10);
         end
 
-        function FitResults = Sim_Single_Voxel_Curve(obj, x, Opt,display)
+        function [FitResults, Smodel, Mz0] = Sim_Single_Voxel_Curve(obj, x, Opt, display)
             % Example: obj.Sim_Single_Voxel_Curve(obj.st,button2opts(obj.Sim_Single_Voxel_Curve_buttons))
             if ~exist('display','var'), display = 1; end
-            Smodel = equation(obj, x, Opt);
+            [Smodel, Mz0] = equation(obj, x, Opt);
+            FitResults=[];
             data.MTdata = addNoise(Smodel, Opt.SNR, 'mt');
             FitResults = fit(obj,data);
             delete(findall(0,'Tag','Msgbox_Lookup Table empty'))
@@ -373,12 +375,13 @@ end
 
         function plotProt(obj)
             Prot = GetProt(obj);
-            subplot(3,1,1)
-            plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'+')
+            subplot(4,1,1)
+            plot(obj.Prot.MTdata.Mat(:,2),obj.Prot.MTdata.Mat(:,1),'.k', 'MarkerSize', 20)
+            ylim([0 max(obj.Prot.MTdata.Mat(:,1))*1.2])
             ylabel('Angle')
             xlabel('offset (Hz)')
             title('MT parameter (FA, Offset)')
-            subplot(3,1,2)
+            subplot(4,1,2)
             angles = Prot.Angles(1);
             offsets = Prot.Offsets(1);
             shape = Prot.MTpulse.shape;
@@ -387,9 +390,11 @@ end
             Pulse = GetPulse(angles, offsets, Trf, shape, PulseOpt);
             ViewPulse(Pulse,'b1');
             title('MTpulse shape')
-            subplot(3,1,3)
-            imshow qmt_spgr.png
-            title('Pulse sequence diagram')
+            subplot(4,1,[3,4])
+            im_location = which('qmt_spgr.png');
+            imshow(im_location, 'InitialMagnification', 200)
+            title('Pulse sequence diagram') 
+            set(gcf,'units','normalized','outerposition',[0 0 0.5 1])
         end
 
         function Prot = GetProt(obj)

@@ -8,7 +8,7 @@
 %
 % Example
 %  qMRgenBatch(inversion_recovery)
-%
+%op
 % Written by: Agah Karakuzu, 2017
 
 function api = qMRgenBatch(Model,path,nodwnld)
