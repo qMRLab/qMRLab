@@ -7,6 +7,7 @@ classdef downloadData_Test < matlab.unittest.TestCase
 
     properties (TestParameter)
         method = {'auto', 'curl', 'wget', 'websave', 'request', 'urlwrite'};
+        methodRealData = {'auto', 'request'}
     end
 
     methods (TestClassSetup)
@@ -42,7 +43,7 @@ classdef downloadData_Test < matlab.unittest.TestCase
             testCase.verifyTrue(exist(file, 'file') == 2);
         end
 
-        function test_model_auto_download(testCase)
+        function test_model_demo_download(testCase, methodRealData)
             % Test the full downloadData function with a model's demo data
 
             % downloadData will cd into the demo folder. Make sure we go back.
@@ -53,7 +54,7 @@ classdef downloadData_Test < matlab.unittest.TestCase
             % Using a mock structure here to avoid dependency on the actual model.
             mdl = struct('ModelName', 'b1_dam', 'onlineData_url', 'https://osf.io/mw3sq/download?version=3');
 
-            dataPath = downloadData(mdl, testCase.path, 'auto', 3);
+            dataPath = downloadData(mdl, testCase.path, methodRealData, 3);
 
             testCase.verifyTrue(exist(dataPath,'dir') == 7, 'Failed to find data directory');
             fitResultsPath = fullfile(fileparts(dataPath),'FitResults','FitResults.mat');
