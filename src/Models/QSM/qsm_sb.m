@@ -478,10 +478,10 @@ end
 
 
     methods(Access = protected)
-        function obj = qMRpatch(obj,loadedStruct, version)
-            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        function obj = qMRpatch(obj, loadedStruct)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct);
             % 2.0.10
-            if checkanteriorver(version,[2 0 10])
+            if checkanteriorver(loadedStruct.version, [2 0 10])
                 % Update buttons for joker conversion from ###/*** to ##/**
                 obj.buttons = cellfun(@(x) strrep(x,'###','##'),obj.buttons,'uni',0);
                 obj.buttons = cellfun(@(x) strrep(x,'***','**'),obj.buttons,'uni',0);

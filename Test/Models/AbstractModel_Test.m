@@ -1,7 +1,7 @@
 classdef (TestTags = {'Unit'}) AbstractModel_Test < matlab.unittest.TestCase
 
     properties
-        tempFileName = 'tmp.mat'
+        tempFileName = fullfile(tempdir, 'tmp.qmrlab.mat')
         modelObject
     end
     
@@ -51,22 +51,14 @@ classdef (TestTags = {'Unit'}) AbstractModel_Test < matlab.unittest.TestCase
         end
         
         function test_load_fails_for_bad_version(testCase) %Temporary before being handled
-             % Bad first argument parent type
-             testError.identifier='No Error';
              
              testObject = testCase.modelObject;
              testObject.saveObj(testCase.tempFileName);
              
              % Change version to bad one.
              testObject.version = [0 0 0];
-             
-             try 
-                 testObject.loadObj(testCase.tempFileName);
-             catch ME
-                 testError = ME;
-             end
-             
-             assertEqual(testCase, testError.identifier, 'AbstractModel:VersionMismatch');
+
+             verifyWarning(testCase, @() testObject.loadObj(testCase.tempFileName), 'qMRLab:VersionMismatch')
         end
         
                 

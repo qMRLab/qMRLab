@@ -4,9 +4,44 @@ on:
   push:
   pull_request:
 
+env:
+  MATLAB_PRODUCTS: >-
+    Image_Processing_Toolbox
+    Optimization_Toolbox
+    Statistics_and_Machine_Learning_Toolbox
+
 jobs:
-  MATLAB_1_quickMox_BatchExamplePart1:
+  moxunit_tests:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: quickMoxTests
+            tests: Test/MoxUnitCompatible/quickMoxTests
+            report: Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json
+
+          - name: MATLAB_1_quickMox_BatchExamplePart1
+            tests: Test/MoxUnitCompatible/BatchExample_test.m
+            report: Test/MoxUnitCompatible/coverage_BatchExample_test.json
+
+          - name: MATLAB_2_BatchExamplePart2
+            tests: Test/MoxUnitCompatible/BatchExamplePart2
+            report: Test/MoxUnitCompatible/BatchExamplePart2/coverage_BatchExamplePart2.json
+
+          - name: MATLAB_3_SimTests
+            tests: Test/MoxUnitCompatible/simTests
+            report: Test/MoxUnitCompatible/simTests/coverage_simTests.json
+
+          - name: MATLAB_4_OtherTests
+            tests: Test/MoxUnitCompatible/other
+            report: Test/MoxUnitCompatible/other/coverage_other.json
+
+          - name: MATLAB_5_EquationTests
+            tests: Test/MoxUnitCompatible/equation_test
+            report: Test/MoxUnitCompatible/equation_test/coverage_equation.json
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,36 +51,42 @@ jobs:
       - name: Setup MATLAB
         uses: matlab-actions/setup-matlab@v2
         with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox
-            Statistics_and_Machine_Learning_Toolbox
+          products: ${{ env.MATLAB_PRODUCTS }}
 
-      - name: Run MATLAB tests (quickMox + BatchExamplePart1)
+      - name: Run MATLAB tests
         uses: matlab-actions/run-command@v2
         with:
           command: |
             startup;
             qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/MoxUnitCompatible/quickMoxTests';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_quickMoxTests.json']);
-            testDir = '/Test/MoxUnitCompatible';
-            res2 = moxunit_runtests([qmrlabRoot testDir '/BatchExample_test.m'],'-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExample_test.json']);
-            exit(~all([res1 res2]));
+            res = moxunit_runtests('${{ matrix.tests }}','-recursive','-with_coverage','-cover','src','-cover_exclude','*GUI*','-cover_json_file','${{ matrix.report}}');
+            exit(~res);
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: |
-            ${{ github.workspace }}/Test/MoxUnitCompatible/quickMoxTests/coverage_quickMoxTests.json
-            ${{ github.workspace }}/Test/MoxUnitCompatible/coverage_BatchExample_test.json
+          files: ${{ matrix.report }}
           flags: matlab
           fail_ci_if_error: false
 
 
-  MATLAB_2_BatchExamplePart2:
+  matlab_tests:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: MATLAB_6_CommonTests
+            tests: Test/Common
+            report: Test/Common/coverage_common.xml
+          - name: MATLAB_7_ModelsTests
+            tests: Test/Models
+            report: Test/Models/coverage_models.xml
+          - name: MATLAB_8_ModelsFunctionsTests
+            tests: Test/Models_Functions
+            report: Test/Models_Functions/coverage_models_functions.xml
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,225 +96,22 @@ jobs:
       - name: Setup MATLAB
         uses: matlab-actions/setup-matlab@v2
         with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox
-            Statistics_and_Machine_Learning_Toolbox
+          products: ${{ env.MATLAB_PRODUCTS }}
 
-      - name: Run MATLAB tests (BatchExamplePart2)
+      - name: Run MATLAB tests
         uses: matlab-actions/run-command@v2
         with:
           command: |
             startup;
             qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/MoxUnitCompatible/BatchExamplePart2';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_BatchExamplePart2.json']);
-            exit(~res1);
+            [testResults, coverageResults] = runtests('${{ matrix.tests }}', 'ReportCoverageFor', 'src', 'IncludeSubfolders', true);
+            coverageResults.generateCoberturaReport('${{ matrix.report }}');
+            allPassed = all([testResults.assertSuccess().Passed]);
+            exit(~allPassed);
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: ${{ github.workspace }}/Test/MoxUnitCompatible/BatchExamplePart2/coverage_BatchExamplePart2.json
-          flags: matlab
-          fail_ci_if_error: false
-
-
-  MATLAB_3_SimTests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup MATLAB
-        uses: matlab-actions/setup-matlab@v2
-        with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox        
-            Statistics_and_Machine_Learning_Toolbox
-
-      - name: Run MATLAB tests (simTests)
-        uses: matlab-actions/run-command@v2
-        with:
-          command: |
-            startup;
-            qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/MoxUnitCompatible/simTests';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_simTests.json']);
-            exit(~res1);
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ${{ github.workspace }}/Test/MoxUnitCompatible/simTests/coverage_simTests.json
-          flags: matlab
-          fail_ci_if_error: false
-  MATLAB_4_OtherTests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup MATLAB
-        uses: matlab-actions/setup-matlab@v2
-        with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox
-            Statistics_and_Machine_Learning_Toolbox
-
-      - name: Run MATLAB tests (other)
-        uses: matlab-actions/run-command@v2
-        with:
-          command: |
-            startup;
-            qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/MoxUnitCompatible/other';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_other.json']);
-            exit(~res1);
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ${{ github.workspace }}/Test/MoxUnitCompatible/other/coverage_other.json
-          flags: matlab
-          fail_ci_if_error: false
-  MATLAB_5_EquationTests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup MATLAB
-        uses: matlab-actions/setup-matlab@v2
-        with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox
-            Statistics_and_Machine_Learning_Toolbox
-
-      - name: Run MATLAB tests (equation)
-        uses: matlab-actions/run-command@v2
-        with:
-          command: |
-            startup;
-            qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/MoxUnitCompatible/equation_test';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_equation.json']);
-            exit(~res1);
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ${{ github.workspace }}/Test/MoxUnitCompatible/equation_test/coverage_equation.json
-          flags: matlab
-          fail_ci_if_error: false
-  MATLAB_6_CommonTests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup MATLAB
-        uses: matlab-actions/setup-matlab@v2
-        with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox
-            Statistics_and_Machine_Learning_Toolbox
-
-      - name: Run MATLAB tests (Common)
-        uses: matlab-actions/run-command@v2
-        with:
-          command: |
-            startup;
-            qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/Common';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_common.json']);
-            exit(~res1);
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ${{ github.workspace }}/Test/Common/coverage_common.json
-          flags: matlab
-          fail_ci_if_error: false
-  MATLAB_7_ModelsTests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup MATLAB
-        uses: matlab-actions/setup-matlab@v2
-        with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox
-            Statistics_and_Machine_Learning_Toolbox
-
-      - name: Run MATLAB tests (Models)
-        uses: matlab-actions/run-command@v2
-        with:
-          command: |
-            startup;
-            qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/Models';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_models.json']);
-            exit(~res1);
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ${{ github.workspace }}/Test/Models/coverage_models.json
-          flags: matlab
-          fail_ci_if_error: false
-  MATLAB_8_ModelsFunctionsTests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup MATLAB
-        uses: matlab-actions/setup-matlab@v2
-        with:
-          products: >
-            Image_Processing_Toolbox
-            Optimization_Toolbox
-            Statistics_and_Machine_Learning_Toolbox
-
-      - name: Run MATLAB tests (Models_Functions)
-        uses: matlab-actions/run-command@v2
-        with:
-          command: |
-            startup;
-            qMRLabVer;
-            qmrlabRoot = getenv('GITHUB_WORKSPACE');
-            testDir = '/Test/Models_Functions';
-            res1 = moxunit_runtests([qmrlabRoot testDir],'-recursive','-with_coverage','-cover',[qmrlabRoot '/src'],'-cover_exclude','*GUI*','-cover_json_file',[qmrlabRoot testDir '/coverage_models_functions.json']);
-            exit(~res1);
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ${{ github.workspace }}/Test/Models_Functions/coverage_models_functions.json
+          files: ${{ matrix.report }}
           flags: matlab
           fail_ci_if_error: false
