@@ -192,10 +192,9 @@ function downloadWithCurl(url, filename, timeout)
 
     cmd = sprintf('curl -L --connect-timeout %d -o "%s" "%s"', timeout, filename, url);
     [STATUS, MESSAGE] = system(cmd);
-    if STATUS == 0 && exist(filename, 'file')
-        disp('Data has been downloaded using curl...');
+    if STATUS ~= 0 || ~exist(filename, 'file')
+        error('qMRLab:download:curl', '%s', MESSAGE);
     end
-    if STATUS, error(MESSAGE); end
 end
 
 function downloadWithWget(url, filename, timeout)
@@ -203,10 +202,9 @@ function downloadWithWget(url, filename, timeout)
 
     cmd = sprintf('wget --timeout=%d -O "%s" "%s"', timeout, filename, url);
     [STATUS, MESSAGE] = system(cmd);
-    if STATUS == 0 && exist(filename, 'file')
-        disp('Data has been downloaded using wget...');
+    if STATUS ~= 0 || ~exist(filename, 'file')
+        error('qMRLab:download:curl', '%s', MESSAGE);
     end
-    if STATUS, error(MESSAGE); end
 end
 
 function downloadWithWebsave(url, filename, timeout)
