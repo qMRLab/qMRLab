@@ -103,11 +103,11 @@ for err_count = 1:attempts
                 '\n- Try downloading manually from: ' url ...
                 '\n- Check if a firewall is blocking the connection']);
         end
+        % Wait before retry
+        disp('Retrying...');
+        pause(2);
     end
 
-    % Wait before retry
-    disp('Retrying...');
-    pause(2);
 end
 
 oldname = [path filesep filename(1:end-4)];
