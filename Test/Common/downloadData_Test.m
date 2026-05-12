@@ -37,9 +37,9 @@ classdef downloadData_Test < matlab.unittest.TestCase
                 testCase.assumeTrue(system([method, ' --version']) == 0);
             end
 
-            downladFunction = testCase.localfunctions.(method);
+            downloadFunction = testCase.localfunctions.(method);
             file = fullfile(testCase.path, [method '_test.html']);
-            downladFunction('http://example.com', file, 30);
+            downlooadFunction('http://example.com', file, 30);
             testCase.verifyTrue(exist(file, 'file') == 2);
         end
 

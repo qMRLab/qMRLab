@@ -1,5 +1,5 @@
 function dataPath = downloadData(Model, path, method, attempts, timeout)
-% Downlaod example data for a given qMRLab model
+% Download example data for a given qMRLab model
 %
 %   DATAPATH = downloadData(MODEL, PATH)
 %   DATAPATH = downloadData(MODEL, PATH, METHOD, ATTEMPTS, TIMEOUT)
