@@ -182,7 +182,7 @@ function downloadAuto(url, filename, timeout)
             downloadWithUrlwrite(url, filename, timeout);
         catch ME_final
             % All methods failed
-            error(['Could not download using any method: ' ME_final.message]);
+            error('qMRLab:download:auto', 'Could not download using any method: %s', ME_final.message);
         end
     end
 end
