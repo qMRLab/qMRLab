@@ -270,9 +270,10 @@ function downloadWithRedirects(url, outputFile, timeout, maxRedirects)
                 error('Redirect response without Location header');
             end
 
+            previousUrl = currentUrl;
             currentUrl = string(locationHeader.Value);
             redirectCount = redirectCount + 1;
-            fprintf('Redirect: %s -> %s\n', url, currentUrl);
+            fprintf('Redirect: %s -> %s\n', previousUrl, currentUrl);
 
         else
             error('Unexpected status code: %d', statusCode);
