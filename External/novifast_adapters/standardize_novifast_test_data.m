@@ -1,7 +1,8 @@
-function standardize_test_data(dataPath)
+function standardize_novifast_test_data(dataPath, outputPath)
 % Massage NOVIFAST example data to fit qMRLab structure
 % Usage:
-%   STANDARDIZE_TEST_DATA('/path/to/novifast/data/volume3DFSE.mat')
+%   STANDARDIZE_NOVIFAST_TEST_DATA()
+%   STANDARDIZE_NOVIFAST_TEST_DATA('/path/to/novifast/data/volume3DFSE.mat','/path/to/demo_novifast.zip')
 %
 % Will take the VFA data shipped with [1] and generate a zip file in
 % agreement with qMRLab guidelines[2].
@@ -10,7 +11,6 @@ function standardize_test_data(dataPath)
 %   - Rename volume3DFSE.mat/im to VFAData.mat/VFAData
 %   - Create a Mask (a cleaned-up version of NOVIFAST's default 5% hard-threshold)
 %   - Write a Protocol.txt that can be imported with ProtLoad
-%   - Include this script, as documentation of the changes.
 %
 % References:
 %   [1] Gabriel Ramos Llordén (2025). NOVIFAST: A fast algorithm for accurate and precise VFA MRI 
@@ -19,15 +19,18 @@ function standardize_test_data(dataPath)
 %   [2] https://github.com/qMRLab/qMRLab/wiki/Guideline:-Uploading-sample-data
 
 if nargin < 1 || isempty(dataPath)
-    dataPath = fullfile(fileparts(mfilename('fullpath')),'data','volume3DFSE.mat');
+    dataPath = fullfile(fileparts(which('novifast_1D')), 'data','volume3DFSE.mat');
 end
+if nargin < 2 || isempty(outputPath)
+    outputPath = fullfile(fileparts(mfilename('fullpath')),'demo_novifast.zip');
+end
+
 s = load(dataPath);
 
 tmp = fullfile(tempdir(), 'novifast_data');
 isfolder(tmp) || mkdir(tmp); %#ok<VUNUS>
 
 files = struct();
-files.code = [mfilename('fullpath'), '.m'];
 files.VFAData = fullfile(tmp,'VFAData.mat');
 files.Mask = fullfile(tmp,'Mask.mat');
 files.Protocol = fullfile(tmp, 'Protocol.txt');
@@ -35,7 +38,7 @@ files.Protocol = fullfile(tmp, 'Protocol.txt');
 VFAData = s.im;
 save(files.VFAData, 'VFAData');
 
-Mask = calc_mask(VFAData, 0.05, 2, 10, 2, true);
+Mask = calc_mask(VFAData, 0.05, 2, 10, 2, false);
 save(files.Mask, 'Mask');
 
 FlipAngle = s.alpha;
@@ -44,7 +47,8 @@ TR = repmat(9,numel(FlipAngle),1);
 T = table(FlipAngle, TR, 'VariableNames', {'FlipAngle', 'TR'});
 writetable(T, files.Protocol, 'delim', '\t');
 
-zip(fullfile('novifast.zip'), struct2cell(files));
+zip(outputPath, struct2cell(files));
+
 
 end
 
