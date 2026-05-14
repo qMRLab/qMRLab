@@ -50,6 +50,12 @@ if ~exist('path','var') || isempty(path)
 end
 if ~path, dataPath = []; return; end
 
+% allow models to specify a custom download method
+if ismethod(Model, 'downloadData')
+    METHODS.custom = @Model.downloadData;
+    method = 'custom';
+end
+
 if ~exist('method','var') || isempty(method)
     method = 'auto';
 end

@@ -41,7 +41,8 @@ classdef novifast < AbstractModel
 %     Quantitative MRI analysis, under one umbrella doi: 10.21105/joss.02343
 
 properties (Hidden=true)
- onlineData_url = ''; % TBD
+    % Local data, processed by custom static downloadData method below
+    onlineData_url = fullfile(fileparts(which('novifast_image')),'data','volume3DFSE.mat')
 end
 
 properties
@@ -152,5 +153,10 @@ end
     % CLI-only implemented static methods. Can be called directly from
     % class - no object needed.
     methods(Static)
+        function downloadData(onlineData_url, filename, ~)
+        % Mock download: massages novifast repo data to qMRLab standard
+        % (called by global downloadData)
+            standardize_novifast_test_data(onlineData_url, filename);
+        end
     end
 end
