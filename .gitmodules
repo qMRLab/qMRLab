@@ -1,3 +1,6 @@
 [submodule "External/qMRWrappers"]
 	path = External/qMRWrappers
 	url = https://github.com/qMRLab/qMRWrappers.git
+[submodule "External/novifast"]
+	path = External/novifast
+	url = https://github.com/UoMResearchIT/MRIT1mappingNOVIFAST.git
