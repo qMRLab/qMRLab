@@ -42,7 +42,7 @@ classdef novifast < AbstractModel
 
 properties (Hidden=true)
     % Local data, processed by custom static downloadData method below
-    onlineData_url = fullfile(fileparts(which('novifast_image')),'data','volume3DFSE.mat');
+    onlineData_url = which('demo_novifast.zip');
 end
 
 properties
@@ -154,9 +154,8 @@ end
     % class - no object needed.
     methods(Static)
         function downloadData(onlineData_url, filename, ~)
-        % Mock download: massages novifast repo data to qMRLab standard
-        % (called by global downloadData)
-            standardize_novifast_test_data(onlineData_url, filename);
+        % Mock download: copy local demo_novifast.zip file (called by global downloadData)
+            copyfile(onlineData_url, filename);
         end
     end
 end
