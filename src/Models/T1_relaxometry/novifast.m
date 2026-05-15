@@ -42,7 +42,7 @@ classdef novifast < AbstractModel
 
 properties (Hidden=true)
     % Local data, processed by custom static downloadData method below
-    onlineData_url = fullfile(fileparts(which('novifast_image')),'data','volume3DFSE.mat')
+    onlineData_url = fullfile(fileparts(which('novifast_image')),'data','volume3DFSE.mat');
 end
 
 properties
