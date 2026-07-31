@@ -26,9 +26,11 @@ if ( length(data) ~= nlsS.N )
 end
 
 
-% Make sure the data come in increasing TI-order
-[tVec,order] = sort(nlsS.tVec); 
-data = squeeze(data); 
+% Make sure the data come in increasing TI-order. The permutation is fixed by
+% the protocol, so it is computed once in getNLSStruct rather than per voxel.
+tVec  = nlsS.sortedTVec;
+order = nlsS.sortOrder;
+data = squeeze(data);
 data = data(order);
 
 % Initialize variables
@@ -53,8 +55,11 @@ switch(nlsS.nlsAlg)
     end
 
     for ii = 1:2
-      theExp = nlsS.theExp(order,:);
-      
+      % Pre-permuted in getNLSStruct; MATLAB's copy-on-write makes this a
+      % reference, not the per-voxel copy of the full 9 x length(T1Vec) matrix
+      % that this line used to perform twice per voxel.
+      theExp = nlsS.sortedTheExp;
+
       if ii == 1
         % First, we set all elements up to and including
         % the smallest element to minus
@@ -70,9 +75,12 @@ switch(nlsS.nlsAlg)
 
       % Compute the vector of rho'*t for different rho,
       % where rho = exp(-TI/T1) and y = dataTmp
+      % nlsS.sortedTheExpSum is sum(theExp,1)' over the permuted rows,
+      % precomputed in getNLSStruct. Only the coarse pass can use it; the zoomed
+      % pass below rebuilds theExp per voxel and must still sum it directly.
       rhoTyVec = (dataTmp.'*theExp).' - ...
-        1/nlsS.N*sum(theExp,1)'*ySum;
-      
+        1/nlsS.N*nlsS.sortedTheExpSum*ySum;
+
       % rhoNormVec is a vector containing the norm-squared of rho over TI,
       % where rho = exp(-TI/T1), for different T1's.
       rhoNormVec = nlsS.rhoNormVec;
