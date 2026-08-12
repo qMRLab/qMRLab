@@ -41,11 +41,26 @@ switch shape
 end
 
 b1     =  @(t) pulse_fcn(t,Trf,PulseOpt);
-if moxunit_util_platform_is_octave
-    amp    =  2*pi*alpha / ( 360 * gamma * quad(@(t) (b1(t)), 0, Trf) );
+
+% The envelope integral depends only on (shape, Trf, PulseOpt) -- not on the
+% flip angle or the offset -- so every pulse of a given shape and duration
+% shares it. Callers that build one pulse per offset per voxel (SPGR_prepare)
+% would otherwise recompute the identical quadrature thousands of times.
+% One-entry memo; comparisons are ordered cheapest-first.
+persistent kShape kTrf kOpt kIntegral
+
+if ~isempty(kIntegral) && isequal(Trf, kTrf) && isequal(shape, kShape) ...
+        && isequal(PulseOpt, kOpt)
+    b1Integral = kIntegral;
 else
-    amp    =  2*pi*alpha / ( 360 * gamma * integral(@(t) (b1(t)), 0, Trf) );
+    if moxunit_util_platform_is_octave
+        b1Integral = quad(@(t) (b1(t)), 0, Trf);
+    else
+        b1Integral = integral(@(t) (b1(t)), 0, Trf);
+    end
+    kShape = shape; kTrf = Trf; kOpt = PulseOpt; kIntegral = b1Integral;
 end
+amp    =  2*pi*alpha / ( 360 * gamma * b1Integral );
 % amp    =  2*pi*alpha / ( 360 * gamma * integral(@(t) abs(b1(t)), 0, Trf,'ArrayValued',true) );
 omega  =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt));
 omega2 =  @(t) (gamma*amp*pulse_fcn(t,Trf,PulseOpt)).^2;
