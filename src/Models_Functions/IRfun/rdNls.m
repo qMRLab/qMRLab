@@ -35,8 +35,11 @@ switch(nlsS.nlsAlg)
     
     % Compute the vector of rho'*y for different rho,
     % where rho = exp(-TI/T1) and y = dataTmp 
+    % nlsS.theExpSum is sum(nlsS.theExp,1)', precomputed in getNLSStruct. The
+    % expression is otherwise unchanged, so the association -- and hence the
+    % result -- is identical.
     rhoTyVec = (data.'*nlsS.theExp).' - ...
-      1/nlsS.N*sum(nlsS.theExp,1)'*ySum;
+      1/nlsS.N*nlsS.theExpSum*ySum;
     theExp = nlsS.theExp;
     
     % rhoNormVec is a vector containing the norm-squared of rho over TI,
