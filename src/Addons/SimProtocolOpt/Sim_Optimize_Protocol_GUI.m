@@ -119,9 +119,8 @@ end
 % --- Executes on button press in SimOptProtUpdate.
 function SimOptProtUpdate_Callback(hObject, eventdata, handles)
 
-h = findobj('Name','SimOptProt');
-set(h,'pointer', 'watch'); drawnow;
-pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+set(findobj('Name','SimOptProt'),'pointer', 'watch'); drawnow;
+pointer_restore = onCleanup(@() set(findobj('Name','SimOptProt'),'pointer', 'arrow'));
 
 % Read Table
 Model_new = getappdata(0,'Model');

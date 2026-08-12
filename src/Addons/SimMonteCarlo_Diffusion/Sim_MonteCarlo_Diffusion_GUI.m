@@ -97,9 +97,8 @@ varargout{1} = handles.output;
 % --- Executes on button press in SimMCdiffUpdate.
 function SimMCdiffUpdate_Callback(hObject, eventdata, handles)
 
-h = findobj('Name','SimMCdiff');
-set(h,'pointer', 'watch'); drawnow;
-pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+set(findobj('Name','SimMCdiff'),'pointer', 'watch'); drawnow;
+pointer_restore = onCleanup(@() set(findobj('Name','SimMCdiff'),'pointer', 'arrow'));
 
 MonteCarloSim(handles, handles.axonpacking.axons, handles.axonpacking.packing)
 

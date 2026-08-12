@@ -145,9 +145,8 @@ classdef BrowserSet
         function DataLoad(obj,warnmissing)
             if ~exist('warnmissing','var'), warnmissing=true; end
 
-            h = findobj('Name','qMRLab');
-            set(h,'pointer', 'watch'); drawnow;
-            pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+            set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
+            pointer_restore = onCleanup(@() set(findobj('Name','qMRLab'),'pointer', 'arrow'));
 
             obj.FullFile = get(obj.FileBox, 'String');
             tmp = [];

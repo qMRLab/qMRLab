@@ -46,9 +46,8 @@ end
 % --- Executes just before Sim_Single_Voxel_Curve_GUI is made visible.
 function Sim_Single_Voxel_Curve_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
 
-h = findobj('Name','qMRLab');
-set(h,'pointer', 'watch'); drawnow;
-pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
+pointer_restore = onCleanup(@() set(findobj('Name','qMRLab'),'pointer', 'arrow'));
 
 Model = varargin{1}; 
 setappdata(0,'Model',Model);
@@ -109,9 +108,8 @@ if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
     handles.Model = Model_new;
 end
 
-h = findobj('Name','Single Voxel Curve');
-set(h,'pointer', 'watch'); drawnow;
-pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+set(findobj('Name','Single Voxel Curve'),'pointer', 'watch'); drawnow;
+pointer_restore = onCleanup(@() set(findobj('Name','Single Voxel Curve'),'pointer', 'arrow'));
 
 if isgraphics(handles.SimCurveAxe)
     axes(handles.SimCurveAxe)

@@ -276,9 +276,8 @@ classdef MethodBrowser
         end
         
         function DownloadBtn_callback(obj)
-            h = findobj('Name','qMRLab');
-            set(h,'pointer', 'watch');
-            pointer_restore = onCleanup(@() set(h,'pointer', 'arrow'));
+            set(findobj('Name','qMRLab'),'pointer', 'watch');
+            pointer_restore = onCleanup(@() set(findobj('Name','qMRLab'),'pointer', 'arrow'));
 
             Model = getappdata(0,'Model');
             qMRgenBatch(Model);
