@@ -44,7 +44,7 @@ end
 
 properties
     MRIinputs = {'MP2RAGE','INV1mag','INV1phase','INV2mag','INV2phase','B1map' 'Mask'};
-    xnames = {'T1','R1','MP2RAGE','MP2RAGEcor'};
+    xnames = {'T1'};
     voxelwise = 0;
 
     % Protocol
@@ -76,6 +76,23 @@ properties
     tips = {'Inv efficiency', 'Efficiency of the inversion pulse (fraction).'};
 
     options= struct(); % structure filled by the buttons. Leave empty in the code
+
+    % fitting options
+    st = [1.5];  % starting point
+    lb = [0.1];  % lower bound
+    ub = [5.0];  % upper bound
+    fx = [0];  % fix parameters
+
+    % Simulation Options
+    Sim_Single_Voxel_Curve_buttons = {'SNR', 50, 'T1', 1.5, 'Update input variables','pushbutton'};
+end
+
+methods (Static)
+    function img = signal2img(INV1, INV2)
+        img = real(INV1 .* INV2 ./ (INV1.^2 + INV2.^2)) * 4095 + 2048;
+        img(img < 0) = 0;
+        img(img > 4095) = 4095;
+    end
 end
 
 methods
@@ -84,7 +101,45 @@ methods
     
         obj.options = button2opts(obj.buttons);
         obj.onlineData_url = obj.getLink('https://osf.io/8x2c9/download?version=4','https://osf.io/k3shf/download?version=1','https://osf.io/k3shf/download?version=1');
-    
+    end
+
+    function xnew = SimOpt(obj, x, Opt)
+        xnew = [Opt.T1];
+    end
+
+    function MP2RAGE = Protocol2Params(obj)
+    % Convert protocol to the MP2RAGE source code conventions
+
+        % MP2RAGE.B0 = obj.Prot.Hardware.Mat;  % in Tesla
+
+        % RepetitionTime
+        MP2RAGE.TR = obj.Prot.RepetitionTimes.Mat(1);      % MP2RAGE TR in seconds
+        MP2RAGE.TRFLASH = obj.Prot.RepetitionTimes.Mat(2); % TR of the GRE readout
+
+        % inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
+        MP2RAGE.TIs = obj.Prot.Timing.Mat';
+
+        % KSpace
+        NumberShots = obj.Prot.NumberOfShots.Mat';
+        MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
+
+        % Flip angle of the two readouts in degrees
+        MP2RAGE.FlipDegrees = obj.Prot.Sequence.Mat';
+
+        % If both NumberShots are equal, then assume half/half for before/after
+        if NumberShots(1) == NumberShots(2)
+            MP2RAGE.NZslices = [ceil(NumberShots(1)/2) floor(NumberShots(1)/2)];
+        end
+    end
+
+    function Smodel = equation(obj, x)
+    % Generates an MP2RAGE signal based on protocol and fit parameters
+        x = mat2struct(x, obj.xnames);
+
+        P = obj.Protocol2Params();
+        invEFF = obj.options.Invefficiency;
+
+        Smodel = MP2RAGEfunc(P.TR, P.TIs, P.NZslices, P.TRFLASH, P.FlipDegrees, x.T1, invEFF);
     end
 
     function FitResult = fit(obj,data)
@@ -145,36 +200,7 @@ methods
 
         % LOAD PROTOCOLS =========================================
 
-        % Hardware
-        MagneticFieldStrength = obj.Prot.Hardware.Mat;
-
-        % RepetitionTime
-        RepetitionTimeInversion = obj.Prot.RepetitionTimes.Mat(1);
-        RepetitionTimeExcitation = obj.Prot.RepetitionTimes.Mat(2);
-
-        % Timing
-        InversionTime = obj.Prot.Timing.Mat';
-
-        % Sequence
-        FlipAngle = obj.Prot.Sequence.Mat';
-
-        % KSpace
-        NumberShots = obj.Prot.NumberOfShots.Mat';
-
-            % Convert naming to the MP2RAGE source code conventions
-            MP2RAGE.B0 = MagneticFieldStrength;           % in Tesla
-            MP2RAGE.TR = RepetitionTimeInversion;           % MP2RAGE TR in seconds
-            MP2RAGE.TRFLASH = RepetitionTimeExcitation; % TR of the GRE readout
-            MP2RAGE.TIs = InversionTime; % inversion times - time between middle of refocusing pulse and excitatoin of the k-space center encoding
-            MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
-            MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
-
-            % If both NumberShots are equal, then assume half/half for before/after
-        if NumberShots(1) == NumberShots(2)
-
-            MP2RAGE.NZslices = [ceil(NumberShots(1)/2) floor(NumberShots(1)/2)]; 
-
-        end 
+        MP2RAGE = obj.Protocol2Params();
 
         % LOAD OPTIONS ========================================= 
 
@@ -187,43 +213,28 @@ methods
 
         data.INV1phase = ((data.INV1phase - min(data.INV1phase(:)))./(max(data.INV1phase(:)-min(data.INV1phase(:))))).*2.*pi;
         data.INV2phase = ((data.INV2phase - min(data.INV2phase(:)))./(max(data.INV2phase(:)-min(data.INV2phase(:))))).*2.*pi;
-       
-       end 
+
+       end
 
         if availabledata.onlyUNI || availabledata.all
-            
+
             MP2RAGEimg.img = data.MP2RAGE;
 
-        elseif availabledata.allbutUNI
+        else
+            if availabledata.allbutUNI
+                INV1 = data.INV1mag.*exp(data.INV1phase * 1j);
+                INV2 = data.INV2mag.*exp(data.INV2phase * 1j);
 
-            INV1 = data.INV1mag.*exp(data.INV1phase * 1j);
-            INV2 = data.INV2mag.*exp(data.INV2phase * 1j);
-    
+            elseif availabledata.allMagbutUNI
+                INV1 = data.INV1mag;
+                INV2 = data.INV2mag;
+            end
+
             % Combination
-            img = (real(INV1.*INV2./(INV1.^2 + INV2.^2)))*4095 + 2048; 
-            img(img<0) = 0;
-            img(img>4095) = 4095;
-            FitResult.MP2RAGE = img;
-            MP2RAGEimg.img = img;
-
-            clear('INV1','INV2','img'); 
-
-        elseif availabledata.allMagbutUNI
-
-            INV1 = data.INV1mag;
-            INV2 = data.INV2mag;
-    
-            % Combination
-            img = (INV1.*INV2./(INV1.^2 + INV2.^2))*4095 + 2048; 
-            img(img<0) = 0;
-            img(img>4095) = 4095;
-            FitResult.MP2RAGE = img;
-            MP2RAGEimg.img = img;
-
-            clear('INV1','INV2','img'); 
-            
+            MP2RAGEimg.img = mp2rage.signal2img(INV1, INV2);
+            FitResult.MP2RAGE = MP2RAGEimg.img;
         end
-        
+
         if ~isempty(data.B1map)
 
             [T1corrected, MP2RAGEcorr] = T1B1correctpackageTFL(data.B1map,MP2RAGEimg,[],MP2RAGE,[],invEFF);
@@ -253,6 +264,42 @@ methods
         end
         
     end % FIT RESULTS END 
+
+    function [FitResults, data] = Sim_Single_Voxel_Curve(obj, x, Opt, display)
+        % Simulates Single Voxel
+        %
+        % :param x: [struct] fit parameters
+        % :param Opt.SNR: [struct] signal to noise ratio to use
+        % :param display: 1=display, 0=nodisplay
+        % :returns: [struct] FitResults, data (noisy dataset)
+
+            if ~exist('display','var'), display = 0; end
+
+            Smodel = equation(obj, x);
+
+            % TODO: confirm noise distribution
+            sigma = max(abs(Smodel(:)))/Opt.SNR;
+            S = random('normal', Smodel, sigma);
+
+            data.MP2RAGE = mp2rage.signal2img(S(:, 1), S(:, 2));
+
+            FitResults = fit(obj,data);
+
+            if display
+                error('Not Implemented')
+            end
+        end
+
+        function SimVaryResults = Sim_Sensitivity_Analysis(obj, OptTable, Opt)
+            % SimVaryGUI
+            SimVaryResults = SimVary(obj, Opt.Nofrun, OptTable, Opt);
+        end
+
+        function SimRndResults = Sim_Multi_Voxel_Distribution(obj, RndParam, Opt)
+            % SimRndGUI
+            SimRndResults = SimRnd(obj, RndParam, Opt);
+        end
+
 end % METHODS END 
 
 end % CLASSDEF END 

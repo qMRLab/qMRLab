@@ -130,8 +130,12 @@ for ii=1:length(ff)
 end
 
 % CRLB
-SNR = str2double(get(handles.options.SNR,'String'));
-[~,~,~,F] = SimCRLB(handles.Model,handles.Model.Prot.(handles.Model.MRIinputs{1}).Mat,x,1/SNR);
+if isfield(handles.Model.Prot, handles.Model.MRIinputs{1})
+    SNR = str2double(get(handles.options.SNR,'String'));
+    [~,~,~,F] = SimCRLB(handles.Model,handles.Model.Prot.(handles.Model.MRIinputs{1}).Mat,x,1/SNR);
+else
+    F = NaN(size(x));
+end
 
 for ii=1:sum(~handles.Model.fx)
     ll=find(~handles.Model.fx);
