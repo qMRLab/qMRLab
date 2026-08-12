@@ -292,8 +292,8 @@ end
     end
 
     methods(Access = protected)
-        function obj = qMRpatch(obj,loadedStruct, version)
-            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        function obj = qMRpatch(obj, loadedStruct)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct);
             obj.Prot.DiffusionData.Format{4}='Gnorm'; % old: '|G| (T/m)'
         end
     end

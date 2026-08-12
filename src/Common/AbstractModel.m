@@ -49,7 +49,7 @@ classdef (Abstract) AbstractModel
                     loadedStruct = load(fileName);
                 end
                 % parse structure to object
-                obj = qMRpatch(obj,loadedStruct,loadedStruct.version);
+                obj = qMRpatch(obj, loadedStruct);
 
             catch ME
                 error(ME.identifier, [class(obj) ':' ME.message])
@@ -142,8 +142,17 @@ classdef (Abstract) AbstractModel
 
     methods(Access = protected)
 
-        function obj = qMRpatch(obj,loadedStruct, version)
-        % This function is to xxx
+        function obj = qMRpatch(obj, loadedStruct)
+        % Update model properties with loadedStruct fields.
+        % Throw a warning if version mismatch, but attempt to patch the model anyway.
+
+            if ~isequal(obj.version, loadedStruct.version)
+                warning('qMRLab:VersionMismatch', ...
+                    'The loaded model was created with version %s, but current version is %s.', ...
+                    regexprep(num2str(loadedStruct.version), '\s+', '.'), ...
+                    regexprep(num2str(obj.version), '\s+', '.'))
+            end
+
             objStruct = objProps2struct(obj);
             objectProperties = fieldnames(objStruct);
             %Loop through all object properties
@@ -153,7 +162,6 @@ classdef (Abstract) AbstractModel
                 if ismember(objectProperties{propIndex},fieldnames(loadedStruct))
                 obj.(objectProperties{propIndex}) = loadedStruct.(objectProperties{propIndex});
                 end
-           
             end
 
         end

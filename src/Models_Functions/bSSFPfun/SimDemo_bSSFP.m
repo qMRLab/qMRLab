@@ -1,3 +1,5 @@
+function [Sim, SimCurveResults] = SimDemo_bSSFP()
+
 %% Settings
 clc;
 Sim    = load('bSSFPfun/Parameters/DefaultSim.mat');    % load default parameters

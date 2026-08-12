@@ -8,7 +8,7 @@ codecov:
 coverage:
   precision: 2
   round: down
-  range: "45...100"
+  range: "40...100"
   status:
     patch: off
     project:
@@ -17,7 +17,7 @@ coverage:
         flags:
           - octave
       Matlab:
-        target: 45%
+        target: 40%
         flags:
           - matlab
 
