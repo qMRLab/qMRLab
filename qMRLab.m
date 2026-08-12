@@ -538,19 +538,17 @@ set(handles.CurrentFitId,'String','FitResults.mat');
 
 % Save nii or minc maps
 for ii = 1:length(FitResults.fields)
-    map = FitResults.fields{ii}; 
-    if isfield(hdr, 'type')
-        if strcmp(hdr.type, 'minc2') 
-            file = strcat(map, '.mnc.gz');
-            minc_write(file, hdr, FitResults.(map)); 
-        elseif strcmp(hdr.type, 'minc1')
-            file = strcat(map, '.mnc.gz');
-            minc_write(file, hdr, FitResults.(map));
-        end
+    map = FitResults.fields{ii};
+
+    % MINC input -> write MINC output. hdr.type is only set by minc_read,
+    % so a NIfTI (or absent) header falls through to the nii branch below.
+    if exist('hdr','var') && isfield(hdr,'type') && ismember(hdr.type,{'minc1','minc2'})
+        file = strcat(map, '.mnc.gz');
+        minc_write(fullfile(outputdir,file), hdr, FitResults.(map));
         continue
-    else
-        file = strcat(map,'.nii.gz');       
     end
+
+    file = strcat(map,'.nii.gz');
 
     if ~exist('hdr','var')
         save_nii(make_nii(FitResults.(map)),fullfile(outputdir,file));
@@ -564,7 +562,7 @@ for ii = 1:length(FitResults.fields)
 
         nii_save(FitResults.(map),hdr,fullfile(outputdir,file));
     end
- end
+end
 
 SetAppData(FileBrowserList);
 % Show results
