@@ -8,10 +8,10 @@ function mxy = SPGR_Srp_fun(x, xData, Prot, FitOpt)
 % xData = [Angles, Offsets, w1rp]
 % Output : normalized mxy
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-Fran�ois Cabana, 2016
+% Written by: Jean-Francois Cabana, 2016
 % reference: Sled, J. G., & Pike, G. B. (2001).
 % Quantitative imaging of magnetization transfer exchange and relaxation properties in vivo using MRI.
-% Magn Reson Med, 46(5), 923�931
+% Magn Reson Med, 46(5), 923-931
 % ----------------------------------------------------------------------------------------------------
 
 % F   = (x(1)+0.002)*1.080 ; % Correction for overestimation
