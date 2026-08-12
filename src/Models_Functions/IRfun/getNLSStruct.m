@@ -57,10 +57,27 @@ end
 % where rho = exp(-TI/T1), for different T1's.
 switch(nlsS.nlsAlg)
   case{'grid'}
-    alphaVec = 1./nlsS.T1Vec; 
+    alphaVec = 1./nlsS.T1Vec;
     nlsS.theExp = exp( -nlsS.tVec*alphaVec' );
     nlsS.rhoNormVec = ...
         sum( nlsS.theExp.^2, 1)' - ...
-        1/nlsS.N*(sum(nlsS.theExp,1)').^2;    
-end 
+        1/nlsS.N*(sum(nlsS.theExp,1)').^2;
+
+    % theExpSum is the column sum of theExp over TI. Every voxel's grid search
+    % needs it and it depends only on the protocol, so it is computed once here
+    % rather than once per voxel.
+    nlsS.theExpSum = sum(nlsS.theExp,1)';
+
+    % Ascending-TI view of the grid, used by rdNlsPr's polarity restoration.
+    % The permutation is fixed by the protocol, so the permuted matrix and its
+    % column sums are also built once here.
+    %
+    % sortedTheExpSum MUST be summed over the permuted rows rather than reused
+    % from theExpSum: floating-point addition is order dependent, so summing
+    % the same values in a different row order is not guaranteed to produce the
+    % same bits.
+    [nlsS.sortedTVec, nlsS.sortOrder] = sort(nlsS.tVec);
+    nlsS.sortedTheExp    = nlsS.theExp(nlsS.sortOrder,:);
+    nlsS.sortedTheExpSum = sum(nlsS.sortedTheExp,1)';
+end
 
