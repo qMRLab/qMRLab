@@ -204,10 +204,10 @@ end
     end
 
     methods(Access = protected)
-        function obj = qMRpatch(obj,loadedStruct, version)
-            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        function obj = qMRpatch(obj, loadedStruct)
+            obj = qMRpatch@AbstractModel(obj, loadedStruct);
 
-            if checkanteriorver(version,[2 4 1])
+            if checkanteriorver(loadedStruct.version,[2 4 1])
             
                 obj.tabletip = struct('table_name',{{'DiffusionData'}},'tip', ...
                 {{sprintf(['G[x,y,z]: Diffusion gradient directions.\nGnorm (T / m): Diffusion gradient magnitudes.\nDelta (s): Diffusion separation\n' ...
