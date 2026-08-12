@@ -144,16 +144,26 @@ classdef BrowserSet
         %   load data from file and make accessible to qMRLab fct
         function DataLoad(obj,warnmissing)
             if ~exist('warnmissing','var'), warnmissing=true; end
+
             set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
+            pointer_restore = onCleanup(@() set(findobj('Name','qMRLab'),'pointer', 'arrow'));
+
             obj.FullFile = get(obj.FileBox, 'String');
             tmp = [];
             if ~isempty(obj.FullFile)
                 [~,~,ext] = fileparts(obj.FullFile);
+
+                if strcmp(ext, '.gz')
+                    [~,~,ext] = fileparts(obj.FullFile(1:end-3)); % Update file extension after unzip
+                end
+
                 if strcmp(ext,'.mat')
                     mat = load(obj.FullFile);
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
-                elseif strcmp(ext,'.nii') || strcmp(ext,'.gz') || strcmp(ext,'.img')
+                elseif strcmp(ext, '.mnc') 
+                    [hdr, tmp] = minc_read(obj.FullFile);
+                elseif strcmp(ext,'.nii') || strcmp(ext,'.img')
                     intrp = 'linear';
                     [tmp, hdr] = nii_load(obj.FullFile,0,intrp);
                 elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
@@ -169,7 +179,7 @@ classdef BrowserSet
                     tmp = File;
                 else
                     if exist(obj.FullFile,'file')==2
-                        warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files'])
+                        warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .mnc, .mnc.gz .img, .tiff or .tif files'])
                     end
                 end
             end
@@ -185,7 +195,7 @@ classdef BrowserSet
             end
 
             setappdata(0, 'Data', Data);
-            set(findobj('Name','qMRLab'),'pointer', 'arrow'); drawnow;
+            drawnow;
 
             if warnmissing
                 ErrMsg = Model.sanityCheck(Data.(class(Model)));
@@ -241,9 +251,9 @@ classdef BrowserSet
                     end
                 end
                 if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file');
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat';'*.img'},'Select file');
                 else
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mat';'*.img'},'Select file',obj.FullFile);
+                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat';'*.img'},'Select file',obj.FullFile);
                 end
                 cd(origdir);
             else

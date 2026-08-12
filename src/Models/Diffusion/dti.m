@@ -300,17 +300,17 @@ end
     end
 
     methods(Access = protected)
-        function obj = qMRpatch(obj,loadedStruct, version)
-            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        function obj = qMRpatch(obj, loadedStruct)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct);
             obj.Prot.DiffusionData.Format{4}='Gnorm'; % old: '|G| (T/m)', new Gnorm (T/m)
-            if checkanteriorver(version,[2 0 8])
+            if checkanteriorver(loadedStruct.version, [2 0 8])
                 index = find(strcmp(obj.buttons,'Compute Sigma per voxel'));
                obj.buttons(index:(index+1)) = [];
                obj.options = rmfield(obj.options, 'ComputeSigmapervoxel');
             end
 
             % New fitting method
-            if checkanteriorver(version,[2 0 9])
+            if checkanteriorver(loadedStruct.version, [2 0 9])
                 obj.buttons = ['fitting type',{{'non-linear (Rician Likelihood)','linear'}}, obj.buttons];
                 obj.options.fittingtype = 'non-linear (Rician Likelihood)';
             end
