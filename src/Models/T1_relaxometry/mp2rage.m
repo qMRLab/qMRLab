@@ -124,7 +124,7 @@ methods
                 
             availabledata.allbutUNI = true;
 
-        elseif ~noINV1mag && noINV1phase ~noINV2mag && noINV2phase && noUNI
+        elseif ~noINV1mag && noINV1phase && ~noINV2mag && noINV2phase && noUNI
                 
             availabledata.allMagbutUNI = true;
 
@@ -240,16 +240,6 @@ methods
             FitResult.T1 = T1map.img;
             FitResult.R1 = R1map.img;
             
-        end
-
-        if ~isempty(data.Mask)
-            data.Mask = logical(data.Mask); % ensure 
-            FitResult.T1(~data.Mask) = 0;
-            FitResult.R1(~data.Mask) = 0;
-
-            if isfield(FitResult,'MP2RAGEcor')
-                FitResult.MP2RAGEcor(~data.Mask) = 0;
-            end
         end
         
     end % FIT RESULTS END 

@@ -1,3 +1,5 @@
+function [Sim, SimCurveResults] = SimDemo_SPGR()
+
 %% Settings
 
 clc;
