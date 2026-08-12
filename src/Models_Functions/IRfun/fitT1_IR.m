@@ -32,12 +32,26 @@ function [T1,b,a,res,idx]=fitT1_IR(data,T_IR,method)
 % (c) Board of Trustees, Leland Stanford Junior University
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-extra.tVec = T_IR;
-extra.T1Vec = 1:5000; % Range can be reduced if a priori information is available
+% The search grid depends only on the protocol (T_IR) and the T1 range below --
+% never on the voxel data. FitData calls this function once per voxel, so
+% rebuilding the grid on every call dominated the fit. Cache it and rebuild only
+% when the protocol changes.
+%
+% The hardcoded T1 range does not need to be part of the key: editing this file
+% clears its persistent variables, so the cache cannot outlive a change to it.
+% Under parfor each worker holds its own copy and builds it once.
+persistent nlsS_cache nlsS_key
+
+key = T_IR(:).';
+if isempty(nlsS_key) || ~isequal(key, nlsS_key)
+    extra.tVec = T_IR;
+    extra.T1Vec = 1:5000; % Range can be reduced if a priori information is available
+    nlsS_cache = getNLSStruct(extra,0);
+    nlsS_key = key;
+end
+nlsS = nlsS_cache;
 
 savefitdata = 0; % Can be changed to 1 if the fit data needs to be saved
-
-nlsS = getNLSStruct(extra,0);
 
 
 switch method

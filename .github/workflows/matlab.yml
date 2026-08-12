@@ -106,8 +106,8 @@ jobs:
             qMRLabVer;
             [testResults, coverageResults] = runtests('${{ matrix.tests }}', 'ReportCoverageFor', 'src', 'IncludeSubfolders', true);
             coverageResults.generateCoberturaReport('${{ matrix.report }}');
-            allPassed = all([testResults.assertSuccess().Passed]);
-            exit(~allPassed);
+            % Don't fail on tests that are incomplete because they were skipped by an assumption
+            exit(any([testResults.Failed]));
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
