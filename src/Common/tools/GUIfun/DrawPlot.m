@@ -30,10 +30,34 @@ end
 handles.tool.setCurrentSlice(round(size(Current{1},3)/2))
 
 % Set Pixel size
-if isfield(handles.CurrentData,'hdr')
-    handles.tool.setAspectRatio(handles.CurrentData.hdr.pixdim(2:4))
+if isfield(handles.CurrentData, 'hdr')
+    hdr = handles.CurrentData.hdr;
+    if isfield(hdr, 'pixdim') && numel(hdr.pixdim) >= 4
+        % For NIfTI files
+        handles.tool.setAspectRatio(hdr.pixdim(2:4));
+    elseif isfield(hdr,'details') && isfield(hdr.details,'variables') ...
+            && numel(hdr.details.variables) >= 3
+        % For MINC files: voxel size is the 'step' attribute of each of the
+        % first three dimension variables. Steps are signed (they encode
+        % direction), but DataAspectRatio only accepts positive values.
+        steps = ones(1, 3);  % Default aspect ratio
+
+        for i = 1:3
+            vari = hdr.details.variables(i);
+            step_idx = find(strcmp(vari.attributes, 'step'));
+            if ~isempty(step_idx)
+                steps(i) = abs(vari.values{step_idx});
+            end
+        end
+        steps(steps == 0) = 1;
+
+        handles.tool.setAspectRatio(steps);
+    else
+        handles.tool.setAspectRatio([1 1 1]);
+    end
 else
-    handles.tool.setAspectRatio([1 1 1])
+    % Fallback in case no header exists
+    handles.tool.setAspectRatio([1 1 1]);
 end
 
 % Change save as NIFTI function

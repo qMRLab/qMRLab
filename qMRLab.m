@@ -536,9 +536,18 @@ end
 save(fullfile(outputdir,filename),'-struct','FitResults');
 set(handles.CurrentFitId,'String','FitResults.mat');
 
-% Save nii maps
+% Save nii or minc maps
 for ii = 1:length(FitResults.fields)
     map = FitResults.fields{ii};
+
+    % MINC input -> write MINC output. hdr.type is only set by minc_read,
+    % so a NIfTI (or absent) header falls through to the nii branch below.
+    if exist('hdr','var') && isfield(hdr,'type') && ismember(hdr.type,{'minc1','minc2'})
+        file = strcat(map, '.mnc.gz');
+        minc_write(fullfile(outputdir,file), hdr, FitResults.(map));
+        continue
+    end
+
     file = strcat(map,'.nii.gz');
 
     if ~exist('hdr','var')
@@ -550,7 +559,7 @@ for ii = 1:length(FitResults.fields)
         % qMRI map's nifti file, it will apply an undesired scaling.
         hdr.scl_slope = 1;
         hdr.scl_inter = 0;
-	
+
         nii_save(FitResults.(map),hdr,fullfile(outputdir,file));
     end
 end
