@@ -207,29 +207,30 @@ end
             Tvec = obj.Prot.SEdata.Mat;
             [Tvec,Iorder] = sort(Tvec);
             
+            % A second call on the same axes is an overlaid comparison fit.
+            isComparison = ~isempty(findobj(gca, 'Type', 'line'));
+
             % Plot Fitted Model
             hold on
-            if isempty(findobj(gcf, 'Type', 'line'))
-            plot(Tvec,Smodel(Iorder),'b-')
-            title(sprintf('T2 Fit Model 1: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
+            if isComparison
+                plot(Tvec,Smodel(Iorder),'g-','DisplayName','Model 2')
+                title({get(get(gca,'Title'),'String'); ...
+                       sprintf('T2 Fit Model 2: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0)});
             else
-            plot(Tvec,Smodel(Iorder),'g-')
-            title({get(get(gca, 'title'),'string');sprintf('T2 Fit Model 2: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0)});
+                plot(Tvec,Smodel(Iorder),'b-','DisplayName','Model 1')
+                title(sprintf('T2 Fit Model 1: T2=%0.4f ms; M0=%0.0f;',FitResults.T2,FitResults.M0),'FontSize',14);
             end
-            hold off
             xlabel('Echo time [ms]','FontSize',12);
             ylabel('Signal','FontSize',12);
-            
+
             set(gca,'FontSize',12)
-            
+
             % Plot Data
-            if exist('data','var')
-                hold on
-                plot(Tvec,data.SEdata(Iorder),'r+')
-                legend('data', 'fitted','Location','best')
-                legend({'Model 1','Data','Model 2'})
-                hold off
+            if exist('data','var') && ~isComparison
+                plot(Tvec,data.SEdata(Iorder),'r+','DisplayName','Data')
             end
+            legend('Location','best')
+            hold off
             
         end
         

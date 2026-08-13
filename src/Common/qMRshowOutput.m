@@ -36,64 +36,66 @@ axis image
 [climm, climM] = range_outlier(outputIm(outputIm~=0),.5);
 caxis([climm max(climm*1.01,climM)]); colorbar();
 
-if FitResults.Model.voxelwise 
-    row = round(size(outputIm,1)/1.7);
-    col = round(size(outputIm,2)/1.7);
+if FitResults.Model.voxelwise
+    nRows = size(outputIm,1);
+    nCols = size(outputIm,2);
+    row   = round(nRows/1.7);
+    col   = round(nCols/1.7);
     slice = round(size(outputIm,3)/2);
- 
-    if nargin>3
-        hdifmap = figure();
+
+    compareMode = nargin > 3;
+
+    if compareMode
+        figure();
         difmap = double(FitResults.T2(:,:,slice)) - double(compareFitResults.T2(:,:,slice));
         imshow(imrotate(difmap,90),[]);
         title('Difference Map: (Model 1 Fit - Model 2 Fit)');
         colormap('parula');
         colorbar;
     end
-    
+
     hplot = figure();
 
-    while 1
-    voxel = [round(row), round(col), slice]; % check center voxel
-    try
-        FitResultsVox   = extractvoxel(FitResults,voxel,FitResults.fields);
-        if nargin >= 4
-            compareFitResultVox = extractvoxel(compareFitResults,voxel,compareFitResults.fields);
+    % ginput needs a human, so batch and CI callers show the centre voxel once.
+    interactive = usejava('desktop') && isempty(getenv('ISCITEST'));
+
+    while true
+        voxel = [row, col, slice];
+        FitResultsVox = extractvoxel(FitResults,voxel,FitResults.fields);
+        dataVox       = extractvoxel(data,voxel);
+
+        figure(hmap);
+        hold on
+        % the map is drawn rotated 90 deg, so data (row,col) is at (row, nCols-col+1)
+        cross = plot(row, nCols-col+1,'kx','MarkerSize',20,'LineWidth',5);
+        hold off
+
+        figure(hplot);
+        clf(hplot);
+        Model.plotModel(FitResultsVox,dataVox)
+        if compareMode
+            Model.plotModel(extractvoxel(compareFitResults,voxel,compareFitResults.fields),dataVox);
         end
-        dataVox         = extractvoxel(data,voxel);
-    catch exception
-        disp("Error: Voxel out of bounds");
-    end
-    % plot a cross on the map at the position of the voxel
-    hold on
-    cross = plot(voxel(1),voxel(2),'kx','MarkerSize',20,'LineWidth',5);
-    hold off
-    % move windows
-    figure(hplot);
-    %{
-    this code messes with windows for some reason? plan to remove it
-    CurrentPos = get(hplot, 'Position');
-    MapPos = get(hmap, 'Position');
-    MapPos(1) = max(1,MapPos(1)-round(MapPos(3)/2));
-    set(hmap, 'Position', MapPos);
-    NewPos = [MapPos(1)+MapPos(3), MapPos(2)+MapPos(4)-CurrentPos(4), CurrentPos(3), CurrentPos(4)];
-    set(hplot, 'Position', NewPos);
-    %}
-    
-    % plot voxel curve
-    clf(hplot);
-    Model.plotModel(FitResultsVox,dataVox)
-    if nargin >= 4
-        Model.plotModel(compareFitResultVox,dataVox);
-    end
-    try
-        strvox = num2str(voxel);
-        subtitle("Voxel: "+strvox,'FontSize',12);
-    catch exception
-        disp("Error: Cannot add subtitle use a newer matlab");
-    end
-    figure(hmap);
-    [row, col] = ginput(1);
-    delete(cross);
+        if ~isempty(which('subtitle'))
+            subtitle(['Voxel: ' num2str(voxel)],'FontSize',12);
+        end
+
+        if ~interactive
+            break
+        end
+
+        figure(hmap);
+        try
+            [x, y] = ginput(1);
+        catch
+            break   % ginput errors rather than returning if the map is closed
+        end
+        if isempty(x) || ~ishandle(hmap) || ~ishandle(hplot)
+            break
+        end
+        delete(cross);
+        row = min(max(round(x),1), nRows);
+        col = min(max(nCols-round(y)+1,1), nCols);
     end
 end
 
