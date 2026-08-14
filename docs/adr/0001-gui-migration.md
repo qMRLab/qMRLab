@@ -104,6 +104,82 @@ The first attempt stalled in December 2025 waiting on MathWorks engineers who ha
 offered to help finalize the transition and never followed up. Every stage exit
 criterion in this migration is something the maintainers can run themselves.
 
+### D7 — Layout is grid-managed; nothing computes a rectangle at runtime
+
+*Decided during Stage E, from measurement.*
+
+Every container that held children at absolute or normalized coordinates is now a
+`uigridlayout`. This was not a tidy-up: the old scheme could not be made correct.
+
+`AutoResizeChildren`, which the layout relied on, is a pure **top-anchor
+translation** — measured on R2026b, a panel taken from 900x700 to 1800x891 moved
+all four probe children `dy=+191` with `dx=dw=dh=0`. It never resizes anything, so
+growing the window only ever added dead space.
+
+The options generator was worse than wrong, it was unstable: its rows are a fixed
+35 px expressed as `35/panelHeight` while its group gap is a flat `0.02` of the
+panel, and the stack walks down from `y = 1` with no floor. The height it *needs*
+therefore grows with the panel, so it can overflow a **taller** container than it
+fitted. Making the options column 18 px taller pushed `qsm_sb`'s last group 3.4 px
+out the bottom.
+
+Consequence: overflow is now handled by `Scrollable`, not by hoping it fits. The
+Datasets browser, the viewer's control strip, the sidebar and the options column
+all scroll. The minimum-window clamp is gone; the window audits clean at 700x520.
+
+### D8 — The options DSL payload is frozen bit-for-bit, and that constrains the widgets
+
+*Decided during Stage E3.*
+
+`Model.options` field names and values are written into saved `FitResults`, so the
+renderer may change how options *look* but not what they *are*. Two widget choices
+follow from that and look like mistakes otherwise:
+
+- Numeric options render in a **text** field, not `uieditfield('numeric')`. A
+  "numeric" option does not always hold a number — `dti` assigns
+  `options.Riciannoisebias_value = 'auto'`, and `qmt_spgr`/`qmt_sirfse` put
+  `'R1MAP'`, `'R1f'` and `'(R1f*T2f)/R1f'` in the fitting Start column. A numeric
+  field rejects every one of them.
+- Values format with `sprintf('%g')` — six significant digits, matching what
+  `set(uicontrol,'String',d)` did. The widget round-trips through text, so **the
+  formatting is the stored value**. `string()` (full precision) and `num2str`
+  (five digits) each changed four options across `mtv`, `qmt_spgr` and `qsm_sb`.
+  More precision would be an improvement and is still a payload change.
+
+`button_handle2opts` dispatches on **class**, never on `Style`: against native
+components that property throws on checkboxes and buttons, and on a dropdown or
+table it silently returns the *uistyle style table*, so a `switch` on it takes no
+branch and drops the option with no error.
+
+`Test/GUI/tDSL.m` asserts the new renderer and the old generator produce identical
+field sets, classes and values for all 22 models.
+
+### D9 — Theming is MATLAB's job; the app states only colours that carry meaning
+
+*Decided during Stage D2, revising the plan's expectation.*
+
+A `uifigure` themes its own components — measured, an untouched panel goes
+`[0.961]` light to `[0.129]` dark. The app's ~290 lines of theme engine existed
+only to undo the 58 explicit colours it had set on itself. Those are deleted; ten
+that carry meaning (accent, warning, success, muted) became tokens in
+`qmrlab.gui.Theme`, exported through `qmrlabUIColor` so vendored and headless code
+reads them without depending on `+qmrlab/+gui` — the arrangement `qmrlabUIScale`
+already uses for text size.
+
+Two corrections to the plan:
+
+- **The OS detection could not simply be deleted.** MATLAB does not reliably follow
+  the OS appearance: with macOS in Dark, a bare `uifigure` still reported "Light
+  Theme". The query is kept, once, in `Theme.osAppearance`, instead of duplicated
+  in both windows. `Theme.adopt` always assigns `fig.Theme` explicitly, so the IDE,
+  `-batch` and the compiled standalone agree.
+- **The viewer keeps its black canvas.** `imtool3D`'s colour constants are
+  untouched. The image area displays greyscale MRI and must stay neutral — tinting
+  it is a scientific display problem, not a cosmetic one — and a dark canvas is the
+  convention for medical image viewers in either mode. In dark mode it now blends
+  with the shell for free, which was the original complaint. Theming its *chrome*
+  remains open.
+
 ## Consequences
 
 **Good.** The GUI becomes reviewable in a pull request for the first time. GUI tests
