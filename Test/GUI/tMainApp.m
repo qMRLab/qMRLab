@@ -140,6 +140,53 @@ classdef tMainApp < matlab.uitest.TestCase
             end
         end
 
+        function datasetsPanelIsPopulatedForEveryModel(testCase)
+            % Asserts CONTENT, not geometry.
+            %
+            % Stage D1 shipped a change that emptied this panel completely -- Path
+            % data, Browse, Study ID, Download example, and a row per model input --
+            % and every test stayed green. geomAudit walks containers and checks
+            % their size; a container with no children passes trivially. Nothing in
+            % the suite could tell "correctly sized" from "correctly sized and
+            % empty". This is that missing assertion.
+            for model = string(list_models())'
+                m = feval(model);
+                qMRLab(m); drawnow;
+
+                fig = tMainApp.mainFigure();
+                testCase.assertNotEmpty(fig, sprintf('%s: window did not open.', model));
+                panel = tMainApp.byTag(fig, 'FitDataFileBrowserPanel');
+                testCase.assertNotEmpty(panel, sprintf('%s: browser panel missing.', model));
+
+                % One labelled row per declared model input, plus the shared header
+                % controls. Match on the input names so the assertion fails loudly
+                % if rows are built but land somewhere unreachable.
+                labels = findall(panel, 'Type', 'uilabel');
+                shown  = string({labels.Text});
+                for input = string(m.MRIinputs)'
+                    testCase.verifyTrue(any(contains(shown, input)), sprintf( ...
+                        '%s: no row for input "%s" in the Datasets panel (found: %s).', ...
+                        model, input, strjoin(cellstr(shown), ', ')));
+                end
+
+                % And the rows must be REACHABLE. On a scrollable panel that is not
+                % the same as "inside the viewport": models with many inputs
+                % (mp2rage 5, mt_sat and qmt_spgr 4) legitimately build more rows
+                % than fit, and scrolling is how you get to them. What is never
+                % reachable is a negative coordinate -- MATLAB grows the scrollable
+                % extent downward and rightward only.
+                reachable = arrayfun(@(h) tMainApp.isReachable(h), labels);
+                testCase.verifyTrue(all(reachable), sprintf( ...
+                    '%s: %d of %d Datasets rows sit at negative coordinates and cannot be scrolled to.', ...
+                    model, sum(~reachable), numel(reachable)));
+
+                testCase.verifyEqual(char(panel.Scrollable), 'on', sprintf( ...
+                    '%s: browser panel must scroll; rows below the fold are otherwise clipped.', model));
+
+                tMainApp.closeEverything();
+            end
+        end
+
         function modelSwitchingDoesNotLeakHandles(testCase)
             % The options panel used to be rebuilt by re-entering the whole opening
             % function, which re-created the protocol panels without ever deleting
@@ -162,6 +209,17 @@ classdef tMainApp < matlab.uitest.TestCase
     end
 
     methods (Static)
+        function tf = isReachable(child)
+            % Within a scrollable container, content below or right of the fold is
+            % reachable; content at negative coordinates is not.
+            try
+                pos = child.Position;
+            catch
+                tf = true; return   % nothing measurable; not this test's business
+            end
+            tf = pos(1) >= -3 && pos(2) >= -3;
+        end
+
         function h = byTag(root, tag)
             h = findall(root, 'Tag', tag);
             if numel(h) > 1, h = h(1); end

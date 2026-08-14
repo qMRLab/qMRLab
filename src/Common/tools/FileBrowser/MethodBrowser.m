@@ -23,6 +23,32 @@ classdef MethodBrowser < handle
         WorkDir_FullPath = '';
     end
     
+    properties (Constant, Access = private)
+        ROWPITCH   = 0.15;   % vertical step between input rows, fraction of panel height
+        HEADERNORM = 0.355;  % gap from the content top down to the first input row
+        MINBOTTOM  = 0.14;   % keeps the last row's y = norm*H - 20 comfortably positive
+    end
+
+    methods (Static, Access = private)
+        function top = contentTopFor(nItems)
+            % Height of the header-plus-rows block, as a fraction of the panel height.
+            %
+            % Sized to the input count so the last row never lands at a negative y.
+            % Negative is unreachable even on a scrollable panel: MATLAB grows the
+            % scroll extent upward and rightward, never below the origin. Above the
+            % viewport (top > 1) IS reachable, and is what Scrollable handles.
+            %
+            % mp2rage has 6 inputs and used to put its last row near -11 px, so one
+            % input was simply invisible. GUIDE masked this with attachScrollPanelTo,
+            % a JavaFrame hack dead since R2021a.
+            lastRow = 1 - MethodBrowser.HEADERNORM - (nItems - 1) * MethodBrowser.ROWPITCH;
+            top = 1;
+            if lastRow < MethodBrowser.MINBOTTOM
+                top = 1 + (MethodBrowser.MINBOTTOM - lastRow);
+            end
+        end
+    end
+
     methods
         %------------------------------------------------------------------
         % constructor
@@ -36,14 +62,20 @@ classdef MethodBrowser < handle
             header = iqmr_header.header_parse(which(Model.ModelName));
             if isempty(header.input), header.input = {''}; end
             
-            % Create components
-            obj.createCommonComponents(Model, header);
-            
-            % Create input items
             obj.NbItems = length(InputsName);
             obj.ItemsList = BrowserSet.empty(0, obj.NbItems);  % Pre-allocate empty array
+
+            % The header and the input rows are ONE content block, anchored at its
+            % top. Size that block to the number of inputs BEFORE laying anything
+            % out, so both share an origin -- otherwise the rows move and the header
+            % stays pinned to the viewport, and they overlap.
+            contentTop = MethodBrowser.contentTopFor(obj.NbItems);
+
+            % Create components
+            obj.createCommonComponents(Model, header, contentTop);
             
-            Location = [0.025, 0.645];
+            % Rows hang below the header, stepping down by ROWPITCH.
+            Location = [0.025, contentTop - MethodBrowser.HEADERNORM];
             for ii = 1:obj.NbItems
                 headerii = strcmp(header.input(:,1), InputsName{ii}) | ...
                           strcmp(header.input(:,1), ['(' InputsName{ii} ')']) | ...
@@ -54,7 +86,7 @@ classdef MethodBrowser < handle
                     headerii = '';
                 end
                 obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, headerii);
-                Location = Location + [0.0, -0.15];
+                Location = Location + [0.0, -MethodBrowser.ROWPITCH];
             end
             
             % Create warning label
@@ -68,12 +100,14 @@ classdef MethodBrowser < handle
         
         %------------------------------------------------------------------
         % Create common components (Work Dir, Study ID, etc.)
-        function createCommonComponents(obj, Model, header)
+        function createCommonComponents(obj, Model, header, contentTop)
             % Get parent container size for proper positioning
             parentPos = obj.Parent.Position; % [x, y, width, height] in pixels
-            
-            % Calculate positions relative to parent size
-            topMargin = parentPos(4) - 60; % Position from top with margin
+
+            % Anchor the header to the top of the CONTENT block, not the viewport.
+            % With more inputs than fit, that block is taller than the panel and the
+            % header scrolls with the rows instead of sitting on top of them.
+            topMargin = contentTop * parentPos(4) - 60;
             
             % Info button for Work Directory
             Info = {'1. Path to data (Optional): ',...

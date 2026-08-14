@@ -1252,6 +1252,14 @@ classdef MainApp < matlab.apps.AppBase
             app.FitDataPanel.Layout.Row = 1;
             app.FitDataPanel.Layout.Column = 2;
 
+            % Models with many inputs (mp2rage has 5, mt_sat and qmt_spgr 4 each) build
+            % more data rows than fit at the panel's design height, and the rows below
+            % the fold were simply clipped. GUIDE papered over this with
+            % attachScrollPanelTo, a JavaFrame/JScrollPane hack that has been dead
+            % since R2021a and whose own header says it does not work with uifigure.
+            % Scrollable is the supported replacement, and it is one property.
+            app.FitDataFileBrowserPanel.Scrollable = 'on';
+
             % Leave FitDataPanel's own children alone. They are positioned in pixels
             % by code that runs LATER (MethodBrowser/BrowserSet build the data rows
             % during startup, measuring the panel as it is then), so converting them
