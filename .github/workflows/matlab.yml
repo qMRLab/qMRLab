@@ -115,3 +115,44 @@ jobs:
           files: ${{ matrix.report }}
           flags: matlab
           fail_ci_if_error: false
+
+  # ---------------------------------------------------------------------------
+  # GUI tests. Deliberately a SEPARATE job from the model-fitting suites so an
+  # interface flake can never block a science PR, and so it can be re-run alone.
+  #
+  # These need a display: uifigure cannot be created headless, hence xvfb.
+  # They also pin MATLAB releases explicitly -- the other jobs float on whatever
+  # setup-matlab installs, which is fine for numerics but not for a suite whose
+  # whole purpose is to detect platform behaviour changes.
+  # ---------------------------------------------------------------------------
+  gui_tests:
+    name: GUI (${{ matrix.release }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [R2026a, R2026b, latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install xvfb
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: Setup MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: ${{ matrix.release }}
+          products: ${{ env.MATLAB_PRODUCTS }}
+
+      - name: Run GUI tests
+        run: |
+          xvfb-run -a matlab -batch "
+            startup;
+            results = runtests('Test/GUI', 'IncludeSubfolders', true);
+            disp(table(results));
+            exit(any([results.Failed]));
+          "

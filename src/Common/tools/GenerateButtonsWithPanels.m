@@ -154,8 +154,13 @@ if ~isempty(opts)
                    disablepanel=false;
                  end
 
+                % 'Units','normalized' must be EXPLICIT. GUIDE's uipanel defaulted to
+                % normalized; a uipanel inside a uifigure defaults to pixels, so these
+                % 0..1 Position values silently collapse the panel to sub-pixel size and
+                % every measurement taken from it afterwards is garbage. Every uicontrol
+                % and uitable below already says so; these two panels were the omission.
                 ReelPanel(ip) = uipanel('Parent',ParentHandle,'Title',PanelTitle{ip},'FontSize',11,'FontWeight','bold',...
-                                        'BackgroundColor',[0.94 0.94 0.94],'Position',[x y Width Height]);
+                                        'BackgroundColor',[0.94 0.94 0.94],'Units','normalized','Position',[x y Width Height]);
 
                 if disablepanel, set(ReelPanel(ip),'Visible','off'); end
 
@@ -174,7 +179,7 @@ if ~isempty(opts)
             case 'NoPanel' % "Fake" Panels
 
                 FakePanel(inp) = uipanel('Parent',ParentHandle,'BorderType','none','BackgroundColor',[0.94 0.94 0.94],...
-                                         'Position',[x y Width Height]);
+                                         'Units','normalized','Position',[x y Width Height]);
 
                 npref = strcat('NoPanel',num2str(inp)); % NoPanel reference in the handle
 

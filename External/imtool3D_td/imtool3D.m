@@ -292,7 +292,7 @@ classdef imtool3D < handle
             w=30; %Pixel width of the side panels
             h=110; %Pixel height of the histogram panel
             wbutt=20; %Pixel size of the buttons
-            tool.handles.Panels.Large   =   uipanel(tool.handles.parent,'Units','normalized','Position',position,'Title','','Tag','imtool3D'); 
+            tool.handles.Panels.Large   =   uipanel(tool.handles.parent,'Units','normalized','Position',position,'Title','','Tag','imtool3D','AutoResizeChildren','off'); 
             pos=getpixelposition(tool.handles.parent); pos(1) = pos(1)+position(1)*pos(3); pos(2) = pos(2)+position(2)*pos(4); pos(3) = pos(3)*position(3); pos(4) = pos(4)*position(4); 
             tool.handles.Panels.Hist   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w pos(4)-w-h pos(3)-2*w h],'Title','');
             tool.handles.Panels.Image   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w w pos(3)-2*w pos(4)-2*h],'Title','');
@@ -317,7 +317,7 @@ classdef imtool3D < handle
             
             %Create image axis
             tool.handles.Axes           =   axes('Position',[0 0 1 1],'Parent',tool.handles.Panels.Image,'Color','none');
-            tool.handles.I              =   imshow(zeros(3,3),[0 1],'Parent',tool.handles.Axes); hold on;
+            tool.handles.I              =   imshow(zeros(3,3),[0 1],'Parent',tool.handles.Axes); hold(tool.handles.Axes,'on');
             set(tool.handles.I,'Clipping','off')
             view(tool.handles.Axes,-90,90);
             set(tool.handles.Axes,'XLimMode','manual','YLimMode','manual','Clipping','off');
@@ -325,7 +325,7 @@ classdef imtool3D < handle
             
             %Set up the binary mask viewer
             im = ind2rgb(zeros(3,3),tool.maskColor);
-            tool.handles.mask           =   imshow(im);
+            tool.handles.mask           =   imshow(im,'Parent',tool.handles.Axes);
             set(tool.handles.Axes,'Position',[0 0 1 1],'Color','none','XColor','r','YColor','r','GridLineStyle','--','LineWidth',1.5,'XTickLabel','','YTickLabel','');
             axis off
             grid off

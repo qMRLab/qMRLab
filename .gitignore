@@ -73,3 +73,6 @@ reports/
 docs/source/.doctrees
 External/AMICO/AMICO_matlab/exports/
 mismatchOM
+# GUI triage output (regenerate with Test/GUI/runBranchTriage.m)
+Test/GUI/triage/
+Test/GUI/b2/

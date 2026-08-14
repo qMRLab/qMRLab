@@ -208,7 +208,7 @@ classdef MethodBrowser < handle
                 if contains(fileList{ii}, 'Protocol')
                     ProtLoad(fullfile(Path, fileList{ii}));
                     Model = getappdata(0,'Model');
-                    Custom_OptionsGUI(Model, gcf);
+                    qmrlab.gui.OptionsWindow(Model, gcf);
                 end
             end
             
