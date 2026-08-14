@@ -107,6 +107,67 @@ classdef tTheme < matlab.unittest.TestCase
                 strjoin(offenders, '\n  ')));
         end
 
+        function everyPaintedColourFollowsItsToken(testCase)
+            % The assertion the first version of this file was missing, and the
+            % reason a real bug shipped: it sampled FitDataPanel and SimPanel --
+            % components MATLAB themes by itself -- so it passed while every colour
+            % the APP paints was frozen at whatever token was current when the
+            % window was built. Measured then: token('accent') said
+            % [0.267 0.647 0.941] in dark while FitGO still painted the light value.
+            %
+            % Checks the LIVE property against the token, never the stamp: a later
+            % direct assignment would leave the stamp intact and the colour wrong.
+            qmrlab.gui.Theme.choose('light');
+            qMRLab(inversion_recovery); drawnow;
+            fig = tTheme.mainFigure();
+            testCase.assertNotEmpty(fig);
+
+            for mode = {'dark', 'light'}
+                qmrlab.gui.Theme.choose(mode{1}); drawnow;
+                bad = {};
+                for h = findall(fig)'
+                    for p = {'BackgroundColor', 'FontColor', 'ForegroundColor'}
+                        role = getappdata(h, ['qmrlabThemeRole_' p{1}]);
+                        if isempty(role) || ~isprop(h, p{1}); continue; end
+                        want = qmrlab.gui.Theme.token(role);
+                        got  = get(h, p{1});
+                        if ~isnumeric(got) || numel(got) ~= 3 || any(abs(got - want) > 0.01)
+                            bad{end+1} = sprintf('%s[%s].%s is %s, token ''%s'' is %s', ...
+                                class(h), tTheme.tagOf(h), p{1}, mat2str(round(got,3)), ...
+                                role, mat2str(round(want,3))); %#ok<AGROW>
+                        end
+                    end
+                end
+                testCase.verifyEmpty(bad, sprintf( ...
+                    'In %s mode these painted colours do not match their token:\n  %s', ...
+                    mode{1}, strjoin(bad, '\n  ')));
+            end
+
+            testCase.verifyGreaterThan(numel(tTheme.stamped(fig)), 8, ...
+                'Almost nothing is stamped -- the check above would pass vacuously.');
+        end
+
+        function tokensClearTheContrastFloor(testCase)
+            % A token that cannot be read is not a theme, it is a decoration. The
+            % dark accent this shipped with ([0.267 0.647 0.941]) carried white text
+            % at 2.66:1; the accent is one value in both modes now, at 3.57:1.
+            ground = struct('light', [0.961 0.961 0.961], 'dark', [0.129 0.129 0.129]);
+            for mode = {'light', 'dark'}
+                qmrlab.gui.Theme.choose(mode{1});
+                bg = ground.(mode{1});
+                for t = {'accent', 'warning', 'success', 'muted'}
+                    r = tTheme.contrast(qmrlab.gui.Theme.token(t{1}), bg);
+                    testCase.verifyGreaterThanOrEqual(r, 3.0, sprintf( ...
+                        '%s mode: token ''%s'' is %.2f:1 against the background.', ...
+                        mode{1}, t{1}, r));
+                end
+                r = tTheme.contrast(qmrlab.gui.Theme.token('onTheAccent'), ...
+                                    qmrlab.gui.Theme.token('accent'));
+                testCase.verifyGreaterThanOrEqual(r, 3.0, sprintf( ...
+                    '%s mode: text on the accent is %.2f:1.', mode{1}, r));
+            end
+        end
+
         function tokensAreExportedForVendoredCode(testCase)
             % External/imtool3D_td and src/Common/tools read colours through
             % qmrlabUIColor over root appdata, so they gain no dependency on
@@ -164,6 +225,31 @@ classdef tTheme < matlab.unittest.TestCase
                 if isprop(p, 'Tag') && strcmp(get(p, 'Tag'), tag); tf = true; return; end
                 p = get(p, 'Parent');
             end
+        end
+
+        function t = tagOf(h)
+            t = ''; if isprop(h, 'Tag'); t = get(h, 'Tag'); end
+        end
+
+        function n = stamped(fig)
+            n = {};
+            for h = findall(fig)'
+                for p = {'BackgroundColor', 'FontColor', 'ForegroundColor'}
+                    if ~isempty(getappdata(h, ['qmrlabThemeRole_' p{1}]))
+                        n{end+1} = p{1}; %#ok<AGROW>
+                    end
+                end
+            end
+        end
+
+        function r = contrast(a, b)
+            la = tTheme.luminance(a); lb = tTheme.luminance(b);
+            r = (max(la, lb) + 0.05) / (min(la, lb) + 0.05);
+        end
+
+        function y = luminance(c)
+            ch = @(u) (u <= 0.03928) * (u / 12.92) + (u > 0.03928) * (((u + 0.055) / 1.055)^2.4);
+            y = 0.2126*ch(c(1)) + 0.7152*ch(c(2)) + 0.0722*ch(c(3));
         end
 
         function fig = mainFigure()

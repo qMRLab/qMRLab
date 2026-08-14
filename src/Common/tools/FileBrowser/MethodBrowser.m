@@ -112,7 +112,7 @@ classdef MethodBrowser < handle
             obj.WarnBut_DataConsistency.Layout.Row = obj.NbItems + 2;
             obj.WarnBut_DataConsistency.Layout.Column = 1;
             obj.WarnBut_DataConsistency.Tag = ['WarnBut_DataConsistency_' class(Model)];
-            obj.WarnBut_DataConsistency.FontColor = qmrlabUIColor('warning');
+            qmrlab.gui.Theme.paint(obj.WarnBut_DataConsistency, 'FontColor', 'warning');
             obj.WarnBut_DataConsistency.FontSize = 10;
             obj.WarnBut_DataConsistency.Visible = 'off';
             obj.WarnBut_DataConsistency.Text = '';
@@ -183,8 +183,8 @@ classdef MethodBrowser < handle
             obj.DownloadBtn = uibutton(head, 'push');
             obj.DownloadBtn.Layout.Column = 7;
             obj.DownloadBtn.Text = 'Download example';
-            obj.DownloadBtn.BackgroundColor = qmrlabUIColor('accent');
-            obj.DownloadBtn.FontColor = qmrlabUIColor('onTheAccent');
+            qmrlab.gui.Theme.paint(obj.DownloadBtn, 'BackgroundColor', 'accent');
+            qmrlab.gui.Theme.paint(obj.DownloadBtn, 'FontColor', 'onTheAccent');
             obj.DownloadBtn.ButtonPushedFcn = @(src,event) obj.DownloadBtn_callback();
         end
 

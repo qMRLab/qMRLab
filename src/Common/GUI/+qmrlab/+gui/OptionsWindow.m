@@ -44,6 +44,10 @@ classdef OptionsWindow < matlab.apps.AppBase
     end
     methods (Access = private)
         function applyTheme(app)
+            % Registered here rather than at construction so a reopened window
+            % re-registers: an Options window left open across a mode change used
+            % to keep the tokens it was built with, because nothing told it.
+            setappdata(app.OptionsGUI, 'qmrlabThemeRepaint', @() app.applyTheme());
             % Stage D2. The same ~150 lines MainApp carried, duplicated here --
             % including its own copy of the OS dark-mode probe, so the two windows
             % could in principle have disagreed about the appearance.
@@ -51,6 +55,7 @@ classdef OptionsWindow < matlab.apps.AppBase
             % One line now. The window themes itself, its explicit colours are gone,
             % and qmrlab.gui.Theme owns the single OS query.
             qmrlab.gui.Theme.adopt(app.OptionsGUI);
+            qmrlab.gui.Theme.repaint(app.OptionsGUI);
         end
 
         function CreateProt_Callback(app, hObject, eventdata, MRIinput)
@@ -924,8 +929,8 @@ classdef OptionsWindow < matlab.apps.AppBase
             app.Helpbutton = uibutton(app.OptionsPanel, 'push');
             app.Helpbutton.ButtonPushedFcn = createCallbackFcn(app, @Helpbutton_Callback, true);
             app.Helpbutton.Tag = 'Helpbutton';
-            app.Helpbutton.BackgroundColor = qmrlab.gui.Theme.token('accent');
-            app.Helpbutton.FontColor = qmrlab.gui.Theme.token('onTheAccent');
+            qmrlab.gui.Theme.paint(app.Helpbutton, 'BackgroundColor', 'accent');
+            qmrlab.gui.Theme.paint(app.Helpbutton, 'FontColor', 'onTheAccent');
             app.Helpbutton.FontSize = 13.3333333333329;
             app.Helpbutton.FontWeight = 'bold';
             app.Helpbutton.Position = [188 28 59.8653890364656 30.7609534856191];

@@ -74,7 +74,7 @@ classdef BrowserSet < handle
             obj.NameText.FontWeight = 'bold';
             obj.NameText.HorizontalAlignment = 'left';
             if obj.IsOptional
-                obj.NameText.FontColor = qmrlabUIColor('muted');
+                qmrlab.gui.Theme.paint(obj.NameText, 'FontColor', 'muted');
             end
             if obj.IsOptional == 2
                 obj.NameText.FontWeight = 'normal';
@@ -101,10 +101,10 @@ classdef BrowserSet < handle
             % Test/GUI/tControls.m finds the row by it. Keep the wording.
             if obj.IsOptional && hasInfo
                 obj.FileBox.Value = obj.InfoText;
-                obj.FileBox.FontColor = qmrlabUIColor('muted');
+                qmrlab.gui.Theme.paint(obj.FileBox, 'FontColor', 'muted');
             elseif obj.IsOptional
                 obj.FileBox.Value = 'OPTIONAL';
-                obj.FileBox.FontColor = qmrlabUIColor('muted');
+                qmrlab.gui.Theme.paint(obj.FileBox, 'FontColor', 'muted');
             else
                 obj.FileBox.Value = ['REQUIRED ' obj.InfoText];
             end

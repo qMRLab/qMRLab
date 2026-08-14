@@ -73,6 +73,10 @@ classdef MainApp < matlab.apps.AppBase
             %
             % What remains is the logo, which is an ASSET and cannot be recoloured.
             qmrlab.gui.Theme.adopt(app.qMRILab);
+            % Re-resolve the stamped tokens. adopt() re-themes what MATLAB owns;
+            % this reaches what the app paints itself, which otherwise keeps
+            % whatever token was current when it was built.
+            qmrlab.gui.Theme.repaint(app.qMRILab);
             app.updateLogo();
         end
 
@@ -1471,7 +1475,11 @@ classdef MainApp < matlab.apps.AppBase
             app.ViewerHost.Tag                = 'ViewerHost';
             app.ViewerHost.BorderType         = 'none';
             app.ViewerHost.AutoResizeChildren = 'off';
-            app.ViewerHost.BackgroundColor    = app.FitResultsPlotPanel.BackgroundColor;
+            % No BackgroundColor. Reading a themed colour and re-stating it makes
+            % it EXPLICIT, which is exactly what D2 removed everywhere else -- and
+            % this line survived because it never mentions a literal. Measured: it
+            % froze at [0.961], so in dark mode a light-grey slab framed the viewer
+            % inside a [0.129] pane. Inheriting is what was wanted all along.
 
             function place(h, grid, row, col)
                 if isempty(h) || ~isvalid(h), return; end
@@ -1713,7 +1721,7 @@ classdef MainApp < matlab.apps.AppBase
             app.text_doc_model.WordWrap = 'on';
             app.text_doc_model.FontSize = 13.3333333333333;
             app.text_doc_model.FontWeight = 'bold';
-            app.text_doc_model.FontColor = qmrlab.gui.Theme.token('accent');
+            qmrlab.gui.Theme.paint(app.text_doc_model, 'FontColor', 'accent');
             app.text_doc_model.Position = [554 2 268 22];
             app.text_doc_model.Text = 'Click here for user documentation';
 
@@ -1769,8 +1777,8 @@ classdef MainApp < matlab.apps.AppBase
             % Create SimGO
             app.SimGO = uibutton(app.SimPanel, 'push');
             app.SimGO.Tag = 'SimGO';
-            app.SimGO.BackgroundColor = qmrlab.gui.Theme.token('warning');
-            app.SimGO.FontColor = qmrlab.gui.Theme.token('onTheAccent');
+            qmrlab.gui.Theme.paint(app.SimGO, 'BackgroundColor', 'warning');
+            qmrlab.gui.Theme.paint(app.SimGO, 'FontColor', 'onTheAccent');
             app.SimGO.FontSize = 18.6666666666666;
             app.SimGO.FontWeight = 'bold';
             app.SimGO.Position = [13 55 227 86];
@@ -1806,8 +1814,8 @@ classdef MainApp < matlab.apps.AppBase
             app.FitGO = uibutton(app.uipanel37, 'push');
             app.FitGO.ButtonPushedFcn = createCallbackFcn(app, @FitGO_Callback, true);
             app.FitGO.Tag = 'FitGO';
-            app.FitGO.BackgroundColor = qmrlab.gui.Theme.token('accent');
-            app.FitGO.FontColor = qmrlab.gui.Theme.token('onTheAccent');
+            qmrlab.gui.Theme.paint(app.FitGO, 'BackgroundColor', 'accent');
+            qmrlab.gui.Theme.paint(app.FitGO, 'FontColor', 'onTheAccent');
             app.FitGO.FontSize = 18.6666666666665;
             app.FitGO.FontWeight = 'bold';
             app.FitGO.Position = [14 95 227 90];
@@ -1847,7 +1855,7 @@ classdef MainApp < matlab.apps.AppBase
             app.upgrade_message.WordWrap = 'on';
             app.upgrade_message.FontSize = 14.6666666666667;
             app.upgrade_message.FontWeight = 'bold';
-            app.upgrade_message.FontColor = qmrlab.gui.Theme.token('accent');
+            qmrlab.gui.Theme.paint(app.upgrade_message, 'FontColor', 'accent');
             app.upgrade_message.Position = [7 701 268 22];
             app.upgrade_message.Text = 'Upgrade to v2.5.0';
 

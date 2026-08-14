@@ -122,8 +122,12 @@ classdef Theme
 
             switch lower(name)
                 case 'accent'          % the primary action: Fit data, Help
+                    % ONE value in both modes, deliberately. The lighter dark-mode
+                    % variant this used to carry ([0.267 0.647 0.941]) could not
+                    % carry white text: 2.66:1, under the 3:1 floor. This value
+                    % gives 3.57:1 for its white label in either mode, and still
+                    % separates from both grounds (3.28:1 on light, 4.51:1 on dark).
                     c = [0.149 0.549 0.867];
-                    if dark; c = [0.267 0.647 0.941]; end
                 case 'ontheaccent'     % text drawn on top of the accent
                     c = [1 1 1];
                 case 'warning'         % data will not fit as configured
@@ -143,6 +147,41 @@ classdef Theme
                     if dark; c = [0.900 0.900 0.900]; end
                 otherwise
                     error('qMRLab:Theme:UnknownToken', 'No colour token named "%s".', name);
+            end
+        end
+
+        function paint(h, prop, role)
+        %PAINT  Set a themed colour AND remember why, so it can be re-resolved.
+        %
+        %   Assigning token(...) directly is what a component does once, at
+        %   construction -- and it then keeps that colour forever, because nothing
+        %   records which token it came from. Measured after choose('dark'):
+        %   token('accent') was [0.267 0.647 0.941] while FitGO still painted
+        %   [0.149 0.549 0.867]. Ten components were frozen that way, and the theme
+        %   test did not see it because it sampled panels, which the theme handles
+        %   itself, rather than the components this class paints.
+        %
+        %   Same idiom TypeScale uses: it stamps the AUTHORED font size and
+        %   recomputes base*factor on every apply, never reading back the live
+        %   value. Here the stamp is the ROLE and the recompute is token(role).
+            if isempty(h) || ~isgraphics(h) || ~isprop(h, prop); return; end
+            setappdata(h, ['qmrlabThemeRole_' prop], role);
+            set(h, prop, qmrlab.gui.Theme.token(role));
+        end
+
+        function repaint(fig)
+        %REPAINT  Re-resolve every stamped colour under fig.
+            if isempty(fig) || ~isgraphics(fig); return; end
+            props = {'BackgroundColor', 'FontColor', 'ForegroundColor'};
+            for h = findall(fig)'
+                for k = 1:numel(props)
+                    role = getappdata(h, ['qmrlabThemeRole_' props{k}]);
+                    if isempty(role) || ~isprop(h, props{k}); continue; end
+                    try
+                        set(h, props{k}, qmrlab.gui.Theme.token(role));
+                    catch
+                    end
+                end
             end
         end
 
