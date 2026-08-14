@@ -10,6 +10,9 @@ classdef MainApp < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
+        MinWindowSize            double = [1126 837]   % the size the legacy content was authored for
+        RootGrid                 matlab.ui.container.GridLayout
+        SideGrid                 matlab.ui.container.GridLayout
         qMRILab                  matlab.ui.Figure
         Image                    matlab.ui.control.Image
         upgrade_message          matlab.ui.control.Label
@@ -51,6 +54,19 @@ classdef MainApp < matlab.apps.AppBase
         text_version_check       matlab.ui.control.Label
     end
 
+
+    methods (Static, Access = private)
+        function clampToMinimum(fig, minSize)
+            % Stop the window shrinking below the size its legacy content needs.
+            pos = fig.Position;
+            wanted = max(pos(3:4), minSize);
+            if ~isequal(wanted, pos(3:4))
+                % Grow from the top-left corner, so the titlebar stays put.
+                pos(2) = pos(2) - (wanted(2) - pos(4));
+                fig.Position = [pos(1) pos(2) wanted];
+            end
+        end
+    end
 
     methods (Access = private)
         function isDark = isSystemDarkMode(app)
@@ -1192,6 +1208,85 @@ classdef MainApp < matlab.apps.AppBase
     methods (Access = private)
 
         % Create UIFigure and components
+        function applyResponsiveLayout(app)
+            % Replace the fixed pixel layout of the top-level components with a
+            % grid, so the window can be resized and so the sidebar keeps a usable
+            % width instead of being squashed proportionally.
+            %
+            % Scoped to the top level on purpose. Everything below FitDataPanel --
+            % including the imtool3D viewer -- keeps its own layout: imtool3D
+            % positions its children in pixels from its own resize callback, and a
+            % uicontrol cannot be a child of a uigridlayout at all. The grid stops
+            % at the boundary between native and legacy components.
+
+            % Capture FitDataPanel's design geometry BEFORE reparenting. Its children
+            % must scale with it -- AutoResizeChildren does not reflow them under a
+            % grid-driven resize -- and normalized units are how the GUIDE original
+            % did it (every component in qMRLab.fig was normalized).
+            %
+            % The ratios are computed from the design numbers rather than letting
+            % MATLAB convert: setting Units converts against the parent's size *at
+            % that instant*, and mid-construction that is not the size the positions
+            % were authored for, which yields normalized values greater than 1.
+            designPanel  = app.FitDataPanel.Position;
+            designKids   = allchild(app.FitDataPanel);
+            designKidPos = arrayfun(@(h) {h.Position}, designKids);
+
+            app.RootGrid = uigridlayout(app.qMRILab, [1 2]);
+            app.RootGrid.ColumnWidth   = {270, '1x'};   % sidebar stays legible, canvas takes the rest
+            app.RootGrid.RowHeight     = {'1x'};
+            app.RootGrid.Padding       = [8 8 8 8];
+            app.RootGrid.ColumnSpacing = 8;
+
+            app.SideGrid = uigridlayout(app.RootGrid, [8 1]);
+            app.SideGrid.Layout.Row    = 1;
+            app.SideGrid.Layout.Column = 1;
+            app.SideGrid.Padding       = [0 0 0 0];
+            app.SideGrid.RowSpacing    = 6;
+            % 'fit' rows size to their content; the two panels share what is left.
+            app.SideGrid.RowHeight = {90, 'fit', 'fit', 'fit', 'fit', '1x', '1x', 'fit'};
+
+            sidebar = { app.Image, app.text_version_check, app.upgrade_message, ...
+                        app.MethodSelection, app.DefaultMethodBtn, app.uipanel37, ...
+                        app.SimPanel, app.OpenOptionsPanel };
+            for k = 1:numel(sidebar)
+                h = sidebar{k};
+                if isempty(h) || ~isvalid(h), continue; end
+                h.Parent = app.SideGrid;
+                h.Layout.Row = k;
+                h.Layout.Column = 1;
+            end
+
+            app.FitDataPanel.Parent = app.RootGrid;
+            app.FitDataPanel.Layout.Row = 1;
+            app.FitDataPanel.Layout.Column = 2;
+
+            % Now apply the ratios, so the panel's contents follow it at any size.
+            for k = 1:numel(designKids)
+                h = designKids(k);
+                if ~isvalid(h) || ~isprop(h, 'Units'), continue; end
+                pos = designKidPos{k};
+                h.Units = 'normalized';
+                h.Position = pos ./ [designPanel(3) designPanel(4) designPanel(3) designPanel(4)];
+            end
+
+            % The logo is an image: let it scale within its cell rather than being
+            % clipped, which is what produced the truncated "qMRI ah" wordmark.
+            if isprop(app.Image, 'ScaleMethod')
+                app.Image.ScaleMethod = 'fit';
+            end
+
+            % The window may grow freely, but not shrink below the size its content
+            % was authored for. Inside FitDataPanel the data browser and the viewer
+            % toolbar are still laid out in pixels by code that runs at runtime, so
+            % below the design width they overlap rather than reflow. Stage E moves
+            % those generators onto grids; until then, clamp.
+            app.qMRILab.Resize = 'on';
+            app.qMRILab.AutoResizeChildren = 'off';
+            app.MinWindowSize = [1126 837];
+            app.qMRILab.SizeChangedFcn = @(src, ~) qmrlab.gui.MainApp.clampToMinimum(src, app.MinWindowSize);
+        end
+
         function createComponents(app)
 
             % Get the file path for locating images
@@ -1588,6 +1683,9 @@ classdef MainApp < matlab.apps.AppBase
             % do. applyTheme() replaces this on startup anyway; seed it with the light
             % asset so the component is valid before the theme is applied.
             app.Image.ImageSource = fullfile(pathToMLAPP, 'logo_light.png');
+
+            % Re-home the fixed-position components into a responsive grid.
+            applyResponsiveLayout(app);
 
             % Show the figure after all components are created
             app.qMRILab.Visible = 'on';

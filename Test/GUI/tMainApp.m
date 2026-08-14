@@ -96,6 +96,50 @@ classdef tMainApp < matlab.uitest.TestCase
             end
         end
 
+        function windowSurvivesResize(testCase)
+            % The layout used to be 40 absolute pixel Positions under
+            % AutoResizeChildren, which scales children proportionally -- so at a
+            % small window the method dropdown was squashed below usable height and
+            % the sidebar became unreadable. A grid keeps the sidebar at a fixed
+            % width and gives the canvas the remainder.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig);
+
+            % From the design size upward. The window clamps below this -- see
+            % MainApp.clampToMinimum and the Stage E note there.
+            sizes = [1126 837; 1400 900; 1920 1080; 1280 800];
+            for k = 1:size(sizes, 1)
+                fig.Position(3:4) = sizes(k, :);
+                % Let the layout settle. Normalized children reflow asynchronously
+                % and imtool3D relayouts its own pixel children from a resize
+                % callback, so a single drawnow is not enough -- measuring too early
+                % produces defects that come and go with window size.
+                drawnow; pause(0.6); drawnow;
+                label = sprintf('at %dx%d', sizes(k,1), sizes(k,2));
+
+                % Deliberately NOT a full-tree geomAudit here. Inside FitDataPanel the
+                % data browser and the viewer toolbar are still positioned in pixels
+                % by code that runs at runtime: they follow the window as it grows,
+                % but their fixed-width rails cannot compress, so shrinking reports
+                % overlaps that are real but out of scope until Stage E rewrites
+                % those generators onto grids. What this test pins is the part D1
+                % actually changed -- the top-level grid.
+                sidebar = getpixelposition(tMainApp.byTag(fig, 'SimPanel'));
+                testCase.verifyGreaterThan(sidebar(3), 200, sprintf( ...
+                    '%s: sidebar squeezed to %.0f px; the grid should hold it fixed.', ...
+                    label, sidebar(3)));
+
+                drop = getpixelposition(tMainApp.byTag(fig, 'MethodSelection'));
+                testCase.verifyGreaterThanOrEqual(drop(4), 18, ...
+                    sprintf('%s: method dropdown collapsed to %.1f px tall.', label, drop(4)));
+
+                canvas = getpixelposition(tMainApp.byTag(fig, 'FitDataPanel'));
+                testCase.verifyGreaterThan(canvas(3), 400, ...
+                    sprintf('%s: data panel only %.0f px wide.', label, canvas(3)));
+            end
+        end
+
         function modelSwitchingDoesNotLeakHandles(testCase)
             % The options panel used to be rebuilt by re-entering the whole opening
             % function, which re-created the protocol panels without ever deleting
@@ -118,6 +162,11 @@ classdef tMainApp < matlab.uitest.TestCase
     end
 
     methods (Static)
+        function h = byTag(root, tag)
+            h = findall(root, 'Tag', tag);
+            if numel(h) > 1, h = h(1); end
+        end
+
         function fig = mainFigure()
             fig = findall(groot, 'Type', 'figure', 'Name', 'qMRLab');
             if numel(fig) > 1, fig = fig(1); end
