@@ -274,7 +274,7 @@ classdef MethodBrowser < handle
             
             % Check for warnings
             Data = getappdata(0, 'Data');
-            ErrMsg = Model.sanityCheck(Data.(class(Model)));
+            ErrMsg = char(Model.sanityCheck(Data.(class(Model))));
             if ~isempty(ErrMsg)
                 obj.WarnBut_DataConsistency.Text = ErrMsg;
                 obj.WarnBut_DataConsistency.Tooltip = ErrMsg;

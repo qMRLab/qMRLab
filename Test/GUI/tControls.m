@@ -145,6 +145,40 @@ classdef tControls < matlab.uitest.TestCase
             testCase.assertTrue(isfield(D, testCase.SimpleModel), 'No data was stored.');
             testCase.verifyNotEmpty(D.(testCase.SimpleModel).IRData, ...
                 'The input file loaded as empty.');
+
+            % The SUCCESS path specifically. sanityCheck returns a message when the
+            % data is wrong and 0x0 double [] when it is right, and uilabel.Text
+            % rejects []. So the warning label threw precisely when nothing was
+            % wrong -- the branch a happy-path test walks straight past unless it
+            % checks that the label is now clear.
+            warn = findall(tControls.mainFigure(), 'Tag', ...
+                ['WarnBut_DataConsistency_' testCase.SimpleModel]);
+            testCase.assertNotEmpty(warn, 'The warning label is missing.');
+            testCase.verifyEmpty(char(warn(1).Text), sprintf( ...
+                'Valid data still shows the warning "%s".', char(warn(1).Text)));
+            testCase.verifyEqual(char(warn(1).Visible), 'off', ...
+                'The warning label is visible although the data is valid.');
+        end
+
+        function typingAPathIntoAFileBoxLoadsIt(testCase)
+            % The file box was wired to obj.FileBox_callback(), a method that has
+            % never existed on BrowserSet, so typing or pasting a path threw
+            % noSuchMethodOrField. Nothing caught it because the wiring named a
+            % method rather than being empty -- everyControlIsWired sees a callback
+            % and is satisfied. Only invoking it finds this.
+            model = tControls.tinyDataFor(testCase, testCase.SimpleModel);
+            qMRLab(model.Model);
+            drawnow;
+
+            box = tControls.fileBoxFor(testCase.SimpleModel, 'REQUIRED');
+            testCase.assumeNotEmpty(box, 'Could not find the IRData file box.');
+            box.Value = model.Files.IRData;
+            testCase.verifyWarningFree(@() feval(box.ValueChangedFcn, box, []), ...
+                'Typing a path into the file box failed.');
+
+            D = getappdata(0, 'Data');
+            testCase.verifyNotEmpty(D.(testCase.SimpleModel).IRData, ...
+                'The typed path did not load the file.');
         end
 
         function dataConsistencyWarningIsReachable(testCase)
@@ -226,6 +260,23 @@ classdef tControls < matlab.uitest.TestCase
 
             out.Files.IRData = fullfile(out.Dir, 'IRData.mat');
             out.Files.Mask   = fullfile(out.Dir, 'Mask.mat');
+        end
+
+        function box = fileBoxFor(~, marker)
+            % The per-input file boxes carry no Tag -- BrowserSet keeps them in a
+            % private property and reaches them through the object, not findobj. They
+            % are identifiable by their placeholder text, which BrowserSet seeds with
+            % 'REQUIRED ...' or 'OPTIONAL' according to the input.
+            box = [];
+            panel = findall(tControls.mainFigure(), 'Tag', 'FitDataFileBrowserPanel');
+            if isempty(panel); return; end
+            fields = findall(panel(1), '-isa', 'matlab.ui.control.EditField');
+            for k = 1:numel(fields)
+                if ~strcmp(fields(k).Visible, 'on'); continue; end
+                if startsWith(char(fields(k).Value), marker)
+                    box = fields(k); return
+                end
+            end
         end
 
         function fig = mainFigure()

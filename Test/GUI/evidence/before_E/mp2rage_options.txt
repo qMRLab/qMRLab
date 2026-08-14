@@ -1,0 +1,47 @@
+# OptionsGUI  573x835  46 components
+/AnnotationPane[scribeOverlay]                                                  vis=on      px=0x0@0,0              
+/Panel[uipanel29]                                                               vis=on      children=3
+/Panel[uipanel29]/Panel[FitOptEditPanel]                                        vis=off     children=1
+/Panel[uipanel29]/Panel[FitOptEditPanel]/Table[FitOptTable]                     vis=on      px=248x159@298,613      Data={"","","","",false,false,false,false,[],[],[],[],[],[],[],[],[],[],[],[]}
+/Panel[uipanel29]/Panel[OptionsPanel]                                           vis=on      children=7
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Default]                           vis=on      px=61x28@424,54         Text="Default"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Helpbutton]                        vis=on      px=60x31@485,53         Text="Help"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Load]                              vis=on      px=61x28@366,54         Text="Load"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Save]                              vis=on      px=61x28@308,54         Text="Save"
+/Panel[uipanel29]/Panel[OptionsPanel]/Label[ParametersFileName]                 vis=on      px=160x18@375,30        Text="Parameters filename"
+/Panel[uipanel29]/Panel[OptionsPanel]/Label[textCurrent]                        vis=on      px=57x16@312,31         Text="Current:"
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel                                     vis=on      children=2
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@310,749       String="Inv efficiency:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@412,749       String="0.96" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]                                          vis=on      children=5
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel                                    vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel                                    vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel                                    vis=on      children=8
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel                                    vis=on      children=8
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel                                    vis=on      children=8
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/Table                              vis=on      px=203x68@54,111        Data=[35;72]
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/Table                              vis=on      px=203x68@54,254        Data=[4;5]
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/Table                              vis=on      px=203x68@54,396        Data=[0.8;2.7]
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/Table                              vis=on      px=203x68@54,539        Data=[6;0.0067]
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/Table                              vis=on      px=203x68@54,682        Data=7
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=15x35@148,208        String="?" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=15x35@148,351        String="?" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=15x35@148,636        String="?" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,208        String="Create" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,220        String="Move down" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,231        String="Remove" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,351        String="Create" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,362        String="Move down" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,374        String="Remove" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,636        String="Create" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,648        String="Move down" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@162,659        String="Remove" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,208         String="Load" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,220         String="Move up" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,231         String="Add" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,351         String="Load" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,362         String="Move up" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,374         String="Add" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,636         String="Load" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,648         String="Move up" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]/Panel/UIControl                          vis=off     px=99x11@49,659         String="Add" Value=0

@@ -140,6 +140,67 @@ classdef tMainApp < matlab.uitest.TestCase
             end
         end
 
+        function viewerFillsItsHostAndGrowsWithTheWindow(testCase)
+            % Stage E1. Two assertions the obvious metric cannot make.
+            %
+            % The first is measured against the HOST box rather than resizeCheck's
+            % "rail gap". The rail gap is the distance from imtool3D's mask-select rail
+            % to the right edge of Panels.Large -- measured against Panels.Large, so if
+            % Panels.Large is itself what has gone wrong the gap still reads a healthy
+            % 5 px. A metric computed inside the thing it is checking cannot fail.
+            %
+            % Honest about its power: this assertion has not been shown to catch a
+            % real regression, because the failure it was written against (a grid-child
+            % host at AutoResizeChildren='on' having its child's normalized Position
+            % rewritten) reproduces in an isolated harness but NOT in this app --
+            % flipping that property here changes nothing measurable. It is the second
+            % assertion below that pins a defect this code actually had.
+            %
+            % The second assertion is the D1 defect itself: before E1 the window grew
+            % and the viewer did not, so enlarging the window only added dead space.
+            % Geometry-was-not-clipped is not the same as geometry-worked.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig);
+
+            % A visible window is required, not cosmetic: SizeChangedFcn does not fire
+            % for an invisible figure, so an invisible run measures construction-time
+            % geometry and would pass against a viewer that never relayouts.
+            fig.Visible = 'on';
+            sizes = [1126 837; 1250 850; 1470 940; 1280 800];
+            widths = zeros(size(sizes, 1), 1);
+
+            for k = 1:size(sizes, 1)
+                fig.Position(3:4) = sizes(k, :);
+                drawnow; pause(0.8); drawnow;
+                label = sprintf('at %dx%d', sizes(k,1), sizes(k,2));
+
+                host  = getpixelposition(tMainApp.byTag(fig, 'ViewerHost'), true);
+                large = getpixelposition(tMainApp.byTag(fig, 'imtool3D'),   true);
+                testCase.assertNotEmpty(host,  'ViewerHost is missing.');
+                testCase.assertNotEmpty(large, 'The imtool3D panel is missing.');
+
+                testCase.verifyLessThanOrEqual(abs(large(3) - host(3)), 2, sprintf( ...
+                    '%s: viewer is %.0f px wide inside a %.0f px host.', ...
+                    label, large(3), host(3)));
+                testCase.verifyLessThanOrEqual(abs(large(4) - host(4)), 2, sprintf( ...
+                    '%s: viewer is %.0f px tall inside a %.0f px host.', ...
+                    label, large(4), host(4)));
+
+                % The control strip must stay beside the viewer, never under it.
+                strip = getpixelposition(tMainApp.byTag(fig, 'CursorBtn'), true);
+                testCase.verifyLessThanOrEqual(strip(1) + strip(3), host(1) + 2, sprintf( ...
+                    '%s: the control strip runs under the viewer.', label));
+
+                widths(k) = large(3);
+            end
+
+            testCase.verifyGreaterThan(widths(3), widths(1) + 100, sprintf( ...
+                ['The viewer did not grow with the window: %.0f px at 1126 wide, ' ...
+                 '%.0f px at 1470. Growing the window is adding dead space.'], ...
+                widths(1), widths(3)));
+        end
+
         function datasetsPanelIsPopulatedForEveryModel(testCase)
             % Asserts CONTENT, not geometry.
             %

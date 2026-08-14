@@ -148,7 +148,10 @@ classdef BrowserSet < handle
             end
             
             % Add click callback to FileBox for browsing
-            obj.FileBox.ValueChangedFcn = @(src,event) obj.FileBox_callback();
+            % Was obj.FileBox_callback(), a method that has never existed on this
+            % class -- typing a path into the box threw noSuchMethodOrField.
+            % SetFileName is what it meant: it stores the path and loads the file.
+            obj.FileBox.ValueChangedFcn = @(src,event) obj.SetFileName(src.Value);
         end
         
         %------------------------------------------------------------------
@@ -288,7 +291,11 @@ classdef BrowserSet < handle
                 % reports consistency itself). Everything that loads ONE file --
                 % the per-input "+" button, Clear, setFileName, and therefore the
                 % documented qMRLab(Model, data) API -- came through here and died.
-                ErrMsg = Model.sanityCheck(Data.(class(Model)));
+                % char(): sanityCheck returns a message when the data is WRONG and
+                % 0x0 double [] when it is RIGHT, and uilabel.Text rejects [] with
+                % MATLAB:ui:Label:invalidMultilineTextValue. Without this the label
+                % throws on the success path -- the common one.
+                ErrMsg = char(Model.sanityCheck(Data.(class(Model))));
                 hWarnBut = findobj(obj.Parent, 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
                 if ~isempty(hWarnBut)
                     set(hWarnBut, 'Text', ErrMsg, 'Tooltip', ErrMsg, ...

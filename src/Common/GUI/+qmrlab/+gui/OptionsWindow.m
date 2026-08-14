@@ -465,7 +465,8 @@ classdef OptionsWindow < matlab.apps.AppBase
             % SANITY CHECK
             Data = getappdata(0, 'Data');
             if ~isempty(Data) && isfield(Data,class(Model))
-                ErrMsg = Model.sanityCheck(Data.(class(Model)));
+                % char(): [] when valid, and uilabel.Text rejects []. See BrowserSet.
+                ErrMsg = char(Model.sanityCheck(Data.(class(Model))));
                 % Text/Tooltip, not String/TooltipString: the target is the uilabel
                 % MethodBrowser creates, not the GUIDE uicontrol these lines were
                 % written for. This went unnoticed because the label carried no Tag,

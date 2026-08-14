@@ -13,6 +13,11 @@ classdef MainApp < matlab.apps.AppBase
         MinWindowSize            double = [1126 837]   % the size the legacy content was authored for
         RootGrid                 matlab.ui.container.GridLayout
         SideGrid                 matlab.ui.container.GridLayout
+        FitDataGrid              matlab.ui.container.GridLayout
+        ViewerGrid               matlab.ui.container.GridLayout
+        ControlGrid              matlab.ui.container.GridLayout
+        CompassGrid              matlab.ui.container.GridLayout
+        ViewerHost               matlab.ui.container.Panel
         qMRILab                  matlab.ui.Figure
         Image                    matlab.ui.control.Image
         upgrade_message          matlab.ui.control.Label
@@ -159,7 +164,7 @@ classdef MainApp < matlab.apps.AppBase
 
             % Apply to panels
             panelComponents = [app.FitDataPanel, app.FitResultsPlotPanel, ...
-                app.FitDataFileBrowserPanel, app.SimPanel];
+                app.FitDataFileBrowserPanel, app.SimPanel, app.ViewerHost];
             for i = 1:length(panelComponents)
                 panelComponents(i).BackgroundColor = colors.panelBg;
                 panelComponents(i).ForegroundColor = colors.panelFg;
@@ -727,8 +732,28 @@ classdef MainApp < matlab.apps.AppBase
                 % 'Small' is the honest, cross-platform, user-owned version of it.
                 qmrlab.gui.TypeScale.publish();   % viewer reads this at construction
 
-                % Create viewer
-                handles.tool = imtool3D(0,[0.25 0 .75 1],handles.FitResultsPlotPanel);
+                % Create viewer.
+                %
+                % The drawnow is load-bearing, not defensive. imtool3D.m:296 sizes its
+                % six inner pixel panels from getpixelposition(parent) AT CONSTRUCTION,
+                % and until the first layout pass a grid-child uipanel reports the
+                % placeholder 260x221 rather than its real box. The constructor needs
+                % >= 60x220 (:297-298 compute pos(3)-2*30 and pos(4)-2*110 with no
+                % clamp; only the runtime relayout at :2319 clamps), so the placeholder
+                % clears the crash by a single pixel and then lays the viewer out for a
+                % window nobody has. drawnow settles the layout of a hidden uifigure,
+                % which is exactly the state we are in here.
+                drawnow;
+                handles.tool = imtool3D(0,[0 0 1 1],app.ViewerHost);
+
+                % One forced relayout. Without a size-change event between construction
+                % and first paint, Panels.Image keeps the constructor's pos(4)-2*110
+                % instead of the relayout's pos(4)-2*30 and opens 160 px short.
+                H = handles.tool.getHandles;
+                resizeFcn = get(H.Panels.Large, 'ResizeFcn');
+                if ~isempty(resizeFcn)
+                    feval(resizeFcn, H.Panels.Large, []);
+                end
                 H = handles.tool.getHandles;
                 set(H.Tools.ViewPlane,'Visible','off')
                 set(H.Tools.maskStats,'Visible','off')
@@ -1310,6 +1335,8 @@ classdef MainApp < matlab.apps.AppBase
             app.FitDataPanel.Layout.Row = 1;
             app.FitDataPanel.Layout.Column = 2;
 
+            app.buildFitDataGrid();
+
             % Models with many inputs (mp2rage has 5, mt_sat and qmt_spgr 4 each) build
             % more data rows than fit at the panel's design height, and the rows below
             % the fold were simply clipped. GUIDE papered over this with
@@ -1318,13 +1345,19 @@ classdef MainApp < matlab.apps.AppBase
             % Scrollable is the supported replacement, and it is one property.
             app.FitDataFileBrowserPanel.Scrollable = 'on';
 
-            % Leave FitDataPanel's own children alone. They are positioned in pixels
-            % by code that runs LATER (MethodBrowser/BrowserSet build the data rows
-            % during startup, measuring the panel as it is then), so converting them
-            % to normalized units here empties the Datasets panel: the rows get
-            % placed for a panel of a different height and end up clipped off the
-            % bottom edge. AutoResizeChildren handles them as it always has.
-            app.FitDataPanel.AutoResizeChildren = 'on';
+            % FitDataPanel's own children are now grid cells (buildFitDataGrid), so
+            % AutoResizeChildren no longer has anything to act on here.
+            %
+            % Correcting the claim the D1 commit left in this spot -- it said the
+            % absolutely-positioned children "scale proportionally with the column".
+            % They do not. Measured on R2026b: AutoResizeChildren is a pure TOP-ANCHOR
+            % TRANSLATION. Every child's y shifts by exactly the container's height
+            % delta while x, width and height are untouched (a panel taken from
+            % 900x700 to 1800x891 moved all four probe children dy=+191, dx=dw=dh=0).
+            % That is why widening the window never widened anything inside it, and
+            % why a grid -- which resizes its cells directly -- is the fix rather than
+            % a property.
+            app.FitDataPanel.AutoResizeChildren = 'off';
 
             % The logo is an image: let it scale within its cell rather than being
             % clipped, which is what produced the truncated "qMRI ah" wordmark.
@@ -1341,6 +1374,137 @@ classdef MainApp < matlab.apps.AppBase
             app.qMRILab.AutoResizeChildren = 'off';
             app.MinWindowSize = [1126 837];
             app.qMRILab.SizeChangedFcn = @(src, ~) qmrlab.gui.MainApp.clampToMinimum(src, app.MinWindowSize);
+        end
+
+        function buildFitDataGrid(app)
+            % Stage E1. Put FitDataPanel's contents on a grid, and the viewer pane's
+            % control strip on one too.
+            %
+            % WHY: growing the window used to add dead space. D1 gridded the top
+            % level, so FitDataPanel's COLUMN grew, but its children kept their
+            % design size -- AutoResizeChildren only translates them downward, it
+            % does not resize them (see applyResponsiveLayout). Both of these
+            % children are containers, so they are legal grid children, and a grid
+            % resizes them DIRECTLY.
+            %
+            % It also retires a defect the old split was hiding. imtool3D was
+            % parented straight into FitResultsPlotPanel at a normalized
+            % [0.25 0 .75 1], and that split stops being honoured after the first
+            % resize: measured at 900x520, Panels.Large came out 605 px wide inside a
+            % 617 px FitResultsPlotPanel -- 98% of the pane, not 75% -- covering the
+            % left quarter where the control strip lives. The strip was still there,
+            % just underneath the viewer. clampToMinimum was holding the window above
+            % the size where that became obvious.
+
+            % --- FitDataPanel: browser on top, viewer below, status line at the foot.
+            app.FitDataGrid = uigridlayout(app.FitDataPanel, [3 3]);
+            % Row 1 keeps the browser's design height on purpose: MethodBrowser still
+            % positions its rows in pixels measured from this panel at construction
+            % time, so changing the height here would move them. E2 grids the browser
+            % and this row becomes 'fit'.
+            app.FitDataGrid.RowHeight   = {189, '1x', 'fit'};
+            app.FitDataGrid.ColumnWidth = {'fit', '1x', 'fit'};
+            app.FitDataGrid.Padding     = [6 4 6 4];
+            app.FitDataGrid.RowSpacing  = 4;
+
+            place(app.FitDataFileBrowserPanel, app.FitDataGrid, 1, [1 3]);
+            place(app.FitResultsPlotPanel,     app.FitDataGrid, 2, [1 3]);
+            place(app.text53,                  app.FitDataGrid, 3, 1);
+            place(app.CurrentFitId,            app.FitDataGrid, 3, 2);
+            place(app.text_doc_model,          app.FitDataGrid, 3, 3);
+
+            % --- FitResultsPlotPanel: control strip | viewer.
+            app.FitResultsPlotPanel.AutoResizeChildren = 'off';
+            app.ViewerGrid = uigridlayout(app.FitResultsPlotPanel, [1 2]);
+            app.ViewerGrid.ColumnWidth   = {200, '1x'};
+            app.ViewerGrid.RowHeight     = {'1x'};
+            app.ViewerGrid.Padding       = [4 4 4 4];
+            app.ViewerGrid.ColumnSpacing = 6;
+
+            % The strip's reading order is taken from the coordinates it had, not
+            % invented: Volume / source, view + 3D viewer, Quality Assurance, the two
+            % fit buttons, the two analysis buttons, Cursor, Select, and the
+            % orientation compass. The trailing '1x' absorbs the slack so the controls
+            % stay at the top instead of spreading down a tall pane.
+            app.ControlGrid = uigridlayout(app.ViewerGrid, [10 2]);
+            app.ControlGrid.Layout.Row    = 1;
+            app.ControlGrid.Layout.Column = 1;
+            app.ControlGrid.RowHeight     = [repmat({'fit'}, 1, 9), {'1x'}];
+            app.ControlGrid.ColumnWidth   = {'1x', '1x'};
+            app.ControlGrid.Padding       = [0 0 0 0];
+            app.ControlGrid.RowSpacing    = 6;
+            app.ControlGrid.ColumnSpacing = 6;
+
+            place(app.text80_2,    app.ControlGrid, 1, [1 2]);   % 'Volume'
+            place(app.SourcePop,   app.ControlGrid, 2, [1 2]);
+            place(app.ViewPop,     app.ControlGrid, 3, 1);
+            place(app.Viewer,      app.ControlGrid, 3, 2);       % '3D viewer'
+            place(app.text80,      app.ControlGrid, 4, [1 2]);   % 'Quality Assurance'
+            place(app.ViewDataFit, app.ControlGrid, 5, 1);
+            place(app.Stats,       app.ControlGrid, 5, 2);
+            place(app.ViewROIFit,  app.ControlGrid, 6, 1);
+            place(app.Histogram,   app.ControlGrid, 6, 2);
+            place(app.text72,      app.ControlGrid, 7, [1 2]);   % 'Cursor'
+            place(app.CursorBtn,   app.ControlGrid, 8, [1 2]);   % 'Select'
+
+            % The compass is a shape, not a list: S above, L and R either side, I below.
+            app.CompassGrid = uigridlayout(app.ControlGrid, [3 3]);
+            app.CompassGrid.Layout.Row    = 9;
+            app.CompassGrid.Layout.Column = [1 2];
+            app.CompassGrid.RowHeight     = {'fit', 'fit', 'fit'};
+            app.CompassGrid.ColumnWidth   = {'1x', '1x', '1x'};
+            app.CompassGrid.Padding       = [0 0 0 0];
+            app.CompassGrid.RowSpacing    = 0;
+            app.CompassGrid.ColumnSpacing = 0;
+            place(app.txt_OrientS, app.CompassGrid, 1, 2);
+            place(app.txt_OrientL, app.CompassGrid, 2, 1);
+            place(app.txt_OrientR, app.CompassGrid, 2, 3);
+            place(app.txt_OrientI, app.CompassGrid, 3, 2);
+            % These four carried an explicit [0.94 0.94 0.94] that was invisible only
+            % because the old grey pane happened to match it. On the white pane each
+            % letter became a grey box. They are labels on a background, not chips:
+            % 'none' is what they always meant, and it is one fewer explicit colour
+            % for D2 to strip.
+            set([app.txt_OrientS app.txt_OrientL app.txt_OrientR app.txt_OrientI], ...
+                'BackgroundColor', 'none');
+
+            % --- The viewer's host.
+            %
+            % imtool3D goes into a PLAIN UIPANEL that is the grid's cell, never into
+            % the GridLayout itself. Measured, both matter:
+            %
+            %   * A GridLayout parent silently discards imtool3D's 'Position',[0 0 1 1]
+            %     (MATLAB:ui:components:noPositionSetWhenInLayoutContainer), auto-places
+            %     the panel in some other cell, and -- because its SizeChangedFcn then
+            %     fires mid-layout-pass, when the size is not yet knowable -- relayouts
+            %     to a stale size. The mask rail drifted between +280 and -278 px.
+            % AutoResizeChildren is 'off' because that is what a container holding a
+            % single self-managing child should say, and because imtool3D sets exactly
+            % the same on its own Panels.Large.
+            %
+            % Being precise about the evidence, because it is easy to overstate: in an
+            % isolated harness, a grid-child panel left at the default 'on' had the
+            % normalized Position of its [0 0 1 1] child rewritten by MATLAB to values
+            % over 1, overflowing the column by 139 px -- reproduced with an empty
+            % panel and no imtool3D, so it is MATLAB's behaviour. It does NOT reproduce
+            % in this app: measured here at five window sizes, 'on' and 'off' give
+            % byte-identical geometry (Panels.Large equals its host exactly either
+            % way). So this is the defensible setting, not a load-bearing one, and no
+            % test can currently tell the two apart.
+            app.ViewerHost = uipanel(app.ViewerGrid);
+            app.ViewerHost.Layout.Row         = 1;
+            app.ViewerHost.Layout.Column      = 2;
+            app.ViewerHost.Tag                = 'ViewerHost';
+            app.ViewerHost.BorderType         = 'none';
+            app.ViewerHost.AutoResizeChildren = 'off';
+            app.ViewerHost.BackgroundColor    = app.FitResultsPlotPanel.BackgroundColor;
+
+            function place(h, grid, row, col)
+                if isempty(h) || ~isvalid(h), return; end
+                h.Parent = grid;
+                h.Layout.Row = row;
+                h.Layout.Column = col;
+            end
         end
 
         function createComponents(app)
@@ -1531,7 +1695,11 @@ classdef MainApp < matlab.apps.AppBase
 
             % Create text80_2
             app.text80_2 = uilabel(app.FitResultsPlotPanel);
-            app.text80_2.Tag = 'text80';
+            % Was 'text80', colliding with app.text80 above. handles is keyed by
+            % Tag (convertToGUIDECallbackArguments builds it from every tagged
+            % component), so one of the two simply did not exist there, and
+            % findall(fig,'Tag','text80') returned both.
+            app.text80_2.Tag = 'text80_2';
             app.text80_2.HorizontalAlignment = 'center';
             app.text80_2.VerticalAlignment = 'top';
             app.text80_2.WordWrap = 'on';
