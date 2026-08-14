@@ -168,17 +168,55 @@ already uses for text size.
 
 Two corrections to the plan:
 
-- **The OS detection could not simply be deleted.** MATLAB does not reliably follow
+- **The OS detection could not simply be deleted.** ~~MATLAB does not reliably follow
   the OS appearance: with macOS in Dark, a bare `uifigure` still reported "Light
-  Theme". The query is kept, once, in `Theme.osAppearance`, instead of duplicated
-  in both windows. `Theme.adopt` always assigns `fig.Theme` explicitly, so the IDE,
-  `-batch` and the compiled standalone agree.
+  Theme".~~ **Corrected 2026-08-14 — see below.** The query is kept, once, in
+  `Theme.systemAppearance`, instead of duplicated in both windows. `Theme.adopt`
+  always assigns `fig.Theme` explicitly, so the IDE, `-batch` and the compiled
+  standalone agree.
 - **The viewer keeps its black canvas.** `imtool3D`'s colour constants are
   untouched. The image area displays greyscale MRI and must stay neutral — tinting
   it is a scientific display problem, not a cosmetic one — and a dark canvas is the
   convention for medical image viewers in either mode. In dark mode it now blends
   with the shell for free, which was the original complaint. Theming its *chrome*
   remains open.
+
+### D9a — Correction: it was the OS that lied, not MATLAB
+
+*2026-08-14, after a user reported every window dark on a light desktop.*
+
+D9 above recorded that "MATLAB does not reliably follow the OS appearance", from a
+measurement that read a bare `uifigure` as Light while macOS was believed to be in
+Dark. That inference was backwards. Re-measured on the same machine with the desktop
+in **Light**:
+
+| source | answer |
+|---|---|
+| `defaults read -g AppleInterfaceStyle` | `Dark` |
+| `NSApp.effectiveAppearance` (live) | `NSAppearanceNameAqua` — light |
+| `settings().matlab.appearance.MATLABTheme` | `System` |
+| a bare `uifigure` | `light` |
+
+macOS keeps `AppleInterfaceStyle` in `~/Library/Preferences/.GlobalPreferences.plist`
+and it can outlive the appearance it describes. MATLAB was right both times; the
+`defaults` query was wrong both times, and reading it *first* is what painted the app
+dark on a light desktop.
+
+The contract is unchanged — resolve once, assign `fig.Theme` explicitly — but the
+source order is inverted. `Theme.systemAppearance` now asks, in order:
+
+1. `settings().matlab.appearance.MATLABTheme`, when the user pinned MATLAB to
+   Light or Dark. qMRLab looking unlike every other MATLAB window is the complaint.
+2. A hidden probe `uifigure`, when MATLAB is itself on `System` — this reads the
+   **live** appearance rather than a stored key.
+3. `Theme.queryOS`, the old `defaults`/registry query, only below R2025a where a
+   figure has no `Theme` to read.
+
+The answer is cached, which also removes a `system()` fork per colour lookup.
+`Theme.choose('system')` refreshes it. Pinned by
+`tTheme/systemFollowsMatlabAndNotAStoredOsKey`, which drives MATLAB's own setting
+(the one input a test can change on any platform) and fails against the old order on
+both macOS and Linux.
 
 ## Consequences
 

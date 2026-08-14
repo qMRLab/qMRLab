@@ -203,9 +203,50 @@ classdef tTheme < matlab.unittest.TestCase
                 strjoin(unique(hits), ', ')));
         end
 
+        function systemFollowsMatlabAndNotAStoredOsKey(testCase)
+            % Found by looking at the window, not by a test: on a macOS desktop
+            % in LIGHT, every qMRLab window came up dark. The stored key said so
+            % --  `defaults read -g AppleInterfaceStyle` answered "Dark" long
+            % after the appearance changed -- while NSApp.effectiveAppearance was
+            % Aqua and MATLAB itself resolved light. 'system' read the key first.
+            %
+            % So what is pinned here is the ORDER, not a colour: qMRLab follows
+            % MATLAB, and reaches the OS only when MATLAB has no answer. Asserted
+            % through the public surface because that order lives in a private
+            % method, and driven by MATLAB's own setting because that is the one
+            % input a test can change on any platform -- reading the live desktop
+            % appearance is exactly what cannot be faked in CI.
+            try
+                theme = settings().matlab.appearance.MATLABTheme;
+                theme.ActiveValue;
+            catch ME
+                testCase.assumeFail(['No MATLAB theme setting to drive: ' ME.message]);
+            end
+            % TemporaryValue is session-scoped: it cannot leak into the user's
+            % preferences the way setpref would.
+            testCase.addTeardown(@() tTheme.clearTemp(theme));
+
+            theme.TemporaryValue = 'Dark';
+            qmrlab.gui.Theme.choose('system');
+            testCase.verifyEqual(qmrlab.gui.Theme.current(), 'dark', ...
+                'MATLAB is in Dark and "match system" did not follow it.');
+
+            theme.TemporaryValue = 'Light';
+            qmrlab.gui.Theme.choose('system');
+            testCase.verifyEqual(qmrlab.gui.Theme.current(), 'light', ...
+                'MATLAB is in Light and "match system" did not follow it.');
+        end
+
     end
 
     methods (Static)
+        function clearTemp(theme)
+            try
+                if hasTemporaryValue(theme); clearTemporaryValue(theme); end
+            catch
+            end
+        end
+
         function s = sample(fig)
             s = struct();
             s.figure       = fig.Color;

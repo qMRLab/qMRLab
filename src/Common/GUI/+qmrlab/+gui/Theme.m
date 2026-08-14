@@ -24,18 +24,34 @@ classdef Theme
 %
 %   WHY THE FIGURE'S THEME IS ALWAYS SET EXPLICITLY
 %
-%   Because MATLAB's own default could not be pinned down. Measured with macOS in
-%   Dark: a bare uifigure reported "Light Theme", while the app's figure in the
-%   same process reported "Dark Theme" -- and nothing in qMRLab sets it. Whatever
-%   drives that difference (desktop appearance setting, App Designer registration,
-%   sampling at process start), it is not something to inherit silently: the same
-%   code would then look different in the IDE, in -batch and in the compiled
-%   standalone. adopt() therefore assigns fig.Theme every time, from a mode this
-%   class resolves, so the result is the same everywhere.
+%   So that the IDE, -batch and the compiled standalone cannot disagree, and so
+%   the View > Appearance menu has something to change. A figure left alone takes
+%   MATLAB's own appearance -- right on the desktop, and simply light where there
+%   is no desktop -- but a window built before a theme change would then keep the
+%   old one. adopt() assigns fig.Theme every time, from the one mode this class
+%   resolves.
 %
-%   'system' still has to ask the OS itself, for the same reason. That is the one
-%   piece of the old hand-rolled detection worth keeping -- and it is kept ONCE,
-%   here, rather than duplicated in MainApp and OptionsWindow as it was.
+%   WHAT 'SYSTEM' ASKS, AND WHAT IT DELIBERATELY ASKS LAST
+%
+%   MATLAB first; the operating system only where MATLAB has no answer to give.
+%   That order is the reverse of what this class did until the OS was caught
+%   lying. Measured 2026-08-14 with the macOS desktop in LIGHT:
+%
+%       defaults read -g AppleInterfaceStyle    ->  "Dark"      (stale key)
+%       NSApp.effectiveAppearance               ->  Aqua        (the live truth)
+%       MATLAB theme setting, and a bare uifigure ->  light
+%
+%   The key outlived the appearance it described, and reading it first is what
+%   painted every qMRLab window dark on a light desktop.
+%
+%   That measurement also revises what Stage D2 recorded here. "A bare uifigure
+%   reported Light Theme with macOS in Dark" was this same stale key read the
+%   other way round: the desktop was Light and MATLAB was telling the truth. What
+%   remains true is the conclusion -- resolve once, assign explicitly -- so only
+%   the SOURCE changed, not the contract.
+%
+%   The query is kept ONCE, here, rather than duplicated in MainApp and
+%   OptionsWindow as it was.
 %
 %   See also: qmrlab.gui.TypeScale, qmrlabUIColor, Test/GUI/tTheme.m
 
@@ -76,6 +92,12 @@ classdef Theme
         %CHOOSE  Set the appearance, persist it, and re-theme every adopted window.
             C = qmrlab.gui.Theme;
             mode = C.validate(mode);
+
+            % Picking "Match system" is a user saying look again -- the desktop
+            % may have changed appearance since this last resolved, and the
+            % answer is cached because it costs a figure to obtain.
+            if strcmp(mode, 'system'); C.systemAppearance(true); end
+
             C.state(mode);
             C.writeMode(mode);
             C.publish();
@@ -107,7 +129,7 @@ classdef Theme
         %CURRENT  What that resolves to right now: light or dark.
             C = qmrlab.gui.Theme;
             m = C.state();
-            if strcmp(m, 'system'); m = C.osAppearance(); end
+            if strcmp(m, 'system'); m = C.systemAppearance(); end
         end
 
         function c = token(name)
@@ -230,15 +252,58 @@ classdef Theme
 
     methods (Static, Access = private)
 
-        function m = osAppearance()
-        %OSAPPEARANCE  Ask the operating system. MUST NOT THROW.
+        function m = systemAppearance(refresh)
+        %SYSTEMAPPEARANCE  What 'system' resolves to. MUST NOT THROW.
         %
-        %   The one surviving piece of the ~130 lines this replaces -- and it is
-        %   needed, because MATLAB does not reliably follow the OS: measured with
-        %   macOS in Dark, a fresh uifigure still reported "Light Theme".
+        %   Asks MATLAB, and reaches the operating system only if MATLAB has
+        %   nothing to say. See the header of this file for the measurement that
+        %   put the OS last: its stored appearance key can outlive the appearance,
+        %   and believing it made the whole app dark on a light desktop.
         %
-        %   Kept in ONE place. It used to be copied verbatim into MainApp and
-        %   OptionsWindow, so the two windows could in principle disagree.
+        %   Cached. Step 2 costs a figure, and current() runs on every token
+        %   lookup -- the version this replaces forked a `defaults` process each
+        %   time. choose('system') is what refreshes it.
+            persistent resolved
+            if nargin && refresh; resolved = ''; end
+            if ~isempty(resolved); m = resolved; return; end
+
+            m = '';
+
+            % 1. MATLAB itself is pinned to an appearance. Match it: looking
+            %    unlike every other MATLAB window is the complaint this answers.
+            try
+                s = settings;
+                v = lower(char(string(s.matlab.appearance.MATLABTheme.ActiveValue)));
+                if any(strcmp(v, {'light', 'dark'})); m = v; end
+            catch
+            end
+
+            % 2. MATLAB is on 'system' too, so let it resolve: a bare uifigure
+            %    comes up in whatever the desktop actually is. This is the step
+            %    that reads the LIVE appearance instead of a stored key.
+            if isempty(m)
+                try
+                    probe = uifigure('Visible', 'off');
+                    cleanup = onCleanup(@() delete(probe)); %#ok<NASGU>
+                    v = lower(char(string(probe.Theme.BaseColorStyle)));
+                    if any(strcmp(v, {'light', 'dark'})); m = v; end
+                catch
+                end
+            end
+
+            % 3. No graphics at all, or a release older than figure themes.
+            if isempty(m); m = qmrlab.gui.Theme.queryOS(); end
+
+            resolved = m;
+        end
+
+        function m = queryOS()
+        %QUERYOS  The operating system's STORED appearance. MUST NOT THROW.
+        %
+        %   Last resort, and deliberately not trusted before MATLAB: on macOS this
+        %   key is written when the appearance changes and is not guaranteed to
+        %   still describe it. Kept because below R2025a a figure has no Theme to
+        %   read, and the tokens still have to pick a side.
             m = 'light';
             try
                 if ispc

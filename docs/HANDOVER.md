@@ -103,9 +103,12 @@ Dispatch on `class(h)`.
 **`set(h,'BackgroundColor','remove')` does not un-set a colour** — it freezes it at
 the currently-resolved value. Stripping must happen in source.
 
-**MATLAB does not reliably follow the OS appearance.** Measured with macOS in Dark, a
-fresh `uifigure` still reported `"Light Theme"`. `Theme.adopt` always assigns
-`fig.Theme` explicitly.
+**The OS lies about its own appearance; MATLAB does not.** `defaults read -g
+AppleInterfaceStyle` answered `Dark` on a desktop that was demonstrably Light
+(`NSApp.effectiveAppearance` = Aqua, MATLAB = light) — the key outlives the
+appearance. Reading it first made every window dark on a light desktop. `system` now
+asks MATLAB's own theme setting, then a probe `uifigure`, and the OS only below
+R2025a. This *reverses* the trap recorded in D9; see D9a.
 
 **The options payload is frozen bit-for-bit.** `Model.options` lands in saved
 `FitResults`. Numeric options render in a **text** field (they hold `'auto'`,
