@@ -10,7 +10,6 @@ classdef MainApp < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        MinWindowSize            double = [1126 837]   % the size the legacy content was authored for
         RootGrid                 matlab.ui.container.GridLayout
         SideGrid                 matlab.ui.container.GridLayout
         FitDataGrid              matlab.ui.container.GridLayout
@@ -60,19 +59,6 @@ classdef MainApp < matlab.apps.AppBase
         text_version_check       matlab.ui.control.Label
     end
 
-
-    methods (Static, Access = private)
-        function clampToMinimum(fig, minSize)
-            % Stop the window shrinking below the size its legacy content needs.
-            pos = fig.Position;
-            wanted = max(pos(3:4), minSize);
-            if ~isequal(wanted, pos(3:4))
-                % Grow from the top-left corner, so the titlebar stays put.
-                pos(2) = pos(2) - (wanted(2) - pos(4));
-                fig.Position = [pos(1) pos(2) wanted];
-            end
-        end
-    end
 
     methods (Access = private)
         function isDark = isSystemDarkMode(app)
@@ -1313,10 +1299,15 @@ classdef MainApp < matlab.apps.AppBase
             % 1470x956 laptop desktop, and the laptop is exactly where people want
             % larger text. FitDataFileBrowserPanel is Scrollable, so a short window
             % scrolls rather than clipping.
-            app.MinWindowSize = min([1126 837]*g, qmrlab.gui.TypeScale.workArea(app.qMRILab));
+            % Grow the window so the bigger type has somewhere to go. This is not
+            % the retired clamp: it fires only when the user CHANGES the text size,
+            % and never constrains a resize afterwards. Capped against the monitor --
+            % [1126 837]*1.25 is taller than a 1470x956 laptop desktop, and the
+            % laptop is exactly where someone wants larger text.
+            preferred = min([1126 837]*g, qmrlab.gui.TypeScale.workArea(app.qMRILab));
 
             pos  = app.qMRILab.Position;
-            want = max(pos(3:4), app.MinWindowSize);
+            want = max(pos(3:4), preferred);
             if ~isequal(want, pos(3:4))
                 app.qMRILab.Position = [pos(1:2) want];
             end
@@ -1356,6 +1347,12 @@ classdef MainApp < matlab.apps.AppBase
             app.SideGrid.Layout.Column = 1;
             app.SideGrid.Padding       = [0 0 0 0];
             app.SideGrid.RowSpacing    = 6;
+            % The sidebar's fixed rows (logo 90, fit panel 221, sim panel 351, plus
+            % the button rows) come to more than a short window has. At 1280x800 --
+            % an ordinary laptop -- SimPanel hung 23 px below the grid. Found only
+            % once E4 removed windowSurvivesResize's exemption from the full-tree
+            % audit; the clamp had kept the window tall enough to hide it.
+            app.SideGrid.Scrollable    = 'on';
             % 'fit' rows size to their content. The two panels keep their design
             % heights -- they hold absolutely-positioned children, so stretching them
             % just opens a gap above the buttons rather than distributing anything.
@@ -1416,10 +1413,16 @@ classdef MainApp < matlab.apps.AppBase
             % toolbar are still laid out in pixels by code that runs at runtime, so
             % below the design width they overlap rather than reflow. Stage E moves
             % those generators onto grids; until then, clamp.
+            % Stage E4: no minimum-size clamp.
+            %
+            % It existed because the data browser and the viewer toolbar were laid
+            % out in pixels at runtime and overlapped below the design size. E1 and
+            % E2 put both on grids, so measured with the clamp disabled the window is
+            % audit-clean down to 1000x750, and below that the only thing that
+            % overflows is the viewer's control strip -- which now scrolls, like the
+            % browser. The window may be any size the user wants.
             app.qMRILab.Resize = 'on';
             app.qMRILab.AutoResizeChildren = 'off';
-            app.MinWindowSize = [1126 837];
-            app.qMRILab.SizeChangedFcn = @(src, ~) qmrlab.gui.MainApp.clampToMinimum(src, app.MinWindowSize);
         end
 
         function buildFitDataGrid(app)
@@ -1439,8 +1442,8 @@ classdef MainApp < matlab.apps.AppBase
             % resize: measured at 900x520, Panels.Large came out 605 px wide inside a
             % 617 px FitResultsPlotPanel -- 98% of the pane, not 75% -- covering the
             % left quarter where the control strip lives. The strip was still there,
-            % just underneath the viewer. clampToMinimum was holding the window above
-            % the size where that became obvious.
+            % just underneath the viewer. The min-size clamp was holding the window
+            % above the size where that became obvious; E4 retired it.
 
             % --- FitDataPanel: browser on top, viewer below, status line at the foot.
             app.FitDataGrid = uigridlayout(app.FitDataPanel, [3 3]);
@@ -1497,6 +1500,12 @@ classdef MainApp < matlab.apps.AppBase
             app.ControlGrid.Padding       = [0 0 0 0];
             app.ControlGrid.RowSpacing    = 6;
             app.ControlGrid.ColumnSpacing = 6;
+            % The strip's controls come to ~460 px and cannot compress. Measured with
+            % the clamp disabled, that is the one thing that still overflowed below
+            % 1000x750: the strip hung off the bottom of the viewer pane and by
+            % 800x600 was entirely off the figure. Scrolling is what lets E4 retire
+            % the clamp instead of the clamp hiding this.
+            app.ControlGrid.Scrollable    = 'on';
 
             place(app.text80_2,    app.ControlGrid, 1, [1 2]);   % 'Volume'
             place(app.SourcePop,   app.ControlGrid, 2, [1 2]);

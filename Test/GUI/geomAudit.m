@@ -89,8 +89,21 @@ function defects = geomAudit(fig, label, outDir)
                     inPar(3), inPar(4), MIN_SIZE)); %#ok<AGROW>
             end
 
+            % Overflow and OffFigure are NOT defects inside a scrollable container --
+            % that is what scrolling is for. A scrollable uigridlayout deliberately
+            % places overflowing children at negative y and the user scrolls to them.
+            %
+            % Justified by measurement rather than convenience, because relaxing an
+            % audit to accommodate a change is how Stage D1 shipped an empty panel:
+            % at 800x600 the viewer's control strip reported its compass "entirely
+            % outside the window" at y = -106; scroll(ControlGrid,'bottom') moved the
+            % viewport to [1 -151] and put every one of the strip's controls inside
+            % it. The Collapsed check below still applies -- a container that is
+            % sub-pixel is broken whether or not anything scrolls.
+            scrollable = hasScrollableAncestor(h);
+
             parPos = getpixelposition(parent);
-            if ~isa(parent, 'matlab.ui.Figure')
+            if ~isa(parent, 'matlab.ui.Figure') && ~scrollable
                 overRight = (inPar(1) + inPar(3)) - parPos(3);
                 overTop   = (inPar(2) + inPar(4)) - parPos(4);
                 if inPar(1) < -EDGE_TOL || inPar(2) < -EDGE_TOL || ...
@@ -101,8 +114,8 @@ function defects = geomAudit(fig, label, outDir)
                 end
             end
 
-            if (inFig(1) + inFig(3)) < 0 || (inFig(2) + inFig(4)) < 0 || ...
-                    inFig(1) > figPos(3) || inFig(2) > figPos(4)
+            if ~scrollable && ((inFig(1) + inFig(3)) < 0 || (inFig(2) + inFig(4)) < 0 || ...
+                    inFig(1) > figPos(3) || inFig(2) > figPos(4))
                 defects(end+1) = mkDefect('OffFigure', h, here, sprintf( ...
                     'lies entirely outside the window at [%.1f %.1f %.1f %.1f]', inFig)); %#ok<AGROW>
             end
@@ -113,6 +126,17 @@ function defects = geomAudit(fig, label, outDir)
 end
 
 % ----------------------------------------------------------------------
+function tf = hasScrollableAncestor(h)
+    tf = false;
+    p = h;
+    while ~isempty(p) && ~isa(p, 'matlab.ui.Figure')
+        if isprop(p, 'Scrollable') && strcmp(get(p, 'Scrollable'), 'on')
+            tf = true; return
+        end
+        p = get(p, 'Parent');
+    end
+end
+
 function tf = isContainerLike(h)
     tf = isgraphics(h) && ( ...
         isa(h, 'matlab.ui.container.Panel')       || ...

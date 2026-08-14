@@ -106,8 +106,8 @@ classdef tMainApp < matlab.uitest.TestCase
             fig = tMainApp.mainFigure();
             testCase.assertNotEmpty(fig);
 
-            % From the design size upward. The window clamps below this -- see
-            % MainApp.clampToMinimum and the Stage E note there.
+            % From the design size upward. Shrinking is covered separately by
+            % windowCanShrinkBelowTheDesignSize, now that E4 has retired the clamp.
             sizes = [1126 837; 1400 900; 1920 1080; 1280 800];
             for k = 1:size(sizes, 1)
                 fig.Position(3:4) = sizes(k, :);
@@ -118,13 +118,15 @@ classdef tMainApp < matlab.uitest.TestCase
                 drawnow; pause(0.6); drawnow;
                 label = sprintf('at %dx%d', sizes(k,1), sizes(k,2));
 
-                % Deliberately NOT a full-tree geomAudit here. Inside FitDataPanel the
-                % data browser and the viewer toolbar are still positioned in pixels
-                % by code that runs at runtime: they follow the window as it grows,
-                % but their fixed-width rails cannot compress, so shrinking reports
-                % overlaps that are real but out of scope until Stage E rewrites
-                % those generators onto grids. What this test pins is the part D1
-                % actually changed -- the top-level grid.
+                % This used to skip the full-tree audit, because the data browser and
+                % the viewer toolbar were positioned in pixels at runtime and
+                % reported overlaps that were real but out of scope. E1 and E2 put
+                % both on grids, so the exemption is spent and the audit runs.
+                defects = geomAudit(fig);
+                testCase.verifyEmpty(defects, sprintf('%s: %s', label, ...
+                    strjoin(arrayfun(@(d) sprintf('%s %s (%s)', d.Kind, d.Tag, d.Detail), ...
+                            defects, 'UniformOutput', false), '; ')));
+
                 sidebar = getpixelposition(tMainApp.byTag(fig, 'SimPanel'));
                 testCase.verifyGreaterThan(sidebar(3), 200, sprintf( ...
                     '%s: sidebar squeezed to %.0f px; the grid should hold it fixed.', ...
@@ -137,6 +139,41 @@ classdef tMainApp < matlab.uitest.TestCase
                 canvas = getpixelposition(tMainApp.byTag(fig, 'FitDataPanel'));
                 testCase.verifyGreaterThan(canvas(3), 400, ...
                     sprintf('%s: data panel only %.0f px wide.', label, canvas(3)));
+            end
+        end
+
+        function windowCanShrinkBelowTheDesignSize(testCase)
+            % Stage E4. The window used to refuse to shrink below 1126x837: a
+            % SizeChangedFcn snapped it back, because the data browser and the viewer
+            % toolbar were laid out in pixels at runtime and overlapped below that.
+            % E1 and E2 put both on grids and the strip and browser now scroll, so
+            % the clamp had nothing left to protect.
+            %
+            % Asserts the two things that could regress: the window actually TAKES
+            % the size it is given (a returning clamp would show up as the size
+            % snapping back), and the layout stays audit-clean while it does.
+            %
+            % mp2rage on purpose -- seven inputs, the tallest browser, so it is the
+            % model with the least room to give.
+            qMRLab(mp2rage); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig);
+            fig.Visible = 'on';
+
+            for sz = [1000 750; 900 650; 800 600; 700 520]'
+                want = sz';
+                fig.Position(3:4) = want;
+                drawnow; pause(0.8); drawnow;
+
+                got = round(fig.Position(3:4));
+                testCase.verifyEqual(got, want, sprintf( ...
+                    'Asked for %s, window became %s -- something is clamping again.', ...
+                    mat2str(want), mat2str(got)));
+
+                defects = geomAudit(fig);
+                testCase.verifyEmpty(defects, sprintf('At %s: %s', mat2str(want), ...
+                    strjoin(arrayfun(@(d) sprintf('%s %s (%s)', d.Kind, d.Tag, d.Detail), ...
+                            defects, 'UniformOutput', false), '; ')));
             end
         end
 
