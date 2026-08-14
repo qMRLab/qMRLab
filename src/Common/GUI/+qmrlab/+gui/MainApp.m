@@ -61,143 +61,35 @@ classdef MainApp < matlab.apps.AppBase
 
 
     methods (Access = private)
-        function isDark = isSystemDarkMode(app)
-            % Detect if system is in dark mode (Windows/Mac)
-            if ispc
-                % Windows registry check for dark mode
-                try
-                    [status, result] = system('reg query HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v AppsUseLightTheme');
-                    if status == 0
-                        isDark = contains(result, '0x0');
-                    else
-                        isDark = false;
-                    end
-                catch
-                    isDark = false;
-                end
-            elseif ismac
-                % macOS dark mode detection
-                try
-                    [status, result] = system('defaults read -g AppleInterfaceStyle');
-                    isDark = status == 0 && contains(result, 'Dark');
-                catch
-                    isDark = false;
-                end
-            else
-                % Linux or unknown - use default light mode
-                isDark = false;
-            end
-        end
-
-        function colors = getColorScheme(app)
-            % Return appropriate color scheme based on system theme
-            if app.isSystemDarkMode()
-                % Dark mode colors
-                colors.background = [0.15 0.15 0.15];
-                colors.foreground = [0.9 0.9 0.9];
-                colors.panelBg = [0.2 0.2 0.2];
-                colors.panelFg = [0.95 0.95 0.95];
-                colors.buttonBg = [0.3 0.3 0.3];
-                colors.buttonFg = [0.95 0.95 0.95];
-                colors.accent = [0.149 0.549 0.8667];
-                colors.warning = [1 0.6 0.2];
-                colors.success = [0.2 0.8 0.2];
-            else
-                % Light mode colors (your existing colors)
-                colors.background = [0.9412 0.9412 0.9412];
-                colors.foreground = [0 0 0];
-                colors.panelBg = [1 1 1];
-                colors.panelFg = [0 0 0];
-                colors.buttonBg = [0.902 0.902 0.902];
-                colors.buttonFg = [0 0 0];
-                colors.accent = [0.149 0.549 0.8667];
-                colors.warning = [1 0.3294 0.3294];
-                colors.success = [0.2 0.8 0.2];
-            end
+        function applyTheme(app)
+            % Stage D2. Was ~140 lines: an OS dark-mode probe (a Windows registry
+            % query and a macOS `defaults read`), a hand-rolled two-palette colour
+            % scheme, and a sweep that painted a named list of ~40 components.
+            %
+            % All of it is gone because a uifigure themes its own components --
+            % measured, an untouched panel goes [0.961] light to [0.129] dark. The
+            % sweep existed only to undo the explicit colours the app set on itself
+            % a few lines earlier. Delete the colours and there is nothing to undo.
+            %
+            % What remains is the logo, which is an ASSET and cannot be recoloured.
+            qmrlab.gui.Theme.adopt(app.qMRILab);
+            app.updateLogo();
         end
 
         function updateLogo(app)
-            % Switch logo based on current theme
-            pathToMLAPP = fileparts(which('qMRLab.m'));
-
-            if app.isSystemDarkMode()
-                darkLogoPath = fullfile(pathToMLAPP, 'logo_dark.png');
-                lightLogoPath = fullfile(pathToMLAPP, 'logo_light.png');
-
-                % Check if dark logo exists, otherwise use light logo with warning
-                if exist(darkLogoPath, 'file')
-                    app.Image.ImageSource = darkLogoPath;
-                else
-                    app.Image.ImageSource = lightLogoPath;
-                    warning('Dark mode logo not found. Using light logo instead.');
-                end
-            else
-                lightLogoPath = fullfile(pathToMLAPP, 'logo_light.png');
-                app.Image.ImageSource = lightLogoPath;
-            end
-        end
-
-        function applyTheme(app)
-            % Apply the current theme to all components
-            colors = app.getColorScheme();
-
-            app.updateLogo();
-
-
-            % Apply to main figure
-            app.qMRILab.Color = colors.background;
-            app.uipanel37.BackgroundColor = colors.background;
-            app.uipanel37.ForegroundColor = colors.foreground;
-
-            % Apply to panels
-            panelComponents = [app.FitDataPanel, app.FitResultsPlotPanel, ...
-                app.FitDataFileBrowserPanel, app.SimPanel, app.ViewerHost];
-            for i = 1:length(panelComponents)
-                panelComponents(i).BackgroundColor = colors.panelBg;
-                panelComponents(i).ForegroundColor = colors.panelFg;
-            end
-            app.text_doc_model.BackgroundColor = colors.panelBg;
-
-            % Apply to buttons
-            buttonComponents = [app.FitGO, app.FitResultsSave, app.FitResultsLoad, ...
-                app.SimGO, app.SimSave, app.SimLoad, app.SimRndBtn, ...
-                app.SimVaryBtn, app.SimCurveBtn, app.DefaultMethodBtn, ...
-                app.OpenOptionsPanel, app.ViewDataFit, app.ViewROIFit, ...
-                app.Viewer, app.CursorBtn, app.Stats, app.Histogram];
-            for i = 1:length(buttonComponents)
-                if ~isequal(buttonComponents(i).BackgroundColor, [1 0.3294 0.3294]) && ...
-                        ~isequal(buttonComponents(i).BackgroundColor, [0.149 0.549 0.8667])
-                    % Only change non-accent buttons
-                    buttonComponents(i).BackgroundColor = colors.buttonBg;
-                    buttonComponents(i).FontColor = colors.buttonFg;
+            % The wordmark is dark ink on transparent, so on a dark background it
+            % disappears -- visible in Test/GUI/evidence/before_D2_dark_main.png.
+            % There is a light/dark pair; pick by the RESOLVED theme rather than by
+            % asking the OS again, so the logo cannot disagree with the window.
+            root = fileparts(which('qMRLab.m'));
+            asset = 'logo_light.png';
+            if strcmp(qmrlab.gui.Theme.current(), 'dark')
+                if exist(fullfile(root, 'logo_dark.png'), 'file')
+                    asset = 'logo_dark.png';
                 end
             end
-
-            % Apply to labels and text
-            labelComponents = [app.text_version_check, app.text53, app.CurrentFitId, ...
-                app.text_doc_model, app.upgrade_message, app.text72, ...
-                app.text80, app.txt_OrientL, app.txt_OrientR, ...
-                app.txt_OrientI, app.txt_OrientS, app.text80_2];
-            for i = 1:length(labelComponents)
-                labelComponents(i).FontColor = colors.foreground;
-                % Update background for labels that need it
-                if isequal(labelComponents(i).BackgroundColor, [0.94 0.94 0.94])
-                    labelComponents(i).BackgroundColor = colors.background;
-                end
-            end
-            app.txt_OrientS.BackgroundColor = colors.panelBg;
-            app.txt_OrientI.BackgroundColor = colors.panelBg;
-            app.txt_OrientR.BackgroundColor = colors.panelBg;
-            app.txt_OrientL.BackgroundColor = colors.panelBg;
-
-            % Special handling for documentation link
-            app.text_doc_model.FontColor = colors.accent;
-
-            % Update dropdowns
-            dropdownComponents = [app.MethodSelection, app.SourcePop, app.ViewPop];
-            for i = 1:length(dropdownComponents)
-                dropdownComponents(i).BackgroundColor = colors.buttonBg;
-                dropdownComponents(i).FontColor = colors.foreground;
+            if isprop(app, 'Image') && ~isempty(app.Image) && isvalid(app.Image)
+                app.Image.ImageSource = fullfile(root, asset);
             end
         end
 
@@ -841,6 +733,16 @@ classdef MainApp < matlab.apps.AppBase
 
             % Text size. adopt() scales the window now and registers the relayout
             % callback so a later preference change grows the geometry too.
+            % Theme BEFORE type: adopt() publishes the colour tokens to root
+            % appdata, and the file browser and the vendored viewer read them while
+            % they build. Publishing after they exist would leave them on the
+            % fallback palette until something forced a repaint.
+            qmrlab.gui.Theme.adopt(app.qMRILab);
+            qmrlab.gui.Theme.attachMenu(app.qMRILab);
+            % Rebuilding the browsers is how a theme change reaches components that
+            % read a token at construction. Same teardown MethodMenu already does.
+            setappdata(app.qMRILab, 'qmrlabThemeRepaint', @() app.applyTheme());
+
             qmrlab.gui.TypeScale.adopt(app.qMRILab, @() app.applyTypeGeometry());
             qmrlab.gui.TypeScale.attachMenu(app.qMRILab);
 
@@ -1599,7 +1501,6 @@ classdef MainApp < matlab.apps.AppBase
 
             % Create qMRILab and hide until all components are created
             app.qMRILab = uifigure('Visible', 'off');
-            app.qMRILab.Color = [0.9412 0.9412 0.9412];
             colormap(app.qMRILab, 'parula');
             app.qMRILab.Position = [283 -771 1126 837];
             app.qMRILab.Name = 'qMRLab';
@@ -1614,15 +1515,12 @@ classdef MainApp < matlab.apps.AppBase
             app.text_version_check.VerticalAlignment = 'top';
             app.text_version_check.WordWrap = 'on';
             app.text_version_check.FontSize = 16;
-            app.text_version_check.FontColor = [0 0 0];
             app.text_version_check.Position = [36 722 210.026666666667 25.0666666666667];
             app.text_version_check.Text = 'vx.y.z';
 
             % Create FitDataPanel
             app.FitDataPanel = uipanel(app.qMRILab);
-            app.FitDataPanel.ForegroundColor = [0 0 0];
             app.FitDataPanel.Title = 'Fit qMRI Data';
-            app.FitDataPanel.BackgroundColor = [0.9412 0.9412 0.9412];
             app.FitDataPanel.Tag = 'FitDataPanel';
             app.FitDataPanel.FontWeight = 'bold';
             app.FitDataPanel.FontSize = 13.3333333333332;
@@ -1631,7 +1529,6 @@ classdef MainApp < matlab.apps.AppBase
             % Create FitResultsPlotPanel
             app.FitResultsPlotPanel = uipanel(app.FitDataPanel);
             app.FitResultsPlotPanel.Title = 'Image Viewer';
-            app.FitResultsPlotPanel.BackgroundColor = [0.941176470588235 0.941176470588235 0.941176470588235];
             app.FitResultsPlotPanel.Tag = 'FitResultsPlotPanel';
             app.FitResultsPlotPanel.FontSize = 13.3333333333331;
             app.FitResultsPlotPanel.Position = [12 25 811 566];
@@ -1650,7 +1547,6 @@ classdef MainApp < matlab.apps.AppBase
             app.ViewPop.ValueChangedFcn = createCallbackFcn(app, @ViewPop_Callback, true);
             app.ViewPop.Tag = 'ViewPop';
             app.ViewPop.FontSize = 13.3333333333332;
-            app.ViewPop.BackgroundColor = [1 1 1];
             app.ViewPop.Position = [13 469 78 25];
             app.ViewPop.Value = 'Axial';
 
@@ -1660,7 +1556,6 @@ classdef MainApp < matlab.apps.AppBase
             app.SourcePop.ValueChangedFcn = createCallbackFcn(app, @SourcePop_Callback, true);
             app.SourcePop.Tag = 'SourcePop';
             app.SourcePop.FontSize = 13.3333333333332;
-            app.SourcePop.BackgroundColor = [1 1 1];
             app.SourcePop.Position = [13 502 171 19];
             app.SourcePop.Value = {};
 
@@ -1713,52 +1608,44 @@ classdef MainApp < matlab.apps.AppBase
             % Create txt_OrientL
             app.txt_OrientL = uilabel(app.FitResultsPlotPanel);
             app.txt_OrientL.Tag = 'txt_OrientL';
-            app.txt_OrientL.BackgroundColor = [0.94 0.94 0.94];
             app.txt_OrientL.HorizontalAlignment = 'center';
             app.txt_OrientL.VerticalAlignment = 'top';
             app.txt_OrientL.WordWrap = 'on';
             app.txt_OrientL.FontSize = 13.3333333333333;
             app.txt_OrientL.FontWeight = 'bold';
-            app.txt_OrientL.FontColor = [0 0 0];
             app.txt_OrientL.Position = [73 226 18.2299483874811 16.9858356224938];
             app.txt_OrientL.Text = 'L';
 
             % Create txt_OrientR
             app.txt_OrientR = uilabel(app.FitResultsPlotPanel);
             app.txt_OrientR.Tag = 'txt_OrientR';
-            app.txt_OrientR.BackgroundColor = [0.94 0.94 0.94];
             app.txt_OrientR.HorizontalAlignment = 'center';
             app.txt_OrientR.VerticalAlignment = 'top';
             app.txt_OrientR.WordWrap = 'on';
             app.txt_OrientR.FontSize = 13.3333333333333;
             app.txt_OrientR.FontWeight = 'bold';
-            app.txt_OrientR.FontColor = [0 0 0];
             app.txt_OrientR.Position = [111 226 18.2299483874811 16.9858356224938];
             app.txt_OrientR.Text = 'R';
 
             % Create txt_OrientI
             app.txt_OrientI = uilabel(app.FitResultsPlotPanel);
             app.txt_OrientI.Tag = 'txt_OrientI';
-            app.txt_OrientI.BackgroundColor = [0.94 0.94 0.94];
             app.txt_OrientI.HorizontalAlignment = 'center';
             app.txt_OrientI.VerticalAlignment = 'top';
             app.txt_OrientI.WordWrap = 'on';
             app.txt_OrientI.FontSize = 13.3333333333333;
             app.txt_OrientI.FontWeight = 'bold';
-            app.txt_OrientI.FontColor = [0 0 0];
             app.txt_OrientI.Position = [89 209 21 17];
             app.txt_OrientI.Text = 'I';
 
             % Create txt_OrientS
             app.txt_OrientS = uilabel(app.FitResultsPlotPanel);
             app.txt_OrientS.Tag = 'txt_OrientS';
-            app.txt_OrientS.BackgroundColor = [0.94 0.94 0.94];
             app.txt_OrientS.HorizontalAlignment = 'center';
             app.txt_OrientS.VerticalAlignment = 'top';
             app.txt_OrientS.WordWrap = 'on';
             app.txt_OrientS.FontSize = 13.3333333333333;
             app.txt_OrientS.FontWeight = 'bold';
-            app.txt_OrientS.FontColor = [0 0 0];
             app.txt_OrientS.Position = [88 242 22.2810480291436 16.9858356224938];
             app.txt_OrientS.Text = 'S';
 
@@ -1806,7 +1693,6 @@ classdef MainApp < matlab.apps.AppBase
             app.text53.VerticalAlignment = 'top';
             app.text53.WordWrap = 'on';
             app.text53.FontSize = 13.3333333333333;
-            app.text53.FontColor = [0.149 0.149 0.149];
             app.text53.Position = [14 7 101.865773310999 16.4660801564027];
             app.text53.Text = 'Current file :';
 
@@ -1816,29 +1702,25 @@ classdef MainApp < matlab.apps.AppBase
             app.CurrentFitId.VerticalAlignment = 'top';
             app.CurrentFitId.WordWrap = 'on';
             app.CurrentFitId.FontSize = 13.3333333333333;
-            app.CurrentFitId.FontColor = [0 0 0];
             app.CurrentFitId.Position = [101 7 723.118781725888 16.2751690821256];
             app.CurrentFitId.Text = '';
 
             % Create text_doc_model
             app.text_doc_model = uilabel(app.FitDataPanel);
             app.text_doc_model.Tag = 'text_doc_model';
-            app.text_doc_model.BackgroundColor = [0.9412 0.9412 0.9412];
             app.text_doc_model.HorizontalAlignment = 'right';
             app.text_doc_model.VerticalAlignment = 'top';
             app.text_doc_model.WordWrap = 'on';
             app.text_doc_model.FontSize = 13.3333333333333;
             app.text_doc_model.FontWeight = 'bold';
-            app.text_doc_model.FontColor = [0 0 1];
+            app.text_doc_model.FontColor = qmrlab.gui.Theme.token('accent');
             app.text_doc_model.Position = [554 2 268 22];
             app.text_doc_model.Text = 'Click here for user documentation';
 
             % Create SimPanel
             app.SimPanel = uipanel(app.qMRILab);
-            app.SimPanel.ForegroundColor = [0 0 0];
             app.SimPanel.TitlePosition = 'centertop';
             app.SimPanel.Title = 'Simulation tools';
-            app.SimPanel.BackgroundColor = [1 1 1];
             app.SimPanel.Tag = 'SimPanel';
             app.SimPanel.FontWeight = 'bold';
             app.SimPanel.FontSize = 16;
@@ -1847,7 +1729,6 @@ classdef MainApp < matlab.apps.AppBase
             % Create SimCurveBtn
             app.SimCurveBtn = uibutton(app.SimPanel, 'push');
             app.SimCurveBtn.Tag = 'SimCurveBtn';
-            app.SimCurveBtn.BackgroundColor = [0.902 0.902 0.902];
             app.SimCurveBtn.FontSize = 13.3333333333333;
             app.SimCurveBtn.FontWeight = 'bold';
             app.SimCurveBtn.Position = [13 265 227 43];
@@ -1856,7 +1737,6 @@ classdef MainApp < matlab.apps.AppBase
             % Create SimVaryBtn
             app.SimVaryBtn = uibutton(app.SimPanel, 'push');
             app.SimVaryBtn.Tag = 'SimVaryBtn';
-            app.SimVaryBtn.BackgroundColor = [0.902 0.902 0.902];
             app.SimVaryBtn.FontSize = 13.3333333333333;
             app.SimVaryBtn.FontWeight = 'bold';
             app.SimVaryBtn.Position = [13 213 227 43];
@@ -1865,7 +1745,6 @@ classdef MainApp < matlab.apps.AppBase
             % Create SimRndBtn
             app.SimRndBtn = uibutton(app.SimPanel, 'push');
             app.SimRndBtn.Tag = 'SimRndBtn';
-            app.SimRndBtn.BackgroundColor = [0.902 0.902 0.902];
             app.SimRndBtn.FontSize = 13.3333333333333;
             app.SimRndBtn.FontWeight = 'bold';
             app.SimRndBtn.Position = [13 161 227 43];
@@ -1874,38 +1753,32 @@ classdef MainApp < matlab.apps.AppBase
             % Create SimSave
             app.SimSave = uibutton(app.SimPanel, 'push');
             app.SimSave.Tag = 'SimSave';
-            app.SimSave.BackgroundColor = [0.902 0.902 0.902];
             app.SimSave.FontSize = 13.3333333333333;
             app.SimSave.FontWeight = 'bold';
-            app.SimSave.FontColor = [0 0 0];
             app.SimSave.Position = [13 6 109 38];
             app.SimSave.Text = 'Save Results';
 
             % Create SimLoad
             app.SimLoad = uibutton(app.SimPanel, 'push');
             app.SimLoad.Tag = 'SimLoad';
-            app.SimLoad.BackgroundColor = [0.902 0.902 0.902];
             app.SimLoad.FontSize = 13.3333333333333;
             app.SimLoad.FontWeight = 'bold';
-            app.SimLoad.FontColor = [0 0 0];
             app.SimLoad.Position = [132 6 108 38];
             app.SimLoad.Text = 'Load Results';
 
             % Create SimGO
             app.SimGO = uibutton(app.SimPanel, 'push');
             app.SimGO.Tag = 'SimGO';
-            app.SimGO.BackgroundColor = [1 0.3294 0.3294];
+            app.SimGO.BackgroundColor = qmrlab.gui.Theme.token('warning');
+            app.SimGO.FontColor = qmrlab.gui.Theme.token('onTheAccent');
             app.SimGO.FontSize = 18.6666666666666;
             app.SimGO.FontWeight = 'bold';
-            app.SimGO.FontColor = [1 1 1];
             app.SimGO.Position = [13 55 227 86];
             app.SimGO.Text = 'Simulate data';
 
             % Create uipanel37
             app.uipanel37 = uipanel(app.qMRILab);
-            app.uipanel37.ForegroundColor = [1 1 1];
             app.uipanel37.BorderType = 'none';
-            app.uipanel37.BackgroundColor = [0.9412 0.9412 0.9412];
             app.uipanel37.Tag = 'uipanel37';
             app.uipanel37.FontWeight = 'bold';
             app.uipanel37.FontSize = 16;
@@ -1915,10 +1788,8 @@ classdef MainApp < matlab.apps.AppBase
             app.FitResultsLoad = uibutton(app.uipanel37, 'push');
             app.FitResultsLoad.ButtonPushedFcn = createCallbackFcn(app, @FitResultsLoad_Callback, true);
             app.FitResultsLoad.Tag = 'FitResultsLoad';
-            app.FitResultsLoad.BackgroundColor = [0.902 0.902 0.902];
             app.FitResultsLoad.FontSize = 13.3333333333332;
             app.FitResultsLoad.FontWeight = 'bold';
-            app.FitResultsLoad.FontColor = [0 0 0];
             app.FitResultsLoad.Position = [133 18 109 62];
             app.FitResultsLoad.Text = 'Load Results';
 
@@ -1926,10 +1797,8 @@ classdef MainApp < matlab.apps.AppBase
             app.FitResultsSave = uibutton(app.uipanel37, 'push');
             app.FitResultsSave.ButtonPushedFcn = createCallbackFcn(app, @FitResultsSave_Callback, true);
             app.FitResultsSave.Tag = 'FitResultsSave';
-            app.FitResultsSave.BackgroundColor = [0.902 0.902 0.902];
             app.FitResultsSave.FontSize = 13.3333333333332;
             app.FitResultsSave.FontWeight = 'bold';
-            app.FitResultsSave.FontColor = [0 0 0];
             app.FitResultsSave.Position = [14 18 108 62];
             app.FitResultsSave.Text = 'Save Results';
 
@@ -1937,10 +1806,10 @@ classdef MainApp < matlab.apps.AppBase
             app.FitGO = uibutton(app.uipanel37, 'push');
             app.FitGO.ButtonPushedFcn = createCallbackFcn(app, @FitGO_Callback, true);
             app.FitGO.Tag = 'FitGO';
-            app.FitGO.BackgroundColor = [0.149 0.549 0.8667];
+            app.FitGO.BackgroundColor = qmrlab.gui.Theme.token('accent');
+            app.FitGO.FontColor = qmrlab.gui.Theme.token('onTheAccent');
             app.FitGO.FontSize = 18.6666666666665;
             app.FitGO.FontWeight = 'bold';
-            app.FitGO.FontColor = [1 1 1];
             app.FitGO.Position = [14 95 227 90];
             app.FitGO.Text = 'Fit data';
 
@@ -1948,9 +1817,7 @@ classdef MainApp < matlab.apps.AppBase
             app.DefaultMethodBtn = uibutton(app.qMRILab, 'push');
             app.DefaultMethodBtn.ButtonPushedFcn = createCallbackFcn(app, @DefaultMethodBtn_Callback, true);
             app.DefaultMethodBtn.Tag = 'DefaultMethodBtn';
-            app.DefaultMethodBtn.BackgroundColor = [0.9412 0.9412 0.9412];
             app.DefaultMethodBtn.FontSize = 14.6666666666667;
-            app.DefaultMethodBtn.FontColor = [0 0 0];
             app.DefaultMethodBtn.Position = [97 621 88 25];
             app.DefaultMethodBtn.Text = 'Set Default';
 
@@ -1958,7 +1825,6 @@ classdef MainApp < matlab.apps.AppBase
             app.OpenOptionsPanel = uibutton(app.qMRILab, 'push');
             app.OpenOptionsPanel.ButtonPushedFcn = createCallbackFcn(app, @OpenOptionsPanel_Callback, true);
             app.OpenOptionsPanel.Tag = 'OpenOptionsPanel';
-            app.OpenOptionsPanel.BackgroundColor = [0.902 0.902 0.902];
             app.OpenOptionsPanel.FontSize = 13.3333333333332;
             app.OpenOptionsPanel.FontWeight = 'bold';
             app.OpenOptionsPanel.Position = [67 11 148 48];
@@ -1970,8 +1836,6 @@ classdef MainApp < matlab.apps.AppBase
             app.MethodSelection.ValueChangedFcn = createCallbackFcn(app, @MethodSelection_Callback, true);
             app.MethodSelection.Tag = 'MethodSelection';
             app.MethodSelection.FontSize = 12.570970970971;
-            app.MethodSelection.FontColor = [0 0 0];
-            app.MethodSelection.BackgroundColor = [1 1 1];
             app.MethodSelection.Position = [15 658 251 19];
             app.MethodSelection.Value = 'modelname';
 
@@ -1983,7 +1847,7 @@ classdef MainApp < matlab.apps.AppBase
             app.upgrade_message.WordWrap = 'on';
             app.upgrade_message.FontSize = 14.6666666666667;
             app.upgrade_message.FontWeight = 'bold';
-            app.upgrade_message.FontColor = [0.301960784313725 0.745098039215686 0.933333333333333];
+            app.upgrade_message.FontColor = qmrlab.gui.Theme.token('accent');
             app.upgrade_message.Position = [7 701 268 22];
             app.upgrade_message.Text = 'Upgrade to v2.5.0';
 

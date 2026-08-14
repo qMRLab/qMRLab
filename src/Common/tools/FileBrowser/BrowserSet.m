@@ -74,7 +74,7 @@ classdef BrowserSet < handle
             obj.NameText.FontWeight = 'bold';
             obj.NameText.HorizontalAlignment = 'left';
             if obj.IsOptional
-                obj.NameText.FontColor = [0.5, 0.5, 0.5];
+                obj.NameText.FontColor = qmrlabUIColor('muted');
             end
             if obj.IsOptional == 2
                 obj.NameText.FontWeight = 'normal';
@@ -95,18 +95,16 @@ classdef BrowserSet < handle
 
             obj.FileBox = uieditfield(obj.Parent, 'text');
             obj.FileBox.Layout.Row = 1; obj.FileBox.Layout.Column = 5;
-            obj.FileBox.BackgroundColor = [1, 1, 1];
             obj.FileBox.HorizontalAlignment = 'left';
-            obj.FileBox.FontColor = [0, 0, 0];
 
             % The placeholder doubles as the input's documentation, and
             % Test/GUI/tControls.m finds the row by it. Keep the wording.
             if obj.IsOptional && hasInfo
                 obj.FileBox.Value = obj.InfoText;
-                obj.FileBox.FontColor = [0.5, 0.5, 0.5];
+                obj.FileBox.FontColor = qmrlabUIColor('muted');
             elseif obj.IsOptional
                 obj.FileBox.Value = 'OPTIONAL';
-                obj.FileBox.FontColor = [0.5, 0.5, 0.5];
+                obj.FileBox.FontColor = qmrlabUIColor('muted');
             else
                 obj.FileBox.Value = ['REQUIRED ' obj.InfoText];
             end

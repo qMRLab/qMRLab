@@ -43,158 +43,15 @@ classdef OptionsWindow < matlab.apps.AppBase
         opened = false      % Track if opened
     end
     methods (Access = private)
-        function isDark = isSystemDarkMode(app)
-            % Detect if system is in dark mode (Windows/Mac)
-            if ispc
-                % Windows registry check for dark mode
-                try
-                    [status, result] = system('reg query HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize /v AppsUseLightTheme');
-                    if status == 0
-                        isDark = contains(result, '0x0');
-                    else
-                        isDark = false;
-                    end
-                catch
-                    isDark = false;
-                end
-            elseif ismac
-                % macOS dark mode detection
-                try
-                    [status, result] = system('defaults read -g AppleInterfaceStyle');
-                    isDark = status == 0 && contains(result, 'Dark');
-                catch
-                    isDark = false;
-                end
-            else
-                % Linux or unknown - use default light mode
-                isDark = false;
-            end
-        end
-
-        function colors = getColorScheme(app)
-            % Return appropriate color scheme based on system theme
-            if app.isSystemDarkMode()
-                % Dark mode colors
-                colors.background = [0.15 0.15 0.15];
-                colors.foreground = [0.9 0.9 0.9];
-                colors.panelBg = [0.2 0.2 0.2];
-                colors.panelFg = [0.95 0.95 0.95];
-                colors.buttonBg = [0.3 0.3 0.3];
-                colors.buttonFg = [0.95 0.95 0.95];
-                colors.accent = [0.149 0.549 0.8667];
-                colors.warning = [1 0.6 0.2];
-                colors.success = [0.2 0.8 0.2];
-                colors.tableBg = [0.25 0.25 0.25];
-                colors.tableFg = [0.95 0.95 0.95];
-                colors.tableStripe = [0.2 0.2 0.2];
-            else
-                % Light mode colors
-                colors.background = [0.9412 0.9412 0.9412];
-                colors.foreground = [0 0 0];
-                colors.panelBg = [1 1 1];
-                colors.panelFg = [0 0 0];
-                colors.buttonBg = [0.902 0.902 0.902];
-                colors.buttonFg = [0 0 0];
-                colors.accent = [0.149 0.549 0.8667];
-                colors.warning = [1 0.3294 0.3294];
-                colors.success = [0.2 0.8 0.2];
-                colors.tableBg = [1 1 1];
-                colors.tableFg = [0 0 0];
-                colors.tableStripe = [0.9412 0.9412 0.9412];
-            end
-        end
-
         function applyTheme(app)
-            % Apply the current theme to all components
-            colors = app.getColorScheme();
-
-            % Apply to main figure and main panel
-            app.OptionsGUI.Color = colors.background;
-            app.uipanel29.BackgroundColor = colors.background;
-            app.uipanel29.ForegroundColor = colors.foreground;
-
-            % Apply to panels
-            panelComponents = [app.FitOptEditPanel, app.ProtEditPanel, app.OptionsPanel];
-            for i = 1:length(panelComponents)
-                panelComponents(i).BackgroundColor = colors.panelBg;
-                panelComponents(i).ForegroundColor = colors.panelFg;
-            end
-
-            % Apply to buttons
-            buttonComponents = [app.Save, app.Load, app.Default, app.Helpbutton];
-            for i = 1:length(buttonComponents)
-                if ~isequal(buttonComponents(i).BackgroundColor, [0 0.650980392156863 1])
-                    % Only change non-accent buttons
-                    buttonComponents(i).BackgroundColor = colors.buttonBg;
-                    buttonComponents(i).FontColor = colors.buttonFg;
-                end
-            end
-
-            % Special handling for Help button (keep its blue color)
-            app.Helpbutton.BackgroundColor = colors.accent;
-            app.Helpbutton.FontColor = [1 1 1];
-
-            % Apply to labels
-            labelComponents = [app.textCurrent, app.ParametersFileName];
-            for i = 1:length(labelComponents)
-                labelComponents(i).FontColor = colors.foreground;
-                if isequal(labelComponents(i).BackgroundColor, [0.902 0.902 0.902])
-                    labelComponents(i).BackgroundColor = colors.background;
-                end
-            end
-
-            % Apply to tables
-            if isprop(app, 'FitOptTable') && isvalid(app.FitOptTable)
-                app.FitOptTable.BackgroundColor = colors.tableBg;
-                app.FitOptTable.ForegroundColor = colors.tableFg;
-            end
-
-            % Apply to dynamically created protocol tables
-            if isprop(app, 'ProtPanels') && ~isempty(app.ProtPanels)
-                fields = fieldnames(app.ProtPanels);
-                for i = 1:length(fields)
-                    if isfield(app.ProtPanels.(fields{i}), 'table') && isvalid(app.ProtPanels.(fields{i}).table)
-                        app.ProtPanels.(fields{i}).table.BackgroundColor = colors.tableBg;
-                        app.ProtPanels.(fields{i}).table.ForegroundColor = colors.tableFg;
-                    end
-                end
-            end
-
-            % Apply to dynamically created options components.
+            % Stage D2. The same ~150 lines MainApp carried, duplicated here --
+            % including its own copy of the OS dark-mode probe, so the two windows
+            % could in principle have disagreed about the appearance.
             %
-            % Was a switch on get(comp,'Type') then get(comp,'Style'). Native
-            % components have no Style, and on a dropdown or a table reading it
-            % returns a style TABLE instead of erroring, so that switch would fall
-            % through in silence. Dispatch on class; leave anything unrecognised
-            % alone rather than guessing at it.
-            if isprop(app, 'OptionsPanel_handle') && ~isempty(app.OptionsPanel_handle)
-                ff = fieldnames(app.OptionsPanel_handle);
-                for ii = 1:length(ff)
-                    comp = app.OptionsPanel_handle.(ff{ii});
-                    if ~isscalar(comp) || ~isvalid(comp); continue; end
-                    try
-                        switch class(comp)
-                            case {'matlab.ui.control.CheckBox', 'matlab.ui.control.Label'}
-                                comp.FontColor = colors.foreground;
-                            case {'matlab.ui.control.EditField', ...
-                                  'matlab.ui.control.NumericEditField', ...
-                                  'matlab.ui.control.DropDown'}
-                                comp.BackgroundColor = colors.panelBg;
-                                comp.FontColor = colors.foreground;
-                            case 'matlab.ui.control.StateButton'
-                                comp.BackgroundColor = colors.buttonBg;
-                                comp.FontColor = colors.buttonFg;
-                            case 'matlab.ui.control.Table'
-                                comp.BackgroundColor = colors.tableBg;
-                                comp.ForegroundColor = colors.tableFg;
-                        end
-                    catch
-                    end
-                end
-            end
-
+            % One line now. The window themes itself, its explicit colours are gone,
+            % and qmrlab.gui.Theme owns the single OS query.
+            qmrlab.gui.Theme.adopt(app.OptionsGUI);
         end
-
 
         function CreateProt_Callback(app, hObject, eventdata, MRIinput)
             app.Model = getappdata(0,'Model');
@@ -508,10 +365,9 @@ classdef OptionsWindow < matlab.apps.AppBase
             % Load data for component configuration
             componentData = load('Custom_OptionsGUI.mat');
             
-            % Set component properties that require runtime configuration
-            % Use theme-aware colors that will be overridden by applyTheme
-            colors = app.getColorScheme();
-            app.FitOptTable.BackgroundColor = [colors.tableBg; colors.tableStripe];
+            % No BackgroundColor: a uitable stripes itself from the theme, and the
+            % two-row [base; stripe] the app used to compute was just the light
+            % palette restated. Stating it is what stopped the table going dark.
             app.FitOptTable.ColumnFormat = {'char' 'logical' 'numeric' 'numeric' 'numeric'};
             app.FitOptTable.Data = componentData.FitOptTable.Data;
         end
@@ -530,6 +386,7 @@ classdef OptionsWindow < matlab.apps.AppBase
             movegui(app.OptionsGUI, 'onscreen');
 
             applyTheme(app);
+            qmrlab.gui.Theme.attachMenu(app.OptionsGUI);
 
             % This function is called each time the Options Panel is opened.
             %
@@ -1011,7 +868,6 @@ classdef OptionsWindow < matlab.apps.AppBase
 
             % Create OptionsGUI and hide until all components are created
             app.OptionsGUI = uifigure('Visible', 'off');
-            app.OptionsGUI.Color = [0.902 0.902 0.902];
             colormap(app.OptionsGUI, 'parula');
             app.OptionsGUI.Position = [732 115 573 835];
             app.OptionsGUI.Name = 'OptionsGUI';
@@ -1020,9 +876,7 @@ classdef OptionsWindow < matlab.apps.AppBase
 
             % Create uipanel29
             app.uipanel29 = uipanel(app.OptionsGUI);
-            app.uipanel29.ForegroundColor = [0 0 0];
             app.uipanel29.Title = 'Options';
-            app.uipanel29.BackgroundColor = [0.902 0.902 0.902];
             app.uipanel29.Tag = 'uipanel29';
             app.uipanel29.FontWeight = 'bold';
             app.uipanel29.FontSize = 13.3333333333329;
@@ -1070,7 +924,8 @@ classdef OptionsWindow < matlab.apps.AppBase
             app.Helpbutton = uibutton(app.OptionsPanel, 'push');
             app.Helpbutton.ButtonPushedFcn = createCallbackFcn(app, @Helpbutton_Callback, true);
             app.Helpbutton.Tag = 'Helpbutton';
-            app.Helpbutton.BackgroundColor = [0 0.650980392156863 1];
+            app.Helpbutton.BackgroundColor = qmrlab.gui.Theme.token('accent');
+            app.Helpbutton.FontColor = qmrlab.gui.Theme.token('onTheAccent');
             app.Helpbutton.FontSize = 13.3333333333329;
             app.Helpbutton.FontWeight = 'bold';
             app.Helpbutton.Position = [188 28 59.8653890364656 30.7609534856191];

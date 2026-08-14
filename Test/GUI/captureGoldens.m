@@ -173,13 +173,35 @@ function lines = inventory(fig)
     end
 
     function s = describe(h, here)
-        s = sprintf('%-78s  %-10s  %-22s  %s', here, visOf(h), sizeOf(h), textOf(h));
+        s = sprintf('%-78s  %-10s  %-22s  %-46s  %s', here, visOf(h), sizeOf(h), colourOf(h), textOf(h));
     end
 end
 
 function v = visOf(h)
     v = 'vis=?';
     if isprop(h, 'Visible'); v = ['vis=' char(string(get(h, 'Visible')))]; end
+end
+
+function c = colourOf(h)
+%COLOUROF  The colours a component actually paints with.
+%
+%   Without this a theming regression diffs completely clean: the inventory
+%   recorded text, visibility and size, and D2 changes none of those. Rounded to
+%   two decimals so sub-pixel palette jitter between runs is not mistaken for a
+%   change, and omitted entirely when a component states no colour of its own --
+%   which is the POINT of D2, so "no entry here" is the healthy state.
+    c = '';
+    for p = {'BackgroundColor', 'FontColor', 'ForegroundColor', 'Color'}
+        if ~isprop(h, p{1}); continue; end
+        try
+            v = get(h, p{1});
+        catch
+            continue
+        end
+        if ~isnumeric(v) || numel(v) ~= 3; continue; end
+        c = [c sprintf(' %s=%s', p{1}(1:2), mat2str(round(v, 2)))]; %#ok<AGROW>
+    end
+    c = strtrim(c);
 end
 
 function s = sizeOf(h)

@@ -112,7 +112,7 @@ classdef MethodBrowser < handle
             obj.WarnBut_DataConsistency.Layout.Row = obj.NbItems + 2;
             obj.WarnBut_DataConsistency.Layout.Column = 1;
             obj.WarnBut_DataConsistency.Tag = ['WarnBut_DataConsistency_' class(Model)];
-            obj.WarnBut_DataConsistency.FontColor = [1, 0, 0];
+            obj.WarnBut_DataConsistency.FontColor = qmrlabUIColor('warning');
             obj.WarnBut_DataConsistency.FontSize = 10;
             obj.WarnBut_DataConsistency.Visible = 'off';
             obj.WarnBut_DataConsistency.Text = '';
@@ -170,8 +170,6 @@ classdef MethodBrowser < handle
             obj.WorkDir_FileNameArea = uieditfield(head, 'text');
             obj.WorkDir_FileNameArea.Layout.Column = 4;
             obj.WorkDir_FileNameArea.Value = '';
-            obj.WorkDir_FileNameArea.BackgroundColor = [1, 1, 1];
-            obj.WorkDir_FileNameArea.FontColor = [0, 0, 0];
 
             obj.StudyID_TextArea = uilabel(head);
             obj.StudyID_TextArea.Layout.Column = 5;
@@ -181,14 +179,12 @@ classdef MethodBrowser < handle
             obj.StudyID_TextID = uieditfield(head, 'text');
             obj.StudyID_TextID.Layout.Column = 6;
             obj.StudyID_TextID.Value = '';
-            obj.StudyID_TextID.BackgroundColor = [1, 1, 1];
-            obj.StudyID_TextID.FontColor = [0, 0, 0];
 
             obj.DownloadBtn = uibutton(head, 'push');
             obj.DownloadBtn.Layout.Column = 7;
             obj.DownloadBtn.Text = 'Download example';
-            obj.DownloadBtn.BackgroundColor = [0, 0.65, 1];
-            obj.DownloadBtn.FontColor = [1, 1, 1];
+            obj.DownloadBtn.BackgroundColor = qmrlabUIColor('accent');
+            obj.DownloadBtn.FontColor = qmrlabUIColor('onTheAccent');
             obj.DownloadBtn.ButtonPushedFcn = @(src,event) obj.DownloadBtn_callback();
         end
 

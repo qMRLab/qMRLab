@@ -187,7 +187,11 @@ classdef TypeScale
             C = qmrlab.gui.TypeScale;
             if ~isgraphics(fig) || ~isempty(findall(fig, 'Tag', 'TextSizeMenu')), return; end
             accel = {'-', '0', '='};
-            m = uimenu(fig, 'Text', 'View');
+            % Reuse the View menu if one already exists. qmrlab.gui.Theme adds
+            % Appearance to the same menu and runs first, so creating one
+            % unconditionally produced a window with "View View" in its menu bar.
+            m = findall(fig, 'Type', 'uimenu', 'Text', 'View');
+            if isempty(m); m = uimenu(fig, 'Text', 'View'); else; m = m(1); end
             s = uimenu(m, 'Text', 'Text size', 'Tag', 'TextSizeMenu');
             for k = 1:numel(C.StepNames)
                 uimenu(s, 'Text', C.StepLabels{k}, ...
