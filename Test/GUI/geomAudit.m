@@ -105,10 +105,17 @@ function defects = geomAudit(fig, label, outDir)
                     round(inPar))); %#ok<AGROW>
             end
 
-            if inPar(3) < MIN_SIZE || inPar(4) < MIN_SIZE
+            % A GridLayout is invisible chrome sized to its content, so it has no
+            % business meeting a 20 px floor written for panels that must show a
+            % title and a border: a one-row label+control pair legitimately measures
+            % ~18 px. Anything at or below a pixel is still wrong for either.
+            floorFor = MIN_SIZE;
+            if isa(h, 'matlab.ui.container.GridLayout'); floorFor = 2; end
+
+            if inPar(3) < floorFor || inPar(4) < floorFor
                 defects(end+1) = mkDefect('Collapsed', h, here, sprintf( ...
                     'size %.1f x %.1f px is below the %d px floor', ...
-                    inPar(3), inPar(4), MIN_SIZE)); %#ok<AGROW>
+                    inPar(3), inPar(4), floorFor)); %#ok<AGROW>
             end
 
             % Overflow and OffFigure are NOT defects inside a scrollable container --

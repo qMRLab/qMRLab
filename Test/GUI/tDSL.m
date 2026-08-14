@@ -139,6 +139,50 @@ classdef tDSL < matlab.unittest.TestCase
                  'That changes the key in saved FitResults:\n  %s'], strjoin(gone, '\n  ')));
         end
 
+        function rendererReadsBackWhatTheGeneratorDid(testCase)
+            % THE assertion for E3: swapping the renderer must not change the
+            % options payload. Model.options is written into saved FitResults, so a
+            % changed value -- or even a changed CLASS -- is a data-format change
+            % wearing a layout change's clothes.
+            %
+            % Compared against the generator's own output, both seeded the same way,
+            % for every model. Not against Model.options: the two readers have always
+            % disagreed with it in places (a uicontrol checkbox reads back as double
+            % where the model stores logical; str2num turns dti's 'auto' sentinel
+            % into []), and this test is about whether the NEW renderer changed
+            % anything, not about those pre-existing quirks.
+            for model = string(list_models())'
+                m = feval(model);
+                if isempty(m.buttons); continue; end
+
+                lf = figure('Visible','off','Position',[0 0 600 900]);
+                cl1 = onCleanup(@() delete(lf));
+                hLegacy = GenerateButtonsWithPanels(m.buttons, lf, []);
+                tDSL.seedFromOptions(hLegacy, m);          % what renderOptions used to do
+                optsLegacy = button_handle2opts(hLegacy);
+
+                uf = uifigure('Visible','off');
+                cl2 = onCleanup(@() delete(uf));
+                hNew = qmrlab.gui.OptionsRenderer.render(m, uipanel(uf));
+                optsNew = button_handle2opts(hNew);
+
+                testCase.verifyEqual(sort(fieldnames(optsNew)), sort(fieldnames(optsLegacy)), ...
+                    sprintf('%s: the renderer produced a different set of options.', model));
+
+                for f = fieldnames(optsLegacy)'
+                    if ~isfield(optsNew, f{1}); continue; end
+                    a = optsLegacy.(f{1});  b = optsNew.(f{1});
+                    testCase.verifyEqual(class(b), class(a), sprintf( ...
+                        '%s/%s: class changed %s -> %s. Model.options lands in saved FitResults.', ...
+                        model, f{1}, class(a), class(b)));
+                    testCase.verifyTrue(isequaln(a, b), sprintf( ...
+                        '%s/%s: value changed.', model, f{1}));
+                end
+
+                clear cl1 cl2
+            end
+        end
+
         function theDtiPrefixAsymmetryIsPreserved(testCase)
             % The specific misfeature the migration plan forbids "fixing", pinned so
             % that a future tidy-up of parseButtons fails here instead of silently
@@ -158,5 +202,36 @@ classdef tDSL < matlab.unittest.TestCase
                  'at runtime; making it symmetric changes saved FitResults.']);
         end
 
+    end
+
+    methods (Static)
+        function seedFromOptions(h, m)
+            % The post-pass renderOptions ran over the generator's handles: push
+            % Model.options back into the freshly built widgets. The new renderer
+            % does this itself while building, so the comparison has to give the
+            % legacy side the same treatment or it would be comparing declared
+            % defaults against live values.
+            for f = fieldnames(h)'
+                c = h.(f{1});
+                if ~isfield(m.options, f{1}); continue; end
+                v = m.options.(f{1});
+                try
+                    if strcmp(get(c,'type'), 'uitable')
+                        set(c, 'Data', v);
+                    else
+                        switch get(c, 'Style')
+                            case 'popupmenu'
+                                idx = find(strcmp(get(c,'String'), v), 1);
+                                if ~isempty(idx); set(c, 'Value', idx); end
+                            case 'checkbox'
+                                set(c, 'Value', v);
+                            case 'edit'
+                                set(c, 'String', v);
+                        end
+                    end
+                catch
+                end
+            end
+        end
     end
 end

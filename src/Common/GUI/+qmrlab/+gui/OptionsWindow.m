@@ -11,6 +11,10 @@ classdef OptionsWindow < matlab.apps.AppBase
         OptionsGUI          matlab.ui.Figure
         uipanel29           matlab.ui.container.Panel
         OptionsPanel        matlab.ui.container.Panel
+        OptionsGrid         matlab.ui.container.GridLayout
+        ShellGrid           matlab.ui.container.GridLayout
+        RightGrid           matlab.ui.container.GridLayout
+        OptionsHost         matlab.ui.container.Panel
         ParametersFileName  matlab.ui.control.Label
         Save                matlab.ui.control.Button
         Load                matlab.ui.control.Button
@@ -156,40 +160,39 @@ classdef OptionsWindow < matlab.apps.AppBase
                 end
             end
 
-            % Apply to dynamically created options components
+            % Apply to dynamically created options components.
+            %
+            % Was a switch on get(comp,'Type') then get(comp,'Style'). Native
+            % components have no Style, and on a dropdown or a table reading it
+            % returns a style TABLE instead of erroring, so that switch would fall
+            % through in silence. Dispatch on class; leave anything unrecognised
+            % alone rather than guessing at it.
             if isprop(app, 'OptionsPanel_handle') && ~isempty(app.OptionsPanel_handle)
                 ff = fieldnames(app.OptionsPanel_handle);
                 for ii = 1:length(ff)
                     comp = app.OptionsPanel_handle.(ff{ii});
-                    if isvalid(comp)
-                        try
-                            switch get(comp, 'Type')
-                                case 'uicontrol'
-                                    style = get(comp, 'Style');
-                                    switch style
-                                        case {'pushbutton', 'togglebutton'}
-                                            comp.BackgroundColor = colors.buttonBg;
-                                            comp.ForegroundColor = colors.buttonFg;
-                                        case {'checkbox', 'radiobutton', 'text', 'edit'}
-                                            comp.BackgroundColor = colors.panelBg;
-                                            comp.ForegroundColor = colors.foreground;
-                                        case 'popupmenu'
-                                            comp.BackgroundColor = colors.buttonBg;
-                                            comp.ForegroundColor = colors.foreground;
-                                    end
-                                case 'uitable'
-                                    comp.BackgroundColor = colors.tableBg;
-                                    comp.ForegroundColor = colors.tableFg;
-                                case 'uipanel'
-                                    comp.BackgroundColor = colors.panelBg;
-                                    comp.ForegroundColor = colors.panelFg;
-                            end
-                        catch
-                            % Skip if property can't be set
+                    if ~isscalar(comp) || ~isvalid(comp); continue; end
+                    try
+                        switch class(comp)
+                            case {'matlab.ui.control.CheckBox', 'matlab.ui.control.Label'}
+                                comp.FontColor = colors.foreground;
+                            case {'matlab.ui.control.EditField', ...
+                                  'matlab.ui.control.NumericEditField', ...
+                                  'matlab.ui.control.DropDown'}
+                                comp.BackgroundColor = colors.panelBg;
+                                comp.FontColor = colors.foreground;
+                            case 'matlab.ui.control.StateButton'
+                                comp.BackgroundColor = colors.buttonBg;
+                                comp.FontColor = colors.buttonFg;
+                            case 'matlab.ui.control.Table'
+                                comp.BackgroundColor = colors.tableBg;
+                                comp.ForegroundColor = colors.tableFg;
                         end
+                    catch
                     end
                 end
             end
+
         end
 
 
@@ -270,41 +273,19 @@ classdef OptionsWindow < matlab.apps.AppBase
 
                 if ~isempty(app.Model.buttons)
 
-                    % Delete UIObjects from the previous instance
-                    delete(findobj('Parent',app.OptionsPanel,'Type','uipanel'))
+                    % Stage E3. Options are rendered from parseButtons descriptors
+                    % onto a scrollable grid of native components.
+                    %
+                    % The renderer applies each option's CURRENT value from
+                    % Model.options itself, so the "now put the values back" loop
+                    % that used to follow is gone. That loop existed because the
+                    % generator could only seed from the DECLARED default, and it
+                    % re-derived each value with a different switch from the one
+                    % that read it back -- two places to keep in step.
+                    app.OptionsPanel_handle = qmrlab.gui.OptionsRenderer.render( ...
+                        app.Model, app.OptionsHost, ...
+                        @(src,event) ModelOptions_Callback(app, app));
 
-                    % Generate UIObjects for options panel based on the "buttons" attribute
-                    % of the current model in the scope. Below function passes OptionsPanel
-                    % handle, and retrives the updated one with buttons (if present) on it.
-
-                    if isprop(app.Model,'tips')
-                        app.OptionsPanel_handle = GenerateButtonsWithPanels(app.Model.buttons,app.OptionsPanel, app.Model.tips);
-                    else
-                        app.OptionsPanel_handle = GenerateButtonsWithPanels(app.Model.buttons,app.OptionsPanel, []);
-
-                    end
-
-                    % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
-
-                    ff = fieldnames(app.OptionsPanel_handle);
-
-                    for ii=1:length(ff)
-                        if strcmp(get(app.OptionsPanel_handle.(ff{ii}),'type'),'uitable')
-                            set(app.OptionsPanel_handle.(ff{ii}),'CellEditCallback',@(src,event) ModelOptions_Callback(app, app));
-                            set(app.OptionsPanel_handle.(ff{ii}),'Data',app.Model.options.(ff{ii}));
-                        else
-                            set(app.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(app, app));
-                            switch get(app.OptionsPanel_handle.(ff{ii}),'Style')
-                                case 'popupmenu'
-                                    val =  find(cell2mat(cellfun(@(x) strcmp(x,app.Model.options.(ff{ii})),get(app.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
-                                    set(app.OptionsPanel_handle.(ff{ii}),'Value',val);
-                                case 'checkbox'
-                                    set(app.OptionsPanel_handle.(ff{ii}),'Value',app.Model.options.(ff{ii}));
-                                case 'edit'
-                                    set(app.OptionsPanel_handle.(ff{ii}),'String',app.Model.options.(ff{ii}));
-                            end
-                        end
-                    end
                     % Noted some concerns @ issue #253
                     SetOpt(app, app);
                 end
@@ -700,54 +681,31 @@ classdef OptionsWindow < matlab.apps.AppBase
             % vfa_t1 has no options.
 
 
-            chld = allchild(app.uipanel29);
+            % Named, not allchild(...) indexed by position: chld(2) and chld(3)
+            % meant ProtEditPanel and FitOptEditPanel purely by creation order, so
+            % adding any child to uipanel29 silently retargeted them -- and this
+            % commit adds one.
+            %
+            % The original conditions are preserved exactly rather than tidied. Three
+            % overlapping if-blocks, collapsed to their union:
+            %     hide FitOpt  iff  ~hasEquation && (hasOptions || ~hasProt)
+            %     hide Prot    iff  ~hasEquation && ~hasProt
+            % which does mean a model with an equation but no protocol still shows an
+            % empty Protocol panel. That looks wrong and is left alone: changing which
+            % panels appear would make any screenshot difference impossible to
+            % attribute to the layout change.
+            hasEquation = ismember('equation', methods(app.Model));
+            hasOptions  = ~isempty(fieldnames(app.Model.options));
+            hasProt     = ~isempty(app.Model.Prot) && ~isempty(fieldnames(app.Model.Prot));
 
-            % FitOpt panel is not present
-
-            if not(ismember('equation',methods(app.Model))) && not(isempty(fieldnames(app.Model.options))) && not(isempty(app.Model.Prot))
-
-                set(chld(3),'Visible','off');
-                % A uipanel inside a uifigure is PIXEL-united, so assigning this
-                % GUIDE-era normalized rectangle raw collapsed the panel to
-                % 0.5 x 0.016 px -- and every layout GenerateButtonsWithPanels
-                % then derived from getpixelposition(parent) was garbage. That
-                % single mistake accounted for all 44 defects found in the
-                % Stage A triage. Scale against the parent instead.
-                parentSize = getpixelposition(app.uipanel29);            % [x y w h]
-                set(app.OptionsPanel, 'Position', ...
-                    [0.5140 0.0158 0.4667 0.9735] .* parentSize([3 4 3 4]));
-
+            if ~hasEquation && (hasOptions || ~hasProt)
+                app.FitOptEditPanel.Visible = 'off';
+                app.RightGrid.RowHeight{1} = 0;
             end
-
-            % FitOpt and protocol not present
-            if not(ismember('equation',methods(app.Model))) && not(isempty(fieldnames(app.Model.options))) && (isempty(app.Model.Prot) || isempty(fieldnames(app.Model.Prot)))
-
-                set(chld(3),'Visible','off');
-                set(chld(2),'Visible','off');
-                % A uipanel inside a uifigure is PIXEL-united, so assigning this
-                % GUIDE-era normalized rectangle raw collapsed the panel to
-                % 0.5 x 0.016 px -- and every layout GenerateButtonsWithPanels
-                % then derived from getpixelposition(parent) was garbage. That
-                % single mistake accounted for all 44 defects found in the
-                % Stage A triage. Scale against the parent instead.
-                parentSize = getpixelposition(app.uipanel29);            % [x y w h]
-                set(app.OptionsPanel, 'Position', ...
-                    [0.5140 0.0158 0.4667 0.9735] .* parentSize([3 4 3 4]));
-
+            if ~hasEquation && ~hasProt
+                app.ProtEditPanel.Visible = 'off';
+                app.ShellGrid.ColumnWidth{1} = 0;
             end
-
-
-
-
-            % Nothing is present
-
-            if (isempty(app.Model.Prot) || isempty(fieldnames(app.Model.Prot))) && not(ismember('equation',methods(app.Model)))
-
-                set(chld(2),'Visible','off');
-                set(chld(3),'Visible','off');
-
-            end
-
 
             % POPULATE OPTIONSPANEL
             % =======================================================================
@@ -1159,6 +1117,80 @@ classdef OptionsWindow < matlab.apps.AppBase
             app.ParametersFileName.FontSize = 13.3333333333329;
             app.ParametersFileName.Position = [78 5 160.321278047315 17.5585369298122];
             app.ParametersFileName.Text = 'Parameters filename';
+
+            % --- The options column: generated options above, actions below.
+            %
+            % These used to be siblings in OptionsPanel -- groups stacking down from
+            % y = 1 with no floor, buttons pinned near the bottom -- so they
+            % collided. Measured on qsm_sb before this change, all four action
+            % buttons sat underneath a generated panel. Separate rows make that
+            % impossible instead of a question of how many options a model declares.
+            app.OptionsGrid = uigridlayout(app.OptionsPanel, [3 1]);
+            app.OptionsGrid.RowHeight   = {'1x', 'fit', 'fit'};
+            app.OptionsGrid.ColumnWidth = {'1x'};
+            app.OptionsGrid.Padding     = [4 4 4 4];
+            app.OptionsGrid.RowSpacing  = 6;
+
+            app.OptionsHost = uipanel(app.OptionsGrid, 'BorderType', 'none', 'Tag', 'OptionsHost');
+            app.OptionsHost.Layout.Row = 1;  app.OptionsHost.Layout.Column = 1;
+
+            acts = [app.Save, app.Load, app.Default, app.Helpbutton];
+            actions = uigridlayout(app.OptionsGrid, [1 numel(acts)]);
+            actions.Layout.Row = 2;  actions.Layout.Column = 1;
+            actions.RowHeight     = {'fit'};
+            actions.ColumnWidth   = repmat({'1x'}, 1, numel(acts));
+            actions.Padding       = [0 0 0 0];
+            actions.ColumnSpacing = 4;
+            for ai = 1:numel(acts)
+                acts(ai).Parent = actions;
+                acts(ai).Layout.Row = 1;  acts(ai).Layout.Column = ai;
+            end
+
+            current = uigridlayout(app.OptionsGrid, [1 2]);
+            current.Layout.Row = 3;  current.Layout.Column = 1;
+            current.RowHeight     = {'fit'};
+            current.ColumnWidth   = {'fit','1x'};
+            current.Padding       = [0 0 0 0];
+            current.ColumnSpacing = 4;
+            app.textCurrent.Parent = current;
+            app.textCurrent.Layout.Row = 1;  app.textCurrent.Layout.Column = 1;
+            app.ParametersFileName.Parent = current;
+            app.ParametersFileName.Layout.Row = 1;  app.ParametersFileName.Layout.Column = 2;
+
+            % --- The shell, on a grid.
+            %
+            % Replaces the two runtime
+            %     set(app.OptionsPanel,'Position',[0.5140 0.0158 0.4667 0.9735].*parent)
+            % assignments -- the single mistake behind all 44 Stage A defects, and the
+            % reason the "Options" title is clipped: 0.0158 + 0.9735 puts the panel's
+            % top at 98.9% of uipanel29, so its centertop title rendered under
+            % uipanel29's own border.
+            %
+            % This was attempted once before and reverted: making OptionsPanel taller
+            % pushed the generated option stack off the bottom and over the action
+            % buttons. That is fixed now -- the options scroll in their own row and
+            % the buttons have theirs -- so widening the column is a row/column
+            % COLLAPSE and nothing measures a parent and multiplies.
+            app.ShellGrid = uigridlayout(app.uipanel29, [1 2]);
+            app.ShellGrid.ColumnWidth   = {'1x', '1x'};
+            app.ShellGrid.RowHeight     = {'1x'};
+            app.ShellGrid.Padding       = [8 8 8 8];
+            app.ShellGrid.ColumnSpacing = 8;
+
+            app.ProtEditPanel.Parent = app.ShellGrid;
+            app.ProtEditPanel.Layout.Row = 1;  app.ProtEditPanel.Layout.Column = 1;
+
+            app.RightGrid = uigridlayout(app.ShellGrid, [2 1]);
+            app.RightGrid.Layout.Row = 1;  app.RightGrid.Layout.Column = 2;
+            app.RightGrid.RowHeight   = {196, '1x'};
+            app.RightGrid.ColumnWidth = {'1x'};
+            app.RightGrid.Padding     = [0 0 0 0];
+            app.RightGrid.RowSpacing  = 8;
+
+            app.FitOptEditPanel.Parent = app.RightGrid;
+            app.FitOptEditPanel.Layout.Row = 1;  app.FitOptEditPanel.Layout.Column = 1;
+            app.OptionsPanel.Parent = app.RightGrid;
+            app.OptionsPanel.Layout.Row = 2;  app.OptionsPanel.Layout.Column = 1;
 
             % Show the figure after all components are created
             app.OptionsGUI.Visible = 'on';
