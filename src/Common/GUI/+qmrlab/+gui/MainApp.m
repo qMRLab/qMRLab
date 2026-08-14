@@ -259,6 +259,23 @@ classdef MainApp < matlab.apps.AppBase
                 FitResults = FitData(data,Model,1);
             end
 
+            % A fit that reached no voxels -- an empty mask, or one that does not
+            % overlap the data -- returns a FitResults with no `fields`. FitData sets
+            % that field only inside its first-successful-voxel initialiser on the
+            % voxelwise path (the non-voxelwise path assigns it unconditionally).
+            %
+            % Unguarded, execution ran on to `for ii = 1:length(FitResults.fields)`
+            % and died with "Unrecognized field name fields" -- but only AFTER
+            % mkdir'ing FitResults_<timestamp> and saving into it, so a failed fit
+            % left a junk directory next to the data and a stack trace in the console.
+            % Check before anything is written, and say what is actually wrong.
+            if ~isfield(FitResults, 'fields') || isempty(FitResults.fields)
+                errordlg({'The fit produced no results.', '', ...
+                          ['No voxel was fitted. This usually means the mask is empty, ' ...
+                           'or does not overlap the data.']}, 'Nothing to fit');
+                return;
+            end
+
             % Save info with results
             % FileBrowserList is a struct keyed by method name -- browsers are built
             % lazily as models are selected (see MethodMenu). It used to be an array
@@ -545,7 +562,7 @@ classdef MainApp < matlab.apps.AppBase
             maxlength = max(cellfun(@length,MethodList))+4;
             maxlengthpath = max(cellfun(@length,pathmodels))+2;
             for iM=1:length(MethodList), MethodListfull{iM} = sprintf(['%-' num2str(maxlength) 's%-' num2str(maxlengthpath) 's'],MethodList{iM},['(' strrep(pathmodels{iM},[handles.ModelDir filesep],'') ')']); end
-            set(handles.MethodSelection,'String',MethodListfull);
+            setPopUp(handles.MethodSelection, MethodListfull, get(handles.MethodSelection,'Value'));
             set(handles.MethodSelection,'FontName','FixedWidth')
             set(handles.MethodSelection,'FontWeight','bold')
         end
@@ -804,7 +821,9 @@ classdef MainApp < matlab.apps.AppBase
             % Set Menu to method
             MethodList = getappdata(0, 'MethodList');
             indice = find(strcmp(Method,MethodList));
-            set(handles.MethodSelection, 'Value', indice);
+            % find() returns empty when the model is not in the list; setPopUp
+            % clamps rather than assigning [] into a validated index.
+            setPopUp(handles.MethodSelection, get(handles.MethodSelection,'String'), indice);
 
 
             MethodMenu(app, hObject, eventdata, handles, Method);
@@ -976,7 +995,7 @@ classdef MainApp < matlab.apps.AppBase
             % find model value in the method menu list
             methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
             val = find(strcmp(methods,Method));
-            set(handles.MethodSelection,'Value',val)
+            setPopUp(handles.MethodSelection, get(handles.MethodSelection,'String'), val);
 
             MethodMenu(app, hObject, eventdata, handles,Method)
             handles = guidata(hObject); % update handle

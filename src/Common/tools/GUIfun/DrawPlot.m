@@ -1,8 +1,12 @@
 function DrawPlot(handles,CurrentName)
+% Resolve WHICH volume should end up selected, but do not assign it yet.
+% UpdatePopUp below rewrites SourcePop's list, and a selection assigned against
+% the OLD list is exactly what makes that rewrite throw -- see setPopUp. Loading
+% a second, smaller dataset was the case that died.
 if ~exist('CurrentName','var') || strcmp(CurrentName,'Mask')
-    set(handles.SourcePop, 'Value',  1);
+    wantVol = 1;
 else
-    set(handles.SourcePop, 'Value',  find(strcmp(handles.CurrentData.fields,CurrentName)));
+    wantVol = find(strcmp(handles.CurrentData.fields,CurrentName));
 end
 
 
@@ -17,6 +21,9 @@ else
 end
 handles.tool.setImage(Current,[],[],[],[],Mask);
 UpdatePopUp(handles);
+
+% Safe now: the list is current.
+setPopUp(handles.SourcePop, get(handles.SourcePop,'String'), wantVol);
 
 % Set Volume Number
 if exist('CurrentName','var')
@@ -75,10 +82,10 @@ function shortcutCallback(hobject, event,handles)
 switch event.Key
     case 'uparrow'
         setNvol(handles.tool,handles.tool.getNvol-1)
-        set(handles.SourcePop, 'Value',  handles.tool.getNvol);
+        setPopUp(handles.SourcePop, get(handles.SourcePop,'String'), handles.tool.getNvol);
     case 'downarrow'
         setNvol(handles.tool,handles.tool.getNvol+1)   
-        set(handles.SourcePop, 'Value',  handles.tool.getNvol);
+        setPopUp(handles.SourcePop, get(handles.SourcePop,'String'), handles.tool.getNvol);
     otherwise
         handles.tool.shortcutCallback(event)
 end

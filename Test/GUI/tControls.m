@@ -160,6 +160,74 @@ classdef tControls < matlab.uitest.TestCase
                 'The warning label is visible although the data is valid.');
         end
 
+        function viewingAnInputAfterFittingDoesNotThrow(testCase)
+            % A journey test: fit, then view an input. It drives DrawPlot,
+            % UpdatePopUp and the viewer twice over, with the Volume list growing to
+            % the output maps and shrinking back to the input.
+            %
+            % It is NOT a regression test for the setPopUp ordering hazard, though it
+            % was written as one. Being accurate about that: the hazard is real at the
+            % API level -- a stale Value index makes the NEXT Items assignment throw
+            % MATLAB:badsubscript, proved directly against the adapter -- but this
+            % test passes with and without the fix, and no user-reachable sequence was
+            % found that produces a stale index, because DrawPlot always derives the
+            % index from the NEW field list. setPopUp is hardening against a latent
+            % hazard, not a repair of an observed failure, and the absence of a
+            % failing test here is the evidence for that rather than an oversight.
+            testCase.stubBlockingDialogs();
+            model = tControls.tinyDataFor(testCase, testCase.SimpleModel);
+
+            qMRLab(model.Model, model.Files);
+            drawnow;
+            fig = tControls.mainFigure();
+            testCase.assertNotEmpty(fig);
+
+            testCase.press(findall(fig, 'Tag', 'FitGO'));
+            drawnow;
+            source = findall(fig, 'Tag', 'SourcePop');
+            testCase.assumeGreaterThan(numel(source(1).Items), 1, ...
+                'The fit did not produce a multi-volume result; nothing to shrink.');
+
+            view = tControls.viewButtonFor('IRData');
+            testCase.assertNotEmpty(view, 'Could not find the IRData View button.');
+            testCase.verifyWarningFree(@() feval(view.ButtonPushedFcn, view, []), ...
+                'Viewing an input after a fit threw.');
+            drawnow;
+
+            source = findall(fig, 'Tag', 'SourcePop');
+            testCase.verifyNotEmpty(source(1).Items, ...
+                'The Volume dropdown was left with no entries.');
+        end
+
+        function emptyMaskFailsCleanlyWithoutWritingAnything(testCase)
+            % A mask that excludes every voxel is an ordinary user mistake -- an
+            % empty ROI, or a mask that does not overlap the data. It used to throw
+            % "Unrecognized field name fields" from inside the map-saving loop, AFTER
+            % having already created FitResults_<timestamp>/ and written into it. So
+            % the user got a stack trace plus a junk directory beside their data.
+            testCase.stubBlockingDialogs();
+            model = tControls.tinyDataFor(testCase, testCase.SimpleModel);
+
+            % An all-zero mask: valid input, no voxels to fit.
+            Mask = zeros(4, 4); %#ok<NASGU>
+            save(fullfile(model.Dir, 'Mask.mat'), 'Mask');
+
+            here = pwd;
+            cd(model.Dir);
+            testCase.addTeardown(@() cd(here));
+
+            qMRLab(model.Model, model.Files);
+            drawnow;
+            fig = tControls.mainFigure();
+            testCase.assertNotEmpty(fig);
+
+            testCase.verifyWarningFree(@() testCase.press(findall(fig, 'Tag', 'FitGO')), ...
+                'Fitting an empty mask threw instead of reporting the problem.');
+
+            testCase.verifyEmpty(dir(fullfile(model.Dir, 'FitResults*')), ...
+                'A failed fit still wrote a FitResults directory to disk.');
+        end
+
         function typingAPathIntoAFileBoxLoadsIt(testCase)
             % The file box was wired to obj.FileBox_callback(), a method that has
             % never existed on BrowserSet, so typing or pasting a path threw
@@ -209,9 +277,15 @@ classdef tControls < matlab.uitest.TestCase
             % never left on the path, where it would silence the real function.
             testCase.StubDir = fullfile(tempname, 'stubs');
             mkdir(testCase.StubDir);
-            fid = fopen(fullfile(testCase.StubDir, 'questdlg.m'), 'w');
-            fprintf(fid, 'function out = questdlg(varargin)\nout = ''No'';\nend\n');
-            fclose(fid);
+            stubs = { 'questdlg', 'out = ''No'';' ; ...
+                      'errordlg', 'out = [];' ; ...
+                      'warndlg',  'out = [];' ; ...
+                      'helpdlg',  'out = [];' };
+            for k = 1:size(stubs, 1)
+                fid = fopen(fullfile(testCase.StubDir, [stubs{k,1} '.m']), 'w');
+                fprintf(fid, 'function out = %s(varargin)\n%s\nend\n', stubs{k,1}, stubs{k,2});
+                fclose(fid);
+            end
             addpath(testCase.StubDir, '-begin');
             testCase.addTeardown(@() rmpath(testCase.StubDir));
         end
@@ -275,6 +349,30 @@ classdef tControls < matlab.uitest.TestCase
                 if ~strcmp(fields(k).Visible, 'on'); continue; end
                 if startsWith(char(fields(k).Value), marker)
                     box = fields(k); return
+                end
+            end
+        end
+
+        function btn = viewButtonFor(inputName)
+            % The View buttons carry no Tag either. Anchor on the input's NAME label,
+            % which is stable -- the file box next to it is not, because its
+            % placeholder is replaced by the path once something is loaded.
+            btn = [];
+            panel = findall(tControls.mainFigure(), 'Tag', 'FitDataFileBrowserPanel');
+            if isempty(panel); return; end
+            rowY = [];
+            labels = findall(panel(1), '-isa', 'matlab.ui.control.Label');
+            for k = 1:numel(labels)
+                if strcmp(labels(k).Text, inputName) && strcmp(labels(k).Visible, 'on')
+                    rowY = labels(k).Position(2); break
+                end
+            end
+            if isempty(rowY); return; end
+            buttons = findall(panel(1), '-isa', 'matlab.ui.control.Button');
+            for k = 1:numel(buttons)
+                if ~strcmp(buttons(k).Text, 'View'); continue; end
+                if abs(buttons(k).Position(2) - rowY) <= 4
+                    btn = buttons(k); return
                 end
             end
         end
