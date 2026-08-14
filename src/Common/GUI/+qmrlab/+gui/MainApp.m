@@ -1219,39 +1219,30 @@ classdef MainApp < matlab.apps.AppBase
             % uicontrol cannot be a child of a uigridlayout at all. The grid stops
             % at the boundary between native and legacy components.
 
-            % Capture FitDataPanel's design geometry BEFORE reparenting. Its children
-            % must scale with it -- AutoResizeChildren does not reflow them under a
-            % grid-driven resize -- and normalized units are how the GUIDE original
-            % did it (every component in qMRLab.fig was normalized).
-            %
-            % The ratios are computed from the design numbers rather than letting
-            % MATLAB convert: setting Units converts against the parent's size *at
-            % that instant*, and mid-construction that is not the size the positions
-            % were authored for, which yields normalized values greater than 1.
-            designPanel  = app.FitDataPanel.Position;
-            designKids   = allchild(app.FitDataPanel);
-            designKidPos = arrayfun(@(h) {h.Position}, designKids);
-
             app.RootGrid = uigridlayout(app.qMRILab, [1 2]);
             app.RootGrid.ColumnWidth   = {270, '1x'};   % sidebar stays legible, canvas takes the rest
             app.RootGrid.RowHeight     = {'1x'};
             app.RootGrid.Padding       = [8 8 8 8];
             app.RootGrid.ColumnSpacing = 8;
 
-            app.SideGrid = uigridlayout(app.RootGrid, [8 1]);
+            app.SideGrid = uigridlayout(app.RootGrid, [9 1]);
             app.SideGrid.Layout.Row    = 1;
             app.SideGrid.Layout.Column = 1;
             app.SideGrid.Padding       = [0 0 0 0];
             app.SideGrid.RowSpacing    = 6;
-            % 'fit' rows size to their content; the two panels share what is left.
-            app.SideGrid.RowHeight = {90, 'fit', 'fit', 'fit', 'fit', '1x', '1x', 'fit'};
+            % 'fit' rows size to their content. The two panels keep their design
+            % heights -- they hold absolutely-positioned children, so stretching them
+            % just opens a gap above the buttons rather than distributing anything.
+            % A '1x' spacer absorbs the slack and pins Open Options Panel to the
+            % bottom, where the layout has it.
+            app.SideGrid.RowHeight = {90, 'fit', 'fit', 'fit', 'fit', 221, 351, '1x', 'fit'};
 
             sidebar = { app.Image, app.text_version_check, app.upgrade_message, ...
                         app.MethodSelection, app.DefaultMethodBtn, app.uipanel37, ...
-                        app.SimPanel, app.OpenOptionsPanel };
+                        app.SimPanel, [], app.OpenOptionsPanel };
             for k = 1:numel(sidebar)
                 h = sidebar{k};
-                if isempty(h) || ~isvalid(h), continue; end
+                if isempty(h) || ~isvalid(h), continue; end   % k == 8 is the spacer
                 h.Parent = app.SideGrid;
                 h.Layout.Row = k;
                 h.Layout.Column = 1;
@@ -1261,14 +1252,13 @@ classdef MainApp < matlab.apps.AppBase
             app.FitDataPanel.Layout.Row = 1;
             app.FitDataPanel.Layout.Column = 2;
 
-            % Now apply the ratios, so the panel's contents follow it at any size.
-            for k = 1:numel(designKids)
-                h = designKids(k);
-                if ~isvalid(h) || ~isprop(h, 'Units'), continue; end
-                pos = designKidPos{k};
-                h.Units = 'normalized';
-                h.Position = pos ./ [designPanel(3) designPanel(4) designPanel(3) designPanel(4)];
-            end
+            % Leave FitDataPanel's own children alone. They are positioned in pixels
+            % by code that runs LATER (MethodBrowser/BrowserSet build the data rows
+            % during startup, measuring the panel as it is then), so converting them
+            % to normalized units here empties the Datasets panel: the rows get
+            % placed for a panel of a different height and end up clipped off the
+            % bottom edge. AutoResizeChildren handles them as it always has.
+            app.FitDataPanel.AutoResizeChildren = 'on';
 
             % The logo is an image: let it scale within its cell rather than being
             % clipped, which is what produced the truncated "qMRI ah" wordmark.

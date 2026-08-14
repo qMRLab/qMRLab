@@ -76,3 +76,4 @@ mismatchOM
 # GUI triage output (regenerate with Test/GUI/runBranchTriage.m)
 Test/GUI/triage/
 Test/GUI/b2/
+Test/GUI/shots/
