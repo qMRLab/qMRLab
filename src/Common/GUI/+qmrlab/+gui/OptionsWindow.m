@@ -18,8 +18,16 @@ classdef OptionsWindow < matlab.apps.AppBase
         Default             matlab.ui.control.Button
         Helpbutton          matlab.ui.control.Button
         ProtEditPanel       matlab.ui.container.Panel
+        ProtEditGrid        matlab.ui.container.GridLayout
         FitOptEditPanel     matlab.ui.container.Panel
         FitOptTable         matlab.ui.control.Table
+    end
+
+    properties (Constant, Access = private)
+        % The protocol table's height. Enough for a header plus ~4 rows, which
+        % covers every shipped model's default protocol; longer ones scroll inside
+        % the table rather than making the panel grow without bound.
+        TABLEHEIGHT = 130
     end
 
     properties (Access = private)
@@ -755,6 +763,25 @@ classdef OptionsWindow < matlab.apps.AppBase
 
                 N = length(fields);
 
+                % Each protocol panel used to get .9/N of the height, which is fine
+                % for one or two and hopeless for five: mp2rage has five, so a panel
+                % came to ~139 px and the table inside it collapsed to ZERO height
+                % once the buttons were given the room they need. The old code made
+                % the opposite trade -- a roomy table and ~14 px unreadable buttons.
+                %
+                % Neither is a layout. Give every panel the height it actually needs
+                % and let the column scroll when there are too many to fit, which is
+                % the same answer as the Datasets panel and the viewer strip.
+                app.ProtEditGrid = uigridlayout(app.ProtEditPanel, [N+1 1]);
+                % 'fit': each panel is exactly as tall as its table plus its buttons,
+                % so a two-row protocol does not reserve the same space as a ten-row
+                % one. The column scrolls when the total exceeds the window.
+                app.ProtEditGrid.RowHeight   = [repmat({'fit'}, 1, N), {'fit'}];
+                app.ProtEditGrid.ColumnWidth = {'1x'};
+                app.ProtEditGrid.Padding     = [6 6 6 6];
+                app.ProtEditGrid.RowSpacing  = 6;
+                app.ProtEditGrid.Scrollable  = 'on';
+
                 for ii = 1:N
 
                     app.ProtPanels.(fields{ii}).CellSelect = [];
@@ -763,8 +790,37 @@ classdef OptionsWindow < matlab.apps.AppBase
                     % Panels function as a namespace for protocols.
                     % Unlike options panel, here they are REQUIRED.
 
-                    app.ProtPanels.(fields{ii}).panel = uipanel(app.ProtEditPanel,'Title',fields{ii},'Units','normalized','Position',[.05 (ii-1)*.95/N+.05 .9 .9/N]);
-                    app.ProtPanels.(fields{ii}).table = uitable(app.ProtPanels.(fields{ii}).panel,'Data',app.Model.Prot.(fields{ii}).Mat,'Units','normalized','Position',[.05 .08*N .9 (1-.08*N)]);
+                    app.ProtPanels.(fields{ii}).panel = uipanel(app.ProtEditGrid,'Title',fields{ii});
+                    app.ProtPanels.(fields{ii}).panel.Layout.Row = ii;
+                    app.ProtPanels.(fields{ii}).panel.Layout.Column = 1;
+
+                    % Stage E3. The panel's interior is a grid: table on top, the
+                    % edit buttons in a fixed-height strip beneath.
+                    %
+                    % The buttons used to be normalized rectangles 0.02*N tall inside
+                    % a panel 0.9/N tall -- the N cancels, so they came out ~14 px at
+                    % EVERY protocol count, too short to render their own labels. In
+                    % the qsm_sb capture "Add", "Move up" and "Load" are visibly
+                    % clipped and run into each other. A 'fit' row is as tall as the
+                    % button needs, at any N and any text size.
+                    %
+                    % The table's own 1-0.08*N height had the same shape of bug from
+                    % the other end: it goes NEGATIVE at N >= 13. No shipped model has
+                    % that many protocol fields, so it was latent rather than visible.
+                    pg = uigridlayout(app.ProtPanels.(fields{ii}).panel, [2 1]);
+                    % A fixed table height, not '1x'. With 'fit' rows above, '1x' has
+                    % nothing to divide and the table collapsed to zero -- which is
+                    % exactly what mp2rage's five panels did. The table scrolls
+                    % internally past this many rows.
+                    pg.RowHeight   = {qmrlab.gui.OptionsWindow.TABLEHEIGHT, 'fit'};
+                    pg.ColumnWidth = {'1x'};
+                    pg.Padding     = [6 6 6 6];
+                    pg.RowSpacing  = 4;
+                    app.ProtPanels.(fields{ii}).grid = pg;
+
+                    app.ProtPanels.(fields{ii}).table = uitable(pg,'Data',app.Model.Prot.(fields{ii}).Mat);
+                    app.ProtPanels.(fields{ii}).table.Layout.Row = 1;
+                    app.ProtPanels.(fields{ii}).table.Layout.Column = 1;
 
                     % TODO: Condition to be improved.
                     if isprop(app.Model,'tabletip')
@@ -792,6 +848,33 @@ classdef OptionsWindow < matlab.apps.AppBase
                         set(app.ProtPanels.(fields{ii}).table,'RowName', app.Model.Prot.(fields{ii}).Format);
                         set(app.ProtPanels.(fields{ii}).table,'ColumnName','');
                     else
+                        % Native uibuttons, not uicontrol: a uicontrol cannot be a
+                        % child of a uigridlayout at all (tCapabilities pins that).
+                        bg = uigridlayout(pg, [4 2]);
+                        bg.Layout.Row = 2;  bg.Layout.Column = 1;
+                        bg.RowHeight     = {'fit','fit','fit','fit'};
+                        bg.ColumnWidth   = {'1x','1x'};
+                        bg.Padding       = [0 0 0 0];
+                        bg.RowSpacing    = 3;
+                        bg.ColumnSpacing = 4;
+
+                        specs = { 'Add',       1, 1, @PointAdd_Callback; ...
+                                  'Remove',    1, 2, @PointRem_Callback; ...
+                                  'Move up',   2, 1, @PointUp_Callback; ...
+                                  'Move down', 2, 2, @PointDown_Callback; ...
+                                  'Load',      3, 1, @LoadProt_Callback; ...
+                                  'Create',    3, 2, @CreateProt_Callback };
+                        btns = gobjects(1, size(specs,1));
+                        for bi = 1:size(specs,1)
+                            cb = specs{bi,4};
+                            btns(bi) = uibutton(bg, 'push', 'Text', specs{bi,1}, ...
+                                'ButtonPushedFcn', @(hObject, eventdata) cb(app, hObject, eventdata, fields{ii}));
+                            btns(bi).Layout.Row = specs{bi,2};
+                            btns(bi).Layout.Column = specs{bi,3};
+                        end
+                        app.ProtPanels.(fields{ii}).buttons = btns;
+                        app.ProtPanels.(fields{ii}).buttongrid = bg;
+
                         set(app.ProtPanels.(fields{ii}).table,'ColumnName',app.Model.Prot.(fields{ii}).Format);
                         if isprop(app.Model,'tabletip')
 
@@ -809,18 +892,14 @@ classdef OptionsWindow < matlab.apps.AppBase
                                     Tip.link = [];
                                 end
 
-                                uicontrol(app.ProtPanels.(fields{ii}).panel,'Units','normalized','Position',[0.468 0 .066 .061*N],'Style','pushbutton','String','?','BackGroundColor', [0, 0.65, 1],'Callback',@(hObject, eventdata) PointHelp_Callback(app, hObject, eventdata, Tip, fields{ii}));
+                                app.ProtPanels.(fields{ii}).help = uibutton(bg, 'push', ...
+                                    'Text','?','BackgroundColor',[0, 0.65, 1],'FontColor',[1 1 1], ...
+                                    'ButtonPushedFcn',@(hObject, eventdata) PointHelp_Callback(app, hObject, eventdata, Tip, fields{ii}));
+                                app.ProtPanels.(fields{ii}).help.Layout.Row = 4;
+                                app.ProtPanels.(fields{ii}).help.Layout.Column = [1 2];
                             end
 
                         end
-
-                        % Create BUTTONS
-                        uicontrol(app.ProtPanels.(fields{ii}).panel,'Units','normalized','Position',[.03 0.04*N .44 .02*N],'Style','pushbutton','String','Add','Callback',@(hObject, eventdata) PointAdd_Callback(app, hObject, eventdata, fields{ii}));
-                        uicontrol(app.ProtPanels.(fields{ii}).panel,'Units','normalized','Position',[.53 0.04*N .44 .02*N],'Style','pushbutton','String','Remove','Callback',@(hObject, eventdata) PointRem_Callback(app, hObject, eventdata, fields{ii}));
-                        uicontrol(app.ProtPanels.(fields{ii}).panel,'Units','normalized','Position',[.03 0.02*N .44 .02*N],'Style','pushbutton','String','Move up','Callback',@(hObject, eventdata) PointUp_Callback(app, hObject, eventdata, fields{ii}));
-                        uicontrol(app.ProtPanels.(fields{ii}).panel,'Units','normalized','Position',[.53 0.02*N .44 .02*N],'Style','pushbutton','String','Move down','Callback',@(hObject, eventdata) PointDown_Callback(app, hObject, eventdata, fields{ii}));
-                        uicontrol(app.ProtPanels.(fields{ii}).panel,'Units','normalized','Position',[.03 0      .44 .02*N],'Style','pushbutton','String','Load','Callback',@(hObject, eventdata) LoadProt_Callback(app, hObject, eventdata, fields{ii}));
-                        uicontrol(app.ProtPanels.(fields{ii}).panel,'Units','normalized','Position',[.53 0      .44 .02*N],'Style','pushbutton','String','Create','Callback',@(hObject, eventdata) CreateProt_Callback(app, hObject, eventdata, fields{ii}));
                     end
 
                     % Make buttons invisible on condition.
@@ -830,13 +909,35 @@ classdef OptionsWindow < matlab.apps.AppBase
                         styles = {app.Model.ProtStyle.style};
                         [~,prtidx] = ismember(fields{ii},prot_names);
 
-                        if strcmp(styles(prtidx),'TableNoButton') && length(app.ProtPanels.(fields{ii}).panel.Children)>1
-                            for chil_iter = 1:length(app.ProtPanels.(fields{ii}).panel.Children)
-                                if isa(app.ProtPanels.(fields{ii}).panel.Children(chil_iter),'matlab.ui.control.UIControl')
-                                    if strcmp(app.ProtPanels.(fields{ii}).panel.Children(chil_iter).Style,'pushbutton')
-                                        app.ProtPanels.(fields{ii}).panel.Children(chil_iter).Visible = 'off';
-                                    end
-                                end
+                        % The buttons are native components in their own grid now, so
+                        % hide the ones we built rather than walking panel.Children
+                        % looking for uicontrols -- there are none left to find, and
+                        % that loop would silently stop hiding anything.
+                        if strcmp(styles(prtidx),'TableNoButton')
+                            if isfield(app.ProtPanels.(fields{ii}), 'buttons')
+                                set(app.ProtPanels.(fields{ii}).buttons, 'Visible', 'off');
+                            end
+                            % Visible='off' hides the buttons but LEAVES THEIR ROW --
+                            % measured on R2026b, a hidden component keeps its cell
+                            % and everything below stays put. The panel then reserved
+                            % ~86 px of blank space for controls nobody can see.
+                            % Collapsing the row is what actually removes them.
+                            if isfield(app.ProtPanels.(fields{ii}), 'grid') && ...
+                                    isvalid(app.ProtPanels.(fields{ii}).grid)
+                                app.ProtPanels.(fields{ii}).grid.RowHeight{2} = 0;
+                            end
+                            % Hide the STRIP, not just the buttons in it. A visible
+                            % container collapsed to zero height is a defect by every
+                            % sane definition -- geomAudit says so -- whereas an
+                            % invisible one is simply absent, which is what
+                            % TableNoButton means.
+                            if isfield(app.ProtPanels.(fields{ii}), 'buttongrid') && ...
+                                    isvalid(app.ProtPanels.(fields{ii}).buttongrid)
+                                app.ProtPanels.(fields{ii}).buttongrid.Visible = 'off';
+                            end
+                            if isfield(app.ProtPanels.(fields{ii}), 'help') && ...
+                                    ~isempty(app.ProtPanels.(fields{ii}).help)
+                                app.ProtPanels.(fields{ii}).help.Visible = 'off';
                             end
                         end
                     end
@@ -845,8 +946,15 @@ classdef OptionsWindow < matlab.apps.AppBase
                 end
             end
 
-            if ismethod(app.Model,'plotProt')
-                uicontrol(app.ProtEditPanel,'Units','normalized','Position',[.05 0 .9 .05],'Style','pushbutton','String','Plot Protocol','Callback','figure(''color'',''white''), Model = getappdata(0,''Model''); Model.plotProt;');
+            if ismethod(app.Model,'plotProt') && ~isempty(app.ProtEditGrid) && isvalid(app.ProtEditGrid)
+                % Native button in the grid's last row. The old one was a uicontrol at
+                % [.05 0 .9 .05], which overlapped the lowest protocol panel (that
+                % panel starts at y = .05), and carried a STRING callback -- a
+                % uicontrol-only feature with no equivalent on a native button.
+                pb = uibutton(app.ProtEditGrid, 'push', 'Text', 'Plot Protocol', ...
+                    'ButtonPushedFcn', @(~,~) plotProtocolCallback());
+                pb.Layout.Row = numel(app.ProtEditGrid.RowHeight);
+                pb.Layout.Column = 1;
             end
 
             % Wait if output
@@ -1092,4 +1200,12 @@ classdef OptionsWindow < matlab.apps.AppBase
             delete(app.OptionsGUI)
         end
     end
+end
+
+function plotProtocolCallback()
+% Was a string callback on a uicontrol; native buttons take function handles only.
+    Model = getappdata(0, 'Model');
+    if isempty(Model); return; end
+    figure('color', 'white');
+    Model.plotProt;
 end

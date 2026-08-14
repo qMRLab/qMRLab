@@ -199,7 +199,14 @@ function t = textOf(h)
             if ~isprop(h, p{1}); continue; end
             v = get(h, p{1});
             if isempty(v); continue; end
-            t = [t sprintf(' %s=%s', p{1}, flatten(v))]; %#ok<AGROW>
+            % A legacy uicontrol calls its caption String and a native component
+            % calls it Text. Emit both under Text so converting a control from one
+            % to the other reads as "same caption" instead of one deletion plus one
+            % addition. The class is still on the line, so a genuine type change is
+            % still visible -- it just does not drown the caption diff.
+            name = p{1};
+            if strcmp(name, 'String'); name = 'Text'; end
+            t = [t sprintf(' %s=%s', name, flatten(v))]; %#ok<AGROW>
         end
     catch
     end

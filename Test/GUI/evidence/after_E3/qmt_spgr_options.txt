@@ -1,0 +1,54 @@
+# OptionsGUI  573x835  53 components
+/AnnotationPane[scribeOverlay]                                                  vis=on      px=0x0@0,0              
+/Panel[uipanel29]                                                               vis=on      children=3
+/Panel[uipanel29]/Panel[FitOptEditPanel]                                        vis=on      children=1
+/Panel[uipanel29]/Panel[FitOptEditPanel]/Table[FitOptTable]                     vis=on      px=248x159@298,613      Data={"F","kr","R1f","R1r","T2f","T2r",false,false,true,true,false,false,0.16,30,"R1MAP",1,0.03,0,0.0001,0.0001,0.05,0.05,0.003,0,0.5,100,5,5,0.5,0.0001}
+/Panel[uipanel29]/Panel[OptionsPanel]                                           vis=on      children=10
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Default]                           vis=on      px=61x28@424,55         Text="Default"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Helpbutton]                        vis=on      px=60x31@485,54         Text="Help"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Load]                              vis=on      px=61x28@366,55         Text="Load"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Save]                              vis=on      px=61x28@308,55         Text="Save"
+/Panel[uipanel29]/Panel[OptionsPanel]/Label[ParametersFileName]                 vis=on      px=160x18@375,31        Text="Parameters filename"
+/Panel[uipanel29]/Panel[OptionsPanel]/Label[textCurrent]                        vis=on      px=57x16@312,32         Text="Current:"
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel                                     vis=on      children=10
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel                                     vis=on      children=3
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel                                     vis=on      children=4
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel                                     vis=on      children=5
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x17@323,176       Text="R1f*T2f =:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x17@414,176       Text="0.055" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@323,400       Text="# of MT pulses:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@323,429       Text="Fermi transition (a):" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@323,458       Text="Bandwidth:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@323,487       Text="Sinc TBW:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@323,517       Text="Shape:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@414,400       Text="600" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@414,429       Text="0.000301686" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@414,458       Text="200" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@414,487       Text="4" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=114x18@414,517       Text={"gausshann","gaussian","hard","sinc","sinchann","sincgauss","fermi"} Value=1
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@311,131       Text="Read pulse alpha:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@311,321       Text="Lineshape:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@311,354       Text="Model:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@412,131       Text="7" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@412,321       Text={"SuperLorentzian","Lorentzian","Gaussian"} Value=1
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@412,354       Text={"SledPikeRP","SledPikeCW","Yarnykh","Ramani"} Value=1
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=205x17@323,204       Text="Fix R1f*T2f" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=205x17@323,233       Text="Fix R1r = R1f" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=205x17@323,261       Text="Use R1map to constrain R1f" Value=1
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=229x20@311,98        Text="Compute SfTable" Value=0
+/Panel[uipanel29]/Panel[ProtEditPanel]                                          vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout                               vis=on      children=3
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Button                        vis=on      px=242x23@35,330        Text="Plot Protocol"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel                         vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel                         vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout              vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout              vis=on      children=2
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout   vis=on      children=6
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,366       Text="Create"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,392       Text="Move down"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,418       Text="Remove"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,366        Text="Load"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,392        Text="Move up"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,418        Text="Add"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/Table        vis=on      px=228x130@42,445       Data=<[10 2] numeric>
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/Table        vis=on      px=228x130@42,615       Data=[0.0102;0.003;0.0018;0.01;0.025]

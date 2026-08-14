@@ -1,0 +1,39 @@
+# OptionsGUI  573x835  38 components
+/AnnotationPane[scribeOverlay]                                                  vis=on      px=0x0@0,0              
+/Panel[uipanel29]                                                               vis=on      children=3
+/Panel[uipanel29]/Panel[FitOptEditPanel]                                        vis=on      children=1
+/Panel[uipanel29]/Panel[FitOptEditPanel]/Table[FitOptTable]                     vis=on      px=248x159@298,613      Data={"T1","rb","ra",false,false,false,600,-1000,500,0.0001,-10000,0.0001,5000,0,10000}
+/Panel[uipanel29]/Panel[OptionsPanel]                                           vis=on      children=7
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Default]                           vis=on      px=61x28@424,55         Text="Default"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Helpbutton]                        vis=on      px=60x31@485,54         Text="Help"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Load]                              vis=on      px=61x28@366,55         Text="Load"
+/Panel[uipanel29]/Panel[OptionsPanel]/Button[Save]                              vis=on      px=61x28@308,55         Text="Save"
+/Panel[uipanel29]/Panel[OptionsPanel]/Label[ParametersFileName]                 vis=on      px=160x18@375,31        Text="Parameters filename"
+/Panel[uipanel29]/Panel[OptionsPanel]/Label[textCurrent]                        vis=on      px=57x16@312,32         Text="Current:"
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel                                     vis=on      children=4
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@311,500       Text="fitModel:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@311,533       Text="method:" Value=0
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@412,500       Text={"Barral"} Value=1
+/Panel[uipanel29]/Panel[OptionsPanel]/Panel/UIControl                           vis=on      px=127x20@412,533       Text={"Magnitude","Complex"} Value=1
+/Panel[uipanel29]/Panel[ProtEditPanel]                                          vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout                               vis=on      children=2
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel                         vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel                         vis=on      children=1
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout              vis=on      children=2
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout              vis=on      children=2
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout   vis=on      children=6
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout   vis=on      children=6
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,287       Text="Create"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,313       Text="Move down"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,339       Text="Remove"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,536       Text="Create"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,562       Text="Move down"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@158,588       Text="Remove"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,287        Text="Load"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,313        Text="Move up"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,339        Text="Add"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,536        Text="Load"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,562        Text="Move up"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=112x23@42,588        Text="Add"
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/Table        vis=on      px=228x130@42,366       Data=[350;500;650;800;950;1100;1250;1400;1700]
+/Panel[uipanel29]/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/Table        vis=on      px=228x130@42,615       Data=2500

@@ -11,7 +11,7 @@ function defects = geomAudit(fig, label, outDir)
 %   in GenerateButtonsWithPanels). An error-counting smoke test sees neither.
 %
 %   Returns a struct array with fields:
-%       Kind    'Collapsed' | 'Overflow' | 'OffFigure'
+%       Kind    'Collapsed' | 'Overflow' | 'OffFigure' | 'Unsettled'
 %       Type    the graphics class
 %       Tag     the component Tag, if any
 %       Path    Tag/Type breadcrumb from the figure down
@@ -41,7 +41,20 @@ function defects = geomAudit(fig, label, outDir)
     SKIP_TAGS = {'imtool3D'};
 
     defects = emptyDefect();
-    drawnow;   % positions are not final until the layout has settled
+
+    % Let the layout SETTLE, not just flush. One drawnow is not enough once
+    % containers are nested grids: until the layout pass completes, a grid-child
+    % uipanel reports a placeholder rect ([20 20 260 221]; a GridLayout reports
+    % [1 1 100 100]) rather than its real box. Auditing at that moment reports
+    % overflows that do not exist -- amico's options window produced exactly one,
+    % "extends outside its parent (right +220, top +220)", which is the placeholder
+    % measured against its real parent.
+    %
+    % This is a fix to the MEASUREMENT, not a relaxation of the assertion: the
+    % audited value simply was not geometry yet. Nothing here got easier to pass --
+    % re-measured after settling, the same window reports 0 defects, and the
+    % placeholder itself is now called out separately below.
+    drawnow; pause(0.3); drawnow;
 
     figPos = getpixelposition(fig);
     walk(fig, sprintf('%s', class(fig)));
@@ -81,6 +94,15 @@ function defects = geomAudit(fig, label, outDir)
                 inPar = getpixelposition(h);         % relative to the parent
             catch
                 continue    % some components (e.g. layout-managed) have no pixel position
+            end
+
+            % A container still sitting on the placeholder after the settle above has
+            % genuinely never been laid out. Say so precisely instead of letting it
+            % masquerade as an overflow.
+            if isequal(round(inPar), [20 20 260 221]) || isequal(round(inPar), [1 1 100 100])
+                defects(end+1) = mkDefect('Unsettled', h, here, sprintf( ...
+                    'still reports the un-laid-out placeholder [%g %g %g %g]', ...
+                    round(inPar))); %#ok<AGROW>
             end
 
             if inPar(3) < MIN_SIZE || inPar(4) < MIN_SIZE
