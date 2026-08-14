@@ -1,3 +1,5 @@
+function [Sim, SimCurveResults] = SimDemo_SIRFSE()
+
 %% Settings
 clc;
 Sim    =  load('SIRFSEfun/Parameters/DefaultSim.mat');    % load default simulation parameters

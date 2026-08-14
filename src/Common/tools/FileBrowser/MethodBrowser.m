@@ -314,15 +314,14 @@ classdef MethodBrowser < handle
         %------------------------------------------------------------------
         % Download example callback
         function DownloadBtn_callback(obj)
-            % Set cursor to watch
+            % Set cursor to watch. onCleanup guarantees the pointer is restored
+            % even if the download throws (#536).
             set(findobj('Name','qMRLab'),'pointer', 'watch');
+            pointer_restore = onCleanup(@() set(findobj('Name','qMRLab'),'pointer', 'arrow')); %#ok<NASGU>
             
             Model = getappdata(0,'Model');
             qMRgenBatch(Model);
             obj.WD_BrowseBtn_callback([pwd filesep Model.ModelName '_data']);
-            
-            % Restore cursor
-            set(findobj('Name','qMRLab'),'pointer', 'arrow');
         end
         
         %------------------------------------------------------------------

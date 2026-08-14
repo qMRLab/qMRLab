@@ -95,18 +95,18 @@ end
 
 
     methods(Access = protected)
-        function obj = qMRpatch(obj,loadedStruct, version)
-            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        function obj = qMRpatch(obj, loadedStruct)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct);
 
             % 2.0.12
-            if checkanteriorver(version,[2 0 12])
+            if checkanteriorver(loadedStruct.version, [2 0 12])
                 % add B1factor
                 obj.Prot = struct('Alpha',struct('Format',{'FlipAngle'},'Mat',60));
                 obj.MRIinputs = {'SFalpha','SF2alpha'};
 
             end
             % 2.0.13
-            if checkanteriorver(version,[2 0 13])
+            if checkanteriorver(loadedStruct.version, [2 0 13])
                 % add mask and add options/buttons for smoothing
                 obj.MRIinputs = {'SFalpha','SF2alpha','Mask'};
                 obj.options.Smoothingfilter_Type='polynomial';

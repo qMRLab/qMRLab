@@ -9,13 +9,28 @@ classdef (TestTags = {'T1', 'Demo', 'Integration'}) fitT1_IR_Test < matlab.unitt
     
     methods (TestClassSetup) % Usually used to setup common testing variables, or loading data.
         function load_test_data(testCase)
-            testData = load('Data/IR_demo/IR_demo.mat'); % Place full relative path, in case the file goes missing or there is a conflict
+        % Downloads demo data for the inversion recovery model, 
+        % and loads it into class properties for use in the test methods.
+
+            % Messing with pwd is bad manners, so restore it at the end no matter what
+            here = pwd;
+            goBack = onCleanup(@() cd(here));
+
+            Model = inversion_recovery();
+            baseDir = tempdir();
+            demoDir = fullfile(baseDir, [Model.ModelName '_demo']);
+
+            if ~isfolder(demoDir)
+                fprintf('Downloading demo data for %s model...', Model.ModelName);
+                downloadData(Model, baseDir);
+            end
+            cd(demoDir);
             
             % Set class properties
-            testCase.IRdata = testData.IRdata;
-            testCase.Mask = testData.Mask;
-            testCase.TI = testData.TI;
-
+            testCase.IRdata = load('inversion_recovery_data/IRData.mat').IRData;
+            testCase.Mask = load('inversion_recovery_data/Mask.mat').Mask;
+            testCase.TI = load('FitResults/FitResults.mat').Protocol.IRData.Mat;
+            fprintf('Demo data loaded successfully!');
         end
     end
     
@@ -24,41 +39,27 @@ classdef (TestTags = {'T1', 'Demo', 'Integration'}) fitT1_IR_Test < matlab.unitt
     
     methods (Test) % Each test is it's own method function, and takes testCase as an argument.
 
+        function test_IRData_is_available(testCase)
+            testCase.verifyNotEmpty(testCase.IRdata, 'IRdata should not be empty');
+        end
+
         function test_IRfun_returns_near_expected_median_of_test_data(testCase) % Use very descriptive test method names
-            %% Prepare for test
-            %
+            
             method='Magnitude';
             
-            T1 = zeros(size(testCase.IRdata,1), size(testCase.IRdata,2));
-            
-            %% Fit voxels
-            %
-            for xx = 1:size(testCase.IRdata,1)
-                for yy = 1:size(testCase.IRdata,2)
-                    
-                    if testCase.Mask(xx,yy) % Skip masked voxels
-                        [T1(xx, yy), ~, ~, ~] = fitT1_IR(testCase.IRdata(xx, yy, :), testCase.TI, method);
-                    end
-                    
-                end
-            end
+            %% Fit (masked) voxels
+            fprintf('Fitting T1 values for masked voxels using %s method...', method);
+            [xx, yy] = find(testCase.Mask);
+            [maskedT1, ~, ~, ~] = arrayfun(@(x, y) fitT1_IR(testCase.IRdata(x, y, :), testCase.TI, method), xx, yy);
             
             %% Check the fit
-            %
-                        
-            % Mask data
-            maskedT1 = T1(:).*testCase.Mask(:);
-            maskedT1(maskedT1 == 0) =[];
-            
             expectedMedian = 748; % in s, Value was identified under stable working conditions.
             actualMedian = median(maskedT1(:));
             
-            % Assert functions are the core of unit tests; if it fails,
-            % test log will return failed tests and details.
-            assertTrue(testCase, abs(actualMedian-expectedMedian) < 50); % This will alert us if a code change ever produces a fit 
-                                                                         % with a median lower than 700 or greater than 800, signaling
-                                                                         % a potential bug.
+            % This will alert us if a code change ever produces a fit 
+            % with a median lower than 700 or greater than 800, signaling
+            % a potential bug.
+            testCase.verifyEqual(actualMedian, expectedMedian, 'AbsTol', 50); 
         end
     end
-    
 end

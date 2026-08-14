@@ -1,23 +1,9 @@
 classdef (TestTags = {'bSSFP', 'Demo', 'Integration'}) SimDemo_bSSFP_Test < matlab.unittest.TestCase
 
-    properties
-       qmrlabPath = cell2mat(regexp(cd, '.*qMRLab/', 'match'));
-    end
-    methods (TestClassSetup)
-        function addqMRILabToPath(testCase)
-            addpath(genpath(testCase.qmrlabPath));
-        end
-    end
-
-    methods (TestClassTeardown)
-        function removeqMRILabFromPath(testCase)
-            clear all, close all
-        end
-    end
-
     methods (Test)
         function testFittedParamsNearInputValues(testCase)
-            run([testCase.qmrlabPath, '/Models_Functions/bSSFPfun/SimDemo_bSSFP.m'])
+
+            [Sim, SimCurveResults] = SimDemo_bSSFP();
 
             inputParams  = Sim.Param;
             outputParams = SimCurveResults;

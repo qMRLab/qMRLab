@@ -29,37 +29,34 @@ for iModel = 1:length(Modellist)
     disp(['Testing: ' Modellist{iModel} ' BATCH...'])
     disp('===============================================================')
     
-    
-    eval(['Model = ' Modellist{iModel}]);
-    
-    
-    
-    
-    
-    
-    
-    qMRgenBatch(Model,pwd)
-    
-    
-    
-    
-    % Test if any dataset exist
-    isdata = true;
     try
-        Model.onlineData_url;
-    catch
-        isdata = false;
+        eval(['Model = ' Modellist{iModel}]);
+        
+        qMRgenBatch(Model,pwd)
+        
+        % Test if any dataset exist
+        isdata = true;
+        try
+            Model.onlineData_url;
+        catch
+            isdata = false;
+        end
+        
+        % Run Batch
+        if isdata
+            starttime = tic;
+            eval([Modellist{iModel} '_batch']);
+            toc(starttime)
+        end
+    catch ME
+        fprintf(2, 'Error in %s BATCH!\n', Modellist{iModel});
+        close all
+        cd(curdir)
+        rethrow(ME)
     end
-    
-    % Run Batch
-    if isdata
-        starttime = tic;
-        eval([Modellist{iModel} '_batch']);
-        toc(starttime)
-    end
+
     close all
-    cd ..
-    
+    cd(tmpDir)
 end
 cd(curdir)
 

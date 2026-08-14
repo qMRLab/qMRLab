@@ -215,8 +215,10 @@ classdef BrowserSet < handle
                 warnmissing = true;
             end
             
-            % Set cursor to watch
+            % Set cursor to watch. onCleanup guarantees the pointer is restored
+            % even if loading throws (#536).
             set(findobj('Name', 'qMRLab'), 'pointer', 'watch');
+            pointer_restore = onCleanup(@() set(findobj('Name', 'qMRLab'), 'pointer', 'arrow')); %#ok<NASGU>
             drawnow;
             
             obj.FullFile = obj.FileBox.Value;
@@ -224,11 +226,18 @@ classdef BrowserSet < handle
             
             if ~isempty(obj.FullFile)
                 [~, ~, ext] = fileparts(obj.FullFile);
+
+                if strcmp(ext, '.gz')
+                    [~, ~, ext] = fileparts(obj.FullFile(1:end-3)); % real extension under the .gz (#506)
+                end
+
                 if strcmp(ext, '.mat')
                     mat = load(obj.FullFile);
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
-                elseif strcmp(ext, '.nii') || strcmp(ext, '.gz') || strcmp(ext, '.img')
+                elseif strcmp(ext, '.mnc')
+                    [hdr, tmp] = minc_read(obj.FullFile);
+                elseif strcmp(ext, '.nii') || strcmp(ext, '.img')
                     intrp = 'linear';
                     [tmp, hdr] = nii_load(obj.FullFile, 0, intrp);
                 elseif strcmp(ext, '.tiff') || strcmp(ext, '.tif')
@@ -244,7 +253,7 @@ classdef BrowserSet < handle
                     tmp = File;
                 else
                     if exist(obj.FullFile, 'file') == 2
-                        warndlg(['File extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .img, .tiff or .tif files']);
+                        warndlg(['File extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .mnc, .mnc.gz, .img, .tiff or .tif files']);
                     end
                 end
             end
@@ -317,9 +326,9 @@ classdef BrowserSet < handle
                 end
                 
                 if isequal(obj.FullFile, 0) || isempty(obj.FullFile)
-                    [FileName, PathName] = uigetfile({'*.nii;*.nii.gz;*.mat'; '*.img'}, 'Select file');
+                    [FileName, PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat'; '*.img'}, 'Select file');
                 else
-                    [FileName, PathName] = uigetfile({'*.nii;*.nii.gz;*.mat'; '*.img'}, 'Select file', obj.FullFile);
+                    [FileName, PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat'; '*.img'}, 'Select file', obj.FullFile);
                 end
                 
                 cd(origdir);

@@ -127,10 +127,10 @@ classdef mt_sat < AbstractModel
     end
 
     methods(Access = protected)
-        function obj = qMRpatch(obj,loadedStruct, version)
-            obj = qMRpatch@AbstractModel(obj,loadedStruct, version);
+        function obj = qMRpatch(obj, loadedStruct)
+            obj = qMRpatch@AbstractModel(obj,loadedStruct);
             % 2.0.6
-            if checkanteriorver(version,[2 0 6])
+            if checkanteriorver(loadedStruct.version, [2 0 6])
                 % add B1factor
                 obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','Export MTR',1, 'Enabled',true};
                 obj.options.B1correctionfactor=0.04;
@@ -138,7 +138,7 @@ classdef mt_sat < AbstractModel
             end
 
             % 2.0.7 --> rename MT PD T1 (to MTw PDw T1w)
-            if checkanteriorver(version,[2 0 7])
+            if checkanteriorver(loadedStruct.version, [2 0 7])
                 obj.MRIinputs = {'MTw'    'T1w'    'PDw'    'B1map'    'Mask'}; % add B1map
                 obj.Prot.MTw = obj.Prot.MT; obj.Prot = rmfield(obj.Prot,'MT');
                 obj.Prot.T1w = obj.Prot.T1; obj.Prot = rmfield(obj.Prot,'T1');
@@ -151,13 +151,13 @@ classdef mt_sat < AbstractModel
             end
 
             % 2.3.1 --> Remove buttons from prot
-            if checkanteriorver(version,[2 3 1])
+            if checkanteriorver(loadedStruct.version, [2 3 1])
                 obj.ProtStyle = struct('prot_namespace',{{'MTw', 'T1w','PDw'}}, ...
                 'style',repmat({'TableNoButton'},[1,3]));
             end
             
             % 2.5.0 --> Export MTR
-            if checkanteriorver(version,[2 5 0])
+            if checkanteriorver(loadedStruct.version, [2 5 0])
                 obj.buttons = {'B1 correction factor', [0.4000], 'PANEL','Export MTR',1, 'Enabled',true};
                 obj.options.B1correctionfactor=0.04;
                 obj.options.ExportMTR_Enabled = true;

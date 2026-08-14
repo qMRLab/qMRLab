@@ -288,6 +288,18 @@ else % process entire volume
     tic;
     Fit = Model.fit(data);
     Fit.fields = fieldnames(Fit);
+
+    % Masking the inputs is not enough: these models fit the whole volume,
+    % so masked-out voxels still produce values.
+    if isfield(data,'Mask') && ~isempty(data.Mask)
+        outsideMask = ~(data.Mask > 0);
+        for ff = 1:length(Fit.fields)
+            fieldName = Fit.fields{ff};
+            if isnumeric(Fit.(fieldName)) && isequal(size(Fit.(fieldName)), size(outsideMask))
+                Fit.(fieldName)(outsideMask) = 0;
+            end
+        end
+    end
     toc;
     disp(['Operation has been completed: ' Model.ModelName]);
     if ~moxunit_util_platform_is_octave && ~isempty(findobj(0, 'tag', 'qMRILab'))

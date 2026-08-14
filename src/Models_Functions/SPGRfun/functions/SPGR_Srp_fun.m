@@ -8,10 +8,10 @@ function mxy = SPGR_Srp_fun(x, xData, Prot, FitOpt)
 % xData = [Angles, Offsets, w1rp]
 % Output : normalized mxy
 % ----------------------------------------------------------------------------------------------------
-% Written by: Jean-François Cabana, 2016
+% Written by: Jean-Francois Cabana, 2016
 % reference: Sled, J. G., & Pike, G. B. (2001).
 % Quantitative imaging of magnetization transfer exchange and relaxation properties in vivo using MRI.
-% Magn Reson Med, 46(5), 923–931
+% Magn Reson Med, 46(5), 923-931
 % ----------------------------------------------------------------------------------------------------
 
 % F   = (x(1)+0.002)*1.080 ; % Correction for overestimation
@@ -66,21 +66,32 @@ else
     WB = computeWB(w1rp, Offsets, T2r, FitOpt.lineshape);
 end
 
+% A0 carries no saturation term, so exp(-(TR-Tau)*A0) is the same for every
+% offset and for the Mxy0 normalisation. Computing it here rather than inside
+% calcMxy replaces 11 identical matrix exponentials per model evaluation with
+% one; the value is unchanged.
+A0  = [R1f+kf,  -kr; -kf,  R1r+kr];
+eA0 = expm2x2(-(TR-Tau)*A0);
+
 for ii = 1:length(Angles)
-    Mxy(ii)  = calcMxy(F,M0f,M0r,kf,kr,R1f,R1r,Sf(ii),Sr,WB(ii),TR,Tau,alpha);
+    Mxy(ii)  = calcMxy(F,M0f,M0r,kf,kr,R1f,R1r,Sf(ii),Sr,WB(ii),TR,Tau,alpha,eA0);
 end
 
-Mxy0 = calcMxy(F,M0f,M0r,kf,kr,R1f,R1r, 1,Sr,0,TR,Tau,alpha);
+Mxy0 = calcMxy(F,M0f,M0r,kf,kr,R1f,R1r, 1,Sr,0,TR,Tau,alpha,eA0);
 mxy = Mxy ./ Mxy0;
 
 end
 
-function Mxy = calcMxy(F,M0f,M0r,kf,kr,R1f,R1r,Sf,Sr,W,TR,Tau,alpha)
+function Mxy = calcMxy(F,M0f,M0r,kf,kr,R1f,R1r,Sf,Sr,W,TR,Tau,alpha,eA0)
 
+    % expm2x2 is the closed form of expm for 2x2 arguments (see expm2x2.m).
+    % MATLAB's general expm is scaling-and-squaring with a Pade approximant,
+    % sized for arbitrary matrices; at 2x2 it dominated this fit.
+    %
+    % Only A12 carries the saturation term W and so varies per offset; eA0 is
+    % offset-invariant and is passed in, computed once by the caller.
     A12  =  [R1f+kf,  -kr ; -kf,  R1r+kr+W];
-    eA12 =  expm( -Tau/2.*A12 );
-    A0  = [R1f+kf,  -kr; -kf,  R1r+kr];
-    eA0 = expm(-(TR-Tau)*A0);
+    eA12 =  expm2x2( -Tau/2.*A12 );
 
     if(F == 0)
         Mzf_inf = M0f;
