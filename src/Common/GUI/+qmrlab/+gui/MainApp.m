@@ -17,6 +17,7 @@ classdef MainApp < matlab.apps.AppBase
         ViewerGrid               matlab.ui.container.GridLayout
         ControlGrid              matlab.ui.container.GridLayout
         CompassGrid              matlab.ui.container.GridLayout
+        FitPanelGrid             matlab.ui.container.GridLayout
         ViewerHost               matlab.ui.container.Panel
         qMRILab                  matlab.ui.Figure
         Image                    matlab.ui.control.Image
@@ -444,6 +445,15 @@ classdef MainApp < matlab.apps.AppBase
 
             % Show current method's browser
             FileBrowserList.(Method).Visible('on');
+
+            % Size the Datasets row to the browser that is actually showing.
+            %
+            % A 'fit' row cannot do this: every model's browser is built once and
+            % kept (they are cached in FileBrowserList and merely hidden), so all of
+            % them are children of the panel at all times and 'fit' would size to
+            % whichever model has the most inputs -- mp2rage's six -- leaving a
+            % two-input model with a panel half empty and the viewer needlessly short.
+            app.setDatasetsHeight(FileBrowserList.(Method).NbItems);
 
             % Scale the main panel by a super small factor and
             % bring it back to the original to get rid of
@@ -1285,6 +1295,20 @@ classdef MainApp < matlab.apps.AppBase
             app.RootGrid.ColumnWidth = {270*g, '1x'};
             app.SideGrid.RowHeight   = {90*g, 'fit', 'fit', 'fit', 'fit', 221*g, 351*g, '1x', 'fit'};
 
+            % The two tracks E1/E2 added. Without these the strip and the Datasets
+            % rows keep their medium-size cells while the type inside them grows,
+            % which is the clipping that gated 'large' in the first place.
+            if ~isempty(app.ViewerGrid) && isvalid(app.ViewerGrid)
+                app.ViewerGrid.ColumnWidth = {200*g, '1x'};
+            end
+            if ~isempty(app.FitDataGrid) && isvalid(app.FitDataGrid)
+                b = getappdata(0, 'FileBrowserList');
+                m = getappdata(0, 'Method');
+                if ~isempty(b) && ~isempty(m) && isfield(b, m) && isvalid(b.(m))
+                    app.setDatasetsHeight(b.(m).NbItems);
+                end
+            end
+
             % Cap the minimum against the monitor: [1126 837]*1.25 is taller than a
             % 1470x956 laptop desktop, and the laptop is exactly where people want
             % larger text. FitDataFileBrowserPanel is Scrollable, so a short window
@@ -1362,7 +1386,10 @@ classdef MainApp < matlab.apps.AppBase
             % attachScrollPanelTo, a JavaFrame/JScrollPane hack that has been dead
             % since R2021a and whose own header says it does not work with uifigure.
             % Scrollable is the supported replacement, and it is one property.
-            app.FitDataFileBrowserPanel.Scrollable = 'on';
+            % Scroll ownership sits with each MethodBrowser's grid now (E2), not
+            % with this panel. Nesting one scroller inside another gives two
+            % scrollbars for one overflow.
+            app.FitDataFileBrowserPanel.Scrollable = 'off';
 
             % FitDataPanel's own children are now grid cells (buildFitDataGrid), so
             % AutoResizeChildren no longer has anything to act on here.
@@ -1431,6 +1458,23 @@ classdef MainApp < matlab.apps.AppBase
             place(app.text53,                  app.FitDataGrid, 3, 1);
             place(app.CurrentFitId,            app.FitDataGrid, 3, 2);
             place(app.text_doc_model,          app.FitDataGrid, 3, 3);
+
+            % --- The Fit panel's three buttons.
+            %
+            % Not one of the two areas TypeScale's gate named, but the same defect:
+            % at the 1.25 step "Save Results" and "Load Results" grew until the text
+            % touched the button edges. A grid gives them cells that grow with the
+            % type. Fit data keeps the visual weight it had -- a wide button across
+            % the top -- via the 2:1 row split.
+            app.FitPanelGrid = uigridlayout(app.uipanel37, [2 2]);
+            app.FitPanelGrid.RowHeight     = {'2x', '1x'};
+            app.FitPanelGrid.ColumnWidth   = {'1x', '1x'};
+            app.FitPanelGrid.Padding       = [10 10 10 10];
+            app.FitPanelGrid.RowSpacing    = 8;
+            app.FitPanelGrid.ColumnSpacing = 8;
+            place(app.FitGO,          app.FitPanelGrid, 1, [1 2]);
+            place(app.FitResultsSave, app.FitPanelGrid, 2, 1);
+            place(app.FitResultsLoad, app.FitPanelGrid, 2, 2);
 
             % --- FitResultsPlotPanel: control strip | viewer.
             app.FitResultsPlotPanel.AutoResizeChildren = 'off';
@@ -1524,6 +1568,19 @@ classdef MainApp < matlab.apps.AppBase
                 h.Layout.Row = row;
                 h.Layout.Column = col;
             end
+        end
+
+        function setDatasetsHeight(app, nItems)
+            % Give the Datasets row what the active browser needs, but never more
+            % than half the pane -- the viewer is the reason the window is open. Past
+            % that the browser's own grid scrolls, which is why it is Scrollable.
+            if isempty(app.FitDataGrid) || ~isvalid(app.FitDataGrid), return; end
+            want = MethodBrowser.heightFor(nItems);
+            pane = getpixelposition(app.FitDataPanel);
+            if pane(4) > 100
+                want = min(want, round(pane(4) * 0.5));
+            end
+            app.FitDataGrid.RowHeight{1} = want;
         end
 
         function createComponents(app)

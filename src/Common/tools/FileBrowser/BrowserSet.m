@@ -24,52 +24,55 @@ classdef BrowserSet < handle
     methods
         %------------------------------------------------------------------
         % CONSTRUCTOR
-        function obj = BrowserSet(Parent, InputName, InputOptional, Location, info)
+        function obj = BrowserSet(Parent, InputName, InputOptional, info)
+            % Parent is the one-row uigridlayout MethodBrowser builds for this
+            % input. Stage E2: it used to be the Datasets panel itself, with every
+            % widget placed at a pixel offset computed from the panel's size at
+            % construction time -- which is why the panel could not reflow and why
+            % the 'large' text size had to be withheld.
             obj.Parent = Parent;
             obj.NameID = InputName;
             obj.IsOptional = InputOptional;
             obj.InfoText = info;
-            
-            % Create components
-            obj.createComponents(Location);
-            
-            % Set up callbacks
+
+            obj.createComponents();
             obj.setupCallbacks();
         end
         
         %------------------------------------------------------------------
         % CREATE COMPONENTS
         %------------------------------------------------------------------
-        function createComponents(obj, Location)
-            % Get parent container size for proper positioning
-            parentPos = obj.Parent.Position; % [x, y, width, height] in pixels
-            
-            % Convert normalized coordinates to pixels relative to parent
-            posX = Location(1) * parentPos(3);
-            posY = Location(2) * parentPos(4);
-            
-            % Adjust Y position to account for panel title bar and layout
-            posY = posY - 20; % Adjust this value as needed
-            
-            % Info button
-            if ~isempty(obj.InfoText)
+        function createComponents(obj)
+            % One row of the Datasets grid: [? | name | + | - | file | View].
+            %
+            % Column widths, not pixel offsets. The file box takes '1x' so it is the
+            % part that absorbs a wider window -- which is the whole point of E2: the
+            % row now reflows, and larger text grows the cells that hold it instead of
+            % overflowing boxes frozen at their design size.
+            hasInfo = ~isempty(obj.InfoText);
+            hasView = ~strcmp(obj.NameID, 'Mask');   % a mask has nothing to plot
+
+            % 'fit' where text decides the width, so the row survives a larger text
+            % size; the +/- buttons are icons and keep a fixed square.
+            obj.Parent.ColumnWidth   = {'fit', 'fit', 28, 28, '1x', 'fit'};
+            obj.Parent.RowHeight     = {'fit'};
+            obj.Parent.Padding       = [0 0 0 0];
+            obj.Parent.ColumnSpacing = 4;
+
+            if hasInfo
                 obj.InfoBtn = uibutton(obj.Parent, 'push');
-                obj.InfoBtn.Position = [posX, posY, 20, 25];
+                obj.InfoBtn.Layout.Row = 1; obj.InfoBtn.Layout.Column = 1;
                 obj.InfoBtn.Text = '?';
                 obj.InfoBtn.FontWeight = 'bold';
                 obj.InfoBtn.Tooltip = obj.InfoText;
                 obj.InfoBtn.ButtonPushedFcn = @(src,event) helpdlg(obj.InfoText);
             end
-            
-            % Input Name label
-            labelX = posX + 25;
+
             obj.NameText = uilabel(obj.Parent);
-            obj.NameText.Position = [labelX, posY, 80, 25];
+            obj.NameText.Layout.Row = 1; obj.NameText.Layout.Column = 2;
             obj.NameText.Text = obj.NameID;
             obj.NameText.FontWeight = 'bold';
             obj.NameText.HorizontalAlignment = 'left';
-            
-            % Set color and style based on optional status
             if obj.IsOptional
                 obj.NameText.FontColor = [0.5, 0.5, 0.5];
             end
@@ -77,66 +80,44 @@ classdef BrowserSet < handle
                 obj.NameText.FontWeight = 'normal';
                 obj.NameText.Text = ['(' obj.NameID ')'];
             end
-            
-            % Browse button (plus icon)
-            browseX = labelX + 85;
+
             obj.BrowseBtn = uibutton(obj.Parent, 'push');
-            obj.BrowseBtn.Position = [browseX, posY, 25, 25];
+            obj.BrowseBtn.Layout.Row = 1; obj.BrowseBtn.Layout.Column = 3;
             obj.BrowseBtn.Text = '';
             obj.BrowseBtn.Icon = obj.getPlusIcon();
-            
-            % Clear button (minus icon)
-            clearX = browseX + 30;
+            obj.BrowseBtn.Tooltip = ['Choose a file for ' obj.NameID];
+
             obj.ClearBtn = uibutton(obj.Parent, 'push');
-            obj.ClearBtn.Position = [clearX, posY, 25, 25];
+            obj.ClearBtn.Layout.Row = 1; obj.ClearBtn.Layout.Column = 4;
             obj.ClearBtn.Text = '';
             obj.ClearBtn.Icon = obj.getMinusIcon();
-            
-            % File box - make sure this is visible
-            fileX = clearX + 30;
+            obj.ClearBtn.Tooltip = ['Clear ' obj.NameID];
+
             obj.FileBox = uieditfield(obj.Parent, 'text');
-            obj.FileBox.Position = [fileX, posY, 350, 25];
-            obj.FileBox.BackgroundColor = [1, 1, 1]; % White background
-            obj.FileBox.Value = '';
+            obj.FileBox.Layout.Row = 1; obj.FileBox.Layout.Column = 5;
+            obj.FileBox.BackgroundColor = [1, 1, 1];
             obj.FileBox.HorizontalAlignment = 'left';
-            obj.FileBox.FontColor = [0, 0, 0]; % Black text
-            obj.FileBox.Visible = 'on'; % Explicitly set to visible
-            
-            % Set initial text based on optional status
-            if obj.IsOptional && ~isempty(obj.InfoText)
+            obj.FileBox.FontColor = [0, 0, 0];
+
+            % The placeholder doubles as the input's documentation, and
+            % Test/GUI/tControls.m finds the row by it. Keep the wording.
+            if obj.IsOptional && hasInfo
                 obj.FileBox.Value = obj.InfoText;
-                obj.FileBox.FontColor = [0.5, 0.5, 0.5]; % Gray for optional
-            elseif obj.IsOptional && isempty(obj.InfoText)
+                obj.FileBox.FontColor = [0.5, 0.5, 0.5];
+            elseif obj.IsOptional
                 obj.FileBox.Value = 'OPTIONAL';
                 obj.FileBox.FontColor = [0.5, 0.5, 0.5];
-            elseif ~obj.IsOptional
+            else
                 obj.FileBox.Value = ['REQUIRED ' obj.InfoText];
-                obj.FileBox.FontColor = [0, 0, 0]; % Black for required
             end
-            
-            % View button (skip for Mask)
-            if ~strcmp(obj.NameID, 'Mask')
-                viewX = fileX + 355;
+
+            if hasView
                 obj.ViewBtn = uibutton(obj.Parent, 'push');
-                obj.ViewBtn.Position = [viewX, posY, 40, 25];
+                obj.ViewBtn.Layout.Row = 1; obj.ViewBtn.Layout.Column = 6;
                 obj.ViewBtn.Text = 'View';
-                obj.ViewBtn.Visible = 'on';
-            end
-            
-            % Debug: Force all components to be visible
-            obj.NameText.Visible = 'on';
-            obj.BrowseBtn.Visible = 'on';
-            obj.ClearBtn.Visible = 'on';
-            obj.FileBox.Visible = 'on';
-            if ~isempty(obj.InfoBtn)
-                obj.InfoBtn.Visible = 'on';
-            end
-            if ~strcmp(obj.NameID, 'Mask') && ~isempty(obj.ViewBtn)
-                obj.ViewBtn.Visible = 'on';
             end
         end
-            
-        
+
         %------------------------------------------------------------------
         % SETUP CALLBACKS
         function setupCallbacks(obj)
@@ -296,7 +277,10 @@ classdef BrowserSet < handle
                 % MATLAB:ui:Label:invalidMultilineTextValue. Without this the label
                 % throws on the success path -- the common one.
                 ErrMsg = char(Model.sanityCheck(Data.(class(Model))));
-                hWarnBut = findobj(obj.Parent, 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
+                % Search from the figure: the label belongs to MethodBrowser and
+                % sits on the Datasets panel, while obj.Parent is now only this
+                % input's row.
+                hWarnBut = findall(ancestor(obj.Parent,'figure'), 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
                 if ~isempty(hWarnBut)
                     set(hWarnBut, 'Text', ErrMsg, 'Tooltip', ErrMsg, ...
                                   'Visible', matlab.lang.OnOffSwitchState(~isempty(ErrMsg)));

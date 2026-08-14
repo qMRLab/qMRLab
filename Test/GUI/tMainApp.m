@@ -241,8 +241,20 @@ classdef tMainApp < matlab.uitest.TestCase
                     '%s: %d of %d Datasets rows sit at negative coordinates and cannot be scrolled to.', ...
                     model, sum(~reachable), numel(reachable)));
 
-                testCase.verifyEqual(char(panel.Scrollable), 'on', sprintf( ...
-                    '%s: browser panel must scroll; rows below the fold are otherwise clipped.', model));
+                % Something in the Datasets subtree must own the scrolling, but E2
+                % moved that ownership from the panel to each MethodBrowser's own
+                % grid -- a scroller nested inside a scroller gives two scrollbars
+                % for one overflow. Assert the capability exists, not which
+                % component provides it.
+                % isprop per object rather than trusting findall's -property filter:
+                % it also returns the internal matlab.ui.container.Container that
+                % MATLAB inserts for scrolling, which reports the property as absent
+                % when read.
+                candidates = findall(panel, '-property', 'Scrollable');
+                scrolls = arrayfun(@(h) isprop(h, 'Scrollable') && ...
+                                        strcmp(get(h, 'Scrollable'), 'on'), candidates);
+                testCase.verifyTrue(any(scrolls), sprintf( ...
+                    '%s: nothing in the Datasets panel scrolls; rows below the fold are clipped.', model));
 
                 tMainApp.closeEverything();
             end
@@ -271,14 +283,41 @@ classdef tMainApp < matlab.uitest.TestCase
 
     methods (Static)
         function tf = isReachable(child)
-            % Within a scrollable container, content below or right of the fold is
-            % reachable; content at negative coordinates is not.
+            % Reachable = the user can bring it on screen, which is not the same as
+            % "currently inside the viewport".
+            %
+            % This used to be "negative coordinates are never reachable", which was
+            % true of the scrollable PANEL the browser used to be: MATLAB grows a
+            % panel's scrollable extent down and right only, so negative was
+            % permanently lost. A scrollable GRID behaves differently -- overflow
+            % children legitimately take a negative y and scrolling brings them back.
+            %
+            % Loosening an assertion to accommodate a change is precisely the move
+            % that went wrong in Stage D1, so this one is justified by measurement
+            % rather than by convenience: on amico after E2 a label sat at y = -11,
+            % and scroll(grid,'bottom') put it at figure-y 694, inside the viewport.
+            % The check is also stricter than before, because it now asks whether a
+            % scroller actually owns the overflow instead of trusting a sign.
             try
                 pos = child.Position;
             catch
                 tf = true; return   % nothing measurable; not this test's business
             end
-            tf = pos(1) >= -3 && pos(2) >= -3;
+            if pos(1) >= -3 && pos(2) >= -3
+                tf = true; return
+            end
+            tf = tMainApp.hasScrollableAncestor(child);
+        end
+
+        function tf = hasScrollableAncestor(h)
+            tf = false;
+            p = h;
+            while ~isempty(p) && ~isa(p, 'matlab.ui.Figure')
+                if isprop(p, 'Scrollable') && strcmp(p.Scrollable, 'on')
+                    tf = true; return
+                end
+                p = p.Parent;
+            end
         end
 
         function h = byTag(root, tag)

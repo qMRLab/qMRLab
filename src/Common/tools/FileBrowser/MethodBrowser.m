@@ -3,6 +3,7 @@ classdef MethodBrowser < handle
     %   Manages file browser fields per method in App Designer
     
     properties
+        Grid;   % the per-model uigridlayout that fills the Datasets panel
         Parent; % App Designer panel
         ItemsList; % List of BrowserSetAD objects
         NbItems;
@@ -23,29 +24,30 @@ classdef MethodBrowser < handle
         WorkDir_FullPath = '';
     end
     
-    properties (Constant, Access = private)
-        ROWPITCH   = 0.15;   % vertical step between input rows, fraction of panel height
-        HEADERNORM = 0.355;  % gap from the content top down to the first input row
-        MINBOTTOM  = 0.14;   % keeps the last row's y = norm*H - 20 comfortably positive
+    properties (Constant)
+        ROWHEIGHT = 22;   % px, one input row
+        ROWGAP    = 6;    % px between rows
+        PADDING   = 8;    % px around the whole block
     end
 
-    methods (Static, Access = private)
-        function top = contentTopFor(nItems)
-            % Height of the header-plus-rows block, as a fraction of the panel height.
-            %
-            % Sized to the input count so the last row never lands at a negative y.
-            % Negative is unreachable even on a scrollable panel: MATLAB grows the
-            % scroll extent upward and rightward, never below the origin. Above the
-            % viewport (top > 1) IS reachable, and is what Scrollable handles.
-            %
-            % mp2rage has 6 inputs and used to put its last row near -11 px, so one
-            % input was simply invisible. GUIDE masked this with attachScrollPanelTo,
-            % a JavaFrame hack dead since R2021a.
-            lastRow = 1 - MethodBrowser.HEADERNORM - (nItems - 1) * MethodBrowser.ROWPITCH;
-            top = 1;
-            if lastRow < MethodBrowser.MINBOTTOM
-                top = 1 + (MethodBrowser.MINBOTTOM - lastRow);
-            end
+    methods (Static)
+        function h = heightFor(nItems)
+            % Pixel height this browser needs: a header row plus one row per input,
+            % plus the warning line. MainApp sizes the Datasets row of its grid from
+            % this, so the panel fits the ACTIVE model rather than the tallest one --
+            % every model's browser is built once and kept, so a 'fit' row would
+            % otherwise size to whichever model has the most inputs.
+            % Named directly, not through a local alias: MethodBrowser is a handle
+            % class whose constructor takes (Parent, Model), so `C = MethodBrowser`
+            % is a constructor call, not a way to reach the constants.
+            % Rows are 'fit', so they grow with the text size; scale the estimate the
+            % same way or the panel track stays sized for medium text and the browser
+            % scrolls when it did not need to.
+            g = 1;
+            try, g = qmrlab.gui.TypeScale.geomFactor(); catch, end
+            h = 2*MethodBrowser.PADDING ...
+                + (nItems + 1) * MethodBrowser.ROWHEIGHT * g ...
+                + (nItems + 1) * MethodBrowser.ROWGAP + 18*g;
         end
     end
 
@@ -65,17 +67,26 @@ classdef MethodBrowser < handle
             obj.NbItems = length(InputsName);
             obj.ItemsList = BrowserSet.empty(0, obj.NbItems);  % Pre-allocate empty array
 
-            % The header and the input rows are ONE content block, anchored at its
-            % top. Size that block to the number of inputs BEFORE laying anything
-            % out, so both share an origin -- otherwise the rows move and the header
-            % stays pinned to the viewport, and they overlap.
-            contentTop = MethodBrowser.contentTopFor(obj.NbItems);
+            % Stage E2. One grid per model, filling the Datasets panel; only the
+            % active model's grid is Visible. Several such grids coexist as siblings
+            % in the panel and overlap rather than sharing space, so hiding the others
+            % costs nothing -- measured on R2026b.
+            %
+            % This replaces a block of normalized arithmetic (ROWPITCH / HEADERNORM /
+            % MINBOTTOM / contentTopFor) that existed only to keep the last input row
+            % from landing at a negative y. Rows cannot collide with a grid, so that
+            % whole computation is gone rather than ported.
+            obj.Grid = uigridlayout(Parent, [obj.NbItems + 2, 1]);
+            % 'fit' rows too: a row is as tall as its text needs. ROWHEIGHT survives
+            % only as the estimate heightFor() gives MainApp for the panel track.
+            obj.Grid.RowHeight     = [repmat({'fit'}, 1, obj.NbItems + 1), {'fit'}];
+            obj.Grid.ColumnWidth   = {'1x'};
+            obj.Grid.Padding       = repmat(MethodBrowser.PADDING, 1, 4);
+            obj.Grid.RowSpacing    = MethodBrowser.ROWGAP;
+            obj.Grid.Scrollable    = 'on';   % backstop: a short window scrolls, never clips
 
-            % Create components
-            obj.createCommonComponents(Model, header, contentTop);
-            
-            % Rows hang below the header, stepping down by ROWPITCH.
-            Location = [0.025, contentTop - MethodBrowser.HEADERNORM];
+            obj.createCommonComponents(Model, header);
+
             for ii = 1:obj.NbItems
                 headerii = strcmp(header.input(:,1), InputsName{ii}) | ...
                           strcmp(header.input(:,1), ['(' InputsName{ii} ')']) | ...
@@ -85,8 +96,10 @@ classdef MethodBrowser < handle
                 else
                     headerii = '';
                 end
-                obj.ItemsList(ii) = BrowserSet(obj.Parent, InputsName{ii}, InputsOptional(ii), Location, headerii);
-                Location = Location + [0.0, -MethodBrowser.ROWPITCH];
+                row = uigridlayout(obj.Grid, [1 6]);
+                row.Layout.Row = ii + 1;
+                row.Layout.Column = 1;
+                obj.ItemsList(ii) = BrowserSet(row, InputsName{ii}, InputsOptional(ii), headerii);
             end
             
             % Create warning label.
@@ -95,9 +108,10 @@ classdef MethodBrowser < handle
             % this label by findobj on exactly this name, and one label exists per
             % model in the shared Datasets panel, so the model class is what makes
             % it unique. Without it every single-file load threw.
-            obj.WarnBut_DataConsistency = uilabel(obj.Parent);
+            obj.WarnBut_DataConsistency = uilabel(obj.Grid);
+            obj.WarnBut_DataConsistency.Layout.Row = obj.NbItems + 2;
+            obj.WarnBut_DataConsistency.Layout.Column = 1;
             obj.WarnBut_DataConsistency.Tag = ['WarnBut_DataConsistency_' class(Model)];
-            obj.WarnBut_DataConsistency.Position = [10, 10, 500, 30];
             obj.WarnBut_DataConsistency.FontColor = [1, 0, 0];
             obj.WarnBut_DataConsistency.FontSize = 10;
             obj.WarnBut_DataConsistency.Visible = 'off';
@@ -106,16 +120,12 @@ classdef MethodBrowser < handle
         
         %------------------------------------------------------------------
         % Create common components (Work Dir, Study ID, etc.)
-        function createCommonComponents(obj, Model, header, contentTop)
-            % Get parent container size for proper positioning
-            parentPos = obj.Parent.Position; % [x, y, width, height] in pixels
-
-            % Anchor the header to the top of the CONTENT block, not the viewport.
-            % With more inputs than fit, that block is taller than the panel and the
-            % header scrolls with the rows instead of sitting on top of them.
-            topMargin = contentTop * parentPos(4) - 60;
-            
-            % Info button for Work Directory
+        function createCommonComponents(obj, Model, header)
+            % The header row: work directory, study ID, and the example download.
+            % Widths, not offsets -- the path box is the '1x' that absorbs a wider
+            % window. The old version measured the panel and placed each control at a
+            % fixed x, so "Browse" and "Download example" clipped as soon as the text
+            % size went up. That clipping is what gated TypeScale's 'large' step.
             Info = {'1. Path to data (Optional): ',...
                 '    FitResults will be saved to this directory',...
                 ['    Default: ' pwd],...
@@ -126,88 +136,79 @@ classdef MethodBrowser < handle
                 '2. Study ID (Optional):',...
                 '    Suffix for the FitResults file'};
             InfoText = sprintf('%s\n',Info{:});
-            
-            obj.InfoBtnWD = uibutton(obj.Parent, 'push');
-            obj.InfoBtnWD.Position = [20, topMargin, 20, 25];
+
+            head = uigridlayout(obj.Grid, [1 7]);
+            head.Layout.Row = 1;
+            head.Layout.Column = 1;
+            % 'fit' rather than fixed widths: a fit column sizes itself to the text
+            % it holds, so it grows with the text size instead of clipping it. Fixed
+            % 60/90/130 columns were what truncated "Study ID:" to "Study ..." and
+            % "Download example" to "Download exampl" at the 1.25 step. The path box
+            % keeps '1x' and absorbs whatever is left.
+            head.ColumnWidth   = {'fit', 'fit', 'fit', '1x', 'fit', 'fit', 'fit'};
+            head.RowHeight     = {22};
+            head.Padding       = [0 0 0 0];
+            head.ColumnSpacing = 4;
+
+            obj.InfoBtnWD = uibutton(head, 'push');
+            obj.InfoBtnWD.Layout.Column = 1;
             obj.InfoBtnWD.Text = '?';
             obj.InfoBtnWD.FontWeight = 'bold';
             obj.InfoBtnWD.Tooltip = InfoText;
             obj.InfoBtnWD.ButtonPushedFcn = @(src,event) helpdlg(InfoText);
-            obj.InfoBtnWD.Visible = 'on';
-            
-            % Work Directory components
-            obj.WorkDir_TextArea = uilabel(obj.Parent);
-            obj.WorkDir_TextArea.Position = [50, topMargin, 80, 25];
+
+            obj.WorkDir_TextArea = uilabel(head);
+            obj.WorkDir_TextArea.Layout.Column = 2;
             obj.WorkDir_TextArea.Text = 'Path data:';
             obj.WorkDir_TextArea.HorizontalAlignment = 'left';
-            obj.WorkDir_TextArea.Visible = 'on';
-            
-            obj.WorkDir_BrowseBtn = uibutton(obj.Parent, 'push');
-            obj.WorkDir_BrowseBtn.Position = [130, topMargin, 55, 25];
+
+            obj.WorkDir_BrowseBtn = uibutton(head, 'push');
+            obj.WorkDir_BrowseBtn.Layout.Column = 3;
             obj.WorkDir_BrowseBtn.Text = 'Browse';
             obj.WorkDir_BrowseBtn.ButtonPushedFcn = @(src,event) obj.WD_BrowseBtn_callback();
-            obj.WorkDir_BrowseBtn.Visible = 'on';
-            
-            obj.WorkDir_FileNameArea = uieditfield(obj.Parent, 'text');
-            obj.WorkDir_FileNameArea.Position = [190, topMargin, 280, 25];
+
+            obj.WorkDir_FileNameArea = uieditfield(head, 'text');
+            obj.WorkDir_FileNameArea.Layout.Column = 4;
             obj.WorkDir_FileNameArea.Value = '';
             obj.WorkDir_FileNameArea.BackgroundColor = [1, 1, 1];
             obj.WorkDir_FileNameArea.FontColor = [0, 0, 0];
-            obj.WorkDir_FileNameArea.Visible = 'on';
-            
-            % Study ID components
-            obj.StudyID_TextArea = uilabel(obj.Parent);
-            obj.StudyID_TextArea.Position = [480, topMargin, 60, 25];
+
+            obj.StudyID_TextArea = uilabel(head);
+            obj.StudyID_TextArea.Layout.Column = 5;
             obj.StudyID_TextArea.Text = 'Study ID:';
             obj.StudyID_TextArea.HorizontalAlignment = 'left';
-            obj.StudyID_TextArea.Visible = 'on';
-            
-            obj.StudyID_TextID = uieditfield(obj.Parent, 'text');
-            obj.StudyID_TextID.Position = [540, topMargin, 80, 25];
+
+            obj.StudyID_TextID = uieditfield(head, 'text');
+            obj.StudyID_TextID.Layout.Column = 6;
             obj.StudyID_TextID.Value = '';
             obj.StudyID_TextID.BackgroundColor = [1, 1, 1];
             obj.StudyID_TextID.FontColor = [0, 0, 0];
-            obj.StudyID_TextID.Visible = 'on';
-            
-            % Download button
-            obj.DownloadBtn = uibutton(obj.Parent, 'push');
-            obj.DownloadBtn.Position = [680, topMargin, 120, 25];
+
+            obj.DownloadBtn = uibutton(head, 'push');
+            obj.DownloadBtn.Layout.Column = 7;
             obj.DownloadBtn.Text = 'Download example';
             obj.DownloadBtn.BackgroundColor = [0, 0.65, 1];
             obj.DownloadBtn.FontColor = [1, 1, 1];
             obj.DownloadBtn.ButtonPushedFcn = @(src,event) obj.DownloadBtn_callback();
-            obj.DownloadBtn.Visible = 'on';
-            
-            % Force immediate update
-            drawnow;
         end
-        
+
         %------------------------------------------------------------------
         % Visibility control
         function Visible(obj, Visibility)
-            for i = 1:obj.NbItems
-                obj.ItemsList(i).Visible(Visibility);
-            end
-            
-            obj.InfoBtnWD.Visible = Visibility;
-            obj.WorkDir_BrowseBtn.Visible = Visibility;
-            obj.WorkDir_TextArea.Visible = Visibility;
-            obj.WorkDir_FileNameArea.Visible = Visibility;
-            obj.StudyID_TextArea.Visible = Visibility;
-            obj.StudyID_TextID.Visible = Visibility;
-            obj.DownloadBtn.Visible = Visibility;
-            
-            % Warning label only visible if there's a warning
+            % One property on the container. Every widget is inside obj.Grid now, so
+            % the fourteen individual Visible assignments this used to make -- which
+            % had to be kept in step with the component list by hand -- are gone.
+            obj.Grid.Visible = Visibility;
+
+            % The warning is a child of the grid but has its own reason to be hidden:
+            % it only shows when there is something to warn about.
             if isempty(obj.WarnBut_DataConsistency.Text)
                 obj.WarnBut_DataConsistency.Visible = 'off';
             else
                 obj.WarnBut_DataConsistency.Visible = Visibility;
             end
-            
-            % Force refresh
-            drawnow;
         end
-        
+
         %------------------------------------------------------------------
         % Check if this browser matches a method ID
         function Res = IsMethodID(obj, NameID)

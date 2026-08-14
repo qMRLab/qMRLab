@@ -31,25 +31,22 @@ classdef TypeScale
 %   See also: qmrlabUIScale, Test/GUI/tTypeScale.m, Test/GUI/textFitAudit.m
 
     properties (Constant)
-        % 'large' (1.25) is implemented and correct -- FontSize scales exactly and
-        % applyTypeGeometry grows the grid and the window. It is NOT OFFERED yet
-        % because two areas still position their children in fixed pixels, so
-        % larger text overflows boxes that do not grow with it:
-        %   src/Common/tools/FileBrowser/{MethodBrowser,BrowserSet}.m
-        %       "Browse", "Study ID:", "Download example" -- e.g. [130 y 55 25]
-        %   the viewer control strip in FitResultsPlotPanel
-        %       "3D viewer", "Histogram", "Quality Assurance", "Current file :"
-        % Verified by capture at 1.25: all of the above clip or overlap.
+        % 'large' (1.25) was withheld until Stage E2 because two areas positioned
+        % their children in fixed pixels, so bigger text overflowed boxes that could
+        % not grow with it: the file browser ("Browse", "Study ID:", "Download
+        % example" at literal rectangles like [130 y 55 25]) and the viewer control
+        % strip ("3D viewer", "Histogram", "Quality Assurance", "Current file :").
         %
-        % The design assumed every generated widget is 'Units','normalized' --
-        % true of GenerateButtonsWithPanels, false of the file browser, which was
-        % rewritten with pixel positions during the migration.
+        % E1 put the control strip on a grid and E2 did the same for the browser, so
+        % both now size their cells to their content. Restored.
         %
-        % Stage E moves both onto grids. Restore 'large' then; the machinery for it
-        % is already here and tested (see Test/GUI/tTypeScale.m).
-        StepNames  = {'small','medium'}
-        StepLabels = {'Small','Medium'}
-        Factors    = [0.85 1.00]
+        % The original design note said every generated widget is
+        % 'Units','normalized' -- true of GenerateButtonsWithPanels, and false of the
+        % file browser, which the migration had rewritten in pixels. That is what the
+        % gate was really about.
+        StepNames  = {'small','medium','large'}
+        StepLabels = {'Small','Medium','Large'}
+        Factors    = [0.85 1.00 1.25]
 
         BaseKey    = 'qmrlabFontBase'            % per-component: the authored size
         AdoptKey   = 'qmrlabTypeScaleAdopted'    % per-figure: follows preference changes
