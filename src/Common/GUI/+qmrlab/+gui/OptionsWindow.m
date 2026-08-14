@@ -245,8 +245,67 @@ classdef OptionsWindow < matlab.apps.AppBase
             UpdateProt(app, MRIinput,Prot)
         end
 
+        function renderOptions(app)
+            % Rebuild the option widgets from the model's current `buttons` cell.
+            %
+            % This has to run again after every option change, not just at open:
+            % models express UI intent by rewriting their own `buttons` (the '##'
+            % disabled and '**' invisible prefixes, driven by AbstractModel's
+            % linkGUIState). Without a re-render those changes never reach the
+            % screen -- which is what left qsm_sb's and mt_sat's dependent controls
+            % inert.
+            %
+            % Scoped deliberately to OptionsPanel. The original re-entered the whole
+            % opening function, which also re-created the protocol panels without
+            % ever deleting them, so handles grew without bound for the life of the
+            % window.
+
+                if ~isempty(app.Model.buttons)
+
+                    % Delete UIObjects from the previous instance
+                    delete(findobj('Parent',app.OptionsPanel,'Type','uipanel'))
+
+                    % Generate UIObjects for options panel based on the "buttons" attribute
+                    % of the current model in the scope. Below function passes OptionsPanel
+                    % handle, and retrives the updated one with buttons (if present) on it.
+
+                    if isprop(app.Model,'tips')
+                        app.OptionsPanel_handle = GenerateButtonsWithPanels(app.Model.buttons,app.OptionsPanel, app.Model.tips);
+                    else
+                        app.OptionsPanel_handle = GenerateButtonsWithPanels(app.Model.buttons,app.OptionsPanel, []);
+
+                    end
+
+                    % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
+
+                    ff = fieldnames(app.OptionsPanel_handle);
+
+                    for ii=1:length(ff)
+                        if strcmp(get(app.OptionsPanel_handle.(ff{ii}),'type'),'uitable')
+                            set(app.OptionsPanel_handle.(ff{ii}),'CellEditCallback',@(src,event) ModelOptions_Callback(app, app));
+                            set(app.OptionsPanel_handle.(ff{ii}),'Data',app.Model.options.(ff{ii}));
+                        else
+                            set(app.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(app, app));
+                            switch get(app.OptionsPanel_handle.(ff{ii}),'Style')
+                                case 'popupmenu'
+                                    val =  find(cell2mat(cellfun(@(x) strcmp(x,app.Model.options.(ff{ii})),get(app.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
+                                    set(app.OptionsPanel_handle.(ff{ii}),'Value',val);
+                                case 'checkbox'
+                                    set(app.OptionsPanel_handle.(ff{ii}),'Value',app.Model.options.(ff{ii}));
+                                case 'edit'
+                                    set(app.OptionsPanel_handle.(ff{ii}),'String',app.Model.options.(ff{ii}));
+                            end
+                        end
+                    end
+                    % Noted some concerns @ issue #253
+                    SetOpt(app, app);
+                end
+
+        end
+
         function ModelOptions_Callback(app, handles)
             app.Model = SetOpt(app, handles);
+            renderOptions(app);
         end
 
         function OptionsGUI_CloseRequestFcn(app, hObject, eventdata, handles)
@@ -683,46 +742,7 @@ classdef OptionsWindow < matlab.apps.AppBase
             % POPULATE OPTIONSPANEL
             % =======================================================================
 
-            if ~isempty(app.Model.buttons)
-
-                % Delete UIObjects from the previous instance
-                delete(findobj('Parent',app.OptionsPanel,'Type','uipanel'))
-
-                % Generate UIObjects for options panel based on the "buttons" attribute
-                % of the current model in the scope. Below function passes OptionsPanel
-                % handle, and retrives the updated one with buttons (if present) on it.
-
-                if isprop(app.Model,'tips')
-                    app.OptionsPanel_handle = GenerateButtonsWithPanels(app.Model.buttons,app.OptionsPanel, app.Model.tips);
-                else
-                    app.OptionsPanel_handle = GenerateButtonsWithPanels(app.Model.buttons,app.OptionsPanel, []);
-
-                end
-
-                % Create CALLBACK for buttons and use value in Model.options (instead of the default one)
-
-                ff = fieldnames(app.OptionsPanel_handle);
-
-                for ii=1:length(ff)
-                    if strcmp(get(app.OptionsPanel_handle.(ff{ii}),'type'),'uitable')
-                        set(app.OptionsPanel_handle.(ff{ii}),'CellEditCallback',@(src,event) ModelOptions_Callback(app, app));
-                        set(app.OptionsPanel_handle.(ff{ii}),'Data',app.Model.options.(ff{ii}));
-                    else
-                        set(app.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(app, app));
-                        switch get(app.OptionsPanel_handle.(ff{ii}),'Style')
-                            case 'popupmenu'
-                                val =  find(cell2mat(cellfun(@(x) strcmp(x,app.Model.options.(ff{ii})),get(app.OptionsPanel_handle.(ff{ii}),'String'),'UniformOutput',0)));
-                                set(app.OptionsPanel_handle.(ff{ii}),'Value',val);
-                            case 'checkbox'
-                                set(app.OptionsPanel_handle.(ff{ii}),'Value',app.Model.options.(ff{ii}));
-                            case 'edit'
-                                set(app.OptionsPanel_handle.(ff{ii}),'String',app.Model.options.(ff{ii}));
-                        end
-                    end
-                end
-                % Noted some concerns @ issue #253
-                SetOpt(app, app);
-            end
+            renderOptions(app);
 
             % POPULATE PROTOCOL PANEL
             % =======================================================================

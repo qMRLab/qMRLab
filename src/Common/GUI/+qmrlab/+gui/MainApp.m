@@ -239,20 +239,16 @@ classdef MainApp < matlab.apps.AppBase
             end
 
             % Save info with results
+            % FileBrowserList is a struct keyed by method name -- browsers are built
+            % lazily as models are selected (see MethodMenu). It used to be an array
+            % scanned with IsMethodID, and this site still indexed it that way.
             FileBrowserList = GetAppData(app, 'FileBrowserList');
-            MethodList = getappdata(0, 'MethodList');
-            MethodList = strrep(MethodList, '.m', '');
-            MethodCount = numel(MethodList);
+            browser = FileBrowserList.(Method);
 
-            for i=1:MethodCount
-                if FileBrowserList(i).IsMethodID(Method)
-                    MethodID = i;
-                end
-            end
-            FitResults.StudyID = FileBrowserList(MethodID).getStudyID;
-            FitResults.WD = FileBrowserList(MethodID).getWD;
+            FitResults.StudyID = browser.getStudyID;
+            FitResults.WD = browser.getWD;
             if isempty(FitResults.WD), FitResults.WD = pwd; end
-            FitResults.Files = FileBrowserList(MethodID).getFileName;
+            FitResults.Files = browser.getFileName;
             SetAppData(app, FitResults);
 
             % Kill the waitbar in case of a problem occurred
@@ -468,7 +464,7 @@ classdef MainApp < matlab.apps.AppBase
         function RmAppData(app, varargin)
             % RMAPPDATA
 
-            for k=1:nargin; rmappdata(0, varargin{k}); end
+            for k = 1:numel(varargin); rmappdata(0, varargin{k}); end   % not 1:nargin -- that counts `app` too
         end
 
 
@@ -747,7 +743,7 @@ classdef MainApp < matlab.apps.AppBase
                 if length(varargin)>1
                     data=varargin{2};
                     for ff=fieldnames(data)'
-                        FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).setFileName(ff{1}, data.(ff{1}))
+                        FileBrowserList.(Method).setFileName(ff{1}, data.(ff{1}))
                     end
                 end
             end
@@ -769,8 +765,8 @@ classdef MainApp < matlab.apps.AppBase
 
             % View first file
             if length(varargin)>1
-                butobj = FileBrowserList(strcmp({FileBrowserList.MethodID},Method)).ItemsList(1);
-                butobj.ViewBtn_callback(butobj,[],[],handles)
+                butobj = FileBrowserList.(Method).ItemsList(1);
+                butobj.ViewBtn_callback()   % BrowserSet.ViewBtn_callback(obj) takes no extra args
             end
 
             set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
@@ -1588,7 +1584,10 @@ classdef MainApp < matlab.apps.AppBase
             app.Image = uiimage(app.qMRILab);
             app.Image.Tag = 'MainLogo';
             app.Image.Position = [27 746 228 78];
-            app.Image.ImageSource = fullfile(pathToMLAPP, 'logo.png');
+            % logo.png never existed in the repo -- only logo_light.png and logo_dark.png
+            % do. applyTheme() replaces this on startup anyway; seed it with the light
+            % asset so the component is valid before the theme is applied.
+            app.Image.ImageSource = fullfile(pathToMLAPP, 'logo_light.png');
 
             % Show the figure after all components are created
             app.qMRILab.Visible = 'on';
