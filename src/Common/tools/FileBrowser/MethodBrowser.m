@@ -89,8 +89,14 @@ classdef MethodBrowser < handle
                 Location = Location + [0.0, -MethodBrowser.ROWPITCH];
             end
             
-            % Create warning label
+            % Create warning label.
+            %
+            % The Tag is load-bearing, not decoration: BrowserSet.DataLoad reaches
+            % this label by findobj on exactly this name, and one label exists per
+            % model in the shared Datasets panel, so the model class is what makes
+            % it unique. Without it every single-file load threw.
             obj.WarnBut_DataConsistency = uilabel(obj.Parent);
+            obj.WarnBut_DataConsistency.Tag = ['WarnBut_DataConsistency_' class(Model)];
             obj.WarnBut_DataConsistency.Position = [10, 10, 500, 30];
             obj.WarnBut_DataConsistency.FontColor = [1, 0, 0];
             obj.WarnBut_DataConsistency.FontSize = 10;

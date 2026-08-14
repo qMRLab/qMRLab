@@ -466,15 +466,16 @@ classdef OptionsWindow < matlab.apps.AppBase
             Data = getappdata(0, 'Data');
             if ~isempty(Data) && isfield(Data,class(Model))
                 ErrMsg = Model.sanityCheck(Data.(class(Model)));
+                % Text/Tooltip, not String/TooltipString: the target is the uilabel
+                % MethodBrowser creates, not the GUIDE uicontrol these lines were
+                % written for. This went unnoticed because the label carried no Tag,
+                % so findobj returned empty and set() on an empty handle is a silent
+                % no-op -- the data-consistency warning has never once been shown.
+                % Tagging the label (MethodBrowser.m) is what made this reachable.
                 hWarnBut = findobj('Tag',['WarnBut_DataConsistency_' class(Model)]);
-                if ~isempty(ErrMsg)
-                    set(hWarnBut,'String',ErrMsg)
-                    set(hWarnBut,'TooltipString',ErrMsg)
-                    set(hWarnBut,'Visible','on')
-                else
-                    set(hWarnBut,'String','')
-                    set(hWarnBut,'TooltipString','')
-                    set(hWarnBut,'Visible','off')
+                if ~isempty(hWarnBut)
+                    set(hWarnBut, 'Text', ErrMsg, 'Tooltip', ErrMsg, ...
+                                  'Visible', matlab.lang.OnOffSwitchState(~isempty(ErrMsg)));
                 end
             end
 

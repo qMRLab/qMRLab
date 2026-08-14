@@ -905,7 +905,7 @@ classdef MainApp < matlab.apps.AppBase
             save(handles.Default,'Method');
         end
 
-        % Callback function
+        % Button pushed function: FitGO
         function FitGO_Callback(app, event)
             % FITDATA GO
 
@@ -924,7 +924,7 @@ classdef MainApp < matlab.apps.AppBase
             end
         end
 
-        % Callback function
+        % Button pushed function: FitResultsLoad
         function FitResultsLoad_Callback(app, event)
             % FITRESULTSLOAD
 
@@ -970,7 +970,7 @@ classdef MainApp < matlab.apps.AppBase
             DrawPlot(handles);
         end
 
-        % Callback function
+        % Button pushed function: FitResultsSave
         function FitResultsSave_Callback(app, event)
             % FITRESULTSSAVE
 
@@ -1660,6 +1660,7 @@ classdef MainApp < matlab.apps.AppBase
 
             % Create FitResultsLoad
             app.FitResultsLoad = uibutton(app.uipanel37, 'push');
+            app.FitResultsLoad.ButtonPushedFcn = createCallbackFcn(app, @FitResultsLoad_Callback, true);
             app.FitResultsLoad.Tag = 'FitResultsLoad';
             app.FitResultsLoad.BackgroundColor = [0.902 0.902 0.902];
             app.FitResultsLoad.FontSize = 13.3333333333332;
@@ -1670,6 +1671,7 @@ classdef MainApp < matlab.apps.AppBase
 
             % Create FitResultsSave
             app.FitResultsSave = uibutton(app.uipanel37, 'push');
+            app.FitResultsSave.ButtonPushedFcn = createCallbackFcn(app, @FitResultsSave_Callback, true);
             app.FitResultsSave.Tag = 'FitResultsSave';
             app.FitResultsSave.BackgroundColor = [0.902 0.902 0.902];
             app.FitResultsSave.FontSize = 13.3333333333332;
@@ -1680,6 +1682,7 @@ classdef MainApp < matlab.apps.AppBase
 
             % Create FitGO
             app.FitGO = uibutton(app.uipanel37, 'push');
+            app.FitGO.ButtonPushedFcn = createCallbackFcn(app, @FitGO_Callback, true);
             app.FitGO.Tag = 'FitGO';
             app.FitGO.BackgroundColor = [0.149 0.549 0.8667];
             app.FitGO.FontSize = 18.6666666666665;

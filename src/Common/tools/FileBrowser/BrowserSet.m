@@ -273,16 +273,26 @@ classdef BrowserSet < handle
             drawnow;
             
             if warnmissing
+                % This block threw for the whole life of the migrated app:
+                % "Property assignment is not allowed when the object is empty."
+                %
+                % Two faults, either of which is fatal. MethodBrowser creates the
+                % warning label without ever setting a Tag, so the findobj matched
+                % nothing and hWarnBut was an empty handle; and the property is
+                % Text, not Value, because the label is a uilabel and not the GUIDE
+                % uicontrol this line was written against.
+                %
+                % It was invisible because the only routine caller passes
+                % warnmissing = 0 (MethodBrowser.setFullPath, which is what the
+                % "Browse" folder button and "Download example" use, and which
+                % reports consistency itself). Everything that loads ONE file --
+                % the per-input "+" button, Clear, setFileName, and therefore the
+                % documented qMRLab(Model, data) API -- came through here and died.
                 ErrMsg = Model.sanityCheck(Data.(class(Model)));
                 hWarnBut = findobj(obj.Parent, 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
-                if ~isempty(ErrMsg)
-                    hWarnBut.Value = ErrMsg;
-                    hWarnBut.Tooltip = ErrMsg;
-                    hWarnBut.Visible = 'on';
-                else
-                    hWarnBut.Value = '';
-                    hWarnBut.Tooltip = '';
-                    hWarnBut.Visible = 'off';
+                if ~isempty(hWarnBut)
+                    set(hWarnBut, 'Text', ErrMsg, 'Tooltip', ErrMsg, ...
+                                  'Visible', matlab.lang.OnOffSwitchState(~isempty(ErrMsg)));
                 end
             end
         end
