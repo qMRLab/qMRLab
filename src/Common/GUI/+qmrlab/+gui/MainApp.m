@@ -447,6 +447,12 @@ classdef MainApp < matlab.apps.AppBase
                 set(handles.ViewDataFit,'TooltipString','No voxel-wise fitting for this qMR Method (Volume based method)')
             end
             guidata(hObject, handles);
+
+            % Content has settled: the Sim buttons, the browser rows and the rebuilt
+            % OptionsGUI all just appeared. Scoped to the panels that changed -- a
+            % full-figure pass here would grow with the browser cache, which never
+            % shrinks (FileBrowserList only hides).
+            qmrlab.gui.TypeScale.apply([app.SimPanel, app.FitDataFileBrowserPanel]);
         end
 
         function Method_Selection_CreateFcn(app, hObject, eventdata, handles)
@@ -713,7 +719,13 @@ classdef MainApp < matlab.apps.AppBase
                 NewPos     = CurrentPos;
                 NewPos(1)  = CurrentPos(1) - 40;
                 set(gcf, 'Position', NewPos);
-                if ispc , set(findobj(handles.FitResultsPlotPanel,'Type','uicontrol'),'FontSize',7); end % everything is bigger on windows or linux
+                % The old `if ispc, set(findobj(...,'Type','uicontrol'),'FontSize',7)`
+                % lived here. It was provably dead, not merely unhelpful: it ran
+                % BEFORE imtool3D was constructed on the next line, so the panel held
+                % only App Designer children and none of them report Type 'uicontrol'.
+                % It matched zero objects on Windows for the whole life of the app.
+                % 'Small' is the honest, cross-platform, user-owned version of it.
+                qmrlab.gui.TypeScale.publish();   % viewer reads this at construction
 
                 % Create viewer
                 handles.tool = imtool3D(0,[0.25 0 .75 1],handles.FitResultsPlotPanel);
@@ -786,6 +798,12 @@ classdef MainApp < matlab.apps.AppBase
             end
 
             set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+
+            % Text size. adopt() scales the window now and registers the relayout
+            % callback so a later preference change grows the geometry too.
+            qmrlab.gui.TypeScale.adopt(app.qMRILab, @() app.applyTypeGeometry());
+            qmrlab.gui.TypeScale.attachMenu(app.qMRILab);
+
             warning('on','all');
         end
 
@@ -1208,6 +1226,46 @@ classdef MainApp < matlab.apps.AppBase
     methods (Access = private)
 
         % Create UIFigure and components
+        function applyTypeGeometry(app)
+            % Grow the layout with the text. GROW-ONLY (g >= 1): shrinking would
+            % re-expose the sub-minimum overlap D1 clamps against and buys nothing.
+            %
+            % Container level only. No component Position is multiplied here --
+            % the sidebar panels and FitDataPanel keep AutoResizeChildren='on', so
+            % their absolutely-positioned children scale proportionally with the
+            % column, and the SideGrid cells ('fit' rows) size to their new type.
+            % That is what keeps "Set Default" and "Open Options Panel" from
+            % clipping at Large, which is the failure every font-only design has.
+            g = qmrlab.gui.TypeScale.geomFactor();
+
+            app.RootGrid.ColumnWidth = {270*g, '1x'};
+            app.SideGrid.RowHeight   = {90*g, 'fit', 'fit', 'fit', 'fit', 221*g, 351*g, '1x', 'fit'};
+
+            % Cap the minimum against the monitor: [1126 837]*1.25 is taller than a
+            % 1470x956 laptop desktop, and the laptop is exactly where people want
+            % larger text. FitDataFileBrowserPanel is Scrollable, so a short window
+            % scrolls rather than clipping.
+            app.MinWindowSize = min([1126 837]*g, qmrlab.gui.TypeScale.workArea(app.qMRILab));
+
+            pos  = app.qMRILab.Position;
+            want = max(pos(3:4), app.MinWindowSize);
+            if ~isequal(want, pos(3:4))
+                app.qMRILab.Position = [pos(1:2) want];
+            end
+
+            % OptionsGUI is absolute-pixel throughout and its option rows are
+            % generated from a pixel constant, so it is rebuilt rather than
+            % resized. This is the same teardown MethodMenu already performs.
+            h = findobj('Tag','OptionsGUI');
+            if ~isempty(h)
+                delete(h);
+                Model = getappdata(0,'Model');
+                if ~isempty(Model)
+                    qmrlab.gui.OptionsWindow(Model, app.qMRILab);
+                end
+            end
+        end
+
         function applyResponsiveLayout(app)
             % Replace the fixed pixel layout of the top-level components with a
             % grid, so the window can be resized and so the sidebar keeps a usable
