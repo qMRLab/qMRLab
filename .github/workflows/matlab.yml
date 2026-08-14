@@ -131,7 +131,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        release: [R2026a, R2026b, latest]
+        # R2026b is NOT here, and that is not an oversight. It is still a prerelease,
+        # and prereleases cannot be licensed through matlab-batch, so the leg could
+        # never pass -- it would just sit permanently red and train everyone to
+        # ignore this job. Add it the day it goes GA; the GUI work is developed
+        # against R2026b locally, so that leg is the one worth having back first.
+        #
+        # `latest` currently resolves to R2026a too, so today this matrix runs the
+        # same release twice. It is kept anyway: the duplicate costs one free
+        # GitHub-hosted run and resolves itself, whereas the alternative needs a
+        # human to remember to add a leg on the day R2026b ships. R2026a is the pin
+        # (a known-good reference when something breaks) and `latest` is the canary
+        # (tells us a new release landed and whether it broke us). fail-fast is off,
+        # so the canary going red never hides the pinned result.
+        release: [R2026a, latest]
 
     steps:
       - name: Checkout
