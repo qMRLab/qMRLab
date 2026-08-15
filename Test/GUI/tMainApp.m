@@ -297,18 +297,61 @@ classdef tMainApp < matlab.uitest.TestCase
             end
         end
 
+        function modelSwitchActuallySwitches(testCase)
+            % The precondition for modelSwitchingDoesNotLeakHandles below, and it
+            % had to be written first because that test was VACUOUS: it "switched"
+            % models by calling qMRLab(feval(other)) on an open window, and
+            % MainApp's constructor returns the running instance and DISCARDS
+            % varargin. Measured on the live app -- ten such calls left
+            % class(getappdata(0,'Model')) at inversion_recovery and the handle
+            % count at 214 -> 214. Zero switches, and a leak assertion that has
+            % never once run.
+            %
+            % A model switch happens through the MethodSelection dropdown, so the
+            % test drives that. testCase.choose is the real gesture and works in
+            % both worlds: with the shim present the wiring is on the adapter's
+            % ClickedFcn, and after F1 it is the native ValueChangedFcn.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig, 'Main window did not open.');
+            app = fig.RunningAppInstance;
+
+            testCase.assertClass(getappdata(0, 'Model'), testCase.SimpleModel, ...
+                'Setup failed: the window did not open on the simple model.');
+
+            tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
+
+            testCase.verifyClass(getappdata(0, 'Model'), testCase.NoEqnModel, ...
+                'Choosing another entry in the model dropdown did not switch the model.');
+            testCase.verifyTrue(contains(char(string(app.text_doc_model.Text)), ...
+                testCase.NoEqnModel), sprintf( ...
+                'The documentation label still reads "%s" after switching to %s.', ...
+                char(string(app.text_doc_model.Text)), testCase.NoEqnModel));
+        end
+
         function modelSwitchingDoesNotLeakHandles(testCase)
             % The options panel used to be rebuilt by re-entering the whole opening
             % function, which re-created the protocol panels without ever deleting
             % them. Handle count grew for the life of the window.
+            %
+            % Switches through the dropdown. The previous form called
+            % qMRLab(feval(other)), which raises the existing window and returns --
+            % see modelSwitchActuallySwitches for the measurement. This assertion
+            % had therefore never been exercised.
             qMRLab(feval(testCase.SimpleModel)); drawnow;
             fig = tMainApp.mainFigure();
             testCase.assertNotEmpty(fig);
+            app = fig.RunningAppInstance;
 
+            % Switch once BEFORE the baseline: the first switch legitimately builds
+            % structures the initial model never needed, and counting that as a leak
+            % would force the tolerance up to where a real leak hides.
+            tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
             before = numel(findall(fig));
+
             for k = 1:5
-                qMRLab(feval(testCase.NoEqnModel));   drawnow;
-                qMRLab(feval(testCase.SimpleModel));  drawnow;
+                tMainApp.switchModelTo(testCase, app, testCase.SimpleModel);
+                tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
             end
             after = numel(findall(fig));
 
@@ -319,6 +362,24 @@ classdef tMainApp < matlab.uitest.TestCase
     end
 
     methods (Static)
+
+        function switchModelTo(testCase, app, modelName)
+            % Pick a model in the dropdown the way a user does.
+            %
+            % The Items are PADDED display strings ('b0_dem   (FieldMaps/)'), not
+            % bare class names, so the entry has to be located rather than
+            % constructed. Asserting it was found matters: choose() on a missing
+            % item would throw, but a silent mismatch here would make every caller
+            % pass vacuously.
+            items = app.MethodSelection.Items;
+            idx   = find(startsWith(strtrim(items), modelName), 1);
+            testCase.assertNotEmpty(idx, sprintf( ...
+                'Model "%s" is not in the dropdown (%d entries).', modelName, numel(items)));
+
+            testCase.choose(app.MethodSelection, items{idx});
+            drawnow;
+        end
+
         function tf = isReachable(child)
             % Reachable = the user can bring it on screen, which is not the same as
             % "currently inside the viewport".
