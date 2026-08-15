@@ -34,11 +34,18 @@ function defects = geomAudit(fig, label, outDir)
     MIN_SIZE  = 20;
     EDGE_TOL  = 3;    % px of overhang to tolerate before calling it an overflow
 
+    % s. The floor is the settle this file has always done; the deadline bounds
+    % the re-auditing below. 10 s is ~6x the worst convergence measured here
+    % (qsm_sb, 1.6 s) and is only ever paid in full by a window that is genuinely
+    % broken -- i.e. on a build that is already red.
+    SETTLE_FLOOR    = 0.3;
+    SETTLE_DEADLINE = 10;
+
     % Subtrees to skip. imtool3D is vendored third-party code that lays itself out
     % in pixels and legitimately uses 30 px slider rails and 20 px info strips --
     % auditing inside it produces only false positives. Its own correctness is
     % covered by Test/GUI/tCapabilities.m instead.
-    SKIP_TAGS = {'imtool3D'};
+    SKIP_TAGS = skipTags();
 
     defects = emptyDefect();
 
@@ -54,10 +61,49 @@ function defects = geomAudit(fig, label, outDir)
     % audited value simply was not geometry yet. Nothing here got easier to pass --
     % re-measured after settling, the same window reports 0 defects, and the
     % placeholder itself is now called out separately below.
-    drawnow; pause(0.3); drawnow;
+    %
+    % Waiting for the CONDITION rather than for a duration is the second half of
+    % that fix. A fixed pause(0.3) was enough here and not on a loaded CI runner:
+    % run 31850497694 failed on BOTH GUI legs, on a different model each (qmt_spgr
+    % on R2026a, mono_t2 on latest) with byte-identical defect coordinates. Two
+    % machines cannot break the same window in two different models; that is a
+    % measurement taken mid-layout, and a duration tuned on this machine only moves
+    % which machine it is wrong on. Decoded, three of those four "overflows" are
+    % ProtEditPanel, FitOptEditPanel and OptionsPanel reporting their
+    % construction-time Position (OptionsWindow.m:897,917,926) against a parent
+    % grid still on [1 1 100 100] -- source constants, not geometry.
+    %
+    % The condition is THE AUDIT ITSELF finding nothing, re-run until it does or
+    % until the deadline. Two properties matter and neither is available to a
+    % cheaper stop condition:
+    %
+    %   - It cannot drift from what is actually asserted. A separate traversal
+    %     with its own copy of the skip rules would have to be kept in step with
+    %     walk(), and would silently stop being the same question.
+    %   - It waits out transients that are NOT placeholders. Measured on qsm_sb:
+    %     placeholders clear at ~1.7 s, at which point three tables measure 17 px
+    %     -- 3 px under the floor -- and reach 27 px only at ~2.9 s. Waiting for
+    %     placeholders alone reports three Collapsed defects that do not exist a
+    %     second later, and waiting for the geometry to merely stop changing can
+    %     stop inside that lull.
+    %
+    % Expiring is not a pass: the last pass is returned verbatim, so a container
+    % that is genuinely collapsed or never laid out is reported exactly as before,
+    % with the same message. Verified against a bare uipanel, which sits on
+    % [20 20 260 221] forever: it polls out the deadline and then reports.
+    drawnow; pause(SETTLE_FLOOR); drawnow;
 
-    figPos = getpixelposition(fig);
-    walk(fig, sprintf('%s', class(fig)));
+    started = tic;
+    while true
+        defects = emptyDefect();
+        figPos  = getpixelposition(fig);
+        walk(fig, sprintf('%s', class(fig)));
+        if isempty(defects) || toc(started) >= SETTLE_DEADLINE
+            break
+        end
+        pause(0.1);
+        drawnow;
+    end
 
     if ~isempty(label) && ~isempty(outDir)
         if ~exist(outDir, 'dir'); mkdir(outDir); end
@@ -99,7 +145,7 @@ function defects = geomAudit(fig, label, outDir)
             % A container still sitting on the placeholder after the settle above has
             % genuinely never been laid out. Say so precisely instead of letting it
             % masquerade as an overflow.
-            if isequal(round(inPar), [20 20 260 221]) || isequal(round(inPar), [1 1 100 100])
+            if isPlaceholderRect(inPar)
                 defects(end+1) = mkDefect('Unsettled', h, here, sprintf( ...
                     'still reports the un-laid-out placeholder [%g %g %g %g]', ...
                     round(inPar))); %#ok<AGROW>
@@ -155,6 +201,22 @@ function defects = geomAudit(fig, label, outDir)
 end
 
 % ----------------------------------------------------------------------
+function tf = isPlaceholderRect(p)
+%ISPLACEHOLDERRECT  The rect a container reports BEFORE the layout pass runs.
+%
+%   [20 20 260 221] is a uipanel's default, [1 1 100 100] a GridLayout's. Neither
+%   survives a layout pass in either window: since Stage E every container here is
+%   grid-managed, so its rect is computed, never a default that happens to match.
+    tf = isequal(round(p(:)'), [20 20 260 221]) || isequal(round(p(:)'), [1 1 100 100]);
+end
+
+function t = skipTags()
+%SKIPTAGS  Vendored, pixel-designed subtrees. imtool3D lays itself out in pixels
+%   and legitimately uses 30 px rails; auditing inside it produces only false
+%   positives, and waiting for it to settle would only spend the timeout.
+    t = {'imtool3D'};
+end
+
 function tf = hasScrollableAncestor(h)
     tf = false;
     p = h;
