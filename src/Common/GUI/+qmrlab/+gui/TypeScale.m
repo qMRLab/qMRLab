@@ -252,8 +252,9 @@ classdef TypeScale
         %   Excluded, deliberately:
         %     - anything with an axes ancestor, plus UIAxes, Legend and ColorBar.
         %       Legend/ColorBar are figure-parented peers of the axes, NOT
-        %       descendants, so ancestor(o,'axes') misses them -- and
-        %       RefreshColorMap.m:5 builds one at FontSize 14. Plot type is DATA:
+        %       descendants, so ancestor(o,'axes') misses them -- the GUIDE-era
+        %       colormap code (deleted in F1) built one at FontSize 14, and
+        %       imtool3D still does. Plot type is DATA:
         %       it lands in exported figures and papers, and a UI legibility
         %       preference must not change what a user saves.
         %     - SkipTags subtrees (imtool3D), which scale themselves.

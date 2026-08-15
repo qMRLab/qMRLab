@@ -81,26 +81,6 @@ classdef OptionsWindow < matlab.apps.AppBase
             UpdateProt(app, MRIinput,Prot)
         end
 
-        function DefaultProt_Callback(app, hObject, eventdata)
-            app.Model = getappdata(0,'Model');
-            modelfun = str2func(class(app.Model));
-            defaultModel = modelfun();
-            app.Model.Prot = defaultModel.Prot;
-            setappdata(0,'Model',app.Model);
-            set(app.ProtFileName,'String','Protocol Filename');
-            OptionsGUI_OpeningFcn(hObject, eventdata, app.Model, app.caller)
-        end
-
-        function GenSeq_Callback(app, hObject, eventdata, field)
-            % GENERATE SEQUENCE
-
-            Prot = GetProt(handles);
-            ti = get(app.TiBox,'String');
-            td = get(app.TdBox,'String');
-            [Prot.ti,Prot.td] = SIRFSE_GetSeq( eval(ti), eval(td) );
-            SetProt(Prot);
-        end
-
         function LoadProt_Callback(app, hObject, eventdata, MRIinput)
             FileFormat = '*.mat;*.xls;*.xlsx;*.txt';
             if strcmp(MRIinput,'DiffusionData')
@@ -157,13 +137,6 @@ classdef OptionsWindow < matlab.apps.AppBase
         function ModelOptions_Callback(app, handles)
             app.Model = SetOpt(app, handles);
             renderOptions(app);
-        end
-
-        function OptionsGUI_CloseRequestFcn(app, hObject, eventdata, handles)
-            if isequal(get(hObject, 'waitstatus'), 'waiting')
-                % The GUI is still in UIWAIT, us UIRESUME
-                uiresume(hObject);
-            end
         end
 
         function PointAdd_Callback(app, hObject, eventdata, field)

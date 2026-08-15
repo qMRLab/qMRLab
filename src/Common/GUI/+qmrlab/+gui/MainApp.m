@@ -369,41 +369,6 @@ classdef MainApp < matlab.apps.AppBase
             qmrlab.gui.TypeScale.apply([app.SimPanel, app.FitDataFileBrowserPanel]);
         end
 
-        function Method_Selection_CreateFcn(app, hObject, eventdata, handles)
-            if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-                set(hObject,'BackgroundColor','white');
-            end
-        end
-
-        function PanelOff(app, panel, handles)
-            eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', panel));
-        end
-
-        function PanelOn(app, panel, handles)
-            eval(sprintf('set(handles.%sPanel, ''Visible'', ''on'')', panel));
-        end
-
-        function RefreshPlot(app, handles)
-            if isempty(handles.CurrentData), return; end
-            % Apply View
-            View = get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
-            View = View{get(handles.ViewPop,'Value')};
-            Data = ApplyView(handles.CurrentData, View);
-            % Display
-            if isfield(Data,'Mask'), Mask = Data.Mask; else Mask = []; end
-            for ff = 1:length(Data.fields)
-                Current{ff} = Data.(Data.fields{ff});
-            end
-            handles.tool.setImage(Current,[],[],[],[],Mask);
-        end
-
-        function RmAppData(app, varargin)
-            % RMAPPDATA
-
-            for k = 1:numel(varargin); rmappdata(0, varargin{k}); end   % not 1:nargin -- that counts `app` too
-        end
-
-
         function SetAppData(app, varargin)
             %SETAPPDATA - Fixed for App Designer
             % Handle both cases: with and without app parameter
@@ -429,18 +394,6 @@ classdef MainApp < matlab.apps.AppBase
             Model = getappdata(0,'Model');
             SimfunGUI = str2func(functionName);
             SimfunGUI(Model);
-        end
-
-        function UpdateOptions(app, Sim, Prot, FitOpt)
-            % UPDATE OPTIONS
-
-            h = findobj('Tag','OptionsGUI');
-            if ~isempty(h)
-                OptionsGUIhandles = guidata(h);
-                set(OptionsGUIhandles.SimFileName,   'String',  Sim.FileName);
-                set(OptionsGUIhandles.ProtFileName,  'String',  Prot.FileName);
-                set(OptionsGUIhandles.FitOptFileName,'String',  FitOpt.FileName);
-            end
         end
 
         function addModelMenu(app, hObject, eventdata, handles)

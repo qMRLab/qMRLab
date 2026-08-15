@@ -127,8 +127,12 @@ classdef tCapabilities < matlab.uitest.TestCase
 
         function sliderMinSilentlyPartialMatches(testCase)
             % App Designer sliders expose Limits, not Min/Max. set(sl,'Min',x)
-            % does not error -- it partial-matches MinorTicks. The six affected
-            % lines are all in src/Common/tools/GUIfun/GetPlotRange.m:25-36.
+            % does not error -- it partial-matches MinorTicks.
+            %
+            % This is now a FORWARD-LOOKING capability probe: the six lines it was
+            % written for were in GetPlotRange.m, deleted in F1, and qMRLab today
+            % has no uislider at all (grep -rn uislider src -> zero). It stays
+            % because the trap is silent and the next slider added would meet it.
             sl = uislider(testCase.Fig);
             testCase.verifyFalse(isprop(sl, 'Min'), 'uislider gained a Min property.');
 
