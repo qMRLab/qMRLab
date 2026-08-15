@@ -29,6 +29,9 @@ classdef MainApp < matlab.apps.AppBase
         FitResultsSave           matlab.ui.control.Button
         FitResultsLoad           matlab.ui.control.Button
         SimPanel                 matlab.ui.container.Panel
+        Splash                                   % loading window, torn down by reveal()
+        SplashDialog                             % its uiprogressdlg
+        RevealPos            double = []         % where reveal() puts the window back
         SimGO                    matlab.ui.control.Button
         SimLoad                  matlab.ui.control.Button
         SimSave                  matlab.ui.control.Button
@@ -545,6 +548,9 @@ classdef MainApp < matlab.apps.AppBase
             % Ensure that the app appears on screen when run
             movegui(app.qMRILab, 'onscreen');
 
+            % Something to look at while the window is filled.
+            showSplash(app);
+
             % Set light/dark theme
             applyTheme(app);
 
@@ -607,11 +613,30 @@ classdef MainApp < matlab.apps.AppBase
     
 
                 % SET WINDOW AND PANELS
+                %
+                % Work out where the window BELONGS, remember it for reveal(), then
+                % park it off the bottom of the desktop while the rest of the
+                % opening function fills it -- ~8 s of model, file browser, imtool3D
+                % and options window that used to happen with an empty template on
+                % screen.
+                %
+                % Parked, NOT hidden. Visible='off' was tried (26777cc) and reverted
+                % (f9cfdaa): imtool3D computed a non-finite PlotBoxAspectRatio from
+                % components with no laid-out size, taking down 9 GUI tests on
+                % R2026a and 10 on latest while passing 62/62 on macOS. A parked
+                % window is laid out normally, so that failure cannot recur.
+                %
+                % The OS clamps the parked origin -- measured here, asking for
+                % y = -(h+400) yields -699 for a 700 px window, leaving ~1 px on
+                % screen. That clamp IS the graceful degradation: worst case the
+                % user sees a sliver rather than the whole shell, and the geometry
+                % is real either way.
                 movegui(app.qMRILab,'center')
                 CurrentPos = app.qMRILab.Position;
                 NewPos     = CurrentPos;
                 NewPos(1)  = CurrentPos(1) - 40;
-                app.qMRILab.Position = NewPos;
+                app.RevealPos = NewPos;
+                app.qMRILab.Position = [NewPos(1), -(NewPos(4) - 1), NewPos(3:4)];
                 % The old `if ispc, set(findobj(...,'Type','uicontrol'),'FontSize',7)`
                 % lived here. It was provably dead, not merely unhelpful: it ran
                 % BEFORE imtool3D was constructed on the next line, so the panel held
@@ -700,6 +725,9 @@ classdef MainApp < matlab.apps.AppBase
 
             % Wait if output
             if wait
+                % Reveal FIRST: uiwait on a parked window blocks on something the
+                % user can neither see nor close.
+                reveal(app);
                 uiwait(app.qMRILab)
             end
 
@@ -728,7 +756,61 @@ classdef MainApp < matlab.apps.AppBase
             qmrlab.gui.TypeScale.adopt(app.qMRILab, @() app.applyTypeGeometry());
             qmrlab.gui.TypeScale.attachMenu(app.qMRILab);
 
+            % Last, because adopt() above is what themes and scales the window --
+            % revealing before it shows a flash of the unthemed, unscaled build.
+            reveal(app);
+
             warning('on','all');
+        end
+
+        function reveal(app)
+        %REVEAL  Put the finished window where it belongs, and drop the splash.
+        %   Idempotent: the modal path calls it before uiwait, and the tail of the
+        %   opening function calls it again.
+            try
+                if isgraphics(app.qMRILab) && ~isempty(app.RevealPos)
+                    app.qMRILab.Position = app.RevealPos;
+                    app.RevealPos = [];
+                end
+            catch
+            end
+            dismissSplash(app);
+            drawnow;
+        end
+
+        function showSplash(app)
+        %SHOWSPLASH  A small window saying the app is loading.
+        %   Its own uifigure, because uiprogressdlg needs a parent that is already
+        %   on screen and the main window is parked off it.
+            try
+                app.Splash = uifigure('Name', 'qMRLab', 'Position', [0 0 380 110], ...
+                    'Resize', 'off', 'HandleVisibility', 'off');
+                movegui(app.Splash, 'center');
+                qmrlab.gui.Theme.adopt(app.Splash);
+                app.SplashDialog = uiprogressdlg(app.Splash, 'Title', 'qMRLab', ...
+                    'Message', 'Loading...', 'Indeterminate', 'on', 'Cancelable', 'off');
+                drawnow;
+            catch
+                % A splash is a courtesy. Never let it stop the app opening.
+                app.Splash = gobjects(0);
+            end
+        end
+
+        function dismissSplash(app)
+            try
+                if ~isempty(app.SplashDialog) && isvalid(app.SplashDialog)
+                    close(app.SplashDialog);
+                end
+            catch
+            end
+            try
+                if ~isempty(app.Splash) && isgraphics(app.Splash)
+                    delete(app.Splash);
+                end
+            catch
+            end
+            app.Splash       = gobjects(0);
+            app.SplashDialog = [];
         end
 
         % Value changed function: CursorBtn
