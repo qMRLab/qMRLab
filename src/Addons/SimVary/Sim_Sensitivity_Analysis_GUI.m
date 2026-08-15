@@ -1,227 +1,257 @@
-function varargout = Sim_Sensitivity_Analysis_GUI(varargin)
-% SIM_SENSITIVITY_ANALYSIS_GUI MATLAB code for Sim_Sensitivity_Analysis_GUI.fig
-%      SIM_SENSITIVITY_ANALYSIS_GUI, by itself, creates a new SIM_SENSITIVITY_ANALYSIS_GUI or raises the existing
-%      singleton*.
+function varargout = Sim_Sensitivity_Analysis_GUI(Model)
+%SIM_SENSITIVITY_ANALYSIS_GUI  Vary each parameter and see what the fit does.
 %
-%      H = SIM_SENSITIVITY_ANALYSIS_GUI returns the handle to a new SIM_SENSITIVITY_ANALYSIS_GUI or the handle to
-%      the existing singleton*.
+%   Sim_Sensitivity_Analysis_GUI(Model)       open the window for a model
+%   fig = Sim_Sensitivity_Analysis_GUI(Model) ...and return its figure handle
 %
-%      SIM_SENSITIVITY_ANALYSIS_GUI('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in SIM_SENSITIVITY_ANALYSIS_GUI.M with the given input arguments.
+%   Sweeps the parameters ticked in the table between their Min and Max, fits at
+%   each step, and plots any result field against any parameter.
 %
-%      SIM_SENSITIVITY_ANALYSIS_GUI('Property','Value',...) creates a new SIM_SENSITIVITY_ANALYSIS_GUI or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before Sim_Sensitivity_Analysis_GUI_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to Sim_Sensitivity_Analysis_GUI_OpeningFcn via varargin.
+%   Built in code -- no .fig, no gui_mainfcn. It stays a LEGACY figure: the
+%   opening path calls axes(handles.SimVaryAxe) and SimVaryPlot draws with
+%   errorbar into gca. See docs/adr/0001-gui-migration.md, F2.
 %
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
+%   Every rectangle in this window was already normalized in the .fig, so the
+%   geometry below is the .fig's, digit for digit.
 %
-% See also: GUIDE, GUIDATA, GUIHANDLES
+%   See also: Sim_Sensitivity_Analysis, SimVaryPlot, Test/GUI/tSimWindows.m
+%
+% ----------------------------------------------------------------------------------------------------
+% Written by: Jean-Francis Cabana, 2016. Rebuilt off GUIDE in Stage F2.
+% ----------------------------------------------------------------------------------------------------
 
-% Edit the above text to modify the response to help Sim_Sensitivity_Analysis_GUI
-
-% Last Modified by GUIDE v2.5 27-Jul-2017 17:23:32
-if moxunit_util_platform_is_octave, warndlg('Graphical user interface not available on octave... use command lines instead'); return; end
-
-% Begin initialization code - DO NOT EDIT
-gui_Singleton = 1;
-gui_State = struct('gui_Name',       mfilename, ...
-    'gui_Singleton',  gui_Singleton, ...
-    'gui_OpeningFcn', @Sim_Sensitivity_Analysis_GUI_OpeningFcn, ...
-    'gui_OutputFcn',  @Sim_Sensitivity_Analysis_GUI_OutputFcn, ...
-    'gui_LayoutFcn',  [] , ...
-    'gui_Callback',   []);
-if nargin && ischar(varargin{1})
-    gui_State.gui_Callback = str2func(varargin{1});
-end
-
-if nargout
-    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
-else
-    gui_mainfcn(gui_State, varargin{:});
-end
-% End initialization code - DO NOT EDIT
-
-% --- Executes just before Sim_Sensitivity_Analysis_GUI is made visible.
-function Sim_Sensitivity_Analysis_GUI_OpeningFcn(hObject, eventdata, handles, varargin)
-handles.output = hObject;
-handles.Model = varargin{1};
-if ~isfield(handles,'opened')
-    % clear axe
-    axes(handles.SimVaryAxe)
-
-    % fill table
-    Nparam=length(handles.Model.xnames);
-    FitOptTable(:,1)=handles.Model.xnames(:);
-    if isprop(handles.Model,'fx') && ~isempty(handles.Model.fx),    FitOptTable(:,2)=mat2cell(~logical(handles.Model.fx(:)),ones(Nparam,1)); end
-    
-    if isprop(handles.Model,'ub') && ~isempty(handles.Model.ub)
-        FitOptTable(:,4)=mat2cell(handles.Model.lb(:),ones(Nparam,1));
-        FitOptTable(:,5)=mat2cell(handles.Model.ub(:),ones(Nparam,1));
+    % This is the only one of the five with an Octave guard, and it is kept: the
+    % file is on the path there even though the GUI is not available.
+    if moxunit_util_platform_is_octave
+        warndlg('Graphical user interface not available on octave... use command lines instead');
+        return
     end
-    if isprop(handles.Model,'st') && ~isempty(handles.Model.st)
-        FitOptTable(:,3)=mat2cell(handles.Model.st(:),ones(Nparam,1));
+
+    NAME = 'Sensitivity Analysis';
+
+    if nargin < 1 || isempty(Model)
+        Model = getappdata(0, 'Model');
+    end
+    if isempty(Model)
+        error('qMRLab:Sim:NoModel', ...
+            'No model to analyse. Pass one, or open qMRLab first.');
+    end
+
+    fig = findall(groot, 'Type', 'figure', 'Tag', 'Simu', 'Name', NAME);
+    if isempty(fig)
+        fig = buildWindow(NAME);
+    else
+        fig = fig(1);
+        figure(fig);
+    end
+
+    showModel(fig, Model);
+
+    if nargout, varargout{1} = fig; end
+end
+
+% ----------------------------------------------------------------------------
+function fig = buildWindow(name)
+    fig = figure( ...
+        'Tag',              'Simu', ...
+        'Name',             name, ...
+        'Units',            'pixels', ...
+        'Position',         [644 100 866 946], ...
+        'Color',            qmrlabUIColor('viewerChrome'), ...
+        'MenuBar',          'none', ...
+        'ToolBar',          'figure', ...
+        'NumberTitle',      'off', ...
+        'IntegerHandle',    'off', ...
+        'Resize',           'on', ...
+        'HandleVisibility', 'callback', ...
+        'Visible',          'off');
+    movegui(fig, 'onscreen');   % the .fig's own y was -273, i.e. off the screen
+
+    handles        = struct();
+    handles.Simu   = fig;
+    handles.output = fig;
+
+    % ---------------------------------------------------------------- top half
+    handles.uipanel9 = uipanel( ...
+        'Parent',     fig, ...
+        'Tag',        'uipanel9', ...
+        'Title',      'Parameters variation', ...
+        'Units',      'normalized', ...
+        'Position',   [0.0161663 0.5074 0.952656 0.491543], ...
+        'FontSize',   10, ...
+        'BorderType', 'none');
+
+    % Column 1 holds the parameter NAMES and is not editable; column 2 is the
+    % Vary checkbox. SimVaryUpdate reads them back positionally into a struct
+    % with fields xnames/fx/st/lb/ub, so the order is the contract.
+    handles.SimVaryOptTable = uitable( ...
+        'Parent',         handles.uipanel9, ...
+        'Tag',            'SimVaryOptTable', ...
+        'Units',          'normalized', ...
+        'Position',       [0.22303 0.0470914 0.752727 0.919668], ...
+        'ColumnName',     {'Variable', 'Vary', 'Nominal', 'Min', 'Max'}, ...
+        'ColumnFormat',   {[], 'logical', [], 'numeric', 'numeric'}, ...
+        'ColumnEditable', [false true true true true], ...
+        'ColumnWidth',    {90, 70, 90, 90, 90}, ...
+        'RowName',        {});
+
+    handles.Save = uicontrol( ...
+        'Parent',   handles.uipanel9, ...
+        'Style',    'pushbutton', ...
+        'Tag',      'Save', ...
+        'String',   'Save', ...
+        'Units',    'normalized', ...
+        'Position', [0.0121212 0.891967 0.192727 0.0914127], ...
+        'Callback', @(src, ~) Save_Callback(src, [], guidata(src)));
+
+    handles.Load = uicontrol( ...
+        'Parent',   handles.uipanel9, ...
+        'Style',    'pushbutton', ...
+        'Tag',      'Load', ...
+        'String',   'Load', ...
+        'Units',    'normalized', ...
+        'Position', [0.0121212 0.795014 0.191515 0.0914127], ...
+        'Callback', @(src, ~) Load_Callback(src, [], guidata(src)));
+
+    handles.OptionsPanel = uipanel( ...
+        'Parent',   handles.uipanel9, ...
+        'Tag',      'OptionsPanel', ...
+        'Title',    'Options', ...
+        'Units',    'normalized', ...
+        'Position', [0.0109091 0.0581717 0.193939 0.722992]);
+
+    % ------------------------------------------------------------- bottom half
+    handles.uipanel10 = uipanel( ...
+        'Parent',     fig, ...
+        'Tag',        'uipanel10', ...
+        'Title',      'Plot Results', ...
+        'Units',      'normalized', ...
+        'Position',   [0.0161663 -0.00105708 0.952656 0.489429], ...
+        'FontSize',   10, ...
+        'BorderType', 'none');
+
+    handles.SimVaryAxe = axes( ...
+        'Parent',   handles.uipanel10, ...
+        'Tag',      'SimVaryAxe', ...
+        'Units',    'normalized', ...
+        'Position', [0.115152 0.130243 0.86303 0.763797], ...
+        'Color',    [1 1 1]);
+
+    handles.text14 = uicontrol('Parent', handles.uipanel10, 'Style', 'text', ...
+        'Tag', 'text14', 'String', 'x axis:', 'Units', 'normalized', ...
+        'Position', [0.0375758 0.933775 0.08 0.0463576]);
+    handles.text15 = uicontrol('Parent', handles.uipanel10, 'Style', 'text', ...
+        'Tag', 'text15', 'String', 'y axis:', 'Units', 'normalized', ...
+        'Position', [0.349091 0.933775 0.08 0.0441501]);
+
+    handles.SimVaryPlotX = uicontrol( ...
+        'Parent',   handles.uipanel10, ...
+        'Style',    'popupmenu', ...
+        'Tag',      'SimVaryPlotX', ...
+        'String',   {' '}, ...
+        'Units',    'normalized', ...
+        'Position', [0.11677 0.940039 0.193789 0.0522244], ...
+        'Callback', @(src, ~) SimVaryPlotX_Callback(src, [], guidata(src)));
+
+    handles.SimVaryPlotY = uicontrol( ...
+        'Parent',   handles.uipanel10, ...
+        'Style',    'popupmenu', ...
+        'Tag',      'SimVaryPlotY', ...
+        'String',   {' '}, ...
+        'Units',    'normalized', ...
+        'Position', [0.429688 0.940367 0.195312 0.0458716], ...
+        'Callback', @(src, ~) SimVaryPlotY_Callback(src, [], guidata(src)));
+
+    if ispc   % the .fig carried this as two identical CreateFcns
+        set([handles.SimVaryPlotX handles.SimVaryPlotY], 'BackgroundColor', 'white');
+    end
+
+    handles.SimVaryUpdate = uicontrol( ...
+        'Parent',          handles.uipanel10, ...
+        'Style',           'pushbutton', ...
+        'Tag',             'SimVaryUpdate', ...
+        'String',          'Update', ...
+        'Units',           'normalized', ...
+        'Position',        [0.761719 0.933486 0.214844 0.0527523], ...
+        'FontSize',        10, ...
+        'FontWeight',      'bold', ...
+        'BackgroundColor', qmrlabUIColor('accent'), ...
+        'ForegroundColor', qmrlabUIColor('onTheAccent'), ...
+        'Callback',        @(src, ~) SimVaryUpdate_Callback(src, [], guidata(src)));
+
+    guidata(fig, handles);
+    fig.Visible = 'on';
+end
+
+% ----------------------------------------------------------------------------
+function showModel(fig, Model)
+%SHOWMODEL  Point the window at a model. Runs on EVERY open.
+    setappdata(0, 'Model', Model);
+    handles       = guidata(fig);
+    handles.Model = Model;
+
+    axes(handles.SimVaryAxe);
+
+    % Verbatim from the GUIDE opening function, including the order: columns 4
+    % and 5 are filled BEFORE column 3, and the two size() tests below read that
+    % as "were there bounds?". Rewriting it to be clearer would change which
+    % branch a model without bounds takes.
+    Nparam = length(Model.xnames);
+    FitOptTable(:,1) = Model.xnames(:);
+    if isprop(Model,'fx') && ~isempty(Model.fx)
+        FitOptTable(:,2) = mat2cell(~logical(Model.fx(:)),ones(Nparam,1));
+    end
+    if isprop(Model,'ub') && ~isempty(Model.ub)
+        FitOptTable(:,4) = mat2cell(Model.lb(:),ones(Nparam,1));
+        FitOptTable(:,5) = mat2cell(Model.ub(:),ones(Nparam,1));
+    end
+    if isprop(Model,'st') && ~isempty(Model.st)
+        FitOptTable(:,3) = mat2cell(Model.st(:),ones(Nparam,1));
     elseif size(FitOptTable,2)==5
-        FitOptTable(:,3) = mat2cell(mean(cat(2,handles.Model.lb(:),handles.Model.ub(:)),2),ones(Nparam,1));
+        FitOptTable(:,3) = mat2cell(mean(cat(2,Model.lb(:),Model.ub(:)),2),ones(Nparam,1));
     else
         FitOptTable(:,3) = mat2cell(ones(Nparam,1),ones(Nparam,1));
     end
-    
     if size(FitOptTable,2)<5
-        FitOptTable(:,4)=mat2cell(cell2mat(FitOptTable(:,3))/2,ones(Nparam,1));
-        FitOptTable(:,5)=mat2cell(cell2mat(FitOptTable(:,3))*2,ones(Nparam,1));
+        FitOptTable(:,4) = mat2cell(cell2mat(FitOptTable(:,3))/2,ones(Nparam,1));
+        FitOptTable(:,5) = mat2cell(cell2mat(FitOptTable(:,3))*2,ones(Nparam,1));
     end
     set(handles.SimVaryOptTable,'Data',FitOptTable)
-    % fill parameters
-    set(handles.SimVaryPlotX,'String',handles.Model.xnames')
-    set(handles.SimVaryPlotY,'String',handles.Model.xnames')
-    
-    % Options
-    if isprop(handles.Model,'Sim_Single_Voxel_Curve_buttons')
-        opts = handles.Model.Sim_Single_Voxel_Curve_buttons;
+
+    % The .fig ships both popups with an EMPTY String; without this the window
+    % opens with two blank selectors and no way to plot anything.
+    set(handles.SimVaryPlotX,'String',Model.xnames(:),'Value',1)
+    set(handles.SimVaryPlotY,'String',Model.xnames(:),'Value',1)
+
+    delete(allchild(handles.OptionsPanel));
+    if isprop(Model,'Sim_Single_Voxel_Curve_buttons')
+        opts = Model.Sim_Single_Voxel_Curve_buttons;
     else
         opts = {'SNR',50};
     end
-    if isprop(handles.Model,'Sim_Sensitivity_Analysis_buttons'), opts = cat(2,opts,handles.Model.Sim_Sensitivity_Analysis_buttons); 
+    if isprop(Model,'Sim_Sensitivity_Analysis_buttons')
+        opts = cat(2,opts,Model.Sim_Sensitivity_Analysis_buttons);
     else
         opts = cat(2,opts,{'# of run',20});
     end
-
     handles.options = GenerateButtonsWithPanels(opts,handles.OptionsPanel);
-    handles.opened = 1;
-    
-    % Create CALLBACK for buttons
+
     ff = fieldnames(handles.options);
-    for ii=1:length(ff)
-        %set(handles.OptionsPanel_handle.(ff{ii}),'Callback',@(src,event) ModelOptions_Callback(handles));
-        switch get(handles.options.(ff{ii}),'Style')
-            case 'togglebutton'
-                set(handles.options.(ff{ii}),'Callback',@(src,event) ModelSimOptions_Callback(handles));
-        end     
+    for ii = 1:numel(ff)
+        h = handles.options.(ff{ii});
+        if isgraphics(h) && strcmp(get(h,'Style'),'togglebutton')
+            set(h,'Callback',@(src,~) ModelSimOptions_Callback(guidata(src)));
+        end
     end
 
-end
-% Update handles structure
-guidata(hObject, handles);
-
-
-% UIWAIT makes Sim_Sensitivity_Analysis_GUI wait for user response (see UIRESUME)
-% uiwait(handles.Simu);
-
-
-% --- Outputs from this function are returned to the command line.
-function varargout = Sim_Sensitivity_Analysis_GUI_OutputFcn(hObject, eventdata, handles)
-% varargout  cell array for returning output args (see VARARGOUT);
-% hObject    handle to figure
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Get default command line output from handles structure
-varargout{1} = handles.output;
-
-
-% --------------------------------------------------------------------
-function FileMenu_Callback(hObject, eventdata, handles)
-% hObject    handle to FileMenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function OpenMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to OpenMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-file = uigetfile('*.fig');
-if ~isequal(file, 0)
-    open(file);
+    handles.opened = 1;
+    guidata(fig, handles);
+    drawnow;
 end
 
-% --------------------------------------------------------------------
-function PrintMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to PrintMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-printdlg(handles.Simu)
-
-% --------------------------------------------------------------------
-function CloseMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to CloseMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-selection = questdlg(['Close ' get(handles.Simu,'Name') '?'],...
-    ['Close ' get(handles.Simu,'Name') '...'],...
-    'Yes','No','Yes');
-if strcmp(selection,'No')
-    return;
-end
-
-delete(handles.Simu)
-
-
-% --- Executes on selection change in popupmenu1.
-function popupmenu1_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns popupmenu1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu1
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-set(hObject, 'String', {'plot(rand(5))', 'plot(sin(1:0.01:25))', 'bar(1:.5:10)', 'plot(membrane)', 'surf(peaks)'});
-
-
-% --- Executes on selection change in SimVaryPlotX.
-function SimVaryPlotX_Callback(hObject, eventdata, handles)
-SimVaryPlotResults(handles)
-
-% --- Executes during object creation, after setting all properties.
-function SimVaryPlotX_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to SimVaryPlotX (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in SimVaryPlotY.
-function SimVaryPlotY_Callback(hObject, eventdata, handles)
-SimVaryPlotResults(handles)
-
-% --- Executes during object creation, after setting all properties.
-function SimVaryPlotY_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to SimVaryPlotY (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
+% ----------------------------------------------------------------------------
 % --- Executes on button press in SimVaryUpdate.
-function SimVaryUpdate_Callback(hObject, eventdata, handles)
+function SimVaryUpdate_Callback(hObject, eventdata, handles) %#ok<INUSL>
 Model_new = getappdata(0,'Model');
 if ~isempty(Model_new) && strcmp(class(Model_new),class(handles.Model))
     handles.Model = Model_new;
@@ -231,17 +261,28 @@ FitOptTable = cell2struct(FitOptTable,{'xnames','fx','st','lb','ub'},2);
 Opts = button_handle2opts(handles.options);
 handles.SimVaryResults = handles.Model.Sim_Sensitivity_Analysis(FitOptTable,Opts);
 SetSimVaryResults(handles)
-guidata(hObject, handles);
-
+guidata(handles.Simu, handles);
+end
 
 % --- Executes on button press in Save.
-function Save_Callback(hObject, eventdata, handles)
+function Save_Callback(hObject, eventdata, handles) %#ok<INUSL>
 if isfield(handles,'SimVaryResults')
     Method = class(handles.Model);
     [FileName,PathName] = uiputfile([Method '_SimResults.mat']);
     if PathName == 0, return; end
-    SimVaryResults = handles.SimVaryResults;
+    SimVaryResults = handles.SimVaryResults; %#ok<NASGU>
     save(fullfile(PathName,FileName),'SimVaryResults')
+end
+end
+
+function Load_Callback(hObject, eventdata, handles) %#ok<INUSL>
+Method = class(handles.Model);
+[FileName,PathName] = uigetfile([Method '_SimResults.mat']);
+if PathName == 0, return; end
+loaded = load(fullfile(PathName,FileName));
+handles.SimVaryResults = loaded.SimVaryResults;
+SetSimVaryResults(handles)
+guidata(handles.Simu, handles);
 end
 
 % --- Executes on button press in Options panel.
@@ -251,28 +292,28 @@ x=cell2mat(xtable(~cellfun(@isempty,xtable(:,3)),3))';
 xnew = SimOpt(handles.Model,x,button_handle2opts(handles.options));
 if ~isempty(xnew) % update the ParamTable in the GUI
     Nparam = length(handles.Model.xnames);
-    xtable(1:Nparam,3) = mat2cell(xnew',ones(Nparam,1));  
-    set(handles.SimVaryOptTable,'Data',xtable); 
+    xtable(1:Nparam,3) = mat2cell(xnew',ones(Nparam,1));
+    set(handles.SimVaryOptTable,'Data',xtable);
 end
-
-
-function Load_Callback(hObject, eventdata, handles)
-Method = class(handles.Model);
-[FileName,PathName] = uigetfile([Method '_SimResults.mat']);
-if PathName == 0, return; end
-load(fullfile(PathName,FileName));
-handles.SimVaryResults = SimVaryResults;
-SetSimVaryResults(handles)
-guidata(hObject, handles);
+end
 
 function SetSimVaryResults(handles)
 ff=fieldnames(handles.SimVaryResults);
-set(handles.SimVaryPlotX,'String',ff);
+set(handles.SimVaryPlotX,'String',ff,'Value',1);
 ff=fieldnames(handles.SimVaryResults.(ff{1}));
-set(handles.SimVaryPlotY,'String',ff(~ismember(ff,{'x','fit'})));
+set(handles.SimVaryPlotY,'String',ff(~ismember(ff,{'x','fit'})),'Value',1);
 SimVaryPlotResults(handles)
+end
 
+% --- Executes on selection change in SimVaryPlotX.
+function SimVaryPlotX_Callback(hObject, eventdata, handles) %#ok<INUSL>
+SimVaryPlotResults(handles)
+end
 
+% --- Executes on selection change in SimVaryPlotY.
+function SimVaryPlotY_Callback(hObject, eventdata, handles) %#ok<INUSL>
+SimVaryPlotResults(handles)
+end
 
 function SimVaryPlotResults(handles)
 if isfield(handles,'SimVaryResults')
@@ -280,6 +321,4 @@ if isfield(handles,'SimVaryResults')
     Yaxis = get(handles.SimVaryPlotY,'String'); Yaxis = Yaxis{get(handles.SimVaryPlotY,'Value')};
     SimVaryPlot(handles.SimVaryResults,Xaxis,Yaxis)
 end
-
-
-function SimVaryOptTable_CellEditCallback(hObject, eventdata, handles)
+end
