@@ -392,9 +392,25 @@ classdef BrowserSet < handle
                 % No header data
             end
             
-            handles = guidata(findobj('Name', 'qMRLab'));
-            handles.CurrentData = Data;
-            DrawPlot(handles, obj.NameID);
+            % Stage F1. Was:
+            %     handles = guidata(findobj('Name', 'qMRLab'));
+            %     handles.CurrentData = Data;
+            %     DrawPlot(handles, obj.NameID);
+            %
+            % Three things wrong with that, all fixed by resolving the app from
+            % this browser's OWN window instead of searching the root:
+            %   - findobj by Name is a root-wide search that only works because
+            %     MainApp sets HandleVisibility='on'; a bare uifigure hides its
+            %     handle and guidata([]) then errors.
+            %   - it assumes exactly one window called 'qMRLab'.
+            %   - the assignment landed in a COPY that only survived because
+            %     DrawPlot re-committed it on its last line.
+            % RunningAppInstance is the dynamic property App Designer's
+            % registerApp puts on the figure; this repo already relies on it in
+            % Custom_OptionsGUI and three test helpers.
+            app = ancestor(obj.Parent, 'figure').RunningAppInstance;
+            app.CurrentData = Data;
+            DrawPlot(app, obj.NameID);
         end
     end
 end

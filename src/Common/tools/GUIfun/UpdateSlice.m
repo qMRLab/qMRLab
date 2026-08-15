@@ -1,5 +1,5 @@
-function UpdateSlice(handles)
-% UpdateSlice: set slice slider maximal value
+function UpdateSlice(app)
+% UpdateSlice: set the compass letters for the current view plane.
 
 % ----------------------------------------------------------------------------------------------------
 % Written by: Jean-Fran?ois Cabana, 2016
@@ -11,22 +11,32 @@ function UpdateSlice(handles)
 % Quantitative magnetization transfer imaging made easy with qMTLab: Software for data simulation,
 % analysis, and visualization. Concepts Magn. Reson.. doi: 10.1002/cmr.a.21357
 % ----------------------------------------------------------------------------------------------------
+%
+% Stage F1: takes the app rather than a `handles` struct. The four compass
+% labels are uilabels, whose text property is Text -- uilabel has no String at
+% all, and the GUIDE-era set(...,'String',..) only worked because the migration
+% adapter translated it.
+%
+% app.ViewPop.Value is an INDEX (see setPopUp), so the name is looked up in
+% Items. Switching on the Value directly would silently match no case and leave
+% all four letters stale.
 
-View =  get(handles.ViewPop,'String'); if ~iscell(View), View = {View}; end
-switch View{get(handles.ViewPop,'Value')}
+View = app.ViewPop.Items;
+if isempty(View); return; end
+switch View{app.ViewPop.Value}
     case 'Axial'
-        set(handles.txt_OrientL,  'String', 'L');
-        set(handles.txt_OrientR,  'String', 'R');
-        set(handles.txt_OrientS,  'String', 'A');
-        set(handles.txt_OrientI,  'String', 'P');
+        app.txt_OrientL.Text = 'L';
+        app.txt_OrientR.Text = 'R';
+        app.txt_OrientS.Text = 'A';
+        app.txt_OrientI.Text = 'P';
     case 'Coronal'
-        set(handles.txt_OrientL,  'String', 'L');
-        set(handles.txt_OrientR,  'String', 'R');
-        set(handles.txt_OrientS,  'String', 'S');
-        set(handles.txt_OrientI,  'String', 'I');
+        app.txt_OrientL.Text = 'L';
+        app.txt_OrientR.Text = 'R';
+        app.txt_OrientS.Text = 'S';
+        app.txt_OrientI.Text = 'I';
     case 'Sagittal'
-        set(handles.txt_OrientL,  'String', 'P');
-        set(handles.txt_OrientR,  'String', 'A');
-        set(handles.txt_OrientS,  'String', 'S');
-        set(handles.txt_OrientI,  'String', 'I');
+        app.txt_OrientL.Text = 'P';
+        app.txt_OrientR.Text = 'A';
+        app.txt_OrientS.Text = 'S';
+        app.txt_OrientI.Text = 'I';
 end

@@ -1,47 +1,66 @@
 function setPopUp(h, items, value)
-%setPopUp  Assign a popup's list and its selection in the one order that works.
+%setPopUp  Assign a dropdown's list and its selection, keeping Value an INDEX.
 %
 %   setPopUp(h, items)         install the list, select the first entry
 %   setPopUp(h, items, value)  install the list, select index value (clamped)
 %
-%   WHY THIS IS NOT JUST TWO set() CALLS
+%   h is a matlab.ui.control.DropDown. value is a 1-BASED INDEX, and after this
+%   call h.Value is that index -- a number, not the item's text.
 %
-%   The migrated GUI reaches these dropdowns through the `handles` struct, and
-%   MATLAB's migration runtime wraps every tagged component there in a
-%   uicontrol-compatibility adapter (appdesigner.appmigration.UIControlPropertiesConverter).
-%   That adapter validates an incoming legacy Value INDEX against the items the
-%   dropdown holds AT THAT MOMENT. A selection left over from a previous, longer
-%   list therefore makes the NEXT list assignment throw -- not the assignment that
-%   set it. Measured on R2026b:
+%   WHY Value IS AN INDEX, WHICH IS NOT THE NATIVE DEFAULT
 %
-%       set(C,'Value',3)                          % Items empty  -> OK
-%       set(C,'String',{'A'})                     %              -> THROW MATLAB:badsubscript
+%   A bare uidropdown's Value is the SELECTED ITEM'S TEXT. Measured on R2026b:
 %
-%       set(C,'String',{'A','B','C'}); set(C,'Value',3);
-%       set(C,'String','Axial')                   % 3 is stale   -> THROW MATLAB:badsubscript
+%       no ItemsData : Value='A'  class=char
+%       ItemsData 1:N: Value=1    class=double
 %
-%   The failure is therefore displaced in both space and time: it surfaces in
-%   whichever function next shrinks the list, and only on the SECOND dataset,
-%   because the first load starts from an empty list where any index is accepted.
-%   That is why it survived the migration unnoticed.
+%   The index is the contract this codebase needs, in four places that have no
+%   text-accepting form: GetMethod indexes MethodList, imtool3D.setNvol needs an
+%   integer volume number, UpdateSlice switches on the view name it looks up, and
+%   DrawPlot passes tool.getNvol straight back in. Worse, MethodSelection's Items
+%   are PADDED display strings ('inversion_recovery   (T1_relaxometry/)'), so a
+%   text Value would have to be parsed back into a class name -- and "Set as
+%   default" writes that value into DefaultMethod.mat, where a padded string
+%   poisons the next launch.
 %
-%   Neutralise, install, select. Safe from any starting state.
+%   So ItemsData carries 1:numel(Items) and Value stays an index. ItemsData is
+%   R2016a, well below the R2020b floor in ADR D5.
 %
-%   See also: DrawPlot, UpdatePopUp
+%   ORDER MATTERS, AND IT IS THE OPPOSITE OF WHAT IT WAS
+%
+%   The GUIDE-era body was "neutralise, install, select" -- set(h,'Value',1)
+%   BEFORE the list. Natively that throws: an empty-Items dropdown requires an
+%   empty Value, and app.SourcePop is constructed with Items={}, so the very
+%   first call from UpdatePopUp would die before installing anything.
+%
+%   Items go first; the component recalibrates its own selection. ItemsData is
+%   then reassigned on EVERY call, because the component enforces
+%   maxValidIndex = min(numel(Items), numel(ItemsData)) -- a stale ItemsData
+%   silently caps the list. Measured: with Items shrunk to 1 entry and a stale
+%   3-element ItemsData left in place, no error is raised and the dropdown is
+%   left inconsistent (1 item, 3 ItemsData entries).
+%
+%   The old header documented an ordering hazard where a stale Value index made
+%   the NEXT list assignment throw MATLAB:badsubscript. That was an artefact of
+%   the migration adapter re-deriving value=str{value}; it does not exist
+%   natively, and the adapter is gone.
+%
+%   See also: DrawPlot, UpdatePopUp, GetMethod
 
-    if nargin < 3 || isempty(value); value = 1; end
+    if nargin < 3 || isempty(value) || ~isnumeric(value); value = 1; end
 
     if isempty(items)
         items = {};
     elseif ~iscell(items)
         items = cellstr(items);
     end
+    items = reshape(items, 1, []);
 
-    % 1 is in range for any non-empty list, and accepted on an empty one.
-    set(h, 'Value', 1);
-    set(h, 'String', items);
-
-    if ~isempty(items)
-        set(h, 'Value', min(max(round(value(1)), 1), numel(items)));
+    h.Items = items;
+    if isempty(items)
+        h.ItemsData = [];
+    else
+        h.ItemsData = 1:numel(items);
+        h.Value     = min(max(round(value(1)), 1), numel(items));
     end
 end

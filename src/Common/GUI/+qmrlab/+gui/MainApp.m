@@ -59,6 +59,25 @@ classdef MainApp < matlab.apps.AppBase
         text_version_check       matlab.ui.control.Label
     end
 
+    % Runtime state. Stage F1 promoted these out of the figure's guidata, where
+    % they lived as extra fields bolted onto the migration shim's `handles`
+    % struct. guidata hands back a COPY, so every mutation had to be followed by
+    % a guidata(hObject, handles) to publish it, and anything a second callback
+    % wrote while the first was blocked was silently reverted by that write-back.
+    % As properties on a handle object there is no copy and nothing to publish.
+    properties (Access = public)
+        Tool                = []    % the imtool3D viewer. NO type constraint:
+                                    % a constrained property with no explicit
+                                    % default is default-constructed, and
+                                    % imtool3D() with no arguments opens a new
+                                    % figure full of random noise.
+        CurrentData         = []    % [] until data is loaded, then a struct
+        DataCursor          = []    % was dcm_obj: the datacursormode manager
+        ModelDir            char    = ''
+        DefaultMethodFile   char    = ''   % was Default: path to DefaultMethod.mat
+        Opened      (1,1) logical   = false
+    end
+
 
     methods (Access = private)
         function applyTheme(app)
@@ -97,7 +116,7 @@ classdef MainApp < matlab.apps.AppBase
             end
         end
 
-        function FitGo_FitData(app, hObject, eventdata, handles)
+        function FitGo_FitData(app)
             % Original FitGo function
 
 
@@ -197,7 +216,7 @@ classdef MainApp < matlab.apps.AppBase
                 mkdir(outputdir);
             end
             save(fullfile(outputdir,filename),'-struct','FitResults');
-            set(handles.CurrentFitId,'String','FitResults.mat');
+            app.CurrentFitId.Text = 'FitResults.mat';
 
             % Save nii maps
             for ii = 1:length(FitResults.fields)
@@ -220,12 +239,11 @@ classdef MainApp < matlab.apps.AppBase
 
             SetAppData(app, FileBrowserList);
             % Show results
-            handles.CurrentData = FitResults;
+            app.CurrentData = FitResults;
             if exist('hdr','var')
-                handles.CurrentData.hdr = hdr;
+                app.CurrentData.hdr = hdr;
             end
-            guidata(hObject,handles);
-            DrawPlot(handles);
+            DrawPlot(app);
         end
 
         function varargout = GetAppData(app, varargin)
@@ -240,7 +258,7 @@ classdef MainApp < matlab.apps.AppBase
             end
         end
 
-        function MethodMenu(app, hObject, eventdata, handles, Method)
+        function MethodMenu(app, Method)
             % METHODSELECTION
 
 
@@ -276,12 +294,12 @@ classdef MainApp < matlab.apps.AppBase
             Methodfun = methods(Method);
             Simfun = Methodfun(~cellfun(@isempty,strfind(Methodfun,'Sim_')));
             % Update Options Panel
-            set(handles.SimPanel,'Visible','off') % hide the simulation panel for qMT methods
+            app.SimPanel.Visible = 'off'; % hide the simulation panel for qMT methods
             if isempty(Simfun)
-                set(handles.SimPanel,'Visible','off') % hide the simulation panel
+                app.SimPanel.Visible = 'off'; % hide the simulation panel
             else
-                set(handles.SimPanel,'Visible','on') % show the simulation panel
-                delete(setdiff(findobj(handles.SimPanel),handles.SimPanel))
+                app.SimPanel.Visible = 'on'; % show the simulation panel
+                delete(setdiff(findobj(app.SimPanel),app.SimPanel))
 
                 N = length(Simfun); %
                 Jh = min(0.14,.8/N);
@@ -289,7 +307,7 @@ classdef MainApp < matlab.apps.AppBase
                 for i = 1:N
                     if exist([Simfun{i} '_GUI'],'file')
                         uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
-                            'Parent',handles.SimPanel,'Units','normalized','Position',[.04 J(i) .92 Jh],...
+                            'Parent',app.SimPanel,'Units','normalized','Position',[.04 J(i) .92 Jh],...
                             'HorizontalAlignment','center','FontWeight','bold','Callback',...
                             @(x,y) SimfunGUI(app, [Simfun{i} '_GUI']));
                     end
@@ -345,22 +363,21 @@ classdef MainApp < matlab.apps.AppBase
 
             % Caused by attachScrollToPanel.
 
-            curpos = get(handles.qMRILab,'Position');
-            set(handles.qMRILab,'Position',curpos.*[1 1 1.0001 1.0001]);
-            set(handles.qMRILab,'Position',curpos);
+            curpos = app.qMRILab.Position;
+            app.qMRILab.Position = curpos.*[1 1 1.0001 1.0001];
+            app.qMRILab.Position = curpos;
 
             % enable/disable viewdatafit
             if ismethod(Model,'plotModel')
-                set(handles.ViewDataFit,'Enable','on')
-                set(handles.ViewROIFit,'Enable','on')
-                set(handles.ViewDataFit,'TooltipString','View fit in a particular voxel')
-                set(handles.ViewROIFit,'TooltipString','View fit in currently selected label')
+                app.ViewDataFit.Enable = 'on';
+                app.ViewROIFit.Enable = 'on';
+                app.ViewDataFit.Tooltip = 'View fit in a particular voxel';
+                app.ViewROIFit.Tooltip = 'View fit in currently selected label';
             else
-                set(handles.ViewDataFit,'Enable','off')
-                set(handles.ViewROIFit,'Enable','off')
-                set(handles.ViewDataFit,'TooltipString','No voxel-wise fitting for this qMR Method (Volume based method)')
+                app.ViewDataFit.Enable = 'off';
+                app.ViewROIFit.Enable = 'off';
+                app.ViewDataFit.Tooltip = 'No voxel-wise fitting for this qMR Method (Volume based method)';
             end
-            guidata(hObject, handles);
 
             % Content has settled: the Sim buttons, the browser rows and the rebuilt
             % OptionsGUI all just appeared. Scoped to the panels that changed -- a
@@ -396,31 +413,31 @@ classdef MainApp < matlab.apps.AppBase
             SimfunGUI(Model);
         end
 
-        function addModelMenu(app, hObject, eventdata, handles)
+        function addModelMenu(app)
             % Display all the options in the popupmenu
-            [MethodList, pathmodels] = sct_tools_ls([handles.ModelDir filesep '*.m'],0,0,2,1);
-            pathmodels = cellfun(@(x) strrep(x,[handles.ModelDir filesep],''), pathmodels,'UniformOutput',false);
+            [MethodList, pathmodels] = sct_tools_ls([app.ModelDir filesep '*.m'],0,0,2,1);
+            pathmodels = cellfun(@(x) strrep(x,[app.ModelDir filesep],''), pathmodels,'UniformOutput',false);
             if isdeployed
                 [MethodList, pathmodels] = qMRLab_static_Models;
             end
             SetAppData(app, MethodList)
             maxlength = max(cellfun(@length,MethodList))+4;
             maxlengthpath = max(cellfun(@length,pathmodels))+2;
-            for iM=1:length(MethodList), MethodListfull{iM} = sprintf(['%-' num2str(maxlength) 's%-' num2str(maxlengthpath) 's'],MethodList{iM},['(' strrep(pathmodels{iM},[handles.ModelDir filesep],'') ')']); end
-            setPopUp(handles.MethodSelection, MethodListfull, get(handles.MethodSelection,'Value'));
-            set(handles.MethodSelection,'FontName','FixedWidth')
-            set(handles.MethodSelection,'FontWeight','bold')
+            for iM=1:length(MethodList), MethodListfull{iM} = sprintf(['%-' num2str(maxlength) 's%-' num2str(maxlengthpath) 's'],MethodList{iM},['(' strrep(pathmodels{iM},[app.ModelDir filesep],'') ')']); end
+            setPopUp(app.MethodSelection, MethodListfull, app.MethodSelection.Value);
+            app.MethodSelection.FontName = 'FixedWidth';
+            app.MethodSelection.FontWeight = 'bold';
         end
 
-        function txt = dataCursorUpdateFcn(app, h_PointDataTip, event_obj, handles)
+        function txt = dataCursorUpdateFcn(app, h_PointDataTip, event_obj)
             % Customizes text of data tips
             pos = get(event_obj,'Position');
-            data = handles.tool.getCurrentImageSlice;
+            data = app.Tool.getCurrentImageSlice;
 
-            SourceFields = cellstr(get(handles.SourcePop,'String'));
-            Source = SourceFields{get(handles.SourcePop,'Value')};
+            SourceFields = app.SourcePop.Items;
+            Source = SourceFields{app.SourcePop.Value};
 
-            sliceNum = handles.tool.getCurrentSlice;
+            sliceNum = app.Tool.getCurrentSlice;
 
             txt = {['Source: ', Source],...
                 ['[X,Y]: ', '[', num2str(pos(1)), ',', num2str(pos(2)), ']'],...
@@ -431,21 +448,21 @@ classdef MainApp < matlab.apps.AppBase
 
 
 
-        function hh = plotfit(app, handles, vox)
+        function hh = plotfit(app, vox)
             Model = GetAppData(app, 'Model');
             % Get data
             data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
             S = [size(data.(Model.MRIinputs{1}),1) size(data.(Model.MRIinputs{1}),2) size(data.(Model.MRIinputs{1}),3)];
-            Data = handles.tool.getImage(0);
+            Data = app.Tool.getImage(0);
             Scurrent = [size(Data,1) size(Data,2) size(Data,3)];
-            datafields = get(handles.SourcePop,'String');
+            datafields = app.SourcePop.Items;
 
             if sum(S)==0
                 helpdlg(['Specify a ' Model.MRIinputs{1} ' file in the filebrowser'])
             elseif ~isequal(Scurrent(1:3), S(1:3))
                 Sstr = sprintf('%ix',S);
                 Scurstr = sprintf('%ix',Scurrent);
-                helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' datafields{get(handles.SourcePop,'Value')} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
+                helpdlg([Model.MRIinputs{1} ' file (' Sstr(1:end-1) ') in the filebrowser is inconsistent with ' datafields{app.SourcePop.Value} ' in the viewer (' Scurstr(1:end-1) '). Load corresponding ' Model.MRIinputs{1} '.'])
                 return;
             end
 
@@ -523,7 +540,7 @@ classdef MainApp < matlab.apps.AppBase
             [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app); %#ok<ASGLU>
 
             if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
-            if ~isfield(handles,'opened') % qMRI already opened?
+            if ~app.Opened % qMRI already opened?
                 warning('off','all');
                 % Add qMRLab to path
                 qMRLabDir = fileparts(which('qMRLab.m'));
@@ -545,25 +562,25 @@ classdef MainApp < matlab.apps.AppBase
                 end
 
                 % Display version under qMRLab text
-                set(handles.text_version_check, 'String',sprintf('v%d.%d.%d',cur_ver(1),cur_ver(2),cur_ver(3)));
+                app.text_version_check.Text = sprintf('v%d.%d.%d',cur_ver(1),cur_ver(2),cur_ver(3));
 
                 % Handle new version message
                 % varstatus is empty unless there is a new release.
                 if isempty(verStatus)
-                    set(handles.upgrade_message, 'Visible','off');
+                    app.upgrade_message.Visible = 'off';
                 else
-                    set(handles.upgrade_message, 'Visible','on');
-                    set(handles.upgrade_message, 'String',sprintf('Upgrade to v%d.%d.%d',verStatus(1),verStatus(2),verStatus(3)));
+                    app.upgrade_message.Visible = 'on';
+                    app.upgrade_message.Text = sprintf('Upgrade to v%d.%d.%d',verStatus(1),verStatus(2),verStatus(3));
                 end
 
-                handles.opened = 1;
+                app.Opened = true;
                 % startup;
                 qMRLabDir = fileparts(which('qMRLab.m'));
                 addpath(genpath(qMRLabDir));
                 if isdeployed
-                    handles.Default = fullfile(qMRLabDir,'DefaultMethod.mat');
+                    app.DefaultMethodFile = fullfile(qMRLabDir,'DefaultMethod.mat');
                 else
-                    handles.Default = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
+                    app.DefaultMethodFile = fullfile(qMRLabDir,'src','Common','Parameters','DefaultMethod.mat');
                     if isempty(getenv('ISAZURE')) || ~str2double(getenv('ISAZURE'))
                         ISAZURE=false;
                     else
@@ -574,11 +591,10 @@ classdef MainApp < matlab.apps.AppBase
                         if ~license('test', 'Image_Toolbox'), warning('Image Toolbox is not installed: ROI Analysis tool not available in the GUI. Consider installing <a href="matlab:matlab.internal.language.introspective.showAddon(''IP'');">Image Processing Toolbox</a>'); end
                     end
                 end
-                handles.CurrentData = [];
-                handles.dcm_obj = [];
+                app.CurrentData = [];
+                app.DataCursor = [];
                 MethodList = {}; SetAppData(app, MethodList);
-                guidata(hObject, handles);
-
+    
 
                 % SET WINDOW AND PANELS
                 movegui(app.qMRILab,'center')
@@ -606,27 +622,26 @@ classdef MainApp < matlab.apps.AppBase
                 % window nobody has. drawnow settles the layout of a hidden uifigure,
                 % which is exactly the state we are in here.
                 drawnow;
-                handles.tool = imtool3D(0,[0 0 1 1],app.ViewerHost);
+                app.Tool = imtool3D(0,[0 0 1 1],app.ViewerHost);
 
                 % One forced relayout. Without a size-change event between construction
                 % and first paint, Panels.Image keeps the constructor's pos(4)-2*110
                 % instead of the relayout's pos(4)-2*30 and opens 160 px short.
-                H = handles.tool.getHandles;
+                H = app.Tool.getHandles;
                 resizeFcn = get(H.Panels.Large, 'ResizeFcn');
                 if ~isempty(resizeFcn)
                     feval(resizeFcn, H.Panels.Large, []);
                 end
-                H = handles.tool.getHandles;
+                H = app.Tool.getHandles;
                 set(H.Tools.ViewPlane,'Visible','off')
                 set(H.Tools.maskStats,'Visible','off')
 
                 % Fill Menu with models
-                handles.ModelDir = [qMRLabDir filesep 'src/Models'];
-                guidata(hObject, handles);
-                addModelMenu(app, hObject, eventdata, handles);
+                app.ModelDir = [qMRLabDir filesep 'src/Models'];
+                    addModelMenu(app);
                 % Determine the initial method first
-                if exist(handles.Default,'file')
-                    load(handles.Default);
+                if exist(app.DefaultMethodFile,'file')
+                    load(app.DefaultMethodFile);
                 else
                     Method = 'inversion_recovery';
                 end
@@ -668,10 +683,10 @@ classdef MainApp < matlab.apps.AppBase
             indice = find(strcmp(Method,MethodList));
             % find() returns empty when the model is not in the list; setPopUp
             % clamps rather than assigning [] into a validated index.
-            setPopUp(handles.MethodSelection, get(handles.MethodSelection,'String'), indice);
+            setPopUp(app.MethodSelection, app.MethodSelection.Items, indice);
 
 
-            MethodMenu(app, hObject, eventdata, handles, Method);
+            MethodMenu(app, Method);
 
             % Wait if output
             if wait
@@ -686,7 +701,7 @@ classdef MainApp < matlab.apps.AppBase
                 butobj.ViewBtn_callback()   % BrowserSet.ViewBtn_callback(obj) takes no extra args
             end
 
-            set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+            app.text_doc_model.Text = ['Visit ' Method ' documentation'];
 
             % Text size. adopt() scales the window now and registers the relayout
             % callback so a later preference change grows the geometry too.
@@ -718,11 +733,9 @@ classdef MainApp < matlab.apps.AppBase
             if buttonState == 1
                 % Button is pressed/down - ENABLE cursor mode
                 try
-                    % Get handles from app data or figure
-                    handles = guidata(app.qMRILab);
 
-                    if ~isempty(handles.tool)
-                        H = handles.tool.getHandles();
+                    if ~isempty(app.Tool)
+                        H = app.Tool.getHandles();
                         fig = H.fig;
 
                         % Create new datacursor object
@@ -732,18 +745,16 @@ classdef MainApp < matlab.apps.AppBase
                         set(dcm_obj, 'Enable', 'on');
                         set(dcm_obj, 'SnapToDataVertex', 'on');
                         set(dcm_obj, 'DisplayStyle', 'datatip');
-                        set(dcm_obj, 'UpdateFcn', {@app.dataCursorUpdateFcn, handles});
+                        set(dcm_obj, 'UpdateFcn', @app.dataCursorUpdateFcn);
 
                         % Store it in multiple places for persistence
-                        handles.dcm_obj = dcm_obj;
+                        app.DataCursor = dcm_obj;
                         app.qMRILab.UserData.dcm_obj = dcm_obj;
                         setappdata(0, 'dcm_obj', dcm_obj);
 
                         % Update button text directly using app.CursorBtn
                         app.CursorBtn.Text = 'Selecting...';
 
-                        % Save handles
-                        guidata(app.qMRILab, handles);
 
                         % Bring figure to front
                         figure(fig);
@@ -761,14 +772,12 @@ classdef MainApp < matlab.apps.AppBase
             else
                 % Button is released/up - DISABLE cursor mode
                 try
-                    % Get handles
-                    handles = guidata(app.qMRILab);
 
                     % Check all possible storage locations
                     dcm_to_disable = [];
 
-                    if isfield(handles, 'dcm_obj')
-                        dcm_to_disable = handles.dcm_obj;
+                    if ~isempty(app.DataCursor)
+                        dcm_to_disable = app.DataCursor;
                     elseif isfield(app.qMRILab.UserData, 'dcm_obj')
                         dcm_to_disable = app.qMRILab.UserData.dcm_obj;
                     elseif ~isempty(getappdata(0, 'dcm_obj'))
@@ -799,9 +808,9 @@ classdef MainApp < matlab.apps.AppBase
             % Create GUIDE-style callback args - Added by Migration Tool
             [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
-            Method = GetMethod(handles);
+            Method = GetMethod(app);
             setappdata(0, 'Method', Method);
-            save(handles.Default,'Method');
+            save(app.DefaultMethodFile,'Method');
         end
 
         % Button pushed function: FitGO
@@ -811,9 +820,9 @@ classdef MainApp < matlab.apps.AppBase
             % Create GUIDE-style callback args - Added by Migration Tool
             [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
-            Method = GetMethod(handles);
+            Method = GetMethod(app);
             setappdata(0, 'Method', Method);
-            FitGo_FitData(app, hObject, eventdata, handles);
+            FitGo_FitData(app);
             % The counterSfMiss variable is assigned by the GetSf.m function
             % to keep track of how many times a warning has been printed.
             % After fit has been completed, we can remove this from the base
@@ -833,7 +842,7 @@ classdef MainApp < matlab.apps.AppBase
 
             [FileName,PathName] = uigetfile({'*FitResults*.mat;*.qmrlab.mat;*.mat'},'FitResults.mat');
             if PathName == 0, return; end
-            set(handles.CurrentFitId,'String',FileName);
+            app.CurrentFitId.Text = FileName;
             FitResults = load(fullfile(PathName,FileName));
             if isfield(FitResults,'Protocol')
                 Prot   =  FitResults.Protocol;
@@ -848,12 +857,11 @@ classdef MainApp < matlab.apps.AppBase
             end
 
             % find model value in the method menu list
-            methods = sct_tools_ls([handles.ModelDir filesep '*.m'], 0,0,2,1);
+            methods = sct_tools_ls([app.ModelDir filesep '*.m'], 0,0,2,1);
             val = find(strcmp(methods,Method));
-            setPopUp(handles.MethodSelection, get(handles.MethodSelection,'String'), val);
+            setPopUp(app.MethodSelection, app.MethodSelection.Items, val);
 
-            MethodMenu(app, hObject, eventdata, handles,Method)
-            handles = guidata(hObject); % update handle
+            MethodMenu(app, Method)
             FileBrowserList = GetAppData(app, 'FileBrowserList');
             % if isfield(FitResults,'WD'), FileBrowserList.setWD(FitResults.WD); end
             % if isfield(FitResults,'StudyID'), FileBrowserList.setStudyID(FitResults.StudyID); end
@@ -864,9 +872,8 @@ classdef MainApp < matlab.apps.AppBase
             % end
 
             SetAppData(app, FileBrowserList);
-            handles.CurrentData = FitResults;
-            guidata(hObject,handles);
-            DrawPlot(handles);
+            app.CurrentData = FitResults;
+            DrawPlot(app);
         end
 
         % Button pushed function: FitResultsSave
@@ -880,7 +887,7 @@ classdef MainApp < matlab.apps.AppBase
             [FileName,PathName] = uiputfile('*.mat');
             if PathName == 0, return; end
             save(fullfile(PathName,FileName),'-struct','FitResults');
-            set(handles.CurrentFitId,'String',FileName);
+            app.CurrentFitId.Text = FileName;
         end
 
         % Button pushed function: Histogram
@@ -893,12 +900,12 @@ classdef MainApp < matlab.apps.AppBase
             % Create GUIDE-style callback args - Added by Migration Tool
             [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
-            Map     = handles.tool.getImage;
-            Maskall = handles.tool.getMask(1);
-            Color   = handles.tool.getMaskColor;
+            Map     = app.Tool.getImage;
+            Maskall = app.Tool.getMask(1);
+            Color   = app.Tool.getMaskColor;
 
-            SourceFields = cellstr(get(handles.SourcePop, 'String'));
-            label = SourceFields{get(handles.SourcePop, 'Value')};
+            SourceFields = app.SourcePop.Items;
+            label = SourceFields{app.SourcePop.Value};
 
             HistogramGUI(Map, Maskall, Color, label)
         end
@@ -909,9 +916,9 @@ classdef MainApp < matlab.apps.AppBase
             % Create GUIDE-style callback args - Added by Migration Tool
             [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
-            Method = GetMethod(handles);
-            MethodMenu(app, hObject,eventdata,handles,Method);
-            set(handles.text_doc_model, 'String',['Visit ' Method ' documentation']);
+            Method = GetMethod(app);
+            MethodMenu(app, Method);
+            app.text_doc_model.Text = ['Visit ' Method ' documentation'];
         end
 
         % Button pushed function: OpenOptionsPanel
@@ -938,7 +945,7 @@ classdef MainApp < matlab.apps.AppBase
             drawnow;
             set(hObject, 'Enable', 'on');
 
-            handles.tool.setNvol(get(handles.SourcePop,'Value'));
+            app.Tool.setNvol(app.SourcePop.Value);
         end
 
         % Button pushed function: Stats
@@ -952,11 +959,11 @@ classdef MainApp < matlab.apps.AppBase
             drawnow;
             set(hObject, 'Enable', 'on');
 
-            I = handles.tool.getImage(1);
-            Iraw = handles.CurrentData;
+            I = app.Tool.getImage(1);
+            Iraw = app.CurrentData;
             fields = setdiff(Iraw.fields,'Mask','stable')';
-            Maskall = handles.tool.getMask(1);
-            Color = handles.tool.getMaskColor;
+            Maskall = app.Tool.getMask(1);
+            Color = app.Tool.getMaskColor;
             StatsGUI(I,Maskall, fields, Color);
         end
 
@@ -974,7 +981,7 @@ classdef MainApp < matlab.apps.AppBase
             set(hObject, 'Enable', 'on');
 
             % First check if cursor mode is even enabled
-            if ~isfield(handles, 'dcm_obj') || isempty(handles.dcm_obj)
+            if isempty(app.DataCursor)
                 helpdlg('First click the "Select" button to enable cursor mode, then click on a pixel');
                 return;
             end
@@ -982,13 +989,13 @@ classdef MainApp < matlab.apps.AppBase
             % Try to get cursor info
             try
                 % Check if datacursor is enabled
-                if ~strcmp(get(handles.dcm_obj, 'Enable'), 'on')
+                if ~strcmp(get(app.DataCursor, 'Enable'), 'on')
                     helpdlg('Cursor mode is not enabled. Click the "Select" button first.');
                     return;
                 end
 
                 % Try to get cursor info
-                cursorInfo = getCursorInfo(handles.dcm_obj);
+                cursorInfo = getCursorInfo(app.DataCursor);
 
                 if isempty(cursorInfo)
                     helpdlg('No cursor selected. Click on a pixel in the image first.');
@@ -996,16 +1003,16 @@ classdef MainApp < matlab.apps.AppBase
                 end
 
                 % Process the cursor info
-                info_dcm_all = getCursorInfo(handles.dcm_obj);
+                info_dcm_all = getCursorInfo(app.DataCursor);
                 for ipix = 1:length(info_dcm_all)
                     info_dcm = info_dcm_all(ipix);
                     x = info_dcm.Position(1);
                     y = info_dcm.Position(2);
-                    z = handles.tool.getCurrentSlice;
-                    S = handles.tool.getImageSize;
+                    z = app.Tool.getCurrentSlice;
+                    S = app.Tool.getImageSize;
                     vox{ipix} = sub2ind(S,y,x,z);
                 end
-                hh = plotfit(app, handles,vox);
+                hh = plotfit(app, vox);
                 if ~isempty(hh)
                     set(hh,'Name',['Fitting results of voxel [' num2str([info_dcm.Position(1) info_dcm.Position(2) z]) ']'],'NumberTitle','off');
                     set(hh,'Color',[.94 .94 .94])
@@ -1031,10 +1038,10 @@ classdef MainApp < matlab.apps.AppBase
             drawnow;
             set(hObject, 'Enable', 'on');
 
-            UpdateSlice(handles)
-            View = get(handles.ViewPop,'String');
+            UpdateSlice(app)
+            View = app.ViewPop.Items;
             if ~iscell(View), View = {View}; end
-            handles.tool.setviewplane(View{get(handles.ViewPop,'Value')})
+            app.Tool.setviewplane(View{app.ViewPop.Value})
         end
 
         % Button pushed function: ViewROIFit
@@ -1047,18 +1054,18 @@ classdef MainApp < matlab.apps.AppBase
             drawnow;
             set(hObject, 'Enable', 'on');
 
-            Mask = handles.tool.getMask();
+            Mask = app.Tool.getMask();
             if isempty(Mask) || ~any(Mask(:))
                 helpdlg('Draw a mask for current label using the brush tools')
                 return;
             end
 
             vox{1} = find(Mask);
-            hh = plotfit(app, handles,vox);
+            hh = plotfit(app, vox);
             if ~isempty(hh)
-                set(hh,'Name',['Fitting results in current label #' num2str(handles.tool.getmaskSelected())],'NumberTitle','off');
-                C = handles.tool.getMaskColor();
-                set(hh,'Color',[1 1 1]*.8+.2*C(handles.tool.getmaskSelected()+1,:))
+                set(hh,'Name',['Fitting results in current label #' num2str(app.Tool.getmaskSelected())],'NumberTitle','off');
+                C = app.Tool.getMaskColor();
+                set(hh,'Color',[1 1 1]*.8+.2*C(app.Tool.getmaskSelected()+1,:))
             end
         end
 
@@ -1074,11 +1081,11 @@ classdef MainApp < matlab.apps.AppBase
             drawnow;
             set(hObject, 'Enable', 'on');
 
-            I.img = handles.tool.getImage(1);
-            I.label = cellstr(get(handles.SourcePop,'String'));
-            Mask = handles.tool.getMask(1);
-            if isfield(handles.CurrentData,'hdr')
-                I.hdr = handles.CurrentData.hdr;
+            I.img = app.Tool.getImage(1);
+            I.label = app.SourcePop.Items;
+            Mask = app.Tool.getMask(1);
+            if isfield(app.CurrentData,'hdr')
+                I.hdr = app.CurrentData.hdr;
 
                 tool = imtool3D_nii_3planes(I,Mask);
             else
@@ -1087,9 +1094,9 @@ classdef MainApp < matlab.apps.AppBase
 
                 for ii=1:3, tool(ii).setlabel(I.label); end
             end
-            clims = handles.tool.getClimits;
+            clims = app.Tool.getClimits;
             for ii=1:3
-                tool(ii).setNvol(handles.tool.getNvol);
+                tool(ii).setNvol(app.Tool.getNvol);
                 tool(ii).setClimits(clims);
             end
         end
@@ -1509,7 +1516,10 @@ classdef MainApp < matlab.apps.AppBase
             app.ViewPop.Tag = 'ViewPop';
             app.ViewPop.FontSize = 13.3333333333332;
             app.ViewPop.Position = [13 469 78 25];
-            app.ViewPop.Value = 'Axial';
+            % ItemsData makes Value an index rather than the item's text; see
+            % setPopUp. Seeded here so the FIRST read is already an index.
+            app.ViewPop.ItemsData = 1;
+            app.ViewPop.Value = 1;
 
             % Create SourcePop
             app.SourcePop = uidropdown(app.FitResultsPlotPanel);
@@ -1518,6 +1528,7 @@ classdef MainApp < matlab.apps.AppBase
             app.SourcePop.Tag = 'SourcePop';
             app.SourcePop.FontSize = 13.3333333333332;
             app.SourcePop.Position = [13 502 171 19];
+            app.SourcePop.ItemsData = [];
             app.SourcePop.Value = {};
 
             % Create CursorBtn
@@ -1798,7 +1809,8 @@ classdef MainApp < matlab.apps.AppBase
             app.MethodSelection.Tag = 'MethodSelection';
             app.MethodSelection.FontSize = 12.570970970971;
             app.MethodSelection.Position = [15 658 251 19];
-            app.MethodSelection.Value = 'modelname';
+            app.MethodSelection.ItemsData = 1;
+            app.MethodSelection.Value = 1;
 
             % Create upgrade_message
             app.upgrade_message = uilabel(app.qMRILab);
