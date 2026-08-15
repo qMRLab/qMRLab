@@ -581,11 +581,11 @@ classdef MainApp < matlab.apps.AppBase
 
 
                 % SET WINDOW AND PANELS
-                movegui(gcf,'center')
-                CurrentPos = get(gcf, 'Position');
+                movegui(app.qMRILab,'center')
+                CurrentPos = app.qMRILab.Position;
                 NewPos     = CurrentPos;
                 NewPos(1)  = CurrentPos(1) - 40;
-                set(gcf, 'Position', NewPos);
+                app.qMRILab.Position = NewPos;
                 % The old `if ispc, set(findobj(...,'Type','uicontrol'),'FontSize',7)`
                 % lived here. It was provably dead, not merely unhelpful: it ran
                 % BEFORE imtool3D was constructed on the next line, so the panel held
@@ -923,7 +923,7 @@ classdef MainApp < matlab.apps.AppBase
 
             Method = GetAppData(app, 'Method');
             Model = getappdata(0,'Model');
-            qmrlab.gui.OptionsWindow(Model, gcf);
+            qmrlab.gui.OptionsWindow(Model, app.qMRILab);
         end
 
         % Value changed function: SourcePop

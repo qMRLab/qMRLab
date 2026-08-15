@@ -783,7 +783,7 @@ classdef OptionsWindow < matlab.apps.AppBase
             end
 
             setappdata(0,'Model',newModel);
-            set(app.ParametersFileName,'String','Parameters Filename');
+            app.ParametersFileName.Text = 'Parameters Filename';
 
         end
 
@@ -824,8 +824,8 @@ classdef OptionsWindow < matlab.apps.AppBase
                 return;
             end
             setappdata(0,'Model',app.Model)
-            set(app.ParametersFileName,'String',FileName);
-            OptionsGUI_OpeningFcn(hObject, eventdata, handles, app.Model, app.caller)
+            app.ParametersFileName.Text = FileName;
+            OptionsGUI_OpeningFcn(app, app.Model, app.caller)
         end
 
         % Button pushed function: Save
