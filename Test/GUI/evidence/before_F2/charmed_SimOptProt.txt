@@ -1,0 +1,22 @@
+# SimOptProt  857x780  21 components
+/Panel[uipanel12]                                                               vis=on      children=3
+/Panel[uipanel12]/AnnotationPane[scribeOverlay]                                 vis=on      px=0x0@0,0                                                              
+/Panel[uipanel12]/Axes[SimCurveAxe]                                             vis=on      px=712x426@80,72        Co=[1 1 1]                                      Title=<matlab.graphics.primitive.Text>
+/Panel[uipanel12]/UIControl[SimOptProtUpdate]                                   vis=on      px=139x25@674,482       Ba=[0 0.65 1] Fo=[0.13 0.13 0.13]               Text="Update" Value=0
+/Panel[uipanel9]                                                                vis=on      children=4
+/Panel[uipanel9]/Panel[OptionsPanel]                                            vis=on      children=8
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@120,621        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="0.08" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@120,645        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="100" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@120,669        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="100" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@120,693        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="30" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@42,621         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Gmax:" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@42,645         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="# of migrations:" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@42,669         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Population size:" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@42,693         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="# of volumes:" Value=0
+/Panel[uipanel9]/Table[ParamTable]                                              vis=on      px=582x203@233,557      Fo=[0.13 0.13 0.13]                             Data={0.5,0.7,6,0,0,3,1.4}
+/Panel[uipanel9]/UIControl[Save]                                                vis=on      px=129x27@39,730        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Save" Value=0
+/Panel[uipanel9]/UIControl[text19]                                              vis=on      px=422x16@231,761       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Tissue parameters assumed for the optimization:" Value=0
+/Toolbar[uitoolbar1]                                                            vis=on      children=3
+/Toolbar[uitoolbar1]/PushTool[helpbutton]                                       vis=on      px=0x0@0,0                                                              
+/Toolbar[uitoolbar1]/ToggleTool[plotedittoggle]                                 vis=on      px=0x0@0,0                                                              
+/Toolbar[uitoolbar1]/ToggleTool[uitoggletool1]                                  vis=on      px=0x0@0,0                                                              
