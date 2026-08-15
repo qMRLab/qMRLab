@@ -413,32 +413,16 @@ classdef tControls < matlab.uitest.TestCase
                 end
                 inspected{end+1} = label; %#ok<AGROW>
 
-                % WHILE THE SHIM IS STILL PRESENT, the adapter is the authority.
-                %
-                % localCreateHandles wraps every TAGGED component in a
-                % UIControlPropertiesConverter, and the redirect strategy moves the
-                % real callback into the adapter and installs its own forwarder in
-                % the native property. So a native check reads "wired" for a control
-                % whose createCallbackFcn line has been deleted -- proved by mutant:
-                % removing app.Histogram.ButtonPushedFcn = createCallbackFcn(...)
-                % left ButtonPushedFcn non-empty and the audit green.
-                %
-                % convertToGUIDECallbackArguments decides the same way, on
-                % isprop(component,'CodeAdapter'), so this is not a heuristic. It
-                % also self-retires: once no shim call runs, no adapter is ever
-                % built, no component carries CodeAdapter, and only the native
-                % branch below can execute. Delete this branch when the last
-                % convertToGUIDECallbackArguments call goes.
-                adapter = [];
-                if isprop(o, 'CodeAdapter'); adapter = o.CodeAdapter; end
-
+                % The native property is now the authority. It was not while the
+                % GUIDE shim existed -- the adapter moved the real callback into
+                % itself and left a forwarder behind, so a control whose
+                % createCallbackFcn line had been deleted still read as wired.
+                % This audit carried a CodeAdapter branch for exactly that, and
+                % F1 deleted the last convertToGUIDECallbackArguments call, so no
+                % adapter is ever constructed and the branch is unreachable.
                 wired = false;
-                if ~isempty(adapter) && isvalid(adapter)
-                    wired = isprop(adapter, 'Callback') && ~isempty(adapter.Callback);
-                else
-                    for pi = 1:numel(props)
-                        if isprop(o, props{pi}) && ~isempty(o.(props{pi})); wired = true; break; end
-                    end
+                for pi = 1:numel(props)
+                    if isprop(o, props{pi}) && ~isempty(o.(props{pi})); wired = true; break; end
                 end
                 if ~wired
                     names{end+1} = label; %#ok<AGROW>

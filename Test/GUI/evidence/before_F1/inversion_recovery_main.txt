@@ -1,0 +1,206 @@
+# qMRLab  1126x837  205 components
+/ContextMenu                                                                    vis=off     children=1
+/ContextMenu                                                                    vis=off     children=1
+/ContextMenu                                                                    vis=off     children=1
+/ContextMenu                                                                    vis=off     children=1
+/ContextMenu                                                                    vis=off     children=2
+/ContextMenu/Menu                                                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Set value"
+/ContextMenu/Menu                                                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="delete"
+/ContextMenu/Menu                                                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="delete"
+/ContextMenu/Menu                                                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="delete"
+/ContextMenu/Menu                                                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="delete"
+/ContextMenu/Menu                                                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="delete"
+/GridLayout                                                                     vis=on      children=2
+/GridLayout/GridLayout                                                          vis=on      children=8
+/GridLayout/GridLayout/Button[DefaultMethodBtn]                                 vis=on      px=270x31@9,606         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Set Default"
+/GridLayout/GridLayout/Button[OpenOptionsPanel]                                 vis=on      px=270x29@9,-19         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Open Options Panel"
+/GridLayout/GridLayout/DropDown[MethodSelection]                                vis=on      px=270x27@9,643         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Items={"amico                 (Diffusion/)             ","charmed               (Diffusion/)             ","dti                   (Diffusion/)             ",...
+/GridLayout/GridLayout/Image[MainLogo]                                          vis=on      px=270x90@9,740                                                         
+/GridLayout/GridLayout/Label[text_version_check]                                vis=on      px=270x27@9,707         Fo=[0.13 0.13 0.13]                             Text="v2.4.2"
+/GridLayout/GridLayout/Label[upgrade_message]                                   vis=off     px=270x25@9,677         Fo=[0.15 0.55 0.87]                             Text="Upgrade to v2.5.0"
+/GridLayout/GridLayout/Panel[SimPanel]                                          vis=on      children=3
+/GridLayout/GridLayout/Panel[SimPanel]/UIControl                                vis=on      px=246x44@20,289        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Multi Voxel Distribution" Value=0
+/GridLayout/GridLayout/Panel[SimPanel]/UIControl                                vis=on      px=246x45@20,198        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Single Voxel Curve" Value=0
+/GridLayout/GridLayout/Panel[SimPanel]/UIControl                                vis=on      px=246x45@20,243        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Sensitivity Analysis" Value=0
+/GridLayout/GridLayout/Panel[uipanel37]                                         vis=on      children=1
+/GridLayout/GridLayout/Panel[uipanel37]/GridLayout                              vis=on      children=3
+/GridLayout/GridLayout/Panel[uipanel37]/GridLayout/Button[FitGO]                vis=on      px=250x129@19,461       Ba=[0.15 0.55 0.87] Fo=[1 1 1]                  Text="Fit data"
+/GridLayout/GridLayout/Panel[uipanel37]/GridLayout/Button[FitResultsLoad]       vis=on      px=121x64@148,389       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Load Results"
+/GridLayout/GridLayout/Panel[uipanel37]/GridLayout/Button[FitResultsSave]       vis=on      px=121x64@19,389        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Save Results"
+/GridLayout/Panel[FitDataPanel]                                                 vis=on      children=1
+/GridLayout/Panel[FitDataPanel]/GridLayout                                      vis=on      children=5
+/GridLayout/Panel[FitDataPanel]/GridLayout/Label[CurrentFitId]                  vis=on      px=391x23@397,14        Fo=[0.13 0.13 0.13]                             
+/GridLayout/Panel[FitDataPanel]/GridLayout/Label[text53]                        vis=on      px=93x23@294,14         Fo=[0.13 0.13 0.13]                             Text="Current file :"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Label[text_doc_model]                vis=on      px=314x23@798,14        Fo=[0.15 0.55 0.87]                             Text="Visit inversion_recovery documentation"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]       vis=on      children=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout  vis=on      children=4
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout  vis=on      children=5
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout  vis=on      children=6
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout  vis=on      children=7
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=139x22@964,742       Ba=[0.15 0.55 0.87] Fo=[1 1 1]                  Text="Download example"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=19x22@303,742        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="?"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=19x27@303,676        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="?"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=19x27@303,709        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="?"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=28x27@371,676        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=28x27@381,709        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=28x27@403,676        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=28x27@413,709        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=42x27@1061,709       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="View"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Button  vis=on      px=61x22@401,742        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Browse"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/EditField  vis=on      px=149x22@811,742       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/EditField  vis=on      px=273x22@466,742       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/EditField  vis=on      px=612x27@445,709       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Value="REQUIRED Inversion Recovery data (4D)"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/EditField  vis=on      px=668x27@435,676       Ba=[1 1 1] Fo=[0.4 0.4 0.4]                     Value="Binary mask to accelerate the fitting (OPTIONAL)"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Label  vis=on      px=41x27@326,676        Fo=[0.4 0.4 0.4]                                Text="Mask"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Label  vis=on      px=51x27@326,709        Fo=[0.13 0.13 0.13]                             Text="IRData"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Label  vis=on      px=64x22@743,742        Fo=[0.13 0.13 0.13]                             Text="Study ID:"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/GridLayout/Label  vis=on      px=71x22@326,742        Fo=[0.13 0.13 0.13]                             Text="Path data:"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitDataFileBrowserPanel]/GridLayout/Label[WarnBut_DataConsistency_inversion_recovery]  vis=on      px=800x17@303,653       Fo=[0.8 0.2 0.2]                                Text="Cannot find required input called IRData"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]           vis=on      children=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout  vis=on      children=2
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout  vis=on      children=12
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Button[Histogram]  vis=on      px=97x29@402,436        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Histogram"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Button[Stats]  vis=on      px=97x29@402,471        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Statistics"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Button[ViewDataFit]  vis=on      px=97x29@299,471        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Voxel fit"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Button[ViewROIFit]  vis=on      px=97x29@299,436        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="ROI fit"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Button[Viewer]  vis=on      px=97x29@402,534        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="3D viewer"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/DropDown[SourcePop]  vis=on      px=200x29@299,569       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/DropDown[ViewPop]  vis=on      px=97x29@299,534        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Items={"Axial"} Value="Axial"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/GridLayout  vis=on      children=4
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/GridLayout/Label[txt_OrientI]  vis=on      px=67x23@366,299        Fo=[0.13 0.13 0.13]                             Text="I"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/GridLayout/Label[txt_OrientL]  vis=on      px=67x23@299,321        Fo=[0.13 0.13 0.13]                             Text="L"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/GridLayout/Label[txt_OrientR]  vis=on      px=67x23@432,321        Fo=[0.13 0.13 0.13]                             Text="R"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/GridLayout/Label[txt_OrientS]  vis=on      px=67x23@366,344        Fo=[0.13 0.13 0.13]                             Text="S"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Label[text72]  vis=on      px=200x23@299,407       Fo=[0.13 0.13 0.13]                             Text="Cursor"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Label[text80]  vis=on      px=200x23@299,506       Fo=[0.13 0.13 0.13]                             Text="Quality Assurance"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/Label[text80_2]  vis=on      px=200x23@299,604       Fo=[0.13 0.13 0.13]                             Text="Volume"
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/GridLayout/StateButton[CursorBtn]  vis=on      px=200x29@299,372       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Select" Value=false
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]  vis=on      children=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]  vis=on      children=6
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel  vis=on      children=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel  vis=on      children=13
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel  vis=on      children=2
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel  vis=on      children=20
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel  vis=on      children=3
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel  vis=on      children=3
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/AnnotationPane[scribeOverlay]  vis=on      px=0x0@0,0                                                              
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/AnnotationPane[scribeOverlay]  vis=on      px=0x0@0,0                                                              
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes  vis=off     children=65
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes  vis=on      children=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes  vis=on      children=4
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Image  vis=on      px=0x0@0,0                                                              
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Image  vis=on      px=0x0@0,0                                                              
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Image  vis=on      px=0x0@0,0                                                              
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.15 0.15]                                
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=off     px=0x0@0,0              Co=[1 0.4 0.4]                                  
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=on      px=0x0@0,0              Co=[1 0 0]                                      
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=on      px=0x0@0,0              Co=[1 0 0]                                      
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=on      px=0x0@0,0              Co=[1 0 0]                                      
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Line  vis=on      px=0x0@0,0              Co=[1 1 1]                                      
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/Axes/Scatter  vis=off     px=0x0@0,0                                                              
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=off     px=20x20@1082,451       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=off     px=28x518@506,77        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=off     px=70x20@940,601        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text={"Axial","Sagittal","Coronal"} Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=180x22@656,50        Ba=[0 0 0] Fo=[1 1 1]                           Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,101       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,121       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,141       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="\_/" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,161       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,181       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,201       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,221       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,241       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,261       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,281       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,411       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,431       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,471       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,601       Ba=[0 0.65 1] Fo=[0.13 0.13 0.13]               Text="?" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@1082,81        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@510,601        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@535,601        Ba=[0 0 0] Fo=[1 1 1]                           Text="L" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@600,601        Ba=[0 0 0] Fo=[1 1 1]                           Text="U" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@675,601        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@890,601        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=20x20@915,601        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=288x22@806,50        Ba=[0 0 0] Fo=[1 1 1]                           Text="Vol: 1/1    Time: 1/1    Slice: 1/1" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=300x22@506,50        Ba=[0 0 0] Fo=[1 1 1]                           Text="(x,y) val" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=40x20@555,601        Ba=[0.2 0.2 0.2] Fo=[1 1 1]                     Text="0" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=40x20@620,601        Ba=[0.2 0.2 0.2] Fo=[1 1 1]                     Text="1" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=50x20@705,601        Ba=[0 0 0] Fo=[1 1 1]                           Text="Grid?" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=60x20@755,601        Ba=[0 0 0] Fo=[1 1 1]                           Text="Mask?" Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl  vis=on      px=70x20@815,601        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text={"Gray","Parula","Jet","HSV","Hot","Cool","Spring","Summer","Autumn","Winter","Bone","Copper","Pink","Lines","colorcube","flag","prism","white"} Value=1
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl[MaskSelected]  vis=on      px=20x20@1082,491       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="5" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl[MaskSelected]  vis=on      px=20x20@1082,511       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="4" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl[MaskSelected]  vis=on      px=20x20@1082,531       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="3" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl[MaskSelected]  vis=on      px=20x20@1082,551       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="2" Value=0
+/GridLayout/Panel[FitDataPanel]/GridLayout/Panel[FitResultsPlotPanel]/GridLayout/Panel[ViewerHost]/Panel[imtool3D]/Panel/UIControl[MaskSelected]  vis=on      px=20x20@1082,571       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="1" Value=0
+/Menu                                                                           vis=on      children=2
+/Menu/Menu[AppearanceMenu]                                                      vis=on      children=3
+/Menu/Menu[AppearanceMenu]/Menu[Appearance_dark]                                vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Dark"
+/Menu/Menu[AppearanceMenu]/Menu[Appearance_light]                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Light"
+/Menu/Menu[AppearanceMenu]/Menu[Appearance_system]                              vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Match system"
+/Menu/Menu[TextSizeMenu]                                                        vis=on      children=3
+/Menu/Menu[TextSizeMenu]/Menu[TextSize_large]                                   vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Large"
+/Menu/Menu[TextSizeMenu]/Menu[TextSize_medium]                                  vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Medium"
+/Menu/Menu[TextSizeMenu]/Menu[TextSize_small]                                   vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Small"

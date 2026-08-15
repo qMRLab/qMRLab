@@ -15,8 +15,14 @@ resolves to R2026a, so **CI runs R2026a twice and never runs R2026b**
 `matlab-batch`). R2026b is the release this work is developed against and it is
 verified **locally only**. Run it locally before believing a green build.
 
-Done: Stages A, B, C, D1–D4, E1–E4, **F2** and **F3**.
-Not done: **F1**, then the merge and the tagged release.
+Done: Stages A, B, C, D1–D4, E1–E4, **F1**, **F2** and **F3**.
+Not done: the merge and the tagged release.
+
+**The GUIDE shim is gone.** `convertToGUIDECallbackArguments` is called zero
+times, no `handles` struct is passed anywhere in the two `uifigure` windows or
+the helpers they call, and `Test/GUI/tAPI.m/theGuideShimIsGone` fails if any of
+it comes back. The five Sim add-on windows keep their `handles` structs by
+decision (D4/D10) — there `guidata` is the native idiom, not a shim.
 
 **There are zero `.fig` files left, anywhere.** GUIDE is gone from the
 interface: the main window and Options window are `uifigure`s, and the five Sim
@@ -66,54 +72,61 @@ Runs take minutes; start them in the background rather than blocking on them. CI
 
 ## What is left
 
-### 1. F1 — retire the `handles` shim  ← the only engineering stage left
+### 1. F1 — done
 
-The plan scoped this as "~105 sites, all in the main app". Measured, it splits in
-two, and the split is what makes it tractable:
+Retired across five commits: dead code, pre-existing repairs, the wiring audit,
+the model-switch tests, the conversion, and the shim removal. What a future
+reader most needs to know:
 
-| in `MainApp.m` | names | uses | what it takes |
-|---|---|---|---|
-| components with an app property | 11 | 45 | mechanical: `handles.X` → `app.X` |
-| runtime state living in `guidata` | 9 | 57 | promote to properties first |
+**`handles.X` was never an alias for `app.X`.** The shim wrapped every tagged
+component in a `UIControlPropertiesConverter` that TRANSLATED GUIDE property
+names. Each site needed a translation, not a rename:
 
-The state names are `tool` (27 uses), `CurrentData` (9), `dcm_obj` (7), `ModelDir`
-(5), `Default` (5), `SimFileName`, `ProtFileName`, `FitOptFileName`, `opened`.
+| GUIDE, through the shim | native |
+|---|---|
+| `set(uilabel,'String',x)` | `uilabel.Text = x` — uilabel has no `String`; `set` throws |
+| `set(uibutton,'TooltipString',x)` | `uibutton.Tooltip = x` — **not** `.Text`, which is the caption |
+| `get(dropdown,'String')` | `.Items` |
+| `get(dropdown,'Value')` | an index **only because of `ItemsData`** — see ADR D11 |
+| `uipanel`/`uifigure` `Visible`/`Position` | unchanged; containers were never adapter-wrapped |
 
-Four things the table does not show, each of which will bite:
+**Runtime state is on the app now** — `Tool`, `CurrentData`, `DataCursor`,
+`ModelDir`, `DefaultMethodFile`, `Opened`. Every `guidata` publish went with
+them, including the two cross-window write-backs in `DrawPlot` and
+`UpdatePopUp`, and `BrowserSet` resolves the app with
+`ancestor(obj.Parent,'figure').RunningAppInstance` instead of
+`guidata(findobj('Name','qMRLab'))`.
 
-- **Those 45 + 57 = 102 are not all of them.** `MainApp.m` holds 104. The other two
-  are built by string at `MainApp.m:379` and `:383` —
-  `eval(sprintf('set(handles.%sPanel, ''Visible'', ''off'')', panel))` — and no
-  name-driven rewrite will find them.
-- **`OptionsWindow.m` pins the shim too.** `convertToGUIDECallbackArguments` is
-  called **16×** in `MainApp.m` and **4×** in `OptionsWindow.m` (`:822, :833, :843,
-  :863`). `OptionsWindow` has zero `handles.` uses — they are pure destructuring —
-  but clearing MainApp alone and deleting the shim breaks the options window. The
-  function is not defined in this repo; it is inherited from `matlab.apps.AppBase`,
-  which both classes still extend.
-- **Five helpers take a `handles` struct and are live**, not four:
-  `src/Common/tools/GUIfun/{DrawPlot,UpdateSlice,UpdatePopUp,GetMethod}.m` plus
-  `FileBrowser/BrowserSet.m`. `GetMethod` is the one that is easy to miss — called
-  from `MainApp.m:849`, `:861`, `:959`, and it reads `handles.MethodSelection`.
-  (Careful: `MethodBrowser.m:216` defines an unrelated class method of the same
-  name.)
-- **Three of them write back into the main window's guidata from outside the app**:
-  `DrawPlot.m:79`, `UpdatePopUp.m:23` and `GetPlotRange.m:41` all end with
-  `guidata(findobj('Name','qMRLab'), handles)`, and `BrowserSet.m:395` reads it the
-  same way. That round trip is the actual coupling to break, not the field names.
+**Three traps worth not relearning**, all found the hard way during F1:
 
-**Start with the dead code — four files, not one.** `GetPlotRange.m`, `ClearAxes.m`
-and `RefreshColorMap.m` have no callers at all, and `GetCurrent.m`'s only caller is
-`GetPlotRange.m:4`, so it dies with them. That is the cheapest win in the stage and
-it shrinks everything above.
+- **`isfield(handles,'dcm_obj')` is invisible to a `handles.X` rewrite**, because
+  the field name is a string literal. After the state moved, that guard was
+  permanently *false* and cursor mode could never be switched off — inside a
+  `try/catch` that swallows into a stubbed dialog, with no test pressing the
+  button. `isprop(app,...)` is equally wrong in the other direction (permanently
+  true). `isempty(app.DataCursor)` is the only correct translation.
+- **A green suite that straddles an edit means nothing.** MATLAB loads `.m` files
+  at first call, so a run started before a change tests a mixture. One such run
+  reported 63/63 on a tree I was still editing. Re-run clean before believing it.
+- **`regexprep(txt,'(?m)^\s*%.*$','')` eats the whole file.** `\s` matches
+  newlines, so the match runs away: `MainApp.m` went 85766 characters → 39. The
+  first version of `theGuideShimIsGone` scanned that empty string and passed with
+  a `handles.` site deliberately reintroduced. Drop comments line-by-line, and
+  give the test a denominator.
 
-**The five Sim windows are NOT part of this.** They hold 375 of the repository's
-`handles.` references and they keep them: they are legacy figures by decision, and
-`guidata` is the native idiom there, not a shim to retire.
+**`matlab.apps.AppBase` stays.** The handover this replaces said
+`convertToGUIDECallbackArguments` was inherited from it; it is not — it is a free
+function at
+`toolbox/matlab/appdesigner/runtime/convertToGUIDECallbackArguments.m`. AppBase
+supplies `createCallbackFcn`, `registerApp`, `runStartupFcn` and
+`getRunningApp`, all still used. Retiring the shim and dropping AppBase are
+unrelated questions.
 
-Convert each component in the same commit as its call sites. `handles.X` and `app.X`
-coexist happily during the change, so a half-finished conversion fails silently
-rather than loudly — keep the commits small and run the suite.
+**Removing the shim did not unwire anything — it wired things more directly.**
+All callbacks are installed natively by `createCallbackFcn` in
+`createComponents`; the adapter merely mirrored them, and for dropdowns it
+*nulled* the native `ValueChangedFcn` and drove `ClickedFcn` instead. See ADR
+D12 for the one user-visible behaviour change that follows.
 
 ### 2. The landing
 
@@ -248,6 +261,12 @@ table*. Dispatch on `class(h)`. Inside the legacy Sim figures, `Style` is fine.
 `FitResults`; numeric options render in a **text** field and format with
 `sprintf('%g')`, so **the formatting is the stored value**. `Test/GUI/tDSL.m` pins
 this for all 22 models; `Test/GUI/KNOWN_BUGS.md` has the three preserved defects.
+
+**A 1 px diff in the Sim goldens is noise, not a change.** `charmed_SingleVoxelCurve`'s
+first `UIControl` renders at `@162,783` or `@161,783` depending on the run —
+measured by capturing the *identical* tree twice and getting both. F1 changed no
+Sim code, so if a Sim golden differs by one pixel on one control, recapture
+before investigating. Anything larger, or in more than one control, is real.
 
 **Overflow inside a `Scrollable` container is not a defect.**
 

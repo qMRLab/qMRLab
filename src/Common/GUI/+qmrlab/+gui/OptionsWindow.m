@@ -126,16 +126,16 @@ classdef OptionsWindow < matlab.apps.AppBase
                     % that read it back -- two places to keep in step.
                     app.OptionsPanel_handle = qmrlab.gui.OptionsRenderer.render( ...
                         app.Model, app.OptionsHost, ...
-                        @(src,event) ModelOptions_Callback(app, app));
+                        @(src,event) ModelOptions_Callback(app));
 
                     % Noted some concerns @ issue #253
-                    SetOpt(app, app);
+                    SetOpt(app);
                 end
 
         end
 
-        function ModelOptions_Callback(app, handles)
-            app.Model = SetOpt(app, handles);
+        function ModelOptions_Callback(app)
+            app.Model = SetOpt(app);
             renderOptions(app);
         end
 
@@ -224,7 +224,11 @@ classdef OptionsWindow < matlab.apps.AppBase
             app.ProtPanels.(field).CellSelect = eventdata.Indices;
         end
 
-        function Model = SetOpt(app, handles)
+        function Model = SetOpt(app)
+            % Takes only the app. The second parameter was the GUIDE shim's
+            % handles struct and was never read -- OptionsWindow.m:132 already
+            % called this as SetOpt(app, app), passing the app as `handles`,
+            % which is the proof.
             % GETFITOPT Get Fit Option from table
 
             % READ FITTING TABLE
@@ -791,10 +795,8 @@ classdef OptionsWindow < matlab.apps.AppBase
         function FitOptTable_CellEditCallback(app, event)
             % FitOptTable CellEdit
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
-            app.Model = SetOpt(app, handles);
+            app.Model = SetOpt(app);
 
         end
 
@@ -802,8 +804,6 @@ classdef OptionsWindow < matlab.apps.AppBase
         function Helpbutton_Callback(app, event)
             % --- Executes on button press in Helpbutton.
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             doc(class(getappdata(0,'Model')))
         end
@@ -812,8 +812,6 @@ classdef OptionsWindow < matlab.apps.AppBase
         function Load_Callback(app, event)
             % --- Executes on button press in Load.
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             [FileName,PathName] = uigetfile('*.mat');
             if PathName == 0, return; end
@@ -832,8 +830,6 @@ classdef OptionsWindow < matlab.apps.AppBase
         function Save_Callback(app, event)
             % --- Executes on button press in Save.
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             app.Model = getappdata(0,'Model');
             [file,path] = uiputfile([class(app.Model) '.qmrlab.mat'],'Save file name');

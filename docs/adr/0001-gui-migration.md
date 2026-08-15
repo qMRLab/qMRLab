@@ -249,6 +249,75 @@ macOS and overflowed by 15 px on the Linux runner, and an axes that hung 60 px
 below its panel. All of it is normalized now, converted from measured pixels
 divided by each parent's INNER size.
 
+### D11 — Dropdown `Value` stays an INDEX, via `ItemsData`
+
+*Decided during Stage F1, from measurement.*
+
+Retiring the `handles` shim removed the adapter that had been translating GUIDE
+property names, and the sharpest consequence is the three dropdowns. Measured on
+R2026b:
+
+```
+no ItemsData : Value='A'  class=char
+ItemsData 1:N: Value=1    class=double
+```
+
+The GUIDE code read `get(pop,'Value')` as a 1-based index everywhere, and four
+sites need it structurally: `GetMethod` indexes `MethodList`, `imtool3D.setNvol`
+takes an integer volume number, `UpdateSlice` looks up the view name, and
+`DrawPlot` passes `tool.getNvol` straight back in. None has a text-accepting
+form.
+
+Worse, `MethodSelection`'s `Items` are **padded display strings**
+(`'inversion_recovery   (T1_relaxometry/)'`), not class names. A text `Value`
+would have to be parsed back into a class name — and *Set as default* writes
+that value into `DefaultMethod.mat`, so a padded string there poisons the next
+launch.
+
+So `setPopUp` maintains `ItemsData = 1:numel(Items)` and `Value` remains an
+index. `ItemsData` is R2016a, well under the D5 floor. Two rules the
+implementation depends on, both measured rather than assumed:
+
+- **`Items` are assigned first.** The GUIDE-era body was *neutralise, install,
+  select* — `set(h,'Value',1)` before the list. Natively an empty-`Items`
+  dropdown requires an empty `Value`, and `app.SourcePop` is constructed with
+  `Items={}`, so the first call from `UpdatePopUp` would throw before installing
+  anything.
+- **`ItemsData` is reassigned on every call.** The component enforces
+  `maxValidIndex = min(numel(Items), numel(ItemsData))`. A stale `ItemsData`
+  silently caps the list: shrinking `Items` to one entry while a 3-element
+  `ItemsData` remains raises no error and leaves the dropdown inconsistent.
+
+The ordering hazard `setPopUp`'s old header documented — a stale index making the
+*next* list assignment throw `MATLAB:badsubscript` — was an artefact of the
+adapter re-deriving `value = str{value}`. It does not exist natively.
+
+**Cost, accepted:** `captureFigure` records `Value=` for every component, so the
+options and main-window goldens now read `Value=1` where they read `Value=IRData`.
+`Items=` still carries the text, so this is a legibility cost in the evidence
+trail, not a loss of information.
+
+### D12 — Dropdowns now fire only on an actual change
+
+*Decided during Stage F1. A deliberate behaviour change, recorded because it is
+user-visible.*
+
+While the shim was in place, `PopupMenuRedirectStrategy` nulled each dropdown's
+native `ValueChangedFcn` and drove the callback from `ClickedFcn` instead,
+reproducing `uicontrol` behaviour where **re-selecting the entry that is already
+selected still fires**. With the shim gone, the `createCallbackFcn` wiring in
+`createComponents` is what fires, and native `ValueChangedFcn` fires only when
+the value actually changes.
+
+Consequence: re-picking the model already selected no longer re-runs
+`MethodMenu`, which reloads the model, rebuilds the Sim panel and reopens the
+options window. That was a reachable way to "reset" a model, and it is gone.
+
+Accepted rather than reproduced. Restoring it would mean keeping a `ClickedFcn`
+forwarder purely to emulate a GUIDE quirk, and the same reset is available by
+switching to another model and back. If it turns out to be missed, the place to
+put it back is `createComponents`, not a revived adapter.
+
 ## Consequences
 
 **Good.** The GUI becomes reviewable in a pull request for the first time. GUI tests

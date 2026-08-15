@@ -1,0 +1,31 @@
+# Multi Voxel Distribution  855x872  30 components
+/Panel[uipanel12]                                                               vis=on      children=9
+/Panel[uipanel12]/AnnotationPane[scribeOverlay]                                 vis=on      px=0x0@0,0                                                              
+/Panel[uipanel12]/Axes[SimRndAxe]                                               vis=on      px=737x331@94,37        Co=[1 1 1]                                      Title=<matlab.graphics.primitive.Text>
+/Panel[uipanel12]/UIControl[SimRndPlotType]                                     vis=on      px=137x18@110,378       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text={"Input parameters","Fit results","Input vs. Fit","Error","Pct error","RMSE","NRMSE","MPE"} Value=1
+/Panel[uipanel12]/UIControl[SimRndPlotX]                                        vis=on      px=112x18@337,378       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text={"fr","Dh","diameter_mean","fcsf","lc","Dcsf","Dintra"} Value=1
+/Panel[uipanel12]/UIControl[SimRndPlotY]                                        vis=on      px=131x18@535,378       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text={"Voxels count"} Value=1
+/Panel[uipanel12]/UIControl[SimRndVaryUpdate]                                   vis=on      px=142x20@689,377       Ba=[0.15 0.55 0.87] Fo=[1 1 1]                  Text="Update" Value=0
+/Panel[uipanel12]/UIControl[text16]                                             vis=on      px=67x13@272,378        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="x axis:" Value=0
+/Panel[uipanel12]/UIControl[text17]                                             vis=on      px=67x13@475,378        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="y axis:" Value=0
+/Panel[uipanel12]/UIControl[text18]                                             vis=on      px=103x13@25,380        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Plot type:" Value=0
+/Panel[uipanel9]                                                                vis=on      children=4
+/Panel[uipanel9]/Panel[OptionsPanel]                                            vis=on      children=1
+/Panel[uipanel9]/Panel[OptionsPanel]/Panel                                      vis=on      children=4
+/Panel[uipanel9]/Panel[OptionsPanel]/Panel/UIControl                            vis=on      px=116x20@128,680       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="50" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/Panel/UIControl                            vis=on      px=116x20@128,711       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="100" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/Panel/UIControl                            vis=on      px=116x20@36,680        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="SNR:" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/Panel/UIControl                            vis=on      px=116x20@36,711        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="# of voxels:" Value=0
+/Panel[uipanel9]/Table[SimRndVaryOptTable]                                      vis=on      px=562x388@267,452      Fo=[0.13 0.13 0.13]                             Data={true,true,true,false,false,false,false,0.5,0.7,6,0,0,3,1.4,0.1,0.27,0.7,0.1,0.8,0.3,0.27,0,0.3,3,0,0,1,0.3,1,3,10,1,8,4,3}
+/Panel[uipanel9]/UIControl[Load]                                                vis=on      px=181x38@40,768        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Load" Value=0
+/Panel[uipanel9]/UIControl[Save]                                                vis=on      px=181x38@40,808        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Save" Value=0
+/Toolbar[FigureToolBar]                                                         vis=on      children=9
+/Toolbar[FigureToolBar]/PushTool[Standard.FileOpen]                             vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.NewFigure]                            vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.OpenInspector]                        vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.PrintFigure]                          vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.SaveFigure]                           vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[Annotation.InsertColorbar]                   vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[Annotation.InsertLegend]                     vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[DataManager.Linking]                         vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[Standard.EditPlot]                           vis=on      px=0x0@0,0                                                              

@@ -1,0 +1,92 @@
+# OptionsGUI  573x835  91 components
+/AnnotationPane[scribeOverlay]                                                  vis=on      px=0x0@0,0                                                              
+/Menu                                                                           vis=on      children=1
+/Menu/Menu[AppearanceMenu]                                                      vis=on      children=3
+/Menu/Menu[AppearanceMenu]/Menu[Appearance_dark]                                vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Dark"
+/Menu/Menu[AppearanceMenu]/Menu[Appearance_light]                               vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Light"
+/Menu/Menu[AppearanceMenu]/Menu[Appearance_system]                              vis=on      px=0x0@0,0              Fo=[0.13 0.13 0.13]                             Text="Match system"
+/Panel[uipanel29]                                                               vis=on      children=1
+/Panel[uipanel29]/GridLayout                                                    vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout                                         vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[FitOptEditPanel]                  vis=off     children=1
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[FitOptEditPanel]/Table[FitOptTable]  vis=on      px=248x159@297,802      Fo=[0.13 0.13 0.13]                             Data={"","","","",false,false,false,false,[],[],[],[],[],[],[],[],[],[],[],[]}
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]                     vis=on      children=1
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout          vis=on      children=3
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout  vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout  vis=on      children=4
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout/Button[Default]  vis=on      px=60x25@426,50         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Default"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout/Button[Helpbutton]  vis=on      px=60x25@490,50         Ba=[0.15 0.55 0.87] Fo=[1 1 1]                  Text="Help"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout/Button[Load]  vis=on      px=60x25@362,50         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Load"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout/Button[Save]  vis=on      px=60x25@298,50         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Save"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout/Label[ParametersFileName]  vis=on      px=198x18@352,26        Fo=[0.13 0.13 0.13]                             Text="Parameters filename"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/GridLayout/Label[textCurrent]  vis=on      px=50x18@298,26         Fo=[0.13 0.13 0.13]                             Text="Current:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]  vis=on      children=1
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout  vis=on      children=4
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout  vis=on      children=5
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/CheckBox  vis=on      px=228x17@310,632       Fo=[0.13 0.13 0.13]                             Text="Magnitude Weighting" Value=false
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/CheckBox  vis=on      px=228x17@310,710       Fo=[0.13 0.13 0.13]                             Text="Sharp Filtering" Value=true
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout  vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout  vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout  vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout/DropDown  vis=on      px=111x23@427,683       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Items={"once","iterative"} Value="once"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout/DropDown  vis=on      px=111x23@427,731       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Items={"forward","backward"} Value="forward"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout/Label  vis=on      px=111x23@310,683       Fo=[0.13 0.13 0.13]                             Text="Sharp Mode:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout/Label  vis=on      px=111x23@310,731       Fo=[0.13 0.13 0.13]                             Text="Derivative Direction:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout/Label  vis=on      px=111x27@310,652       Fo=[0.13 0.13 0.13]                             Text="Padding Size:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/GridLayout/GridLayout/Table  vis=on      px=111x27@427,652       Fo=[0.13 0.13 0.13]                             Data=[9 9 9]
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel  vis=on      children=1
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel  vis=on      children=1
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel  vis=on      children=1
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout  vis=on      children=3
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout  vis=on      children=3
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout  vis=on      children=4
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/CheckBox  vis=on      px=226x17@311,351       Fo=[0.13 0.13 0.13]                             Text="ReOptimize Lambda L2" Value=false
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/CheckBox  vis=on      px=226x17@311,433       Fo=[0.13 0.13 0.13]                             Text="ReOptimize Lambda L1" Value=false
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/CheckBox  vis=on      px=226x17@311,515       Fo=[0.13 0.13 0.13]                             Text="No Regularization" Value=false
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/CheckBox  vis=on      px=226x17@311,536       Fo=[0.13 0.13 0.13]                             Text="L2 Regularized" Value=true
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/CheckBox  vis=on      px=226x17@311,557       Fo=[0.13 0.13 0.13]                             Text="L1 Regularized" Value=true
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/CheckBox  vis=on      px=226x17@311,577       Fo=[0.13 0.13 0.13]                             Text="Split-Bregman" Value=true
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout  vis=off     children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout  vis=off     children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout  vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout  vis=on      children=2
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/EditField  vis=on      px=110x23@427,372       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Value="0.0316228"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/EditField  vis=on      px=110x23@427,454       Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Value="0.000921055"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/Label  vis=off     px=110x27@311,324       Fo=[0.13 0.13 0.13]                             Text="L2 Range:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/Label  vis=off     px=110x27@311,406       Fo=[0.13 0.13 0.13]                             Text="L1 Range:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/Label  vis=on      px=110x23@311,372       Fo=[0.13 0.13 0.13]                             Text="Lambda L2:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/Label  vis=on      px=110x23@311,454       Fo=[0.13 0.13 0.13]                             Text="Lambda L1:"
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/Table  vis=off     px=110x27@427,324       Fo=[0.13 0.13 0.13]                             Data=[-3 0 15]
+/Panel[uipanel29]/GridLayout/GridLayout/Panel[OptionsPanel]/GridLayout/Panel[OptionsHost]/GridLayout/Panel/GridLayout/GridLayout/Table  vis=off     px=110x27@427,406       Fo=[0.13 0.13 0.13]                             Data=[-4 -2.5 15]
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]                               vis=on      children=1
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout                    vis=on      children=3
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel              vis=on      children=1
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel              vis=on      children=1
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel              vis=on      children=1
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout   vis=on      children=2
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout   vis=on      children=2
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout   vis=on      children=2
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout  vis=on      children=6
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout  vis=on      children=6
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout  vis=on      children=6
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,280       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Create"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,306       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Move down"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,31        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Create"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,332       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Remove"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,528       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Create"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,554       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Move down"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,57        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Move down"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,580       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Remove"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@156,83        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Remove"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,280        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Load"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,306        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Move up"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,31         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Load"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,332        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Add"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,528        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Load"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,554        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Move up"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,57         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Move up"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,580        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Add"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/GridLayout/Button  vis=on      px=115x23@37,83         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Add"
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/Table  vis=on      px=234x130@37,110       Fo=[0.13 0.13 0.13]                             Data=[0.6 0.6 0.6]
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/Table  vis=on      px=234x130@37,359       Fo=[0.13 0.13 0.13]                             Data=0.0081
+/Panel[uipanel29]/GridLayout/Panel[ProtEditPanel]/GridLayout/Panel/GridLayout/Table  vis=on      px=234x130@37,607       Fo=[0.13 0.13 0.13]                             Data=[3 42.58]

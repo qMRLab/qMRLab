@@ -168,6 +168,79 @@ classdef tAPI < matlab.unittest.TestCase
                 strjoin(unique(missing), '; ')));
         end
 
+        function theGuideShimIsGone(testCase)
+            % The exit criterion for Stage F1, asserted mechanically because it
+            % is the one property of this work that a behavioural test cannot
+            % see: the app would run perfectly well with the shim still in it.
+            %
+            % convertToGUIDECallbackArguments is MATLAB's GUIDE-to-App-Designer
+            % migration runtime. It builds a `handles` struct keyed by Tag and
+            % wraps every tagged component in a uicontrol-compatibility adapter
+            % that TRANSLATES GUIDE property names -- which is what let
+            % set(uilabel,'String',..) and a numeric dropdown Value keep working
+            % after the migration. Every one of those sites is now native, so
+            % nothing may reintroduce the shim without this failing.
+            %
+            % Scoped to the two uifigure windows and the helpers they call. The
+            % five Sim add-on windows are legacy figures by decision (D4/D10) and
+            % KEEP their handles structs -- guidata is the native idiom there,
+            % not a shim -- so they are deliberately not covered.
+            root = fileparts(which('qMRLab.m'));
+            files = [ ...
+                dir(fullfile(root,'src','Common','GUI','+qmrlab','+gui','*.m'));
+                dir(fullfile(root,'src','Common','GUI','Custom_OptionsGUI.m'));
+                dir(fullfile(root,'src','Common','tools','GUIfun','*.m'));
+                dir(fullfile(root,'src','Common','tools','FileBrowser','*.m'))];
+            testCase.assertGreaterThan(numel(files), 10, ...
+                'Found almost no GUI sources to scan -- the paths above are wrong.');
+
+            % Comments are dropped LINE BY LINE rather than with a multiline
+            % regexprep. The regexprep form is a trap: '(?m)^\s*%.*$' takes
+            % MainApp.m from 85766 characters to 39, because \s matches newlines
+            % and the match runs away across the file. The test then scans an
+            % empty string and can never fail -- measured, with a handles. site
+            % deliberately reintroduced and the test still green.
+            % OptionsRenderer builds and RETURNS a struct it happens to call
+            % `handles`, mirroring what GenerateButtonsWithPanels returns. That
+            % is the options-DSL contract, pinned field-for-field by tDSL across
+            % all 22 models -- not the GUIDE shim, which is a struct handed IN by
+            % convertToGUIDECallbackArguments. The distinction is ownership: this
+            % file constructs its own.
+            ownsItsHandlesStruct = {'OptionsRenderer.m'};
+
+            offenders = {};
+            scanned = 0;
+            for k = 1:numel(files)
+                if any(strcmp(files(k).name, ownsItsHandlesStruct)); continue; end
+                lines = splitlines(string(fileread(fullfile(files(k).folder, files(k).name))));
+                lines = lines(~startsWith(strtrim(lines), "%"));
+                code  = strjoin(lines, newline);
+                scanned = scanned + strlength(code);
+
+                hits = {};
+                if contains(code, 'convertToGUIDECallbackArguments')
+                    hits{end+1} = 'convertToGUIDECallbackArguments'; %#ok<AGROW>
+                end
+                if ~isempty(regexp(code, '(?<![A-Za-z0-9_.])handles\s*\.', 'once'))
+                    hits{end+1} = 'handles.<field>'; %#ok<AGROW>
+                end
+                if ~isempty(hits)
+                    offenders{end+1} = sprintf('%s (%s)', files(k).name, strjoin(hits, ', ')); %#ok<AGROW>
+                end
+            end
+
+            % The denominator, for the same reason tControls carries one.
+            testCase.assertGreaterThan(scanned, 100000, sprintf( ...
+                ['Only %d characters of code were scanned across %d files, so ' ...
+                 'this test is not reading the sources any more.'], scanned, numel(files)));
+
+            testCase.verifyEmpty(offenders, sprintf( ...
+                ['The GUIDE handles shim is back in:\n  %s\n' ...
+                 'Reach components through their app properties and state through ' ...
+                 'app properties, not through a handles struct.'], ...
+                strjoin(offenders, '\n  ')));
+        end
+
         function entryPointIsAFileOnDisk(testCase)
             % mcc -W main:qMRLab, list_models.m:3 (which('qMRLab.m')) and
             % GenerateDocumentation.m:3,81 all pin this exact filename. Deleting it

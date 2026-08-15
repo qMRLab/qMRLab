@@ -536,8 +536,6 @@ classdef MainApp < matlab.apps.AppBase
             % Set light/dark theme
             applyTheme(app);
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app); %#ok<ASGLU>
 
             if max(strcmp(varargin,'wait')), wait=true; varargin(strcmp(varargin,'wait'))=[]; else wait=false; end
             if ~app.Opened % qMRI already opened?
@@ -690,7 +688,7 @@ classdef MainApp < matlab.apps.AppBase
 
             % Wait if output
             if wait
-                uiwait(hObject)
+                uiwait(app.qMRILab)
             end
 
 
@@ -805,8 +803,6 @@ classdef MainApp < matlab.apps.AppBase
         function DefaultMethodBtn_Callback(app, event)
             % SET DEFAULT METHODSELECTION
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             Method = GetMethod(app);
             setappdata(0, 'Method', Method);
@@ -817,8 +813,6 @@ classdef MainApp < matlab.apps.AppBase
         function FitGO_Callback(app, event)
             % FITDATA GO
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             Method = GetMethod(app);
             setappdata(0, 'Method', Method);
@@ -836,8 +830,6 @@ classdef MainApp < matlab.apps.AppBase
         function FitResultsLoad_Callback(app, event)
             % FITRESULTSLOAD
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
 
             [FileName,PathName] = uigetfile({'*FitResults*.mat;*.qmrlab.mat;*.mat'},'FitResults.mat');
@@ -880,8 +872,6 @@ classdef MainApp < matlab.apps.AppBase
         function FitResultsSave_Callback(app, event)
             % FITRESULTSSAVE
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             FitResults = GetAppData(app, 'FitResults');
             [FileName,PathName] = uiputfile('*.mat');
@@ -897,8 +887,6 @@ classdef MainApp < matlab.apps.AppBase
             % the shared version (it rendered no controls on R2023b+), so the inlined
             % copy is gone and there is one implementation again.
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             Map     = app.Tool.getImage;
             Maskall = app.Tool.getMask(1);
@@ -913,8 +901,6 @@ classdef MainApp < matlab.apps.AppBase
 
         % Value changed function: MethodSelection
         function MethodSelection_Callback(app, event)
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             Method = GetMethod(app);
             MethodMenu(app, Method);
@@ -925,8 +911,6 @@ classdef MainApp < matlab.apps.AppBase
         function OpenOptionsPanel_Callback(app, event)
             % OPEN OPTIONS
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             Method = GetAppData(app, 'Method');
             Model = getappdata(0,'Model');
@@ -937,13 +921,11 @@ classdef MainApp < matlab.apps.AppBase
         function SourcePop_Callback(app, event)
             % SOURCE
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             % unselect button to prevent activation with spacebar
-            set(hObject, 'Enable', 'off');
+            app.SourcePop.Enable = 'off';
             drawnow;
-            set(hObject, 'Enable', 'on');
+            app.SourcePop.Enable = 'on';
 
             app.Tool.setNvol(app.SourcePop.Value);
         end
@@ -952,12 +934,10 @@ classdef MainApp < matlab.apps.AppBase
         function Stats_Callback(app, event)
             % STATS Table
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
-            set(hObject, 'Enable', 'off');
+            app.Stats.Enable = 'off';
             drawnow;
-            set(hObject, 'Enable', 'on');
+            app.Stats.Enable = 'on';
 
             I = app.Tool.getImage(1);
             Iraw = app.CurrentData;
@@ -972,13 +952,11 @@ classdef MainApp < matlab.apps.AppBase
 
             % PLOT DATA FIT
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             % unselect button to prevent activation with spacebar
-            set(hObject, 'Enable', 'off');
+            app.ViewDataFit.Enable = 'off';
             drawnow;
-            set(hObject, 'Enable', 'on');
+            app.ViewDataFit.Enable = 'on';
 
             % First check if cursor mode is even enabled
             if isempty(app.DataCursor)
@@ -1030,13 +1008,11 @@ classdef MainApp < matlab.apps.AppBase
         function ViewPop_Callback(app, event)
             % VIEW
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             % unselect button to prevent activation with spacebar
-            set(hObject, 'Enable', 'off');
+            app.ViewPop.Enable = 'off';
             drawnow;
-            set(hObject, 'Enable', 'on');
+            app.ViewPop.Enable = 'on';
 
             UpdateSlice(app)
             View = app.ViewPop.Items;
@@ -1046,13 +1022,11 @@ classdef MainApp < matlab.apps.AppBase
 
         % Button pushed function: ViewROIFit
         function ViewROIFit_Callback(app, event)
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             % unselect button to prevent activation with spacebar
-            set(hObject, 'Enable', 'off');
+            app.ViewROIFit.Enable = 'off';
             drawnow;
-            set(hObject, 'Enable', 'on');
+            app.ViewROIFit.Enable = 'on';
 
             Mask = app.Tool.getMask();
             if isempty(Mask) || ~any(Mask(:))
@@ -1073,13 +1047,11 @@ classdef MainApp < matlab.apps.AppBase
         function Viewer_Callback(app, event)
             % OPEN VIEWER
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
             % unselect button to prevent activation with spacebar
-            set(hObject, 'Enable', 'off');
+            app.Viewer.Enable = 'off';
             drawnow;
-            set(hObject, 'Enable', 'on');
+            app.Viewer.Enable = 'on';
 
             I.img = app.Tool.getImage(1);
             I.label = app.SourcePop.Items;
@@ -1105,12 +1077,10 @@ classdef MainApp < matlab.apps.AppBase
         function qMRLab_CloseRequestFcn(app, event)
             % Executes when user attempts to close qMRLab.
 
-            % Create GUIDE-style callback args - Added by Migration Tool
-            [hObject, eventdata, handles] = convertToGUIDECallbackArguments(app, event); %#ok<ASGLU>
 
-            if isequal(get(hObject, 'waitstatus'), 'waiting')
+            if isequal(get(app.qMRILab, 'waitstatus'), 'waiting')
                 % The GUI is still in UIWAIT, us UIRESUME
-                uiresume(hObject);
+                uiresume(app.qMRILab);
             else
                 AppData = getappdata(0);
                 Fields = fieldnames(AppData);
@@ -1119,7 +1089,7 @@ classdef MainApp < matlab.apps.AppBase
                 end
             end
             % The GUI is no longer waiting, just close it
-            delete(hObject);
+            delete(app.qMRILab);
             h = findobj('Tag','OptionsGUI');
             delete(findobj('Tag','Simu'))
             delete(h);
@@ -1639,10 +1609,12 @@ classdef MainApp < matlab.apps.AppBase
 
             % Create text80_2
             app.text80_2 = uilabel(app.FitResultsPlotPanel);
-            % Was 'text80', colliding with app.text80 above. handles is keyed by
-            % Tag (convertToGUIDECallbackArguments builds it from every tagged
-            % component), so one of the two simply did not exist there, and
-            % findall(fig,'Tag','text80') returned both.
+            % Was 'text80', colliding with app.text80 above. The collision
+            % mattered because the GUIDE shim keyed its handles struct by Tag, so
+            % one of the two simply did not exist there. The shim is gone as of
+            % F1, but the Tag must stay unique regardless:
+            % findall(fig,'Tag','text80') returned both, and the tests and the
+            % wiring audit look components up that way.
             app.text80_2.Tag = 'text80_2';
             app.text80_2.HorizontalAlignment = 'center';
             app.text80_2.VerticalAlignment = 'top';

@@ -1,0 +1,29 @@
+# SimOptProt  857x807  28 components
+/Panel[uipanel12]                                                               vis=on      children=3
+/Panel[uipanel12]/AnnotationPane[scribeOverlay]                                 vis=on      px=0x0@0,0                                                              
+/Panel[uipanel12]/Axes[SimCurveAxe]                                             vis=on      px=712x444@81,75        Co=[1 1 1]                                      Title=<matlab.graphics.primitive.Text>
+/Panel[uipanel12]/UIControl[SimOptProtUpdate]                                   vis=on      px=139x26@674,500       Ba=[0.15 0.55 0.87] Fo=[1 1 1]                  Text="Update" Value=0
+/Panel[uipanel9]                                                                vis=on      children=4
+/Panel[uipanel9]/Panel[OptionsPanel]                                            vis=on      children=8
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@122,642        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="0.08" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@122,666        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="100" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@122,690        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="100" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@122,715        Ba=[1 1 1] Fo=[0.13 0.13 0.13]                  Text="30" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@44,642         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Gmax:" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@44,666         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="# of migrations:" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@44,690         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Population size:" Value=0
+/Panel[uipanel9]/Panel[OptionsPanel]/UIControl                                  vis=on      px=78x18@44,715         Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="# of volumes:" Value=0
+/Panel[uipanel9]/Table[ParamTable]                                              vis=on      px=581x179@233,578      Fo=[0.13 0.13 0.13]                             Data={0.5,0.7,6,0,0,3,1.4}
+/Panel[uipanel9]/UIControl[Save]                                                vis=on      px=129x26@39,757        Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Save" Value=0
+/Panel[uipanel9]/UIControl[text19]                                              vis=on      px=421x17@233,760       Ba=[0.96 0.96 0.96] Fo=[0.13 0.13 0.13]         Text="Tissue parameters assumed for the optimization:" Value=0
+/Toolbar[FigureToolBar]                                                         vis=on      children=10
+/Toolbar[FigureToolBar]/PushTool[Standard.FileOpen]                             vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.NewFigure]                            vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.OpenInspector]                        vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.PrintFigure]                          vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[Standard.SaveFigure]                           vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/PushTool[helpbutton]                                    vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[Annotation.InsertColorbar]                   vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[Annotation.InsertLegend]                     vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[DataManager.Linking]                         vis=on      px=0x0@0,0                                                              
+/Toolbar[FigureToolBar]/ToggleTool[Standard.EditPlot]                           vis=on      px=0x0@0,0                                                              
