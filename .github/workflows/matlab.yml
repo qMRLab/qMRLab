@@ -199,10 +199,18 @@ jobs:
       # Only from the pinned release. `latest` runs the same suite over the same
       # source, so a second upload adds nothing and would make a red canary look
       # like a coverage change.
+      #
+      # Uploaded under the `matlab` flag, deliberately, and NOT a separate `gui`
+      # one. codecov.yml computes its project status per flag, so a `gui` flag
+      # produced a report nothing gated on: GUI coverage could go to zero and no
+      # status would move. Codecov merges uploads sharing a flag, and the merge is
+      # exactly right here -- the model-fitting jobs upload with '*GUI*' excluded
+      # (they never run the interface, see ADR D10), this job uploads the
+      # interface, and the union is the real picture.
       - name: Upload GUI coverage to Codecov
         if: matrix.release == 'R2026a'
         uses: codecov/codecov-action@v4
         with:
           files: Test/GUI/coverage_gui.xml
-          flags: gui
+          flags: matlab
           fail_ci_if_error: false
