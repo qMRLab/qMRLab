@@ -28,10 +28,37 @@ classdef OptionsWindow < matlab.apps.AppBase
     end
 
     properties (Constant, Access = private)
-        % The protocol table's height. Enough for a header plus ~4 rows, which
-        % covers every shipped model's default protocol; longer ones scroll inside
-        % the table rather than making the panel grow without bound.
-        TABLEHEIGHT = 130
+        % Protocol table geometry, measured on R2026b by putting a uitable in a
+        % 'fit' row and reading its height back: 2 rows -> 77 px, 3 -> 100,
+        % 5 -> 147, 10 -> 263. That is 23.2 px per row over ~31 px of chrome
+        % (header plus border). Rounded up so a fractional row never clips.
+        TABLEROW    = 24
+        TABLECHROME = 32
+        % Floor and ceiling in ROWS, not pixels. The floor stops a one-row
+        % protocol collapsing to a sliver; the ceiling stops a long one taking
+        % over the column -- dti's DiffusionData has 109 rows and charmed's has
+        % 1791, and a table sized to those would be the whole window.
+        TABLEMINROWS = 3
+        TABLEMAXROWS = 12
+    end
+
+    methods (Static, Access = private)
+        function h = tableHeightFor(nRows)
+            % Pixel height for a protocol table of nRows rows.
+            %
+            % Replaces a flat 130 px, which showed about four rows:
+            % inversion_recovery has 9 TIs and qmt_spgr's MTdata has 10, so those
+            % tables sat squashed against their buttons with the rest behind an
+            % internal scrollbar. ProtEditGrid is Scrollable precisely so a taller
+            % panel may push the column past the window.
+            C = qmrlab.gui.OptionsWindow;
+            n = min(max(nRows, C.TABLEMINROWS), C.TABLEMAXROWS);
+            % Rows grow with the text-size preference, so the estimate must too --
+            % the same reason MethodBrowser.heightFor scales.
+            g = 1;
+            try, g = qmrlab.gui.TypeScale.geomFactor(); catch, end
+            h = (C.TABLECHROME + n * C.TABLEROW) * g;
+        end
     end
 
     properties (Access = private)
@@ -608,11 +635,12 @@ classdef OptionsWindow < matlab.apps.AppBase
                     % the other end: it goes NEGATIVE at N >= 13. No shipped model has
                     % that many protocol fields, so it was latent rather than visible.
                     pg = uigridlayout(app.ProtPanels.(fields{ii}).panel, [2 1]);
-                    % A fixed table height, not '1x'. With 'fit' rows above, '1x' has
-                    % nothing to divide and the table collapsed to zero -- which is
-                    % exactly what mp2rage's five panels did. The table scrolls
-                    % internally past this many rows.
-                    pg.RowHeight   = {qmrlab.gui.OptionsWindow.TABLEHEIGHT, 'fit'};
+                    % A fixed table height, not '1x'. With 'fit' rows above, '1x'
+                    % has nothing to divide and the table collapsed to zero --
+                    % exactly what mp2rage's five panels did. Fixed, but sized to
+                    % the protocol rather than one number for all of them.
+                    pg.RowHeight   = {qmrlab.gui.OptionsWindow.tableHeightFor( ...
+                                        size(app.Model.Prot.(fields{ii}).Mat,1)), 'fit'};
                     pg.ColumnWidth = {'1x'};
                     pg.Padding     = [6 6 6 6];
                     pg.RowSpacing  = 4;
