@@ -29,6 +29,8 @@ classdef MainApp < matlab.apps.AppBase
         FitResultsSave           matlab.ui.control.Button
         FitResultsLoad           matlab.ui.control.Button
         SimPanel                 matlab.ui.container.Panel
+        Splash                                            % loading window, torn down by reveal()
+        SplashDialog                                      % its uiprogressdlg
         SimGO                    matlab.ui.control.Button
         SimLoad                  matlab.ui.control.Button
         SimSave                  matlab.ui.control.Button
@@ -563,6 +565,10 @@ classdef MainApp < matlab.apps.AppBase
             % Ensure that the app appears on screen when run
             movegui(app.qMRILab, 'onscreen');
 
+            % The window is hidden until it is filled; give the user something to
+            % look at for the ~8 s that takes.
+            showSplash(app);
+
             % Set light/dark theme
             applyTheme(app);
 
@@ -578,7 +584,8 @@ classdef MainApp < matlab.apps.AppBase
 
                 % Do not let this break anything if things go wrong.
                 try
-                    GUI_animation;
+                    GUI_animation(false);   % the banner, without ~2 s of pauses
+                                            % holding the window back
                     cur_ver = qMRLabVer;
                 catch
                     cur_ver = qMRLabVer;
@@ -720,8 +727,10 @@ classdef MainApp < matlab.apps.AppBase
 
             MethodMenu(app, hObject, eventdata, handles, Method);
 
-            % Wait if output
+            % Wait if output. Reveal FIRST: uiwait on a hidden window blocks on
+            % something the user cannot see or close.
             if wait
+                reveal(app);
                 uiwait(hObject)
             end
 
@@ -750,7 +759,58 @@ classdef MainApp < matlab.apps.AppBase
             qmrlab.gui.TypeScale.adopt(app.qMRILab, @() app.applyTypeGeometry());
             qmrlab.gui.TypeScale.attachMenu(app.qMRILab);
 
+            % Last, because adopt() above is what themes and scales the window --
+            % revealing before it shows a flash of the unthemed, unscaled build.
+            reveal(app);
+
             warning('on','all');
+        end
+
+        function reveal(app)
+        %REVEAL  Show the finished window and dismiss the loading indicator.
+        %   Idempotent: the modal path calls it before uiwait, and the tail of the
+        %   opening function calls it again.
+            if isgraphics(app.qMRILab)
+                app.qMRILab.Visible = 'on';
+            end
+            dismissSplash(app);
+            drawnow;
+        end
+
+        function showSplash(app)
+        %SHOWSPLASH  Something to look at while the window is built.
+        %
+        %   Its own small uifigure, because uiprogressdlg needs a VISIBLE parent
+        %   and the main window is deliberately not one yet.
+            try
+                app.Splash = uifigure('Name', 'qMRLab', 'Position', [0 0 380 110], ...
+                    'Resize', 'off', 'MenuBar', 'none', 'HandleVisibility', 'off');
+                movegui(app.Splash, 'center');
+                qmrlab.gui.Theme.adopt(app.Splash);
+                app.SplashDialog = uiprogressdlg(app.Splash, 'Title', 'qMRLab', ...
+                    'Message', 'Loading...', 'Indeterminate', 'on', 'Cancelable', 'off');
+                drawnow;
+            catch
+                % A splash is a courtesy. Never let it stop the app opening.
+                app.Splash = gobjects(0);
+            end
+        end
+
+        function dismissSplash(app)
+            try
+                if ~isempty(app.SplashDialog) && isvalid(app.SplashDialog)
+                    close(app.SplashDialog);
+                end
+            catch
+            end
+            try
+                if ~isempty(app.Splash) && isgraphics(app.Splash)
+                    delete(app.Splash);
+                end
+            catch
+            end
+            app.Splash       = gobjects(0);
+            app.SplashDialog = [];
         end
 
         % Value changed function: CursorBtn
@@ -1871,8 +1931,13 @@ classdef MainApp < matlab.apps.AppBase
             % Re-home the fixed-position components into a responsive grid.
             applyResponsiveLayout(app);
 
-            % Show the figure after all components are created
-            app.qMRILab.Visible = 'on';
+            % Deliberately NOT made visible here. The components exist at this
+            % point but nothing in them is filled: qMRLab_OpeningFcn still has ~8 s
+            % of work to do (the model, the file browser, imtool3D, the options
+            % window), and showing the shell now is what put an empty template on
+            % screen for the whole of it -- skeleton buttons and all, which are
+            % positioned for a 252 px panel the grid gives 270 px. reveal() shows
+            % it once it is worth looking at.
         end
     end
 

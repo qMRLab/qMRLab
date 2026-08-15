@@ -1,4 +1,15 @@
-function GUI_animation
+function GUI_animation(animate)
+%GUI_ANIMATION  Print the qMRLab banner, optionally without the theatre.
+%
+%   GUI_animation()        as always: ~2 s of pauses between lines
+%   GUI_animation(false)   the same banner, printed at once
+%
+%   The pauses are the point when a human is watching a script start. They are
+%   NOT the point when the GUI is launching: this runs inside qMRLab's opening
+%   function, so every one of them is time the main window spends unbuilt. The
+%   GUI passes false; everything else keeps the animation.
+    if nargin < 1 || isempty(animate); animate = true; end
+    naptime = @(s) pauseIf(animate, s);
 
 clc;
 
@@ -53,12 +64,12 @@ txt =[...
    
 
 try
-for ii = 1:length(umbrlla); pause(0.02); cprintf('red','%s',umbrlla{ii}); end
+for ii = 1:length(umbrlla); naptime(0.02); cprintf('red','%s',umbrlla{ii}); end
 catch
-for ii = 1:length(umbrlla); pause(0.02); disp(umbrlla{ii}); end
+for ii = 1:length(umbrlla); naptime(0.02); disp(umbrlla{ii}); end
     
 end
-pause(0.8);
+naptime(0.8);
 clc;
 
 for ii = 1:length(txt)
@@ -67,7 +78,7 @@ for ii = 1:length(txt)
      if ii>9
      hrzntl(txt{ii})    
      else
-     pause(0.05); 
+     naptime(0.05); 
      disp(txt{ii})    
      end
 end
@@ -83,7 +94,7 @@ fprintf('%s\n',' ');
 for ii=1:length(inp)
 
     if mod(ii,5)==0
-        pause(0.001);
+        naptime(0.001);
     end
     
     fprintf('%s',inp(ii));
@@ -91,8 +102,7 @@ for ii=1:length(inp)
 end
 
 end
-    
 
-
-
-
+function pauseIf(animate, seconds)
+    if animate; pause(seconds); end
+end
