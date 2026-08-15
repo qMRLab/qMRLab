@@ -29,12 +29,7 @@ classdef MainApp < matlab.apps.AppBase
         FitResultsSave           matlab.ui.control.Button
         FitResultsLoad           matlab.ui.control.Button
         SimPanel                 matlab.ui.container.Panel
-        SimGO                    matlab.ui.control.Button
-        SimLoad                  matlab.ui.control.Button
-        SimSave                  matlab.ui.control.Button
-        SimRndBtn                matlab.ui.control.Button
-        SimVaryBtn               matlab.ui.control.Button
-        SimCurveBtn              matlab.ui.control.Button
+        SimSkeletonLogo          matlab.ui.control.Label
         FitDataPanel             matlab.ui.container.Panel
         text_doc_model           matlab.ui.control.Label
         CurrentFitId             matlab.ui.control.Label
@@ -113,7 +108,11 @@ classdef MainApp < matlab.apps.AppBase
                     asset = 'logo_dark.png';
                 end
             end
-            if isprop(app, 'Image') && ~isempty(app.Image) && isvalid(app.Image)
+            % Both wordmarks: the sidebar's, and the one standing in for the
+            % Simulation tools panel until a model fills it. The skeleton one is
+            % deleted by MethodMenu, so it is usually absent -- hence isvalid
+            % rather than an assumption.
+            if ~isempty(app.Image) && isvalid(app.Image)
                 app.Image.ImageSource = fullfile(root, asset);
             end
         end
@@ -1756,55 +1755,33 @@ classdef MainApp < matlab.apps.AppBase
             app.SimPanel.FontSize = 16;
             app.SimPanel.Position = [15 64 252 351];
 
-            % Create SimCurveBtn
-            app.SimCurveBtn = uibutton(app.SimPanel, 'push');
-            app.SimCurveBtn.Tag = 'SimCurveBtn';
-            app.SimCurveBtn.FontSize = 13.3333333333333;
-            app.SimCurveBtn.FontWeight = 'bold';
-            app.SimCurveBtn.Position = [13 265 227 43];
-            app.SimCurveBtn.Text = 'Single Voxel Curve';
-
-            % Create SimVaryBtn
-            app.SimVaryBtn = uibutton(app.SimPanel, 'push');
-            app.SimVaryBtn.Tag = 'SimVaryBtn';
-            app.SimVaryBtn.FontSize = 13.3333333333333;
-            app.SimVaryBtn.FontWeight = 'bold';
-            app.SimVaryBtn.Position = [13 213 227 43];
-            app.SimVaryBtn.Text = 'Sensitivity Analysis';
-
-            % Create SimRndBtn
-            app.SimRndBtn = uibutton(app.SimPanel, 'push');
-            app.SimRndBtn.Tag = 'SimRndBtn';
-            app.SimRndBtn.FontSize = 13.3333333333333;
-            app.SimRndBtn.FontWeight = 'bold';
-            app.SimRndBtn.Position = [13 161 227 43];
-            app.SimRndBtn.Text = 'Multi Voxel Distribution';
-
-            % Create SimSave
-            app.SimSave = uibutton(app.SimPanel, 'push');
-            app.SimSave.Tag = 'SimSave';
-            app.SimSave.FontSize = 13.3333333333333;
-            app.SimSave.FontWeight = 'bold';
-            app.SimSave.Position = [13 6 109 38];
-            app.SimSave.Text = 'Save Results';
-
-            % Create SimLoad
-            app.SimLoad = uibutton(app.SimPanel, 'push');
-            app.SimLoad.Tag = 'SimLoad';
-            app.SimLoad.FontSize = 13.3333333333333;
-            app.SimLoad.FontWeight = 'bold';
-            app.SimLoad.Position = [132 6 108 38];
-            app.SimLoad.Text = 'Load Results';
-
-            % Create SimGO
-            app.SimGO = uibutton(app.SimPanel, 'push');
-            app.SimGO.Tag = 'SimGO';
-            qmrlab.gui.Theme.paint(app.SimGO, 'BackgroundColor', 'warning');
-            qmrlab.gui.Theme.paint(app.SimGO, 'FontColor', 'onTheAccent');
-            app.SimGO.FontSize = 18.6666666666666;
-            app.SimGO.FontWeight = 'bold';
-            app.SimGO.Position = [13 55 227 86];
-            app.SimGO.Text = 'Simulate data';
+            % The Simulation tools panel holds the qMRLab wordmark until a model
+            % says what belongs there.
+            %
+            % It used to hold six buttons -- Single Voxel Curve, Sensitivity
+            % Analysis, Multi Voxel Distribution, Simulate data, Save Results,
+            % Load Results -- carried over from the .fig. Every one of them was
+            % dead: no callback, no reference outside this function, and deleted
+            % outright by MethodMenu's
+            %     delete(setdiff(findobj(app.SimPanel),app.SimPanel))
+            % as soon as a model loaded, which then built the real buttons from the
+            % model's Sim_ methods. So for the ~8 s the opening function takes, the
+            % user was shown six controls that did nothing and were about to
+            % vanish -- and they were the ones sitting off-centre, positioned
+            % [13 .. 227 ..] for the 252 px panel the .fig had rather than the
+            % 270 px the grid gives.
+            %
+            % The wordmark needs no teardown: MethodMenu's delete above already
+            % removes whatever is in the panel.
+            % A muted line, not the wordmark: that already sits at the top of the
+            % sidebar and a second copy just reads as a duplicate.
+            app.SimSkeletonLogo = uilabel(app.SimPanel);
+            app.SimSkeletonLogo.Tag = 'SimSkeletonLogo';
+            app.SimSkeletonLogo.Text = 'Loading...';
+            app.SimSkeletonLogo.HorizontalAlignment = 'center';
+            app.SimSkeletonLogo.FontSize = 13.3333333333333;
+            qmrlab.gui.Theme.paint(app.SimSkeletonLogo, 'FontColor', 'muted');
+            app.SimSkeletonLogo.Position = [13 120 227 24];
 
             % Create uipanel37
             app.uipanel37 = uipanel(app.qMRILab);
