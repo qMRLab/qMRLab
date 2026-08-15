@@ -234,9 +234,21 @@ classdef tSimWindows < matlab.unittest.TestCase
                 'The packing preset list is empty; nothing can be loaded.');
             testCase.verifyNotEmpty(h.tableVolumes.Data, ...
                 'The volume fractions table is empty.');
-            testCase.verifyGreaterThanOrEqual( ...
-                numel(findall(fig, '-isa', 'matlab.graphics.axis.Axes')), 3, ...
+            axes = findall(fig, '-isa', 'matlab.graphics.axis.Axes');
+            testCase.verifyGreaterThanOrEqual(numel(axes), 3, ...
                 'Monte Carlo draws the packing and the distribution; both axes must exist.');
+
+            % Existing is not the same as DRAWN INTO, and the difference is a real
+            % failure this test did not catch the first time: with the window at
+            % HandleVisibility='callback', axes(h) does not take from outside a
+            % callback, so axons_setup and plotPacking opened their own Figure 1
+            % and drew there. Both panel axes were present, empty, and silent.
+            drawn = arrayfun(@(a) numel(allchild(a)), axes);
+            testCase.verifyGreaterThanOrEqual(sum(drawn > 0), 2, sprintf( ...
+                ['The packing plots are empty: the three axes hold %s children. ' ...
+                 'Check that nothing spilled into a separate figure.'], mat2str(drawn(:)')));
+            testCase.verifyNumElements(findall(groot, 'Type', 'figure'), 1, ...
+                'Opening Monte Carlo left a stray figure behind.');
         end
 
         function theOptionControlsMatchTheDslTheModelDeclares(testCase)
