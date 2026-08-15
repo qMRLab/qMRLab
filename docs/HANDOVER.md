@@ -294,8 +294,11 @@ numbers, and omitting it silently numbers them.
 - **Capture goldens before an appearance change, not after.**
   `Test/GUI/captureGoldens.m` for the main and options windows,
   `captureSimGoldens.m` for the Sim windows; both write a PNG *and* a diffable
-  inventory via `captureFigure.m`. Evidence is in `Test/GUI/evidence/`, including
-  `before_F2/` and `after_F2/`.
+  inventory via `captureFigure.m`. They land in `Test/GUI/evidence/`, which is
+  **gitignored** — they are a before/after pair you compare while making a change,
+  nothing reads them, and as commits they are 22 MB of review noise whose pixels
+  shift with the machine that rendered them. Capture your own baseline before you
+  start; do not expect to find one in the tree.
 - Guard Python slice-rewrites: assert the anchor matches exactly once before
   replacing. An empty slice once turned `str.replace` into "insert between every
   character" and destroyed `OptionsWindow.m`.

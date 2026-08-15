@@ -77,3 +77,15 @@ mismatchOM
 Test/GUI/triage/
 Test/GUI/b2/
 Test/GUI/shots/
+
+# Golden screenshots and component inventories. Regenerate with
+#   startup; addpath('Test/GUI'); captureGoldens('Test/GUI/evidence/before_X')
+#   startup; addpath('Test/GUI'); captureSimGoldens('Test/GUI/evidence/before_X')
+# then diff the .txt files against an 'after_X' run.
+#
+# Not tracked: nothing reads them, they are a BEFORE/AFTER pair a human compares
+# while making a change, and they are ~22 MB of PNGs whose pixels shift with the
+# machine that rendered them -- a 1 px jitter on one Sim control is reproducible
+# here by capturing the same tree twice. As commits they are noise in review and
+# a permanent weight in the history.
+Test/GUI/evidence/
