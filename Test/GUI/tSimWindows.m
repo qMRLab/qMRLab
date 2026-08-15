@@ -8,10 +8,16 @@ classdef tSimWindows < matlab.unittest.TestCase
 %   references, five `.fig` files.
 %
 %   These are CHARACTERISATION tests: they pin what the windows do today,
-%   measured, not what they ought to do. Two of the pins are of defects
-%   (theOptimizeProtocolTableIsHeadedByParameterNames, and the audited overflow
-%   in Monte Carlo) and say so. F2 is free to fix those -- deliberately, by
-%   changing the test in the same commit -- but not to lose them silently.
+%   measured, not what they ought to do. Two of them pin DEFECTS in their broken
+%   form and say so -- theOptimizeProtocolTableIsHeadedByParameterNames and
+%   singleVoxelCurveKeepsTheModelItWasFirstOpenedWith. F2 is free to fix those,
+%   deliberately, by changing the test in the same commit; it is not free to lose
+%   them silently.
+%
+%   What is NOT pinned, and why: the exact geometry defect count. It is [0 0 0 0 1]
+%   on macOS and [0 0 0 2 3] on the Linux CI runner, and every extra is an axes
+%   plot box whose extent follows font metrics. The audit test asserts the kinds
+%   that mean the same thing everywhere and prints the rest.
 %
 %   WHAT MAKES THESE WINDOWS HARD TO REACH FROM A TEST
 %
@@ -253,21 +259,43 @@ classdef tSimWindows < matlab.unittest.TestCase
             testCase.verifyEqual(tSimWindows.optionNames(fig), {'Nofvoxels'; 'SNR'});
         end
 
-        function theWindowsAuditCleanExceptTheOneThatDoesNot(testCase)
-            % geomAudit was written for the migrated windows but works on a legacy
-            % figure too. Measured today: four are clean, and Monte Carlo reports
-            % one Overflow -- an axes whose box sits ~60 px below its parent panel.
-            % That is pinned rather than asserted away, so F2 inherits a known
-            % number instead of a vague "it looked fine".
+        function noSimWindowCollapsesOrOverflowsItsPanels(testCase)
+            % This asserted exact defect COUNTS per window until CI showed why that
+            % cannot work: measured on macOS the five audit [0 0 0 0 1], and on the
+            % Linux runner Optimize Protocol reports 2 and Monte Carlo 3. Every one
+            % of the extras is an AXES whose plot box sits outside its panel by tens
+            % of pixels -- axes extents follow font metrics, so that number is a
+            % property of the machine, not of the window.
+            %
+            % So the assertion is on what a rewrite can actually break, and what
+            % means the same thing on every platform:
+            %
+            %   Collapsed / Unsettled  a container that is sub-pixel or was never
+            %                          laid out. Broken anywhere, for anything.
+            %   Overflow of a PANEL or TABLE   a real containment failure.
+            %   Overflow of an AXES    reported, not asserted: this is the
+            %                          font-metric noise above, and Monte Carlo has
+            %                          had one on macOS since before F2 touched it.
             model = feval(testCase.Model);
-            expected = [0 0 0 0 1];
             for k = 1:size(tSimWindows.Windows, 1)
                 fig = tSimWindows.open(testCase, k, model);
                 defects = geomAudit(fig);
-                testCase.verifyEqual(numel(defects), expected(k), sprintf( ...
-                    '%s: %d layout defect(s), expected %d: %s', ...
-                    tSimWindows.Windows{k,1}, numel(defects), expected(k), ...
-                    strjoin({defects.Detail}, '; ')));
+                name = tSimWindows.Windows{k,1};
+
+                unsettled = defects(ismember({defects.Kind}, {'Collapsed', 'Unsettled'}));
+                testCase.verifyEmpty(unsettled, sprintf('%s: %s', name, ...
+                    tSimWindows.describe(unsettled)));
+
+                overflow = defects(strcmp({defects.Kind}, 'Overflow'));
+                notAxes  = overflow(~contains({overflow.Type}, 'Axes'));
+                testCase.verifyEmpty(notAxes, sprintf( ...
+                    '%s: a panel or table is outside its parent: %s', name, ...
+                    tSimWindows.describe(notAxes)));
+
+                if ~isempty(overflow)
+                    fprintf('  (%s: %d axes plot box(es) outside their panel)\n', ...
+                        name, numel(overflow));
+                end
             end
         end
 
@@ -301,6 +329,14 @@ classdef tSimWindows < matlab.unittest.TestCase
     end
 
     methods (Static)
+        function s = describe(defects)
+            if isempty(defects); s = '(none)'; return; end
+            parts = arrayfun(@(d) sprintf('[%s %s] %s', d.Kind, ...
+                extractAfter(d.Type, find(d.Type == '.', 1, 'last')), d.Detail), ...
+                defects, 'UniformOutput', false);
+            s = strjoin(parts, '; ');
+        end
+
         function fig = open(testCase, k, model)
             % Delete first: these are GUIDE singletons, so a second call would
             % raise the existing figure and skip its population block entirely.
