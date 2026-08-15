@@ -310,15 +310,17 @@ classdef tSimWindows < matlab.unittest.TestCase
             end
         end
 
-        function singleVoxelCurveKeepsTheModelItWasFirstOpenedWith(testCase)
-            % PINS A DEFECT, and a live one. Sim_Single_Voxel_Curve_GUI.m:55-57
-            % assigns handles.Model INSIDE the `~isfield(handles,'opened')` guard;
-            % the other four assign it outside. Because MethodMenu does not tear
-            % the Sim windows down on a model switch, opening this window on one
-            % model and then another leaves it simulating the FIRST model.
+        function singleVoxelCurveAdoptsTheModelItIsOpenedWith(testCase)
+            % This pinned a DEFECT until F2 rebuilt the window, and the fix is why
+            % the assertion is now the other way round.
             %
-            % Asserted in its broken form on purpose: F2 should fix it, and this
-            % test failing is how F2 will know it did.
+            % Sim_Single_Voxel_Curve_GUI.m:55-57 used to assign handles.Model
+            % INSIDE the `~isfield(handles,'opened')` guard, unlike the other four
+            % windows. MethodMenu does not tear the Sim windows down when the
+            % method changes, so opening this window on one model and then on
+            % another left it simulating the FIRST -- silently, with the new
+            % model's name in the main window. The rebuild re-points the window on
+            % every open.
             first = feval(testCase.Model);
             fig = tSimWindows.open(testCase, 1, first);
             testCase.assertClass(guidata(fig).Model, testCase.Model);
@@ -332,9 +334,11 @@ classdef tSimWindows < matlab.unittest.TestCase
 
             fig = findall(groot, 'Type', 'figure', 'Name', 'Single Voxel Curve');
             testCase.assertNotEmpty(fig);
-            testCase.verifyClass(guidata(fig(1)).Model, testCase.Model, ...
-                ['This window now adopts the new model. That is the RIGHT ' ...
-                 'behaviour and the fix is welcome -- update this test.']);
+            handles = guidata(fig(1));
+            testCase.verifyClass(handles.Model, 'mono_t2', ...
+                'The window is still holding the model it was first opened with.');
+            testCase.verifyEqual(handles.ParamTable.Data(:,1), other.xnames(:), ...
+                'The parameter table still lists the previous model''s parameters.');
         end
 
     end
