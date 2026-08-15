@@ -55,7 +55,8 @@ ordinary `uifigure` calls.
 
 ### D3 — `qMRLab.m` remains a real function file
 
-It stays as a ~35-line shim: Octave guard, the `nargout` modal contract, `varargout`
+It stays as a 65-line shim (15 of them code): Octave guard, the `nargout` modal
+contract, `varargout`
 model return, mcc entry point. Three things pin the filename:
 
 - `Deploy/Compile/qMRLab_make_standalone.m` → `mcc -W main:qMRLab`
