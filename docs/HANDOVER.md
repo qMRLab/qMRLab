@@ -9,9 +9,8 @@ Read this, then `docs/adr/0001-gui-migration.md` (decisions D1–D9a), then the 
 Branch `mb/migrate-v2`, **pushed**, 37 commits ahead of master. `Test/GUI`: **62/62**
 on R2026b (46 at the start of the session).
 
-Done: Stages A, B, C, D1–D4, E1–E4, and the **F2 gate** — the five Sim windows now
-have tests and captured evidence, which they did not before.
-Not done: the **F2 rewrite itself**, F3, F1, then the merge and the tagged release.
+Done: Stages A, B, C, D1–D4, E1–E4, the F2 gate, and **four of F2's five windows**.
+Not done: **Monte Carlo** (the fifth), F3, F1, then the merge and the tagged release.
 
 The app is still a hybrid: a modern, gridded, themed main window and Options window,
 and five GUIDE Sim add-on windows behind them.
@@ -45,63 +44,83 @@ first.
 
 ## What is left, in the order to do it
 
-### 1. F2 — the five Sim windows  ← the gate is now in place, start here
+### 1. F2 — four of five done; Monte Carlo is left
 
-| file (under `src/Addons/`) | lines | `handles.` | `guidata` |
-|---|---|---|---|
-| `SimMonteCarlo_Diffusion/Sim_MonteCarlo_Diffusion_GUI.m` | 307 | 61 | 3 |
-| `SimVary/Sim_Sensitivity_Analysis_GUI.m` | 285 | 63 | 3 |
-| `SimRnd/Sim_Multi_Voxel_Distribution_GUI.m` | 240 | 92 | 4 |
-| `SimProtocolOpt/Sim_Optimize_Protocol_GUI.m` | 171 | 37 | 2 |
-| `SingleVoxel/Sim_Single_Voxel_Curve_GUI.m` | 168 | 46 | 1 |
+| file (under `src/Addons/`) | state |
+|---|---|
+| `SingleVoxel/Sim_Single_Voxel_Curve_GUI.m` | **rebuilt**, `.fig` deleted |
+| `SimProtocolOpt/Sim_Optimize_Protocol_GUI.m` | **rebuilt**, `.fig` deleted |
+| `SimRnd/Sim_Multi_Voxel_Distribution_GUI.m` | **rebuilt**, `.fig` deleted |
+| `SimVary/Sim_Sensitivity_Analysis_GUI.m` | **rebuilt**, `.fig` deleted |
+| `SimMonteCarlo_Diffusion/Sim_MonteCarlo_Diffusion_GUI.m` | **not started** (307 lines, 61 `handles.`) |
 
-**Rebuild as programmatic *legacy* `figure`s — NOT App Designer.** Decided, not open:
-they embed plain `axes` and call `axes(handles.SimCurveAxe)` before
-`Model.plotModel(...)`, and `plotModel` takes no axes handle across 61 `subplot` and
-23 `gca` sites in 22 model classes. `axes(h)` and `subplot` do not work in a
-`uifigure`.
+**The shape each rebuild takes**, established across the four and worth copying:
 
-**Read each `.fig` without instantiating it** — loading one runs its `CreateFcn`s:
-
-```matlab
-s = load('src/Addons/SingleVoxel/Sim_Single_Voxel_Curve_GUI.fig', '-mat');
-s.hgS_070000.children(1).properties      % type / properties / children, recursively
+```
+function varargout = X_GUI(Model)      % Model optional; falls back to appdata
+    fig = findall(groot,'Type','figure','Tag','Simu','Name',NAME);
+    if isempty(fig), fig = buildWindow(NAME); else, fig = fig(1); figure(fig); end
+    showModel(fig, Model);             % runs on EVERY open, not once
 ```
 
-**The contract the rewrite must preserve** (all verified this session):
-- `Tag='Simu'` on the figure. `MainApp.m:1164` tears these down by that tag.
-- The figure `Name` — it is the only thing telling the five apart, and three are
-  named after their `.fig` (`SimOptProt`, `SimMCdiff`, `Multi Voxel Distribution`).
-- `HandleVisibility='callback'`, unless you change it deliberately and update
-  `tSimWindows/theWindowsAreInvisibleToFindobj`.
-- Every `handles.*` field name, **including `handles.Simu`** — `SimVary` uses it for
-  `printdlg` and its close dialog (`Sim_Sensitivity_Analysis_GUI.m:147,154-161`).
-- Nothing to preserve on the GUIDE dispatch side: **no caller anywhere uses the
-  `('CALLBACK', hObject, ...)` string form** (grepped across `src/` and `Test/`), so
-  `gui_State`, `gui_mainfcn` and the `gui_Callback` branch can all go.
+`buildWindow` creates the components with the `.fig`'s own geometry; `showModel`
+fills them from the model and rebuilds the options panel. Splitting it that way is
+what fixed the stale-model defect: GUIDE did all of it once, behind
+`~isfield(handles,'opened')`.
 
-**Two defects `tSimWindows` pins in their broken form.** Both are asserted as they
-behave today so the rewrite has to change them *deliberately*, in the same commit as
-the test:
-- `Sim_Single_Voxel_Curve_GUI.m:55-57` assigns `handles.Model` **inside** the
-  `~isfield(handles,'opened')` guard, unlike the other four. Since `MethodMenu` does
-  not tear these windows down on a model switch, the window keeps simulating the model
-  it was **first** opened with.
-- Monte Carlo audits **one Overflow**: an axes whose box sits ~60 px below its parent.
-- **Optimize Protocol's `ParamTable` overflows the top of its panel by ~15 px on
-  Linux** and not on macOS — so on the CI runner that table is clipped. Allowed by
-  name in `tSimWindows/noSimWindowCollapsesOrOverflowsItsPanels`; delete that
-  allowance when F2 rebuilds the window. Geometry counts differ by platform
-  generally: [0 0 0 0 1] on macOS, [0 0 0 2 3] on Linux.
+Read a `.fig` without instantiating it (loading one runs its `CreateFcn`s):
 
-**One thing worth fixing while you are in there:** all five `.fig`s set the figure
-`Color` to `[0.251 0.251 0.251]`, a hard-coded dark grey a legacy figure will never
-theme. Look at `evidence/before_F2/charmed_SingleVoxelCurve.png` — it shows through as
-dark gaps between light panels. Route it through `qmrlabUIColor`, the arrangement the
-other vendored code already uses.
+```matlab
+s = load('src/Addons/.../X_GUI.fig', '-mat');
+s.hgS_070000.children(1).properties    % type / properties / children, recursively
+```
 
-**Capture the diff:** `captureSimGoldens('Test/GUI/evidence/after_F2')`, then
-`diff -ru Test/GUI/evidence/before_F2 Test/GUI/evidence/after_F2` on the `.txt` files.
+**Preserved in all four, and required:** `Tag='Simu'` (`MainApp.m:1164` tears these
+down by it), the figure `Name` (the only thing telling the five apart), 
+`HandleVisibility='callback'`, and every `handles.*` field name — including
+`handles.Simu`. Nothing anywhere uses GUIDE's `('CALLBACK',...)` string form, so
+`gui_State`/`gui_mainfcn` go outright.
+
+**Deliberate, in all four:** the figure `Color` follows `qmrlabUIColor('viewerChrome')`
+instead of a hard-coded `[0.251 0.251 0.251]` that a legacy figure will never theme;
+the Update/Fit button uses the `accent` token; `ToolBar='figure'` replaces the two
+custom tools, which were MATLAB's own annotation tools declared with
+`ClickedCallback='%default'`. Where a help button existed it is APPENDED to the
+standard toolbar — giving it its own `uitoolbar` costs a whole row.
+
+**CHARACTER UNITS ARE THE BUG BEHIND MOST OF THIS.** A character is a font metric,
+so a rectangle in characters is a different size on every machine. Measured here,
+1 char = **7.035 x 15.0 px**. It is what made Optimize Protocol's table overflow on
+Linux but not macOS, and it is what puts Monte Carlo's plot axes 60 px below its
+panel (`-4.03333` chars). Convert by measuring the rendered geometry and dividing
+by the parent's INNER size — not its outer rect, which differs by the title band.
+Solve the inner size from a sibling whose normalized position the `.fig` stored.
+
+### Monte Carlo, specifically
+
+Everything needed is measured already:
+`Test/GUI/evidence/before_F2/MONTECARLO_MEASURED_GEOMETRY.txt` has every component
+with its parent, the parent's pixel size, and the **normalized** position to use.
+
+It is the worst of the five, and it is broken TODAY on macOS — look at
+`before_F2/charmed_SimMCdiff.png` before deciding what "faithful" means:
+
+- Every label in the Axon Packing panel is vertically clipped: "# axons: 100",
+  "mean diameter: 3um", "Diameter variance:", "Gap between axons:". They are
+  `0.866667` characters tall, which is not enough for the text at this font.
+- The Monte Carlo panel on the right is clipped the same way — "Permeability: 0",
+  "Number of particles: 100", and "(stepflight^2 =" is cut mid-line.
+- `tableVolumes` shows ~3.5 of its 4 rows with a scrollbar.
+- `SimMCdiff` (the Plot Results axes) sits at normalized y = **-0.128**, hanging
+  below its panel, which is the one Overflow `tSimWindows` reports and prints.
+
+So this one needs a layout pass, not just a units conversion: converting faithfully
+preserves the clipping. Give the labels the height their text needs, then convert.
+
+Two runtime details found by measurement: `axes_axonDist` and `axes_axonPack` LOSE
+their tags at runtime (the window ends up with three axes, two untagged), and the
+`.fig`'s `preset_packing` String is the GUIDE placeholder `'Pop-up Menu'` — the real
+list is built at open time from the packing `.mat` files.
 
 ### 2. F3 — delete the generator, get CI coverage
 `GenerateButtonsWithPanels` survives **only** for three Sim GUIs (`SingleVoxel:66`,
