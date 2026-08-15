@@ -177,6 +177,11 @@ classdef MethodBrowser < handle
             obj.WorkDir_FileNameArea.Tag = 'WorkDir_FileNameArea';
             obj.WorkDir_FileNameArea.Layout.Column = 4;
             obj.WorkDir_FileNameArea.Value = '';
+            % Typing or pasting a path here used to do nothing at all: the box had
+            % no callback, so the only way to set the folder was the Browse dialog.
+            % Same defect the per-input file boxes had (see
+            % tControls/typingAPathIntoAFileBoxLoadsIt), one row up.
+            obj.WorkDir_FileNameArea.ValueChangedFcn = @(src,~) obj.WD_PathTyped(src.Value);
 
             obj.StudyID_TextArea = uilabel(head);
             obj.StudyID_TextArea.Layout.Column = 5;
@@ -339,6 +344,24 @@ classdef MethodBrowser < handle
         
         %------------------------------------------------------------------
         % Work Directory Browse callback
+        function WD_PathTyped(obj, typed)
+            % A path typed or pasted into the Path data box.
+            %
+            % Validated here rather than handed straight to WD_BrowseBtn_callback,
+            % because that one is written for a uigetdir result -- a real folder or
+            % the numeric 0 for cancel. A non-existent string would reach dir() and
+            % load nothing, silently, which is the behaviour being fixed.
+            typed = strtrim(char(typed));
+            if isempty(typed)
+                return;   % clearing the box is not an error
+            end
+            if exist(typed, 'dir') ~= 7
+                errordlg(['Not a folder: ' typed], 'Invalid path', 'modal');
+                return;
+            end
+            obj.WD_BrowseBtn_callback(typed);
+        end
+
         function WD_BrowseBtn_callback(obj, WorkDir_FullPath)
             if ~exist('WorkDir_FullPath','var')
                 WorkDir_FullPath = uigetdir;

@@ -261,6 +261,50 @@ classdef tControls < matlab.uitest.TestCase
                 'A failed fit still wrote a FitResults directory to disk.');
         end
 
+        function typingAPathIntoTheWorkDirBoxLoadsIt(testCase)
+            % The Path data box had no callback at all, so typing or pasting a
+            % folder did nothing -- the only way to set it was the Browse dialog.
+            % Exactly the defect typingAPathIntoAFileBoxLoadsIt pins for the
+            % per-input boxes, one row up in the same panel, and invisible for the
+            % same reason: everyControlIsWired cannot see a control that is
+            % legitimately callback-free until you decide it should not be.
+            model = tControls.tinyDataFor(testCase, testCase.SimpleModel);
+            qMRLab(feval(testCase.SimpleModel));
+            drawnow;
+
+            fig = tControls.mainFigure();
+            box = findall(fig, 'Tag', 'WorkDir_FileNameArea');
+            testCase.assertNotEmpty(box, 'The Path data box is missing.');
+            box = box(1);
+            testCase.assertNotEmpty(box.ValueChangedFcn, ...
+                'The Path data box is wired to nothing -- typing a path does nothing.');
+
+            box.Value = model.Dir;
+            feval(box.ValueChangedFcn, box, []);
+            drawnow;
+
+            D = getappdata(0, 'Data');
+            testCase.assertTrue(isfield(D, testCase.SimpleModel), ...
+                'Typing a folder into Path data loaded nothing.');
+            testCase.verifyNotEmpty(D.(testCase.SimpleModel).IRData, ...
+                'Typing a folder into Path data did not load IRData from it.');
+        end
+
+        function typingAFolderThatDoesNotExistIsReported(testCase)
+            % The other half: a typed path is not a uigetdir result and may simply
+            % be wrong. Without the guard it reaches dir() and loads nothing,
+            % silently -- which is the behaviour being repaired, in a new disguise.
+            testCase.stubBlockingDialogs();
+            qMRLab(feval(testCase.SimpleModel));
+            drawnow;
+
+            fig = tControls.mainFigure();
+            box = findall(fig, 'Tag', 'WorkDir_FileNameArea'); box = box(1);
+            box.Value = fullfile(tempdir, 'definitely-not-a-folder-9f3a1c');
+            testCase.verifyWarningFree(@() feval(box.ValueChangedFcn, box, []), ...
+                'A nonexistent typed path threw instead of reporting the problem.');
+        end
+
         function typingAPathIntoAFileBoxLoadsIt(testCase)
             % The file box was wired to obj.FileBox_callback(), a method that has
             % never existed on BrowserSet, so typing or pasting a path threw
