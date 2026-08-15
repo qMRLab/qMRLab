@@ -25,35 +25,57 @@ classdef tControls < matlab.uitest.TestCase
 %
 %   HOW TO TELL A DEAD CONTROL FROM A LIVE ONE
 %
-%   Not by reading the component's own callback property. MATLAB's migration
-%   runtime (convertToGUIDECallbackArguments -> UIControlPropertiesConverter) wraps
-%   every tagged component in a uicontrol-compatibility adapter and REWRITES that
-%   property: the redirect strategy installs its own forwarder
-%   (@obj.handleCallbackFired) and moves the real callback into the adapter. So the
-%   native property is misleading in both directions -- measured on the live app:
+%   By reading the callback property FOR THE CONTROL'S CLASS, off the component
+%   itself. That is a change from what this file used to say, and the reason is
+%   worth keeping.
 %
-%       FitGO            (dead)  ButtonPushedFcn = <a forwarder>   -- looks wired
-%       MethodSelection  (live)  ValueChangedFcn = <empty>         -- looks dead
+%   While the GUIDE shim was in place it was not that simple. The migration
+%   runtime (convertToGUIDECallbackArguments -> UIControlPropertiesConverter)
+%   wrapped every tagged component in a uicontrol-compatibility adapter, and for
+%   DROPDOWNS PopupMenuRedirectStrategy nulled the native ValueChangedFcn and
+%   carried the wiring on ClickedFcn instead. So the native property really was
+%   misleading, and the authority really was handles.<Tag>.Callback:
 %
-%   The authority is the adapter, reached through guidata: handles.<Tag>.Callback.
-%   Verified against both revisions -- 3 dead before the fix, 0 after.
+%       FitGO            (dead)  ButtonPushedFcn = <a forwarder>   -- looked wired
+%       MethodSelection  (live)  ValueChangedFcn = <empty>         -- looked dead
 %
-%   That same adapter is why the GUIDE-era property names in the callback bodies
-%   (String, ForegroundColor, numeric Value) still work: it translates them. Only
-%   code that reaches a component WITHOUT going through handles -- findobj, or a
-%   stored handle in a class like BrowserSet -- sees the raw native component and
-%   has to use the native property names. That is exactly where the second bug in
-%   this file's regression set lived.
+%   Stage F1 retires that shim. With no shim call, no adapter is ever built and
+%   the wiring createComponents installs with createCallbackFcn is the wiring
+%   that fires -- so the native property becomes the authority. But the audit
+%   could not simply be re-pointed at it, because reading guidata was ALSO how
+%   the old audit FOUND the controls. With no adapters in guidata its loop
+%   inspects nothing and passes. It would have switched itself off in the commit
+%   everyone would assume was safest.
+%
+%   So the audit was rewritten FIRST, deliberately, while the shim was still in
+%   place, and it has to pass in both worlds -- that is the evidence that it
+%   measures the app and not the adapter. See deadControlsIn for the walk, for
+%   why a DropDown counts as wired on either property, and for why it returns a
+%   denominator.
+%
+%   The adapter is also why GUIDE-era property names (String, TooltipString,
+%   numeric Value) work in the callback bodies: it translates them. F1 translates
+%   them for real -- uilabel.Text, uibutton.Tooltip, and a numeric dropdown Value
+%   maintained through ItemsData by setPopUp. Code that reaches a component
+%   WITHOUT going through handles always saw the raw native component and always
+%   had to use native names; that is where the second bug in this file's
+%   regression set lived, and F1 makes every path that path.
 %
 %   See also: tMainApp, docs/adr/0001-gui-migration.md
 
     properties (Constant)
         SimpleModel = 'inversion_recovery';
 
-        % Adapter Style values that denote something a user can operate. A uilabel
-        % is adapter-wrapped too and reports 'text'; it has no callback by design.
-        Interactive = {'pushbutton','togglebutton','popupmenu','checkbox', ...
-                       'edit','listbox','slider','radiobutton'};
+        % Controls that are deliberately inert: they carry no callback because
+        % something else drives them. Each entry needs a reason, and the reason
+        % has to be that the control is DRIVEN elsewhere -- not that it is
+        % currently broken. Adding a Tag here to silence a failure is how this
+        % test stops being worth running.
+        InertByDesign = { ...
+            'MainLogo'             % the qMRLab wordmark; an Image, not a control
+            'WorkDir_FileNameArea' % Path data: written by Browse, read at load time
+            'StudyID_TextID'       % Study ID: free text, read at fit time
+            };
     end
 
     properties
@@ -92,7 +114,18 @@ classdef tControls < matlab.uitest.TestCase
             fig = tControls.mainFigure();
             testCase.assertNotEmpty(fig, 'Main window did not open.');
 
-            dead = tControls.deadControlsIn(fig);
+            [dead, inspected] = tControls.deadControlsIn(fig);
+
+            % The denominator, asserted FIRST. Without it this test passes when it
+            % inspects nothing at all -- which is exactly what its predecessor did
+            % the moment the shim stopped seeding guidata. 25 is well under the
+            % ~60 the native walk reaches on a loaded window, and well over
+            % anything a broken walk would return.
+            testCase.assertGreaterThan(numel(inspected), 25, sprintf( ...
+                ['The wiring audit only inspected %d controls, so it is not ' ...
+                 'measuring the window any more -- fix the audit before trusting ' ...
+                 'a green result.'], numel(inspected)));
+
             testCase.verifyEmpty(dead, sprintf( ...
                 ['These controls are wired to nothing -- clicking them does nothing ' ...
                  'and no error is raised:\n  %s'], strjoin(dead, '\n  ')));
@@ -294,27 +327,125 @@ classdef tControls < matlab.uitest.TestCase
 
     methods (Static)
 
-        function names = deadControlsIn(fig)
-            % A control is dead when its adapter has no Callback. See the class
-            % comment for why the component's own property cannot be trusted.
-            names = {};
-            h = guidata(fig);
-            if isempty(h) || ~isstruct(h); return; end
-            for f = fieldnames(h)'
-                o = h.(f{1});
-                % handles carries more than components -- the imtool3D object, the
-                % model directory, cached data, and object ARRAYS, on which isprop
-                % returns a vector rather than a scalar.
-                if ~isscalar(o) || ~isobject(o); continue; end
-                if ~isprop(o, 'Callback') || ~isprop(o, 'Style'); continue; end
-                style = '';
-                try, style = o.Style; catch, continue; end %#ok<NOCOM>
-                if ~any(strcmp(style, tControls.Interactive)); continue; end
-                if isempty(o.Callback)
-                    names{end+1} = sprintf('%s (%s)', f{1}, style); %#ok<AGROW>
+        function [names, inspected] = deadControlsIn(fig)
+            % A control is dead when the callback property FOR ITS CLASS is empty.
+            %
+            %   Walks findall(fig), NOT guidata. The guidata walk this replaced
+            %   asked isprop(o,'Callback') && isprop(o,'Style') -- both properties
+            %   exist only on the migration ADAPTER. Once the shim stops seeding
+            %   guidata those two guards `continue` on every field, the loop
+            %   inspects nothing, and verifyEmpty passes. The one test written to
+            %   catch "clicking does nothing" would have switched itself off in the
+            %   commit that retired the shim, and reported success.
+            %
+            %   Hence the second return value. `inspected` is the DENOMINATOR, and
+            %   everyControlIsWired asserts it is large. A wiring audit that
+            %   inspects zero controls must fail, not pass.
+            %
+            %   Dispatch is on class(), never on Style: get(h,'Style') throws on a
+            %   checkbox or button and, on a dropdown or table, silently returns a
+            %   uistyle style TABLE.
+            %
+            %   A DropDown counts as wired on EITHER ValueChangedFcn or ClickedFcn.
+            %   While the shim is present, PopupMenuRedirectStrategy nulls
+            %   ValueChangedFcn and carries the wiring on ClickedFcn; with the shim
+            %   gone the reverse holds. Accepting both is what lets this test pass
+            %   in both worlds -- which is the evidence that it measures the app
+            %   and not the adapter.
+            names = {}; inspected = {};
+
+            map = { 'matlab.ui.control.Button',           {'ButtonPushedFcn'}
+                    'matlab.ui.control.StateButton',      {'ValueChangedFcn'}
+                    'matlab.ui.control.DropDown',         {'ValueChangedFcn','ClickedFcn'}
+                    'matlab.ui.control.CheckBox',         {'ValueChangedFcn'}
+                    'matlab.ui.control.EditField',        {'ValueChangedFcn'}
+                    'matlab.ui.control.NumericEditField', {'ValueChangedFcn'}
+                    'matlab.ui.control.TextArea',         {'ValueChangedFcn'}
+                    'matlab.ui.control.ListBox',          {'ValueChangedFcn'}
+                    'matlab.ui.control.Slider',           {'ValueChangedFcn','ValueChangingFcn'}
+                    'matlab.ui.control.Table',            {'CellEditCallback','CellSelectionCallback'}
+                    'matlab.ui.control.Image',            {'ImageClickedFcn'} };
+
+            % Legacy uicontrols (imtool3D's toolbar, and the Sim buttons
+            % MethodMenu builds) are the ONE place Style is trustworthy and
+            % necessary: a Style='text' uicontrol is a label and has no callback
+            % by design. imtool3D contributes 40 uicontrols, of which five are
+            % static text -- '(x,y) val', the Vol/Time/Slice readout, and the
+            % L/U window-level captions. Requiring a Callback of those reports
+            % five false defects. Native components need no such test because a
+            % uilabel is simply not in the map above.
+            legacyInteractive = {'pushbutton','togglebutton','popupmenu','checkbox', ...
+                                 'edit','listbox','slider','radiobutton'};
+
+            all = findall(fig);
+            for k = 1:numel(all)
+                o = all(k);
+                if ~isvalid(o); continue; end
+                isLegacy = isa(o, 'matlab.ui.control.UIControl');
+                if isLegacy
+                    style = '';
+                    try, style = o.Style; catch, continue; end %#ok<NOCOM>
+                    if ~any(strcmp(style, legacyInteractive)); continue; end
+                    props = {'Callback'};
+                else
+                    row = find(strcmp(class(o), map(:,1)), 1);
+                    if isempty(row); continue; end
+                    props = map{row, 2};
+                end
+
+                % A hidden control is not a control the user can click. imtool3D
+                % keeps a lot of its toolbar hidden per view.
+                try
+                    if strcmp(char(string(o.Visible)), 'off'); continue; end
+                catch
+                end
+                if any(strcmp(o.Tag, tControls.InertByDesign)); continue; end
+
+                name = o.Tag;
+                if isempty(name)
+                    try, name = char(string(o.Text)); catch, name = ''; end %#ok<NOCOM>
+                end
+                if isempty(name); name = '<untagged>'; end
+                if isLegacy
+                    label = sprintf('%s (uicontrol/%s)', name, style);
+                else
+                    label = sprintf('%s (%s)', name, strrep(class(o), 'matlab.ui.control.', ''));
+                end
+                inspected{end+1} = label; %#ok<AGROW>
+
+                % WHILE THE SHIM IS STILL PRESENT, the adapter is the authority.
+                %
+                % localCreateHandles wraps every TAGGED component in a
+                % UIControlPropertiesConverter, and the redirect strategy moves the
+                % real callback into the adapter and installs its own forwarder in
+                % the native property. So a native check reads "wired" for a control
+                % whose createCallbackFcn line has been deleted -- proved by mutant:
+                % removing app.Histogram.ButtonPushedFcn = createCallbackFcn(...)
+                % left ButtonPushedFcn non-empty and the audit green.
+                %
+                % convertToGUIDECallbackArguments decides the same way, on
+                % isprop(component,'CodeAdapter'), so this is not a heuristic. It
+                % also self-retires: once no shim call runs, no adapter is ever
+                % built, no component carries CodeAdapter, and only the native
+                % branch below can execute. Delete this branch when the last
+                % convertToGUIDECallbackArguments call goes.
+                adapter = [];
+                if isprop(o, 'CodeAdapter'); adapter = o.CodeAdapter; end
+
+                wired = false;
+                if ~isempty(adapter) && isvalid(adapter)
+                    wired = isprop(adapter, 'Callback') && ~isempty(adapter.Callback);
+                else
+                    for pi = 1:numel(props)
+                        if isprop(o, props{pi}) && ~isempty(o.(props{pi})); wired = true; break; end
+                    end
+                end
+                if ~wired
+                    names{end+1} = label; %#ok<AGROW>
                 end
             end
             names = sort(names);
+            inspected = sort(inspected);
         end
 
         function out = tinyDataFor(testCase, modelName)

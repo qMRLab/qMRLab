@@ -168,6 +168,7 @@ classdef MethodBrowser < handle
             obj.WorkDir_BrowseBtn.ButtonPushedFcn = @(src,event) obj.WD_BrowseBtn_callback();
 
             obj.WorkDir_FileNameArea = uieditfield(head, 'text');
+            obj.WorkDir_FileNameArea.Tag = 'WorkDir_FileNameArea';
             obj.WorkDir_FileNameArea.Layout.Column = 4;
             obj.WorkDir_FileNameArea.Value = '';
 
@@ -177,6 +178,7 @@ classdef MethodBrowser < handle
             obj.StudyID_TextArea.HorizontalAlignment = 'left';
 
             obj.StudyID_TextID = uieditfield(head, 'text');
+            obj.StudyID_TextID.Tag = 'StudyID_TextID';
             obj.StudyID_TextID.Layout.Column = 6;
             obj.StudyID_TextID.Value = '';
 
