@@ -290,23 +290,26 @@ classdef OptionsWindow < matlab.apps.AppBase
                 Model = Model.UpdateFields();
             end
 
-            % SANITY CHECK
-            Data = getappdata(0, 'Data');
-            if ~isempty(Data) && isfield(Data,class(Model))
-                % char(): [] when valid, and uilabel.Text rejects []. See BrowserSet.
-                ErrMsg = char(Model.sanityCheck(Data.(class(Model))));
-                % Text/Tooltip, not String/TooltipString: the target is the uilabel
-                % MethodBrowser creates, not the GUIDE uicontrol these lines were
-                % written for. This went unnoticed because the label carried no Tag,
-                % so findobj returned empty and set() on an empty handle is a silent
-                % no-op -- the data-consistency warning has never once been shown.
-                % Tagging the label (MethodBrowser.m) is what made this reachable.
-                hWarnBut = findobj('Tag',['WarnBut_DataConsistency_' class(Model)]);
-                if ~isempty(hWarnBut)
-                    set(hWarnBut, 'Text', ErrMsg, 'Tooltip', ErrMsg, ...
-                                  'Visible', matlab.lang.OnOffSwitchState(~isempty(ErrMsg)));
-                end
-            end
+            % NO SANITY CHECK HERE ANY MORE.
+            %
+            % This block used to write the "Cannot find required input called ..."
+            % message into the main window's data-consistency label, and it is why
+            % that warning behaved so oddly: it was guarded by
+            % isfield(Data, class(Model)), which is only true once something has
+            % created an entry for the model. In practice that meant the warning
+            % appeared for whichever model matched DefaultMethod.mat and for no
+            % other -- open on qsm_sb, or switch to dti, and a missing REQUIRED
+            % input produced silence. Measured across models.
+            %
+            % Rendering the options panel is also the wrong moment to tell someone
+            % their data is incomplete: they have not asked to do anything with it
+            % yet. The check belongs where the user acts, and it already lives
+            % there -- MainApp.FitGo_FitData and MainApp.plotfit both run
+            % sanityCheck and raise a modal errordlg. Those work for every model.
+            %
+            % MethodBrowser.setFullPath keeps its own check, which is a different
+            % thing: it fires just after Browse / Download example has loaded a
+            % folder, which IS a moment the user just acted.
 
             % SAVE
             setappdata(0,'Model',Model);

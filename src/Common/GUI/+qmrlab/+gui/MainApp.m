@@ -449,6 +449,10 @@ classdef MainApp < matlab.apps.AppBase
 
 
         function hh = plotfit(app, vox)
+            % hh is assigned FIRST because every early return below leaves it
+            % otherwise undefined, and both callers ask for it -- "Output argument
+            % 'hh' not assigned" is an error, not the no-op the guards expect.
+            hh = [];
             Model = GetAppData(app, 'Model');
             % Get data
             data =  getappdata(0,'Data'); data=data.(class(getappdata(0,'Model')));
@@ -466,7 +470,15 @@ classdef MainApp < matlab.apps.AppBase
                 return;
             end
 
-            Model.sanityCheck(data);
+            % Was `Model.sanityCheck(data);` with the result discarded. sanityCheck
+            % RETURNS a message and never throws, so that line did nothing at all --
+            % the two guards above are what has been catching the common cases.
+            % Report it, for the same reason Fit data does.
+            ErrMsg = Model.sanityCheck(data);
+            if ~isempty(ErrMsg)
+                errordlg(ErrMsg, 'Input error', 'modal');
+                return;
+            end
 
             for ipix = 1:length(vox)
 
