@@ -24,6 +24,7 @@ classdef OptionsWindow < matlab.apps.AppBase
         ProtEditPanel       matlab.ui.container.Panel
         ProtEditGrid        matlab.ui.container.GridLayout
         FitOptEditPanel     matlab.ui.container.Panel
+        FitOptGrid          matlab.ui.container.GridLayout
         FitOptTable         matlab.ui.control.Table
     end
 
@@ -58,6 +59,23 @@ classdef OptionsWindow < matlab.apps.AppBase
             g = 1;
             try, g = qmrlab.gui.TypeScale.geomFactor(); catch, end
             h = (C.TABLECHROME + n * C.TABLEROW) * g;
+        end
+
+        function chrome = panelChrome(panel)
+            % Height a titled uipanel spends on itself, so a CONTENT height can be
+            % turned into a panel height. Position(4) - InnerPosition(4), which is
+            % a property of the panel alone -- measuring against a child instead
+            % makes the answer depend on the thing being sized, and the value then
+            % grows on every call. MainApp.browserChrome has the same shape and the
+            % same reason.
+            chrome = 14;
+            try
+                if isvalid(panel) && isprop(panel,'InnerPosition')
+                    d = panel.Position(4) - panel.InnerPosition(4);
+                    if d > 0 && d < 120, chrome = d; end
+                end
+            catch
+            end
         end
     end
 
@@ -522,6 +540,14 @@ classdef OptionsWindow < matlab.apps.AppBase
 
                 set(app.FitOptTable,'Data',FitOptTable)
 
+                % Give the panel the height its rows need. RightGrid pinned this
+                % row at a flat 196 px, which is where the clipping came from --
+                % the models differ by more than twice: 4 parameters for mp2rage,
+                % 8 for noddi and amico.
+                app.RightGrid.RowHeight{1} = ...
+                    qmrlab.gui.OptionsWindow.tableHeightFor(Nparam) + ...
+                    qmrlab.gui.OptionsWindow.panelChrome(app.FitOptEditPanel);
+
                 % Add TooltipString
                 try
 
@@ -910,7 +936,18 @@ classdef OptionsWindow < matlab.apps.AppBase
             app.FitOptTable.CellEditCallback = createCallbackFcn(app, @FitOptTable_CellEditCallback, true);
             app.FitOptTable.Tag = 'FitOptTable';
             app.FitOptTable.FontSize = 10.6666666666667;
-            app.FitOptTable.Position = [4 9 248 159];
+            % A grid, not Position = [4 9 248 159]. The absolute rectangle neither
+            % filled the panel nor scaled with the text-size preference, and 159 px
+            % shows about five rows -- so qmt_spgr's 6 parameters, and noddi's and
+            % amico's 8, were partly behind the table's own scrollbar. The panel's
+            % height is set from the parameter count in renderOptions.
+            app.FitOptGrid = uigridlayout(app.FitOptEditPanel, [1 1]);
+            app.FitOptGrid.RowHeight   = {'1x'};
+            app.FitOptGrid.ColumnWidth = {'1x'};
+            app.FitOptGrid.Padding     = [4 4 4 4];
+            app.FitOptTable.Parent = app.FitOptGrid;
+            app.FitOptTable.Layout.Row = 1;
+            app.FitOptTable.Layout.Column = 1;
 
             % Create ProtEditPanel
             app.ProtEditPanel = uipanel(app.uipanel29);
