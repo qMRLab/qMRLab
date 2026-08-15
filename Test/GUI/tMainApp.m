@@ -297,6 +297,44 @@ classdef tMainApp < matlab.uitest.TestCase
             end
         end
 
+        function everyWindowLandsOnScreen(testCase)
+            % A window you cannot see is not a passing test.
+            %
+            % Written after b44757c, which parked the main window off the bottom of
+            % the desktop while it built and left the OPTIONS window parked with it:
+            % Position = [1259 -834 573 835], one pixel on screen. The maintainer
+            % reported it within a minute. The 64-test suite was green, and so were
+            % all 11 CI jobs -- because nothing here asserted where a window ends
+            % up, only that its components exist and are the right size.
+            %
+            % Deliberately generous: this is not a layout assertion. It fails only
+            % when a window is essentially off the desktop, which is the failure
+            % that shipped.
+            qMRLab(feval(testCase.SimpleModel)); drawnow; pause(0.5);
+
+            ss = get(groot, 'ScreenSize');
+            figs = findall(groot, 'Type', 'figure');
+            testCase.assertNotEmpty(figs, 'No figures at all after launch.');
+
+            MINVIS = 80;   % px of the window that must be on the desktop
+            offenders = {};
+            for k = 1:numel(figs)
+                f = figs(k);
+                if strcmp(char(string(f.Visible)), 'off'); continue; end
+                p = f.Position;
+                visW = min(p(1)+p(3), ss(3)) - max(p(1), 1);
+                visH = min(p(2)+p(4), ss(4)) - max(p(2), 1);
+                if visW < MINVIS || visH < MINVIS
+                    offenders{end+1} = sprintf('%s "%s" at %s (%.0fx%.0f px on a %.0fx%.0f screen)', ...
+                        char(string(f.Tag)), char(string(f.Name)), mat2str(round(p)), ...
+                        max(visW,0), max(visH,0), ss(3), ss(4)); %#ok<AGROW>
+                end
+            end
+
+            testCase.verifyEmpty(offenders, sprintf( ...
+                'These visible windows are off the desktop:\n  %s', strjoin(offenders, '\n  ')));
+        end
+
         function modelSwitchActuallySwitches(testCase)
             % The precondition for modelSwitchingDoesNotLeakHandles below, and it
             % had to be written first because that test was VACUOUS: it "switched"

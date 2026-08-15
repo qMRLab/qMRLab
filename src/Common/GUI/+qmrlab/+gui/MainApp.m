@@ -74,6 +74,8 @@ classdef MainApp < matlab.apps.AppBase
         CurrentData         = []    % [] until data is loaded, then a struct
         DataCursor          = []    % was dcm_obj: the datacursormode manager
         ModelDir            char    = ''
+        SimRows     (1,1) double = 6     % Sim buttons the current model offers;
+                                         % sizes the Simulation tools panel
         DefaultMethodFile   char    = ''   % was Default: path to DefaultMethod.mat
         Opened      (1,1) logical   = false
     end
@@ -297,13 +299,25 @@ classdef MainApp < matlab.apps.AppBase
             app.SimPanel.Visible = 'off'; % hide the simulation panel for qMT methods
             if isempty(Simfun)
                 app.SimPanel.Visible = 'off'; % hide the simulation panel
+                % ...and give its track back. A hidden panel kept its 351 px, so
+                % models with no Sim tools at all -- mp2rage among them -- reserved
+                % the largest block in the sidebar for nothing and pushed
+                % "Open Options Panel" to y = -19, out of view.
+                app.SimRows = 0;
+                app.SideGrid.RowHeight{7} = 0;
             else
                 app.SimPanel.Visible = 'on'; % show the simulation panel
                 delete(setdiff(findobj(app.SimPanel),app.SimPanel))
 
                 N = length(Simfun); %
-                Jh = min(0.14,.8/N);
-                J=1:max(N,6); J=(J-1)/max(N,6)*0.85; J=1-J-Jh-.01;
+                % Lay the buttons out over N slots, not max(N,6). The panel is now
+                % sized to N (simPanelHeight), so a fraction of 1/N is a constant
+                % ~46 px button whatever the model offers -- reserving six slots in
+                % a panel sized for three shrank the buttons AND left the surplus.
+                app.SimRows = N;
+                app.SideGrid.RowHeight{7} = app.simPanelHeight();
+                Jh = .8/N;
+                J=1:N; J=(J-1)/N*0.85; J=1-J-Jh-.01;
                 for i = 1:N
                     if exist([Simfun{i} '_GUI'],'file')
                         uicontrol('Style','pushbutton','String',strrep(strrep(Simfun{i},'Sim_',''),'_',' '),...
@@ -1127,7 +1141,11 @@ classdef MainApp < matlab.apps.AppBase
             g = qmrlab.gui.TypeScale.geomFactor();
 
             app.RootGrid.ColumnWidth = {270*g, '1x'};
-            app.SideGrid.RowHeight   = {90*g, 'fit', 'fit', 'fit', 'fit', 221*g, 351*g, '1x', 'fit'};
+            % Row 7 comes from simPanelHeight, not a constant: it depends on the
+            % current model. Writing 351*g here would undo MethodMenu on every
+            % text-size change -- the wholesale-literal trap.
+            app.SideGrid.RowHeight   = {90*g, 'fit', 'fit', 'fit', 'fit', 221*g, ...
+                                        app.simPanelHeight(), '1x', 'fit'};
 
             % The two tracks E1/E2 added. Without these the strip and the Datasets
             % rows keep their medium-size cells while the type inside them grows,
@@ -1462,6 +1480,29 @@ classdef MainApp < matlab.apps.AppBase
             catch
                 % keep the default
             end
+        end
+
+        function h = simPanelHeight(app)
+            % Height of the Simulation tools panel, from the number of buttons the
+            % current model actually offers.
+            %
+            % It was a flat 351 px, which is six slots -- and the layout below
+            % reserved six as well (max(N,6)) although no model has more than five
+            % and inversion_recovery has three. So half the panel was space held
+            % for buttons that do not exist, and with the sidebar's rows totalling
+            % 849 px in an 821 px column that surplus is what pushed
+            % "Open Options Panel" to y = -19, below the fold, needing a scroll.
+            %
+            % 48 px per row. The old 351/6 works out at 58, which is enough for
+            % the three- and four-button models but not for charmed, the only
+            % five-button one: at 58 the sidebar's rows come to 860 px in an 821 px
+            % column and the button is pushed to y = -30, which is the reported bug
+            % in a new disguise. 48 puts the worst case at 798 with room to spare,
+            % and the button itself is unchanged in size -- it is 0.8 of a row
+            % either way, so the geometry below scales with this number.
+            g = 1;
+            try, g = qmrlab.gui.TypeScale.geomFactor(); catch, end
+            h = app.SimRows * 48 * g;   % 0 rows -> 0 px, see the empty case below
         end
 
         function setDatasetsHeight(app, nItems)
