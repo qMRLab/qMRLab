@@ -87,6 +87,88 @@ classdef tAPI < matlab.unittest.TestCase
                 'Shared store still holds: %s', strjoin(leftovers', ', ')));
         end
 
+        function optionsEntryPointBlocksThenReturnsTheModel(testCase)
+            % Custom_OptionsGUI carries the same dual contract as qMRLab.m, for a
+            % harder reason: qMRgenBatch writes `Model = Custom_OptionsGUI(Model)`
+            % into scripts that users keep, so the blocking form is the one form
+            % that is guaranteed to be running on someone's machine.
+            %
+            % Nothing exercised it, and it was broken twice over -- the file had
+            % been deleted outright, and forwarding the old 'wait' sentinel to
+            % OptionsWindow throws MATLAB:class:InvalidHandle because the opening
+            % function resumes into applyTheme on the figure it waited to be
+            % deleted. Both are only reachable with an output argument requested.
+            % Restore whatever the caller had, rather than assuming CI's value:
+            % this suite runs on developer machines too.
+            wasCI = getenv('ISCITEST'); wasDoc = getenv('ISDOC');
+            testCase.addTeardown(@() setenv('ISCITEST', wasCI));
+            testCase.addTeardown(@() setenv('ISDOC', wasDoc));
+            setenv('ISCITEST', ''); setenv('ISDOC', '');
+
+            closer = tAPI.closeOnceWaiting('OptionsGUI');
+            testCase.addTeardown(@() tAPI.killTimer(closer));
+
+            started = tic;
+            Model = Custom_OptionsGUI(feval(testCase.Model));
+            elapsed = toc(started);
+
+            testCase.verifyGreaterThan(elapsed, 1, ...
+                'Model = Custom_OptionsGUI(...) returned without waiting.');
+            testCase.verifyClass(Model, testCase.Model, ...
+                'Expected the configured model object back.');
+        end
+
+        function optionsEntryPointIsAFileOnDisk(testCase)
+            % Same class of pin as entryPointIsAFileOnDisk below, and the same
+            % failure: the name is written into generated batch scripts and into
+            % every model's published page, neither of which this repo can edit.
+            testCase.verifyNotEmpty(which('Custom_OptionsGUI.m'), ...
+                'Custom_OptionsGUI.m must remain a real function file on disk.');
+        end
+
+        function everyFunctionTheBatchTemplatesCallStillExists(testCase)
+            % The regression that cost a CI cycle: Custom_OptionsGUI.m was deleted
+            % while three .qmr templates still emitted calls to it, so every batch
+            % script qMRgenBatch produced -- and every one users had already
+            % generated -- died with "Undefined function 'Custom_OptionsGUI'".
+            % BatchExample_test does catch it, but only after downloading datasets
+            % and fitting them, and it names the model rather than the cause.
+            %
+            % A name the template ASSIGNS is a variable being indexed, not a call
+            % (`Model(...)`, `expected(...)`), so those are excluded -- that is the
+            % whole reason this is a heuristic rather than a parse.
+            root = fileparts(which('qMRLab.m'));
+            templates = [dir(fullfile(root, 'src', '**', '*.qmr'));
+                         dir(fullfile(root, 'Test', '**', '*.qmr'));
+                         dir(fullfile(root, 'Deploy', '**', '*.qmr'))];
+            testCase.assertNotEmpty(templates, 'No .qmr batch templates found.');
+
+            missing = {};
+            for f = templates'
+                txt   = fileread(fullfile(f.folder, f.name));
+                lines = strsplit(txt, newline);
+
+                for k = 1:numel(lines)
+                    line = strtrim(lines{k});
+                    if isempty(line) || startsWith(line, '%') || contains(line, '*-')
+                        continue    % blank, comment, or a qMRgenBatch placeholder
+                    end
+                    called = regexp(line, '(?<![\w.])([A-Za-z]\w*)\s*\(', 'tokens');
+                    for c = called
+                        name = c{1}{1};
+                        if iskeyword(name) || tAPI.assignedIn(txt, name); continue; end
+                        if isempty(which(name)) && exist(name, 'builtin') ~= 5
+                            missing{end+1} = sprintf('%s:%d %s()', f.name, k, name); %#ok<AGROW>
+                        end
+                    end
+                end
+            end
+
+            testCase.verifyEmpty(missing, sprintf( ...
+                'Batch templates emit calls to functions that no longer exist: %s', ...
+                strjoin(unique(missing), '; ')));
+        end
+
         function entryPointIsAFileOnDisk(testCase)
             % mcc -W main:qMRLab, list_models.m:3 (which('qMRLab.m')) and
             % GenerateDocumentation.m:3,81 all pin this exact filename. Deleting it
@@ -101,24 +183,36 @@ classdef tAPI < matlab.unittest.TestCase
     end
 
     methods (Static)
+        function tf = assignedIn(txt, name)
+            % A name the template ASSIGNS is a variable being indexed, not a
+            % call: genBatchNoAssert.qmr sets `expected = FitResults_old.(f)` and
+            % reads it back as `expected(crMask==1)` twenty lines later, which is
+            % indistinguishable from a call by shape alone.
+            tf = ~isempty(regexp(txt, ...
+                ['(?m)^[^%\n]*\<' name '\>\s*(\([^)\n]*\))?\s*=(?!=)'], 'once'));
+        end
+
         function fig = mainFigure()
             fig = findall(groot, 'Type', 'figure', 'Name', 'qMRLab');
             if numel(fig) > 1, fig = fig(1); end
         end
 
-        function t = closeOnceWaiting()
-            % Poll until the main window is blocked in uiwait, then delete it.
+        function t = closeOnceWaiting(name)
+            % Poll until the named window is blocked in uiwait, then delete it.
             % Deleting the figure (rather than clearing the shared store) is
             % deliberate: qMRLab.m reads the model out of that store after uiwait
             % returns, so wiping it here would race the code under test.
+            if nargin < 1, name = 'qMRLab'; end
             t = timer('ExecutionMode', 'fixedSpacing', 'Period', 0.5, ...
                       'StartDelay', 0.5, 'TasksToExecute', 240);
-            t.TimerFcn = @(src, ~) tAPI.deleteIfWaiting(src);
+            t.TimerFcn = @(src, ~) tAPI.deleteIfWaiting(src, name);
             start(t);
         end
 
-        function deleteIfWaiting(src)
-            fig = tAPI.mainFigure();
+        function deleteIfWaiting(src, name)
+            if nargin < 2, name = 'qMRLab'; end
+            fig = findall(groot, 'Type', 'figure', 'Name', name);
+            if numel(fig) > 1, fig = fig(1); end
             if ~isempty(fig) && isvalid(fig) && strcmp(get(fig, 'waitstatus'), 'waiting')
                 stop(src);
                 delete(fig);

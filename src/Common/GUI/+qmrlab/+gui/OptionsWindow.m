@@ -777,12 +777,17 @@ classdef OptionsWindow < matlab.apps.AppBase
                 pb.Layout.Column = 1;
             end
 
+            % Theme the finished content BEFORE anything blocks. uiwait returns
+            % only because the user deleted this figure, so a statement after it
+            % runs against dead handles -- applyTheme's first act is a setappdata
+            % on app.OptionsGUI, and it threw MATLAB:class:InvalidHandle from
+            % OptionsWindow.m:50 for every caller that passed 'wait'.
+            applyTheme(app);
+
             % Wait if output
             if wait
                 uiwait(app.OptionsGUI)
             end
-
-            applyTheme(app);
         end
 
         % Button pushed function: Default
