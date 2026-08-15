@@ -289,15 +289,11 @@ classdef tSimWindows < matlab.unittest.TestCase
                 overflow = defects(strcmp({defects.Kind}, 'Overflow'));
                 notAxes  = overflow(~contains({overflow.Type}, 'Axes'));
 
-                % KNOWN, and only on Linux: Optimize Protocol's ParamTable sits
-                % ~15 px above the top of its panel on the CI runner, measured --
-                % on macOS it is inside. The table is genuinely clipped there, and
-                % it is F2's to fix when it rebuilds this window. Allowed by name
-                % so that the check keeps reporting the defects F2 has NOT been
-                % told about, instead of this one on every run.
-                if strcmp(name, 'Sim_Optimize_Protocol_GUI') && ~isempty(notAxes)
-                    notAxes = notAxes(~contains({notAxes.Type}, 'Table'));
-                end
+                % The allowance that used to sit here, for Optimize Protocol's
+                % ParamTable overflowing on Linux only, is gone: F2 rebuilt that
+                % window and the cause with it. The table was positioned in
+                % CHARACTER units, which are a font metric, so it fitted on macOS
+                % and did not on the runner. It is normalized now.
 
                 testCase.verifyEmpty(notAxes, sprintf( ...
                     '%s: a panel or table is outside its parent: %s', name, ...
