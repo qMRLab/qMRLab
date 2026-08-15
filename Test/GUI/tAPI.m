@@ -59,15 +59,14 @@ classdef tAPI < matlab.unittest.TestCase
             % startup -- opening takes ~15 s, and deleting the figure mid-build
             % leaves the opening function setting properties on dead handles.
             % waitstatus == 'waiting' is the precise signal that uiwait is engaged.
-            closer = tAPI.closeOnceWaiting();
+            started = tic;
+            closer = tAPI.closeOnceWaiting('qMRLab', started);
             testCase.addTeardown(@() tAPI.killTimer(closer));
 
-            started = tic;
             Model = qMRLab(feval(testCase.Model));
             elapsed = toc(started);
 
-            testCase.verifyGreaterThan(elapsed, 1, ...
-                'Model = qMRLab(...) returned without waiting for the window to close.');
+            tAPI.whyOrderingNotDuration(testCase, closer, elapsed, 'Model = qMRLab(...)');
             testCase.verifyClass(Model, testCase.Model, ...
                 'Expected the configured model object, not a figure handle or empty.');
         end
@@ -105,15 +104,15 @@ classdef tAPI < matlab.unittest.TestCase
             testCase.addTeardown(@() setenv('ISDOC', wasDoc));
             setenv('ISCITEST', ''); setenv('ISDOC', '');
 
-            closer = tAPI.closeOnceWaiting('OptionsGUI');
+            started = tic;
+            closer = tAPI.closeOnceWaiting('OptionsGUI', started);
             testCase.addTeardown(@() tAPI.killTimer(closer));
 
-            started = tic;
             Model = Custom_OptionsGUI(feval(testCase.Model));
             elapsed = toc(started);
 
-            testCase.verifyGreaterThan(elapsed, 1, ...
-                'Model = Custom_OptionsGUI(...) returned without waiting.');
+            tAPI.whyOrderingNotDuration(testCase, closer, elapsed, ...
+                'Model = Custom_OptionsGUI(...)');
             testCase.verifyClass(Model, testCase.Model, ...
                 'Expected the configured model object back.');
         end
@@ -197,26 +196,50 @@ classdef tAPI < matlab.unittest.TestCase
             if numel(fig) > 1, fig = fig(1); end
         end
 
-        function t = closeOnceWaiting(name)
-            % Poll until the named window is blocked in uiwait, then delete it.
+        function t = closeOnceWaiting(name, origin)
+            % Poll until the named window is blocked in uiwait, then delete it,
+            % recording WHEN on the caller's clock so a test can assert ordering
+            % rather than duration. See whyOrderingNotDuration below.
             % Deleting the figure (rather than clearing the shared store) is
             % deliberate: qMRLab.m reads the model out of that store after uiwait
             % returns, so wiping it here would race the code under test.
             if nargin < 1, name = 'qMRLab'; end
+            if nargin < 2, origin = tic; end
             t = timer('ExecutionMode', 'fixedSpacing', 'Period', 0.5, ...
                       'StartDelay', 0.5, 'TasksToExecute', 240);
-            t.TimerFcn = @(src, ~) tAPI.deleteIfWaiting(src, name);
+            t.UserData = struct('name', name, 'origin', origin, 'closedAt', []);
+            t.TimerFcn = @(src, ~) tAPI.deleteIfWaiting(src);
             start(t);
         end
 
-        function deleteIfWaiting(src, name)
-            if nargin < 2, name = 'qMRLab'; end
-            fig = findall(groot, 'Type', 'figure', 'Name', name);
+        function deleteIfWaiting(src)
+            u = src.UserData;
+            fig = findall(groot, 'Type', 'figure', 'Name', u.name);
             if numel(fig) > 1, fig = fig(1); end
             if ~isempty(fig) && isvalid(fig) && strcmp(get(fig, 'waitstatus'), 'waiting')
                 stop(src);
+                u.closedAt = toc(u.origin);
+                src.UserData = u;
                 delete(fig);
             end
+        end
+
+        function whyOrderingNotDuration(testCase, closer, elapsed, what)
+            % Both blocking tests used to assert `elapsed > 1`, which measures how
+            % fast the CLOSER is, not whether the call blocked. CI caught it: the
+            % options window reached uiwait quickly, the poller deleted it on its
+            % first tick, and the whole call took 0.616 s -- a correct blocking
+            % implementation failing a test that never described blocking.
+            %
+            % Blocking is an ORDERING claim: the call must not return until after
+            % the window was closed. That holds however fast either one is.
+            info = closer.UserData;
+            testCase.assertNotEmpty(info.closedAt, sprintf( ...
+                ['%s: the poller never saw the window in uiwait, so nothing was ' ...
+                 'closed and this test proved nothing.'], what));
+            testCase.verifyGreaterThanOrEqual(elapsed, info.closedAt, sprintf( ...
+                '%s returned %.3f s in, before the window was closed at %.3f s.', ...
+                what, elapsed, info.closedAt));
         end
 
         function killTimer(t)
