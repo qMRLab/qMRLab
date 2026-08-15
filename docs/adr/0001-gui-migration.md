@@ -218,6 +218,36 @@ The answer is cached, which also removes a `system()` fork per colour lookup.
 (the one input a test can change on any platform) and fails against the old order on
 both macOS and Linux.
 
+### D10 — The GUIDE-era generators survive F2, and so do 40 `uicontrol` calls
+
+*Decided during Stage F2/F3, from what the rebuild actually needed.*
+
+F2 rebuilt all five Sim add-on windows as programmatic **legacy figures** (D4's
+reasoning: `axes(h)` and `subplot` do not work in a `uifigure`, and `plotModel`
+takes no axes handle). Two plan items do not survive that:
+
+- **`GenerateButtonsWithPanels` cannot be deleted.** Three of the rebuilt windows
+  still call it, and `qmrlab.gui.OptionsRenderer` cannot replace it there: the
+  renderer builds native components inside a `uigridlayout`, and a `uigridlayout`
+  cannot host a `uicontrol` at all. A legacy figure needs a legacy options
+  builder. It is kept, and it is the reason `parseButtons` stays the shared
+  contract between the two.
+- **"Zero `uicontrol(` outside `External/`" is unreachable.** 40 remain: the five
+  Sim windows, the two generators serving them, and the runtime Sim buttons
+  `MethodMenu` builds into a `uipanel`. Every one is inside a legacy figure or
+  builds for one.
+
+GUI coverage is therefore collected in the **GUI job**, which is the only job that
+runs the interface, rather than by deleting `-cover_exclude '*GUI*'` from jobs
+that never touch it.
+
+**Character units are the other finding worth recording.** Four of the five
+windows positioned components in `Units='characters'` — a font metric, so a
+different rectangle on every machine. It produced a table that fitted its panel on
+macOS and overflowed by 15 px on the Linux runner, and an axes that hung 60 px
+below its panel. All of it is normalized now, converted from measured pixels
+divided by each parent's INNER size.
+
 ## Consequences
 
 **Good.** The GUI becomes reviewable in a pull request for the first time. GUI tests

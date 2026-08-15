@@ -9,8 +9,9 @@ Read this, then `docs/adr/0001-gui-migration.md` (decisions D1–D9a), then the 
 Branch `mb/migrate-v2`, **pushed**, 37 commits ahead of master. `Test/GUI`: **62/62**
 on R2026b (46 at the start of the session).
 
-Done: Stages A, B, C, D1–D4, E1–E4, the F2 gate, and **four of F2's five windows**.
-Not done: **Monte Carlo** (the fifth), F3, F1, then the merge and the tagged release.
+Done: Stages A, B, C, D1–D4, E1–E4, **F2 in full** and **F3**. There are zero `.fig`
+files left outside `External/`, and the GUI job now reports coverage.
+Not done: **F1**, then the merge and the tagged release.
 
 The app is still a hybrid: a modern, gridded, themed main window and Options window,
 and five GUIDE Sim add-on windows behind them.
@@ -44,104 +45,52 @@ first.
 
 ## What is left, in the order to do it
 
-### 1. F2 — four of five done; Monte Carlo is left
+### 1. F1 — retire the `handles` shim  ← the only engineering stage left
 
-| file (under `src/Addons/`) | state |
-|---|---|
-| `SingleVoxel/Sim_Single_Voxel_Curve_GUI.m` | **rebuilt**, `.fig` deleted |
-| `SimProtocolOpt/Sim_Optimize_Protocol_GUI.m` | **rebuilt**, `.fig` deleted |
-| `SimRnd/Sim_Multi_Voxel_Distribution_GUI.m` | **rebuilt**, `.fig` deleted |
-| `SimVary/Sim_Sensitivity_Analysis_GUI.m` | **rebuilt**, `.fig` deleted |
-| `SimMonteCarlo_Diffusion/Sim_MonteCarlo_Diffusion_GUI.m` | **not started** (307 lines, 61 `handles.`) |
+The plan scoped this as "~105 sites, all in the main app". Measured, it splits in
+two, and the split is what makes it tractable:
 
-**The shape each rebuild takes**, established across the four and worth copying:
+| in `MainApp.m` | names | uses | what it takes |
+|---|---|---|---|
+| components with an app property | 11 | 45 | mechanical: `handles.X` → `app.X` |
+| runtime state living in `guidata` | 9 | 57 | needs promoting to properties first |
 
-```
-function varargout = X_GUI(Model)      % Model optional; falls back to appdata
-    fig = findall(groot,'Type','figure','Tag','Simu','Name',NAME);
-    if isempty(fig), fig = buildWindow(NAME); else, fig = fig(1); figure(fig); end
-    showModel(fig, Model);             % runs on EVERY open, not once
-```
+The state names are `tool` (27 uses), `CurrentData` (9), `dcm_obj` (7),
+`ModelDir` (5), `Default` (5), `SimFileName`, `ProtFileName`, `FitOptFileName`,
+`opened`. `convertToGUIDECallbackArguments` cannot go until BOTH halves do.
 
-`buildWindow` creates the components with the `.fig`'s own geometry; `showModel`
-fills them from the model and rebuilds the options panel. Splitting it that way is
-what fixed the stale-model defect: GUIDE did all of it once, behind
-`~isfield(handles,'opened')`.
+It also reaches four helpers that take a `handles` struct —
+`GUIfun/{DrawPlot,UpdateSlice,GetPlotRange,UpdatePopUp}.m` — plus `BrowserSet.m`.
+Their only callers are `MainApp` and each other, so the cluster is closed;
+`GetPlotRange` has no caller at all and should be checked for deletion.
 
-Read a `.fig` without instantiating it (loading one runs its `CreateFcn`s):
+**The five Sim windows are NOT part of this.** They hold 321 of the repo's
+`handles.` references and they keep them: they are legacy figures by decision,
+and `guidata` is the native idiom there, not a shim.
 
-```matlab
-s = load('src/Addons/.../X_GUI.fig', '-mat');
-s.hgS_070000.children(1).properties    % type / properties / children, recursively
-```
+Convert each component in the same commit as its call sites — the plan's advice,
+and the reason it is worth following is that `handles.X` and `app.X` can coexist
+during the change without anything failing loudly.
 
-**Preserved in all four, and required:** `Tag='Simu'` (`MainApp.m:1164` tears these
-down by it), the figure `Name` (the only thing telling the five apart), 
-`HandleVisibility='callback'`, and every `handles.*` field name — including
-`handles.Simu`. Nothing anywhere uses GUIDE's `('CALLBACK',...)` string form, so
-`gui_State`/`gui_mainfcn` go outright.
+### 2. The landing
+Merge to master and tag. `version.txt` is at v2.4.2 against a published v2.4.1,
+so every startup prints a nag. The origin remote still reports the repository has
+**moved** to `qMRLab/qMRLab.git`; pushes work through the redirect.
 
-**Deliberate, in all four:** the figure `Color` follows `qmrlabUIColor('viewerChrome')`
-instead of a hard-coded `[0.251 0.251 0.251]` that a legacy figure will never theme;
-the Update/Fit button uses the `accent` token; `ToolBar='figure'` replaces the two
-custom tools, which were MATLAB's own annotation tools declared with
-`ClickedCallback='%default'`. Where a help button existed it is APPENDED to the
-standard toolbar — giving it its own `uitoolbar` costs a whole row.
+### Deferred, both optional and both scoped
 
-**CHARACTER UNITS ARE THE BUG BEHIND MOST OF THIS.** A character is a font metric,
-so a rectangle in characters is a different size on every machine. Measured here,
-1 char = **7.035 x 15.0 px**. It is what made Optimize Protocol's table overflow on
-Linux but not macOS, and it is what puts Monte Carlo's plot axes 60 px below its
-panel (`-4.03333` chars). Convert by measuring the rendered geometry and dividing
-by the parent's INNER size — not its outer rect, which differs by the title band.
-Solve the inner size from a sibling whose normalized position the `.fig` stored.
+**The launch is still slow and shows an empty shell.** ~8 s, and the attempt to
+fix it was reverted: holding the figure at `Visible='off'` while it is built
+leaves `imtool3D` with no laid-out geometry, and it fails setting
+`PlotBoxAspectRatio` to a non-finite value. That passed 62/62 on macOS and failed
+both GUI legs on the runner. The mechanism has to change, not the details: build
+the window on screen but positioned off the visible desktop, and move it back at
+reveal. Verify on a runner — here is where it looked fine. The maintainer's
+preference, still standing: hold the window, show a loading bar. Note this is also
+what makes the Sim Tools buttons look off-centre, so the two are one fix.
 
-### Monte Carlo, specifically
-
-Everything needed is measured already:
-`Test/GUI/evidence/before_F2/MONTECARLO_MEASURED_GEOMETRY.txt` has every component
-with its parent, the parent's pixel size, and the **normalized** position to use.
-
-It is the worst of the five, and it is broken TODAY on macOS — look at
-`before_F2/charmed_SimMCdiff.png` before deciding what "faithful" means:
-
-- Every label in the Axon Packing panel is vertically clipped: "# axons: 100",
-  "mean diameter: 3um", "Diameter variance:", "Gap between axons:". They are
-  `0.866667` characters tall, which is not enough for the text at this font.
-- The Monte Carlo panel on the right is clipped the same way — "Permeability: 0",
-  "Number of particles: 100", and "(stepflight^2 =" is cut mid-line.
-- `tableVolumes` shows ~3.5 of its 4 rows with a scrollbar.
-- `SimMCdiff` (the Plot Results axes) sits at normalized y = **-0.128**, hanging
-  below its panel, which is the one Overflow `tSimWindows` reports and prints.
-
-So this one needs a layout pass, not just a units conversion: converting faithfully
-preserves the clipping. Give the labels the height their text needs, then convert.
-
-Two runtime details found by measurement: `axes_axonDist` and `axes_axonPack` LOSE
-their tags at runtime (the window ends up with three axes, two untagged), and the
-`.fig`'s `preset_packing` String is the GUIDE placeholder `'Pop-up Menu'` — the real
-list is built at open time from the packing `.mat` files.
-
-### 2. F3 — delete the generator, get CI coverage
-`GenerateButtonsWithPanels` survives **only** for three Sim GUIs (`SingleVoxel:66`,
-`SimRnd:59`, `SimVary:92`). Once F2 lands it can go with the five `.fig` files. Then
-remove `-cover_exclude '*GUI*'` from `.github/workflows/matlab.yml:62`.
-
-Note `Sim_Optimize_Protocol_GUI.m:69` calls the *other* generator, `GenerateButtons`,
-which names handles differently — it does not strip `##`/`**`. `tDSL` pins
-`parseButtons` against `GenerateButtonsWithPanels` only.
-
-### 3. F1 — retire the `handles` shim (do this LAST)
-487 `handles.` references and 27 `guidata` calls in `src/`. MATLAB's migration runtime
-*translates* `String`, numeric `Value`, `ForegroundColor` and `TooltipString`, so those
-sites are **not broken** — F1 is readability and deletion, not a bug hunt. After F2/F3,
-or a large share of the churn lands on code F2 deletes.
-
-### 4. The landing
-No master merge and no tagged release until the migration is complete. `version.txt`
-is already at v2.4.2 against a published v2.4.1, so every startup prints a nag.
-The origin remote reports the repository has **moved** to `qMRLab/qMRLab.git`; pushes
-still work through the redirect, but the URL is stale.
+**Monte Carlo label sizing.** The rebuild converted its units and fixed its axes;
+the labels still get only the box the `.fig` gave them. Scoped out deliberately.
 
 ## Traps — each of these cost real time; do not relearn them
 
