@@ -154,6 +154,43 @@ symptoms.
 **Monte Carlo label sizing.** Its rebuild converted units and fixed its axes; the
 labels still get only the box the `.fig` gave them. Deliberately scoped out.
 
+**The 47 magic `FontSize` numbers are whole point sizes in disguise.** Every
+`FontSize = 13.3333333333332`-style literal in `MainApp.m` and `OptionsWindow.m`
+is a GUIDE point size converted to pixels at 96 dpi — a flat `x 4/3` — and frozen
+into the generated `createComponents`. Measured on R2026b:
+
+| | FontUnits | default |
+|---|---|---|
+| GUIDE `uicontrol` | **points** | 8 |
+| App Designer `uilabel`/`uibutton` | **no such property** (pixels) | 12 |
+
+```
+ 8 pt -> 10.6666666666667      12 pt -> 16          <- the only integer,
+10 pt -> 13.3333333333333      14 pt -> 18.6666666666666    which is why 16
+11 pt -> 14.6666666666667                                   looks "normal"
+```
+
+Two things the raw numbers tell you:
+
+- **The trailing digits disagree.** One size, 10 pt, appears as four distinct
+  doubles: `...3333`, `...3332`, `...3331`, `...3329`. Computed as `10*4/3` they
+  would be bit-identical, so each went through a different arithmetic path —
+  almost certainly a normalized-`FontUnits` round trip in the `.fig` (a fraction
+  of parent height multiplied back out against slightly different measured
+  heights). Same family as the character-units problem in D10.
+- **One value is not a point size at all.** `MethodSelection` carries
+  `12.570970970971` = 9.428 pt. Every other literal in both files is a whole
+  point size. That one came through the normalized path, not the clean one.
+
+Nothing is load-bearing here: `TypeScale.apply` scales multiplicatively and
+leaves `FontUnits` untouched (`TypeScale.m:90`), so the arithmetic is
+unit-invariant and this has never produced a visible defect. But they are 47
+magic numbers that all mean "8, 10, 11, 12 or 14 points". Rounding them to
+`{11, 13, 15, 16, 19}` px, or better naming them as steps on `qmrlab.gui.TypeScale`,
+would make both files readable at zero behavioural cost. Deliberately kept out of
+F1: it touches `createComponents` in both windows, which would put cosmetic churn
+in the same diff as the shim retirement.
+
 ## Traps — each of these cost real time; do not relearn them
 
 **Green tests are evidence only for the code paths they execute.** Burned three
