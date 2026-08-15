@@ -1419,12 +1419,45 @@ classdef MainApp < matlab.apps.AppBase
             end
         end
 
+        function chrome = browserChrome(app)
+            % Height the Datasets PANEL spends on itself -- its title band and
+            % border -- so heightFor's CONTENT estimate can be turned into a panel
+            % height.
+            %
+            % This is why the "Cannot find required input called ..." warning was
+            % clipped. heightFor returns what the browser's grid needs; the result
+            % was assigned straight to FitDataGrid.RowHeight{1}, which sizes the
+            % panel. The content was therefore always over by the title band, and
+            % the last row -- the warning -- fell off the bottom. Same
+            % inner-vs-outer trap ADR D10 records for character units.
+            %
+            % Position(4) - InnerPosition(4), NOT the panel height minus the grid
+            % height. The grid's rows are 'fit', so it is only ever as tall as its
+            % content; measuring against it makes the answer depend on the very
+            % thing being sized, and each call then adds the previous call's slack
+            % (measured: the track ran 139 -> 228 px over successive resizes).
+            % InnerPosition is a property of the panel alone, and it already tracks
+            % the title font -- measured 13 px at the default size, 21 px at
+            % FontSize 20 -- so it stays correct across the text-size preference,
+            % which a hardcoded constant would not.
+            chrome = 14;
+            try
+                panel = app.FitDataFileBrowserPanel;
+                if isvalid(panel) && isprop(panel, 'InnerPosition')
+                    d = panel.Position(4) - panel.InnerPosition(4);
+                    if d > 0 && d < 120, chrome = d; end
+                end
+            catch
+                % keep the default
+            end
+        end
+
         function setDatasetsHeight(app, nItems)
             % Give the Datasets row what the active browser needs, but never more
             % than half the pane -- the viewer is the reason the window is open. Past
             % that the browser's own grid scrolls, which is why it is Scrollable.
             if isempty(app.FitDataGrid) || ~isvalid(app.FitDataGrid), return; end
-            want = MethodBrowser.heightFor(nItems);
+            want = MethodBrowser.heightFor(nItems) + app.browserChrome();
             pane = getpixelposition(app.FitDataPanel);
             if pane(4) > 100
                 want = min(want, round(pane(4) * 0.5));

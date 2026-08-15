@@ -146,7 +146,13 @@ classdef MethodBrowser < handle
             % "Download example" to "Download exampl" at the 1.25 step. The path box
             % keeps '1x' and absorbs whatever is left.
             head.ColumnWidth   = {'fit', 'fit', 'fit', '1x', 'fit', 'fit', 'fit'};
-            head.RowHeight     = {22};
+            % 'fit', like every input row below. A fixed 22 made this row 5 px
+            % shorter than the 27 px input rows, so its controls -- ?, Browse,
+            % Download example -- were centred in a shallower box and their text
+            % sat visibly lower than the same controls one row down. A fixed
+            % height also cannot grow with the text-size preference, which is the
+            % same reason the column widths are 'fit'.
+            head.RowHeight     = {'fit'};
             head.Padding       = [0 0 0 0];
             head.ColumnSpacing = 4;
 
