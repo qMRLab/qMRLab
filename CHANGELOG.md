@@ -1,6 +1,71 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## Release [3.0.0] - 2026-08-15
+
+The graphical interface has been rebuilt. Nothing about fitting, models, protocols or
+saved `FitResults` changes in this release.
+
+### ⚠️ Breaking Changes
+- **The GUI no longer uses GUIDE, and there are no `.fig` files left.**
+    - MATLAB removed GUIDE in R2025a, where the 2.x interface can no longer be opened.
+      That is the reason for this release.
+    - The main window and the options panel are now programmatic `uifigure` apps; the
+      five simulation windows are built in code. Local edits to any `.fig`, and code
+      that drove the interface through GUIDE's `handles` struct, no longer apply.
+- **The GUI now targets MATLAB R2020b or newer.**
+    - The layout uses `uigridlayout` with `Scrollable`, which arrives in R2020b. On
+      older releases the interface will not lay out correctly.
+    - Fitting from the command line is unaffected on every release qMRLab supports.
+- Octave is unaffected: the GUI has never been available there, and `qMRLab` continues
+  to direct Octave users to the command line.
+
+### New ✨
+- 🆕 Light and dark theme
+    - The interface follows MATLAB's own appearance setting on R2025a and newer, where
+      `uifigure` theming is available. Below that a single palette is used.
+- 🆕 User-controlled text size
+    - Choose the interface text size; panels, tables and the file browser are measured
+      against it and grow with it instead of clipping.
+- 🆕 A regression test suite for the interface — 68 tests covering the main window, the
+  options panel, the five simulation windows, the options DSL, theming, and the platform
+  behaviours the layout depends on.
+    - `matlab.uitest` can drive `uifigure` components but refuses legacy `uicontrol`, so
+      rebuilding the interface is what made it testable at all.
+
+### Improvements 🚀
+- **Windows resize.** The layout is grid-managed throughout, so the viewer, the datasets
+  panel and the options column grow with the window instead of holding their designed
+  size.
+- **Panels are sized to the model you picked.**
+    - Protocol tables size to the protocol, so `inversion_recovery`'s 9 inversion times
+      and `qmt_spgr`'s 10 MT data rows are fully visible instead of scrolling inside a
+      fixed-height table.
+    - The Fitting table sizes to the parameter count, so every model's parameters are
+      visible — from `mp2rage`'s 4 to `noddi`'s 8.
+    - The Simulation tools panel is sized to the simulation tools a model actually
+      offers, rather than reserving a fixed six slots.
+- The viewer clears when you switch models, instead of leaving the previous model's
+  image, mask and volume list on screen.
+- Typing or pasting a folder into *Path data* now loads it. Previously the box had no
+  callback and only the Browse dialog worked.
+
+### Bug Fixes🐛
+- The simulation windows now adopt the model you give them.
+    - They were built once and kept the first model they saw, so opening a simulation
+      window on one model and then another went on simulating the first.
+- Options panels no longer render partly off-screen for `qmt_spgr` and `qsm_sb`.
+- Switching models no longer leaks graphics handles.
+- `imtool3D` no longer leaks 63 graphics objects every time an image is loaded.
+    - `setupGrid` deleted the previous grid in a single call, which throws for a
+      heterogeneous array of handles and was swallowed by a bare `try`. This affected
+      every data load, not only the GUI. See `External/imtool3D_td/QMRLAB_PATCHES.md`.
+- Fitting with a mask that excludes every voxel now fails cleanly, instead of erroring
+  part-way through saving after it had already created an output directory.
+
+### Removed 🧹
+- Every GUIDE `.fig` file.
+
 ## Release [2.5.0] - 2026-08-15
 
 ### ⚠️ Breaking Changes
