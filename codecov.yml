@@ -1,7 +1,6 @@
 codecov:
   require_ci_to_pass: yes
   bot: "qmrlab-coverage"
-  require_ci_to_pass: yes
   notify:
     wait_for_ci: yes
 
@@ -12,10 +11,13 @@ coverage:
   status:
     patch: off
     project:
-      Octave:
-        target: 36%
-        flags:
-          - octave
+      # One status, over the `matlab` flag, which now carries BOTH the
+      # model-fitting suites and the GUI suite.
+      #
+      # There was an Octave status here targeting a flag named `octave`. Nothing
+      # has produced that flag: .github/workflows/ contains one workflow and it
+      # uploads `matlab` twice and (previously) `gui`. So the status was gating on
+      # a flag with no producer.
       Matlab:
         target: 40%
         flags:

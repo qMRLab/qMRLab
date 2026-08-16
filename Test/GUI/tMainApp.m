@@ -1,0 +1,563 @@
+classdef tMainApp < matlab.uitest.TestCase
+% tMainApp  Regression tests for the migrated qMRLab main window.
+%
+%   Each test here pins a defect found during the GUIDE -> App Designer migration.
+%   Every one of them was silent: the app opened, so a smoke test that only checks
+%   for exceptions reported success while the behaviour was broken.
+%
+%   See Test/GUI/STAGE_A_FINDINGS.md and docs/adr/0001-gui-migration.md.
+%
+%   Run with:  runtests('Test/GUI/tMainApp.m')
+
+    properties (Constant)
+        % Chosen deliberately: inversion_recovery is the simple case (has an
+        % `equation` method, so the Fitting panel is shown); qsm_sb is the
+        % pathological one (16 option rows, and the only model that uses
+        % linkGUIState); b0_dem has no `equation`, which takes the other layout
+        % branch entirely.
+        SimpleModel = 'inversion_recovery';
+        LinkedModel = 'qsm_sb';
+        NoEqnModel  = 'b0_dem';
+    end
+
+    methods (TestClassSetup)
+        function requireGraphics(testCase)
+            try
+                f = uifigure('Visible', 'off');
+                delete(f);
+            catch ME
+                testCase.assumeFail(['No usable graphics environment: ' ME.message]);
+            end
+        end
+    end
+
+    methods (TestMethodSetup)
+        function cleanSlate(testCase)
+            tMainApp.closeEverything();
+            testCase.addTeardown(@tMainApp.closeEverything);
+        end
+    end
+
+    methods (Test)
+
+        function opensForSimpleModel(testCase)
+            qMRLab(feval(testCase.SimpleModel));
+            drawnow;
+            testCase.verifyNotEmpty(tMainApp.mainFigure(), 'Main window did not open.');
+        end
+
+        function survivesCloseAndReopen(testCase)
+            % Root cause of "runs but badly broken": FileBrowserList is cached in
+            % root appdata and holds graphics handles into the window. After a
+            % close, the next launch walked those dead handles and died inside
+            % BrowserSet.Visible. The teardown path has to clear the shared store,
+            % which is why qMRLab.m's modal branch does exactly that.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            tMainApp.closeEverything();
+
+            % Assert it does not THROW. A warning about an optional asset is not a
+            % relaunch failure, and verifyWarningFree would conflate the two.
+            try
+                qMRLab(feval(testCase.NoEqnModel));
+            catch ME
+                testCase.verifyFail(sprintf('Reopen after close threw: %s (%s line %d)', ...
+                    ME.message, ME.stack(1).name, ME.stack(1).line));
+            end
+            drawnow;
+            testCase.verifyNotEmpty(tMainApp.mainFigure());
+        end
+
+        function survivesReopeningTheSameModel(testCase)
+            qMRLab(feval(testCase.LinkedModel)); drawnow;
+            tMainApp.closeEverything();
+            try
+                qMRLab(feval(testCase.LinkedModel));
+            catch ME
+                testCase.verifyFail(sprintf('Same-model reopen threw: %s (%s line %d)', ...
+                    ME.message, ME.stack(1).name, ME.stack(1).line));
+            end
+            drawnow;
+            testCase.verifyNotEmpty(tMainApp.mainFigure());
+        end
+
+        function optionsWindowRendersEveryModel(testCase)
+            % The layout defect that produced 44 findings in the Stage A triage:
+            % a uipanel inside a uifigure is pixel-united, so GUIDE-era normalized
+            % Position values collapsed the options panel and everything derived
+            % from its pixel size afterwards.
+            for model = string(list_models())'
+                qMRLab(feval(model)); drawnow;
+                opts = tMainApp.optionsFigure();
+                testCase.assertNotEmpty(opts, sprintf('%s: options window missing.', model));
+                defects = geomAudit(opts);
+                testCase.verifyEmpty(defects, sprintf('%s: %d layout defect(s): %s', ...
+                    model, numel(defects), strjoin({defects.Detail}, '; ')));
+                tMainApp.closeEverything();
+            end
+        end
+
+        function windowSurvivesResize(testCase)
+            % The layout used to be 40 absolute pixel Positions under
+            % AutoResizeChildren, which scales children proportionally -- so at a
+            % small window the method dropdown was squashed below usable height and
+            % the sidebar became unreadable. A grid keeps the sidebar at a fixed
+            % width and gives the canvas the remainder.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig);
+
+            % From the design size upward. Shrinking is covered separately by
+            % windowCanShrinkBelowTheDesignSize, now that E4 has retired the clamp.
+            sizes = [1126 837; 1400 900; 1920 1080; 1280 800];
+            for k = 1:size(sizes, 1)
+                fig.Position(3:4) = sizes(k, :);
+                % Let the layout settle. Normalized children reflow asynchronously
+                % and imtool3D relayouts its own pixel children from a resize
+                % callback, so a single drawnow is not enough -- measuring too early
+                % produces defects that come and go with window size.
+                drawnow; pause(0.6); drawnow;
+                label = sprintf('at %dx%d', sizes(k,1), sizes(k,2));
+
+                % This used to skip the full-tree audit, because the data browser and
+                % the viewer toolbar were positioned in pixels at runtime and
+                % reported overlaps that were real but out of scope. E1 and E2 put
+                % both on grids, so the exemption is spent and the audit runs.
+                defects = geomAudit(fig);
+                testCase.verifyEmpty(defects, sprintf('%s: %s', label, ...
+                    strjoin(arrayfun(@(d) sprintf('%s %s (%s)', d.Kind, d.Tag, d.Detail), ...
+                            defects, 'UniformOutput', false), '; ')));
+
+                sidebar = getpixelposition(tMainApp.byTag(fig, 'SimPanel'));
+                testCase.verifyGreaterThan(sidebar(3), 200, sprintf( ...
+                    '%s: sidebar squeezed to %.0f px; the grid should hold it fixed.', ...
+                    label, sidebar(3)));
+
+                drop = getpixelposition(tMainApp.byTag(fig, 'MethodSelection'));
+                testCase.verifyGreaterThanOrEqual(drop(4), 18, ...
+                    sprintf('%s: method dropdown collapsed to %.1f px tall.', label, drop(4)));
+
+                canvas = getpixelposition(tMainApp.byTag(fig, 'FitDataPanel'));
+                testCase.verifyGreaterThan(canvas(3), 400, ...
+                    sprintf('%s: data panel only %.0f px wide.', label, canvas(3)));
+            end
+        end
+
+        function windowCanShrinkBelowTheDesignSize(testCase)
+            % Stage E4. The window used to refuse to shrink below 1126x837: a
+            % SizeChangedFcn snapped it back, because the data browser and the viewer
+            % toolbar were laid out in pixels at runtime and overlapped below that.
+            % E1 and E2 put both on grids and the strip and browser now scroll, so
+            % the clamp had nothing left to protect.
+            %
+            % Asserts the two things that could regress: the window actually TAKES
+            % the size it is given (a returning clamp would show up as the size
+            % snapping back), and the layout stays audit-clean while it does.
+            %
+            % mp2rage on purpose -- seven inputs, the tallest browser, so it is the
+            % model with the least room to give.
+            qMRLab(mp2rage); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig);
+            fig.Visible = 'on';
+
+            for sz = [1000 750; 900 650; 800 600; 700 520]'
+                want = sz';
+                fig.Position(3:4) = want;
+                drawnow; pause(0.8); drawnow;
+
+                got = round(fig.Position(3:4));
+                testCase.verifyEqual(got, want, sprintf( ...
+                    'Asked for %s, window became %s -- something is clamping again.', ...
+                    mat2str(want), mat2str(got)));
+
+                defects = geomAudit(fig);
+                testCase.verifyEmpty(defects, sprintf('At %s: %s', mat2str(want), ...
+                    strjoin(arrayfun(@(d) sprintf('%s %s (%s)', d.Kind, d.Tag, d.Detail), ...
+                            defects, 'UniformOutput', false), '; ')));
+            end
+        end
+
+        function viewerFillsItsHostAndGrowsWithTheWindow(testCase)
+            % Stage E1. Two assertions the obvious metric cannot make.
+            %
+            % The first is measured against the HOST box rather than resizeCheck's
+            % "rail gap". The rail gap is the distance from imtool3D's mask-select rail
+            % to the right edge of Panels.Large -- measured against Panels.Large, so if
+            % Panels.Large is itself what has gone wrong the gap still reads a healthy
+            % 5 px. A metric computed inside the thing it is checking cannot fail.
+            %
+            % Honest about its power: this assertion has not been shown to catch a
+            % real regression, because the failure it was written against (a grid-child
+            % host at AutoResizeChildren='on' having its child's normalized Position
+            % rewritten) reproduces in an isolated harness but NOT in this app --
+            % flipping that property here changes nothing measurable. It is the second
+            % assertion below that pins a defect this code actually had.
+            %
+            % The second assertion is the D1 defect itself: before E1 the window grew
+            % and the viewer did not, so enlarging the window only added dead space.
+            % Geometry-was-not-clipped is not the same as geometry-worked.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig);
+
+            % A visible window is required, not cosmetic: SizeChangedFcn does not fire
+            % for an invisible figure, so an invisible run measures construction-time
+            % geometry and would pass against a viewer that never relayouts.
+            fig.Visible = 'on';
+            sizes = [1126 837; 1250 850; 1470 940; 1280 800];
+            widths = zeros(size(sizes, 1), 1);
+
+            for k = 1:size(sizes, 1)
+                fig.Position(3:4) = sizes(k, :);
+                drawnow; pause(0.8); drawnow;
+                label = sprintf('at %dx%d', sizes(k,1), sizes(k,2));
+
+                host  = getpixelposition(tMainApp.byTag(fig, 'ViewerHost'), true);
+                large = getpixelposition(tMainApp.byTag(fig, 'imtool3D'),   true);
+                testCase.assertNotEmpty(host,  'ViewerHost is missing.');
+                testCase.assertNotEmpty(large, 'The imtool3D panel is missing.');
+
+                testCase.verifyLessThanOrEqual(abs(large(3) - host(3)), 2, sprintf( ...
+                    '%s: viewer is %.0f px wide inside a %.0f px host.', ...
+                    label, large(3), host(3)));
+                testCase.verifyLessThanOrEqual(abs(large(4) - host(4)), 2, sprintf( ...
+                    '%s: viewer is %.0f px tall inside a %.0f px host.', ...
+                    label, large(4), host(4)));
+
+                % The control strip must stay beside the viewer, never under it.
+                strip = getpixelposition(tMainApp.byTag(fig, 'CursorBtn'), true);
+                testCase.verifyLessThanOrEqual(strip(1) + strip(3), host(1) + 2, sprintf( ...
+                    '%s: the control strip runs under the viewer.', label));
+
+                widths(k) = large(3);
+            end
+
+            testCase.verifyGreaterThan(widths(3), widths(1) + 100, sprintf( ...
+                ['The viewer did not grow with the window: %.0f px at 1126 wide, ' ...
+                 '%.0f px at 1470. Growing the window is adding dead space.'], ...
+                widths(1), widths(3)));
+        end
+
+        function datasetsPanelIsPopulatedForEveryModel(testCase)
+            % Asserts CONTENT, not geometry.
+            %
+            % Stage D1 shipped a change that emptied this panel completely -- Path
+            % data, Browse, Study ID, Download example, and a row per model input --
+            % and every test stayed green. geomAudit walks containers and checks
+            % their size; a container with no children passes trivially. Nothing in
+            % the suite could tell "correctly sized" from "correctly sized and
+            % empty". This is that missing assertion.
+            for model = string(list_models())'
+                m = feval(model);
+                qMRLab(m); drawnow;
+
+                fig = tMainApp.mainFigure();
+                testCase.assertNotEmpty(fig, sprintf('%s: window did not open.', model));
+                panel = tMainApp.byTag(fig, 'FitDataFileBrowserPanel');
+                testCase.assertNotEmpty(panel, sprintf('%s: browser panel missing.', model));
+
+                % One labelled row per declared model input, plus the shared header
+                % controls. Match on the input names so the assertion fails loudly
+                % if rows are built but land somewhere unreachable.
+                labels = findall(panel, 'Type', 'uilabel');
+                shown  = string({labels.Text});
+                for input = string(m.MRIinputs)'
+                    testCase.verifyTrue(any(contains(shown, input)), sprintf( ...
+                        '%s: no row for input "%s" in the Datasets panel (found: %s).', ...
+                        model, input, strjoin(cellstr(shown), ', ')));
+                end
+
+                % And the rows must be REACHABLE. On a scrollable panel that is not
+                % the same as "inside the viewport": models with many inputs
+                % (mp2rage 5, mt_sat and qmt_spgr 4) legitimately build more rows
+                % than fit, and scrolling is how you get to them. What is never
+                % reachable is a negative coordinate -- MATLAB grows the scrollable
+                % extent downward and rightward only.
+                reachable = arrayfun(@(h) tMainApp.isReachable(h), labels);
+                testCase.verifyTrue(all(reachable), sprintf( ...
+                    '%s: %d of %d Datasets rows sit at negative coordinates and cannot be scrolled to.', ...
+                    model, sum(~reachable), numel(reachable)));
+
+                % Something in the Datasets subtree must own the scrolling, but E2
+                % moved that ownership from the panel to each MethodBrowser's own
+                % grid -- a scroller nested inside a scroller gives two scrollbars
+                % for one overflow. Assert the capability exists, not which
+                % component provides it.
+                % isprop per object rather than trusting findall's -property filter:
+                % it also returns the internal matlab.ui.container.Container that
+                % MATLAB inserts for scrolling, which reports the property as absent
+                % when read.
+                candidates = findall(panel, '-property', 'Scrollable');
+                scrolls = arrayfun(@(h) isprop(h, 'Scrollable') && ...
+                                        strcmp(get(h, 'Scrollable'), 'on'), candidates);
+                testCase.verifyTrue(any(scrolls), sprintf( ...
+                    '%s: nothing in the Datasets panel scrolls; rows below the fold are clipped.', model));
+
+                tMainApp.closeEverything();
+            end
+        end
+
+        function everyWindowLandsOnScreen(testCase)
+            % A window you cannot see is not a passing test.
+            %
+            % Written after b44757c, which parked the main window off the bottom of
+            % the desktop while it built and left the OPTIONS window parked with it:
+            % Position = [1259 -834 573 835], one pixel on screen. The maintainer
+            % reported it within a minute. The 64-test suite was green, and so were
+            % all 11 CI jobs -- because nothing here asserted where a window ends
+            % up, only that its components exist and are the right size.
+            %
+            % Deliberately generous: this is not a layout assertion. It fails only
+            % when a window is essentially off the desktop, which is the failure
+            % that shipped.
+            qMRLab(feval(testCase.SimpleModel)); drawnow; pause(0.5);
+
+            ss = get(groot, 'ScreenSize');
+            figs = findall(groot, 'Type', 'figure');
+            testCase.assertNotEmpty(figs, 'No figures at all after launch.');
+
+            MINVIS = 80;   % px of the window that must be on the desktop
+            offenders = {};
+            for k = 1:numel(figs)
+                f = figs(k);
+                if strcmp(char(string(f.Visible)), 'off'); continue; end
+                p = f.Position;
+                visW = min(p(1)+p(3), ss(3)) - max(p(1), 1);
+                visH = min(p(2)+p(4), ss(4)) - max(p(2), 1);
+                if visW < MINVIS || visH < MINVIS
+                    offenders{end+1} = sprintf('%s "%s" at %s (%.0fx%.0f px on a %.0fx%.0f screen)', ...
+                        char(string(f.Tag)), char(string(f.Name)), mat2str(round(p)), ...
+                        max(visW,0), max(visH,0), ss(3), ss(4)); %#ok<AGROW>
+                end
+            end
+
+            testCase.verifyEmpty(offenders, sprintf( ...
+                'These visible windows are off the desktop:\n  %s', strjoin(offenders, '\n  ')));
+        end
+
+        function modelSwitchActuallySwitches(testCase)
+            % The precondition for modelSwitchingDoesNotLeakHandles below, and it
+            % had to be written first because that test was VACUOUS: it "switched"
+            % models by calling qMRLab(feval(other)) on an open window, and
+            % MainApp's constructor returns the running instance and DISCARDS
+            % varargin. Measured on the live app -- ten such calls left
+            % class(getappdata(0,'Model')) at inversion_recovery and the handle
+            % count at 214 -> 214. Zero switches, and a leak assertion that has
+            % never once run.
+            %
+            % A model switch happens through the MethodSelection dropdown, so the
+            % test drives that. testCase.choose is the real gesture and works in
+            % both worlds: with the shim present the wiring is on the adapter's
+            % ClickedFcn, and after F1 it is the native ValueChangedFcn.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig, 'Main window did not open.');
+            app = fig.RunningAppInstance;
+
+            testCase.assertClass(getappdata(0, 'Model'), testCase.SimpleModel, ...
+                'Setup failed: the window did not open on the simple model.');
+
+            tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
+
+            testCase.verifyClass(getappdata(0, 'Model'), testCase.NoEqnModel, ...
+                'Choosing another entry in the model dropdown did not switch the model.');
+            testCase.verifyTrue(contains(char(string(app.text_doc_model.Text)), ...
+                testCase.NoEqnModel), sprintf( ...
+                'The documentation label still reads "%s" after switching to %s.', ...
+                char(string(app.text_doc_model.Text)), testCase.NoEqnModel));
+        end
+
+        function switchingModelBlanksTheViewer(testCase)
+            % Switching models left the previous model's image on screen. MethodMenu
+            % rebuilds the file browser, the options window and the Sim panel, but
+            % nothing in it touched app.Tool -- so an inversion_recovery dataset
+            % stayed in the viewer under b0_dem's inputs, with the Volume dropdown
+            % still offering IRData.
+            %
+            % This asserts CONTENT, not geometry, and that is the point: a viewer
+            % showing the wrong image is exactly the right size, so every layout
+            % check in this suite passes against the defect. geomAudit cannot see it.
+            %
+            % No dialog stub: stubBlockingDialogs lives on tControls, and this path
+            % (load, then switch) does not reach a blocking dialog -- verified by
+            % driving it end to end outside the framework.
+
+            % A tiny dataset through the real loading path, as tControls does --
+            % writing .mat files and handing over their paths rather than poking
+            % appdata, so DrawPlot genuinely populates the viewer.
+            d = fullfile(tempname, 'data');
+            mkdir(d);
+            testCase.addTeardown(@() rmdir(d, 's'));
+            model  = feval(testCase.SimpleModel);
+            nTI    = size(model.Prot.IRData.Mat, 1);
+            IRData = rand(4, 4, 1, nTI) * 100;  %#ok<NASGU>
+            Mask   = ones(4, 4);                %#ok<NASGU>
+            save(fullfile(d, 'IRData.mat'), 'IRData');
+            save(fullfile(d, 'Mask.mat'),   'Mask');
+            Files.IRData = fullfile(d, 'IRData.mat');
+            Files.Mask   = fullfile(d, 'Mask.mat');
+
+            qMRLab(model, Files);
+            drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig, 'Main window did not open.');
+            app = fig.RunningAppInstance;
+
+            % Assert the setup worked before asserting it was undone. Without this
+            % the test would pass having blanked nothing, which is the failure mode
+            % that made three earlier tests in this suite vacuous.
+            testCase.assertGreaterThan(numel(app.Tool.getImage()), 1, ...
+                'Setup failed: no image reached the viewer, so there is nothing to clear.');
+            testCase.assertNotEmpty(app.SourcePop.Items, ...
+                'Setup failed: the Volume dropdown was never populated.');
+
+            tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
+
+            I = app.Tool.getImage();
+            testCase.verifyEqual(numel(I), 1, sprintf( ...
+                'The viewer still holds a %s image after switching model.', ...
+                mat2str(size(I))));
+            testCase.verifyEqual(double(max(I(:))), 0, ...
+                'The viewer image is not blank after switching model.');
+            testCase.verifyEqual(nnz(app.Tool.getMask()), 0, ...
+                'The previous model''s mask survived the switch.');
+            testCase.verifyEmpty(app.SourcePop.Items, ...
+                'The Volume dropdown still lists the previous model''s volumes.');
+            testCase.verifyEmpty(app.CurrentData, ...
+                'app.CurrentData still holds the previous model''s data.');
+
+            % The contrast boxes are part of "blank", and setImage cannot reset
+            % them: it ends in setWL(0,0), Clim=[0 0] is rejected by MATLAB, and
+            % setWL swallows that in a bare try with no catch. Measured without the
+            % explicit setWindowLevel: L=0.46342, U=99.6135 over a black image.
+            % [1 0.5] is a never-loaded viewer's window/level, measured not chosen.
+            [W, L] = app.Tool.getWindowLevel();
+            testCase.verifyEqual([W L], [1 0.5], 'AbsTol', 1e-9, sprintf( ...
+                'Window/level is [%g %g], not a fresh viewer''s [1 0.5].', W, L));
+        end
+
+        function modelSwitchingDoesNotLeakHandles(testCase)
+            % The options panel used to be rebuilt by re-entering the whole opening
+            % function, which re-created the protocol panels without ever deleting
+            % them. Handle count grew for the life of the window.
+            %
+            % Switches through the dropdown. The previous form called
+            % qMRLab(feval(other)), which raises the existing window and returns --
+            % see modelSwitchActuallySwitches for the measurement. This assertion
+            % had therefore never been exercised.
+            qMRLab(feval(testCase.SimpleModel)); drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig);
+            app = fig.RunningAppInstance;
+
+            % Switch once BEFORE the baseline: the first switch legitimately builds
+            % structures the initial model never needed, and counting that as a leak
+            % would force the tolerance up to where a real leak hides.
+            tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
+            before = numel(findall(fig));
+
+            for k = 1:5
+                tMainApp.switchModelTo(testCase, app, testCase.SimpleModel);
+                tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
+            end
+            after = numel(findall(fig));
+
+            testCase.verifyLessThanOrEqual(after, before * 1.1, sprintf( ...
+                'Handle count grew from %d to %d over 10 model switches.', before, after));
+        end
+
+    end
+
+    methods (Static)
+
+        function switchModelTo(testCase, app, modelName)
+            % Pick a model in the dropdown the way a user does.
+            %
+            % The Items are PADDED display strings ('b0_dem   (FieldMaps/)'), not
+            % bare class names, so the entry has to be located rather than
+            % constructed. Asserting it was found matters: choose() on a missing
+            % item would throw, but a silent mismatch here would make every caller
+            % pass vacuously.
+            items = app.MethodSelection.Items;
+            idx   = find(startsWith(strtrim(items), modelName), 1);
+            testCase.assertNotEmpty(idx, sprintf( ...
+                'Model "%s" is not in the dropdown (%d entries).', modelName, numel(items)));
+
+            testCase.choose(app.MethodSelection, items{idx});
+            drawnow;
+        end
+
+        function tf = isReachable(child)
+            % Reachable = the user can bring it on screen, which is not the same as
+            % "currently inside the viewport".
+            %
+            % This used to be "negative coordinates are never reachable", which was
+            % true of the scrollable PANEL the browser used to be: MATLAB grows a
+            % panel's scrollable extent down and right only, so negative was
+            % permanently lost. A scrollable GRID behaves differently -- overflow
+            % children legitimately take a negative y and scrolling brings them back.
+            %
+            % Loosening an assertion to accommodate a change is precisely the move
+            % that went wrong in Stage D1, so this one is justified by measurement
+            % rather than by convenience: on amico after E2 a label sat at y = -11,
+            % and scroll(grid,'bottom') put it at figure-y 694, inside the viewport.
+            % The check is also stricter than before, because it now asks whether a
+            % scroller actually owns the overflow instead of trusting a sign.
+            try
+                pos = child.Position;
+            catch
+                tf = true; return   % nothing measurable; not this test's business
+            end
+            if pos(1) >= -3 && pos(2) >= -3
+                tf = true; return
+            end
+            tf = tMainApp.hasScrollableAncestor(child);
+        end
+
+        function tf = hasScrollableAncestor(h)
+            tf = false;
+            p = h;
+            while ~isempty(p) && ~isa(p, 'matlab.ui.Figure')
+                if isprop(p, 'Scrollable') && strcmp(p.Scrollable, 'on')
+                    tf = true; return
+                end
+                p = p.Parent;
+            end
+        end
+
+        function h = byTag(root, tag)
+            h = findall(root, 'Tag', tag);
+            if numel(h) > 1, h = h(1); end
+        end
+
+        function fig = mainFigure()
+            fig = findall(groot, 'Type', 'figure', 'Name', 'qMRLab');
+            if numel(fig) > 1, fig = fig(1); end
+        end
+
+        function fig = optionsFigure()
+            fig = findall(groot, 'Type', 'figure', 'Name', 'OptionsGUI');
+            if numel(fig) > 1, fig = fig(1); end
+        end
+
+        function closeEverything()
+            % Deleting the figure is not enough on two counts: the app object stays
+            % registered as the running singleton, and root appdata outlives the
+            % window. Both have to go or the next launch inherits dead handles.
+            figs = findall(groot, 'Type', 'figure');
+            for k = 1:numel(figs)
+                f = figs(k);
+                if isprop(f, 'RunningAppInstance') && ~isempty(f.RunningAppInstance)
+                    try, delete(f.RunningAppInstance); catch, end %#ok<NOCOM>
+                end
+            end
+            delete(findall(groot, 'Type', 'figure'));
+
+            stale = getappdata(0);
+            for f = fieldnames(stale)'
+                rmappdata(0, f{1});
+            end
+            drawnow;
+        end
+    end
+end

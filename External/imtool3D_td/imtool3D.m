@@ -292,11 +292,11 @@ classdef imtool3D < handle
             w=30; %Pixel width of the side panels
             h=110; %Pixel height of the histogram panel
             wbutt=20; %Pixel size of the buttons
-            tool.handles.Panels.Large   =   uipanel(tool.handles.parent,'Units','normalized','Position',position,'Title','','Tag','imtool3D'); 
+            tool.handles.Panels.Large   =   uipanel(tool.handles.parent,'Units','normalized','Position',position,'Title','','Tag','imtool3D','AutoResizeChildren','off'); 
             pos=getpixelposition(tool.handles.parent); pos(1) = pos(1)+position(1)*pos(3); pos(2) = pos(2)+position(2)*pos(4); pos(3) = pos(3)*position(3); pos(4) = pos(4)*position(4); 
             tool.handles.Panels.Hist   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w pos(4)-w-h pos(3)-2*w h],'Title','');
-            tool.handles.Panels.Image   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w w pos(3)-2*w pos(4)-2*w],'Title','');
-            tool.handles.Panels.Tools   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[0 pos(4)-w pos(3) w],'Title','');
+            tool.handles.Panels.Image   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[w w pos(3)-2*w pos(4)-2*h],'Title','');
+            tool.handles.Panels.Tools   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[0 pos(4)-2*w pos(3) 2*w],'Title','');
             tool.handles.Panels.ROItools    =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[pos(3)-w  w w pos(4)-2*w],'Title','');
             tool.handles.Panels.Slider  =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[0 w w pos(4)-2*w],'Title','');
             tool.handles.Panels.Info   =   uipanel(tool.handles.Panels.Large,'Units','Pixels','Position',[0 0 pos(3) w],'Title','');
@@ -317,7 +317,7 @@ classdef imtool3D < handle
             
             %Create image axis
             tool.handles.Axes           =   axes('Position',[0 0 1 1],'Parent',tool.handles.Panels.Image,'Color','none');
-            tool.handles.I              =   imshow(zeros(3,3),[0 1],'Parent',tool.handles.Axes); hold on;
+            tool.handles.I              =   imshow(zeros(3,3),[0 1],'Parent',tool.handles.Axes); hold(tool.handles.Axes,'on');
             set(tool.handles.I,'Clipping','off')
             view(tool.handles.Axes,-90,90);
             set(tool.handles.Axes,'XLimMode','manual','YLimMode','manual','Clipping','off');
@@ -325,7 +325,7 @@ classdef imtool3D < handle
             
             %Set up the binary mask viewer
             im = ind2rgb(zeros(3,3),tool.maskColor);
-            tool.handles.mask           =   imshow(im);
+            tool.handles.mask           =   imshow(im,'Parent',tool.handles.Axes);
             set(tool.handles.Axes,'Position',[0 0 1 1],'Color','none','XColor','r','YColor','r','GridLineStyle','--','LineWidth',1.5,'XTickLabel','','YTickLabel','');
             axis off
             grid off
@@ -566,7 +566,7 @@ classdef imtool3D < handle
             pos=get(tool.handles.Panels.ROItools,'Position');
             % mask selection
             for islct=1:5
-                tool.handles.Tools.maskSelected(islct)        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String',num2str(islct),'Position',[buff pos(4)-islct*w w w],'Tag','MaskSelected');
+                tool.handles.Tools.maskSelected(islct)        = uicontrol(tool.handles.Panels.ROItools,'Style','togglebutton','String',num2str(islct),'Position',[buff pos(4)-islct*w-20 w w],'Tag','MaskSelected');
                 set(tool.handles.Tools.maskSelected(islct) ,'Cdata',repmat(permute(tool.maskColor(islct+1,:)*tool.alpha+(1-tool.alpha)*[.4 .4 .4],[3 1 2]),w,w))
                 set(tool.handles.Tools.maskSelected(islct) ,'Callback',@(hObject,evnt) setmaskSelected(tool,islct))
                 c = uicontextmenu(tool.handles.fig);
@@ -1660,8 +1660,20 @@ classdef imtool3D < handle
         
         function setupGrid(tool)
             %Update the gridlines
-            try
-                delete(tool.handles.grid)
+            % qMRLab patch: delete the previous grid ONE OBJECT AT A TIME.
+            % tool.handles.grid is a double array (the x=[]; x(end+1)=plot(...)
+            % pattern below stores numeric handles), and it holds 62 Lines plus a
+            % Scatter. Deleting that in one call throws
+            % MATLAB:class:UnsealedMethodNoName -- delete is not sealed for the
+            % heterogeneous array's common ancestor, matlab.graphics.primitive.Data
+            % -- and the bare `try` this replaces swallowed it, so every call
+            % leaked all 63 objects. See QMRLAB_PATCHES.md.
+            if isfield(tool.handles,'grid')
+                for iGrid = 1:numel(tool.handles.grid)
+                    if isgraphics(tool.handles.grid(iGrid))
+                        delete(tool.handles.grid(iGrid))
+                    end
+                end
             end
             nGrid=7;
             nMinor=4;

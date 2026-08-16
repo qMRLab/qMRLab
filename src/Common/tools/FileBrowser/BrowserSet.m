@@ -1,308 +1,416 @@
-classdef BrowserSet
-    % BrowserSet - manage the file browser interface
-    %   P.Beliveau 2017 - setup
-    %   * manage the standard set of interface items in the browser
-    %   * Properties:
-    %       uicontrols:     - NameText
-    %                       - BrowserButton
-    %                       - FileBox
-    %                       - ViewButton
-    %       vars: - NameID: identifies the method
-    %             - FullFile: the path and file name displayed
-    %                           and chosen by user
-
-
+classdef BrowserSet < handle
+    % BrowserSet - App Designer version of BrowserSet
+    %   Manages file browser interface in App Designer
+    
     properties
-
-        NameID;         % Method
-        FullFile;
-
-
+        NameID;         % Method name
+        FullFile;       % Full file path
     end
-
-    properties(Hidden = true)
+    
+    properties(Access = private)
+        % App Designer components
         NameText;
         BrowseBtn;
         ClearBtn;
         InfoBtn;
         FileBox;
         ViewBtn;
-        parent;
+        Parent;
+        
+        IsOptional;
+        InfoText;
     end
-
+    
     methods
         %------------------------------------------------------------------
-        % -- CONSTRUCTOR
-        function obj = BrowserSet(varargin)
-            % BrowserSet(parentPanel,Name,InputOptional,Location)
-            % handles: used for the view button
-            % Name: Name of the field
-            if nargin>0
-                % parse the input arguments
-                obj.parent = varargin{1};
-                InputName = varargin{2};
-                InputOptional = varargin{3};
-                Location = varargin{4};
-                info = varargin{5};
+        % CONSTRUCTOR
+        function obj = BrowserSet(Parent, InputName, InputOptional, info)
+            % Parent is the one-row uigridlayout MethodBrowser builds for this
+            % input. Stage E2: it used to be the Datasets panel itself, with every
+            % widget placed at a pixel offset computed from the panel's size at
+            % construction time -- which is why the panel could not reflow and why
+            % the 'large' text size had to be withheld.
+            obj.Parent = Parent;
+            obj.NameID = InputName;
+            obj.IsOptional = InputOptional;
+            obj.InfoText = info;
 
-                obj.NameID = {InputName};
-
-                Position = [Location, 0.02, 0.1];
-                % add Info button
-                if ~isempty(info)
-                    obj.InfoBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized','BackgroundColor',[0.94 0.94 0.94], ...
-                        'String', '?','FontWeight','bold','TooltipString',info,'Position',Position,'Callback',@(hObj,eventdata,handles) helpdlg(info));
-                end
-
-                % add Input Name
-                Position = [[Location+[0.03 0]], 0.10, 0.1];
-                obj.NameText = uicontrol(obj.parent, 'Style', 'Text', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', obj.NameID, 'HorizontalAlignment', 'left', 'Position', Position,'FontSize', 0.6,'FontWeight','bold');
-
-                % Set color to gray if optional
-                if InputOptional, set(obj.NameText,'ForegroundColor',[.5 .5 .5]); end
-                if InputOptional==2
-                    set(obj.NameText,'FontWeight','normal');
-                    set(obj.NameText,'String',['(' obj.NameID{:} ')']);
-                end
-
-                % add Browse button
-                Position = [Location + [0.14, 0], 0.05, 0.11];
-                obj.BrowseBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', '', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
-                cur_m = mfilename('fullpath');
-                cur_loc = strfind(cur_m,[filesep 'src' filesep 'Common']);
-                im = imread([cur_m(1:cur_loc-1) filesep 'src' filesep 'Common' filesep 'icons' filesep 'plus.png']);
-                obj.BrowseBtn.CData = im;
-                
-                Position = [Location + [0.19, 0], 0.05, 0.11];
-                obj.ClearBtn = uicontrol(obj.parent, 'Style', 'pushbutton', 'units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', '', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
-                im = imread([cur_m(1:cur_loc-1) filesep 'src' filesep 'Common' filesep 'icons' filesep 'minus.png']);
-                obj.ClearBtn.CData = im;
-
-                % add Browse button
-                Position = [Location + [0.25, 0], 0.58, 0.1];
-                obj.FileBox = uicontrol(obj.parent, 'Style', 'text','units', 'normalized', 'fontunits', 'normalized', 'Position', Position,'FontSize', 0.6,...
-                    'BackgroundColor', [1 1 1]);
-                
-                if InputOptional && ~isempty(info), set(obj.FileBox,'string',info); end
-                if InputOptional && isempty(info), set(obj.FileBox,'string','OPTIONAL'); end
-                if ~InputOptional, set(obj.FileBox,'string',['REQUIRED ' info]); end
-
-                % add View button
-                Position = [Location + [0.87, 0], 0.10, 0.1];
-                obj.ViewBtn = uicontrol(obj.parent, 'style', 'pushbutton','units', 'normalized', 'fontunits', 'normalized', ...
-                    'String', 'View', 'Position', Position, 'FontSize', 0.6,'Interruptible','off');
-
-                % Set Callbacks
-                set(obj.FileBox,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj,info,InputOptional)});
-                set(obj.FileBox,'Callback', {@(src, event)BrowserSet.ClearBtn_callback(obj,info,InputOptional)});
-                set(obj.BrowseBtn,'Callback', {@(src, event)BrowserSet.BrowseBtn_callback(obj,info,InputOptional)});
-                set(obj.ClearBtn,'Callback', {@(src, event)BrowserSet.ClearBtn_callback(obj,info,InputOptional)});
-                set(obj.ViewBtn,'Callback', {@(src, event)BrowserSet.ViewBtn_callback(obj, src, event)});
-                
-                if strcmp(InputName,'Mask')
-                    delete(obj.ViewBtn);
-                end
-            end % testing varargin
-        end % constructor end
-
-    end
-
-    methods
+            obj.createComponents();
+            obj.setupCallbacks();
+        end
+        
         %------------------------------------------------------------------
-        % -- VISIBLE
-        %       Visibility should be set to 'on' or 'off'
+        % CREATE COMPONENTS
+        %------------------------------------------------------------------
+        function createComponents(obj)
+            % One row of the Datasets grid: [? | name | + | - | file | View].
+            %
+            % Column widths, not pixel offsets. The file box takes '1x' so it is the
+            % part that absorbs a wider window -- which is the whole point of E2: the
+            % row now reflows, and larger text grows the cells that hold it instead of
+            % overflowing boxes frozen at their design size.
+            hasInfo = ~isempty(obj.InfoText);
+            hasView = ~strcmp(obj.NameID, 'Mask');   % a mask has nothing to plot
+
+            % 'fit' where text decides the width, so the row survives a larger text
+            % size; the +/- buttons are icons and keep a fixed square.
+            obj.Parent.ColumnWidth   = {'fit', 'fit', 28, 28, '1x', 'fit'};
+            obj.Parent.RowHeight     = {'fit'};
+            obj.Parent.Padding       = [0 0 0 0];
+            obj.Parent.ColumnSpacing = 4;
+
+            if hasInfo
+                obj.InfoBtn = uibutton(obj.Parent, 'push');
+                obj.InfoBtn.Layout.Row = 1; obj.InfoBtn.Layout.Column = 1;
+                obj.InfoBtn.Text = '?';
+                obj.InfoBtn.FontWeight = 'bold';
+                obj.InfoBtn.Tooltip = obj.InfoText;
+                obj.InfoBtn.ButtonPushedFcn = @(src,event) helpdlg(obj.InfoText);
+            end
+
+            obj.NameText = uilabel(obj.Parent);
+            obj.NameText.Layout.Row = 1; obj.NameText.Layout.Column = 2;
+            obj.NameText.Text = obj.NameID;
+            obj.NameText.FontWeight = 'bold';
+            obj.NameText.HorizontalAlignment = 'left';
+            if obj.IsOptional
+                qmrlab.gui.Theme.paint(obj.NameText, 'FontColor', 'muted');
+            end
+            if obj.IsOptional == 2
+                obj.NameText.FontWeight = 'normal';
+                obj.NameText.Text = ['(' obj.NameID ')'];
+            end
+
+            obj.BrowseBtn = uibutton(obj.Parent, 'push');
+            obj.BrowseBtn.Layout.Row = 1; obj.BrowseBtn.Layout.Column = 3;
+            obj.BrowseBtn.Text = '';
+            obj.BrowseBtn.Icon = obj.getPlusIcon();
+            obj.BrowseBtn.Tooltip = ['Choose a file for ' obj.NameID];
+
+            obj.ClearBtn = uibutton(obj.Parent, 'push');
+            obj.ClearBtn.Layout.Row = 1; obj.ClearBtn.Layout.Column = 4;
+            obj.ClearBtn.Text = '';
+            obj.ClearBtn.Icon = obj.getMinusIcon();
+            obj.ClearBtn.Tooltip = ['Clear ' obj.NameID];
+
+            obj.FileBox = uieditfield(obj.Parent, 'text');
+            obj.FileBox.Layout.Row = 1; obj.FileBox.Layout.Column = 5;
+            obj.FileBox.HorizontalAlignment = 'left';
+
+            % The placeholder doubles as the input's documentation, and
+            % Test/GUI/tControls.m finds the row by it. Keep the wording.
+            if obj.IsOptional && hasInfo
+                obj.FileBox.Value = obj.InfoText;
+                qmrlab.gui.Theme.paint(obj.FileBox, 'FontColor', 'muted');
+            elseif obj.IsOptional
+                obj.FileBox.Value = 'OPTIONAL';
+                qmrlab.gui.Theme.paint(obj.FileBox, 'FontColor', 'muted');
+            else
+                obj.FileBox.Value = ['REQUIRED ' obj.InfoText];
+            end
+
+            if hasView
+                obj.ViewBtn = uibutton(obj.Parent, 'push');
+                obj.ViewBtn.Layout.Row = 1; obj.ViewBtn.Layout.Column = 6;
+                obj.ViewBtn.Text = 'View';
+            end
+        end
+
+        %------------------------------------------------------------------
+        % SETUP CALLBACKS
+        function setupCallbacks(obj)
+            obj.BrowseBtn.ButtonPushedFcn = @(src,event) obj.BrowseBtn_callback();
+            obj.ClearBtn.ButtonPushedFcn = @(src,event) obj.ClearBtn_callback();
+            
+            if ~strcmp(obj.NameID, 'Mask')
+                obj.ViewBtn.ButtonPushedFcn = @(src,event) obj.ViewBtn_callback();
+            end
+            
+            % Add click callback to FileBox for browsing
+            % Was obj.FileBox_callback(), a method that has never existed on this
+            % class -- typing a path into the box threw noSuchMethodOrField.
+            % SetFileName is what it meant: it stores the path and loads the file.
+            obj.FileBox.ValueChangedFcn = @(src,event) obj.SetFileName(src.Value);
+        end
+        
+        %------------------------------------------------------------------
+        % GET PLUS ICON
+        function icon = getPlusIcon(obj)
+            % Create a simple plus icon programmatically
+            icon = ones(16, 16, 3);
+            icon(8:9, 3:14, :) = 0;  % Horizontal line
+            icon(3:14, 8:9, :) = 0;  % Vertical line
+        end
+        
+        %------------------------------------------------------------------
+        % GET MINUS ICON
+        function icon = getMinusIcon(obj)
+            % Create a simple minus icon programmatically
+            icon = ones(16, 16, 3);
+            icon(8:9, 3:14, :) = 0;  % Horizontal line
+        end
+        
+        %------------------------------------------------------------------
+        % VISIBILITY CONTROL
         function Visible(obj, Visibility)
-            set(obj.NameText, 'Visible', Visibility);
-            set(obj.BrowseBtn, 'Visible', Visibility);
-            set(obj.ClearBtn, 'Visible', Visibility);
-            set(obj.FileBox, 'Visible', Visibility);
-            if ~strcmp(obj.NameID{1},'Mask')
-                set(obj.ViewBtn, 'Visible', Visibility);
+            obj.NameText.Visible = Visibility;
+            obj.BrowseBtn.Visible = Visibility;
+            obj.ClearBtn.Visible = Visibility;
+            obj.FileBox.Visible = Visibility;
+            
+            if ~isempty(obj.InfoBtn)
+                obj.InfoBtn.Visible = Visibility;
             end
-            set(obj.InfoBtn, 'Visible', Visibility);
+            
+            if ~strcmp(obj.NameID, 'Mask') && ~isempty(obj.ViewBtn)
+                obj.ViewBtn.Visible = Visibility;
+            end
         end
-
+        
         %------------------------------------------------------------------
-        % -- GetFileName
+        % GET FILE NAME
         function FileName = GetFileName(obj)
-            FileName = get(obj.FileBox, 'string');
-            if ~(exist(FileName,'file')==2 || exist(FileName,'dir')==7)
-                   FileName = char.empty;
+            FileName = obj.FileBox.Value;
+            if ~(exist(FileName, 'file') == 2 || exist(FileName, 'dir') == 7)
+                FileName = char.empty;
             end
         end
-
-
-    end
-
-    methods
-
+        
         %------------------------------------------------------------------
-        % -- DATA LOAD
-        %   load data from file and make accessible to qMRLab fct
-        function DataLoad(obj,warnmissing)
-            if ~exist('warnmissing','var'), warnmissing=true; end
-
-            set(findobj('Name','qMRLab'),'pointer', 'watch'); drawnow;
-            pointer_restore = onCleanup(@() set(findobj('Name','qMRLab'),'pointer', 'arrow'));
-
-            obj.FullFile = get(obj.FileBox, 'String');
+        % GET FIELD NAME
+        function fieldName = GetFieldName(obj)
+            fieldName = obj.NameID;
+        end
+        
+        %------------------------------------------------------------------
+        % SET FILE NAME
+        function SetFileName(obj, fileName)
+            obj.FileBox.Value = fileName;
+            obj.FullFile = fileName;
+            obj.DataLoad();
+        end
+        
+        %------------------------------------------------------------------
+        % DATA LOAD
+        function DataLoad(obj, warnmissing)
+            if ~exist('warnmissing', 'var')
+                warnmissing = true;
+            end
+            
+            % Set cursor to watch. onCleanup guarantees the pointer is restored
+            % even if loading throws (#536).
+            set(findobj('Name', 'qMRLab'), 'pointer', 'watch');
+            pointer_restore = onCleanup(@() set(findobj('Name', 'qMRLab'), 'pointer', 'arrow')); %#ok<NASGU>
+            drawnow;
+            
+            obj.FullFile = obj.FileBox.Value;
             tmp = [];
+            
             if ~isempty(obj.FullFile)
-                [~,~,ext] = fileparts(obj.FullFile);
+                [~, ~, ext] = fileparts(obj.FullFile);
 
                 if strcmp(ext, '.gz')
-                    [~,~,ext] = fileparts(obj.FullFile(1:end-3)); % Update file extension after unzip
+                    [~, ~, ext] = fileparts(obj.FullFile(1:end-3)); % real extension under the .gz (#506)
                 end
 
-                if strcmp(ext,'.mat')
+                if strcmp(ext, '.mat')
                     mat = load(obj.FullFile);
                     mapName = fieldnames(mat);
                     tmp = mat.(mapName{1});
-                elseif strcmp(ext, '.mnc') 
+                elseif strcmp(ext, '.mnc')
                     [hdr, tmp] = minc_read(obj.FullFile);
-                elseif strcmp(ext,'.nii') || strcmp(ext,'.img')
+                elseif strcmp(ext, '.nii') || strcmp(ext, '.img')
                     intrp = 'linear';
-                    [tmp, hdr] = nii_load(obj.FullFile,0,intrp);
-                elseif strcmp(ext,'.tiff') || strcmp(ext,'.tif')
+                    [tmp, hdr] = nii_load(obj.FullFile, 0, intrp);
+                elseif strcmp(ext, '.tiff') || strcmp(ext, '.tif')
                     TiffInfo = imfinfo(obj.FullFile);
                     NbIm = numel(TiffInfo);
                     if NbIm == 1
                         File = imread(obj.FullFile);
                     else
                         for ImNo = 1:NbIm
-                            File(:,:,ImNo) = imread(obj.FullFile, ImNo);%, 'Info', info);
+                            File(:,:,ImNo) = imread(obj.FullFile, ImNo);
                         end
                     end
                     tmp = File;
                 else
-                    if exist(obj.FullFile,'file')==2
-                        warndlg(['file extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .mnc, .mnc.gz .img, .tiff or .tif files'])
+                    if exist(obj.FullFile, 'file') == 2
+                        warndlg(['File extension ' ext ' is not supported. Choose .mat, .nii, .nii.gz, .mnc, .mnc.gz, .img, .tiff or .tif files']);
                     end
                 end
             end
-
+            
             Data = getappdata(0, 'Data');
-            Model = getappdata(0,'Model');
-            Data.(class(Model)).(obj.NameID{1}) = double(tmp);
-
-            if exist('hdr','var')
+            Model = getappdata(0, 'Model');
+            Data.(class(Model)).(obj.NameID) = double(tmp);
+            
+            if exist('hdr', 'var')
                 Data.([class(Model) '_hdr']) = hdr;
-            elseif isfield(Data,[class(Model) '_hdr'])
-                Data = rmfield(Data,[class(Model) '_hdr']);
+            elseif isfield(Data, [class(Model) '_hdr'])
+                Data = rmfield(Data, [class(Model) '_hdr']);
             end
-
+            
             setappdata(0, 'Data', Data);
+            set(findobj('Name', 'qMRLab'), 'pointer', 'arrow');
             drawnow;
-
+            
             if warnmissing
-                ErrMsg = Model.sanityCheck(Data.(class(Model)));
-                hWarnBut = findobj(obj.parent,'Tag',['WarnBut_DataConsistency_' class(Model)]);
-                if ~isempty(ErrMsg)
-                    set(hWarnBut,'String',ErrMsg)
-                    set(hWarnBut,'TooltipString',ErrMsg)
-                    set(hWarnBut,'Visible','on')
-                else
-                    set(hWarnBut,'String','')
-                    set(hWarnBut,'TooltipString','')
-                    set(hWarnBut,'Visible','off')
+                % This block threw for the whole life of the migrated app:
+                % "Property assignment is not allowed when the object is empty."
+                %
+                % Two faults, either of which is fatal. MethodBrowser creates the
+                % warning label without ever setting a Tag, so the findobj matched
+                % nothing and hWarnBut was an empty handle; and the property is
+                % Text, not Value, because the label is a uilabel and not the GUIDE
+                % uicontrol this line was written against.
+                %
+                % It was invisible because the only routine caller passes
+                % warnmissing = 0 (MethodBrowser.setFullPath, which is what the
+                % "Browse" folder button and "Download example" use, and which
+                % reports consistency itself). Everything that loads ONE file --
+                % the per-input "+" button, Clear, setFileName, and therefore the
+                % documented qMRLab(Model, data) API -- came through here and died.
+                % char(): sanityCheck returns a message when the data is WRONG and
+                % 0x0 double [] when it is RIGHT, and uilabel.Text rejects [] with
+                % MATLAB:ui:Label:invalidMultilineTextValue. Without this the label
+                % throws on the success path -- the common one.
+                ErrMsg = char(Model.sanityCheck(Data.(class(Model))));
+                % Search from the figure: the label belongs to MethodBrowser and
+                % sits on the Datasets panel, while obj.Parent is now only this
+                % input's row.
+                hWarnBut = findall(ancestor(obj.Parent,'figure'), 'Tag', ['WarnBut_DataConsistency_' class(Model)]);
+                if ~isempty(hWarnBut)
+                    set(hWarnBut, 'Text', ErrMsg, 'Tooltip', ErrMsg, ...
+                                  'Visible', matlab.lang.OnOffSwitchState(~isempty(ErrMsg)));
                 end
             end
         end
-
+        
         %------------------------------------------------------------------
-        % -- setPath
-        % search for filenames that match the NameText
-        function setPath(obj, Path, fileList,warnmissing)
-            if ~exist('warnmissing','var'), warnmissing=true; end
-            % clear previous file paths
-            set(obj.FileBox, 'String', '');
-            DataName = get(obj.NameText, 'String');
-            %Check for files and set fields automatically
+        % SET PATH
+        function setPath(obj, Path, fileList, warnmissing)
+            if ~exist('warnmissing', 'var')
+                warnmissing = true;
+            end
+            
+            % Clear previous file paths
+            obj.FileBox.Value = '';
+            
+            % Check for files and set fields automatically
             for ii = 1:length(fileList)
-                if strfind(fileList{ii}(1:end-4), DataName{1})
-                    obj.FullFile = fullfile(Path,fileList{ii});
-                    set(obj.FileBox, 'String', obj.FullFile);
-                    warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
+                if contains(fileList{ii}(1:end-4), obj.NameID)
+                    obj.FullFile = fullfile(Path, fileList{ii});
+                    obj.FileBox.Value = obj.FullFile;
+                    warning('off', 'MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
                     obj.DataLoad(warnmissing);
                 end
             end
-
         end
-    end
-
-    methods(Static)
+        
         %------------------------------------------------------------------
-        % -- BROWSE BUTTONS
-        %------------------------------------------------------------------
-        function BrowseBtn_callback(obj,info,InputOptional,FileName)
-
+        % BROWSE BUTTON CALLBACK
+        function BrowseBtn_callback(obj, FileName)
             origdir = pwd;
-            if ~exist('FileName','var')
-                obj.FullFile = get(obj.FileBox, 'String');
-                W = evalin('base','whos');
-                pathExist = ismember('DataPath',{W(:).name});
-                if pathExist && ~(isnumeric(evalin('base','DataPath')))
-                    dataDir = evalin('base','DataPath'); 
-                    if exist(dataDir,'dir')==7
+            
+            if ~exist('FileName', 'var')
+                obj.FullFile = obj.FileBox.Value;
+                W = evalin('base', 'whos');
+                pathExist = ismember('DataPath', {W(:).name});
+                
+                if pathExist && ~(isnumeric(evalin('base', 'DataPath')))
+                    dataDir = evalin('base', 'DataPath');
+                    if exist(dataDir, 'dir') == 7
                         cd(dataDir);
                     end
                 end
-                if isequal(obj.FullFile, 0) || (isempty(obj.FullFile))
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat';'*.img'},'Select file');
+                
+                if isequal(obj.FullFile, 0) || isempty(obj.FullFile)
+                    [FileName, PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat'; '*.img'}, 'Select file');
                 else
-                    [FileName,PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat';'*.img'},'Select file',obj.FullFile);
+                    [FileName, PathName] = uigetfile({'*.nii;*.nii.gz;*.mnc;*.mnc.gz;*.gz;*.mat'; '*.img'}, 'Select file', obj.FullFile);
                 end
+                
                 cd(origdir);
             else
                 PathName = '';
             end
+            
             if FileName
-                obj.FullFile = fullfile(PathName,FileName);
+                obj.FullFile = fullfile(PathName, FileName);
             else
-                if InputOptional && ~isempty(info), obj.FullFile=info; end
-                if InputOptional && isempty(info),  obj.FullFile='OPTIONAL'; end
-                if ~InputOptional, obj.FullFile=['REQUIRED ' info]; end
+                if obj.IsOptional && ~isempty(obj.InfoText)
+                    obj.FullFile = obj.InfoText;
+                elseif obj.IsOptional && isempty(obj.InfoText)
+                    obj.FullFile = 'OPTIONAL';
+                elseif ~obj.IsOptional
+                    obj.FullFile = ['REQUIRED ' obj.InfoText];
+                end
             end
-            set(obj.FileBox,'String',obj.FullFile);
-
-            DataLoad(obj);
+            
+            obj.FileBox.Value = obj.FullFile;
+            obj.DataLoad();
         end
-
-        function ClearBtn_callback(obj,info,InputOptional)
-            set(obj.FileBox,'String','');
-            DataLoad(obj);
-            if InputOptional && ~isempty(info), set(obj.FileBox,'string',info); end
-            if InputOptional && isempty(info), set(obj.FileBox,'string','OPTIONAL'); end
-            if ~InputOptional, set(obj.FileBox,'string',['REQUIRED ' info]); end
+        
+        %------------------------------------------------------------------
+        % CLEAR BUTTON CALLBACK
+        function ClearBtn_callback(obj)
+            obj.FileBox.Value = '';
+            obj.DataLoad();
+            
+            if obj.IsOptional && ~isempty(obj.InfoText)
+                obj.FileBox.Value = obj.InfoText;
+            elseif obj.IsOptional && isempty(obj.InfoText)
+                obj.FileBox.Value = 'OPTIONAL';
+            elseif ~obj.IsOptional
+                obj.FileBox.Value = ['REQUIRED ' obj.InfoText];
+            end
         end
-
+        
         %------------------------------------------------------------------
-        % -- VIEW BUTTONS
-        %------------------------------------------------------------------
-        function ViewBtn_callback(obj,src, event)
-            dat  = getappdata(0, 'Data');
-            Data = dat.(class(getappdata(0,'Model')));
-            if isempty(Data.(obj.NameID{1,1})), errordlg('"Browse" for your own MRI data or click on "download example" data.','empty data'); return; end
+        % VIEW BUTTON CALLBACK
+        function ViewBtn_callback(obj)
+            dat = getappdata(0, 'Data');
+            Model = getappdata(0, 'Model');
+            Data = dat.(class(Model));
+            
+            if isempty(Data.(obj.NameID))
+                errordlg('"Browse" for your own MRI data or click on "download example" data.', 'empty data');
+                return;
+            end
+            
             fieldstmp = fieldnames(Data);
             for ff = 1:length(fieldstmp)
                 if isempty(Data.(fieldstmp{ff}))
-                    Data = rmfield(Data,fieldstmp{ff});
+                    Data = rmfield(Data, fieldstmp{ff});
                 end
             end
             Data.fields = fieldnames(Data);
             
             try
-                Data.hdr=dat.([class(getappdata(0,'Model')) '_hdr']);
+                Data.hdr = dat.([class(Model) '_hdr']);
+            catch
+                % No header data
             end
-            handles = guidata(findobj('Name','qMRLab'));
-            handles.CurrentData = Data;
-            DrawPlot(handles,obj.NameID{1,1});
+            
+            % Stage F1. Was:
+            %     handles = guidata(findobj('Name', 'qMRLab'));
+            %     handles.CurrentData = Data;
+            %     DrawPlot(handles, obj.NameID);
+            %
+            % Three things wrong with that, all fixed by resolving the app from
+            % this browser's OWN window instead of searching the root:
+            %   - findobj by Name is a root-wide search that only works because
+            %     MainApp sets HandleVisibility='on'; a bare uifigure hides its
+            %     handle and guidata([]) then errors.
+            %   - it assumes exactly one window called 'qMRLab'.
+            %   - the assignment landed in a COPY that only survived because
+            %     DrawPlot re-committed it on its last line.
+            % RunningAppInstance is the dynamic property App Designer's
+            % registerApp puts on the figure; this repo already relies on it in
+            % Custom_OptionsGUI and three test helpers.
+            app = ancestor(obj.Parent, 'figure').RunningAppInstance;
+            app.CurrentData = Data;
+            DrawPlot(app, obj.NameID);
         end
-
-
     end
-
 end

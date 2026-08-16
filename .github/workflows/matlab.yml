@@ -115,3 +115,102 @@ jobs:
           files: ${{ matrix.report }}
           flags: matlab
           fail_ci_if_error: false
+
+  # ---------------------------------------------------------------------------
+  # GUI tests. Deliberately a SEPARATE job from the model-fitting suites so an
+  # interface flake can never block a science PR, and so it can be re-run alone.
+  #
+  # These need a display: uifigure cannot be created headless, hence xvfb.
+  # They also pin MATLAB releases explicitly -- the other jobs float on whatever
+  # setup-matlab installs, which is fine for numerics but not for a suite whose
+  # whole purpose is to detect platform behaviour changes.
+  # ---------------------------------------------------------------------------
+  gui_tests:
+    name: GUI (${{ matrix.release }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # R2026b is NOT here, and that is not an oversight. It is still a prerelease,
+        # and prereleases cannot be licensed through matlab-batch, so the leg could
+        # never pass -- it would just sit permanently red and train everyone to
+        # ignore this job. Add it the day it goes GA; the GUI work is developed
+        # against R2026b locally, so that leg is the one worth having back first.
+        #
+        # `latest` currently resolves to R2026a too, so today this matrix runs the
+        # same release twice. It is kept anyway: the duplicate costs one free
+        # GitHub-hosted run and resolves itself, whereas the alternative needs a
+        # human to remember to add a leg on the day R2026b ships. R2026a is the pin
+        # (a known-good reference when something breaks) and `latest` is the canary
+        # (tells us a new release landed and whether it broke us). fail-fast is off,
+        # so the canary going red never hides the pinned result.
+        release: [R2026a, latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Start a virtual display
+        # Xvfb runs as a background service rather than wrapping the MATLAB call in
+        # xvfb-run, because the run below is an ACTION and cannot be wrapped. DISPLAY
+        # goes into the environment so the action's MATLAB inherits it.
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb
+          Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+          echo "DISPLAY=:99" >> "$GITHUB_ENV"
+
+      - name: Setup MATLAB
+        uses: matlab-actions/setup-matlab@v2
+        with:
+          release: ${{ matrix.release }}
+          products: ${{ env.MATLAB_PRODUCTS }}
+
+      # Must go through matlab-actions/run-command, exactly like the jobs above.
+      #
+      # This job used to call `xvfb-run -a matlab -batch "..."` and died with
+      # "MathWorks Licensing Error 1 / Unable to find a license for MATLAB" while the
+      # model-fitting jobs passed on the same runner. setup-matlab INSTALLS MATLAB but
+      # does not license it; the licensing happens inside the `matlab-batch` wrapper
+      # that run-command invokes (visible in the log as
+      # chmod +x /opt/hostedtoolcache/matlab-batch/v1/x64/matlab-batch). Invoking the
+      # `matlab` binary directly bypasses that wrapper, so it finds no license.
+      #
+      # That is the whole difference between this job and the ones that worked.
+      # GUI coverage is collected HERE, and the '*GUI*' exclusion in the
+      # model-fitting jobs above STAYS. The plan called for deleting that
+      # exclusion, on the reasoning that it was what kept the interface out of the
+      # coverage report -- but those jobs never run the interface, so all deleting
+      # it achieves is reporting every GUI file as 0% from a job that could not
+      # have covered it. This job is the one that runs the interface, so this is
+      # the one that measures it.
+      - name: Run GUI tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: |
+            startup;
+            [results, coverage] = runtests('Test/GUI', 'IncludeSubfolders', true, ...
+                                           'ReportCoverageFor', 'src');
+            disp(table(results));
+            coverage.generateCoberturaReport('Test/GUI/coverage_gui.xml');
+            exit(any([results.Failed]));
+
+      # Only from the pinned release. `latest` runs the same suite over the same
+      # source, so a second upload adds nothing and would make a red canary look
+      # like a coverage change.
+      #
+      # Uploaded under the `matlab` flag, deliberately, and NOT a separate `gui`
+      # one. codecov.yml computes its project status per flag, so a `gui` flag
+      # produced a report nothing gated on: GUI coverage could go to zero and no
+      # status would move. Codecov merges uploads sharing a flag, and the merge is
+      # exactly right here -- the model-fitting jobs upload with '*GUI*' excluded
+      # (they never run the interface, see ADR D10), this job uploads the
+      # interface, and the union is the real picture.
+      - name: Upload GUI coverage to Codecov
+        if: matrix.release == 'R2026a'
+        uses: codecov/codecov-action@v4
+        with:
+          files: Test/GUI/coverage_gui.xml
+          flags: matlab
+          fail_ci_if_error: false
