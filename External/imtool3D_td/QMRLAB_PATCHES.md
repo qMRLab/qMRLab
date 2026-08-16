@@ -50,6 +50,48 @@ Was `imshow(im)`, resolving its target through `gca`.
 Symptom without this patch:
 `Invalid or deleted object` at `imtool3D:1613` (`showSlice`, setting `CData` on the mask).
 
+### 4. `:1663` — `setupGrid` must delete the previous grid one object at a time
+
+```matlab
+if isfield(tool.handles,'grid')
+    for iGrid = 1:numel(tool.handles.grid)
+        if isgraphics(tool.handles.grid(iGrid))
+            delete(tool.handles.grid(iGrid))
+        end
+    end
+end
+```
+
+Was `try delete(tool.handles.grid) end`, which **never deleted anything**.
+
+Unlike patches 1–3 this is not a `uifigure` embedding issue — it is an upstream
+handle leak that a legacy figure has too. `tool.handles.grid` is a **double** array,
+because the `tool.handles.grid(end+1)=plot(...)` pattern a few lines below stores
+numeric handles rather than objects, and it holds 62 `Line`s plus one `Scatter`.
+Deleting that array in a single call throws
+
+```
+MATLAB:class:UnsealedMethodNoName -- Unable to call method 'delete' because one or
+more inputs of class 'matlab.graphics.primitive.Data' are heterogeneous and 'delete'
+is not sealed.
+```
+
+`delete` is not sealed for `matlab.graphics.primitive.Data`, the common ancestor of
+`Line` and `Scatter`. The bare `try` with no `catch` swallowed that, so every call
+to `setupGrid` created 63 new objects and freed none.
+
+Measured on R2026b, 10 calls each against the main window:
+
+| | before | after |
+|---|---|---|
+| `setImage` | +630 handles | +0 |
+| `setviewplane` | +630 handles | +0 |
+
+`setImage` runs on every data load, so this leaked before the GUI migration and
+independently of it. It surfaced when `MainApp.blankViewer` began calling both on
+every model switch, which took `tMainApp/modelSwitchingDoesNotLeakHandles` from
+364 handles to 1624 over ten switches.
+
 ## Verification
 
 `Test/GUI/tCapabilities.m` → `imtool3DConstructsInsideUIFigurePanel` builds the tool

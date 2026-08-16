@@ -1660,8 +1660,20 @@ classdef imtool3D < handle
         
         function setupGrid(tool)
             %Update the gridlines
-            try
-                delete(tool.handles.grid)
+            % qMRLab patch: delete the previous grid ONE OBJECT AT A TIME.
+            % tool.handles.grid is a double array (the x=[]; x(end+1)=plot(...)
+            % pattern below stores numeric handles), and it holds 62 Lines plus a
+            % Scatter. Deleting that in one call throws
+            % MATLAB:class:UnsealedMethodNoName -- delete is not sealed for the
+            % heterogeneous array's common ancestor, matlab.graphics.primitive.Data
+            % -- and the bare `try` this replaces swallowed it, so every call
+            % leaked all 63 objects. See QMRLAB_PATCHES.md.
+            if isfield(tool.handles,'grid')
+                for iGrid = 1:numel(tool.handles.grid)
+                    if isgraphics(tool.handles.grid(iGrid))
+                        delete(tool.handles.grid(iGrid))
+                    end
+                end
             end
             nGrid=7;
             nMinor=4;

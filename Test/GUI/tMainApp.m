@@ -367,6 +367,75 @@ classdef tMainApp < matlab.uitest.TestCase
                 char(string(app.text_doc_model.Text)), testCase.NoEqnModel));
         end
 
+        function switchingModelBlanksTheViewer(testCase)
+            % Switching models left the previous model's image on screen. MethodMenu
+            % rebuilds the file browser, the options window and the Sim panel, but
+            % nothing in it touched app.Tool -- so an inversion_recovery dataset
+            % stayed in the viewer under b0_dem's inputs, with the Volume dropdown
+            % still offering IRData.
+            %
+            % This asserts CONTENT, not geometry, and that is the point: a viewer
+            % showing the wrong image is exactly the right size, so every layout
+            % check in this suite passes against the defect. geomAudit cannot see it.
+            %
+            % No dialog stub: stubBlockingDialogs lives on tControls, and this path
+            % (load, then switch) does not reach a blocking dialog -- verified by
+            % driving it end to end outside the framework.
+
+            % A tiny dataset through the real loading path, as tControls does --
+            % writing .mat files and handing over their paths rather than poking
+            % appdata, so DrawPlot genuinely populates the viewer.
+            d = fullfile(tempname, 'data');
+            mkdir(d);
+            testCase.addTeardown(@() rmdir(d, 's'));
+            model  = feval(testCase.SimpleModel);
+            nTI    = size(model.Prot.IRData.Mat, 1);
+            IRData = rand(4, 4, 1, nTI) * 100;  %#ok<NASGU>
+            Mask   = ones(4, 4);                %#ok<NASGU>
+            save(fullfile(d, 'IRData.mat'), 'IRData');
+            save(fullfile(d, 'Mask.mat'),   'Mask');
+            Files.IRData = fullfile(d, 'IRData.mat');
+            Files.Mask   = fullfile(d, 'Mask.mat');
+
+            qMRLab(model, Files);
+            drawnow;
+            fig = tMainApp.mainFigure();
+            testCase.assertNotEmpty(fig, 'Main window did not open.');
+            app = fig.RunningAppInstance;
+
+            % Assert the setup worked before asserting it was undone. Without this
+            % the test would pass having blanked nothing, which is the failure mode
+            % that made three earlier tests in this suite vacuous.
+            testCase.assertGreaterThan(numel(app.Tool.getImage()), 1, ...
+                'Setup failed: no image reached the viewer, so there is nothing to clear.');
+            testCase.assertNotEmpty(app.SourcePop.Items, ...
+                'Setup failed: the Volume dropdown was never populated.');
+
+            tMainApp.switchModelTo(testCase, app, testCase.NoEqnModel);
+
+            I = app.Tool.getImage();
+            testCase.verifyEqual(numel(I), 1, sprintf( ...
+                'The viewer still holds a %s image after switching model.', ...
+                mat2str(size(I))));
+            testCase.verifyEqual(double(max(I(:))), 0, ...
+                'The viewer image is not blank after switching model.');
+            testCase.verifyEqual(nnz(app.Tool.getMask()), 0, ...
+                'The previous model''s mask survived the switch.');
+            testCase.verifyEmpty(app.SourcePop.Items, ...
+                'The Volume dropdown still lists the previous model''s volumes.');
+            testCase.verifyEmpty(app.CurrentData, ...
+                'app.CurrentData still holds the previous model''s data.');
+
+            % The contrast boxes are part of "blank", and setImage cannot reset
+            % them: it ends in setWL(0,0), Clim=[0 0] is rejected by MATLAB, and
+            % setWL swallows that in a bare try with no catch. Measured without the
+            % explicit setWindowLevel: L=0.46342, U=99.6135 over a black image.
+            % [1 0.5] is a never-loaded viewer's window/level, measured not chosen.
+            [W, L] = app.Tool.getWindowLevel();
+            testCase.verifyEqual([W L], [1 0.5], 'AbsTol', 1e-9, sprintf( ...
+                'Window/level is [%g %g], not a fresh viewer''s [1 0.5].', W, L));
+        end
+
         function modelSwitchingDoesNotLeakHandles(testCase)
             % The options panel used to be rebuilt by re-entering the whole opening
             % function, which re-created the protocol panels without ever deleting

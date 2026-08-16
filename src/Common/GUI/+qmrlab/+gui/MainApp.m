@@ -399,6 +399,52 @@ classdef MainApp < matlab.apps.AppBase
             qmrlab.gui.TypeScale.apply([app.SimPanel, app.FitDataFileBrowserPanel]);
         end
 
+        function blankViewer(app)
+            % Return the viewer to the state it has at construction.
+            %
+            % Switching models used to leave the previous model's image on screen.
+            % Nothing in MethodMenu touches app.Tool, so the viewer kept whatever
+            % DrawPlot last pushed into it while the browser, options window and
+            % Sim panel all moved to the new model -- an image labelled with
+            % another model's volume names.
+            %
+            % setImage(0), NOT setImage([]). The scalar is what the constructor
+            % passes (see the imtool3D call in qMRLab_OpeningFcn), and it is the
+            % difference between blank and a surprise: imtool3D.m:845 treats an
+            % EMPTY image as "no argument given" and synthesises a 64^3 modified
+            % Shepp-Logan phantom, so setImage([]) would replace the old image
+            % with a picture of a head rather than with nothing.
+            %
+            % The mask goes with it and does not need its own call. setImage
+            % forwards to setMask([]), which finds the stored mask no longer
+            % matches the 1x1x1 image and zeros it (imtool3D.m:666).
+            app.Tool.setImage(0);
+            app.Tool.setviewplane(3);   % imtool3D's own default (imtool3D.m:194)
+
+            % setImage CANNOT reset the contrast controls, so this is not
+            % belt-and-braces. It ends with setWL(diff(range),mean(range)), and a
+            % blank image makes that setWL(0,0), which assigns Clim = [0 0] -- a
+            % value MATLAB rejects because Clim must be increasing. setWL wraps the
+            % whole body in a bare `try` with NO catch (imtool3D.m:2062), so the
+            % failure is silent and the L/U boxes keep the previous image's numbers.
+            % Measured: a viewer blanked without this line reads L=0.46342,
+            % U=99.6135 over a black image, against L=0, U=1 on a fresh one.
+            %
+            % 1 and 0.5 are that fresh viewer's values, measured rather than
+            % chosen: a never-loaded viewer reports W=1, L=0.5 (Clim [0 1]).
+            app.Tool.setWindowLevel(1, 0.5);
+
+            % The dropdowns are not refilled by setImage -- DrawPlot updates them
+            % separately through UpdatePopUp -- so a viewer blanked without this
+            % still offers the old model's volumes, and picking one calls
+            % setNvol against a single-volume image. Both are restored to exactly
+            % what createComponents builds: SourcePop empty, ViewPop {'Axial'}.
+            setPopUp(app.SourcePop, {});
+            setPopUp(app.ViewPop, 'Axial');
+
+            app.CurrentData = [];
+        end
+
         function SetAppData(app, varargin)
             %SETAPPDATA - Fixed for App Designer
             % Handle both cases: with and without app parameter
@@ -928,6 +974,21 @@ classdef MainApp < matlab.apps.AppBase
         function MethodSelection_Callback(app, event)
 
             Method = GetMethod(app);
+
+            % Clear the previous model's image before the new model is installed.
+            %
+            % Here rather than inside MethodMenu, which has two other callers that
+            % must NOT blank: the startup path (the viewer is already blank, and
+            % MethodMenu runs before there is anything to clear) and
+            % FitResultsLoad, which switches model precisely so it can show the
+            % results it just loaded -- it assigns CurrentData and calls DrawPlot
+            % immediately after MethodMenu returns.
+            %
+            % This callback is the only remaining way a user changes model, and
+            % since D12 it fires only on an ACTUAL change, so re-picking the model
+            % already selected does not wipe a loaded dataset.
+            blankViewer(app);
+
             MethodMenu(app, Method);
             app.text_doc_model.Text = ['Visit ' Method ' documentation'];
         end
