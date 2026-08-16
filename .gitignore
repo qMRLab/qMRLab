@@ -89,3 +89,5 @@ Test/GUI/shots/
 # here by capturing the same tree twice. As commits they are noise in review and
 # a permanent weight in the history.
 Test/GUI/evidence/
+
+guimigration/

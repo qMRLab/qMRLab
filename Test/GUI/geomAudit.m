@@ -17,10 +17,7 @@ function defects = geomAudit(fig, label, outDir)
 %       Path    Tag/Type breadcrumb from the figure down
 %       Detail  human-readable description
 %
-%   Example -- audit both qMRLab windows for every model:
-%       defects = runBranchTriage();
-%
-%   See also: runBranchTriage, tCapabilities
+%   See also: tCapabilities
 
     arguments
         fig     matlab.ui.Figure
