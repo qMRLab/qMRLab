@@ -169,13 +169,6 @@ methods
             MP2RAGE.NZslices = NumberShots; % Excitations [before, after] the k-space center
             MP2RAGE.FlipDegrees = FlipAngle; % Flip angle of the two readouts in degrees
 
-            % If both NumberShots are equal, then assume half/half for before/after
-        if NumberShots(1) == NumberShots(2)
-
-            MP2RAGE.NZslices = [ceil(NumberShots(1)/2) floor(NumberShots(1)/2)]; 
-
-        end 
-
         % LOAD OPTIONS ========================================= 
 
         invEFF = obj.options.Invefficiency;
